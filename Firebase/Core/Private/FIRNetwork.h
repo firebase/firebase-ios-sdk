@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 #import "FIRNetworkConstants.h"
 #import "FIRNetworkLoggerProtocol.h"

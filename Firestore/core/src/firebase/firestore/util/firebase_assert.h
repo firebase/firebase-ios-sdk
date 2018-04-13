@@ -20,9 +20,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FIREBASE_ASSERT_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "absl/base/attributes.h"
 
 #define FIREBASE_EXPAND_STRINGIFY_(X) #X
 #define FIREBASE_EXPAND_STRINGIFY(X) FIREBASE_EXPAND_STRINGIFY_(X)
@@ -75,10 +76,6 @@
     }                                                                       \
   } while (0)
 
-// Assert with custom message that is not compiled out in release builds.
-#define FIREBASE_ASSERT_MESSAGE(expression, ...) \
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, __VA_ARGS__)
-
 // Assert condition is true otherwise display the specified expression,
 // message and abort. Compiled out of release builds.
 #if defined(NDEBUG)
@@ -102,16 +99,18 @@
   FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION(expression, expression, \
                                               __VA_ARGS__)
 
+// Indicates an area of the code that cannot be reached (except possibly due to
+// undefined behaviour or other similar badness). The only reasonable thing to
+// do in these cases is to immediately abort.
+#define FIREBASE_UNREACHABLE() abort()
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
 // A no-return helper function. To raise an assertion, use Macro instead.
-void FailAssert(const char* file,
-                const char* func,
-                const int line,
-                const char* format,
-                ...);
+ABSL_ATTRIBUTE_NORETURN void FailAssert(
+    const char* file, const char* func, int line, const char* format, ...);
 
 }  // namespace util
 }  // namespace firestore

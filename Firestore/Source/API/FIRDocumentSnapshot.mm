@@ -16,35 +16,40 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#include <utility>
+
+#import "FIRFirestoreSettings.h"
+
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDocumentSnapshot ()
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
 
+- (const DocumentKey &)internalKey;
+
 @property(nonatomic, strong, readonly) FIRFirestore *firestore;
-@property(nonatomic, strong, readonly) FSTDocumentKey *internalKey;
 @property(nonatomic, strong, readonly, nullable) FSTDocument *internalDocument;
 @property(nonatomic, assign, readonly) BOOL fromCache;
 
@@ -53,11 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentSnapshot (Internal)
 
 + (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
-                          documentKey:(FSTDocumentKey *)documentKey
+                          documentKey:(DocumentKey)documentKey
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache {
   return [[[self class] alloc] initWithFirestore:firestore
-                                     documentKey:documentKey
+                                     documentKey:std::move(documentKey)
                                         document:document
                                        fromCache:fromCache];
 }
@@ -66,21 +71,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRDocumentSnapshot {
   FIRSnapshotMetadata *_cachedMetadata;
+  DocumentKey _internalKey;
 }
 
 @dynamic metadata;
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(nullable FSTDocument *)document
                         fromCache:(BOOL)fromCache {
   if (self = [super init]) {
     _firestore = firestore;
-    _internalKey = documentKey;
+    _internalKey = std::move(documentKey);
     _internalDocument = document;
     _fromCache = fromCache;
   }
   return self;
+}
+
+- (const DocumentKey &)internalKey {
+  return _internalKey;
 }
 
 // NSObject Methods
@@ -96,8 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self == snapshot) return YES;
   if (snapshot == nil) return NO;
 
-  return [self.firestore isEqual:snapshot.firestore] &&
-         [self.internalKey isEqual:snapshot.internalKey] &&
+  return [self.firestore isEqual:snapshot.firestore] && self.internalKey == snapshot.internalKey &&
          (self.internalDocument == snapshot.internalDocument ||
           [self.internalDocument isEqual:snapshot.internalDocument]) &&
          self.fromCache == snapshot.fromCache;
@@ -105,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + [self.internalKey hash];
+  hash = hash * 31u + self.internalKey.Hash();
   hash = hash * 31u + [self.internalDocument hash];
   hash = hash * 31u + (self.fromCache ? 1 : 0);
   return hash;
@@ -122,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSString *)documentID {
-  return [self.internalKey.path lastSegment];
+  return util::WrapNSString(self.internalKey.path().last_segment());
 }
 
 - (FIRSnapshotMetadata *)metadata {
@@ -142,7 +151,10 @@ NS_ASSUME_NONNULL_BEGIN
   return self.internalDocument == nil
              ? nil
              : [self convertedObject:[self.internalDocument data]
-                             options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                             options:[FSTFieldValueOptions
+                                            optionsForSnapshotOptions:options
+                                         timestampsInSnapshotsEnabled:
+                                             self.firestore.settings.timestampsInSnapshotsEnabled]];
 }
 
 - (nullable id)valueForField:(id)field {
@@ -164,7 +176,10 @@ NS_ASSUME_NONNULL_BEGIN
   return fieldValue == nil
              ? nil
              : [self convertedValue:fieldValue
-                            options:[FSTFieldValueOptions optionsForSnapshotOptions:options]];
+                            options:[FSTFieldValueOptions
+                                           optionsForSnapshotOptions:options
+                                        timestampsInSnapshotsEnabled:
+                                            self.firestore.settings.timestampsInSnapshotsEnabled]];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
@@ -184,12 +199,11 @@ NS_ASSUME_NONNULL_BEGIN
       // TODO(b/32073923): Log this as a proper warning.
       NSLog(
           @"WARNING: Document %@ contains a document reference within a different database "
-           "(%@/%@) which is not supported. It will be treated as a reference within the "
-           "current database (%@/%@) instead.",
-          self.reference.path, util::WrapNSStringNoCopy(refDatabase->project_id()),
-          util::WrapNSStringNoCopy(refDatabase->database_id()),
-          util::WrapNSStringNoCopy(database->project_id()),
-          util::WrapNSStringNoCopy(database->database_id()));
+           "(%s/%s) which is not supported. It will be treated as a reference within the "
+           "current database (%s/%s) instead.",
+          self.reference.path, refDatabase->project_id().c_str(),
+          refDatabase->database_id().c_str(), database->project_id().c_str(),
+          database->database_id().c_str());
     }
     return [FIRDocumentReference referenceWithKey:[ref valueWithOptions:options]
                                         firestore:self.firestore];
@@ -223,7 +237,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRQueryDocumentSnapshot ()
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(FSTDocument *)document
                         fromCache:(BOOL)fromCache NS_DESIGNATED_INITIALIZER;
 
@@ -232,11 +246,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRQueryDocumentSnapshot
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
-                      documentKey:(FSTDocumentKey *)documentKey
+                      documentKey:(DocumentKey)documentKey
                          document:(FSTDocument *)document
                         fromCache:(BOOL)fromCache {
   self = [super initWithFirestore:firestore
-                      documentKey:documentKey
+                      documentKey:std::move(documentKey)
                          document:document
                         fromCache:fromCache];
   return self;

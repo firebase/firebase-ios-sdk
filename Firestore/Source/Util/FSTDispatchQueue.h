@@ -23,11 +23,24 @@ NS_ASSUME_NONNULL_BEGIN
  * can then be used from tests to check for the presence of callbacks or to run them early.
  */
 typedef NS_ENUM(NSInteger, FSTTimerID) {
-  FSTTimerIDAll,  // Sentinel value to be used with runDelayedCallbacksUntil: to run all blocks.
+  /** All can be used with runDelayedCallbacksUntil: to run all timers. */
+  FSTTimerIDAll,
+
+  /**
+   * The following 4 timers are used in FSTStream for the listen and write streams. The "Idle" timer
+   * is used to close the stream due to inactivity. The "ConnectionBackoff" timer is used to
+   * restart a stream once the appropriate backoff delay has elapsed.
+   */
   FSTTimerIDListenStreamIdle,
-  FSTTimerIDListenStreamConnection,
+  FSTTimerIDListenStreamConnectionBackoff,
   FSTTimerIDWriteStreamIdle,
-  FSTTimerIDWriteStreamConnection
+  FSTTimerIDWriteStreamConnectionBackoff,
+
+  /**
+   * A timer used in FSTOnlineStateTracker to transition from FSTOnlineState Unknown to Offline
+   * after a set timeout, rather than waiting indefinitely for success or failure.
+   */
+  FSTTimerIDOnlineStateTimeout
 };
 
 /**
@@ -62,6 +75,14 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 - (void)verifyIsCurrentQueue;
 
 /**
+ * Declares that we are already executing on the correct dispatch_queue_t and would like to
+ * officially execute code on behalf of this FSTDispatchQueue. To be used only when called  back
+ * by some other API directly onto our queue. This allows us to safely dispatch directly onto the
+ * worker queue without destroying the invariants this class helps us maintain.
+ */
+- (void)enterCheckedOperation:(void (^)(void))block;
+
+/**
  * Same as dispatch_async() except it asserts that we're not already on the queue, since this
  * generally indicates a bug (and can lead to re-ordering of operations, etc).
  *
@@ -79,6 +100,13 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
  * @param block The block to run.
  */
 - (void)dispatchAsyncAllowingSameQueue:(void (^)(void))block;
+
+/**
+ * Wrapper for dispatch_sync(). Mostly meant for use in tests.
+ *
+ * @param block The block to run.
+ */
+- (void)dispatchSync:(void (^)(void))block;
 
 /**
  * Schedules a callback after the specified delay.

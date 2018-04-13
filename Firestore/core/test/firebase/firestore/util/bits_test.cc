@@ -69,16 +69,16 @@ TEST_F(BitsTest, Log2Random) {
   std::cout << "TestLog2Random" << std::endl;
 
   for (int i = 0; i < kNumIterations; i++) {
-    int maxbit = -1;
+    int max_bit = -1;
     uint32_t n = 0;
     while (!random_.OneIn(32u)) {
       int bit = static_cast<int>(random_.Uniform(32u));
       n |= (1U << bit);
-      maxbit = std::max(bit, maxbit);
+      max_bit = std::max(bit, max_bit);
     }
-    EXPECT_EQ(maxbit, Bits::Log2Floor(n));
+    EXPECT_EQ(max_bit, Bits::Log2Floor(n));
     if (n != 0) {
-      EXPECT_EQ(maxbit, Bits::Log2FloorNonZero(n));
+      EXPECT_EQ(max_bit, Bits::Log2FloorNonZero(n));
     }
   }
 }
@@ -87,16 +87,16 @@ TEST_F(BitsTest, Log2Random64) {
   std::cout << "TestLog2Random64" << std::endl;
 
   for (int i = 0; i < kNumIterations; i++) {
-    int maxbit = -1;
+    int max_bit = -1;
     uint64_t n = 0;
     while (!random_.OneIn(64u)) {
       int bit = static_cast<int>(random_.Uniform(64u));
       n |= (1ULL << bit);
-      maxbit = std::max(bit, maxbit);
+      max_bit = std::max(bit, max_bit);
     }
-    EXPECT_EQ(maxbit, Bits::Log2Floor64(n));
+    EXPECT_EQ(max_bit, Bits::Log2Floor64(n));
     if (n != 0) {
-      EXPECT_EQ(maxbit, Bits::Log2FloorNonZero64(n));
+      EXPECT_EQ(max_bit, Bits::Log2FloorNonZero64(n));
     }
   }
 }

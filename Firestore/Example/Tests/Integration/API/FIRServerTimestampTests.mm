@@ -125,7 +125,7 @@
 /** Verifies a snapshot  containing _setData but with a local estimate for the timestamps. */
 - (void)verifyTimestampsAreEstimatedInSnapshot:(FIRDocumentSnapshot *)snapshot {
   id timestamp = [snapshot valueForField:@"when" options:_returnEstimatedValue];
-  XCTAssertTrue([timestamp isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([timestamp isKindOfClass:[FIRTimestamp class]]);
   XCTAssertEqualObjects([snapshot dataWithOptions:_returnEstimatedValue],
                         [self expectedDataWithTimestamp:timestamp]);
 }
@@ -148,10 +148,10 @@
 /** Verifies a snapshot containing _setData but with resolved server timestamps. */
 - (void)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
   XCTAssertTrue(snapshot.exists);
-  NSDate *when = snapshot[@"when"];
-  XCTAssertTrue([when isKindOfClass:[NSDate class]]);
+  FIRTimestamp *when = snapshot[@"when"];
+  XCTAssertTrue([when isKindOfClass:[FIRTimestamp class]]);
   // Tolerate up to 10 seconds of clock skew between client and server.
-  XCTAssertEqualWithAccuracy(when.timeIntervalSinceNow, 0, 10);
+  XCTAssertEqualWithAccuracy(when.seconds, [FIRTimestamp timestamp].seconds, 10);
 
   // Validate the rest of the document.
   XCTAssertEqualObjects(snapshot.data, [self expectedDataWithTimestamp:when]);
@@ -213,14 +213,14 @@
   XCTAssertEqualObjects([localSnapshot valueForField:@"a"], [NSNull null]);
   XCTAssertEqualObjects([localSnapshot valueForField:@"a" options:_returnPreviousValue], @42);
   XCTAssertTrue([[localSnapshot valueForField:@"a" options:_returnEstimatedValue]
-      isKindOfClass:[NSDate class]]);
+      isKindOfClass:[FIRTimestamp class]]);
 
   FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
-  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[FIRTimestamp class]]);
   XCTAssertTrue([[remoteSnapshot valueForField:@"a" options:_returnPreviousValue]
-      isKindOfClass:[NSDate class]]);
+      isKindOfClass:[FIRTimestamp class]]);
   XCTAssertTrue([[remoteSnapshot valueForField:@"a" options:_returnEstimatedValue]
-      isKindOfClass:[NSDate class]]);
+      isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testServerTimestampsWithConsecutiveUpdates {
@@ -241,7 +241,7 @@
   [self enableNetwork];
 
   FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
-  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testServerTimestampsPreviousValueFromLocalMutation {
@@ -266,7 +266,7 @@
   [self enableNetwork];
 
   FIRDocumentSnapshot *remoteSnapshot = [self waitForRemoteEvent];
-  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[NSDate class]]);
+  XCTAssertTrue([[remoteSnapshot valueForField:@"a"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testServerTimestampsWorkViaTransactionSet {

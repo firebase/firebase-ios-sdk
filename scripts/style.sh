@@ -23,8 +23,12 @@
 
 system=$(uname -s)
 
-if [[ $(clang-format --version) != *"version 6"* ]]; then
-  echo "Please upgrade to clang-format version 6."
+version=$(clang-format --version)
+version="${version/*version /}"
+version="${version/.*/}"
+if [[ "$version" != 6 && "$version" != 7 ]]; then
+  # Allow an older clang-format to accommodate Travis version skew.
+  echo "Please upgrade to clang-format version 7."
   echo "If it's installed via homebrew you can run: brew upgrade clang-format"
   exit 1
 fi
@@ -93,11 +97,14 @@ files=$(
     find . -type f
   fi
 ) | sed -E -n '
+# find . includes a leading "./" that git does not include
+s%^./%%
+
 # Build outputs
 \%/Pods/% d
-\%^./build/% d
-\%^./Debug/% d
-\%^./Release/% d
+\%^build/% d
+\%^Debug/% d
+\%^Release/% d
 
 # Sources controlled outside this tree
 \%/third_party/% d
@@ -110,7 +117,7 @@ files=$(
 \%/vendor/bundle/% d
 
 # Sources within the tree that are not subject to formatting
-\%^./(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
+\%^(Example|Firebase)/(Auth|AuthSamples|Database|Messaging)/% d
 
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d

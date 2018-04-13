@@ -4,6 +4,37 @@
   server and fall back to the cache (which was the only option previously, and
   is now the default.)
 
+# v0.11.0
+- [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
+  cause `getDocument()` requests made while offline to be delayed by up to 10
+  seconds (rather than returning from cache immediately).
+- [feature] Added a new `Timestamp` class to represent timestamp fields,
+  currently supporting up to microsecond precision. It can be passed to API
+  methods anywhere a system Date is currently accepted. To make
+  `DocumentSnapshot`s read timestamp fields back as `Timestamp`s instead of
+  Dates, you can set the newly added property `areTimestampsInSnapshotsEnabled`
+  in `FirestoreSettings` to `true`. Note that the current behavior
+  (`DocumentSnapshot`s returning system Dates) will be removed in a future
+  release. Using `Timestamp`s avoids rounding errors (system Date is stored as
+  a floating-point value, so the value read back from a `DocumentSnapshot`
+  might be slightly different from the value written).
+
+# v0.10.4
+- [changed] If the SDK's attempt to connect to the Cloud Firestore backend
+  neither succeeds nor fails within 10 seconds, the SDK will consider itself
+  "offline", causing getDocument() calls to resolve with cached results, rather
+  than continuing to wait.
+- [fixed] Fixed a race condition after calling `enableNetwork()` that could
+  result in a "Mutation batchIDs must be acknowledged in order" assertion crash.
+- [fixed] Fixed undefined symbols in the absl namespace (#898).
+
+# v0.10.3
+- [fixed] Fixed a regression in the 4.10.0 Firebase iOS SDK release that
+  prevented the SDK from communicating with the backend before successfully
+  authenticating via Firebase Authentication or after unauthenticating and
+  re-authenticating. Reads and writes would silently be executed locally
+  but not sent to the backend.
+
 # v0.10.2
 - [changed] When you delete a FirebaseApp, the associated Firestore instances
   are now also deleted (#683).

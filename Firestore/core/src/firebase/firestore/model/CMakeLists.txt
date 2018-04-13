@@ -22,20 +22,24 @@ cc_library(
     document.h
     document_key.cc
     document_key.h
+    field_mask.h
     field_path.cc
     field_path.h
+    field_transform.h
     field_value.cc
     field_value.h
     maybe_document.cc
     maybe_document.h
     no_document.cc
     no_document.h
+    precondition.cc
+    precondition.h
     resource_path.cc
     resource_path.h
     snapshot_version.cc
     snapshot_version.h
-    timestamp.cc
-    timestamp.h
+    transform_operations.h
+    types.h
   DEPENDS
     absl_strings
     firebase_firestore_util

@@ -16,12 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#include <map>
 #include <unordered_map>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;
@@ -224,6 +227,11 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 - (void)enableNetwork;
 
 /**
+ * Runs a pending timer callback on the FSTDispatchQueue.
+ */
+- (void)runTimer:(FSTTimerID)timerID;
+
+/**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for
  * each user, so future receiveWriteAck/Error operations will validate the write sent to the mock
  * datastore matches the next outstanding write for that user.
@@ -235,6 +243,10 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * methods called previously. The events are cleared after each invocation of this method.
  */
 - (NSArray<FSTQueryEvent *> *)capturedEventsSinceLastCall;
+
+/** The current set of documents in limbo. */
+- (std::map<firebase::firestore::model::DocumentKey, firebase::firestore::model::TargetId>)
+    currentLimboDocuments;
 
 /**
  * The writes that have been sent to the FSTSyncEngine via writeUserMutation: but not yet
@@ -256,10 +268,6 @@ typedef std::unordered_map<firebase::firestore::auth::User,
 
 /** The current user for the FSTSyncEngine; determines which mutation queue is active. */
 @property(nonatomic, assign, readonly) const firebase::firestore::auth::User &currentUser;
-
-/** The current set of documents in limbo. */
-@property(nonatomic, strong, readonly)
-    NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *currentLimboDocuments;
 
 /** The expected set of documents in limbo. */
 @property(nonatomic, strong, readwrite) NSSet<FSTDocumentKey *> *expectedLimboDocuments;

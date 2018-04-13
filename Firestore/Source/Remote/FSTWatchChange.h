@@ -18,7 +18,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
 @class FSTSnapshotVersion;
@@ -41,20 +42,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithUpdatedTargetIDs:(NSArray<NSNumber *> *)updatedTargetIDs
                         removedTargetIDs:(NSArray<NSNumber *> *)removedTargetIDs
-                             documentKey:(FSTDocumentKey *)documentKey
+                             documentKey:(firebase::firestore::model::DocumentKey)documentKey
                                 document:(nullable FSTMaybeDocument *)document
     NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+/** The key of the document for this change. */
+- (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /** The new document applies to all of these targets. */
 @property(nonatomic, strong, readonly) NSArray<NSNumber *> *updatedTargetIDs;
 
 /** The new document is removed from all of these targets. */
 @property(nonatomic, strong, readonly) NSArray<NSNumber *> *removedTargetIDs;
-
-/** The key of the document for this change. */
-@property(nonatomic, strong, readonly) FSTDocumentKey *documentKey;
 
 /**
  * The new document or DeletedDocument if it was deleted. Is null if the document went out of

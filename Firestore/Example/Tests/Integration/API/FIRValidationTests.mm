@@ -132,7 +132,7 @@
 }
 
 - (void)testPathsWithEmptySegmentsFail {
-  // We're only testing using collectionWithPath since the validation happens in FSTPath which is
+  // We're only testing using collectionWithPath since the validation happens in BasePath which is
   // shared by all methods that accept paths.
 
   // leading / trailing slashes are okay.
@@ -282,7 +282,7 @@
   [self expectSet:@{@"foo" : [FIRFieldValue fieldValueForDelete]}
       toFailWithReason:
           @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"SetOptions.merge()."];
+          @"SetOptions.merge() (found in field foo)"];
 }
 
 - (void)testUpdatesWithNestedFieldValueDeleteFail {

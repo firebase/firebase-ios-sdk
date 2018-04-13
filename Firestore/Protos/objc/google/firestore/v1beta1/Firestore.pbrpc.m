@@ -14,10 +14,27 @@
  * limitations under the License.
  */
 
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
+#import "Firestore.pbrpc.h"
+#import "Firestore.pbobjc.h"
 
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>
+#import "Annotations.pbobjc.h"
+#import "Common.pbobjc.h"
+#import "Document.pbobjc.h"
+#import "Query.pbobjc.h"
+#import "Write.pbobjc.h"
+#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Empty.pbobjc.h>
+#else
+  #import "Empty.pbobjc.h"
+#endif
+#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Timestamp.pbobjc.h>
+#else
+  #import "Timestamp.pbobjc.h"
+#endif
+#import "Status.pbobjc.h"
 
 @implementation GCFSFirestore
 

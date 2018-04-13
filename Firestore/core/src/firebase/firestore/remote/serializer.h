@@ -17,13 +17,15 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_SERIALIZER_H_
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -67,7 +69,10 @@ class Serializer {
    * appended to this vector.
    */
   // TODO(rsgowman): error handling, incl return code.
-  static void EncodeFieldValue(
+  // TODO(rsgowman): If we never support any output except to a vector, it may
+  // make sense to have Serializer own the vector and provide an accessor rather
+  // than asking the user to create it first.
+  util::Status EncodeFieldValue(
       const firebase::firestore::model::FieldValue& field_value,
       std::vector<uint8_t>* out_bytes);
 
@@ -79,8 +84,7 @@ class Serializer {
    * @return The model equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  static firebase::firestore::model::FieldValue DecodeFieldValue(
-      const uint8_t* bytes, size_t length);
+  model::FieldValue DecodeFieldValue(const uint8_t* bytes, size_t length);
 
   /**
    * @brief Converts from bytes to the model FieldValue format.
@@ -90,14 +94,13 @@ class Serializer {
    * @return The model equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  static firebase::firestore::model::FieldValue DecodeFieldValue(
-      const std::vector<uint8_t>& bytes) {
+  model::FieldValue DecodeFieldValue(const std::vector<uint8_t>& bytes) {
     return DecodeFieldValue(bytes.data(), bytes.size());
   }
 
  private:
   // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
-  // const firebase::firestore::model::DatabaseId& database_id_;
+  // model::DatabaseId* database_id_;
 };
 
 }  // namespace remote

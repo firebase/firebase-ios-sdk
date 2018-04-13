@@ -19,8 +19,10 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,19 +42,16 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)shutdown {
-}
-
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document {
   self.docs = [self.docs dictionaryBySettingObject:document forKey:document.key];
 }
 
-- (void)removeEntryForKey:(FSTDocumentKey *)key group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)key {
   self.docs = [self.docs dictionaryByRemovingObjectForKey:key];
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)key {
-  return self.docs[key];
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)key {
+  return self.docs[static_cast<FSTDocumentKey *>(key)];
 }
 
 - (FSTDocumentDictionary *)documentsMatchingQuery:(FSTQuery *)query {
@@ -60,10 +59,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down the documents
   // we need to match the query against.
-  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:[query.path pathByAppendingSegment:@""]];
+  FSTDocumentKey *prefix = [FSTDocumentKey keyWithPath:query.path.Append("")];
   NSEnumerator<FSTDocumentKey *> *enumerator = [self.docs keyEnumeratorFrom:prefix];
   for (FSTDocumentKey *key in enumerator) {
-    if (![query.path isPrefixOfPath:key.path]) {
+    if (!query.path.IsPrefixOf(key.path)) {
       break;
     }
     FSTMaybeDocument *maybeDoc = self.docs[key];

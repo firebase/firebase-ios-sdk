@@ -30,6 +30,7 @@ static NSString *kUserNotificationWillPresentSelectorString =
     @"userNotificationCenter:willPresentNotification:withCompletionHandler:";
 static NSString *kUserNotificationDidReceiveResponseSelectorString =
     @"userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:";
+static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessage:";
 
 @interface FIRMessagingRemoteNotificationsProxy ()
 
@@ -141,9 +142,6 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
   SEL remoteNotificationWithFetchHandlerSelector =
       @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
 
-  // For data message from MCS.
-  SEL receiveDataMessageSelector = NSSelectorFromString(@"applicationReceivedRemoteMessage:");
-
   // For recording when APNS tokens are registered (or fail to register)
   SEL registerForAPNSFailSelector =
       @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
@@ -172,11 +170,13 @@ static NSString *kUserNotificationDidReceiveResponseSelectorString =
     didSwizzleAppDelegate = YES;
   }
 
+  // For data message from MCS.
+  SEL receiveDataMessageSelector = NSSelectorFromString(kReceiveDataMessageSelectorString);
   if ([appDelegate respondsToSelector:receiveDataMessageSelector]) {
     [self swizzleSelector:receiveDataMessageSelector
-                  inClass:appDelegateClass
-       withImplementation:(IMP)FCM_swizzle_applicationReceivedRemoteMessage
-               inProtocol:@protocol(UIApplicationDelegate)];
+                   inClass:appDelegateClass
+        withImplementation:(IMP)FCM_swizzle_messagingDidReceiveMessage
+                inProtocol:@protocol(UIApplicationDelegate)];
     didSwizzleAppDelegate = YES;
   }
 
@@ -669,14 +669,15 @@ id userInfoFromNotification(id notification) {
   return notificationUserInfo;
 }
 
-void FCM_swizzle_applicationReceivedRemoteMessage(
-    id self, SEL _cmd, FIRMessagingRemoteMessage *remoteMessage) {
+void FCM_swizzle_messagingDidReceiveMessage(id self, SEL _cmd, FIRMessaging *message,
+                                            FIRMessagingRemoteMessage *remoteMessage) {
   [[FIRMessaging messaging] appDidReceiveMessage:remoteMessage.appData];
 
   IMP original_imp =
       [[FIRMessagingRemoteNotificationsProxy sharedProxy] originalImplementationForSelector:_cmd];
   if (original_imp) {
-    ((void (*)(id, SEL, FIRMessagingRemoteMessage *))original_imp)(self, _cmd, remoteMessage);
+    ((void (*)(id, SEL, FIRMessaging *, FIRMessagingRemoteMessage *))original_imp)(
+        self, _cmd, message, remoteMessage);
   }
 }
 

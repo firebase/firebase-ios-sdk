@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#pragma mark - Provider ID constants
+
 // Declared 'extern' in FIRGoogleAuthProvider.h
 NSString *const FIRGoogleAuthProviderID = @"google.com";
 
@@ -36,3 +38,26 @@ NSString *const FIRGitHubAuthProviderID = @"github.com";
 
 // Declared 'extern' in FIRPhoneAuthProvider.h
 NSString *const FIRPhoneAuthProviderID = @"phone";
+
+#pragma mark - sign-in methods constants
+
+// Declared 'extern' in FIRGoogleAuthProvider.h
+NSString *const FIRGoogleAuthSignInMethod = @"google.com";
+
+// Declared 'extern' in FIREmailAuthProvider.h
+NSString *const FIREmailPasswordAuthSignInMethod = @"password";
+
+// Declared 'extern' in FIREmailAuthProvider.h
+NSString *const FIREmailLinkAuthSignInMethod = @"emailLink";
+
+// Declared 'extern' in FIRTwitterAuthProvider.h
+NSString *const FIRTwitterAuthSignInMethod = @"twitter.com";
+
+// Declared 'extern' in FIRFacebookAuthProvider.h
+NSString *const FIRFacebookAuthSignInMethod = @"facebook.com";
+
+// Declared 'extern' in FIRGitHubAuthProvider.h
+NSString *const FIRGitHubAuthSignInMethod = @"github.com";
+
+// Declared 'extern' in FIRPhoneAuthProvider.h
+NSString *const FIRPhoneAuthSignInMethod = @"phone";

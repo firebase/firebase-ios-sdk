@@ -22,6 +22,7 @@
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
@@ -89,9 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** Performs any initial startup actions required by the local store. */
 - (void)start;
 
-/** Releases any open resources. */
-- (void)shutdown;
-
 /**
  * Tells the FSTLocalStore that the currently authenticated user has changed.
  *
@@ -104,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations;
 
 /** Returns the current value of a document with a given key, or nil if not found. */
-- (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key;
+- (nullable FSTMaybeDocument *)readDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Acknowledges the given batch.

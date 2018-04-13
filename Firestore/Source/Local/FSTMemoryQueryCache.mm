@@ -21,6 +21,8 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryQueryCache ()
@@ -36,12 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, assign) FSTListenSequenceNumber highestListenSequenceNumber;
 
+/** The last received snapshot version. */
+@property(nonatomic, strong) FSTSnapshotVersion *lastRemoteSnapshotVersion;
+
 @end
 
-@implementation FSTMemoryQueryCache {
-  /** The last received snapshot version. */
-  FSTSnapshotVersion *_lastRemoteSnapshotVersion;
-}
+@implementation FSTMemoryQueryCache
 
 - (instancetype)init {
   if (self = [super init]) {
@@ -59,10 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
   // Nothing to do.
 }
 
-- (void)shutdown {
-  // No resources to release.
-}
-
 - (FSTTargetID)highestTargetID {
   return _highestTargetID;
 }
@@ -71,16 +69,16 @@ NS_ASSUME_NONNULL_BEGIN
   return _highestListenSequenceNumber;
 }
 
-- (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
+/*- (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
   return _lastRemoteSnapshotVersion;
 }
 
 - (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
                                group:(FSTWriteGroup *)group {
   _lastRemoteSnapshotVersion = snapshotVersion;
-}
+}*/
 
-- (void)addQueryData:(FSTQueryData *)queryData group:(__unused FSTWriteGroup *)group {
+- (void)addQueryData:(FSTQueryData *)queryData {
   self.queries[queryData.query] = queryData;
   if (queryData.targetID > self.highestTargetID) {
     self.highestTargetID = queryData.targetID;
@@ -90,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)updateQueryData:(FSTQueryData *)queryData {
   self.queries[queryData.query] = queryData;
   if (queryData.targetID > self.highestTargetID) {
     self.highestTargetID = queryData.targetID;
@@ -104,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
   return (int32_t)[self.queries count];
 }
 
-- (void)removeQueryData:(FSTQueryData *)queryData group:(__unused FSTWriteGroup *)group {
+- (void)removeQueryData:(FSTQueryData *)queryData {
   [self.queries removeObjectForKey:queryData.query];
   [self.references removeReferencesForID:queryData.targetID];
 }
@@ -115,19 +113,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID
-                  group:(__unused FSTWriteGroup *)group {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID
-                     group:(__unused FSTWriteGroup *)group {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
 }
 
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(__unused FSTWriteGroup *)group {
+- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesForID:targetID];
 }
 
@@ -145,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.references.garbageCollector = garbageCollector;
 }
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {
   return [self.references containsKey:key];
 }
 

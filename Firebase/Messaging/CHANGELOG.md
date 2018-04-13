@@ -1,3 +1,6 @@
+# 2018-04-01 -- v2.2.0
+- Add new methods that provide completion handlers for topic subscription and unsubscription.
+
 # 2018-02-23 -- v2.1.1
 - Improve documentation on the usage of the autoInitEnabled property.
 

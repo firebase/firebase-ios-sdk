@@ -43,7 +43,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 NSString *const kFIRLibraryVersionID =
     @"4"     // Major version (one or more digits)
     @"00"    // Minor version (exactly 2 digits)
-    @"15"    // Build number (exactly 2 digits)
+    @"19"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
@@ -193,45 +193,6 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 #pragma mark - Public instance methods
-
-- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
-                           bundleID:(NSString *)bundleID
-                        GCMSenderID:(NSString *)GCMSenderID
-                             APIKey:(NSString *)APIKey
-                           clientID:(NSString *)clientID
-                         trackingID:(NSString *)trackingID
-                    androidClientID:(NSString *)androidClientID
-                        databaseURL:(NSString *)databaseURL
-                      storageBucket:(NSString *)storageBucket
-                  deepLinkURLScheme:(NSString *)deepLinkURLScheme {
-  self = [super init];
-  if (self) {
-    if (!googleAppID) {
-      [NSException raise:kFirebaseCoreErrorDomain format:@"Please specify a valid Google App ID."];
-    } else if (!GCMSenderID) {
-      [NSException raise:kFirebaseCoreErrorDomain format:@"Please specify a valid GCM Sender ID."];
-    }
-
-    // `bundleID` is a required property, default to the main `bundleIdentifier` if it's `nil`.
-    if (!bundleID) {
-      bundleID = [[NSBundle mainBundle] bundleIdentifier];
-    }
-
-    NSMutableDictionary *mutableOptionsDict = [NSMutableDictionary dictionary];
-    [mutableOptionsDict setValue:googleAppID forKey:kFIRGoogleAppID];
-    [mutableOptionsDict setValue:bundleID forKey:kFIRBundleID];
-    [mutableOptionsDict setValue:GCMSenderID forKey:kFIRGCMSenderID];
-    [mutableOptionsDict setValue:APIKey forKey:kFIRAPIKey];
-    [mutableOptionsDict setValue:clientID forKey:kFIRClientID];
-    [mutableOptionsDict setValue:trackingID forKey:kFIRTrackingID];
-    [mutableOptionsDict setValue:androidClientID forKey:kFIRAndroidClientID];
-    [mutableOptionsDict setValue:databaseURL forKey:kFIRDatabaseURL];
-    [mutableOptionsDict setValue:storageBucket forKey:kFIRStorageBucket];
-    self.optionsDictionary = mutableOptionsDict;
-    self.deepLinkURLScheme = deepLinkURLScheme;
-  }
-  return self;
-}
 
 - (instancetype)initWithContentsOfFile:(NSString *)plistPath {
   self = [super init];

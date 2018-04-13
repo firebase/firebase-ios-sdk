@@ -22,7 +22,6 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
 @class FSTDatastore;
-@class FSTDocumentKey;
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
@@ -30,6 +29,7 @@
 @class FSTQueryData;
 @class FSTRemoteEvent;
 @class FSTTransaction;
+@class FSTDispatchQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -58,7 +58,8 @@ NS_ASSUME_NONNULL_BEGIN
  *     will be an indication that the user is no longer authorized to see the data matching the
  *     target.
  */
-- (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error;
+- (void)rejectListenWithTargetID:(const firebase::firestore::model::TargetId)targetID
+                           error:(NSError *)error;
 
 /**
  * Applies the result of a successful write of a mutation batch to the sync engine, emitting
@@ -95,10 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTRemoteStore : NSObject
 
-+ (instancetype)remoteStoreWithLocalStore:(FSTLocalStore *)localStore
-                                datastore:(FSTDatastore *)datastore;
+- (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
+                         datastore:(FSTDatastore *)datastore
+               workerDispatchQueue:(FSTDispatchQueue *)queue;
 
-- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+- (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, weak) id<FSTRemoteSyncer> syncEngine;
 

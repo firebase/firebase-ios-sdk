@@ -19,7 +19,8 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMaybeDocument;
 @class FSTQuery;
 @protocol FSTMutationQueue;
@@ -44,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return Local view of the document or nil if we don't have any cached state for it.
  */
-- (nullable FSTMaybeDocument *)documentForKey:(FSTDocumentKey *)key;
+- (nullable FSTMaybeDocument *)documentForKey:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Gets the local view of the documents identified by `keys`.

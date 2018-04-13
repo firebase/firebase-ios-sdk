@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include <math.h>
-
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -39,7 +38,7 @@ namespace {
 /**
  * This deviates from the other platforms that define TypeOrder. Since
  * we already define Type for union types, we use it together with this
- * function to achive the equivalent order of types i.e.
+ * function to achieve the equivalent order of types i.e.
  *     i) if two types are comparable, then they are of equal order;
  *    ii) otherwise, their order is the same as the order of their Type.
  */
@@ -113,8 +112,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      std::map<const std::string, const FieldValue> tmp = value.object_value_;
-      std::swap(object_value_, tmp);
+      ObjectValue::Map tmp = value.object_value_.internal_value;
+      std::swap(object_value_.internal_value, tmp);
       break;
     }
     default:
@@ -149,7 +148,8 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     default:
       // We just copy over POD union types.
-      return *this = value;
+      *this = value;
+      return *this;
   }
 }
 
@@ -280,17 +280,15 @@ FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
   return result;
 }
 
-FieldValue FieldValue::ObjectValue(
-    const std::map<const std::string, const FieldValue>& value) {
-  std::map<const std::string, const FieldValue> copy(value);
-  return ObjectValue(std::move(copy));
+FieldValue FieldValue::ObjectValueFromMap(const ObjectValue::Map& value) {
+  ObjectValue::Map copy(value);
+  return ObjectValueFromMap(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(
-    std::map<const std::string, const FieldValue>&& value) {
+FieldValue FieldValue::ObjectValueFromMap(ObjectValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
-  std::swap(result.object_value_, value);
+  std::swap(result.object_value_.internal_value, value);
   return result;
 }
 
@@ -387,7 +385,7 @@ void FieldValue::SwitchTo(const Type type) {
       array_value_.~vector();
       break;
     case Type::Object:
-      object_value_.~map();
+      object_value_.internal_value.~map();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
@@ -418,7 +416,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) std::map<const std::string, const FieldValue>();
+      new (&object_value_) ObjectValue{};
       break;
     default: {}  // The other types where there is nothing to worry about.
   }

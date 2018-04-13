@@ -18,11 +18,15 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,7 +92,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 #pragma mark - FSTMutationQueue implementation
 
-- (void)startWithGroup:(FSTWriteGroup *)group {
+- (void)start {
   // Note: The queue may be shutdown / started multiple times, since we maintain the queue for the
   // duration of the app session in case a user logs out / back in. To behave like the
   // LevelDB-backed MutationQueue (and accommodate tests that expect as much), we reset nextBatchID
@@ -101,9 +105,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
             @"highestAcknowledgedBatchID must be less than the nextBatchID");
 }
 
-- (void)shutdown {
-}
-
 - (BOOL)isEmpty {
   // If the queue has any entries at all, the first entry must not be a tombstone (otherwise it
   // would have been removed already).
@@ -114,9 +115,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return _highestAcknowledgedBatchID;
 }
 
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken
-                   group:(__unused FSTWriteGroup *)group {
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   FSTBatchID batchID = batch.batchID;
@@ -135,13 +134,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   self.lastStreamToken = streamToken;
 }
 
-- (void)setLastStreamToken:(nullable NSData *)streamToken group:(__unused FSTWriteGroup *)group {
-  self.lastStreamToken = streamToken;
-}
-
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
-                                          mutations:(NSArray<FSTMutation *> *)mutations
-                                              group:(FSTWriteGroup *)group {
+                                          mutations:(NSArray<FSTMutation *> *)mutations {
   FSTAssert(mutations.count > 0, @"Mutation batches should not be empty");
 
   FSTBatchID batchID = self.nextBatchID;
@@ -188,10 +182,10 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  batchID = MAX(batchID + 1, self.highestAcknowledgedBatchID);
+  FSTBatchID nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
-  NSInteger rawIndex = [self indexOfBatchID:batchID];
+  NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
   NSUInteger index = rawIndex < 0 ? 0 : (NSUInteger)rawIndex;
 
   // Finally return the first non-tombstone batch.
@@ -227,7 +221,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey {
+    (const DocumentKey &)documentKey {
   FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:documentKey ID:0];
 
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
@@ -248,25 +242,25 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
   // Use the query path as a prefix for testing if a document matches the query.
-  FSTResourcePath *prefix = query.path;
-  int immediateChildrenPathLength = prefix.length + 1;
+  const ResourcePath &prefix = query.path;
+  size_t immediateChildrenPathLength = prefix.size() + 1;
 
   // Construct a document reference for actually scanning the index. Unlike the prefix, the document
   // key in this reference must have an even number of segments. The empty segment can be used as
   // a suffix of the query path because it precedes all other segments in an ordered traversal.
-  FSTResourcePath *startPath = query.path;
-  if (![FSTDocumentKey isDocumentKey:startPath]) {
-    startPath = [startPath pathByAppendingSegment:@""];
+  ResourcePath startPath = query.path;
+  if (!DocumentKey::IsDocumentKey(startPath)) {
+    startPath = startPath.Append("");
   }
   FSTDocumentReference *start =
-      [[FSTDocumentReference alloc] initWithKey:[FSTDocumentKey keyWithPath:startPath] ID:0];
+      [[FSTDocumentReference alloc] initWithKey:DocumentKey{startPath} ID:0];
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
   __block FSTImmutableSortedSet<NSNumber *> *uniqueBatchIDs =
       [FSTImmutableSortedSet setWithComparator:NumberComparator];
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
-    FSTResourcePath *rowKeyPath = reference.key.path;
-    if (![prefix isPrefixOfPath:rowKeyPath]) {
+    const ResourcePath &rowKeyPath = reference.key.path();
+    if (!prefix.IsPrefixOf(rowKeyPath)) {
       *stop = YES;
       return;
     }
@@ -274,7 +268,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     // Rows with document keys more than one segment longer than the query path can't be matches.
     // For example, a query on 'rooms' can't match the document /rooms/abc/messages/xyx.
     // TODO(mcg): we'll need a different scanner when we implement ancestor queries.
-    if (rowKeyPath.length != immediateChildrenPathLength) {
+    if (rowKeyPath.size() != immediateChildrenPathLength) {
       return;
     }
 
@@ -295,7 +289,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(FSTWriteGroup *)group {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSUInteger batchCount = batches.count;
   FSTAssert(batchCount > 0, @"Should not remove mutations when none exist.");
 
@@ -351,7 +345,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   for (FSTMutationBatch *batch in batches) {
     FSTBatchID batchID = batch.batchID;
     for (FSTMutation *mutation in batch.mutations) {
-      FSTDocumentKey *key = mutation.key;
+      const DocumentKey &key = mutation.key;
       [garbageCollector addPotentialGarbageKey:key];
 
       FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
@@ -370,15 +364,15 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
+- (BOOL)containsKey:(const DocumentKey &)key {
   // Create a reference with a zero ID as the start position to find any document reference with
   // this key.
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:0];
 
   NSEnumerator<FSTDocumentReference *> *enumerator =
       [self.batchesByDocumentKey objectEnumeratorFrom:reference];
-  FSTDocumentKey *_Nullable firstKey = [enumerator nextObject].key;
-  return [firstKey isEqual:key];
+  FSTDocumentReference *_Nullable firstReference = [enumerator nextObject];
+  return firstReference && firstReference.key == reference.key;
 }
 
 #pragma mark - Helpers

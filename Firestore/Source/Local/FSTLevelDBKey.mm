@@ -17,14 +17,23 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
@@ -249,10 +258,10 @@ BOOL ReadLabeledStringMatching(Slice *contents,
  * For each segment in the given resource path writes an FSTComponentLabelPathSegment component
  * label and a string containing the path segment.
  */
-void WriteResourcePath(std::string *dest, FSTResourcePath *path) {
-  for (int i = 0; i < path.length; i++) {
+void WriteResourcePath(std::string *dest, const ResourcePath &path) {
+  for (const auto &segment : path) {
     WriteComponentLabel(dest, FSTComponentLabelPathSegment);
-    OrderedCode::WriteString(dest, StringView([path segmentAtIndex:i]));
+    OrderedCode::WriteString(dest, segment);
   }
 }
 
@@ -271,7 +280,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
   Slice completeSegments = *contents;
 
   std::string segment;
-  NSMutableArray<NSString *> *pathSegments = [NSMutableArray array];
+  std::vector<std::string> path_segments{};
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key component which may
     // not be a path segment.
@@ -283,15 +292,14 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
       return NO;
     }
 
-    NSString *pathSegment = [[NSString alloc] initWithUTF8String:segment.c_str()];
-    [pathSegments addObject:pathSegment];
+    path_segments.push_back(std::move(segment));
     segment.clear();
 
     completeSegments = leveldb::Slice(readPosition.data(), readPosition.size());
   }
 
-  FSTResourcePath *path = [FSTResourcePath pathWithSegments:pathSegments];
-  if (path.length > 0 && [FSTDocumentKey isDocumentKey:path]) {
+  ResourcePath path{std::move(path_segments)};
+  if (path.size() > 0 && [FSTDocumentKey isDocumentKey:path]) {
     *contents = completeSegments;
     *result = [FSTDocumentKey keyWithPath:path];
     return YES;
@@ -391,7 +399,7 @@ NSString *InvalidKey(const Slice &key) {
       if (!ReadDocumentKey(&tmp, &documentKey)) {
         break;
       }
-      [description appendFormat:@" key=%@", [documentKey.path description]];
+      [description appendFormat:@" key=%s", documentKey.path.CanonicalString().c_str()];
 
     } else if (label == FSTComponentLabelTableName) {
       std::string table;
@@ -517,7 +525,8 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithUserID:(StringView)userID resourcePath:(FSTResourcePath *)resourcePath {
++ (std::string)keyPrefixWithUserID:(StringView)userID
+                      resourcePath:(const ResourcePath &)resourcePath {
   std::string result;
   WriteTableName(&result, kDocumentMutationsTable);
   WriteUserID(&result, userID);
@@ -709,7 +718,7 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)resourcePath {
++ (std::string)keyPrefixWithResourcePath:(const ResourcePath &)resourcePath {
   std::string result;
   WriteTableName(&result, kDocumentTargetsTable);
   WriteResourcePath(&result, resourcePath);
@@ -744,7 +753,7 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
-+ (std::string)keyPrefixWithResourcePath:(FSTResourcePath *)path {
++ (std::string)keyPrefixWithResourcePath:(const ResourcePath &)path {
   std::string result;
   WriteTableName(&result, kRemoteDocumentsTable);
   WriteResourcePath(&result, path);

@@ -28,6 +28,7 @@
 #import "FIROAuthProvider.h"
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
+#import "FIRAuthTokenResult.h"
 #import "FirebaseAuth.h"
 #import "CustomTokenDataEntryViewController.h"
 #import "FacebookAuthProvider.h"
@@ -54,6 +55,16 @@ typedef void (^testAutomationCallback)(NSError *_Nullable error);
     @brief The text of the "Get Token" button.
  */
 static NSString *const kTokenGetButtonText = @"Get Token";
+
+/** @var kGetTokenResultButtonText
+    @brief The text of the "Get Token Result" button.
+ */
+static NSString *const kGetTokenResultButtonText = @"Get Token Result";
+
+/** @var kGetTokenResultForceButtonText
+    @brief The text of the "Force Token Result" button.
+ */
+static NSString *const kGetTokenResultForceButtonText = @"Force Token Result";
 
 /** @var kTokenRefreshButtonText
     @brief The text of the "Refresh Token" button.
@@ -90,6 +101,21 @@ static NSString *const kSetPhotoURLText = @"Set Photo url";
     @brief The text of the "Google SignIn" button.
  */
 static NSString *const kSignInGoogleButtonText = @"Sign in with Google";
+
+/** @var kSignInWithEmailLink
+    @brief The text of the "Sign in with Email Link" button.
+ */
+static NSString *const kSignInWithEmailLink = @"Sign in with Email Link";
+
+/** @var kVerifyEmailLinkAccount
+    @brief The text of the "Verify Email-link Account" button.
+ */
+static NSString *const kVerifyEmailLinkAccount = @"Verify Email-link Account";
+
+/** @var kSendEmailSignInLink
+    @brief The text of the "Send Email SignIn link" button
+*/
+static NSString *const kSendEmailSignInLink = @"Send Email Sign in Link";
 
 /** @var kSignInAndRetrieveGoogleButtonText
     @brief The text of the "Sign in with Google and retrieve data" button.
@@ -279,6 +305,11 @@ static NSString *const kUnlinkFromEmailPassword = @"Unlink from Email/Password";
  */
 static NSString *const kGetProvidersForEmail = @"Get Provider IDs for Email";
 
+/** @var kGetAllSignInMethodsForEmail
+    @brief The text of the "Get sign-in methods for Email" button.
+ */
+static NSString *const kGetAllSignInMethodsForEmail = @"Get Sign-in methods for Email";
+
 /** @var kActionCodeTypeDescription
     @brief The description of the "Action Type" entry.
  */
@@ -397,6 +428,11 @@ static NSString *const kRemoveIDTokenListenerTitle = @"Remove Last ID Token Chan
     @brief The text for the title of the "App" section.
  */
 static NSString *const kSectionTitleApp = @"APP";
+
+/** @var kSwitchToInMemoryUserTitle
+    @brief The text of the "Switch to in memory user" button.
+ */
+static NSString *const kSwitchToInMemoryUserTitle = @"Switch to in memory user";
 
 /** @var kCreateUserTitle
     @brief The text of the "Create User" button.
@@ -714,6 +750,9 @@ typedef enum {
         }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleSignIn cells:@[
+        [StaticContentTableViewCell cellWithTitle:kSwitchToInMemoryUserTitle
+                                            value:nil
+                                           action:^{ [weakSelf updateToSavedUser]; }],
         [StaticContentTableViewCell cellWithTitle:kCreateUserTitle
                                             value:nil
                                            action:^{ [weakSelf createUser]; }
@@ -722,6 +761,12 @@ typedef enum {
                                            action:^{ [weakSelf createUserAuthDataResult]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleButtonText
                                            action:^{ [weakSelf signInGoogle]; }],
+        [StaticContentTableViewCell cellWithTitle:kSignInWithEmailLink
+                                           action:^{ [weakSelf signInWithEmailLink]; }],
+        [StaticContentTableViewCell cellWithTitle:kVerifyEmailLinkAccount
+                                           action:^{ [weakSelf verifyEmailLinkAccount]; }],
+        [StaticContentTableViewCell cellWithTitle:kSendEmailSignInLink
+                                           action:^{ [weakSelf sendEmailSignInLink]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInGoogleAndRetrieveDataButtonText
                                            action:^{ [weakSelf signInGoogleAndRetrieveData]; }],
         [StaticContentTableViewCell cellWithTitle:kSignInFacebookButtonText
@@ -754,6 +799,8 @@ typedef enum {
                                            action:^{ [weakSelf reloadUser]; }],
         [StaticContentTableViewCell cellWithTitle:kGetProvidersForEmail
                                            action:^{ [weakSelf getProvidersForEmail]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetAllSignInMethodsForEmail
+                                           action:^{ [weakSelf getAllSignInMethodsForEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdateEmailText
                                            action:^{ [weakSelf updateEmail]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePasswordText
@@ -798,7 +845,11 @@ typedef enum {
         [StaticContentTableViewCell cellWithTitle:kTokenGetButtonText
                                            action:^{ [weakSelf getUserTokenWithForce:NO]; }],
         [StaticContentTableViewCell cellWithTitle:kTokenRefreshButtonText
-                                           action:^{ [weakSelf getUserTokenWithForce:YES]; }]
+                                           action:^{ [weakSelf getUserTokenWithForce:YES]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetTokenResultButtonText
+                                           action:^{ [weakSelf getUserTokenResultWithForce:NO]; }],
+        [StaticContentTableViewCell cellWithTitle:kGetTokenResultForceButtonText
+                                           action:^{ [weakSelf getUserTokenResultWithForce:YES]; }],
       ]],
       [StaticContentTableViewSection sectionWithTitle:kSectionTitleLinkUnlinkAccounts cells:@[
         [StaticContentTableViewCell cellWithTitle:kLinkWithGoogleText
@@ -1657,7 +1708,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn signInEmailPassword
-    @brief Invoked when "sign in with Email/Password" row is pressed.
+    @brief Invoked when "Sign in with Email/Password" row is pressed.
  */
 - (void)signInEmailPassword {
   [self showTextInputPromptWithMessage:@"Email Address:"
@@ -1720,6 +1771,98 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }];
         }];
       }];
+    }];
+  }];
+}
+
+/** @fn signInWithEmailLink
+    @brief Invoked when "Sign in with email link" row is pressed.
+ */
+- (void)signInWithEmailLink {
+  [self showTextInputPromptWithMessage:@"Email Address:"
+                          keyboardType:UIKeyboardTypeEmailAddress
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable email) {
+    if (!userPressedOK || !email.length) {
+      return;
+    }
+    [self showTextInputPromptWithMessage:@"Email Sign-In Link:"
+                         completionBlock:^(BOOL userPressedOK, NSString *_Nullable link) {
+      if (!userPressedOK) {
+        return;
+      }
+      if ([[FIRAuth auth] isSignInWithEmailLink:link]) {
+        [self showSpinner:^{
+          [[AppManager auth] signInWithEmail:email
+                                        link:link
+                                  completion:^(FIRAuthDataResult *_Nullable authResult,
+                                               NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"sign-in with Email/Sign-In failed" error:error];
+            } else {
+              [self logSuccess:@"sign-in with Email/Sign-In link succeeded."];
+              [self log:[NSString stringWithFormat:@"UID: %@",authResult.user.uid]];
+            }
+            [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In Error" error:error];
+          }];
+        }];
+        }];
+      } else {
+        [self log:@"The sign-in link is invalid"];
+      }
+    }];
+  }];
+}
+
+/** @fn verifyEmailLinkAccount
+    @brief Invoked to verify that the current user is an email-link user.
+ */
+- (void)verifyEmailLinkAccount {
+  if (![FIRAuth auth].currentUser.email) {
+    [self showMessagePrompt:@"There is no signed-in user available."];
+    return;
+  }
+  [[FIRAuth auth] fetchSignInMethodsForEmail:[FIRAuth auth].currentUser.email
+                                  completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                               NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePrompt:@"There was an error fetching sign-in methods."];
+      return;
+    }
+    if (![signInMethods containsObject:FIREmailLinkAuthSignInMethod]) {
+      [self showMessagePrompt:@"Error: The current user is NOT an email-link user."];
+      return;
+    }
+    [self showMessagePrompt:@"The current user is an email-link user."];
+  }];
+}
+
+/** @fn sendEmailSignInLink
+    @brief Invoked when "Send email sign-in link" row is pressed.
+ */
+- (void)sendEmailSignInLink {
+  [self showTextInputPromptWithMessage:@"Email:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+      if (!userPressedOK) {
+        return;
+      }
+      [self showSpinner:^{
+        void (^requestEmailSignInLink)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
+          [[AppManager auth] sendSignInLinkToEmail:userInput
+                                actionCodeSettings:[self actionCodeSettings]
+                                        completion:completion];
+        };
+        requestEmailSignInLink(^(NSError *_Nullable error) {
+          [self hideSpinner:^{
+            if (error) {
+              [self logFailure:@"Email Link request failed" error:error];
+              [self showMessagePrompt:error.localizedDescription];
+              return;
+            }
+            [self logSuccess:@"Email Link request succeeded."];
+            [self showMessagePrompt:@"Sent"];
+          }];
+       });
     }];
   }];
 }
@@ -1981,11 +2124,44 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 }
 
 /** @fn getUserTokenWithForce:
-    @brief Gets the token from @c FIRUser , optionally a refreshed one.
+    @brief Gets the token from @c FIRUser, optionally a refreshed one.
     @param force Whether the refresh is forced or not.
  */
 - (void)getUserTokenWithForce:(BOOL)force {
   [[self user] getIDTokenForcingRefresh:force completion:[self tokenCallback]];
+}
+
+/** @fn getUserTokenResultWithForce:
+    @brief Gets the token result object from @c FIRUser, optionally a refreshed one.
+    @param force Whether the refresh is forced or not.
+ */
+- (void)getUserTokenResultWithForce:(BOOL)force {
+
+  [[self user] getIDTokenResultForcingRefresh:force
+                                   completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                                NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePromptWithTitle:kTokenRefreshErrorAlertTitle
+                               message:error.localizedDescription
+                      showCancelButton:NO
+                            completion:nil];
+      [self logFailure:@"refresh token failed" error:error];
+      return;
+    }
+    [self logSuccess:@"refresh token succeeded."];
+    NSMutableString *message =
+        [[NSMutableString alloc] initWithString:
+            [NSString stringWithFormat:@"Token : %@\n", tokenResult.token]];
+    [message appendString:[NSString stringWithFormat:@"Auth Date : %@\n", tokenResult.authDate]];
+    [message appendString:
+        [NSString stringWithFormat:@"EXP Date : %@\n", tokenResult.expirationDate]];
+    [message appendString:
+        [NSString stringWithFormat:@"Issued Date : %@\n", tokenResult.issuedAtDate]];
+    [self showMessagePromptWithTitle:kTokenRefreshedAlertTitle
+                             message:message
+                    showCancelButton:NO
+                          completion:nil];
+    }];
 }
 
 /** @fn getAppTokenWithForce:
@@ -2245,6 +2421,39 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   }];
 }
 
+/** @fn getAllSignInMethodsForEmail
+    @brief Prompts user for an email address, calls @c FIRAuth.getAllSignInMethodsForEmail:callback:
+        and displays the result.
+ */
+- (void)getAllSignInMethodsForEmail {
+  [self showTextInputPromptWithMessage:@"Email:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+    if (!userPressedOK || !userInput.length) {
+      return;
+    }
+
+    [self showSpinner:^{
+      [[AppManager auth] fetchSignInMethodsForEmail:userInput
+                                         completion:^(NSArray<NSString *> *_Nullable signInMethods,
+                                                      NSError *_Nullable error) {
+        if (error) {
+          [self logFailure:@"get sign-in methods for email failed" error:error];
+        } else {
+          [self logSuccess:@"get sign-in methods for email succeeded."];
+        }
+        [self hideSpinner:^{
+          if (error) {
+            [self showMessagePrompt:error.localizedDescription];
+            return;
+          }
+          [self showMessagePrompt:[signInMethods componentsJoinedByString:@", "]];
+        }];
+      }];
+    }];
+  }];
+}
+
+
 /** @fn actionCodeRequestTypeString
     @brief Returns a string description for the type of the next action code request.
  */
@@ -2486,6 +2695,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return @"Recover Email";
   case FIRActionCodeOperationPasswordReset:
     return @"Password Reset";
+  case FIRActionCodeOperationEmailLink:
+    return @"Email Sign-In Link";
   case FIRActionCodeOperationUnknown:
     return @"Unknown action";
   }
@@ -2538,6 +2749,30 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }];
       }];
     }];
+  }];
+}
+
+/** @fn updateToSavedUser
+    @brief updates the current user to the saved user.
+ */
+- (void)updateToSavedUser {
+  if(![AppManager auth].currentUser) {
+    NSLog(@"You must be signed in to perform this action");
+    return;
+  }
+
+  if (!_userInMemory) {
+    [self showMessagePrompt:[NSString stringWithFormat:@"You need an in-memory user to perform this"
+    "action, use the M+ button to save a user to memory.", nil]];
+    return;
+  }
+
+  [[AppManager auth] updateCurrentUser:_userInMemory completion:^(NSError *_Nullable error) {
+    if (error) {
+      [self showMessagePrompt:
+          [NSString stringWithFormat:@"An error Occurred: %@", error.localizedDescription]];
+      return;
+    }
   }];
 }
 

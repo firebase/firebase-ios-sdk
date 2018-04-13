@@ -25,42 +25,13 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
-
 namespace impl {
-
-/**
- * A base class for implementing ArraySortedMap, containing types and constants
- * that don't depend upon the template parameters to the main class.
- *
- * Note that this exists as a base class rather than as just a namespace in
- * order to make it possible for users of ArraySortedMap to avoid needing to
- * declare storage for each instantiation of the template.
- */
-class ArraySortedMapBase {
- public:
-  /**
-   * The type of size() methods on immutable collections. Note that this is not
-   * size_t specifically to save space in the TreeSortedMap implementation.
-   */
-  using size_type = uint32_t;
-
-  /**
-   * The maximum size of an ArraySortedMap.
-   *
-   * This is the size threshold where we use a tree backed sorted map instead of
-   * an array backed sorted map. This is a more or less arbitrary chosen value,
-   * that was chosen to be large enough to fit most of object kind of Firebase
-   * data, but small enough to not notice degradation in performance for
-   * inserting and lookups. Feel free to empirically determine this constant,
-   * but don't expect much gain in real world performance.
-   */
-  // TODO(wilhuff): actually use this for switching implementations.
-  static constexpr size_type kFixedSize = 25;
-};
 
 /**
  * A bounded-size array that allocates its contents directly in itself. This
@@ -77,10 +48,10 @@ class ArraySortedMapBase {
  * @tparam T The type of an element in the array.
  * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, ArraySortedMapBase::size_type fixed_size>
+template <typename T, SortedMapBase::size_type fixed_size>
 class FixedArray {
  public:
-  using size_type = ArraySortedMapBase::size_type;
+  using size_type = SortedMapBase::size_type;
   using array_type = std::array<T, fixed_size>;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
@@ -99,9 +70,9 @@ class FixedArray {
    */
   template <typename SourceIterator>
   void append(SourceIterator src_begin, SourceIterator src_end) {
-    size_type appending = static_cast<size_type>(src_end - src_begin);
-    size_type new_size = size_ + appending;
-    assert(new_size <= fixed_size);
+    auto appending = static_cast<size_type>(src_end - src_begin);
+    auto new_size = size_ + appending;
+    FIREBASE_ASSERT(new_size <= fixed_size);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -112,7 +83,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    assert(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= fixed_size);
 
     *end() = std::move(value);
     size_ = new_size;
@@ -143,14 +114,12 @@ class FixedArray {
   size_type size_ = 0;
 };
 
-}  // namespace impl
-
 /**
  * ArraySortedMap is a value type containing a map. It is immutable, but has
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = std::less<K>>
-class ArraySortedMap : public impl::ArraySortedMapBase {
+class ArraySortedMap : public SortedMapBase {
  public:
   using key_comparator_type = KeyComparator<K, V, C>;
 
@@ -162,7 +131,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  using array_type = impl::FixedArray<value_type, kFixedSize>;
+  using array_type = FixedArray<value_type, kFixedSize>;
   using const_iterator = typename array_type::const_iterator;
 
   using array_pointer = std::shared_ptr<const array_type>;
@@ -171,7 +140,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
    * Creates an empty ArraySortedMap.
    */
   explicit ArraySortedMap(const C& comparator = C())
-      : array_(EmptyArray()), key_comparator_(comparator) {
+      : array_{EmptyArray()}, key_comparator_{comparator} {
   }
 
   /**
@@ -179,8 +148,8 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
    */
   ArraySortedMap(std::initializer_list<value_type> entries,
                  const C& comparator = C())
-      : array_(std::make_shared<array_type>(entries.begin(), entries.end())),
-        key_comparator_(comparator) {
+      : array_{std::make_shared<array_type>(entries.begin(), entries.end())},
+        key_comparator_{comparator} {
   }
 
   /**
@@ -210,7 +179,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
     auto copy = std::make_shared<array_type>(begin(), pos);
 
     // Copy the value to be inserted.
-    copy->append(value_type(key, value));
+    copy->append({key, value});
 
     if (replacing_entry) {
       // Skip the thing at pos because it compares the same as the pair above.
@@ -260,8 +229,6 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
     }
   }
 
-  // TODO(wilhuff): indexof
-
   /** Returns true if the map contains no elements. */
   bool empty() const {
     return size() == 0;
@@ -296,11 +263,11 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
 
   ArraySortedMap(const array_pointer& array,
                  const key_comparator_type& key_comparator) noexcept
-      : array_(array), key_comparator_(key_comparator) {
+      : array_{array}, key_comparator_{key_comparator} {
   }
 
   ArraySortedMap wrap(const array_pointer& array) const noexcept {
-    return ArraySortedMap(array, key_comparator_);
+    return ArraySortedMap{array, key_comparator_};
   }
 
   const_iterator LowerBound(const K& key) const {
@@ -311,6 +278,7 @@ class ArraySortedMap : public impl::ArraySortedMapBase {
   key_comparator_type key_comparator_;
 };
 
+}  // namespace impl
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase

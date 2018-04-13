@@ -41,12 +41,12 @@ class DatabaseInfo {
    * @param database_id The project/database to use.
    * @param persistence_key A unique identifier for this Firestore's local
    *        storage. Usually derived from -[FIRApp appName].
-   * @param host The hostname of the datastore backend.
+   * @param host The hostname of the Firestore backend.
    * @param ssl_enabled Whether to use SSL when connecting.
    */
   DatabaseInfo(const firebase::firestore::model::DatabaseId& database_id,
-               const absl::string_view persistence_key,
-               const absl::string_view host,
+               absl::string_view persistence_key,
+               absl::string_view host,
                bool ssl_enabled);
 
   const firebase::firestore::model::DatabaseId& database_id() const {

@@ -20,6 +20,7 @@
 
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
 @class FSTLocalSerializer;
@@ -28,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A LevelDB-backed instance of FSTPersistence. */
 // TODO(mikelehen): Rename to FSTLevelDBPersistence.
-@interface FSTLevelDB : NSObject <FSTPersistence>
+@interface FSTLevelDB : NSObject <FSTPersistence, FSTTransactional>
 
 /**
  * Initializes the LevelDB in the given directory. Note that all expensive startup work including
@@ -95,6 +96,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
+
+@property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *currentTransaction;
 
 @end
 

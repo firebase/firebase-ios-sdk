@@ -17,7 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_SNAPSHOT_VERSION_H_
 
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
+
+#if defined(__OBJC__)
+#import "FIRTimestamp.h"
+#import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#endif  // defined(__OBJC__)
 
 namespace firebase {
 namespace firestore {
@@ -37,6 +42,24 @@ class SnapshotVersion {
 
   /** Creates a new version that is smaller than all other versions. */
   static const SnapshotVersion& None();
+
+#if defined(__OBJC__)
+  SnapshotVersion(FSTSnapshotVersion* version)  // NOLINT(runtime/explicit)
+      : timestamp_{version.timestamp.seconds, version.timestamp.nanoseconds} {
+  }
+
+  operator FSTSnapshotVersion*() const {
+    if (timestamp_ == Timestamp{}) {
+      return [FSTSnapshotVersion noVersion];
+    } else {
+      return [FSTSnapshotVersion
+          versionWithTimestamp:[FIRTimestamp
+                                   timestampWithSeconds:timestamp_.seconds()
+                                            nanoseconds:timestamp_
+                                                            .nanoseconds()]];
+    }
+  }
+#endif  // defined(__OBJC__)
 
  private:
   Timestamp timestamp_;

@@ -27,10 +27,12 @@ if(APPLE)
   list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
 endif()
 
-add_library(
-  firebase_firestore_testutil INTERFACE
-)
-target_link_libraries(
-  firebase_firestore_testutil INTERFACE
-  ${TESTUTIL_DEPENDS}
+cc_library(
+  firebase_firestore_testutil
+  SOURCES
+    testutil.cc
+    testutil.h
+  DEPENDS
+    ${TESTUTIL_DEPENDS}
+    firebase_firestore_model
 )

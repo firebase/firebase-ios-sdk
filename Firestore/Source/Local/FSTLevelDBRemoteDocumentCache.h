@@ -19,8 +19,8 @@
 #include <memory>
 
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
-#include "leveldb/db.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param db The leveldb in which to create the cache.
  */
-- (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
+- (instancetype)initWithDB:(FSTLevelDB *)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
 @end

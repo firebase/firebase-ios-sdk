@@ -16,7 +16,8 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#import <future>
+#include <future>  // NOLINT(build/c++11)
+#include <memory>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -191,7 +192,9 @@ NS_ASSUME_NONNULL_BEGIN
                                             workerDispatchQueue:self.workerDispatchQueue
                                                     credentials:_credentialsProvider];
 
-  _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:datastore];
+  _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                                  datastore:datastore
+                                        workerDispatchQueue:self.workerDispatchQueue];
 
   _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                               remoteStore:_remoteStore
@@ -213,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %@", util::WrapNSStringNoCopy(user.uid()));
+  FSTLog(@"User Changed: %s", user.uid().c_str());
   [self.syncEngine userDidChange:user];
 }
 
@@ -249,7 +252,6 @@ NS_ASSUME_NONNULL_BEGIN
     self->_credentialsProvider->SetUserChangeListener(nullptr);
 
     [self.remoteStore shutdown];
-    [self.localStore shutdown];
     [self.persistence shutdown];
     if (completion) {
       [self.userDispatchQueue dispatchAsync:^{

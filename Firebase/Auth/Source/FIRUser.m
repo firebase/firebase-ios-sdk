@@ -29,6 +29,7 @@
 #import "FIRAuth_Internal.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthRequestConfiguration.h"
+#import "FIRAuthTokenResult_Internal.h"
 #import "FIRDeleteAccountRequest.h"
 #import "FIRDeleteAccountResponse.h"
 #import "FIREmailAuthProvider.h"
@@ -250,6 +251,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                      refreshToken:refreshToken];
   FIRUser *user = [[self alloc] initWithTokenService:tokenService];
   user.auth = auth;
+  user.requestConfiguration = auth.requestConfiguration;
   [user internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
     if (error) {
       callback(nil, error);
@@ -315,6 +317,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       [aDecoder decodeObjectOfClass:[FIRSecureTokenService class] forKey:kTokenServiceCodingKey];
   FIRUserMetadata *metadata =
       [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kMetadataCodingKey];
+  NSString *APIKey =
+      [aDecoder decodeObjectOfClass:[FIRUserMetadata class] forKey:kAPIKeyCodingKey];
   if (!userID || !tokenService) {
     return nil;
   }
@@ -333,6 +337,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     _providerData = providerData;
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
   }
   return self;
 }
@@ -348,8 +353,6 @@ static void callInMainThreadWithAuthDataResultAndError(
   [aCoder encodeObject:_photoURL forKey:kPhotoURLCodingKey];
   [aCoder encodeObject:_displayName forKey:kDisplayNameCodingKey];
   [aCoder encodeObject:_metadata forKey:kMetadataCodingKey];
-  // The API key is encoded even it is not used in decoding to be compatible with previous versions
-  // of the library.
   [aCoder encodeObject:_auth.requestConfiguration.APIKey forKey:kAPIKeyCodingKey];
   [aCoder encodeObject:_tokenService forKey:kTokenServiceCodingKey];
 }
@@ -784,16 +787,92 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
                       completion:(nullable FIRAuthTokenCallback)completion {
+  [self getIDTokenResultForcingRefresh:forceRefresh
+                            completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                         NSError *_Nullable error) {
+
+    if (completion) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(tokenResult.token, error);
+      });
+    }
+  }];
+}
+
+- (void)getIDTokenResultWithCompletion:(nullable FIRAuthTokenResultCallback)completion {
+  [self getIDTokenResultForcingRefresh:NO
+                            completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                         NSError *_Nullable error) {
+    if (completion) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completion(tokenResult, error);
+      });
+    }
+  }];
+}
+
+- (void)getIDTokenResultForcingRefresh:(BOOL)forceRefresh
+                            completion:(nullable FIRAuthTokenResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [self internalGetTokenForcingRefresh:forceRefresh
                                 callback:^(NSString *_Nullable token, NSError *_Nullable error) {
+      FIRAuthTokenResult *tokenResult;
+      if (token) {
+        tokenResult = [self parseIDToken:token error:&error];
+      }
       if (completion) {
         dispatch_async(dispatch_get_main_queue(), ^{
-          completion(token, error);
+          completion(tokenResult, error);
         });
       }
     }];
   });
+}
+
+- (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
+  error = nil;
+  NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
+  // The token payload is always the second index of the array.
+  NSMutableString *tokenPayload = [[NSMutableString alloc] initWithString:tokenStringArray[1]];
+
+  // Pad the token payload with "=" signs if the payload's length is not a multple of 4.
+  while ((tokenPayload.length % 4) != 0) {
+    [tokenPayload appendFormat:@"="];
+  }
+  NSData *decodedTokenPayloadData =
+      [[NSData alloc] initWithBase64EncodedString:tokenPayload
+                                          options:NSDataBase64DecodingIgnoreUnknownCharacters];
+  if (!decodedTokenPayloadData) {
+    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
+    return nil;
+  }
+  NSDictionary *tokenPayloadDictionary =
+      [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
+                                      options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
+                                        error:error];
+  if (error) {
+    return nil;
+  }
+
+  if (!tokenPayloadDictionary) {
+    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
+    return nil;
+  }
+
+  NSDate *expDate =
+      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"exp"] doubleValue]];
+  NSDate *authDate =
+      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
+  NSDate *issuedDate =
+      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"iat"] doubleValue]];
+  FIRAuthTokenResult *result =
+     [[FIRAuthTokenResult alloc] initWithToken:token
+                                expirationDate:expDate
+                                      authDate:authDate
+                                  issuedAtDate:issuedDate
+                                signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
+                                        claims:tokenPayloadDictionary];
+  return result;
 }
 
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh

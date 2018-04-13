@@ -24,6 +24,10 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+
+using firebase::firestore::model::Precondition;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRWriteBatch
@@ -69,8 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self validateReference:document];
   FSTParsedSetData *parsed = options.isMerge ? [self.firestore.dataConverter parsedMergeData:data]
                                              : [self.firestore.dataConverter parsedSetData:data];
-  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
-                                                  precondition:[FSTPrecondition none]]];
+  [self.mutations
+      addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
   return self;
 }
 
@@ -79,9 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self verifyNotCommitted];
   [self validateReference:document];
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.mutations
-      addObjectsFromArray:[parsed mutationsWithKey:document.key
-                                      precondition:[FSTPrecondition preconditionWithExists:YES]]];
+  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
+                                                  precondition:Precondition::Exists(true)]];
   return self;
 }
 
@@ -89,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self verifyNotCommitted];
   [self validateReference:document];
   [self.mutations addObject:[[FSTDeleteMutation alloc] initWithKey:document.key
-                                                      precondition:[FSTPrecondition none]]];
+                                                      precondition:Precondition::None()]];
   return self;
 }
 

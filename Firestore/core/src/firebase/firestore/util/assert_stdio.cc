@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#include <stdarg.h>
-
+#include <cstdarg>
 #include <stdexcept>
 #include <string>
 

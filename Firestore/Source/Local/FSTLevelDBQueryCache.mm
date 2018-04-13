@@ -16,8 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
+#include <memory>
+#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -25,19 +25,19 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
+using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
-using leveldb::Iterator;
-using leveldb::ReadOptions;
 using leveldb::Slice;
 using leveldb::Status;
-using leveldb::WriteOptions;
 
 @interface FSTLevelDBQueryCache ()
 
@@ -49,14 +49,37 @@ using leveldb::WriteOptions;
 @end
 
 @implementation FSTLevelDBQueryCache {
-  // The DB pointer is shared with all cooperating LevelDB-related objects.
-  std::shared_ptr<DB> _db;
+  FSTLevelDB *_db;
 
   /**
    * The last received snapshot version. This is part of `metadata` but we store it separately to
    * avoid extra conversion to/from GPBTimestamp.
    */
   FSTSnapshotVersion *_lastRemoteSnapshotVersion;
+}
+
++ (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction {
+  std::string key = [FSTLevelDBTargetGlobalKey key];
+  std::string value;
+  Status status = transaction->Get(key, &value);
+  if (status.IsNotFound()) {
+    return nil;
+  } else if (!status.ok()) {
+    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
+            status.ToString().c_str());
+  }
+
+  NSData *data =
+      [[NSData alloc] initWithBytesNoCopy:(void *)value.data() length:value.size() freeWhenDone:NO];
+
+  NSError *error;
+  FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
+  if (!proto) {
+    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+  }
+
+  return proto;
 }
 
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {
@@ -82,7 +105,7 @@ using leveldb::WriteOptions;
   return proto;
 }
 
-- (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
+- (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     FSTAssert(db, @"db must not be NULL");
     _db = db;
@@ -92,7 +115,8 @@ using leveldb::WriteOptions;
 }
 
 - (void)start {
-  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  // TODO(gsoltis): switch this usage of ptr to currentTransaction
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.ptr];
   FSTAssert(
       metadata != nil,
       @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
@@ -115,25 +139,16 @@ using leveldb::WriteOptions;
   return _lastRemoteSnapshotVersion;
 }
 
-- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                               group:(FSTWriteGroup *)group {
+- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
   _lastRemoteSnapshotVersion = snapshotVersion;
   self.metadata.lastRemoteSnapshotVersion = [self.serializer encodedVersion:snapshotVersion];
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
-- (void)shutdown {
-  _db.reset();
-}
-
-- (void)saveQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)saveQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group setMessage:[self.serializer encodedQueryData:queryData] forKey:key];
-}
-
-- (void)saveMetadataInGroup:(FSTWriteGroup *)group {
-  [group setMessage:self.metadata forKey:[FSTLevelDBTargetGlobalKey key]];
+  _db.currentTransaction->Put(key, [self.serializer encodedQueryData:queryData]);
 }
 
 - (BOOL)updateMetadataForQueryData:(FSTQueryData *)queryData {
@@ -151,41 +166,41 @@ using leveldb::WriteOptions;
   return updatedMetadata;
 }
 
-- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  [self saveQueryData:queryData group:group];
+- (void)addQueryData:(FSTQueryData *)queryData {
+  [self saveQueryData:queryData];
 
   NSString *canonicalID = queryData.query.canonicalID;
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:queryData.targetID];
   std::string emptyBuffer;
-  [group setData:emptyBuffer forKey:indexKey];
+  _db.currentTransaction->Put(indexKey, emptyBuffer);
 
   self.metadata.targetCount += 1;
   [self updateMetadataForQueryData:queryData];
-  [self saveMetadataInGroup:group];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
-- (void)updateQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
-  [self saveQueryData:queryData group:group];
+- (void)updateQueryData:(FSTQueryData *)queryData {
+  [self saveQueryData:queryData];
 
   if ([self updateMetadataForQueryData:queryData]) {
-    [self saveMetadataInGroup:group];
+    _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
   }
 }
 
-- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group {
+- (void)removeQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
 
-  [self removeMatchingKeysForTargetID:targetID group:group];
+  [self removeMatchingKeysForTargetID:targetID];
 
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 
   std::string indexKey =
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
-  [group removeMessageForKey:indexKey];
+  _db.currentTransaction->Delete(indexKey);
   self.metadata.targetCount -= 1;
-  [self saveMetadataInGroup:group];
+  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
 - (int32_t)count {
@@ -196,9 +211,10 @@ using leveldb::WriteOptions;
  * Parses the given bytes as an FSTPBTarget protocol buffer and then converts to the equivalent
  * query data.
  */
-- (FSTQueryData *)decodedTargetWithSlice:(Slice)slice {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+- (FSTQueryData *)decodeTarget:(absl::string_view)encoded {
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
+                                              length:encoded.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
@@ -214,7 +230,7 @@ using leveldb::WriteOptions;
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
   Slice canonicalID = StringView(query.canonicalID);
-  std::unique_ptr<Iterator> indexItererator(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  auto indexItererator = _db.currentTransaction->NewIterator();
   std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
   indexItererator->Seek(indexPrefix);
 
@@ -222,15 +238,13 @@ using leveldb::WriteOptions;
   // unique and ordered, so when scanning a table prefixed by exactly one canonicalID, all the
   // targetIDs will be unique and in order.
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
-  std::unique_ptr<Iterator> targetIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  auto targetIterator = _db.currentTransaction->NewIterator();
 
   FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
   for (; indexItererator->Valid(); indexItererator->Next()) {
-    Slice indexKey = indexItererator->key();
-
     // Only consider rows matching exactly the specific canonicalID of interest.
-    if (!indexKey.starts_with(indexPrefix) || ![rowKey decodeKey:indexKey] ||
-        canonicalID != rowKey.canonicalID) {
+    if (!absl::StartsWith(indexItererator->key(), indexPrefix) ||
+        ![rowKey decodeKey:indexItererator->key()] || canonicalID != rowKey.canonicalID) {
       // End of this canonicalID's possible targets.
       break;
     }
@@ -247,13 +261,13 @@ using leveldb::WriteOptions;
       FSTFail(
           @"Dangling query-target reference found: "
           @"%@ points to %@; seeking there found %@",
-          [FSTLevelDBKey descriptionForKey:indexKey], [FSTLevelDBKey descriptionForKey:targetKey],
-          foundKeyDescription);
+          [FSTLevelDBKey descriptionForKey:indexItererator->key()],
+          [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
     }
 
     // Finally after finding a potential match, check that the query is actually equal to the
     // requested query.
-    FSTQueryData *target = [self decodedTargetWithSlice:targetIterator->value()];
+    FSTQueryData *target = [self decodeTarget:targetIterator->value()];
     if ([target.query isEqual:query]) {
       return target;
     }
@@ -264,66 +278,64 @@ using leveldb::WriteOptions;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID
-                  group:(FSTWriteGroup *)group {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
-    [group setData:emptyBuffer
-            forKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey]];
-    [group setData:emptyBuffer
-            forKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]];
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
+        emptyBuffer);
+    self->_db.currentTransaction->Put(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
+        emptyBuffer);
   }];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID
-                     group:(FSTWriteGroup *)group {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    [group
-        removeMessageForKey:[FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]];
-    [group
-        removeMessageForKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]];
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
+    self->_db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:key];
   }];
 }
 
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group {
+- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    Slice indexKey = indexIterator->key();
+    absl::string_view indexKey = indexIterator->key();
 
     // Only consider rows matching this specific targetID.
     if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
       break;
     }
-    FSTDocumentKey *documentKey = rowKey.documentKey;
+    const DocumentKey &documentKey = rowKey.documentKey;
 
     // Delete both index rows
-    [group removeMessageForKey:indexKey];
-    [group removeMessageForKey:[FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey
-                                                                      targetID:targetID]];
+    _db.currentTransaction->Delete(indexKey);
+    _db.currentTransaction->Delete(
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:documentKey];
   }
 }
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    Slice indexKey = indexIterator->key();
+    absl::string_view indexKey = indexIterator->key();
 
     // Only consider rows matching this specific targetID.
     if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
@@ -338,14 +350,14 @@ using leveldb::WriteOptions;
 
 #pragma mark - FSTGarbageSource implementation
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
-  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path];
-  std::unique_ptr<Iterator> indexIterator(_db->NewIterator([FSTLevelDB standardReadOptions]));
+- (BOOL)containsKey:(const DocumentKey &)key {
+  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path()];
+  auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   if (indexIterator->Valid()) {
     FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && [rowKey.documentKey isEqualToKey:key]) {
+    if ([rowKey decodeKey:indexIterator->key()] && DocumentKey{rowKey.documentKey} == key) {
       return YES;
     }
   }

@@ -20,6 +20,10 @@
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -119,12 +123,12 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return [self.index isEmpty];
 }
 
-- (BOOL)containsKey:(FSTDocumentKey *)key {
-  return [self.index objectForKey:key] != nil;
+- (BOOL)containsKey:(const DocumentKey &)key {
+  return [self.index objectForKey:(FSTDocumentKey *)key] != nil;
 }
 
-- (FSTDocument *_Nullable)documentForKey:(FSTDocumentKey *)key {
-  return [self.index objectForKey:key];
+- (FSTDocument *_Nullable)documentForKey:(const DocumentKey &)key {
+  return [self.index objectForKey:(FSTDocumentKey *)key];
 }
 
 - (FSTDocument *_Nullable)firstDocument {
@@ -135,8 +139,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return [self.sortedSet lastObject];
 }
 
-- (NSUInteger)indexOfKey:(FSTDocumentKey *)key {
-  FSTDocument *doc = [self.index objectForKey:key];
+- (NSUInteger)indexOfKey:(const DocumentKey &)key {
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   return doc ? [self.sortedSet indexOfObject:doc] : NSNotFound;
 }
 
@@ -171,8 +175,8 @@ typedef FSTImmutableSortedSet<FSTDocument *> SetType;
   return [[FSTDocumentSet alloc] initWithIndex:index set:set];
 }
 
-- (instancetype)documentSetByRemovingKey:(FSTDocumentKey *)key {
-  FSTDocument *doc = [self.index objectForKey:key];
+- (instancetype)documentSetByRemovingKey:(const DocumentKey &)key {
+  FSTDocument *doc = [self.index objectForKey:(FSTDocumentKey *)key];
   if (!doc) {
     return self;
   }

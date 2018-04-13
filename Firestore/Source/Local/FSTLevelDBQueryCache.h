@@ -19,8 +19,10 @@
 #include <memory>
 
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
 
+@class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTPBTargetGlobal;
 @protocol FSTGarbageCollector;
@@ -32,8 +34,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Retrieves the global singleton metadata row from the given database, if it exists.
+ * TODO(gsoltis): remove this method once fully ported to transactions.
  */
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<leveldb::DB>)db;
+
+/**
+ * Retrieves the global singleton metadata row using the given transaction, if it exists.
+ */
++ (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -45,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param db The LevelDB in which to create the cache.
  */
-- (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
+- (instancetype)initWithDB:(FSTLevelDB *)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
 @end

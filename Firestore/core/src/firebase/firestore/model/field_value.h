@@ -17,17 +17,16 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_FIELD_VALUE_H_
 
-#include <stdint.h>
-
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/model/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -45,6 +44,19 @@ struct ReferenceValue {
   DocumentKey reference;
   // Does not own the DatabaseId instance.
   const DatabaseId* database_id;
+};
+
+// TODO(rsgowman): Expand this to roughly match the java class
+// c.g.f.f.model.value.ObjectValue. Probably move it to a similar namespace as
+// well. (FieldValue itself is also in the value package in java.) Also do the
+// same with the other FooValue values that FieldValue can return.
+class FieldValue;
+struct ObjectValue {
+  // TODO(rsgowman): These will eventually be private. We do want the serializer
+  // to be able to directly access these (possibly implying 'friend' usage, or a
+  // getInternalValue() like java has.)
+  using Map = std::map<std::string, FieldValue>;
+  Map internal_value;
 };
 
 /**
@@ -106,6 +118,16 @@ class FieldValue {
     return integer_value_;
   }
 
+  const std::string& string_value() const {
+    FIREBASE_ASSERT(tag_ == Type::String);
+    return string_value_;
+  }
+
+  const ObjectValue object_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Object);
+    return ObjectValue{object_value_};
+  }
+
   /** factory methods. */
   static const FieldValue& NullValue();
   static const FieldValue& TrueValue();
@@ -129,10 +151,8 @@ class FieldValue {
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
-  static FieldValue ObjectValue(
-      const std::map<const std::string, const FieldValue>& value);
-  static FieldValue ObjectValue(
-      std::map<const std::string, const FieldValue>&& value);
+  static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
+  static FieldValue ObjectValueFromMap(ObjectValue::Map&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 
@@ -143,7 +163,7 @@ class FieldValue {
   /**
    * Switch to the specified type, if different from the current type.
    */
-  void SwitchTo(const Type type);
+  void SwitchTo(Type type);
 
   Type tag_ = Type::Null;
   union {
@@ -159,7 +179,7 @@ class FieldValue {
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
     std::vector<FieldValue> array_value_;
-    std::map<const std::string, const FieldValue> object_value_;
+    ObjectValue object_value_;
   };
 };
 
@@ -183,6 +203,31 @@ inline bool operator!=(const FieldValue& lhs, const FieldValue& rhs) {
 }
 
 inline bool operator==(const FieldValue& lhs, const FieldValue& rhs) {
+  return !(lhs != rhs);
+}
+
+/** Compares against another ObjectValue. */
+inline bool operator<(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return lhs.internal_value < rhs.internal_value;
+}
+
+inline bool operator>(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return rhs < lhs;
+}
+
+inline bool operator>=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return !(lhs < rhs);
+}
+
+inline bool operator<=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return !(lhs > rhs);
+}
+
+inline bool operator!=(const ObjectValue& lhs, const ObjectValue& rhs) {
+  return lhs < rhs || lhs > rhs;
+}
+
+inline bool operator==(const ObjectValue& lhs, const ObjectValue& rhs) {
   return !(lhs != rhs);
 }
 

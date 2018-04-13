@@ -31,7 +31,6 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
@@ -43,12 +42,15 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Precondition;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -127,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectListenWithTargetID:(FSTBoxedTargetID *)targetID error:(NSError *)error {
+- (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
   FSTFail(@"Not implemented");
 }
 
@@ -175,7 +177,9 @@ NS_ASSUME_NONNULL_BEGIN
                                workerDispatchQueue:_testWorkerQueue
                                        credentials:&_credentials];
 
-  _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
+  _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                                  datastore:_datastore
+                                        workerDispatchQueue:_testWorkerQueue];
 
   [_testWorkerQueue dispatchAsync:^() {
     [_remoteStore start];
@@ -236,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
        initWithKey:[FSTDocumentKey keyWithPathString:@"rooms/eros"]
              value:[[FSTObjectValue alloc]
                        initWithDictionary:@{@"name" : [FSTStringValue stringValue:@"Eros"]}]
-      precondition:[FSTPrecondition none]];
+      precondition:Precondition::None()];
 }
 
 @end

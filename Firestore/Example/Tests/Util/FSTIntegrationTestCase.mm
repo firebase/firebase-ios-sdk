@@ -16,13 +16,14 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#include <memory>
-#include <utility>
-
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FirebaseFirestore-umbrella.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
+
+#include <memory>
+#include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -129,6 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   settings.host = host;
   settings.persistenceEnabled = YES;
+  settings.timestampsInSnapshotsEnabled = YES;
   NSLog(@"Configured integration test for %@ with SSL: %@", settings.host,
         settings.sslEnabled ? @"YES" : @"NO");
   return settings;

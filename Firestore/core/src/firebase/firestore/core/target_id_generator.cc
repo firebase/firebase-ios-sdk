@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 
+using firebase::firestore::model::TargetId;
+
 namespace firebase {
 namespace firestore {
 namespace core {
