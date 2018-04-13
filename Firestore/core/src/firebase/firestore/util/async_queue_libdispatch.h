@@ -61,7 +61,10 @@ enum class TimerId {
 };
 
 namespace internal {
+
+class AsyncQueueImpl;
 class DelayedOperationImpl;
+
 }  // namespace internal
 
 /**
@@ -83,7 +86,7 @@ class DelayedOperation {
 
  private:
   // Don't allow callers to create their own `DelayedOperation`s.
-  friend class AsyncQueueImpl;
+  friend class internal::AsyncQueueImpl;
   explicit DelayedOperation(
       const std::shared_ptr<internal::DelayedOperationImpl>& operation)
       : handle_{operation} {
@@ -91,8 +94,6 @@ class DelayedOperation {
 
   std::weak_ptr<internal::DelayedOperationImpl> handle_;
 };
-
-class AsyncQueueImpl;
 
 class AsyncQueue {
  public:
@@ -188,55 +189,7 @@ class AsyncQueue {
   dispatch_queue_t dispatch_queue() const;
 
  private:
-  std::shared_ptr<AsyncQueueImpl> impl_;
-};
-
-class AsyncQueueImpl : public std::enable_shared_from_this<AsyncQueueImpl> {
- public:
-  using Milliseconds = AsyncQueue::Milliseconds;
-  using Operation = AsyncQueue::Operation;
-
-  explicit AsyncQueueImpl(const dispatch_queue_t dispatch_queue);
-
-  void VerifyIsCurrentQueue() const;
-  void EnterCheckedOperation(const Operation& operation);
-
-  void Enqueue(const Operation& operation);
-  void EnqueueAllowingSameQueue(const Operation& operation);
-
-  DelayedOperation EnqueueAfterDelay(Milliseconds delay,
-                                     TimerId timer_id,
-                                     Operation operation);
-
-  void RunSync(const Operation& operation);
-
-  bool ContainsDelayedOperation(TimerId timer_id) const;
-  void RunDelayedOperationsUntil(TimerId last_timer_id);
-
-  dispatch_queue_t dispatch_queue() const {
-    return dispatch_queue_;
-  }
-
- private:
-  void Dispatch(const Operation& operation);
-
-  void TryRemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
-
-  bool OnTargetQueue() const;
-  void VerifyOnTargetQueue() const;
-  // GetLabel functions are guaranteed to never return a "null" string_view
-  // (i.e. data() != nullptr).
-  absl::string_view GetCurrentQueueLabel() const;
-  absl::string_view GetTargetQueueLabel() const;
-
-  // const dispatch_queue_t dispatch_queue_;
-  std::atomic<dispatch_queue_t> dispatch_queue_;
-  using DelayedOperationPtr = std::shared_ptr<internal::DelayedOperationImpl>;
-  std::vector<DelayedOperationPtr> operations_;
-  std::atomic<bool> is_operation_in_progress_{false};
-
-  // For access to TryRemoveDelayedOperation.
-  friend class internal::DelayedOperationImpl;
+  std::shared_ptr<internal::AsyncQueueImpl> impl_;
 };
 
 }  // namespace util

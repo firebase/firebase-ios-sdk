@@ -21,6 +21,42 @@
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
+// Implementation note: it's impossible to guarantee that libdispatch doesn't
+// currently hold on to any references to the queue or delayed operations.
+// Consequently, the ownership model uses shared and weak pointers. The two main
+// classes are `internal::AsyncQueueImpl` and `internal::DelayedOperationImpl`,
+// both of which are dynamically allocated. The references to them are as
+// follows:
+//
+// - `AsyncQueue` is the stack-allocated class instantiated by client code. It
+//   holds a shared pointer to `AsyncQueueImpl`, forwards all operations to it,
+//   and only exists to avoid exposing the ownership model to the callers.
+//
+// - `DelayedOperation` is a stack-allocated class returned by
+//   `EnqueueAfterDelay` to the client code. It holds a weak pointer to a
+//   `DelayedOperationImpl`, allowing client code to safely reference an
+//   operation that has been run and destroyed, but without unnecessarily
+//   extending the operation's lifetime.
+//
+// - `AsyncQueueImpl` stores a vector of shared pointers to delayed operations,
+//   allowing it to access them, for example, to run them preemptively.
+//
+// - `DelayedOperationImpl` holds a weak pointer to `AsyncQueueImpl`, allowing
+//   the operation to dequeue itself, which is a no-op if the queue has already
+//   been destroyed.
+//
+// - libdispatch gets its own shared pointer to the `DelayedOperationImpl`, so
+//   that the operation is guaranteed to still be valid by the time it's run
+//   (which may happen after the queue is destroyed, because it's impossible to
+//   unschedule in libdispatch).
+//
+// To summarize:
+//
+// - `AsyncQueue` is the owner of `AsyncQueueImpl`, and `DelayedOperationImpl`
+//   is an observer;
+// - both `AsyncQueueImpl` and libdispatch are equal owners of
+//   a `DelayedOperationImpl`, while a `DelayedOperation` is an observer.
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -61,6 +97,53 @@ void DispatchSync(const dispatch_queue_t queue, Work&& work) {
 
 namespace internal {
 
+class AsyncQueueImpl : public std::enable_shared_from_this<AsyncQueueImpl> {
+ public:
+  using Milliseconds = AsyncQueue::Milliseconds;
+  using Operation = AsyncQueue::Operation;
+
+  explicit AsyncQueueImpl(dispatch_queue_t dispatch_queue);
+
+  void VerifyIsCurrentQueue() const;
+  void EnterCheckedOperation(const Operation& operation);
+
+  void Enqueue(const Operation& operation);
+  void EnqueueAllowingSameQueue(const Operation& operation);
+
+  DelayedOperation EnqueueAfterDelay(Milliseconds delay,
+                                     TimerId timer_id,
+                                     Operation operation);
+
+  void RunSync(const Operation& operation);
+
+  bool ContainsDelayedOperation(TimerId timer_id) const;
+  void RunDelayedOperationsUntil(TimerId last_timer_id);
+
+  dispatch_queue_t dispatch_queue() const {
+    return dispatch_queue_;
+  }
+
+ private:
+  void Dispatch(const Operation& operation);
+
+  void TryRemoveDelayedOperation(const DelayedOperationImpl& operation);
+
+  bool OnTargetQueue() const;
+  void VerifyOnTargetQueue() const;
+  // GetLabel functions are guaranteed to never return a "null" string_view
+  // (i.e. data() != nullptr).
+  absl::string_view GetCurrentQueueLabel() const;
+  absl::string_view GetTargetQueueLabel() const;
+
+  std::atomic<dispatch_queue_t> dispatch_queue_;
+  using DelayedOperationPtr = std::shared_ptr<DelayedOperationImpl>;
+  std::vector<DelayedOperationPtr> operations_;
+  std::atomic<bool> is_operation_in_progress_{false};
+
+  // For access to TryRemoveDelayedOperation.
+  friend class DelayedOperationImpl;
+};
+
 // DelayedOperationImpl contains the logic of scheduling a delayed operation.
 //
 // An instance of this class exists until it's run, which allows it to schedule
@@ -79,7 +162,8 @@ namespace internal {
 // into a no-op. Under the hood, even a "canceled" DelayedOperationImpl will
 // still run, and consequently the instance will still be alive until it's run.
 
-class DelayedOperationImpl : public std::enable_shared_from_this<DelayedOperationImpl> {
+class DelayedOperationImpl
+    : public std::enable_shared_from_this<DelayedOperationImpl> {
  public:
   DelayedOperationImpl(const std::shared_ptr<AsyncQueueImpl>& queue,
                        const TimerId timer_id,
@@ -93,25 +177,31 @@ class DelayedOperationImpl : public std::enable_shared_from_this<DelayedOperatio
         operation_{std::move(operation)} {
   }
 
+  // Important: don't call `Start` from the constructor, `shared_from_this`
+  // won't work.
   void Start(const dispatch_queue_t dispatch_queue,
              const AsyncQueue::Milliseconds delay) {
     namespace chr = std::chrono;
     const dispatch_time_t delay_ns = dispatch_time(
         DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
-    const auto self_ptr = new Self(shared_from_this());
-    dispatch_after_f(delay_ns, dispatch_queue, self_ptr,
-                     DelayedOperationImpl::DoStart);
+    // libdispatch must get its own shared pointer to the operation, otherwise
+    // the operation might get destroyed by the time it's invoked (e.g., because
+    // it was canceled or force-run; libdispatch will still get to run it, even
+    // if it will be a no-op).
+    const auto self = new StrongSelf(shared_from_this());
+    dispatch_after_f(delay_ns, dispatch_queue, self,
+                     DelayedOperationImpl::InvokedByLibdispatch);
   }
 
   void Cancel() {
-    if (auto queue = queue_handle_.lock()) {
+    if (QueuePtr queue = queue_handle_.lock()) {
       TryDequeue(queue.get());
     }
     done_ = true;
   }
 
   void SkipDelay() {
-    if (auto queue = queue_handle_.lock()) {
+    if (QueuePtr queue = queue_handle_.lock()) {
       queue->EnqueueAllowingSameQueue([this] { HandleDelayElapsed(); });
     }
   }
@@ -125,18 +215,19 @@ class DelayedOperationImpl : public std::enable_shared_from_this<DelayedOperatio
   }
 
  private:
-  using Self = std::shared_ptr<DelayedOperationImpl>;
+  using StrongSelf = std::shared_ptr<DelayedOperationImpl>;
+  using QueuePtr = std::shared_ptr<AsyncQueueImpl>;
 
-  static void DoStart(void* const raw_self) {
-    auto self = static_cast<Self*>(raw_self);
-    if (auto queue = (*self)->queue_handle_.lock()) {
+  static void InvokedByLibdispatch(void* const raw_self) {
+    auto self = static_cast<StrongSelf*>(raw_self);
+    if (QueuePtr queue = (*self)->queue_handle_.lock()) {
       queue->EnterCheckedOperation([self] { (*self)->HandleDelayElapsed(); });
     }
     delete self;
   }
 
   void HandleDelayElapsed() {
-    if (auto queue = queue_handle_.lock()) {
+    if (QueuePtr queue = queue_handle_.lock()) {
       TryDequeue(queue.get());
 
       if (!done_) {
@@ -161,18 +252,20 @@ class DelayedOperationImpl : public std::enable_shared_from_this<DelayedOperatio
   const TimerId timer_id_;
   const TimePoint target_time_;
   const AsyncQueue::Operation operation_;
+
   // True if the operation has either been run or canceled.
   //
-  // Note on thread-safety: done_ is only ever accessed from Cancel and
-  // HandleDelayElapsed member functions, both of which assert they are being
-  // called while on the dispatch queue. In other words, done_ is only accessed
-  // when invoked by dispatch_async/dispatch_sync, both of which provide
-  // synchronization.
+  // Note on thread-safety: `done_` is only ever accessed from `Cancel` and
+  // `HandleDelayElapsed` member functions, both of which assert they are being
+  // called while on the dispatch queue. In other words, `done_` is only
+  // accessed when invoked by dispatch_async/dispatch_sync, both of which
+  // provide synchronization.
   bool done_ = false;
 };
 
 }  // namespace internal
 
+using internal::AsyncQueueImpl;
 using internal::DelayedOperationImpl;
 
 void DelayedOperation::Cancel() {
@@ -181,7 +274,8 @@ void DelayedOperation::Cancel() {
   }
 }
 
-// AsyncQueue
+// `AsyncQueue` methods are simply wrappers over `AsyncQueueImpl`; `AsyncQueue`
+// exists to abstract away the fact that shared pointers are used.
 
 AsyncQueue::AsyncQueue(const dispatch_queue_t dispatch_queue)
     : impl_{std::make_shared<AsyncQueueImpl>(dispatch_queue)} {
@@ -224,6 +318,8 @@ void AsyncQueueImpl::TryRemoveDelayedOperation(
                                   [&dequeued](const DelayedOperationPtr& op) {
                                     return op.get() == &dequeued;
                                   });
+  // It's possible for the operation to be missing if libdispatch gets to run it
+  // after it was force-run, for example.
   if (found != operations_.end()) {
     operations_.erase(found);
   }
