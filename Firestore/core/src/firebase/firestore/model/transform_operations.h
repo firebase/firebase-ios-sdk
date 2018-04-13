@@ -20,7 +20,7 @@
 #include <vector>
 
 #if defined(__OBJC__)
-@class FSTFieldValue;
+#import "Firestore/Source/Model/FSTFieldValue.h"
 #endif
 
 namespace firebase {
@@ -124,8 +124,8 @@ class ArrayTransform : public TransformOperation {
 
   bool operator==(const TransformOperation& other) const override {
     if (other.type() == type()) {
-      auto arrayTransform = static_cast<const ArrayTransform&>(other);
-      return arrayTransform.elements() == elements();
+      auto array_transform = static_cast<const ArrayTransform&>(other);
+      return array_transform.elements() == elements();
     }
     return false;
   }
@@ -134,10 +134,12 @@ class ArrayTransform : public TransformOperation {
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   NSUInteger Hash() const override {
-    // TODO(mikelehen): This is a terrible implementation of hash, but this
-    // method is going away and I don't expect these objects to be used as
-    // dictionary keys so ¯\_(ツ)_/¯.
-    return 37;
+    NSUInteger result = 37;
+    result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
+    for (FSTFieldValue* element: elements_) {
+      result = 31 * result + [element hash];
+    }
+    return result;
   }
 #endif  // defined(__OBJC__)
 

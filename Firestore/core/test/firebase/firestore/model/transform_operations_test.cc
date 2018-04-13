@@ -46,6 +46,9 @@ TEST(TransformOperations, ServerTimestamp) {
   EXPECT_NE(transform, dummy);
 }
 
+// TODO(mikelehen): Add ArrayTransform test once it no longer depends on
+// FSTFieldValue and can be exposed to C++ code.
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
