@@ -276,11 +276,6 @@ NS_SWIFT_NAME(MessagingDelegate)
     NS_SWIFT_NAME(messaging(_:didReceive:))
     __IOS_AVAILABLE(10.0);
 
-/// The callback to handle data message received via FCM for devices running iOS 10 or above.
-- (void)applicationReceivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage
-    NS_SWIFT_NAME(application(received:))
-    __deprecated_msg("Use FIRMessagingDelegate’s -messaging:didReceiveMessage:");
-
 @end
 
 /**
@@ -467,7 +462,7 @@ NS_SWIFT_NAME(Messaging)
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
  */
-- (void)subscribeToTopic:(NSString *)topic
+- (void)subscribeToTopic:(nonnull NSString *)topic
               completion:(nullable FIRMessagingTopicOperationCompletion)completion;
 
 /**
@@ -485,7 +480,7 @@ NS_SWIFT_NAME(Messaging)
  *                     In case of success, nil error is returned. Otherwise, an
  *                     appropriate error object is returned.
  */
-- (void)unsubscribeFromTopic:(NSString *)topic
+- (void)unsubscribeFromTopic:(nonnull NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion;
 
 #pragma mark - Upstream

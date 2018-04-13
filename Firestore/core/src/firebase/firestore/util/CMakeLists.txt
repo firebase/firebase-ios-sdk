@@ -31,9 +31,11 @@ cc_library(
 ## assert and log
 
 cc_library(
-  firebase_firestore_util_stdio
+  firebase_firestore_util_log_stdio
   SOURCES
+    firebase_assert.h
     assert_stdio.cc
+    log.h
     log_stdio.cc
   DEPENDS
     firebase_firestore_util_base
@@ -42,9 +44,11 @@ cc_library(
 )
 
 cc_library(
-  firebase_firestore_util_apple
+  firebase_firestore_util_log_apple
   SOURCES
+    firebase_assert.h
     assert_apple.mm
+    log.h
     log_apple.mm
     string_apple.h
   DEPENDS
@@ -53,12 +57,16 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-# Export a dependency on the correct logging library for this platform. All
-# buildable libraries are built and tested but only the best fit is exported.
 if(APPLE)
-  list(APPEND UTIL_DEPENDS firebase_firestore_util_apple)
+  set(
+    FIREBASE_FIRESTORE_UTIL_LOG
+    firebase_firestore_util_log_apple
+  )
 else()
-  list(APPEND UTIL_DEPENDS firebase_firestore_util_stdio)
+  set(
+    FIREBASE_FIRESTORE_UTIL_LOG
+    firebase_firestore_util_log_stdio
+  )
 endif()
 
 
@@ -66,7 +74,7 @@ endif()
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
 cc_library(
-  firebase_firestore_util_arc4random
+  firebase_firestore_util_random_arc4random
   SOURCES
     secure_random_arc4random.cc
 )
@@ -77,7 +85,7 @@ get_target_property(
 )
 check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
 cc_library(
-  firebase_firestore_util_openssl
+  firebase_firestore_util_random_openssl
   SOURCES
     secure_random_openssl.cc
   DEPENDS
@@ -85,10 +93,16 @@ cc_library(
 )
 
 if(HAVE_ARC4RANDOM)
-  list(APPEND UTIL_DEPENDS firebase_firestore_util_arc4random)
+  set(
+    FIREBASE_FIRESTORE_UTIL_RANDOM
+    firebase_firestore_util_random_arc4random
+  )
 
 elseif(HAVE_OPENSSL_RAND_H)
-  list(APPEND UTIL_DEPENDS firebase_firestore_util_openssl)
+  set(
+    FIREBASE_FIRESTORE_UTIL_RANDOM
+    firebase_firestore_util_random_openssl
+  )
 
 else()
   message(FATAL_ERROR "No implementation for SecureRandom available.")
@@ -97,6 +111,7 @@ endif()
 
 
 ## main library
+
 configure_file(
   config.h.in
   config.h
@@ -113,9 +128,7 @@ cc_library(
     comparison.cc
     comparison.h
     config.h
-    firebase_assert.h
     iterator_adaptors.h
-    log.h
     ordered_code.cc
     ordered_code.h
     secure_random.h
@@ -127,7 +140,8 @@ cc_library(
     string_util.cc
     string_util.h
   DEPENDS
-    ${UTIL_DEPENDS}
-    firebase_firestore_util_base
     absl_base
+    firebase_firestore_util_base
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )

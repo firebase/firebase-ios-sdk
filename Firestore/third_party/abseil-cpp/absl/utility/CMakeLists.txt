@@ -14,12 +14,13 @@
 # limitations under the License.
 #
 
+list(APPEND UTILITY_PUBLIC_HEADERS
+  "utility.h"
+)
 
-
-add_subdirectory(base)
-add_subdirectory(memory)
-add_subdirectory(meta)
-add_subdirectory(numeric)
-add_subdirectory(strings)
-add_subdirectory(types)
-add_subdirectory(utility)
+absl_header_library(
+  TARGET
+    absl_utility
+  EXPORT_NAME
+    utility
+)
