@@ -131,33 +131,31 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
     const MaybeDocumentPointer& base_doc,
     const Timestamp& local_write_time,
     const absl::optional<MutationResult>& mutation_result) const {
-  /*
-    if (mutation_result) {
-    FSTAssert(mutation_result.transformResults,
-              @"Transform results missing for FSTTransformMutation.");
+  if (mutation_result) {
+    FIREBASE_ASSERT_MESSAGE(mutation_result->transform_results(),
+              "Transform results missing for TransformMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybe_doc)) {
+  if (precondition_.IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
   // We only support transforms with precondition exists, so we can only
-  apply it to an existing
-  // document
-  FSTAssert([maybe_doc isMemberOfClass:[FSTDocument class]], @"Unknown
-  MaybeDocument type %@", [maybe_doc class]); FSTDocument *doc = (FSTDocument
-  *)maybe_doc;
+  // apply it to an existing document.
+  FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
+            "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document *doc = static_cast<Document *>(maybe_doc.get());
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the
-  same key");
-
-  bool has_local_mutations = (mutation_result == nil);
-  NSArray<FSTFieldValue *> *transformResults =
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only transform a document with the same key");
+  bool has_local_mutations = mutation_result.has_value();
+  const std::vector<FieldValue> transform_results =
       mutation_result
-          ? mutation_result.transformResults
-          : [self localTransformResultsWithBaseDocument:baseDoc
-  writeTime:localWriteTime]; FSTObjectValue *newData = [self
-  transformObject:doc.data transformResults:transformResults]; return
+          ? mutation_result.transform_results()
+          : LocalTransformResultsWith(base_doc, local_write_time);
+
+  FSTObjectValue *newData = [self
+  transformObject:doc.data transformResults:transformResults];
+  return
   [FSTDocument documentWithData:newData key:doc.key version:doc.version
                      has_local_mutations:has_local_mutations];
   */
