@@ -108,9 +108,9 @@ MaybeDocumentPointer PatchMutation::ApplyTo(
     return std::make_shared<Document>(PatchObjectValue(FieldValue::ObjectValueFromMap({})), key, version, has_local_mutations);
   }
 
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown
-  MaybeDocument type %@", [maybeDoc class]); FSTDocument *doc = (FSTDocument
-  *)maybeDoc;
+  FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
+            "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document *doc = static_cast<Document *>(maybe_doc.get());
 
   FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only patch a document with the same key");
   return std::make_shared<Document>(PatchObjectValue(doc->data()), doc->key(), doc->version(), has_local_mutations);
