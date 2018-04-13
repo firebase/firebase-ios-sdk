@@ -48,7 +48,7 @@
   NSDictionary *updateDictionary = [_updateMetadata updatedMetadata];
   NSData *updateData = [NSData frs_dataFromJSONDictionary:updateDictionary];
   request.HTTPMethod = @"PATCH";
-  request.timeoutInterval = self.reference.storage.maxUploadRetryTime;
+  request.timeoutInterval = self.reference.storage.maxOperationRetryTime;
   request.HTTPBody = updateData;
   NSString *typeString = @"application/json; charset=UTF-8";
   [request setValue:typeString forHTTPHeaderField:@"Content-Type"];

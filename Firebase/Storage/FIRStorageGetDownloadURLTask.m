@@ -93,7 +93,7 @@
             [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
         if (!downloadURL) {
           self.error =
-              [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL"];
+              [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL."];
         }
       } else {
         self.error = [FIRStorageErrors errorWithInvalidRequest:data];
