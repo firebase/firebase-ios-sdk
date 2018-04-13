@@ -55,7 +55,7 @@ static NSString *const kPendingSubscriptionsListKey =
 
 - (void)subscribeWithToken:(NSString *)token
                      topic:(NSString *)topic
-                   options:(NSDictionary *)options
+                   options:(nullable NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler {
   _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
   _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
@@ -98,7 +98,7 @@ static NSString *const kPendingSubscriptionsListKey =
 
 - (void)unsubscribeWithToken:(NSString *)token
                        topic:(NSString *)topic
-                     options:(NSDictionary *)options
+                     options:(nullable NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler {
   _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
   _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
