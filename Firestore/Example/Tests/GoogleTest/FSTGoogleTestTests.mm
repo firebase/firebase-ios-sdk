@@ -17,7 +17,8 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#include "Firestore/Source/Util/FSTAssert.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+
 #include "gtest/gtest.h"
 
 /**

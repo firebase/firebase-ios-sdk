@@ -1,3 +1,13 @@
+# v4.1.5
+- [fixed] Fixes loss of precision for 64 bit numbers on older 32 bit iOS devices with persistence enabled.
+- [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
+
+# v4.1.4
+- [added] Firebase Database is now community-supported on tvOS.
+
+# v4.1.3
+- [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the RTDB SDK is not affected.
+
 # v4.1.2
 - [fixed] Addresses race condition that can occur during the initialization of empty snapshots.
 

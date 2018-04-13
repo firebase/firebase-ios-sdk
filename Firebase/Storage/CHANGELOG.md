@@ -1,3 +1,15 @@
+# v2.2.0
+- [changed] Deprecated `downloadURLs` property on `StorageMetadata`. Use `StorageReference.downloadURLWithCompletion()` to obtain a current download URL.
+
+# v2.1.3
+- [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.
+
+# v2.1.2
+- [added] Firebase Storage is now community-supported on tvOS.
+
+# v2.1.1
+- [changed] Internal cleanup in the firebase-ios-sdk repository. Functionality of the Storage SDK is not affected.
+
 # v2.1.0
 - [added] Added 'md5Hash' to FIRStorageMetadata.
 

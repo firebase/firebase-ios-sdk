@@ -43,6 +43,7 @@
 
 CF_EXTERN_C_BEGIN
 
+@class GCFSArrayValue;
 @class GCFSDocument;
 @class GCFSDocumentMask;
 @class GCFSDocumentTransform;
@@ -66,7 +67,10 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_ServerValue) {
   /** Unspecified. This value must not be used. */
   GCFSDocumentTransform_FieldTransform_ServerValue_ServerValueUnspecified = 0,
 
-  /** The time at which the server processed the request. */
+  /**
+   * The time at which the server processed the request, with millisecond
+   * precision.
+   **/
   GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime = 1,
 };
 
@@ -100,7 +104,6 @@ typedef GPB_ENUM(GCFSWrite_FieldNumber) {
   GCFSWrite_FieldNumber_Delete_p = 2,
   GCFSWrite_FieldNumber_UpdateMask = 3,
   GCFSWrite_FieldNumber_CurrentDocument = 4,
-  GCFSWrite_FieldNumber_Verify = 5,
   GCFSWrite_FieldNumber_Transform = 6,
 };
 
@@ -108,7 +111,6 @@ typedef GPB_ENUM(GCFSWrite_Operation_OneOfCase) {
   GCFSWrite_Operation_OneOfCase_GPBUnsetOneOfCase = 0,
   GCFSWrite_Operation_OneOfCase_Update = 1,
   GCFSWrite_Operation_OneOfCase_Delete_p = 2,
-  GCFSWrite_Operation_OneOfCase_Verify = 5,
   GCFSWrite_Operation_OneOfCase_Transform = 6,
 };
 
@@ -130,13 +132,6 @@ typedef GPB_ENUM(GCFSWrite_Operation_OneOfCase) {
 @property(nonatomic, readwrite, copy, null_resettable) NSString *delete_p;
 
 /**
- * The name of a document on which to verify the `current_document`
- * precondition.
- * This only requires read access to the document.
- **/
-@property(nonatomic, readwrite, copy, null_resettable) NSString *verify;
-
-/**
  * Applies a tranformation to a document.
  * At most one `transform` per document is allowed in a given request.
  * An `update` cannot follow a `transform` on the same document in a given
@@ -148,9 +143,10 @@ typedef GPB_ENUM(GCFSWrite_Operation_OneOfCase) {
  * The fields to update in this write.
  *
  * This field can be set only when the operation is `update`.
- * None of the field paths in the mask may contain a reserved name.
- * If the document exists on the server and has fields not referenced in the
- * mask, they are left unchanged.
+ * If the mask is not set for an `update` and the document exists, any
+ * existing data will be overwritten.
+ * If the mask is set and the document on the server has fields not covered by
+ * the mask, they are left unchanged.
  * Fields referenced in the mask, but not present in the input document, are
  * deleted from the document on the server.
  * The field paths in this mask must not contain a reserved field name.
@@ -193,6 +189,7 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldNumber) {
 /**
  * The list of transformations to apply to the fields of the document, in
  * order.
+ * This must not be empty.
  **/
 @property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<GCFSDocumentTransform_FieldTransform*> *fieldTransformsArray;
 /** The number of items in @c fieldTransformsArray without causing the array to be created. */
@@ -205,11 +202,15 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldNumber) {
 typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_FieldNumber) {
   GCFSDocumentTransform_FieldTransform_FieldNumber_FieldPath = 1,
   GCFSDocumentTransform_FieldTransform_FieldNumber_SetToServerValue = 2,
+  GCFSDocumentTransform_FieldTransform_FieldNumber_AppendMissingElements = 6,
+  GCFSDocumentTransform_FieldTransform_FieldNumber_RemoveAllFromArray_p = 7,
 };
 
 typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase) {
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_GPBUnsetOneOfCase = 0,
   GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_SetToServerValue = 2,
+  GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements = 6,
+  GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p = 7,
 };
 
 /**
@@ -228,6 +229,36 @@ typedef GPB_ENUM(GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase) {
 
 /** Sets the field to the given server value. */
 @property(nonatomic, readwrite) GCFSDocumentTransform_FieldTransform_ServerValue setToServerValue;
+
+/**
+ * Append the given elements in order if they are not already present in
+ * the current field value.
+ * If the field is not an array, or if the field does not yet exist, it is
+ * first set to the empty array.
+ *
+ * Equivalent numbers of different types (e.g. 3L and 3.0) are
+ * considered equal when checking if a value is missing.
+ * NaN is equal to NaN, and Null is equal to Null.
+ * If the input contains multiple equivalent values, only the first will
+ * be considered.
+ *
+ * The corresponding transform_result will be the null value.
+ **/
+@property(nonatomic, readwrite, strong, null_resettable) GCFSArrayValue *appendMissingElements;
+
+/**
+ * Remove all of the given elements from the array in the field.
+ * If the field is not an array, or if the field does not yet exist, it is
+ * set to the empty array.
+ *
+ * Equivalent numbers of the different types (e.g. 3L and 3.0) are
+ * considered equal when deciding whether an element should be removed.
+ * NaN is equal to NaN, and Null is equal to Null.
+ * This will remove all equivalent values if there are duplicates.
+ *
+ * The corresponding transform_result will be the null value.
+ **/
+@property(nonatomic, readwrite, strong, null_resettable) GCFSArrayValue *removeAllFromArray_p;
 
 @end
 

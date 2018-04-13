@@ -102,7 +102,7 @@
       break;
 
     case FIRStorageTaskStatusUnknown:
-    // Fall through to exception case if an unknown status is passed
+      // Fall through to exception case if an unknown status is passed
 
     default:
       [NSException raise:NSInternalInconsistencyException
@@ -206,7 +206,6 @@
   [handlersCopy
       enumerateKeysAndObjectsUsingBlock:^(
           NSString *_Nonnull key, FIRStorageVoidSnapshot _Nonnull handler, BOOL *_Nonnull stop) {
-
         dispatch_async(callbackQueue, ^{
           handler(snapshot);
         });

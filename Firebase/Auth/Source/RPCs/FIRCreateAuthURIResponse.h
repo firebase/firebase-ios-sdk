@@ -51,6 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly, nullable) NSArray<NSString *> *allProviders;
 
+/** @property signinMethods
+    @brief A list of sign-in methods available for the passed @c identifier.
+ */
+@property(nonatomic, copy, readonly, nullable) NSArray<NSString *> *signinMethods;
+
 @end
 
 NS_ASSUME_NONNULL_END

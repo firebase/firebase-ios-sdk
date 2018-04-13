@@ -50,6 +50,9 @@ The name of the test user for Facebook Login.
 $KCUSTOM_AUTH_TOKEN_URL
 A URL to return a Custom Auth token.
 
+$KCUSTOM_AUTH_TOKEN_EXPIRED_URL
+A URL to return an expired Custom Auth token.
+
 $KCUSTOM_AUTH_USER_ID
 The ID of the test user in the Custom Auth token.
 */
@@ -61,4 +64,5 @@ The ID of the test user in the Custom Auth token.
 #define KFACEBOOK_APP_ACCESS_TOKEN $KFACEBOOK_APP_ACCESS_TOKEN
 #define KFACEBOOK_USER_NAME $KFACEBOOK_USER_NAME
 #define KCUSTOM_AUTH_TOKEN_URL $KCUSTOM_AUTH_TOKEN_URL
+#define KCUSTOM_AUTH_TOKEN_EXPIRED_URL $KCUSTOM_AUTH_TOKEN_EXPIRED_URL
 #define KCUSTOM_AUTH_USER_ID $KCUSTOM_AUTH_USER_ID

@@ -95,8 +95,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithOptions {
-  // nil options
+// nil options
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([FIRApp configureWithOptions:nil]);
+#pragma clang diagnostic pop
   XCTAssertTrue([FIRApp allApps].count == 0);
 
   NSDictionary *expectedUserInfo =
@@ -117,17 +120,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testConfigureWithCustomizedOptions {
   // valid customized options
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                       bundleID:kBundleID
-                                                    GCMSenderID:kGCMSenderID
-                                                         APIKey:kCustomizedAPIKey
-                                                       clientID:nil
-                                                     trackingID:nil
-                                                androidClientID:nil
-                                                    databaseURL:nil
-                                                  storageBucket:nil
-                                              deepLinkURLScheme:nil];
-
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.bundleID = kBundleID;
+  options.APIKey = kCustomizedAPIKey;
   NSDictionary *expectedUserInfo =
       [self expectedUserInfoWithAppName:kFIRDefaultAppName isDefaultApp:YES];
   OCMExpect([self.notificationCenterMock postNotificationName:kFIRAppReadyToConfigureSDKNotification
@@ -146,8 +142,11 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureWithNameAndOptions {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
   XCTAssertThrows([FIRApp configureWithName:nil options:[FIROptions defaultOptions]]);
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:nil]);
+#pragma clang diagnostic pop
   XCTAssertThrows([FIRApp configureWithName:@"" options:[FIROptions defaultOptions]]);
   XCTAssertThrows(
       [FIRApp configureWithName:kFIRDefaultAppName options:[FIROptions defaultOptions]]);
@@ -186,16 +185,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   self.app = [FIRApp appNamed:kFIRTestAppName1];
 
   // Configure a different app with valid customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                                 bundleID:kBundleID
-                                                              GCMSenderID:kGCMSenderID
-                                                                   APIKey:kCustomizedAPIKey
-                                                                 clientID:nil
-                                                               trackingID:nil
-                                                          androidClientID:nil
-                                                              databaseURL:nil
-                                                            storageBucket:nil
-                                                        deepLinkURLScheme:nil];
+  FIROptions *customizedOptions =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  customizedOptions.bundleID = kBundleID;
+  customizedOptions.APIKey = kCustomizedAPIKey;
 
   NSDictionary *expectedUserInfo2 =
       [self expectedUserInfoWithAppName:kFIRTestAppName2 isDefaultApp:NO];
@@ -581,6 +574,27 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Reset the apps and ensure it's not configured anymore.
   [FIRApp resetApps];
   XCTAssertFalse([FIRApp isDefaultAppConfigured]);
+}
+
+- (void)testIllegalLibraryName {
+  [FIRApp registerLibrary:@"Oops>" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
+}
+
+- (void)testIllegalLibraryVersion {
+  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0+"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] isEqualToString:@""]);
+}
+
+- (void)testSingleLibrary {
+  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0"]);
+}
+
+- (void)testMultipleLibraries {
+  [FIRApp registerLibrary:@"LegalName" withVersion:@"1.0.0"];
+  [FIRApp registerLibrary:@"LegalName2" withVersion:@"2.0.0"];
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"LegalName/1.0.0 LegalName2/2.0.0"]);
 }
 
 #pragma mark - private

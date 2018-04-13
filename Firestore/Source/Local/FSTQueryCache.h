@@ -20,12 +20,10 @@
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
 @class FSTDocumentSet;
 @class FSTMaybeDocument;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTWriteGroup;
 @class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,15 +40,17 @@ NS_ASSUME_NONNULL_BEGIN
 /** Starts the query cache up. */
 - (void)start;
 
-/** Shuts this cache down, closing open files, etc. */
-- (void)shutdown;
-
 /**
  * Returns the highest target ID of any query in the cache. Typically called during startup to
  * seed a target ID generator and avoid collisions with existing queries. If there are no queries
  * in the cache, returns zero.
  */
 - (FSTTargetID)highestTargetID;
+
+/**
+ * Returns the highest listen sequence number of any query seen by the cache.
+ */
+- (FSTListenSequenceNumber)highestListenSequenceNumber;
 
 /**
  * A global snapshot version representing the last consistent snapshot we received from the
@@ -69,21 +69,31 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param snapshotVersion The new snapshot version.
  */
-- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-                               group:(FSTWriteGroup *)group;
+- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
 
 /**
- * Adds or replaces an entry in the cache.
+ * Adds an entry in the cache.
  *
- * The cache key is extracted from `queryData.query`. If there is already a cache entry for the
- * key, it will be replaced.
+ * The cache key is extracted from `queryData.query`. The key must not already exist in the cache.
  *
- * @param queryData An FSTQueryData instance to put in the cache.
+ * @param queryData A new FSTQueryData instance to put in the cache.
  */
-- (void)addQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
+- (void)addQueryData:(FSTQueryData *)queryData;
+
+/**
+ * Updates an entry in the cache.
+ *
+ * The cache key is extracted from `queryData.query`. The entry must already exist in the cache,
+ * and it will be replaced.
+ * @param queryData An FSTQueryData instance to replace an existing entry in the cache
+ */
+- (void)updateQueryData:(FSTQueryData *)queryData;
 
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
-- (void)removeQueryData:(FSTQueryData *)queryData group:(FSTWriteGroup *)group;
+- (void)removeQueryData:(FSTQueryData *)queryData;
+
+/** Returns the number of targets cached. */
+- (int32_t)count;
 
 /**
  * Looks up an FSTQueryData entry in the cache.
@@ -94,17 +104,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTQueryData *)queryDataForQuery:(FSTQuery *)query;
 
 /** Adds the given document keys to cached query results of the given target ID. */
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
-            forTargetID:(FSTTargetID)targetID
-                  group:(FSTWriteGroup *)group;
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID;
 
 /** Removes the given document keys from the cached query results of the given target ID. */
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
-               forTargetID:(FSTTargetID)targetID
-                     group:(FSTWriteGroup *)group;
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID;
 
 /** Removes all the keys in the query results of the given target ID. */
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID group:(FSTWriteGroup *)group;
+- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID;
 
 - (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID;
 

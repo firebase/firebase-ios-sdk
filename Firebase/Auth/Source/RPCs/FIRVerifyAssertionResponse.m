@@ -16,8 +16,6 @@
 
 #import "FIRVerifyAssertionResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRVerifyAssertionResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary

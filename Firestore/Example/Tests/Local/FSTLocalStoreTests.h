@@ -16,7 +16,9 @@
 
 #import <XCTest/XCTest.h>
 
-@class FSTLocalStore;
+#import "Firestore/Source/Local/FSTLocalStore.h"
+
+@protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 

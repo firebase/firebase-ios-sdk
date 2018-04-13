@@ -26,7 +26,7 @@
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static NSTimeInterval kExpectationTimeout = 1;
+static NSTimeInterval kExpectationTimeout = 2;
 
 @interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
 /** @fn defaultUIDelegate

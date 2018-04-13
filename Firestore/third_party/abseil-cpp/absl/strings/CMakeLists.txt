@@ -48,7 +48,6 @@ list(APPEND STRINGS_SRC
   "ascii.cc"
   "escaping.cc"
   "internal/memutil.cc"
-  "internal/memutil.h"
   "internal/utf8.cc"
   "internal/ostringstream.cc"
   "match.cc"

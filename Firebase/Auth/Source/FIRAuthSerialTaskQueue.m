@@ -37,14 +37,14 @@
 
 - (void)enqueueTask:(FIRAuthSerialTask)task {
   // This dispatch queue will run tasks serially in FIFO order, as long as it's not suspended.
-  dispatch_async(_dispatchQueue, ^{
+  dispatch_async(self->_dispatchQueue, ^{
     // But as soon as a task is started, stop other tasks from running until the task calls it's
     // completion handler, which allows the queue to resume processing of tasks. This allows the
     // task to perform other asyncronous actions on other dispatch queues and "get back to us" when
     // all of their sub-tasks are complete.
-    dispatch_suspend(_dispatchQueue);
+    dispatch_suspend(self->_dispatchQueue);
     task(^{
-      dispatch_resume(_dispatchQueue);
+      dispatch_resume(self->_dispatchQueue);
     });
   });
 }

@@ -13,37 +13,8 @@
 
 set -euo pipefail
 
-FIRESTORE_DIR=$(dirname "${BASH_SOURCE[0]}")
+firestore_dir=$(dirname "${BASH_SOURCE[0]}")
+scripts_dir="$firestore_dir/../scripts"
 
-test_iOS() {
-  xcodebuild \
-    -workspace "$FIRESTORE_DIR/Example/Firestore.xcworkspace" \
-    -scheme Firestore_Tests \
-    -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,name=iPhone 7' \
-    build \
-    test \
-    ONLY_ACTIVE_ARCH=YES \
-    CODE_SIGNING_REQUIRED=NO \
-    | xcpretty
-
-  xcodebuild \
-    -workspace "$FIRESTORE_DIR/Example/Firestore.xcworkspace" \
-    -scheme SwiftBuildTest \
-    -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,name=iPhone 7' \
-    build \
-    ONLY_ACTIVE_ARCH=YES \
-    CODE_SIGNING_REQUIRED=NO \
-    | xcpretty
-}
-
-test_iOS; RESULT=$?
-if [[ $RESULT == 65 ]]; then
-  echo "xcodebuild exited with 65, retrying"
-  sleep 5
-
-  test_iOS; RESULT=$?
-fi
-
-exit $RESULT
+$scripts_dir/build.sh Firestore iOS
+$scripts_dir/build.sh Firestore macOS cmake

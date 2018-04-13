@@ -16,16 +16,16 @@
 
 #import "FIRFieldPath.h"
 
-@class FSTFieldPath;
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRFieldPath ()
 
-- (instancetype)initPrivate:(FSTFieldPath *)path NS_DESIGNATED_INITIALIZER;
-
 /** Internal field path representation */
-@property(nonatomic, strong, readonly) FSTFieldPath *internalValue;
+- (const firebase::firestore::model::FieldPath &)internalValue;
+
+- (instancetype)initPrivate:(firebase::firestore::model::FieldPath)path NS_DESIGNATED_INITIALIZER;
 
 @end
 

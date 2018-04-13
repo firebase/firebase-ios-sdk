@@ -16,34 +16,29 @@
 
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/Port/ordered_code.h"
-#include "Firestore/Port/string_util.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::OrderedCode;
+using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
-using leveldb::Iterator;
-using leveldb::ReadOptions;
-using leveldb::Slice;
 using leveldb::Status;
-using leveldb::WriteOptions;
 
 @interface FSTLevelDBRemoteDocumentCache ()
 
@@ -51,23 +46,11 @@ using leveldb::WriteOptions;
 
 @end
 
-/**
- * Returns a standard set of read options.
- *
- * For now this is paranoid, but perhaps disable that in production builds.
- */
-static ReadOptions StandardReadOptions() {
-  ReadOptions options;
-  options.verify_checksums = true;
-  return options;
-}
-
 @implementation FSTLevelDBRemoteDocumentCache {
-  // The DB pointer is shared with all cooperating LevelDB-related objects.
-  std::shared_ptr<DB> _db;
+  FSTLevelDB *_db;
 }
 
-- (instancetype)initWithDB:(std::shared_ptr<DB>)db serializer:(FSTLocalSerializer *)serializer {
+- (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _db = db;
     _serializer = serializer;
@@ -75,30 +58,26 @@ static ReadOptions StandardReadOptions() {
   return self;
 }
 
-- (void)shutdown {
-  _db.reset();
-}
-
-- (void)addEntry:(FSTMaybeDocument *)document group:(FSTWriteGroup *)group {
+- (void)addEntry:(FSTMaybeDocument *)document {
   std::string key = [self remoteDocumentKey:document.key];
-  [group setMessage:[self.serializer encodedMaybeDocument:document] forKey:key];
+  _db.currentTransaction->Put(key, [self.serializer encodedMaybeDocument:document]);
 }
 
-- (void)removeEntryForKey:(FSTDocumentKey *)documentKey group:(FSTWriteGroup *)group {
+- (void)removeEntryForKey:(const DocumentKey &)documentKey {
   std::string key = [self remoteDocumentKey:documentKey];
-  [group removeMessageForKey:key];
+  _db.currentTransaction->Delete(key);
 }
 
-- (nullable FSTMaybeDocument *)entryForKey:(FSTDocumentKey *)documentKey {
+- (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
   std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
   std::string value;
-  Status status = _db->Get(StandardReadOptions(), key, &value);
+  Status status = _db.currentTransaction->Get(key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (status.ok()) {
-    return [self decodedMaybeDocument:value withKey:documentKey];
+    return [self decodeMaybeDocument:value withKey:documentKey];
   } else {
-    FSTFail(@"Fetch document for key (%@) failed with status: %s", documentKey,
+    FSTFail(@"Fetch document for key (%s) failed with status: %s", documentKey.ToString().c_str(),
             status.ToString().c_str());
   }
 }
@@ -109,36 +88,32 @@ static ReadOptions StandardReadOptions() {
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
   std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
-  std::unique_ptr<Iterator> it(_db->NewIterator(StandardReadOptions()));
+  auto it = _db.currentTransaction->NewIterator();
   it->Seek(startKey);
 
   FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
   for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
     FSTMaybeDocument *maybeDoc =
-        [self decodedMaybeDocument:it->value() withKey:currentKey.documentKey];
-    if (![query.path isPrefixOfPath:maybeDoc.key.path]) {
+        [self decodeMaybeDocument:it->value() withKey:currentKey.documentKey];
+    if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)maybeDoc forKey:maybeDoc.key];
     }
   }
 
-  Status status = it->status();
-  if (!status.ok()) {
-    FSTFail(@"Find documents matching query (%@) failed with status: %s", query,
-            status.ToString().c_str());
-  }
-
   return results;
 }
 
-- (std::string)remoteDocumentKey:(FSTDocumentKey *)key {
+- (std::string)remoteDocumentKey:(const DocumentKey &)key {
   return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
 }
 
-- (FSTMaybeDocument *)decodedMaybeDocument:(Slice)slice withKey:(FSTDocumentKey *)documentKey {
-  NSData *data =
-      [[NSData alloc] initWithBytesNoCopy:(void *)slice.data() length:slice.size() freeWhenDone:NO];
+- (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded
+                                  withKey:(const DocumentKey &)documentKey {
+  NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
+                                              length:encoded.size()
+                                        freeWhenDone:NO];
 
   NSError *error;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];
@@ -148,8 +123,8 @@ static ReadOptions StandardReadOptions() {
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
   FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%@) instead of expected key (%@).", maybeDocument.key,
-            documentKey);
+            @"Read document has key (%s) instead of expected key (%s).",
+            maybeDocument.key.ToString().c_str(), documentKey.ToString().c_str());
   return maybeDocument;
 }
 

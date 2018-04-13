@@ -211,7 +211,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
 }
 
 + (NSString *) firebaseDir {
-    #if TARGET_OS_IOS
+    #if TARGET_OS_IOS || TARGET_OS_TV
     NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDir = [dirPaths objectAtIndex:0];
     return [documentsDir stringByAppendingPathComponent:@"firebase"];
@@ -687,7 +687,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
                 NSString *doubleString = [value stringValue];
                 return [NSNumber numberWithDouble:[doubleString doubleValue]];
             } else {
-                return [NSNumber numberWithLong:[value longValue]];
+                return [NSNumber numberWithLongLong:[value longLongValue]];
             }
         }
     }

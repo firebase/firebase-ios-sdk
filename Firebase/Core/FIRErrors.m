@@ -27,7 +27,3 @@ NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.durabledeep
 NSString *const kFirebaseInstanceIDErrorDomain = @"com.firebase.instanceid";
 NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 NSString *const kFirebaseStorageErrorDomain = @"com.firebase.storage";
-
-NSError *FIRCreateError(NSString *domain, enum FIRErrorCode code, NSDictionary *userInfo) {
-  return [NSError errorWithDomain:domain code:code userInfo:userInfo];
-}

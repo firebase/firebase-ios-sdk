@@ -16,19 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTMutationQueue.h"
-
-#ifdef __cplusplus
 #include <memory>
 
-namespace leveldb {
-class DB;
-}
-#endif
+#import "Firestore/Source/Local/FSTMutationQueue.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "leveldb/db.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
-@class FSTUser;
 @protocol FSTGarbageCollector;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,15 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** The garbage collector to notify about potential garbage keys. */
 @property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
 
-#ifdef __cplusplus
 /**
  * Creates a new mutation queue for the given user, in the given LevelDB.
  *
  * @param user The user for which to create a mutation queue.
  * @param db The LevelDB in which to create the queue.
  */
-+ (instancetype)mutationQueueWithUser:(FSTUser *)user
-                                   db:(std::shared_ptr<leveldb::DB>)db
++ (instancetype)mutationQueueWithUser:(const firebase::firestore::auth::User &)user
+                                   db:(FSTLevelDB *)db
                            serializer:(FSTLocalSerializer *)serializer;
 
 /**
@@ -57,7 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
  * returns 0. Note that batch IDs are global.
  */
 + (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<leveldb::DB>)db;
-#endif
 
 @end
 

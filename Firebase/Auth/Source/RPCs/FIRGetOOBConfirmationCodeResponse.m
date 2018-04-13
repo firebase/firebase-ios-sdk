@@ -16,8 +16,6 @@
 
 #import "FIRGetOOBConfirmationCodeResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kOOBCodeKey

@@ -18,6 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
+#import "Firestore/Source/Core/FSTTypes.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
@@ -27,6 +28,7 @@
 @class FIRFirestoreSettings;
 @class FIRQuery;
 @class FSTEventAccumulator;
+@class FSTDispatchQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,8 +62,6 @@ extern "C" {
 - (FIRCollectionReference *)collectionRefWithDocuments:
     (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents;
 
-- (void)waitForIdleFirestore:(FIRFirestore *)firestore;
-
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection;
 
@@ -81,6 +81,12 @@ extern "C" {
 - (void)updateDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
+
+- (void)disableNetwork;
+
+- (void)enableNetwork;
+
+- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore;
 
 /**
  * "Blocks" the current thread/run loop until the block returns YES.

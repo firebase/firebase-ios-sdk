@@ -1608,7 +1608,19 @@
         "stateExpect": {
           "activeTargets": {},
           "limboDocs": []
-        }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
       },
       {
         "enableNetwork": true,

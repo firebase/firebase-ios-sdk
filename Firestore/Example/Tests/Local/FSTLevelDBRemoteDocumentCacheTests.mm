@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
+#include <string>
+
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
-
-#include <leveldb/db.h>
-
-#include "Firestore/Port/ordered_code.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using leveldb::WriteOptions;
-using Firestore::OrderedCode;
+using firebase::firestore::util::OrderedCode;
 
 // A dummy document value, useful for testing code that's known to examine only document keys.
 static const char *kDummy = "1";
@@ -57,7 +57,6 @@ static const char *kDummy = "1";
 }
 
 - (void)tearDown {
-  [self.remoteDocumentCache shutdown];
   self.remoteDocumentCache = nil;
   self.persistence = nil;
   _db = nil;

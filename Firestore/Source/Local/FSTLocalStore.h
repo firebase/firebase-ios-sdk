@@ -21,6 +21,9 @@
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
 @class FSTMutation;
@@ -29,7 +32,6 @@
 @class FSTQuery;
 @class FSTQueryData;
 @class FSTRemoteEvent;
-@class FSTUser;
 @protocol FSTPersistence;
 @protocol FSTGarbageCollector;
 
@@ -80,15 +82,13 @@ NS_ASSUME_NONNULL_BEGIN
 /** Creates a new instance of the FSTLocalStore with its required dependencies as parameters. */
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
-                        initialUser:(FSTUser *)initialUser NS_DESIGNATED_INITIALIZER;
+                        initialUser:(const firebase::firestore::auth::User &)initialUser
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Performs any initial startup actions required by the local store. */
 - (void)start;
-
-/** Releases any open resources. */
-- (void)shutdown;
 
 /**
  * Tells the FSTLocalStore that the currently authenticated user has changed.
@@ -96,13 +96,13 @@ NS_ASSUME_NONNULL_BEGIN
  * In response the local store switches the mutation queue to the new user and returns any
  * resulting document changes.
  */
-- (FSTMaybeDocumentDictionary *)userDidChange:(FSTUser *)user;
+- (FSTMaybeDocumentDictionary *)userDidChange:(const firebase::firestore::auth::User &)user;
 
 /** Accepts locally generated Mutations and commits them to storage. */
 - (FSTLocalWriteResult *)locallyWriteMutations:(NSArray<FSTMutation *> *)mutations;
 
 /** Returns the current value of a document with a given key, or nil if not found. */
-- (nullable FSTMaybeDocument *)readDocument:(FSTDocumentKey *)key;
+- (nullable FSTMaybeDocument *)readDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Acknowledges the given batch.
