@@ -37,7 +37,6 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
-
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "NSError+FIRMessaging.h"
@@ -449,6 +448,7 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
   self.apnsTokenData = apnsToken;
 
+  // Notify InstanceID that APNS Token has been set.
   NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
   NSNotification *notification =
       [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
