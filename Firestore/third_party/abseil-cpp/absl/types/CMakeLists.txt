@@ -14,12 +14,37 @@
 # limitations under the License.
 #
 
+list(APPEND TYPES_PUBLIC_HEADERS
+  "bad_optional_access.h"
+  "optional.h"
+)
 
+# optional library
+list(APPEND OPTIONAL_SRC
+  "optional.cc"
+)
 
-add_subdirectory(base)
-add_subdirectory(memory)
-add_subdirectory(meta)
-add_subdirectory(numeric)
-add_subdirectory(strings)
-add_subdirectory(types)
-add_subdirectory(utility)
+absl_library(
+  TARGET
+    absl_optional
+  SOURCES
+    ${OPTIONAL_SRC}
+  PUBLIC_LIBRARIES
+    absl::base
+  EXPORT_NAME
+    optional
+)
+
+set(BAD_OPTIONAL_ACCESS_SRC "bad_optional_access.cc")
+set(BAD_OPTIONAL_ACCESS_LIBRARIES absl::base)
+
+absl_library(
+  TARGET
+    absl_bad_optional_access
+  SOURCES
+    ${BAD_OPTIONAL_ACCESS_SRC}
+  PUBLIC_LIBRARIES
+    ${BAD_OPTIONAL_ACCESS_PUBLIC_LIBRARIES}
+  EXPORT_NAME
+    bad_optional_access
+)
