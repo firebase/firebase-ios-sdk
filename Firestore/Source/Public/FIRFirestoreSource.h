@@ -41,8 +41,8 @@
  * `QuerySnapshot.getDocuments()` will return an empty `QuerySnapshot` with no
  * documents.
  */
-typedef NS_ENUM(NSUInteger, FIRGetSource) {
-  FIRGetSourceDefault,
-  FIRGetSourceServer,
-  FIRGetSourceCache
-} NS_SWIFT_NAME(Source);
+typedef NS_ENUM(NSUInteger, FIRFirestoreSource) {
+  FIRFirestoreSourceDefault,
+  FIRFirestoreSourceServer,
+  FIRFirestoreSourceCache
+} NS_SWIFT_NAME(FirestoreSource);
