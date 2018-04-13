@@ -38,7 +38,7 @@ namespace {
 /**
  * This deviates from the other platforms that define TypeOrder. Since
  * we already define Type for union types, we use it together with this
- * function to achive the equivalent order of types i.e.
+ * function to achieve the equivalent order of types i.e.
  *     i) if two types are comparable, then they are of equal order;
  *    ii) otherwise, their order is the same as the order of their Type.
  */
@@ -148,7 +148,8 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     default:
       // We just copy over POD union types.
-      return *this = value;
+      *this = value;
+      return *this;
   }
 }
 

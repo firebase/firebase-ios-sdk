@@ -22,7 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-User::User() : uid_(), is_authenticated_(false) {
+User::User() : is_authenticated_(false) {
 }
 
 User::User(const absl::string_view uid) : uid_(uid), is_authenticated_(true) {

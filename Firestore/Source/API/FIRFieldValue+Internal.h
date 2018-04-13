@@ -18,6 +18,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface FIRFieldValue (Internal)
+/**
+ * The method name (e.g. "FieldValue.delete()") that was used to create this FIRFieldValue
+ * instance, for use in error messages, etc.
+ */
+@property(nonatomic, strong, readonly) NSString *methodName;
+@end
+
 /**
  * FIRFieldValue class for field deletes. Exposed internally so code can do isKindOfClass checks on
  * it.

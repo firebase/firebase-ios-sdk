@@ -47,7 +47,7 @@ class ComparatorHolder {
 template <typename C>
 class ComparatorHolder<C, true> : private C {
  protected:
-  explicit ComparatorHolder(const C&) noexcept {
+  explicit ComparatorHolder(const C& /* comparator */) noexcept {
   }
 
   const C& comparator() const noexcept {

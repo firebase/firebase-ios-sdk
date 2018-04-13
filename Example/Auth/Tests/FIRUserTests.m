@@ -72,6 +72,48 @@ static NSString *const kAccessToken = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2
     "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
     "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
 
+/** @var kAccessTokenLength415
+    @brief The fake access token with 415 characters in the claims potion of the token.
+ */
+static NSString *const kAccessTokenLength415 = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD"
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd"
+    "CIsImF1ZCI6InRlc3RfYXVkIiwiYXV0aF90aW1lIjoxNTIyMzYwNTQ5LCJ1c2VyX2lkIjoidGVzdF91c2VyX2lkIiwic3V"
+    "iIjoidGVzdF9zdWIiLCJpYXQiOjE1MjIzNjA1NTcsImV4cCI6MTUyMjM2NDE1NywiZW1haWwiOiJhdW5pdGVzdHVzZXJAZ"
+    "21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImF"
+    "1bml0ZXN0dXNlckBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ=.WFQqSrpVnxx7m"
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpOvqKC"
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN"
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
+
+/** @var kAccessTokenLength416
+    @brief The fake access token with 416 characters in the claims potion of the token.
+ */
+static NSString *const kAccessTokenLength416 = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD"
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd"
+    "DIiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIsInN"
+    "1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1MjIzNjQxNTcsImVtYWlsIjoiYXVuaXRlc3R1c2VyQ"
+    "GdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ"
+    "hdW5pdGVzdHVzZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0=.WFQqSrpVnxx7m"
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpOvqKC"
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN"
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
+
+/** @var kAccessTokenLength4523
+    @brief The fake access token with 523 characters in the claims potion of the token.
+ */
+static NSString *const kAccessTokenLength523 = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD"
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd"
+    "DQiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZF81NDM"
+    "yIiwic3ViIjoidGVzdF9zdWIiLCJpYXQiOjE1MjIzNjA1NTcsImV4cCI6MTUyMjM2NDE1OSwiZW1haWwiOiJhdW5pdGVzd"
+    "HVzZXI0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWl"
+    "sIjpbImF1bml0ZXN0dXNlckBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ=.WFQqSrpVn"
+    "xx7mUrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpO"
+    "vqKC3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH"
+    "7jjNhHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqV"
+    "kPbWlddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
+
 /** @var kNewAccessToken
     @brief A new value for the fake access token.
  */
@@ -952,47 +994,16 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testGetIDTokenResultForcingRefreshSuccess
-    @brief Tests the flow of a successful @c getIDTokenResultForcingRefresh:completion: call.
+/** @fn testGetIDTokenResultForcingRefreshFailure
+    @brief Tests the flow successful @c getIDTokenResultForcingRefresh:completion: calls.
  */
 - (void)testGetIDTokenResultForcingRefreshSuccess {
-  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
-  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
-  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
-  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
-  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
-                                             completion:^(FIRUser *user) {
-    OCMExpect([_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
-        .andCallBlock2(^(FIRSecureTokenRequest *_Nullable request,
-                         FIRSecureTokenResponseCallback callback) {
-      XCTAssertEqualObjects(request.APIKey, kAPIKey);
-
-      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-        id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
-        OCMStub([mockSecureTokenResponse accessToken]).andReturn(kAccessToken);
-        callback(mockSecureTokenResponse, nil);
-      });
-    });
-    [user getIDTokenResultForcingRefresh:YES
-                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
-                                           NSError *_Nullable error) {
-      XCTAssertTrue([NSThread isMainThread]);
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(tokenResult.token, kAccessToken);
-      XCTAssertTrue(tokenResult.issuedAtDate &&
-          [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
-      XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
-      XCTAssertTrue(tokenResult.expirationDate &&
-          [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
-      XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
-      [expectation fulfill];
-    }];
-  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessToken];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength415];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength416];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength523];
 }
+
 
 /** @fn testGetIDTokenResultForcingRefreshFailure
     @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.
@@ -2092,6 +2103,49 @@ static const NSTimeInterval kExpectationTimeout = 2;
 #endif
 
 #pragma mark - Helpers
+
+/** @fn getIDTokenResultForcingRefreshSuccess
+    @brief Helper for testing the flow of a successful @c
+        getIDTokenResultForcingRefresh:completion: call.
+ */
+- (void)getIDTokenResultForcingRefreshSuccessWithIDToken:(NSString *)idToken {
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
+  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *user) {
+    OCMExpect([_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSecureTokenRequest *_Nullable request,
+                         FIRSecureTokenResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
+        OCMStub([mockSecureTokenResponse accessToken]).andReturn(idToken);
+        callback(mockSecureTokenResponse, nil);
+      });
+    });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(tokenResult.token, idToken);
+      XCTAssertTrue(tokenResult.issuedAtDate &&
+          [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.expirationDate &&
+          [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
 
 /** @fn signInWithEmailPasswordWithMockGetAccountInfoResponse:completion:
     @brief Signs in with an email and password account with mocked backend end calls.

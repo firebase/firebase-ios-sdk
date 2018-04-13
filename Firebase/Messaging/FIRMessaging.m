@@ -572,18 +572,16 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   [self validateDelegateConformsToTokenAvailabilityMethods];
 }
 
-// Check if the delegate conforms to either |didReceiveRegistrationToken:| or
-// |didRefreshRegistrationToken:|, and display a warning to the developer if not.
+// Check if the delegate conforms to |didReceiveRegistrationToken:|
+// and display a warning to the developer if not.
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
   if (self.delegate &&
-      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)] &&
-      ![self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
+      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
                            @"The object %@ does not respond to "
-                           @"-messaging:didReceiveRegistrationToken:, nor "
-                           @"-messaging:didRefreshRegistrationToken:. Please implement "
+                           @"-messaging:didReceiveRegistrationToken:. Please implement "
                            @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
                            @"token.", self.delegate.description);
   }
@@ -877,13 +875,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
     if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
       [self notifyDelegateOfFCMTokenAvailability];
     }
-    // Call deprecated refresh method, because it should still work (until it is removed).
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
-      [self.delegate messaging:self didRefreshRegistrationToken:token];
-    }
-#pragma clang diagnostic pop
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
   }

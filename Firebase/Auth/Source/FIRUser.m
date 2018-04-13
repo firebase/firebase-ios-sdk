@@ -836,20 +836,26 @@ static void callInMainThreadWithAuthDataResultAndError(
   NSMutableString *tokenPayload = [[NSMutableString alloc] initWithString:tokenStringArray[1]];
 
   // Pad the token payload with "=" signs if the payload's length is not a multple of 4.
-  int remainder = tokenPayload.length % 4 != 0;
-  if (remainder) {
-    while (remainder --) {
-      [tokenPayload appendString:@"="];
-    }
+  while ((tokenPayload.length % 4) != 0) {
+    [tokenPayload appendFormat:@"="];
   }
   NSData *decodedTokenPayloadData =
       [[NSData alloc] initWithBase64EncodedString:tokenPayload
                                           options:NSDataBase64DecodingIgnoreUnknownCharacters];
+  if (!decodedTokenPayloadData) {
+    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
+    return nil;
+  }
   NSDictionary *tokenPayloadDictionary =
       [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
-                                      options:kNilOptions
+                                      options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
                                         error:error];
   if (error) {
+    return nil;
+  }
+
+  if (!tokenPayloadDictionary) {
+    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
     return nil;
   }
 

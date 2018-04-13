@@ -47,7 +47,7 @@ TEST(ResourcePath, Constructor) {
   EXPECT_EQ(path_from_list, copied);
   const ResourcePath moved = std::move(copied);
   EXPECT_EQ(path_from_list, moved);
-  EXPECT_NE(copied, moved);
+  EXPECT_NE(copied, moved);  // NOLINT: use after move intended
   EXPECT_EQ(empty_path, copied);
 }
 

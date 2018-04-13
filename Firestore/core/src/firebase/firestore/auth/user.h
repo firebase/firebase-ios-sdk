@@ -41,7 +41,7 @@ class User {
   User();
 
   /** Construct an authenticated user with the given UID. */
-  explicit User(const absl::string_view uid);
+  explicit User(absl::string_view uid);
 
   const std::string& uid() const {
     return uid_;

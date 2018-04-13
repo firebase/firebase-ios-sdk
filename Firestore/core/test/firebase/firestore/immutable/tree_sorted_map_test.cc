@@ -25,7 +25,7 @@ namespace firestore {
 namespace immutable {
 namespace impl {
 
-typedef TreeSortedMap<int, int> IntMap;
+using IntMap = TreeSortedMap<int, int>;
 
 TEST(TreeSortedMap, EmptySize) {
   IntMap map;
