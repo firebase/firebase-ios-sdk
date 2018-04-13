@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRStorageGetDownloadURLTask ()
 
-+ (NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary;
+/** Extracts a download URL from the StorageMetadata dictonary representation. */
++ (nullable NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary;
 
 @end
 
