@@ -19,7 +19,9 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
@@ -28,8 +30,9 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-MutationResult::MutationResult(SnapshotVersion version,
-                               std::vector<FieldValue> transform_results)
+MutationResult::MutationResult(
+    absl::optional<SnapshotVersion> version,
+    absl::optional<std::vector<FieldValue>> transform_results)
     : version_(std::move(version)),
       transform_results_(std::move(transform_results)) {
 }
@@ -45,36 +48,32 @@ SetMutation::SetMutation(DocumentKey key,
       value_(std::move(value)) {
 }
 
-MaybeDocument SetMutation::ApplyTo(
-    const MaybeDocument& maybe_doc,
-    const MaybeDocument& base_doc,
+MaybeDocumentPointer SetMutation::ApplyTo(
+    const MaybeDocumentPointer& maybe_doc,
+    const MaybeDocumentPointer& base_doc,
     const Timestamp& local_write_time,
-    const MutationResult& mutation_result) const {
-  FIREBASE_ASSERT_MESSAGE(mutation_result.transform_results.empty(), "Transform results received by FSTSetMutation.");
-
-  if (!precondition_.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+    const absl::optional<MutationResult>& mutation_result) const {
+  if (mutation_result) {
+    FIREBASE_ASSERT_MESSAGE(!mutation_result->transform_results(),
+                            "Transform results received by SetMutation.");
   }
 
-  BOOL hasLocalMutations = (mutationResult == nil);
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
+  if (!precondition_.IsValidFor(maybe_doc)) {
+    return maybe_doc;
+  }
+
+  bool has_local_mutations = mutation_result.has_value();
+  if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // If the document didn't exist before, create it.
-    return [FSTDocument documentWithData:self.value
-                                     key:self.key
-                                 version:[FSTSnapshotVersion noVersion]
-                       hasLocalMutations:hasLocalMutations];
+    return std::make_shared<Document>(value_, key_, SnapshotVersion::None(), has_local_mutations);
   }
 
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown
-  MaybeDocument type %@", [maybeDoc class]); FSTDocument *doc = (FSTDocument
-  *)maybeDoc;
+  FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
+            "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document *doc = static_cast<Document *>(maybe_doc.get());
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only set a document with the same
-  key"); return [FSTDocument documentWithData:self.value key:doc.key
-                               version:doc.version
-                     hasLocalMutations:hasLocalMutations];
-  */
-  return MaybeDocument{key_, SnapshotVersion::None()};
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only set a document with the same key");
+  return std::make_shared<Document>(value_, key_, doc->version(), has_local_mutations);
 }
 
 PatchMutation::PatchMutation(DocumentKey key,
@@ -86,122 +85,113 @@ PatchMutation::PatchMutation(DocumentKey key,
       value_(std::move(value)) {
 }
 
-MaybeDocument PatchMutation::ApplyTo(
-    const MaybeDocument& maybe_doc,
-    const MaybeDocument& base_doc,
+MaybeDocumentPointer PatchMutation::ApplyTo(
+    const MaybeDocumentPointer& maybe_doc,
+    const MaybeDocumentPointer& base_doc,
     const Timestamp& local_write_time,
-    const MutationResult& mutation_result) const {
-  /*
-    if (mutationResult) {
-    FSTAssert(!mutationResult.transformResults, @"Transform results received by
-  FSTPatchMutation.");
+    const absl::optional<MutationResult>& mutation_result) const {
+  if (mutation_result) {
+    FIREBASE_ASSERT_MESSAGE(!mutation_result->transform_results(),
+                            "Transform results received by PatchMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+  if (!precondition_.IsValidFor(maybe_doc)) {
+    return maybe_doc;
   }
 
-  BOOL hasLocalMutations = (mutationResult == nil);
-  if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
+  bool has_local_mutations = mutation_result.has_value();
+  if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // Precondition applied, so create the document if necessary
-    const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
-    FSTSnapshotVersion *version = maybeDoc ? maybeDoc.version :
-  [FSTSnapshotVersion noVersion]; maybeDoc = [FSTDocument
-  documentWithData:[FSTObjectValue objectValue] key:key version:version
-                           hasLocalMutations:hasLocalMutations];
+    const DocumentKey& key = maybe_doc ? maybe_doc.key() : key_;
+    const SnapshotVersion& version = maybe_doc ? maybe_doc.version() : SnapshotVersion::None();
+    FIREBASE_ASSERT_MESSAGE(key == key_, "Can only patch a document with the same key");
+    return std::make_shared<Document>(PatchObjectValue(FieldValue::ObjectValueFromMap({})), key, version, has_local_mutations);
   }
 
   FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown
   MaybeDocument type %@", [maybeDoc class]); FSTDocument *doc = (FSTDocument
   *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the
-  same key");
-
-  FSTObjectValue *newData = [self patchObjectValue:doc.data];
-  return [FSTDocument documentWithData:newData
-                                   key:doc.key
-                               version:doc.version
-                     hasLocalMutations:hasLocalMutations];
-  */
-  return MaybeDocument{key_, SnapshotVersion::None()};
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only patch a document with the same key");
+  return std::make_shared<Document>(PatchObjectValue(doc->data()), doc->key(), doc->version(), has_local_mutations);
 }
 
 TransformMutation::TransformMutation(
     DocumentKey key, std::vector<FieldTransform> field_transforms)
-    // NOTE: We set a precondition of exists: true as a safety-check, since we
-    // always combine TransformMutations with a SetMutation or PatchMutation
-    // which (if successful) should end up with an existing document.
+    // NOTE: We set a precondition of exists: true as a safety-check, since
+    // we always combine TransformMutations with a SetMutation or
+    // PatchMutation which (if successful) should end up with an existing
+    // document.
     : Mutation(std::move(key), Precondition::Exists(true)),
       field_transforms_(std::move(field_transforms)) {
 }
 
-MaybeDocument TransformMutation::ApplyTo(
-    const MaybeDocument& maybe_doc,
-    const MaybeDocument& base_doc,
+MaybeDocumentPointer TransformMutation::ApplyTo(
+    const MaybeDocumentPointer& maybe_doc,
+    const MaybeDocumentPointer& base_doc,
     const Timestamp& local_write_time,
-    const MutationResult& mutation_result) const {
+    const absl::optional<MutationResult>& mutation_result) const {
   /*
-    if (mutationResult) {
-    FSTAssert(mutationResult.transformResults,
+    if (mutation_result) {
+    FSTAssert(mutation_result.transformResults,
               @"Transform results missing for FSTTransformMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+  if (!self.precondition.IsValidFor(maybe_doc)) {
+    return maybe_doc;
   }
 
-  // We only support transforms with precondition exists, so we can only apply
-  it to an existing
+  // We only support transforms with precondition exists, so we can only
+  apply it to an existing
   // document
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown
-  MaybeDocument type %@", [maybeDoc class]); FSTDocument *doc = (FSTDocument
-  *)maybeDoc;
+  FSTAssert([maybe_doc isMemberOfClass:[FSTDocument class]], @"Unknown
+  MaybeDocument type %@", [maybe_doc class]); FSTDocument *doc = (FSTDocument
+  *)maybe_doc;
 
   FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the
   same key");
 
-  BOOL hasLocalMutations = (mutationResult == nil);
+  bool has_local_mutations = (mutation_result == nil);
   NSArray<FSTFieldValue *> *transformResults =
-      mutationResult
-          ? mutationResult.transformResults
+      mutation_result
+          ? mutation_result.transformResults
           : [self localTransformResultsWithBaseDocument:baseDoc
   writeTime:localWriteTime]; FSTObjectValue *newData = [self
   transformObject:doc.data transformResults:transformResults]; return
   [FSTDocument documentWithData:newData key:doc.key version:doc.version
-                     hasLocalMutations:hasLocalMutations];
+                     has_local_mutations:has_local_mutations];
   */
-  return MaybeDocument{key_, SnapshotVersion::None()};
+  return MaybeDocumentPointer{key_, SnapshotVersion::None()};
 }
 
 DeleteMutation::DeleteMutation(DocumentKey key, Precondition precondition)
     : Mutation(std::move(key), std::move(precondition)) {
 }
 
-MaybeDocument DeleteMutation::ApplyTo(
-    const MaybeDocument& maybe_doc,
-    const MaybeDocument& base_doc,
+MaybeDocumentPointer DeleteMutation::ApplyTo(
+    const MaybeDocumentPointer& maybe_doc,
+    const MaybeDocumentPointer& base_doc,
     const Timestamp& local_write_time,
-    const MutationResult& mutation_result) const {
+    const absl::optional<MutationResult>& mutation_result) const {
   /*
-    if (mutationResult) {
-    FSTAssert(!mutationResult.transformResults,
+    if (mutation_result) {
+    FSTAssert(!mutation_result.transformResults,
               @"Transform results received by FSTDeleteMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybeDoc)) {
-    return maybeDoc;
+  if (!self.precondition.IsValidFor(maybe_doc)) {
+    return maybe_doc;
   }
 
-  if (maybeDoc) {
-    FSTAssert([maybeDoc.key isEqual:self.key], @"Can only delete a document with
-  the same key");
+  if (maybe_doc) {
+    FSTAssert([maybe_doc.key isEqual:self.key], @"Can only delete a document
+  with the same key");
   }
 
   return [FSTDeletedDocument documentWithKey:self.key
   version:[FSTSnapshotVersion noVersion]];
   */
-  return MaybeDocument{key_, SnapshotVersion::None()};
+  return MaybeDocumentPointer{key_, SnapshotVersion::None()};
 }
 
 }  // namespace model

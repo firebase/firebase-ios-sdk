@@ -23,7 +23,7 @@ cc_test(
     field_transform_test.cc
     field_value_test.cc
     maybe_document_test.cc
-#    mutations_test.cc
+    mutations_test.cc
     no_document_test.cc
     precondition_test.cc
     resource_path_test.cc

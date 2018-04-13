@@ -20,7 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-
+#include "absl/types/optional.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -29,14 +29,14 @@ namespace model {
 
 TEST(MutationResult, DeletedResult) {
   const MutationResult result;
-  EXPECT_EQ(SnapshotVersion::None(), result.version());
-  EXPECT_TRUE(result.transform_results().empty());
+  EXPECT_EQ(absl::nullopt, result.version());
+  EXPECT_EQ(absl::nullopt, result.transform_results());
 }
 
 TEST(MutationResult, PatchResult) {
   const MutationResult result{testutil::Version(12345)};
   EXPECT_EQ(testutil::Version(12345), result.version());
-  EXPECT_TRUE(result.transform_results().empty());
+  EXPECT_EQ(absl::nullopt, result.transform_results());
 }
 
 TEST(MutationResult, TransformResult) {

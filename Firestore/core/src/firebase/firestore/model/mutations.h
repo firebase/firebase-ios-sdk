@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATIONS_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATIONS_H_
 
+#include <memory>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -25,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -33,28 +35,29 @@ namespace model {
 /** Represents the result from a Mutation. */
 class MutationResult {
  public:
-  MutationResult(SnapshotVersion version = SnapshotVersion::None(),
-                 std::vector<FieldValue> transform_results = {});
+  MutationResult(absl::optional<SnapshotVersion> version = absl::nullopt,
+                 absl::optional<std::vector<FieldValue>> transform_results =
+                     absl::nullopt);
 
-  const SnapshotVersion& version() const {
+  const absl::optional<SnapshotVersion>& version() const {
     return version_;
   }
 
-  const std::vector<FieldValue>& transform_results() const {
+  const absl::optional<std::vector<FieldValue>>& transform_results() const {
     return transform_results_;
   }
 
  private:
-  // The version at which the mutation was committed or SnapshotVersion::None()
+  // The version at which the mutation was committed or absl::nullopt
   // for a delete.
-  SnapshotVersion version_;
+  absl::optional<SnapshotVersion> version_;
 
   // The resulting fields returned from the backend after a TransformMutation
   // has been committed. Contains one FieldValue for each FieldTransform that
   // was in the mutation.
   //
-  // Will be empty if the mutation was not a TransformMutation.
-  std::vector<FieldValue> transform_results_;
+  // Will be absl::nullopt if the mutation was not a TransformMutation.
+  absl::optional<std::vector<FieldValue>> transform_results_;
 };
 
 // TODO(zxu123): We might want to refactor mutations.h into several
@@ -134,20 +137,21 @@ class Mutation {
    * resulted in a Document (always true for an SetMutation, but not
    * necessarily for an PatchMutation).
    */
-  virtual MaybeDocument ApplyTo(
-      const MaybeDocument& maybe_doc,
-      const MaybeDocument& base_doc,
+  virtual MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
       const Timestamp& local_write_time,
-      const MutationResult& mutation_result) const = 0;
+      const absl::optional<MutationResult>& mutation_result) const = 0;
 
   /**
    * A helper version of applyTo for applying mutations locally (without a
    * mutation result from the backend).
    */
-  virtual MaybeDocument ApplyTo(const MaybeDocument& maybe_doc,
-                                const MaybeDocument& base_doc,
-                                const Timestamp& local_write_time) const {
-    return ApplyTo(maybe_doc, base_doc, local_write_time, {});
+  virtual MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time) const {
+    return ApplyTo(maybe_doc, base_doc, local_write_time, absl::nullopt);
   }
 
   const DocumentKey& key() const {
@@ -190,10 +194,11 @@ class SetMutation : public Mutation {
            value_ == dynamic_cast<const SetMutation&>(other).value_;
   }
 
-  MaybeDocument ApplyTo(const MaybeDocument& maybe_doc,
-                        const MaybeDocument& base_doc,
-                        const Timestamp& local_write_time,
-                        const MutationResult& mutation_result) const override;
+  MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time,
+      const absl::optional<MutationResult>& mutation_result) const override;
 
  private:
   // The object value to use when setting the document.
@@ -238,14 +243,16 @@ class PatchMutation : public Mutation {
 
   bool operator==(const Mutation& other) const override {
     return Mutation::operator==(other) &&
-           field_mask_ == dynamic_cast<const PatchMutation&>(other).field_mask_ &&
+           field_mask_ ==
+               dynamic_cast<const PatchMutation&>(other).field_mask_ &&
            value_ == dynamic_cast<const PatchMutation&>(other).value_;
   }
 
-  MaybeDocument ApplyTo(const MaybeDocument& maybe_doc,
-                        const MaybeDocument& base_doc,
-                        const Timestamp& local_write_time,
-                        const MutationResult& mutation_result) const override;
+  MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time,
+      const absl::optional<MutationResult>& mutation_result) const override;
 
  private:
   // A mask to apply to |value|, where only fields that are in both the
@@ -287,10 +294,11 @@ class TransformMutation : public Mutation {
                dynamic_cast<const TransformMutation&>(other).field_transforms_;
   }
 
-  MaybeDocument ApplyTo(const MaybeDocument& maybe_doc,
-                        const MaybeDocument& base_doc,
-                        const Timestamp& local_write_time,
-                        const MutationResult& mutation_result) const override;
+  MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time,
+      const absl::optional<MutationResult>& mutation_result) const override;
 
  private:
   // The field transforms to use when transforming the document.
@@ -305,10 +313,11 @@ class DeleteMutation : public Mutation {
     return Type::Delete;
   }
 
-  MaybeDocument ApplyTo(const MaybeDocument& maybe_doc,
-                        const MaybeDocument& base_doc,
-                        const Timestamp& local_write_time,
-                        const MutationResult& mutation_result) const override;
+  MaybeDocumentPointer ApplyTo(
+      const MaybeDocumentPointer& maybe_doc,
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time,
+      const absl::optional<MutationResult>& mutation_result) const override;
 };
 
 inline bool operator!=(const Mutation& lhs, const Mutation& rhs) {
@@ -319,4 +328,4 @@ inline bool operator!=(const Mutation& lhs, const Mutation& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_PRECONDITION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MUTATIONS_H_
