@@ -123,11 +123,19 @@ class ArrayTransform : public TransformOperation {
   }
 
   bool operator==(const TransformOperation& other) const override {
-    if (other.type() == type()) {
-      auto array_transform = static_cast<const ArrayTransform&>(other);
-      return array_transform.elements() == elements();
+    if (other.type() != type()) {
+      return false;
     }
-    return false;
+    auto array_transform = static_cast<const ArrayTransform&>(other);
+    if (array_transform.elements_.size() != elements_.size()) {
+      return false;
+    }
+    for (int i = 0; i < elements_.size(); i++) {
+      if (![array_transform.elements_[i] isEqual:elements_[i]]) {
+        return false;
+      }
+    }
+    return true;
   }
 
 #if defined(__OBJC__)
@@ -136,7 +144,7 @@ class ArrayTransform : public TransformOperation {
   NSUInteger Hash() const override {
     NSUInteger result = 37;
     result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
-    for (FSTFieldValue* element: elements_) {
+    for (FSTFieldValue* element : elements_) {
       result = 31 * result + [element hash];
     }
     return result;

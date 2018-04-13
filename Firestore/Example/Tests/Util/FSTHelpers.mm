@@ -122,7 +122,7 @@ NSDateComponents *FSTTestDateComponents(
   return comps;
 }
 
-FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
+FSTUserDataConverter *FSTTestUserDataConverter() {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"project", DatabaseId::kDefault};
   FSTUserDataConverter *converter =
@@ -130,6 +130,11 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
                                           preConverter:^id _Nullable(id _Nullable input) {
                                             return input;
                                           }];
+  return converter;
+}
+
+FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
+  FSTUserDataConverter *converter = FSTTestUserDataConverter();
   // HACK: We use parsedQueryValue: since it accepts scalars as well as arrays / objects, and
   // our tests currently use FSTTestFieldValue() pretty generically so we don't know the intent.
   return [converter parsedQueryValue:value];
@@ -279,17 +284,14 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
                                   precondition:Precondition::Exists(true)];
 }
 
-// For now this only creates TransformMutations with server timestamps.
-FSTTransformMutation *FSTTestTransformMutation(NSString *path,
-                                               NSArray<NSString *> *serverTimestampFields) {
+FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
-  std::vector<FieldTransform> fieldTransforms;
-  for (NSString *field in serverTimestampFields) {
-    FieldPath fieldPath = testutil::Field(util::MakeStringView(field));
-    auto transformOp = absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get());
-    fieldTransforms.emplace_back(std::move(fieldPath), std::move(transformOp));
-  }
-  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:std::move(fieldTransforms)];
+  FSTUserDataConverter *converter = FSTTestUserDataConverter();
+  FSTParsedUpdateData *result = [converter parsedUpdateData:data];
+  FSTCAssert(result.data.value.count == 0,
+             @"FSTTestTransformMutation() only expects transforms; no other data");
+  return [[FSTTransformMutation alloc] initWithKey:key
+                                   fieldTransforms:std::move(result.fieldTransforms)];
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {
