@@ -82,10 +82,10 @@ class DelayedOperation {
    */
   void Cancel();
 
-  DelayedOperation() = default;
+  DelayedOperation() {}
 
  private:
-  // Don't allow callers to create their own `DelayedOperation`s.
+  // Don't allow callers to create their own valid `DelayedOperation`s.
   friend class internal::AsyncQueueImpl;
   explicit DelayedOperation(
       const std::shared_ptr<internal::DelayedOperationImpl>& operation)

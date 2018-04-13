@@ -374,9 +374,9 @@ DelayedOperation AsyncQueueImpl::EnqueueAfterDelay(const Milliseconds delay,
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject
   // them.
-  // FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
-  //"Attempted to schedule multiple callbacks with id %d",
-  // timer_id);
+  FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
+                          "Attempted to schedule multiple callbacks with id %d",
+                          timer_id);
 
   operations_.push_back(std::make_shared<DelayedOperationImpl>(
       shared_from_this(), timer_id, delay, std::move(operation)));
