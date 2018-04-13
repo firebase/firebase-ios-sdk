@@ -56,6 +56,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingInternalErrorCode) {
   kFIRMessagingErrorCodePubSubAlreadyUnsubscribed = 3002,
   kFIRMessagingErrorCodePubSubInvalidTopic = 3003,
   kFIRMessagingErrorCodePubSubFIRMessagingNotSetup = 3004,
+  kFIRMessagingErrorCodePubSubOperationIsCancelled = 3005,
 };
 
 @interface NSError (FIRMessaging)

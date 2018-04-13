@@ -16,8 +16,6 @@
 
 #import "FIRSetAccountInfoResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRSetAccountInfoResponseProviderUserInfo
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary {

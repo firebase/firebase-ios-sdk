@@ -36,6 +36,12 @@ struct encryption_info_command {
 
 @implementation FIRAppEnvironmentUtil
 
+/// A key for the Info.plist to enable or disable checking if the App Store is running in a sandbox.
+/// This will affect your data integrity when using Firebase Analytics, as it will disable some
+/// necessary checks.
+static NSString *const kFIRAppStoreReceiptURLCheckEnabledKey =
+    @"FirebaseAppStoreReceiptURLCheckEnabled";
+
 /// The file name of the sandbox receipt. This is available on iOS >= 8.0
 static NSString *const kFIRAIdentitySandboxReceiptFileName = @"sandboxReceipt";
 
@@ -152,13 +158,23 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isAppStoreReceiptSandbox {
+  // Since checking the App Store's receipt URL can be memory intensive, check the option in the
+  // Info.plist if developers opted out of this check.
+  id enableSandboxCheck =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRAppStoreReceiptURLCheckEnabledKey];
+  if (enableSandboxCheck &&
+      [enableSandboxCheck isKindOfClass:[NSNumber class]] &&
+      ![enableSandboxCheck boolValue]) {
+    return NO;
+  }
+
   NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
   NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
   return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
 }
 
 + (BOOL)hasEmbeddedMobileProvision {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
   #elif TARGET_OS_OSX
   return NO;
@@ -166,7 +182,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isSimulator {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *platform = [FIRAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
   #elif TARGET_OS_OSX
@@ -188,15 +204,11 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  #if TARGET_OS_IOS
-  return [UIDevice currentDevice].systemVersion;
-  #elif TARGET_OS_OSX
   return [NSProcessInfo processInfo].operatingSystemVersionString;
-  #endif
 }
 
 + (BOOL)isAppExtension {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
@@ -205,29 +217,10 @@ static BOOL isAppEncrypted() {
   #endif
 }
 
-#if TARGET_OS_IOS
-+ (UIApplication *)sharedApplication {
-  if ([FIRAppEnvironmentUtil isAppExtension]) {
-    return nil;
-  }
-  id sharedApplication = nil;
-  Class uiApplicationClass = NSClassFromString(@"UIApplication");
-  if (uiApplicationClass &&
-      [uiApplicationClass respondsToSelector:(NSSelectorFromString(@"sharedApplication"))]) {
-    sharedApplication = [uiApplicationClass sharedApplication];
-  }
-  return sharedApplication;
-}
-#elif TARGET_OS_OSX
-+ (NSApplication *)sharedApplication {
-  return [NSApplication sharedApplication];
-}
-#endif
-
 #pragma mark - Helper methods
 
 + (BOOL)hasSCInfoFolder {
-  #if TARGET_OS_IOS
+  #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *bundlePath = [NSBundle mainBundle].bundlePath;
   NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
   return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];

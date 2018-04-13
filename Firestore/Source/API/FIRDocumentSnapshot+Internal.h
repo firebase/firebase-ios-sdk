@@ -16,9 +16,10 @@
 
 #import "FIRDocumentSnapshot.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FIRFirestore;
 @class FSTDocument;
-@class FSTDocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDocumentSnapshot (Internal)
 
 + (instancetype)snapshotWithFirestore:(FIRFirestore *)firestore
-                          documentKey:(FSTDocumentKey *)documentKey
+                          documentKey:(firebase::firestore::model::DocumentKey)documentKey
                              document:(nullable FSTDocument *)document
                             fromCache:(BOOL)fromCache;
 

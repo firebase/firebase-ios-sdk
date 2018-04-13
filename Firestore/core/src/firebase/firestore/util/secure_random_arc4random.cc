@@ -16,11 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
-#include "Firestore/core/src/firebase/firestore/base/port.h"
+#include "Firestore/core/src/firebase/firestore/util/config.h"
 
 #if HAVE_ARC4RANDOM
 
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace firebase {
 namespace firestore {

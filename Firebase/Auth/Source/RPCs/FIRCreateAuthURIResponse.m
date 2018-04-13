@@ -16,8 +16,6 @@
 
 #import "FIRCreateAuthURIResponse.h"
 
-#import "FIRAuthErrorUtils.h"
-
 @implementation FIRCreateAuthURIResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
@@ -27,6 +25,7 @@
   _registered = [dictionary[@"registered"] boolValue];
   _forExistingProvider = [dictionary[@"forExistingProvider"] boolValue];
   _allProviders = [dictionary[@"allProviders"] copy];
+  _signinMethods = [dictionary[@"signinMethods"] copy];
   return YES;
 }
 

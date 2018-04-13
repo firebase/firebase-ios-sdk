@@ -44,7 +44,7 @@
 #import "OCMStubRecorder+FIRAuthUnitTests.h"
 #import "Phone/FIRPhoneAuthCredential_Internal.h"
 
-@import SafariServices;
+#import <SafariServices/SafariServices.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -180,7 +180,7 @@ static const NSTimeInterval kTestTimeout = 5;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 1;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @class FIRPhoneAuthProviderTests
     @brief Tests for @c FIRPhoneAuthProvider

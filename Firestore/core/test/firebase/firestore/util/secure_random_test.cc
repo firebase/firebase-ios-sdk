@@ -30,3 +30,28 @@ TEST(SecureRandomTest, ResultsAreBounded) {
     EXPECT_LE(value, rng.max());
   }
 }
+
+TEST(SecureRandomTest, Uniform) {
+  SecureRandom rng;
+  int count[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  for (int i = 0; i < 1000; i++) {
+    count[rng.Uniform(10)]++;
+  }
+  for (int i = 0; i < 10; i++) {
+    // Practically, each count should be close to 100.
+    EXPECT_LT(50, count[i]) << count[i];
+  }
+}
+
+TEST(SecureRandomTest, OneIn) {
+  SecureRandom rng;
+  int count = 0;
+
+  for (int i = 0; i < 1000; i++) {
+    if (rng.OneIn(10)) count++;
+  }
+  // Practically, count should be close to 100.
+  EXPECT_LT(50, count) << count;
+  EXPECT_GT(150, count) << count;
+}

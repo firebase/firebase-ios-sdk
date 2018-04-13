@@ -164,7 +164,7 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
         XCTAssertEqual(pendingTopics.numberOfBatches, 1);
         [batchSizeReductionExpectation fulfill];
       }
-      completion(FIRMessagingTopicOperationResultSucceeded, nil);
+      completion(nil);
     });
   };
 
@@ -197,7 +197,7 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
         FIRMessagingTopicOperationCompletion completion) {
     // Typically, our callbacks happen asynchronously, but to ensure resilience,
     // call back the operation on the same thread it was called in.
-    completion(FIRMessagingTopicOperationResultSucceeded, nil);
+    completion(nil);
   };
 
   self.alwaysReadyDelegate.updateHandler = ^{
@@ -238,10 +238,9 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
     // Add a 0.5 second delay to the completion, to give time to add a straggler before the batch
     // is completed
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(),
-                   ^{
-      completion(FIRMessagingTopicOperationResultSucceeded, nil);
-    });
+                   dispatch_get_main_queue(), ^{
+                     completion(nil);
+                   });
   };
 
   // This is a normal topic, which should start fairly soon, but take a while to complete

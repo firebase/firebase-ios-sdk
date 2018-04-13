@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if

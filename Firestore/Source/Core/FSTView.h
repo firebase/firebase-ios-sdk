@@ -16,10 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocumentSet;
 @class FSTDocumentViewChangeSet;
 @class FSTMaybeDocument;
@@ -62,12 +64,14 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 // A change to a particular document wrt to whether it is in "limbo".
 @interface FSTLimboDocumentChange : NSObject
 
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(FSTDocumentKey *)key;
++ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type
+                           key:(firebase::firestore::model::DocumentKey)key;
 
 - (id)init __attribute__((unavailable("Use a static constructor method.")));
 
+- (const firebase::firestore::model::DocumentKey &)key;
+
 @property(nonatomic, assign, readonly) FSTLimboDocumentChangeType type;
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
 #pragma mark - FSTViewChange
@@ -137,6 +141,12 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  */
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
                               targetChange:(nullable FSTTargetChange *)targetChange;
+
+/**
+ * Applies an FSTOnlineState change to the view, potentially generating an FSTViewChange if the
+ * view's syncState changes as a result.
+ */
+- (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
 @end
 

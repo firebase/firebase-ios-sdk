@@ -107,7 +107,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock complete) {
     if (!forceRefresh && [self hasValidAccessToken]) {
       complete();
-      callback(_accessToken, nil, NO);
+      callback(self->_accessToken, nil, NO);
     } else {
       [self requestAccessToken:^(NSString *_Nullable token,
                                  NSError *_Nullable error,
@@ -184,14 +184,15 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
                                 NSError *_Nullable error) {
     BOOL tokenUpdated = NO;
     NSString *newAccessToken = response.accessToken;
-    if (newAccessToken.length && ![newAccessToken isEqualToString:_accessToken]) {
-      _accessToken = [newAccessToken copy];
-      _accessTokenExpirationDate = response.approximateExpirationDate;
+                       if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+                         self->_accessToken = [newAccessToken copy];
+                         self->_accessTokenExpirationDate = response.approximateExpirationDate;
       tokenUpdated = YES;
     }
     NSString *newRefreshToken = response.refreshToken;
-    if (newRefreshToken.length && ![newRefreshToken isEqualToString:_refreshToken]) {
-      _refreshToken = [newRefreshToken copy];
+                       if (newRefreshToken.length &&
+                           ![newRefreshToken isEqualToString:self->_refreshToken]) {
+                         self->_refreshToken = [newRefreshToken copy];
       tokenUpdated = YES;
     }
     callback(newAccessToken, error, tokenUpdated);

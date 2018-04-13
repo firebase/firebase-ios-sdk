@@ -33,7 +33,7 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
  * A sample configuration may look like:
  *
  * service firebase.storage {
- *   match /b/{YOUR_PROJECT_ID}.appspot.com/o {
+ *   match /b/{bucket}/o {
  *     ...
  *     match /ios {
  *       match /public/{allPaths=**} {

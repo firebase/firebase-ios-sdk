@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRMessaging.h"
 #import "FIRMessagingTopicsCommon.h"
 
 NS_ASSUME_NONNULL_BEGIN

@@ -1,11 +1,27 @@
 ## Usage
 
+First, make sure you have necessary prereqs for building:
+```
+brew install automake libtool protobuf
+```
+
+Take a nap while that completes. Then, build protobuf and nanopb:
+```
+cd firebase-ios-sdk
+mkdir -p build
+cd build
+cmake ..
+make -j protobuf nanopb
+```
+
+Next, build the protos:
 ```
 cd firebase-ios-sdk/Firestore/Protos
 ./build-protos.sh
 ```
 
-Verify diffs, tests and make PR
+Verify diffs (you'll likely need to re-add copyright notices, etc.), make sure
+tests still pass, and create a PR.
 
 ### Script Details
 

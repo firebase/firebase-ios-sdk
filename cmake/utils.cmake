@@ -12,16 +12,80 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Defines a new test executable and does all the things we want done with
-# tests:
+include(CMakeParseArguments)
+
+# cc_library(
+#   target
+#   SOURCES sources...
+#   DEPENDS libraries...
+# )
 #
-#   * add_executable (with the given arguments)
-#   * add_Test - defines a test with the same name
-#   * declares that the test links against gtest
-#   * adds the executable as a dependency of the `check` target.
+# Defines a new library target with the given target name, sources, and dependencies.
+function(cc_library name)
+  set(flag EXCLUDE_FROM_ALL)
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
+
+  add_library(
+    ${name}
+    ${ccl_SOURCES}
+  )
+  add_objc_flags(${name} ccl)
+  target_link_libraries(
+    ${name}
+    PUBLIC
+    ${ccl_DEPENDS}
+  )
+
+  if(ccl_EXCLUDE_FROM_ALL)
+    set_property(
+      TARGET ${name}
+      PROPERTY EXCLUDE_FROM_ALL ON
+    )
+  endif()
+
+endfunction()
+
+# cc_test(
+#   target
+#   SOURCES sources...
+#   DEPENDS libraries...
+# )
+#
+# Defines a new test executable target with the given target name, sources, and
+# dependencies.  Implicitly adds DEPENDS on GTest::GTest and GTest::Main.
 function(cc_test name)
-  add_executable(${name} ${ARGN})
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(cct "" "" "${multi}" ${ARGN})
+
+  list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
+
+  add_executable(${name} ${cct_SOURCES})
+  add_objc_flags(${name} cct)
   add_test(${name} ${name})
 
-  target_link_libraries(${name} GTest::GTest GTest::Main)
+  target_link_libraries(${name} ${cct_DEPENDS})
+endfunction()
+
+# add_objc_flags(target sources...)
+#
+# Adds OBJC_FLAGS to the compile options of the given target if any of the
+# sources have filenames that indicate they are are Objective-C.
+function(add_objc_flags target)
+  set(_has_objc OFF)
+
+  foreach(source ${ARGN})
+    get_filename_component(ext ${source} EXT)
+    if((ext STREQUAL ".m") OR (ext STREQUAL ".mm"))
+      set(_has_objc ON)
+    endif()
+  endforeach()
+
+  if(_has_objc)
+    target_compile_options(
+      ${target}
+      PRIVATE
+      ${OBJC_FLAGS}
+    )
+  endif()
 endfunction()

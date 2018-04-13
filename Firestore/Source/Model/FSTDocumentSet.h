@@ -18,8 +18,9 @@
 
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocument;
-@class FSTDocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,10 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /** Returns YES if this set contains a document with the given key. */
-- (BOOL)containsKey:(FSTDocumentKey *)key;
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
 
 /** Returns the document from this set with the given key if it exists or nil if it doesn't. */
-- (FSTDocument *_Nullable)documentForKey:(FSTDocumentKey *)key;
+- (FSTDocument *_Nullable)documentForKey:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Returns the first document in the set according to its built in ordering, or nil if the set
@@ -59,20 +60,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocument *_Nullable)lastDocument;
 
 /**
- * Returns the document previous to the document associated with the given key in the set according
- * to its built in ordering. Returns nil if the document associated with the given key is the
- * first document.
- *
- * @param key A key that must be present in the DocumentSet.
- * @throws NSInvalidArgumentException if key is not present.
- */
-- (FSTDocument *_Nullable)predecessorDocumentForKey:(FSTDocumentKey *)key;
-
-/**
  * Returns the index of the document with the provided key in the document set. Returns NSNotFound
  * if the key is not present.
  */
-- (NSUInteger)indexOfKey:(FSTDocumentKey *)key;
+- (NSUInteger)indexOfKey:(const firebase::firestore::model::DocumentKey &)key;
 
 - (NSEnumerator<FSTDocument *> *)documentEnumerator;
 
@@ -89,7 +80,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)documentSetByAddingDocument:(FSTDocument *_Nullable)document;
 
 /** Returns a new FSTDocumentSet that excludes any document associated with the given key. */
-- (instancetype)documentSetByRemovingKey:(FSTDocumentKey *)key;
+- (instancetype)documentSetByRemovingKey:(const firebase::firestore::model::DocumentKey &)key;
 @end
 
 NS_ASSUME_NONNULL_END
