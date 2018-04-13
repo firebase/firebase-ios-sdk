@@ -19,7 +19,6 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <string>
-#include <thread>
 
 #include "gtest/gtest.h"
 
