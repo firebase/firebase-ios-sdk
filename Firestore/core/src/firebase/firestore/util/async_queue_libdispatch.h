@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_ASYNC_QUEUE_LIBDISPATCH_H_
 
+#include <dispatch/dispatch.h>
 #include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
 #include <vector>
-#include "dispatch/dispatch.h"
 
 #include "absl/strings/string_view.h"
 
