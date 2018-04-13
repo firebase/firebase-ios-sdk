@@ -82,7 +82,8 @@ class DelayedOperation {
    */
   void Cancel();
 
-  DelayedOperation() {}
+  DelayedOperation() {
+  }
 
  private:
   // Don't allow callers to create their own valid `DelayedOperation`s.

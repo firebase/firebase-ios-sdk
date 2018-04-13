@@ -192,12 +192,11 @@ TEST_F(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
 
   queue.Enqueue([&] {
     queue.EnqueueAllowingSameQueue([&steps] { steps += '1'; });
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1, [&] {
-      steps += '4';
-    });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
+                            [&] { steps += '4'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                             [&steps] { steps += '3'; });
-    queue.EnqueueAllowingSameQueue([&steps] { steps += '2';  });
+    queue.EnqueueAllowingSameQueue([&steps] { steps += '2'; });
     signal_finished();
   });
 
