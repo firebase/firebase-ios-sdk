@@ -1,4 +1,8 @@
 # Unreleased
+- [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
+  Instead of calling
+  `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could

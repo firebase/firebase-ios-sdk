@@ -245,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];
   id<FIRListenerRegistration> listener = [ref
-      addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
+      addSnapshotListenerWithIncludeMetadataChanges:YES
                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
                               XCTAssertNil(error);
                               if (!requireOnline || !snapshot.metadata.fromCache) {

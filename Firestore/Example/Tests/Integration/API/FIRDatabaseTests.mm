@@ -370,11 +370,8 @@
   __block XCTestExpectation *dataCompletion;
   __block int callbacks = 0;
 
-  FIRDocumentListenOptions *options =
-      [[FIRDocumentListenOptions options] includeMetadataChanges:YES];
-
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListenerWithOptions:options
+  [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
                                     listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
                                       callbacks++;
 
@@ -458,11 +455,8 @@
   __block XCTestExpectation *changeCompletion;
   __block int callbacks = 0;
 
-  FIRDocumentListenOptions *options =
-      [[FIRDocumentListenOptions options] includeMetadataChanges:YES];
-
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListenerWithOptions:options
+      [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
                                     listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
                                       callbacks++;
 
@@ -548,15 +542,12 @@
 
   [self writeDocumentRef:docRef data:initialData];
 
-  FIRDocumentListenOptions *options =
-      [[FIRDocumentListenOptions options] includeMetadataChanges:YES];
-
   XCTestExpectation *initialCompletion = [self expectationWithDescription:@"initial data"];
   __block XCTestExpectation *changeCompletion;
   __block int callbacks = 0;
 
   id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListenerWithOptions:options
+      [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
                                     listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
                                       callbacks++;
 
