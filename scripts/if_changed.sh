@@ -25,6 +25,10 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake
 
+if [[ -z "${METHOD:-}" ]]; then
+  METHOD=xcodebuild
+fi
+
 function check_changes() {
   if git diff --name-only "$TRAVIS_COMMIT_RANGE" | grep -Eq "$1"; then
     run=true
@@ -46,15 +50,19 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-*)
-      check_changes '^(Firebase|Functions|Example)'
+      check_changes '^(Firebase|Example)'
       ;;
 
     Firestore-xcodebuild)
-      check_changes '^Firestore/(core|third_party)'
+      check_changes '^Firestore'
       ;;
 
     Firestore-cmake)
-      check_changes '^Firestore'
+      check_changes '^(cmake|Firestore/(core|third_party))'
+      ;;
+
+    Functions-*)
+      check_changes '^Functions'
       ;;
 
     *)

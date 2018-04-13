@@ -9,6 +9,16 @@ rvm: 2.3.1
 
 jobs:
   include:
+    # The ordering within the jobs section matters because not all jobs can be
+    # started at once. This means means that jobs defined lower down will have
+    # to wait for earlier ones to complete.
+    #
+    # To minimize the wait to detect a broken build prioritize
+    #
+    #   * one primary build of each project
+    #   * secondary build systems
+    #   * other packaging (static libraries instead frameworks)
+    #   * other platforms (macOS, tVOS, etc)
     - stage: checks
       # This only needs to be run once, so restrict it to an arbitrary combination
       before_install:
@@ -22,16 +32,18 @@ jobs:
         # Google C++ style compliance
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
+
+    ## iOS framework builds
+
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS
+        - PROJECT=Firebase PLATFORM=iOS VARIANT=framework
       before_install:
         # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - bundle install
         - gem install xcpretty
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Functions/Example
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
@@ -47,13 +59,26 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Firestore PLATFORM=iOS VARIANT=framework
       before_install:
         - bundle install
         - gem install xcpretty
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Functions PLATFORM=iOS VARIANT=framework
+      before_install:
+        - bundle install
+        - gem install xcpretty
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Functions/Example --repo-update
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+
+    ## Other build systems
 
     - stage: test
       env:
@@ -67,6 +92,38 @@ jobs:
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+
+    ## Static library builds
+
+    - stage: test
+      env:
+        - PROJECT=Firebase PLATFORM=iOS VARIANT=library
+      before_install:
+        - bundle install
+        - gem install xcpretty
+        - sed -i.bak -e s/use_frameworks/#use_frameworks/ Example/Podfile
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
+        # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
+        # Remove when updating to CocoaPods 1.5.1
+        - sed -i.bak -e 's/-l"FirebaseMessaging"//' "Example/Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.debug.xcconfig"
+        - sed -i.bak -e 's/-l"FirebaseAuth-iOS" -l"FirebaseCore-iOS"//' "Example/Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Functions PLATFORM=iOS VARIANT=library
+      before_install:
+        - bundle install
+        - gem install xcpretty
+        - sed -i.bak -e s/use_frameworks/#use_frameworks/ Functions/Example/Podfile
+        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Functions/Example --repo-update
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+
+    ## Other platforms
 
     - stage: test
       env:
