@@ -220,7 +220,7 @@ class AsyncQueueImpl : public std::enable_shared_from_this<AsyncQueueImpl> {
  private:
   void Dispatch(const Operation& operation);
 
-  void RemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
+  void TryRemoveDelayedOperation(const internal::DelayedOperationImpl& operation);
 
   bool OnTargetQueue() const;
   void VerifyOnTargetQueue() const;
@@ -235,7 +235,7 @@ class AsyncQueueImpl : public std::enable_shared_from_this<AsyncQueueImpl> {
   std::vector<DelayedOperationPtr> operations_;
   std::atomic<bool> is_operation_in_progress_{false};
 
-  // For access to RemoveDelayedOperation.
+  // For access to TryRemoveDelayedOperation.
   friend class internal::DelayedOperationImpl;
 };
 

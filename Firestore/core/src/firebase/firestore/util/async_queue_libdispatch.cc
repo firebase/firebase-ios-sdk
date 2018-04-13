@@ -79,13 +79,13 @@ namespace internal {
 // into a no-op. Under the hood, even a "canceled" DelayedOperationImpl will
 // still run, and consequently the instance will still be alive until it's run.
 
-class DelayedOperationImpl {
+class DelayedOperationImpl : public std::enable_shared_from_this<DelayedOperationImpl> {
  public:
   DelayedOperationImpl(const std::shared_ptr<AsyncQueueImpl>& queue,
                        const TimerId timer_id,
                        const AsyncQueue::Milliseconds delay,
                        AsyncQueue::Operation&& operation)
-      : queue_{queue},
+      : queue_handle_{queue},
         timer_id_{timer_id},
         target_time_{std::chrono::time_point_cast<AsyncQueue::Milliseconds>(
                          std::chrono::system_clock::now()) +
@@ -94,25 +94,24 @@ class DelayedOperationImpl {
   }
 
   void Start(const dispatch_queue_t dispatch_queue,
-             const std::shared_ptr<DelayedOperationImpl>& self,
              const AsyncQueue::Milliseconds delay) {
     namespace chr = std::chrono;
     const dispatch_time_t delay_ns = dispatch_time(
         DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
-    const auto self_ptr = new Self(self);
+    const auto self_ptr = new Self(shared_from_this());
     dispatch_after_f(delay_ns, dispatch_queue, self_ptr,
                      DelayedOperationImpl::DoStart);
   }
 
   void Cancel() {
-    if (auto queue = queue_.lock()) {
-      queue->VerifyIsCurrentQueue();
+    if (auto queue = queue_handle_.lock()) {
+      TryDequeue(queue.get());
     }
     done_ = true;
   }
 
   void SkipDelay() {
-    if (auto queue = queue_.lock()) {
+    if (auto queue = queue_handle_.lock()) {
       queue->EnqueueAllowingSameQueue([this] { HandleDelayElapsed(); });
     }
   }
@@ -130,23 +129,15 @@ class DelayedOperationImpl {
 
   static void DoStart(void* const raw_self) {
     auto self = static_cast<Self*>(raw_self);
-    if (auto queue = (*self)->queue_.lock()) {
+    if (auto queue = (*self)->queue_handle_.lock()) {
       queue->EnterCheckedOperation([self] { (*self)->HandleDelayElapsed(); });
     }
     delete self;
   }
 
   void HandleDelayElapsed() {
-    if (auto queue = queue_.lock()) {
-      queue->VerifyIsCurrentQueue();
-
-      // PORTING NOTE: it's important to *only* remove the operation from the
-      // queue *after* it's run, *not* in Cancel method. Because it's
-      // impossible to cancel an invocation scheduled with dispatch_after_f,
-      // this object must be alive when libdispatch calls HandleDelayElapsed; it
-      // the object were removed from the queue in Cancel, it would have been
-      // deleted by the time HandleDelayElapsed gets invoked.
-      Dequeue();
+    if (auto queue = queue_handle_.lock()) {
+      TryDequeue(queue.get());
 
       if (!done_) {
         done_ = true;
@@ -158,16 +149,15 @@ class DelayedOperationImpl {
     }
   }
 
-  void Dequeue() {
-    if (auto queue = queue_.lock()) {
-      queue->RemoveDelayedOperation(*this);
-    }
+  void TryDequeue(AsyncQueueImpl* const queue) {
+    queue->VerifyIsCurrentQueue();
+    queue->TryRemoveDelayedOperation(*this);
   }
 
   using TimePoint = std::chrono::time_point<std::chrono::system_clock,
                                             AsyncQueue::Milliseconds>;
 
-  std::weak_ptr<AsyncQueueImpl> queue_;
+  std::weak_ptr<AsyncQueueImpl> queue_handle_;
   const TimerId timer_id_;
   const TimePoint target_time_;
   const AsyncQueue::Operation operation_;
@@ -228,7 +218,7 @@ dispatch_queue_t AsyncQueue::dispatch_queue() const {
 
 // AsyncQueueImpl
 
-void AsyncQueueImpl::RemoveDelayedOperation(
+void AsyncQueueImpl::TryRemoveDelayedOperation(
     const DelayedOperationImpl& dequeued) {
   const auto found = std::find_if(operations_.begin(), operations_.end(),
                                   [&dequeued](const DelayedOperationPtr& op) {
@@ -287,25 +277,14 @@ DelayedOperation AsyncQueueImpl::EnqueueAfterDelay(const Milliseconds delay,
 
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject
-  // them. FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
+  // them.
+  // FIREBASE_ASSERT_MESSAGE(!ContainsDelayedOperation(timer_id),
   //"Attempted to schedule multiple callbacks with id %d",
   // timer_id);
 
-  // auto op = std::make_shared<DelayedOperationImpl>(
-  //       this, timer_id, delay, std::move(operation));
-  // DispatchAsync(dispatch_queue(), [this, op] {
-  //   operations_.push_back(op);
-  // });
-  // return DelayedOperation{op};
-  // DispatchSync(dispatch_queue(), [&] {
-  //   operations_.push_back(std::make_shared<DelayedOperationImpl>(
-  //       this, timer_id, delay, std::move(operation)));
-  // });
-  // return DelayedOperation{operations_.back()};
-
   operations_.push_back(std::make_shared<DelayedOperationImpl>(
       shared_from_this(), timer_id, delay, std::move(operation)));
-  operations_.back()->Start(dispatch_queue(), operations_.back(), delay);
+  operations_.back()->Start(dispatch_queue(), delay);
   return DelayedOperation{operations_.back()};
 }
 
@@ -345,7 +324,6 @@ void AsyncQueueImpl::RunDelayedOperationsUntil(const TimerId last_timer_id) {
   const dispatch_semaphore_t done_semaphore = dispatch_semaphore_create(0);
 
   Enqueue([this, last_timer_id, done_semaphore] {
-  // RunSync([this, last_timer_id] {
     std::sort(
         operations_.begin(), operations_.end(),
         [](const DelayedOperationPtr& lhs, const DelayedOperationPtr& rhs) {
@@ -372,9 +350,8 @@ void AsyncQueueImpl::RunDelayedOperationsUntil(const TimerId last_timer_id) {
       (*it)->SkipDelay();
     }
 
-    // // Now that the callbacks are queued, we want to enqueue an additional
-    // item
-    // // to release the 'done' semaphore.
+    // Now that the callbacks are queued, we want to enqueue an additional item
+    // to release the 'done' semaphore.
     EnqueueAllowingSameQueue(
         [done_semaphore] { dispatch_semaphore_signal(done_semaphore); });
   });
