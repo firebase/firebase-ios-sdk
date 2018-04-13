@@ -1,4 +1,4 @@
-# v4.6.0
+# v4.6.1
 - Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
 
 # v4.6.0
