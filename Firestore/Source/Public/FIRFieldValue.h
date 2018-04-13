@@ -39,10 +39,11 @@ NS_SWIFT_NAME(FieldValue)
 + (instancetype)fieldValueForServerTimestamp NS_SWIFT_NAME(serverTimestamp());
 
 /**
- * Returns a sentinel that can be used with setData() or updateData() to union one or more
- * elements into an array. Each specified element that doesn't already exist in the array will be
- * added to the end. If the field being modified is not already an array it will be overwritten
- * with an array containing exactly the specified elements.
+ * Returns a special value that can be used with setData() or updateData() that tells the server to
+ * union the given elements with any array value that already exists on the server. Each
+ * specified element that doesn't already exist in the array will be added to the end. If the
+ * field being modified is not already an array it will be overwritten with an array containing
+ * exactly the specified elements.
  *
  * @param elements The elements to union into the array.
  * @return The FieldValue sentinel for use in a call to setData() or updateData().
@@ -50,9 +51,10 @@ NS_SWIFT_NAME(FieldValue)
 + (instancetype)fieldValueForArrayUnion:(NSArray<id> *)elements NS_SWIFT_NAME(arrayUnion(_:));
 
 /**
- * Returns a sentinel that can be used with setData() or updateData() to remove one or more
- * elements from an array. All instances of each element specified will be removed from the array.
- * If the field being modified is not already an array it will be overwritten with an empty array.
+ * Returns a special value that can be used with setData() or updateData() that tells the server to
+ * remove the given elements from any array value that already exists on the server. All
+ * instances of each element specified will be removed from the array. If the field being
+ * modified is not already an array it will be overwritten with an empty array.
  *
  * @param elements The elements to remove from the array.
  * @return The FieldValue sentinel for use in a call to setData() or updateData().

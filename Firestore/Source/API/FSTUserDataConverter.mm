@@ -166,7 +166,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTUserDataSourceSet,
   FSTUserDataSourceMergeSet,
   FSTUserDataSourceUpdate,
-  FSTUserDataSourceNonWrite,  // from a where clause, cursor bound, arrayUnion() element, etc.
+  /**
+   * Indicates the source is a where clause, cursor bound, arrayUnion() element, etc. In particular,
+   * this will result in [FSTParseContext isWrite] returning NO.
+   */
+  FSTUserDataSourceArgument,
 };
 
 #pragma mark - FSTParseContext
@@ -319,7 +323,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     case FSTUserDataSourceMergeSet:  // Falls through.
     case FSTUserDataSourceUpdate:
       return YES;
-    case FSTUserDataSourceNonWrite:
+    case FSTUserDataSourceArgument:
       return NO;
     default:
       FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
@@ -490,7 +494,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceNonWrite
+      [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
   FSTAssert(parsed, @"Parsed data should not be nil.");
@@ -778,7 +782,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     // Although array transforms are used with writes, the actual elements being unioned or removed
     // are not considered writes since they cannot contain any FieldValue sentinels, etc.
     FSTParseContext *context =
-        [FSTParseContext contextWithSource:FSTUserDataSourceNonWrite
+        [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                       path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
     FSTFieldValue *parsedElement = [self parseData:element context:context];
     FSTAssert(parsedElement && context.fieldTransforms->size() == 0,

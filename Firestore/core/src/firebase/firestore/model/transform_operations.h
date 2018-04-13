@@ -118,7 +118,7 @@ class ArrayTransform : public TransformOperation {
     return type_;
   }
 
-  std::vector<FSTFieldValue*> elements() const {
+  const std::vector<FSTFieldValue*>& elements() const {
     return elements_;
   }
 

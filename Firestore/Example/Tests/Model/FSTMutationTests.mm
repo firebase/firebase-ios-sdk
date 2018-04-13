@@ -152,20 +152,18 @@ using firebase::firestore::model::TransformOperation;
   const FieldTransform &first = transform.fieldTransforms[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));
   {
-    std::vector<FSTFieldValue *> expectedElements;
-    expectedElements.push_back(FSTTestFieldValue(@"tag"));
-    const ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    std::vector<FSTFieldValue *> expectedElements{FSTTestFieldValue(@"tag")};
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
   }
 
   const FieldTransform &second = transform.fieldTransforms[1];
   XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
   {
-    std::vector<FSTFieldValue *> expectedElements;
-    expectedElements.push_back(FSTTestFieldValue(@YES));
-    expectedElements.push_back(FSTTestFieldValue(@[ @1, @2 ]));
-    expectedElements.push_back(FSTTestFieldValue(@{@"a" : @"b"}));
-    const ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
+    std::vector<FSTFieldValue *> expectedElements {
+      FSTTestFieldValue(@YES), FSTTestFieldValue(@[ @1, @2 ]), FSTTestFieldValue(@{@"a" : @"b"})
+    };
+    ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
   }
 }
@@ -181,8 +179,7 @@ using firebase::firestore::model::TransformOperation;
   const FieldTransform &first = transform.fieldTransforms[0];
   XCTAssertEqual(first.path(), FieldPath({"foo"}));
   {
-    std::vector<FSTFieldValue *> expectedElements;
-    expectedElements.push_back(FSTTestFieldValue(@"tag"));
+    std::vector<FSTFieldValue *> expectedElements{FSTTestFieldValue(@"tag")};
     const ArrayTransform expected(TransformOperation::Type::ArrayRemove, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(first.transformation()), expected);
   }
