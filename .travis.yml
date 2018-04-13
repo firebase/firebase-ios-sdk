@@ -102,6 +102,7 @@ jobs:
       before_install:
         - bundle install
         - gem install xcpretty
+        - pod --version
         - sed -i.bak -e s/use_frameworks/#use_frameworks/ Example/Podfile
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
         # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
