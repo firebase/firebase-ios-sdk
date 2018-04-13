@@ -20,7 +20,7 @@
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 
-#import "FIRGetSource.h"
+#import "FIRFirestoreSource.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
@@ -73,11 +73,12 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
-- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref source:(FIRGetSource)source;
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                     source:(FIRFirestoreSource)source;
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
 
-- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRGetSource)source;
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source;
 
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
                               requireOnline:(BOOL)online;
