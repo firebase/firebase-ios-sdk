@@ -18,11 +18,10 @@
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-
+@class FSTDatabaseID;
 @class FSTDocumentKey;
 @class FSTFieldPath;
-@class FIRTimestamp;
+@class FSTTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
 @class FIRSnapshotOptions;
@@ -164,8 +163,8 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A timestamp value stored in Firestore.
  */
 @interface FSTTimestampValue : FSTFieldValue <NSDate *>
-+ (instancetype)timestampValue:(FIRTimestamp *)value;
-- (FIRTimestamp *)internalValue;
++ (instancetype)timestampValue:(FSTTimestamp *)value;
+- (FSTTimestamp *)internalValue;
 @end
 
 /**
@@ -181,10 +180,10 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
-@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
 
 @end
@@ -209,11 +208,9 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value
-                    databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
 - (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
-// Does not own this DatabaseId.
-@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
+@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 @end
 
 /**

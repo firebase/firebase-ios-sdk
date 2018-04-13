@@ -60,7 +60,7 @@
     if (callback) {
       callback(self.error);
     }
-    self->_fetcherCompletion = nil;
+    _fetcherCompletion = nil;
   };
 #pragma clang diangostic pop
 

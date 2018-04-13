@@ -16,13 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Example/Tests/Util/FSTHelpers.h"
+#import "FirebaseFirestore/FIRCollectionReference.h"
+#import "FirebaseFirestore/FIRDocumentSnapshot.h"
+#import "FirebaseFirestore/FIRFirestore.h"
+#import "FirebaseFirestore/FIRQuerySnapshot.h"
 
-@class FIRCollectionReference;
-@class FIRDocumentReference;
-@class FIRDocumentSnapshot;
-@class FIRFirestore;
-@class FIRQuerySnapshot;
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +35,7 @@ FIRFirestore *FSTTestFirestore();
 /** A convenience method for creating a doc snapshot for tests. */
 FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
                                         FSTTestSnapshotVersion version,
-                                        NSDictionary<NSString *, id> *_Nullable data,
+                                        NSDictionary<NSString *, id> *data,
                                         BOOL hasMutations,
                                         BOOL fromCache);
 

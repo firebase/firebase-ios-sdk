@@ -18,11 +18,7 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "absl/strings/string_view.h"
-
+@class FSTDatabaseInfo;
 @class FSTDocumentKey;
 @class FSTDispatchQueue;
 @class FSTMutation;
@@ -35,6 +31,9 @@
 @class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
+
+@protocol FSTCredentialsProvider;
+@class FSTDatabaseID;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,17 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTDatastore : NSObject
 
 /** Creates a new Datastore instance with the given database info. */
-+ (instancetype)datastoreWithDatabase:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
++ (instancetype)datastoreWithDatabase:(FSTDatabaseInfo *)database
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                          credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                          credentials;  // no passing ownership
+                          credentials:(id<FSTCredentialsProvider>)credentials;
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
-- (instancetype)initWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                         credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                         credentials  // no passing ownership
+                         credentials:(id<FSTCredentialsProvider>)credentials
     NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -84,8 +81,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
-                       token:(const absl::string_view)token;
+                  databaseID:(FSTDatabaseID *)databaseID
+                       token:(nullable NSString *)token;
 
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
@@ -102,8 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
-// Does not own this DatabaseInfo.
-@property(nonatomic, assign, readonly) const firebase::firestore::core::DatabaseInfo *databaseInfo;
+@property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
 
 @end
 

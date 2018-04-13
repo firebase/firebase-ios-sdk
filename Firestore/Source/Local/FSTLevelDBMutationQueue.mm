@@ -22,6 +22,7 @@
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Auth/FSTUser.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
@@ -33,15 +34,13 @@
 #import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/src/firebase/firestore/util/string_util.h"
+#include "Firestore/Port/ordered_code.h"
+#include "Firestore/Port/string_util.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-namespace util = firebase::firestore::util;
+using Firestore::OrderedCode;
 using Firestore::StringView;
-using firebase::firestore::auth::User;
 using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::ReadOptions;
@@ -91,10 +90,11 @@ static ReadOptions StandardReadOptions() {
   std::shared_ptr<DB> _db;
 }
 
-+ (instancetype)mutationQueueWithUser:(const User &)user
++ (instancetype)mutationQueueWithUser:(FSTUser *)user
                                    db:(std::shared_ptr<DB>)db
                            serializer:(FSTLocalSerializer *)serializer {
-  NSString *userID = user.is_authenticated() ? util::WrapNSStringNoCopy(user.uid()) : @"";
+  FSTAssert(![user.UID isEqual:@""], @"UserID must not be an empty string.");
+  NSString *userID = user.isUnauthenticated ? @"" : user.UID;
 
   return [[FSTLevelDBMutationQueue alloc] initWithUserID:userID db:db serializer:serializer];
 }
@@ -164,7 +164,7 @@ static ReadOptions StandardReadOptions() {
   while (moreUserIDs) {
     // Compute the first key after the last mutation for nextUserID.
     auto userEnd = [FSTLevelDBMutationKey keyPrefixWithUserID:nextUserID];
-    userEnd = util::PrefixSuccessor(userEnd);
+    userEnd = Firestore::PrefixSuccessor(userEnd);
 
     // Seek to that key with the intent of finding the boundary between nextUserID's mutations
     // and the one after that (if any).
@@ -269,7 +269,7 @@ static ReadOptions StandardReadOptions() {
   }
 }
 
-- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
+- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FSTTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations
                                               group:(FSTWriteGroup *)group {
   FSTBatchID batchID = self.nextBatchID;

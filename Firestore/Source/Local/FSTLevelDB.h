@@ -16,12 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTPersistence.h"
+
+#ifdef __cplusplus
 #include <memory>
 
-#import "Firestore/Source/Local/FSTPersistence.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "leveldb/db.h"
+namespace leveldb {
+class DB;
+class Status;
+}
+#endif
 
+@class FSTDatabaseInfo;
 @class FSTLocalSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -50,8 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  *     will be created. Usually just +[FSTLevelDB documentsDir].
  * @return A storage directory unique to the instance identified by databaseInfo.
  */
-+ (NSString *)storageDirectoryForDatabaseInfo:
-                  (const firebase::firestore::core::DatabaseInfo &)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory;
 
 /**
@@ -63,11 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)start:(NSError **)error;
 
+#ifdef __cplusplus
 // What follows is the Objective-C++ extension to the API.
-/**
- * @return A standard set of read options
- */
-+ (const leveldb::ReadOptions)standardReadOptions;
 
 /**
  * Creates an NSError based on the given status if the status is not ok.
@@ -95,6 +97,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
+
+#endif
 
 @end
 

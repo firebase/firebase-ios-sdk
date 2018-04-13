@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRErrors.h"
 #import "Private/FIRLogger.h"
@@ -43,7 +42,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 NSString *const kFIRLibraryVersionID =
     @"4"     // Major version (one or more digits)
     @"00"    // Minor version (exactly 2 digits)
-    @"15"    // Build number (exactly 2 digits)
+    @"13"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
@@ -63,17 +62,10 @@ NSString *const kFIRExceptionBadModification =
 @property(nonatomic, readwrite) NSMutableDictionary *optionsDictionary;
 
 /**
- * Calls `analyticsOptionsDictionaryWithInfoDictionary:` using [NSBundle mainBundle].infoDictionary.
- * It combines analytics options from both the infoDictionary and the GoogleService-Info.plist.
+ * Combination of analytics options from both the main plist and the GoogleService-Info.plist.
  * Values which are present in the main plist override values from the GoogleService-Info.plist.
  */
 @property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
-
-/**
- * Combination of analytics options from both the infoDictionary and the GoogleService-Info.plist.
- * Values which are present in the infoDictionary override values from the GoogleService-Info.plist.
- */
-- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary;
 
 /**
  * Throw exception if editing is locked when attempting to modify an option.
@@ -108,30 +100,6 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 #pragma mark - Private class methods
-
-+ (void)load {
-  // Report FirebaseCore version for useragent string
-  NSRange major = NSMakeRange(0, 1);
-  NSRange minor = NSMakeRange(1, 2);
-  NSRange patch = NSMakeRange(3, 2);
-  [FIRApp
-      registerLibrary:@"fire-ios"
-          withVersion:[NSString stringWithFormat:@"%@.%d.%d",
-                                                 [kFIRLibraryVersionID substringWithRange:major],
-                                                 [[kFIRLibraryVersionID substringWithRange:minor]
-                                                     intValue],
-                                                 [[kFIRLibraryVersionID substringWithRange:patch]
-                                                     intValue]]];
-  NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
-  NSString *xcodeVersion = info[@"DTXcodeBuild"];
-  NSString *sdkVersion = info[@"DTSDKBuild"];
-  if (xcodeVersion) {
-    [FIRApp registerLibrary:@"xcode" withVersion:xcodeVersion];
-  }
-  if (sdkVersion) {
-    [FIRApp registerLibrary:@"apple-sdk" withVersion:sdkVersion];
-  }
-}
 
 + (NSDictionary *)defaultOptionsDictionary {
   if (sDefaultOptionsDictionary != nil) {
@@ -378,27 +346,24 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 #pragma mark - Internal instance methods
 
-- (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary {
+- (NSDictionary *)analyticsOptionsDictionary {
   dispatch_once(&_createAnalyticsOptionsDictionaryOnce, ^{
     NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
+    NSDictionary *mainInfoDictionary = [NSBundle mainBundle].infoDictionary;
     NSArray *measurementKeys = @[
       kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
       kFIRIsAnalyticsCollectionDeactivated
     ];
     for (NSString *key in measurementKeys) {
-      id value = infoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
+      id value = mainInfoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
       if (!value) {
         continue;
       }
       tempAnalyticsOptions[key] = value;
     }
-    self->_analyticsOptionsDictionary = tempAnalyticsOptions;
+    _analyticsOptionsDictionary = tempAnalyticsOptions;
   });
   return _analyticsOptionsDictionary;
-}
-
-- (NSDictionary *)analyticsOptionsDictionary {
-  return [self analyticsOptionsDictionaryWithInfoDictionary:[NSBundle mainBundle].infoDictionary];
 }
 
 /**
@@ -411,7 +376,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return NO;
   }
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled];
-  if (value == nil) {
+  if (!value) {
     return YES;  // Enable Measurement by default when the key is not in the dictionary.
   }
   return [value boolValue];
@@ -422,7 +387,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     return NO;
   }
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled];
-  if (value == nil) {
+  if (!value) {
     return self.isMeasurementEnabled;  // Fall back to older plist flag.
   }
   return [value boolValue];
@@ -430,7 +395,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (BOOL)isAnalyticsCollectionDeactivated {
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionDeactivated];
-  if (value == nil) {
+  if (!value) {
     return NO;  // Analytics Collection is not deactivated when the key is not in the dictionary.
   }
   return [value boolValue];

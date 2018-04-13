@@ -23,6 +23,9 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/Port/ordered_code.h"
+
+using Firestore::OrderedCode;
 using Firestore::StringView;
 using leveldb::DB;
 using leveldb::Slice;

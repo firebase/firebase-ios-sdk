@@ -104,14 +104,14 @@ static const NSTimeInterval kProbingTimeout = 1;
         kNotificationProberKey : @"This fake notification should be forwarded to Firebase Auth."
       }
     };
-    if ([self->_application.delegate respondsToSelector:
+    if ([_application.delegate respondsToSelector:
             @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
-      [self->_application.delegate application:self->_application
+      [_application.delegate application:_application
             didReceiveRemoteNotification:proberNotification
                   fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
-    } else if ([self->_application.delegate respondsToSelector:
+    } else if ([_application.delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:)]) {
-      [self->_application.delegate application:self->_application
+      [_application.delegate application:_application
             didReceiveRemoteNotification:proberNotification];
     } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",

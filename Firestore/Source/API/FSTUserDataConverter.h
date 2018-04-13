@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-
 @class FIRSetOptions;
+@class FSTDatabaseID;
 @class FSTDocumentKey;
 @class FSTObjectValue;
 @class FSTFieldMask;
@@ -88,12 +87,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithKey:(FSTDocumentKey *)key
-                 databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
-    NS_DESIGNATED_INITIALIZER;
+                 databaseID:(FSTDatabaseID *)databaseID NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, strong, readonly) FSTDocumentKey *key;
-// Does not own the DatabaseId instance.
-@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
+@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
 
 @end
 
@@ -110,7 +107,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 @interface FSTUserDataConverter : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithDatabaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID
                       preConverter:(FSTPreConverterBlock)preConverter NS_DESIGNATED_INITIALIZER;
 
 /** Parse document data from a non-merge setData call.*/

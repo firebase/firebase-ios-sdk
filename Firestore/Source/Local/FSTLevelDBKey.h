@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#ifndef __cplusplus
+#error "FSTLevelDBKey is Objective-C++ and can only be included from .mm files"
+#endif
+
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
@@ -75,14 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
  * error messages and logging.
  */
 + (NSString *)descriptionForKey:(Firestore::StringView)key;
-
-@end
-
-/** A key to a singleton row storing the version of the schema. */
-@interface FSTLevelDBVersionKey : NSObject
-
-/** Returns the key pointing to the singleton row storing the schema version. */
-+ (std::string)key;
 
 @end
 

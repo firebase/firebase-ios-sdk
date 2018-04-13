@@ -20,8 +20,6 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-#include "absl/strings/string_view.h"
-
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
 @class FSTDeletedDocument;
@@ -39,7 +37,7 @@
 @class FSTSnapshotVersion;
 @class FSTSortOrder;
 @class FSTTargetChange;
-@class FIRTimestamp;
+@class FSTTimestamp;
 @class FSTTransformMutation;
 @class FSTView;
 @class FSTViewSnapshot;
@@ -134,8 +132,8 @@ extern "C" {
     XCTAssertTrue(__didThrow, ##__VA_ARGS__);                   \
   })
 
-/** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
-FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
+/** Creates a new FSTTimestamp from components. Note that year, month, and day are all one-based. */
+FSTTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
 
 /** Creates a new NSDate from components. Note that year, month, and day are all one-based. */
 NSDate *FSTTestDate(int year, int month, int day, int hour, int minute, int second);
@@ -192,9 +190,7 @@ FSTResourcePath *FSTTestPath(NSString *path);
 /**
  * A convenience method for creating a document reference from a path string.
  */
-FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
-                                    const absl::string_view databaseID,
-                                    NSString *path);
+FSTDocumentKeyReference *FSTTestRef(NSString *projectID, NSString *databaseID, NSString *path);
 
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(NSString *path);

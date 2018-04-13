@@ -16,10 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
+#ifdef __cplusplus
 #include <memory>
 
 #include "Firestore/Source/Local/StringView.h"
-#include "leveldb/db.h"
+
+namespace leveldb {
+class DB;
+class Status;
+}
+
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +61,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns YES if the write group has no messages in it. */
 - (BOOL)isEmpty;
 
+#ifdef __cplusplus
+
 /**
  * Marks the given key for deletion.
  *
@@ -80,6 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Writes the contents to the given LevelDB. */
 - (leveldb::Status)writeToDB:(std::shared_ptr<leveldb::DB>)db;
+
+#endif
 
 @end
 

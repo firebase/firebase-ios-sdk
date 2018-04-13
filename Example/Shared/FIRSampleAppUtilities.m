@@ -88,6 +88,7 @@ NSString *const kInvalidPlistAlertMessage =
               handler:^(UIAlertAction *_Nonnull action) {
                 NSURL *githubURL = [NSURL URLWithString:kGithubRepoURLString];
                 [FIRSampleAppUtilities navigateToURL:githubURL fromViewController:viewController];
+
               }];
   [alertController addAction:viewReadmeAction];
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '4.0.15'
+  s.version          = '4.0.13'
   s.summary          = 'Firebase Core for iOS'
 
   s.description      = <<-DESC
@@ -20,7 +20,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.4.0.beta.2'
   s.static_framework = true
   s.prefix_header_file = false
 

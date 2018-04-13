@@ -1,15 +1,5 @@
 ## Usage
 
-First, build protobuf and nanopb
-```
-cd firebase-ios-sdk
-mkdir -p build
-cd build
-cmake ..
-make -j protobuf nanopb
-```
-
-Next, build the protos:
 ```
 cd firebase-ios-sdk/Firestore/Protos
 ./build-protos.sh

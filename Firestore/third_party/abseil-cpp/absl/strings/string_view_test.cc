@@ -684,11 +684,8 @@ TEST(StringViewTest, TruncSubstr) {
 }
 
 TEST(StringViewTest, UTF8) {
-  std::string utf8 = "\u00E1";
-  std::string utf8_twice = utf8 + " " + utf8;
-  int utf8_len = strlen(utf8.data());
-  EXPECT_EQ(utf8_len, absl::string_view(utf8_twice).find_first_of(" "));
-  EXPECT_EQ(utf8_len, absl::string_view(utf8_twice).find_first_of(" \t"));
+  EXPECT_EQ(strlen("á"), absl::string_view("á á").find_first_of(" "));
+  EXPECT_EQ(strlen("á"), absl::string_view("á á").find_first_of(" \t"));
 }
 
 TEST(StringViewTest, FindConformance) {
@@ -799,25 +796,11 @@ TEST(StringViewTest, FrontBackSingleChar) {
   EXPECT_EQ(&c, &csp.back());
 }
 
-// `std::string_view::string_view(const char*)` calls
-// `std::char_traits<char>::length(const char*)` to get the std::string length. In
-// libc++, it doesn't allow `nullptr` in the constexpr context, with the error
-// "read of dereferenced null pointer is not allowed in a constant expression".
-// At run time, the behavior of `std::char_traits::length()` on `nullptr` is
-// undefined by the standard and usually results in crash with libc++. This
-// conforms to the standard, but `absl::string_view` implements a different
-// behavior for historical reasons. We work around tests that construct
-// `string_view` from `nullptr` when using libc++.
-#if !defined(ABSL_HAVE_STD_STRING_VIEW) || !defined(_LIBCPP_VERSION)
-#define ABSL_HAVE_STRING_VIEW_FROM_NULLPTR 1
-#endif  // !defined(ABSL_HAVE_STD_STRING_VIEW) || !defined(_LIBCPP_VERSION)
-
 TEST(StringViewTest, NULLInput) {
   absl::string_view s;
   EXPECT_EQ(s.data(), nullptr);
   EXPECT_EQ(s.size(), 0);
 
-#ifdef ABSL_HAVE_STRING_VIEW_FROM_NULLPTR
   s = absl::string_view(nullptr);
   EXPECT_EQ(s.data(), nullptr);
   EXPECT_EQ(s.size(), 0);
@@ -825,7 +808,6 @@ TEST(StringViewTest, NULLInput) {
   // .ToString() on a absl::string_view with nullptr should produce the empty
   // std::string.
   EXPECT_EQ("", std::string(s));
-#endif  // ABSL_HAVE_STRING_VIEW_FROM_NULLPTR
 }
 
 TEST(StringViewTest, Comparisons2) {
@@ -897,9 +879,7 @@ TEST(StringViewTest, NullSafeStringView) {
 
 TEST(StringViewTest, ConstexprCompiles) {
   constexpr absl::string_view sp;
-#ifdef ABSL_HAVE_STRING_VIEW_FROM_NULLPTR
   constexpr absl::string_view cstr(nullptr);
-#endif
   constexpr absl::string_view cstr_len("cstr", 4);
 
 #if defined(ABSL_HAVE_STD_STRING_VIEW)
@@ -943,12 +923,10 @@ TEST(StringViewTest, ConstexprCompiles) {
   constexpr absl::string_view::iterator const_end_empty = sp.end();
   EXPECT_EQ(const_begin_empty, const_end_empty);
 
-#ifdef ABSL_HAVE_STRING_VIEW_FROM_NULLPTR
   constexpr absl::string_view::iterator const_begin_nullptr = cstr.begin();
   constexpr absl::string_view::iterator const_end_nullptr = cstr.end();
   EXPECT_EQ(const_begin_nullptr, const_end_nullptr);
-#endif  // ABSL_HAVE_STRING_VIEW_FROM_NULLPTR
-#endif  // !defined(__clang__) || ...
+#endif
 
   constexpr absl::string_view::iterator const_begin = cstr_len.begin();
   constexpr absl::string_view::iterator const_end = cstr_len.end();
@@ -1064,11 +1042,11 @@ TEST(HugeStringView, TwoPointTwoGB) {
 }
 #endif  // THREAD_SANITIZER
 
-#if !defined(NDEBUG) && !defined(ABSL_HAVE_STD_STRING_VIEW)
+#ifndef NDEBUG
 TEST(NonNegativeLenTest, NonNegativeLen) {
   EXPECT_DEATH_IF_SUPPORTED(absl::string_view("xyz", -1), "len <= kMaxSize");
 }
-#endif  // !defined(NDEBUG) && !defined(ABSL_HAVE_STD_STRING_VIEW)
+#endif  // NDEBUG
 
 class StringViewStreamTest : public ::testing::Test {
  public:

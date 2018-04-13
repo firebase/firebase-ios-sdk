@@ -117,7 +117,7 @@
     weakSelf.state = FIRStorageTaskStateProgress;
     weakSelf.progress.completedUnitCount = totalBytesSent;
     weakSelf.progress.totalUnitCount = totalBytesExpectedToSend;
-    weakSelf.metadata = self->_uploadMetadata;
+    weakSelf.metadata = _uploadMetadata;
     [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:weakSelf.snapshot];
     weakSelf.state = FIRStorageTaskStateRunning;
   }];
@@ -137,10 +137,10 @@
     if (error) {
       self.state = FIRStorageTaskStateFailed;
       self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-      self.metadata = self->_uploadMetadata;
+      self.metadata = _uploadMetadata;
       [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
       [self removeAllObservers];
-      self->_fetcherCompletion = nil;
+      _fetcherCompletion = nil;
       return;
     }
 
@@ -166,7 +166,7 @@
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     [self removeAllObservers];
-    self->_fetcherCompletion = nil;
+    _fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
 

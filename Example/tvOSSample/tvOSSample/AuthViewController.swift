@@ -20,13 +20,13 @@ class AuthViewController: UIViewController {
   // MARK: - User Interface
 
   /// A stackview containing all of the buttons to providers (Email, OAuth, etc).
-  @IBOutlet var providers: UIStackView!
+  @IBOutlet weak var providers: UIStackView!
 
   /// A stackview containing a signed in label and sign out button.
-  @IBOutlet var signedIn: UIStackView!
+  @IBOutlet weak var signedIn: UIStackView!
 
   /// A label to display the status for the signed in user.
-  @IBOutlet var signInStatus: UILabel!
+  @IBOutlet weak var signInStatus: UILabel!
 
   // MARK: - User Actions
 

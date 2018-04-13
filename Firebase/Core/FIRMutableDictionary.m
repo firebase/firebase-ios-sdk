@@ -37,7 +37,7 @@
 - (NSString *)description {
   __block NSString *description;
   dispatch_sync(_queue, ^{
-    description = self->_objects.description;
+    description = _objects.description;
   });
   return description;
 }
@@ -45,33 +45,33 @@
 - (id)objectForKey:(id)key {
   __block id object;
   dispatch_sync(_queue, ^{
-    object = self->_objects[key];
+    object = _objects[key];
   });
   return object;
 }
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
   dispatch_async(_queue, ^{
-    self->_objects[key] = object;
+    _objects[key] = object;
   });
 }
 
 - (void)removeObjectForKey:(id)key {
   dispatch_async(_queue, ^{
-    [self->_objects removeObjectForKey:key];
+    [_objects removeObjectForKey:key];
   });
 }
 
 - (void)removeAllObjects {
   dispatch_async(_queue, ^{
-    [self->_objects removeAllObjects];
+    [_objects removeAllObjects];
   });
 }
 
 - (NSUInteger)count {
   __block NSUInteger count;
   dispatch_sync(_queue, ^{
-    count = self->_objects.count;
+    count = _objects.count;
   });
   return count;
 }
@@ -89,7 +89,7 @@
 - (NSDictionary *)dictionary {
   __block NSDictionary *dictionary;
   dispatch_sync(_queue, ^{
-    dictionary = [self->_objects copy];
+    dictionary = [_objects copy];
   });
   return dictionary;
 }

@@ -19,14 +19,13 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-
 @class FSTDispatchQueue;
 @class FSTLocalStore;
 @class FSTMutation;
 @class FSTQuery;
 @class FSTRemoteEvent;
 @class FSTRemoteStore;
+@class FSTUser;
 @class FSTViewSnapshot;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,8 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                        remoteStore:(FSTRemoteStore *)remoteStore
-                       initialUser:(const firebase::firestore::auth::User &)user
-    NS_DESIGNATED_INITIALIZER;
+                       initialUser:(FSTUser *)user NS_DESIGNATED_INITIALIZER;
 
 /**
  * A delegate to be notified when queries being listened to produce new view snapshots or
@@ -100,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 
-- (void)userDidChange:(const firebase::firestore::auth::User &)user;
+- (void)userDidChange:(FSTUser *)user;
 
 /** Applies an FSTOnlineState change to the sync engine and notifies any views of the change. */
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState;

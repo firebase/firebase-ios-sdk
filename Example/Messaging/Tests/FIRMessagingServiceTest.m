@@ -198,8 +198,7 @@
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
   messaging.pubsub = mockPubSub;
   messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicNameWithPrefix]
-                                       handler:[OCMArg any]]);
+  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicNameWithPrefix]]);
   [messaging subscribeToTopic:topicName];
   OCMVerifyAll(mockPubSub);
   // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
@@ -214,7 +213,7 @@
   NSString *topicName = @"/topics/topicWithoutPrefix";
   messaging.pubsub = mockPubSub;
   messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
+  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicName]]);
   [messaging subscribeToTopic:topicName];
   OCMVerifyAll(mockPubSub);
   // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
@@ -230,8 +229,7 @@
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
   messaging.pubsub = mockPubSub;
   messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicNameWithPrefix]
-                                           handler:[OCMArg any]]);
+  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicNameWithPrefix]]);
   [messaging unsubscribeFromTopic:topicName];
   OCMVerifyAll(mockPubSub);
   // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
@@ -246,8 +244,7 @@
   NSString *topicName = @"/topics/topicWithPrefix";
   messaging.pubsub = mockPubSub;
   messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicName]
-                                           handler:[OCMArg any]]);
+  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicName]]);
   [messaging unsubscribeFromTopic:topicName];
   OCMVerifyAll(mockPubSub);
   // Need to swap back since it's a singleton and hence will live beyond the scope of this test.

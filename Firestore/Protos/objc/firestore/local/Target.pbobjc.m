@@ -183,12 +183,10 @@ void FSTPBTarget_ClearTargetTypeOneOfCase(FSTPBTarget *message) {
 @dynamic highestTargetId;
 @dynamic highestListenSequenceNumber;
 @dynamic hasLastRemoteSnapshotVersion, lastRemoteSnapshotVersion;
-@dynamic targetCount;
 
 typedef struct FSTPBTargetGlobal__storage_ {
   uint32_t _has_storage_[1];
   int32_t highestTargetId;
-  int32_t targetCount;
   GPBTimestamp *lastRemoteSnapshotVersion;
   int64_t highestListenSequenceNumber;
 } FSTPBTargetGlobal__storage_;
@@ -225,15 +223,6 @@ typedef struct FSTPBTargetGlobal__storage_ {
         .offset = (uint32_t)offsetof(FSTPBTargetGlobal__storage_, lastRemoteSnapshotVersion),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeMessage,
-      },
-      {
-        .name = "targetCount",
-        .dataTypeSpecific.className = NULL,
-        .number = FSTPBTargetGlobal_FieldNumber_TargetCount,
-        .hasIndex = 3,
-        .offset = (uint32_t)offsetof(FSTPBTargetGlobal__storage_, targetCount),
-        .flags = GPBFieldOptional,
-        .dataType = GPBDataTypeInt32,
       },
     };
     GPBDescriptor *localDescriptor =

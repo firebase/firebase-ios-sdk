@@ -86,15 +86,15 @@ typedef NSDictionary* (^fbt_nsdictionary_void)(void);
 }
 
 - (void) fireEvent:(id<FEvent>)event queue:(dispatch_queue_t)queue {
-    [NSException raise:@"NotImplementedError" format:@"Method not implemented."];
+    [NSException raise:@"NotImplementedError" format:@"Method not implemneted."];
 }
 - (FCancelEvent *) createCancelEventFromError:(NSError *)error path:(FPath *)path {
-    [NSException raise:@"NotImplementedError" format:@"Method not implemented."];
+    [NSException raise:@"NotImplementedError" format:@"Method not implemneted."];
     return nil;
 }
 
 - (FIRDatabaseHandle) handle {
-    [NSException raise:@"NotImplementedError" format:@"Method not implemented."];
+    [NSException raise:@"NotImplementedError" format:@"Method not implemneted."];
     return 0;
 }
 @end

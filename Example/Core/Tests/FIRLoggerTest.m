@@ -28,13 +28,13 @@ extern const char *kFIRLoggerASLClientFacilityName;
 
 extern const char *kFIRLoggerCustomASLMessageFormat;
 
-extern void FIRResetLogger(void);
+extern void FIRResetLogger();
 
-extern aslclient getFIRLoggerClient(void);
+extern aslclient getFIRLoggerClient();
 
-extern dispatch_queue_t getFIRClientQueue(void);
+extern dispatch_queue_t getFIRClientQueue();
 
-extern BOOL getFIRLoggerDebugMode(void);
+extern BOOL getFIRLoggerDebugMode();
 
 // Define the message format again to make sure the format doesn't accidentally change.
 static NSString *const kCorrectASLMessageFormat =

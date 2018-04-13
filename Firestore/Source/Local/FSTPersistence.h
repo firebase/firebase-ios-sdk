@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-
+@class FSTUser;
 @class FSTWriteGroup;
 @protocol FSTMutationQueue;
 @protocol FSTQueryCache;
@@ -76,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
  * implementation to the extent possible (e.g. in the case of uid switching from
  * sally=>jack=>sally, sally's mutation queue will be preserved).
  */
-- (id<FSTMutationQueue>)mutationQueueForUser:(const firebase::firestore::auth::User &)user;
+- (id<FSTMutationQueue>)mutationQueueForUser:(FSTUser *)user;
 
 /** Creates an FSTQueryCache representing the persisted cache of queries. */
 - (id<FSTQueryCache>)queryCache;

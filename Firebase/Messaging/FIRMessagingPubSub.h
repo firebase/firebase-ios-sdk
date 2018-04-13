@@ -59,7 +59,6 @@
  *                   library for a given `authorizedEntity` and "gcm" scope.
  *  @param topic    The topic to subscribe to. Should be of the form
  *                  `"/topics/<topic-name>"`.
- *  @param options  Unused parameter, please pass nil or empty dictionary.
  *  @param handler  The callback handler invoked when the subscribe call
  *                  ends. In case of success, a nil error is returned. Otherwise,
  *                  an appropriate error object is returned.
@@ -71,6 +70,7 @@
                    options:(NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler;
 
+
 /**
  *  Unsubscribes an app instance from a topic, stopping it from receiving
  *  any further messages sent to that topic.
@@ -81,7 +81,6 @@
  *  @param token   The token used to subscribe to this topic.
  *  @param topic   The topic to unsubscribe from. Should be of the form
  *                 `"/topics/<topic-name>"`.
- *  @param options Unused parameter, please pass nil or empty dictionary.
  *  @param handler The handler that is invoked once the unsubscribe call ends.
  *                 In case of success, nil error is returned. Otherwise, an
  *                  appropriate error object is returned.
@@ -99,12 +98,8 @@
  *  as compared to the `subscribe` method above which tries once.
  *
  *  @param topic The topic name to subscribe to. Should be of the form `"/topics/<topic-name>"`.
- *  @param handler The handler that is invoked once the unsubscribe call ends.
- *                 In case of success, nil error is returned. Otherwise, an
- *                  appropriate error object is returned.
  */
-- (void)subscribeToTopic:(NSString *)topic
-                 handler:(nullable FIRMessagingTopicOperationCompletion)handler;
+- (void)subscribeToTopic:(NSString *)topic;
 
 /**
  *  Asynchronously unsubscribe from the topic. Adds to the pending list of topic operations.
@@ -112,12 +107,8 @@
  *  as compared to the `unsubscribe` method above which tries once.
  *
  *  @param topic The topic name to unsubscribe from. Should be of the form `"/topics/<topic-name>"`.
- *  @param handler The handler that is invoked once the unsubscribe call ends.
- *                 In case of success, nil error is returned. Otherwise, an
- *                  appropriate error object is returned.
  */
-- (void)unsubscribeFromTopic:(NSString *)topic
-                     handler:(nullable FIRMessagingTopicOperationCompletion)handler;
+- (void)unsubscribeFromTopic:(NSString *)topic;
 
 /**
  *  Schedule subscriptions sync.

@@ -383,7 +383,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     }
     FIRGetAccountInfoRequest *getAccountInfoRequest =
         [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                         requestConfiguration:self->_auth.requestConfiguration];
+                                         requestConfiguration:_auth.requestConfiguration];
     [FIRAuthBackend getAccountInfo:getAccountInfoRequest
                           callback:^(FIRGetAccountInfoResponse *_Nullable response,
                                      NSError *_Nullable error) {
@@ -451,7 +451,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           callback(error);
           return;
         }
-        FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
+        FIRAuthRequestConfiguration *configuration = _auth.requestConfiguration;
         // Mutate setAccountInfoRequest in block:
         FIRSetAccountInfoRequest *setAccountInfoRequest =
             [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:configuration];
@@ -513,7 +513,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       callback(error);
       return;
     }
-    self->_tokenService = tokenService;
+    _tokenService = tokenService;
     if (![self updateKeychain:&error]) {
       callback(error);
       return;
@@ -558,11 +558,11 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     if (email) {
-      self->_email = email;
+      _email = email;
     }
-    if (self->_email && password) {
-      self->_anonymous = NO;
-      self->_hasEmailPasswordCredential = YES;
+    if (_email && password) {
+      _anonymous = NO;
+      _hasEmailPasswordCredential = YES;
       if (!hadEmailPasswordCredential) {
         // The list of providers need to be updated for the newly added email-password provider.
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
@@ -571,7 +571,7 @@ static void callInMainThreadWithAuthDataResultAndError(
             callback(error);
             return;
           }
-          FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
+          FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
           FIRGetAccountInfoRequest *getAccountInfoRequest =
               [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
                                                requestConfiguration:requestConfiguration];
@@ -625,7 +625,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         updated.
 
     @param phoneAuthCredential The new phone number credential corresponding to the phone number
-        to be added to the Firebase account, if a phone number is already linked to the account this
+        to be added to the firebaes account, if a phone number is already linked to the account this
         new phone number will replace it.
     @param isLinkOperation Boolean value indicating whether or not this is a link operation.
     @param completion Optionally; the block invoked when the user profile change has finished.
@@ -646,7 +646,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         initWithVerificationID:phoneAuthCredential.verificationID
               verificationCode:phoneAuthCredential.verificationCode
                      operation:operation
-          requestConfiguration:self->_auth.requestConfiguration];
+          requestConfiguration:_auth.requestConfiguration];
     request.accessToken = accessToken;
     [FIRAuthBackend verifyPhoneNumber:request
                              callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
@@ -664,7 +664,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           completion(error);
           return;
         }
-        self->_anonymous = NO;
+        _anonymous = NO;
         if (![self updateKeychain:&error]) {
           completion(error);
           return;
@@ -737,11 +737,10 @@ static void callInMainThreadWithAuthDataResultAndError(
     reauthenticateAndRetrieveDataWithCredential:(FIRAuthCredential *) credential
                                      completion:(nullable FIRAuthDataResultCallback) completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self->_auth internalSignInAndRetrieveDataWithCredential:credential
-                                          isReauthentication:YES
-                                                    callback:^(FIRAuthDataResult *_Nullable
-                                                               authResult,
-                                                               NSError *_Nullable error) {
+    [_auth internalSignInAndRetrieveDataWithCredential:credential
+                                    isReauthentication:YES
+                                              callback:^(FIRAuthDataResult *_Nullable authResult,
+                                                         NSError *_Nullable error) {
       if (error) {
         // If "user not found" error returned by backend, translate to user mismatch error which is
         // more accurate.
@@ -751,7 +750,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithAuthDataResultAndError(completion, authResult, error);
         return;
       }
-      if (![authResult.user.uid isEqual:[self->_auth getUID]]) {
+      if (![authResult.user.uid isEqual:[_auth getUID]]) {
         callInMainThreadWithAuthDataResultAndError(completion, authResult,
                                                    [FIRAuthErrorUtils userMismatchError]);
         return;
@@ -767,7 +766,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (nullable NSString *)refreshToken {
   __block NSString *result;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    result = self->_tokenService.refreshToken;
+    result = _tokenService.refreshToken;
   });
   return result;
 }
@@ -843,7 +842,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)linkAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
                                completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    if (self->_providerData[credential.provider]) {
+    if (_providerData[credential.provider]) {
       callInMainThreadWithAuthDataResultAndError(completion,
                                                  nil,
                                                  [FIRAuthErrorUtils providerAlreadyLinkedError]);
@@ -852,7 +851,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     FIRAuthDataResult *result =
         [[FIRAuthDataResult alloc] initWithUser:self additionalUserInfo:nil];
     if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
-      if (self->_hasEmailPasswordCredential) {
+      if (_hasEmailPasswordCredential) {
         callInMainThreadWithAuthDataResultAndError(completion,
                                                    nil,
                                                    [FIRAuthErrorUtils providerAlreadyLinkedError]);
@@ -888,7 +887,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     }
     #endif
 
-    [self->_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
+    [_taskQueue enqueueTask:^(FIRAuthSerialTaskCompletionBlock _Nonnull complete) {
       CallbackWithAuthDataResultAndError completeWithError =
           ^(FIRAuthDataResult *result, NSError *error) {
         complete();
@@ -900,7 +899,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           completeWithError(nil, error);
           return;
         }
-        FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
+        FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
         FIRVerifyAssertionRequest *request =
             [[FIRVerifyAssertionRequest alloc] initWithProviderID:credential.provider
                                              requestConfiguration:requestConfiguration];
@@ -918,7 +917,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           FIRAuthDataResult *result =
               [[FIRAuthDataResult alloc] initWithUser:self additionalUserInfo:additionalUserInfo];
           // Update the new token and refresh user info again.
-          self->_tokenService = [[FIRSecureTokenService alloc]
+          _tokenService = [[FIRSecureTokenService alloc]
               initWithRequestConfiguration:requestConfiguration
                                accessToken:response.IDToken
                  accessTokenExpirationDate:response.approximateExpirationDate
@@ -940,7 +939,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                 completeWithError(nil, error);
                 return;
               }
-              self->_anonymous = NO;
+              _anonymous = NO;
               [self updateWithGetAccountInfoResponse:response];
               if (![self updateKeychain:&error]) {
                 completeWithError(nil, error);
@@ -968,19 +967,19 @@ static void callInMainThreadWithAuthDataResultAndError(
         completeAndCallbackWithError(error);
         return;
       }
-      FIRAuthRequestConfiguration *requestConfiguration = self->_auth.requestConfiguration;
+      FIRAuthRequestConfiguration *requestConfiguration = _auth.requestConfiguration;
       FIRSetAccountInfoRequest *setAccountInfoRequest =
           [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:requestConfiguration];
       setAccountInfoRequest.accessToken = accessToken;
       BOOL isEmailPasswordProvider = [provider isEqualToString:FIREmailAuthProviderID];
       if (isEmailPasswordProvider) {
-        if (!self->_hasEmailPasswordCredential) {
+        if (!_hasEmailPasswordCredential) {
           completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
           return;
         }
         setAccountInfoRequest.deleteAttributes = @[ FIRSetAccountInfoUserAttributePassword ];
       } else {
-        if (!self->_providerData[provider]) {
+        if (!_providerData[provider]) {
           completeAndCallbackWithError([FIRAuthErrorUtils noSuchProviderError]);
           return;
         }
@@ -995,19 +994,19 @@ static void callInMainThreadWithAuthDataResultAndError(
           return;
         }
         if (isEmailPasswordProvider) {
-          self->_hasEmailPasswordCredential = NO;
+          _hasEmailPasswordCredential = NO;
         } else {
           // We can't just use the provider info objects in FIRSetAcccountInfoResponse because they
           // don't have localID and email fields. Remove the specific provider manually.
-          NSMutableDictionary *mutableProviderData = [self->_providerData mutableCopy];
+          NSMutableDictionary *mutableProviderData = [_providerData mutableCopy];
           [mutableProviderData removeObjectForKey:provider];
-          self->_providerData = [mutableProviderData copy];
+          _providerData = [mutableProviderData copy];
 
           #if TARGET_OS_IOS
           // After successfully unlinking a phone auth provider, remove the phone number from the
           // cached user info.
           if ([provider isEqualToString:FIRPhoneAuthProviderID]) {
-            self->_phoneNumber = nil;
+            _phoneNumber = nil;
           }
           #endif
         }
@@ -1061,7 +1060,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithError(completion, error);
         return;
       }
-      FIRAuthRequestConfiguration *configuration = self->_auth.requestConfiguration;
+      FIRAuthRequestConfiguration *configuration = _auth.requestConfiguration;
       FIRGetOOBConfirmationCodeRequest *request =
           [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
                                                            actionCodeSettings:actionCodeSettings
@@ -1086,15 +1085,15 @@ static void callInMainThreadWithAuthDataResultAndError(
         return;
       }
       FIRDeleteAccountRequest *deleteUserRequest =
-        [[FIRDeleteAccountRequest alloc] initWitLocalID:self->_userID
+        [[FIRDeleteAccountRequest alloc] initWitLocalID:_userID
                                             accessToken:accessToken
-                                   requestConfiguration:self->_auth.requestConfiguration];
+                                   requestConfiguration:_auth.requestConfiguration];
       [FIRAuthBackend deleteAccount:deleteUserRequest callback:^(NSError *_Nullable error) {
         if (error) {
           callInMainThreadWithError(completion, error);
           return;
         }
-        if (![self->_auth signOutByForceWithUserID:self->_userID error:&error]) {
+        if (![_auth signOutByForceWithUserID:_userID error:&error]) {
           callInMainThreadWithError(completion, error);
           return;
         }
@@ -1168,14 +1167,14 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)setDisplayName:(nullable NSString *)displayName {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    if (self->_consumed) {
+    if (_consumed) {
       [NSException raise:NSInternalInconsistencyException
                   format:@"%@",
                          @"Invalid call to setDisplayName: after commitChangesWithCallback:."];
       return;
     }
-    self->_displayNameSet = YES;
-    self->_displayName = [displayName copy];
+    _displayNameSet = YES;
+    _displayName = [displayName copy];
   });
 }
 
@@ -1185,14 +1184,14 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)setPhotoURL:(nullable NSURL *)photoURL {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    if (self->_consumed) {
+    if (_consumed) {
       [NSException raise:NSInternalInconsistencyException
                   format:@"%@",
                          @"Invalid call to setPhotoURL: after commitChangesWithCallback:."];
       return;
     }
-    self->_photoURLSet = YES;
-    self->_photoURL = [photoURL copy];
+    _photoURLSet = YES;
+    _photoURL = [photoURL copy];
   });
 }
 
@@ -1205,24 +1204,24 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)commitChangesWithCompletion:(nullable FIRUserProfileChangeCallback)completion {
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    if (self->_consumed) {
+    if (_consumed) {
       [NSException raise:NSInternalInconsistencyException
                   format:@"%@",
                          @"commitChangesWithCallback: should only be called once."];
       return;
     }
-    self->_consumed = YES;
+    _consumed = YES;
     // Return fast if there is nothing to update:
     if (![self hasUpdates]) {
       callInMainThreadWithError(completion, nil);
       return;
     }
-    NSString *displayName = [self->_displayName copy];
-    BOOL displayNameWasSet = self->_displayNameSet;
-    NSURL *photoURL = [self->_photoURL copy];
-    BOOL photoURLWasSet = self->_photoURLSet;
-    [self->_user executeUserUpdateWithChanges:^(FIRGetAccountInfoResponseUser *user,
-                                                FIRSetAccountInfoRequest *request) {
+    NSString *displayName = [_displayName copy];
+    BOOL displayNameWasSet = _displayNameSet;
+    NSURL *photoURL = [_photoURL copy];
+    BOOL photoURLWasSet = _photoURLSet;
+    [_user executeUserUpdateWithChanges:^(FIRGetAccountInfoResponseUser *user,
+                                          FIRSetAccountInfoRequest *request) {
       if (photoURLWasSet) {
         request.photoURL = photoURL;
       }
@@ -1236,12 +1235,12 @@ static void callInMainThreadWithAuthDataResultAndError(
         return;
       }
       if (displayNameWasSet) {
-        [self->_user setDisplayName:displayName];
+        [_user setDisplayName:displayName];
       }
       if (photoURLWasSet) {
-        [self->_user setPhotoURL:photoURL];
+        [_user setPhotoURL:photoURL];
       }
-      if (![self->_user updateKeychain:&error]) {
+      if (![_user updateKeychain:&error]) {
         callInMainThreadWithError(completion, error);
         return;
       }

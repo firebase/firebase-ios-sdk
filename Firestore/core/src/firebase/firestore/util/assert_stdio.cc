@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+
 #include <stdarg.h>
 
-#include <stdexcept>
+#include <exception>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include <absl/base/config.h>
+
 #include "Firestore/core/src/firebase/firestore/util/string_printf.h"
-#include "absl/base/config.h"
 
 namespace firebase {
 namespace firestore {

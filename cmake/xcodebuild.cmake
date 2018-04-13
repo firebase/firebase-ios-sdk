@@ -33,7 +33,7 @@ function(xcodebuild framework)
   set(options "")
   set(single_value SCHEME WORKSPACE)
   set(multi_value DEPENDS)
-  cmake_parse_arguments(xcb "${options}" "${single_value}" "${multi_value}" ${ARGN})
+  cmake_parse_arguments(xcb "${options}" "${single_value}" "${multi_value}")
 
   if(NOT xcb_WORKSPACE)
     set(xcb_WORKSPACE ${PROJECT_SOURCE_DIR}/Example/Firebase.xcworkspace)
@@ -45,6 +45,8 @@ function(xcodebuild framework)
   set(platform macOS)
   set(destination "platform=macOS,arch=x86_64")
   set(scheme "${framework}-${platform}")
+
+  set(binary_dir ${PROJECT_BINARY_DIR}/${scheme})
 
   # CMake has a variety of release types, but Xcode has just one by default.
   if(CMAKE_BUILD_TYPE STREQUAL Debug)
@@ -63,11 +65,11 @@ function(xcodebuild framework)
     ${framework}
     DEPENDS ${xcb_DEPENDS}
 
-    PREFIX ${PROJECT_BINARY_DIR}/external/${framework}
+    PREFIX ${binary_dir}
 
     # The source directory doesn't actually matter
     SOURCE_DIR ${PROJECT_SOURCE_DIR}
-    BINARY_DIR ${PROJECT_BINARY_DIR}/Frameworks
+    BINARY_DIR ${binary_dir}
 
     CONFIGURE_COMMAND ""
 
@@ -77,7 +79,7 @@ function(xcodebuild framework)
         -scheme ${scheme}
         -configuration ${configuration}
         -destination ${destination}
-        CONFIGURATION_BUILD_DIR=<BINARY_DIR>
+        CONFIGURATION_BUILD_DIR=${FIREBASE_INSTALL_DIR}/Frameworks
         build
         ${pipe_xcpretty}
     BUILD_ALWAYS ${BUILD_PODS}
@@ -85,5 +87,4 @@ function(xcodebuild framework)
     INSTALL_COMMAND ""
     TEST_COMMAND ""
   )
-
 endfunction()

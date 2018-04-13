@@ -487,7 +487,7 @@
     [[ref child:@"100003354884401"] setValue:@"alpha"];
 
     __block BOOL ready = NO;
-    [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
+    [ref observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot *snapshot) {
         id val = [snapshot value];
         XCTAssertTrue([val isKindOfClass:[NSDictionary class]], @"Expected a dictionary.");
         ready = YES;
@@ -678,8 +678,6 @@
     [self waitUntil:^BOOL{
         return setDone && calls == 1;
     }];
-
-    [node removeAllObservers];
 }
 
 - (void) testHasChildrenWorksCorrectly {
@@ -880,7 +878,6 @@
     [self waitUntil:^BOOL{
         return calls == 1;
     }];
-    [reader removeAllObservers];
 }
 
 - (void) testSetPriorityOnNonexistentNodeFails {
@@ -2211,7 +2208,6 @@
     }];
 
     WAIT_FOR(done);
-    [deleter removeAllObservers];
 }
 
 - (void) testParentDeleteShadowsChildListenersWithNonDefaultQuery {

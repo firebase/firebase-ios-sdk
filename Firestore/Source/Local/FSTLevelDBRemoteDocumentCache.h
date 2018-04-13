@@ -16,10 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
+
+#ifdef __cplusplus
 #include <memory>
 
-#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
-#include "leveldb/db.h"
+namespace leveldb {
+class DB;
+}
+#endif
 
 @class FSTLocalSerializer;
 
@@ -30,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+#ifdef __cplusplus
 /**
  * Creates a new remote documents cache in the given leveldb.
  *
@@ -37,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDB:(std::shared_ptr<leveldb::DB>)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
+#endif
 
 @end
 
