@@ -30,8 +30,8 @@ cc_library(
     field_value.h
     maybe_document.cc
     maybe_document.h
-    mutations.cc
-    mutations.h
+#    mutations.cc
+#    mutations.h
     no_document.cc
     no_document.h
     precondition.cc
@@ -43,6 +43,7 @@ cc_library(
     transform_operations.h
     types.h
   DEPENDS
+    absl_optional
     absl_strings
     firebase_firestore_util
     firebase_firestore_types

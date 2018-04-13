@@ -57,10 +57,10 @@ class Precondition {
   static Precondition None();
 
   /**
-   * Returns true if the precondition is valid for the given document (and the
-   * document is available).
+   * Returns true if the precondition is valid for the given document (or
+   * nullptr if no document is available).
    */
-  bool IsValidFor(const MaybeDocument& maybe_doc) const;
+  bool IsValidFor(const MaybeDocumentPointer& maybe_doc) const;
 
   /** Returns whether this Precondition represents no precondition. */
   bool IsNone() const {

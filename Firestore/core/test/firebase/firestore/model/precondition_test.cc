@@ -16,11 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -35,8 +36,9 @@ TEST(Precondition, None) {
 
   const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
   const Document doc = testutil::Doc("bar/doc", 7654321);
-  EXPECT_TRUE(none.IsValidFor(deleted_doc));
-  EXPECT_TRUE(none.IsValidFor(doc));
+  EXPECT_TRUE(none.IsValidFor(std::make_shared<MaybeDocument>(deleted_doc)));
+  EXPECT_TRUE(none.IsValidFor(std::make_shared<MaybeDocument>(doc)));
+  EXPECT_TRUE(none.IsValidFor(nullptr));
 }
 
 TEST(Precondition, Exists) {
@@ -51,10 +53,13 @@ TEST(Precondition, Exists) {
 
   const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
   const Document doc = testutil::Doc("bar/doc", 7654321);
-  EXPECT_FALSE(exists.IsValidFor(deleted_doc));
-  EXPECT_TRUE(exists.IsValidFor(doc));
-  EXPECT_TRUE(no_exists.IsValidFor(deleted_doc));
-  EXPECT_FALSE(no_exists.IsValidFor(doc));
+  EXPECT_FALSE(exists.IsValidFor(std::make_shared<MaybeDocument>(deleted_doc)));
+  EXPECT_TRUE(exists.IsValidFor(std::make_shared<MaybeDocument>(doc)));
+  EXPECT_FALSE(exists.IsValidFor(nullptr));
+  EXPECT_TRUE(
+      no_exists.IsValidFor(std::make_shared<MaybeDocument>(deleted_doc)));
+  EXPECT_FALSE(no_exists.IsValidFor(std::make_shared<MaybeDocument>(doc)));
+  EXPECT_TRUE(no_exists.IsValidFor(nullptr));
 }
 
 TEST(Precondition, UpdateTime) {
@@ -67,9 +72,12 @@ TEST(Precondition, UpdateTime) {
   const NoDocument deleted_doc = testutil::DeletedDoc("foo/doc", 1234567);
   const Document not_match = testutil::Doc("bar/doc", 7654321);
   const Document match = testutil::Doc("baz/doc", 1234567);
-  EXPECT_FALSE(update_time.IsValidFor(deleted_doc));
-  EXPECT_FALSE(update_time.IsValidFor(not_match));
-  EXPECT_TRUE(update_time.IsValidFor(match));
+  EXPECT_FALSE(
+      update_time.IsValidFor(std::make_shared<MaybeDocument>(deleted_doc)));
+  EXPECT_FALSE(
+      update_time.IsValidFor(std::make_shared<MaybeDocument>(not_match)));
+  EXPECT_TRUE(update_time.IsValidFor(std::make_shared<MaybeDocument>(match)));
+  EXPECT_FALSE(update_time.IsValidFor(nullptr));
 }
 
 }  // namespace model
