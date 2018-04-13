@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
-@class FIRSetOptions;
 @class FSTObjectValue;
 @class FSTFieldValue;
 @class FSTMutation;

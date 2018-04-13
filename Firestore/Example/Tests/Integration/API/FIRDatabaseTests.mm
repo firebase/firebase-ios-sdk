@@ -144,7 +144,7 @@
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
   [doc setData:mergeData
-         options:[FIRSetOptions merge]
+           merge:YES
       completion:^(NSError *error) {
         XCTAssertNil(error);
         [completed fulfill];
@@ -171,7 +171,7 @@
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
   [doc setData:mergeData
-         options:[FIRSetOptions merge]
+           merge:YES
       completion:^(NSError *error) {
         XCTAssertNil(error);
         [completed fulfill];
@@ -203,7 +203,7 @@
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
   [doc setData:mergeData
-         options:[FIRSetOptions merge]
+           merge:YES
       completion:^(NSError *error) {
         XCTAssertNil(error);
         [completed fulfill];
@@ -244,7 +244,7 @@
       [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
 
   [doc setData:mergeData
-         options:[FIRSetOptions merge]
+           merge:YES
       completion:^(NSError *error) {
         XCTAssertNil(error);
         [completed fulfill];

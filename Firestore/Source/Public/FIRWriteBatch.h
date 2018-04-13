@@ -19,7 +19,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRDocumentReference;
-@class FIRSetOptions;
 
 /**
  * A write batch is used to perform multiple writes as a single atomic unit.
@@ -53,19 +52,19 @@ NS_SWIFT_NAME(WriteBatch)
 
 /**
  * Writes to the document referred to by `document`. If the document doesn't yet exist,
- * this method creates it and then sets the data. If you pass `FIRSetOptions`, the provided data
- * will be merged into an existing document.
+ * this method creates it and then sets the data. If you pass `merge:YES`, the provided data will be
+ * merged into  any existing document.
  *
  * @param data An `NSDictionary` that contains the fields and data to write to the document.
  * @param document A reference to the document whose data should be overwritten.
- * @param options A `FIRSetOptions` used to configure the set behavior.
+ * @param merge Whether to merge the provided data into any existing document.
  * @return This `FIRWriteBatch` instance. Used for chaining method calls.
  */
 // clang-format off
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
                forDocument:(FIRDocumentReference *)document
-                   options:(FIRSetOptions *)options
-    NS_SWIFT_NAME(setData(_:forDocument:options:));
+                     merge:(BOOL)merge
+    NS_SWIFT_NAME(setData(_:forDocument:merge:));
 // clang-format on
 
 /**

@@ -79,12 +79,7 @@
   XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
   FIRWriteBatch *batch = [doc.firestore batch];
   [batch setData:@{ @"a" : @"b", @"nested" : @{@"a" : @"b"} } forDocument:doc];
-  [batch setData:@{
-    @"c" : @"d",
-    @"nested" : @{@"c" : @"d"}
-  }
-      forDocument:doc
-          options:[FIRSetOptions merge]];
+  [batch setData:@{ @"c" : @"d", @"nested" : @{@"c" : @"d"} } forDocument:doc merge:YES];
   [batch commitWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [batchExpectation fulfill];

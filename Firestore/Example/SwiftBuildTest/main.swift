@@ -114,8 +114,16 @@ func writeDocument(at docRef: DocumentReference) {
     print("Set complete!")
   }
 
-  // SetOptions
-  docRef.setData(setData, options: SetOptions.merge())
+  // merge
+  docRef.setData(setData, merge: true)
+  docRef.setData(setData, merge: true) { error in
+    if let error = error {
+      print("Uh oh! \(error)")
+      return
+    }
+
+    print("Set complete!")
+  }
 
   docRef.updateData(updateData)
   docRef.delete()
@@ -152,6 +160,7 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
 
   batch = db.batch()
   batch.setData(["a": "b"], forDocument: docRef)
+  batch.setData(["a": "b"], forDocument: docRef, merge: true)
   batch.setData(["c": "d"], forDocument: docRef)
   // commit without completion callback.
   batch.commit()
