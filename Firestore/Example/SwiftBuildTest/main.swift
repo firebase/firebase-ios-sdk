@@ -32,10 +32,10 @@ func main() {
   addDocument(to: collectionRef)
 
   readDocument(at: documentRef)
-  readDocumentWithOptions(at: documentRef)
+  readDocumentWithSource(at: documentRef)
 
   readDocuments(matching: query)
-  readDocumentsWithOptions(matching: query)
+  readDocumentsWithSource(matching: query)
 
   listenToDocument(at: documentRef)
 
@@ -219,7 +219,7 @@ func readDocument(at docRef: DocumentReference) {
   }
 }
 
-func readDocumentWithOptions(at docRef: DocumentReference) {
+func readDocumentWithSource(at docRef: DocumentReference) {
   docRef.getDocument(source: FirestoreSource.default) { document, error in
   }
   docRef.getDocument(source: .server) { document, error in
@@ -238,7 +238,7 @@ func readDocuments(matching query: Query) {
   }
 }
 
-func readDocumentsWithOptions(matching query: Query) {
+func readDocumentsWithSource(matching query: Query) {
   query.getDocuments(source: FirestoreSource.default) { querySnapshot, error in
   }
   query.getDocuments(source: .server) { querySnapshot, error in
