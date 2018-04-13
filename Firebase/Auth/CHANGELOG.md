@@ -1,3 +1,6 @@
+# v4.6.1
+- Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
+
 # v4.6.0
 - Adds `getIDTokenResultWithCompletion:` and `getIDTokenResultForcingRefresh:completion:` APIs which
   call back with an AuthTokenResult object. The Auth token result object contains the ID token JWT string and other properties associated with the token including the decoded available payload claims (#1004).
