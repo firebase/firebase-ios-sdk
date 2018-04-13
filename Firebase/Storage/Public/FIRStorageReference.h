@@ -228,7 +228,7 @@ NS_SWIFT_NAME(putData(_:metadata:));
  */
 - (void)metadataWithCompletion:
     (void (^)(FIRStorageMetadata *_Nullable metadata, NSError *_Nullable error))completion
-    NS_SWIFT_NAME(getMetadata(completion:));
+    NS_SWIFT_NAME(metadata(completion:));
 
 /**
  * Updates the metadata associated with an object at the current path.
