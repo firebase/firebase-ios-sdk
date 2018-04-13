@@ -174,16 +174,14 @@ TEST_F(AsyncQueueTest, CanCancelDelayedCallbacks) {
 }
 
 TEST_F(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
-  std::packaged_task<void()> signal{[] {}};
   DelayedOperation delayed_operation;
   queue.Enqueue([&] {
     delayed_operation = queue.EnqueueAfterDelay(
-        AsyncQueue::Milliseconds(1), kTimerId1, [&] { signal_finished(); });
+        AsyncQueue::Milliseconds(10), kTimerId1, [&] { signal_finished(); });
     EXPECT_TRUE(queue.ContainsDelayedOperation(kTimerId1));
-    signal();
   });
+
   EXPECT_TRUE(WaitForTestToFinish());
-  signal.get_future().wait();
   queue.RunSync(
       [&] { EXPECT_FALSE(queue.ContainsDelayedOperation(kTimerId1)); });
   EXPECT_NO_THROW(delayed_operation.Cancel());
