@@ -50,8 +50,8 @@ SetMutation::SetMutation(DocumentKey key,
 
 MaybeDocumentPointer SetMutation::ApplyTo(
     const MaybeDocumentPointer& maybe_doc,
-    const MaybeDocumentPointer& base_doc,
-    const Timestamp& local_write_time,
+    const MaybeDocumentPointer& /* base_doc */,
+    const Timestamp& /* local_write_time */,
     const absl::optional<MutationResult>& mutation_result) const {
   if (mutation_result) {
     FIREBASE_ASSERT_MESSAGE(!mutation_result->transform_results(),
@@ -65,15 +65,18 @@ MaybeDocumentPointer SetMutation::ApplyTo(
   bool has_local_mutations = mutation_result.has_value();
   if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // If the document didn't exist before, create it.
-    return std::make_shared<Document>(value_, key_, SnapshotVersion::None(), has_local_mutations);
+    return std::make_shared<Document>(
+        FieldValue{value_}, key_, SnapshotVersion::None(), has_local_mutations);
   }
 
   FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
-            "Unknown MaybeDocument type %d", maybe_doc->type());
-  const Document *doc = static_cast<Document *>(maybe_doc.get());
+                          "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document* doc = static_cast<Document*>(maybe_doc.get());
 
-  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only set a document with the same key");
-  return std::make_shared<Document>(value_, key_, doc->version(), has_local_mutations);
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_,
+                          "Can only set a document with the same key");
+  return std::make_shared<Document>(value_, key_, doc->version(),
+                                    has_local_mutations);
 }
 
 PatchMutation::PatchMutation(DocumentKey key,
@@ -87,8 +90,8 @@ PatchMutation::PatchMutation(DocumentKey key,
 
 MaybeDocumentPointer PatchMutation::ApplyTo(
     const MaybeDocumentPointer& maybe_doc,
-    const MaybeDocumentPointer& base_doc,
-    const Timestamp& local_write_time,
+    const MaybeDocumentPointer& /* base_doc */,
+    const Timestamp& /* local_write_time */,
     const absl::optional<MutationResult>& mutation_result) const {
   if (mutation_result) {
     FIREBASE_ASSERT_MESSAGE(!mutation_result->transform_results(),
@@ -102,18 +105,37 @@ MaybeDocumentPointer PatchMutation::ApplyTo(
   bool has_local_mutations = mutation_result.has_value();
   if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // Precondition applied, so create the document if necessary
-    const DocumentKey& key = maybe_doc ? maybe_doc.key() : key_;
-    const SnapshotVersion& version = maybe_doc ? maybe_doc.version() : SnapshotVersion::None();
-    FIREBASE_ASSERT_MESSAGE(key == key_, "Can only patch a document with the same key");
-    return std::make_shared<Document>(PatchObjectValue(FieldValue::ObjectValueFromMap({})), key, version, has_local_mutations);
+    const DocumentKey& key = maybe_doc ? maybe_doc->key() : key_;
+    const SnapshotVersion& version =
+        maybe_doc ? maybe_doc->version() : SnapshotVersion::None();
+    FIREBASE_ASSERT_MESSAGE(key == key_,
+                            "Can only patch a document with the same key");
+    return std::make_shared<Document>(
+        PatchObject(FieldValue::ObjectValueFromMap({})), key, version,
+        has_local_mutations);
   }
 
   FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
-            "Unknown MaybeDocument type %d", maybe_doc->type());
-  const Document *doc = static_cast<Document *>(maybe_doc.get());
+                          "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document* doc = static_cast<Document*>(maybe_doc.get());
 
-  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only patch a document with the same key");
-  return std::make_shared<Document>(PatchObjectValue(doc->data()), doc->key(), doc->version(), has_local_mutations);
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_,
+                          "Can only patch a document with the same key");
+  return std::make_shared<Document>(PatchObject(doc->data()), doc->key(),
+                                    doc->version(), has_local_mutations);
+}
+
+FieldValue PatchMutation::PatchObject(FieldValue value) const {
+  for (auto iter = field_mask_.begin(); iter != field_mask_.end(); ++iter) {
+    const FieldPath& field_path = *iter;
+    FieldValue new_value = value_.ValueForPath(field_path);
+    if (new_value != FieldValue::NullValue()) {
+      value = value.ObjectBySettingValue(new_value, field_path);
+    } else {
+      value = value.ObjectByDeletingPath(field_path);
+    }
+  }
+  return value;
 }
 
 TransformMutation::TransformMutation(
@@ -133,7 +155,7 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
     const absl::optional<MutationResult>& mutation_result) const {
   if (mutation_result) {
     FIREBASE_ASSERT_MESSAGE(mutation_result->transform_results(),
-              "Transform results missing for TransformMutation.");
+                            "Transform results missing for TransformMutation.");
   }
 
   if (precondition_.IsValidFor(maybe_doc)) {
@@ -143,23 +165,65 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
   // We only support transforms with precondition exists, so we can only
   // apply it to an existing document.
   FIREBASE_ASSERT_MESSAGE(maybe_doc->type() == MaybeDocument::Type::Document,
-            "Unknown MaybeDocument type %d", maybe_doc->type());
-  const Document *doc = static_cast<Document *>(maybe_doc.get());
+                          "Unknown MaybeDocument type %d", maybe_doc->type());
+  const Document* doc = static_cast<Document*>(maybe_doc.get());
 
-  FIREBASE_ASSERT_MESSAGE(doc->key() == key_, "Can only transform a document with the same key");
+  FIREBASE_ASSERT_MESSAGE(doc->key() == key_,
+                          "Can only transform a document with the same key");
   bool has_local_mutations = mutation_result.has_value();
-  const std::vector<FieldValue> transform_results =
-      mutation_result
-          ? mutation_result.transform_results()
-          : LocalTransformResultsWith(base_doc, local_write_time);
+  FieldValue new_data;
+  if (mutation_result) {
+    new_data = TransformObject(doc->data(),
+                               mutation_result->transform_results()->value());
+  } else {
+    new_data = TransformObject(
+        doc->data(), LocalTransformResults(base_doc, local_write_time));
+  }
+  return std::make_shared<Document>(std::move(new_data), doc->key(),
+                                    doc->version(), has_local_mutations);
+}
 
-  FSTObjectValue *newData = [self
-  transformObject:doc.data transformResults:transformResults];
-  return
-  [FSTDocument documentWithData:newData key:doc.key version:doc.version
-                     has_local_mutations:has_local_mutations];
-  */
-  return MaybeDocumentPointer{key_, SnapshotVersion::None()};
+std::vector<FieldValue> TransformMutation::LocalTransformResults(
+    const MaybeDocumentPointer& base_doc,
+    const Timestamp& local_write_time) const {
+  std::vector<FieldValue> transform_results;
+  for (const FieldTransform& field_transform : field_transforms_) {
+    if (field_transform.transformation().type() ==
+        TransformOperation::Type::ServerTimestamp) {
+      FieldValue previous_value = FieldValue::NullValue();
+
+      if (base_doc && base_doc->type() == MaybeDocument::Type::Document) {
+        previous_value = static_cast<Document*>(base_doc->get())
+                             ->FieldForPath(field_transform.path());
+      }
+
+      transform_results.push_back(
+          FieldValue::ServerTimestampValue(local_write_time, previous_value));
+    } else {
+      FIREBASE_ASSERT_MESSAGE(false, "Encountered unknown transform: %d type",
+                              field_transform.transformation().type());
+    }
+  }
+  return transform_results;
+}
+
+FieldValue TransformMutation::TransformObject(
+    FieldValue value, const std::vector<FieldValue>& transform_results) const {
+  FIREBASE_ASSERT_MESSAGE(transform_results.size() == field_transforms_.size(),
+                          "Transform results length mismatch.");
+
+  for (size_t i = 0; i < field_transforms_.size(); i++) {
+    const FieldTransform& field_transform = field_transforms_[i];
+    const TransformOperation& transform = field_transform.transformation();
+    const FieldPath& field_path = field_transform.path();
+    if (transform.type() == TransformOperation::Type::ServerTimestamp) {
+      value = value.ObjectBySettingValue(transform_results[i], field_path);
+    } else {
+      FIREBASE_ASSERT_MESSAGE(false, "Encountered unknown transform: %d type",
+                              transform.type());
+    }
+  }
+  return value;
 }
 
 DeleteMutation::DeleteMutation(DocumentKey key, Precondition precondition)
@@ -168,28 +232,24 @@ DeleteMutation::DeleteMutation(DocumentKey key, Precondition precondition)
 
 MaybeDocumentPointer DeleteMutation::ApplyTo(
     const MaybeDocumentPointer& maybe_doc,
-    const MaybeDocumentPointer& base_doc,
-    const Timestamp& local_write_time,
+    const MaybeDocumentPointer& /* base_doc */,
+    const Timestamp& /* local_write_time */,
     const absl::optional<MutationResult>& mutation_result) const {
-  /*
-    if (mutation_result) {
-    FSTAssert(!mutation_result.transformResults,
-              @"Transform results received by FSTDeleteMutation.");
+  if (mutation_result) {
+    FIREBASE_ASSERT_MESSAGE(!mutation_result->transform_results(),
+                            "Transform results received by DeleteMutation.");
   }
 
-  if (!self.precondition.IsValidFor(maybe_doc)) {
+  if (precondition_.IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
   if (maybe_doc) {
-    FSTAssert([maybe_doc.key isEqual:self.key], @"Can only delete a document
-  with the same key");
+    FIREBASE_ASSERT_MESSAGE(maybe_doc->key() == key_,
+                            "Can only delete a document with the same key");
   }
 
-  return [FSTDeletedDocument documentWithKey:self.key
-  version:[FSTSnapshotVersion noVersion]];
-  */
-  return MaybeDocumentPointer{key_, SnapshotVersion::None()};
+  return std::make_shared<NoDocument>(key_, SnapshotVersion::None());
 }
 
 }  // namespace model

@@ -255,6 +255,8 @@ class PatchMutation : public Mutation {
       const absl::optional<MutationResult>& mutation_result) const override;
 
  private:
+  FieldValue PatchObject(FieldValue value) const;
+
   // A mask to apply to |value|, where only fields that are in both the
   // fieldMask and the value will be updated.
   FieldMask field_mask_;
@@ -301,6 +303,23 @@ class TransformMutation : public Mutation {
       const absl::optional<MutationResult>& mutation_result) const override;
 
  private:
+  /**
+   * Creates an array of "transform results" (a transform result is a field
+   * value representing the result of applying a transform) for use when
+   * applying a TransformMutation locally.
+   *
+   * @param base_document The document prior to applying this mutation batch.
+   * @param local_write_time The local time of the transform mutation (used to
+   * generate ServerTimestampValues).
+   * @return The transform results array.
+   */
+  std::vector<FieldValue> LocalTransformResults(
+      const MaybeDocumentPointer& base_doc,
+      const Timestamp& local_write_time) const;
+
+  FieldValue TransformObject(
+      FieldValue value, const std::vector<FieldValue>& transform_results) const;
+
   // The field transforms to use when transforming the document.
   std::vector<FieldTransform> field_transforms_;
 };
