@@ -36,6 +36,11 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
       @brief Requests an email verification code.
    */
   FIRGetOOBConfirmationCodeRequestTypeVerifyEmail,
+
+  /** @var FIRGetOOBConfirmationCodeRequestTypeEmailLink
+      @brief Requests an email sign-in link.
+   */
+  FIRGetOOBConfirmationCodeRequestTypeEmailLink,
 };
 
 /** @enum FIRGetOOBConfirmationCodeRequest
@@ -91,7 +96,7 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(assign, nonatomic) BOOL handleCodeInApp;
 
-/** @fn passwordResetRequestWithEmail:APIKey:
+/** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.
     @param email The user's email address.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
@@ -104,7 +109,7 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
                actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
              requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
-/** @fn verifyEmailRequestWithAccessToken:APIKey:
+/** @fn verifyEmailRequestWithAccessToken:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.
     @param accessToken The user's STS Access Token.
     @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
@@ -116,6 +121,19 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
     verifyEmailRequestWithAccessToken:(NSString *)accessToken
                    actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+
+/** @fn signInWithEmailLinkRequest:actionCodeSettings:requestConfiguration:
+    @brief Creates a sign-in with email link.
+    @param email The user's email address.
+    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+        settings to be applied to the email sign-in link.
+    @param requestConfiguration An object containing configurations to be added to the request.
+    @return An email sign-in link request.
+ */
++ (nullable FIRGetOOBConfirmationCodeRequest *)
+    signInWithEmailLinkRequest:(NSString *)email
+            actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
     @brief Please use a factory method.

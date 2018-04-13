@@ -32,4 +32,8 @@
   return [[FIREmailPasswordAuthCredential alloc] initWithEmail:email password:password];
 }
 
++ (FIRAuthCredential *)credentialWithEmail:(NSString *)email link:(NSString *)link {
+  return [[FIREmailPasswordAuthCredential alloc] initWithEmail:email link:link];
+}
+
 @end

@@ -25,7 +25,8 @@ extern NSString *const kFIRLibraryVersionID;
 
 @interface FIROptions (Test)
 
-@property(nonatomic, readonly) NSDictionary *analyticsOptionsDictionary;
+- (nullable NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:
+    (nullable NSDictionary *)infoDictionary;
 
 @end
 
@@ -80,54 +81,22 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testInitCustomizedOptions {
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                       bundleID:kBundleID
-                                                    GCMSenderID:kGCMSenderID
-                                                         APIKey:kAPIKey
-                                                       clientID:kClientID
-                                                     trackingID:kTrackingID
-                                                androidClientID:(id _Nonnull)nil
-                                                    databaseURL:kDatabaseURL
-                                                  storageBucket:kStorageBucket
-                                              deepLinkURLScheme:kDeepLinkURLScheme];
-#pragma clang pop
-  [self assertOptionsMatchDefaults:options andProjectID:NO];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.APIKey = kAPIKey;
+  options.bundleID = kBundleID;
+  options.clientID = kClientID;
+  options.databaseURL = kDatabaseURL;
+  options.deepLinkURLScheme = kDeepLinkURLScheme;
+  options.projectID = kProjectID;
+  options.storageBucket = kStorageBucket;
+  options.trackingID = kTrackingID;
+  [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-
-  FIROptions *options2 =
-      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
-  options2.APIKey = kAPIKey;
-  options2.bundleID = kBundleID;
-  options2.clientID = kClientID;
-  options2.databaseURL = kDatabaseURL;
-  options2.deepLinkURLScheme = kDeepLinkURLScheme;
-  options2.projectID = kProjectID;
-  options2.storageBucket = kStorageBucket;
-  options2.trackingID = kTrackingID;
-  [self assertOptionsMatchDefaults:options2 andProjectID:YES];
-  XCTAssertEqualObjects(options2.deepLinkURLScheme, kDeepLinkURLScheme);
-  XCTAssertFalse(options.usingOptionsFromDefaultPlist);
-
-// nil GoogleAppID should throw an exception
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnonnull"
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  XCTAssertThrows([[FIROptions alloc] initWithGoogleAppID:nil
-                                                 bundleID:kBundleID
-                                              GCMSenderID:kGCMSenderID
-                                                   APIKey:kCustomizedAPIKey
-                                                 clientID:nil
-                                               trackingID:nil
-                                          androidClientID:nil
-                                              databaseURL:nil
-                                            storageBucket:nil
-                                        deepLinkURLScheme:nil]);
-#pragma clang diagnostic pop
 }
 
-- (void)testinitWithContentsOfFile {
+- (void)testInitWithContentsOfFile {
   NSString *filePath =
       [[NSBundle mainBundle] pathForResource:@"GoogleService-Info" ofType:@"plist"];
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:filePath];
@@ -238,16 +207,9 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(newOptions.deepLinkURLScheme, kDeepLinkURLScheme);
 
   // customized options
-  FIROptions *customizedOptions = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
-                                                                 bundleID:kBundleID
-                                                              GCMSenderID:kGCMSenderID
-                                                                   APIKey:kAPIKey
-                                                                 clientID:kClientID
-                                                               trackingID:kTrackingID
-                                                          androidClientID:(id _Nonnull)nil
-                                                              databaseURL:kDatabaseURL
-                                                            storageBucket:kStorageBucket
-                                                        deepLinkURLScheme:kDeepLinkURLScheme];
+  FIROptions *customizedOptions =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  customizedOptions.deepLinkURLScheme = kDeepLinkURLScheme;
   FIROptions *copyCustomizedOptions = [customizedOptions copy];
   [copyCustomizedOptions setDeepLinkURLScheme:kNewDeepLinkURLScheme];
   XCTAssertEqualObjects(customizedOptions.deepLinkURLScheme, kDeepLinkURLScheme);
@@ -263,22 +225,20 @@ extern NSString *const kFIRLibraryVersionID;
 }
 
 - (void)testAnalyticsOptions {
-  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
-
   // No keys anywhere.
   NSDictionary *optionsDictionary = nil;
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   NSDictionary *mainDictionary = nil;
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   NSDictionary *expectedAnalyticsOptions = @{};
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  NSDictionary *analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:nil];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   optionsDictionary = @{};
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{};
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = @{};
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   // Main has no keys.
   optionsDictionary = @{
@@ -288,9 +248,9 @@ extern NSString *const kFIRLibraryVersionID;
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{};
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = optionsDictionary;
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   // Main overrides all the keys.
   optionsDictionary = @{
@@ -304,9 +264,9 @@ extern NSString *const kFIRLibraryVersionID;
     kFIRIsAnalyticsCollectionEnabled : @NO,
     kFIRIsMeasurementEnabled : @NO
   };
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = mainDictionary;
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   // Keys exist only in main.
   optionsDictionary = @{};
@@ -316,9 +276,9 @@ extern NSString *const kFIRLibraryVersionID;
     kFIRIsAnalyticsCollectionEnabled : @YES,
     kFIRIsMeasurementEnabled : @YES
   };
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = mainDictionary;
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   // Main overrides single keys.
   optionsDictionary = @{
@@ -328,13 +288,13 @@ extern NSString *const kFIRLibraryVersionID;
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @NO };
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @NO,  // override
     kFIRIsAnalyticsCollectionEnabled : @YES,
     kFIRIsMeasurementEnabled : @YES
   };
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   optionsDictionary = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
@@ -343,13 +303,13 @@ extern NSString *const kFIRLibraryVersionID;
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @NO };
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
     kFIRIsAnalyticsCollectionEnabled : @NO,  // override
     kFIRIsMeasurementEnabled : @YES
   };
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
   optionsDictionary = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
@@ -358,18 +318,18 @@ extern NSString *const kFIRLibraryVersionID;
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   mainDictionary = @{ kFIRIsMeasurementEnabled : @NO };
-  OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
     kFIRIsAnalyticsCollectionEnabled : @YES,
     kFIRIsMeasurementEnabled : @NO  // override
   };
-  XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+  XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 }
 
 - (void)testAnalyticsOptions_combinatorial {
   // Complete combinatorial test.
-  id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
+
   // Possible values for the flags in the plist, where NSNull means the flag is not present.
   NSArray *values = @[ [NSNull null], @NO, @YES ];
 
@@ -398,6 +358,7 @@ extern NSString *const kFIRLibraryVersionID;
                 if (![optionsMeasurementEnabled isEqual:[NSNull null]]) {
                   optionsDictionary[kFIRIsMeasurementEnabled] = optionsMeasurementEnabled;
                 }
+
                 FIROptions *options =
                     [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
                 if (![uniqueOptionsCombinations containsObject:optionsDictionary]) {
@@ -415,7 +376,8 @@ extern NSString *const kFIRLibraryVersionID;
                 if (![mainMeasurementEnabled isEqual:[NSNull null]]) {
                   mainDictionary[kFIRIsMeasurementEnabled] = mainMeasurementEnabled;
                 }
-                OCMExpect([mainBundleMock infoDictionary]).andReturn(mainDictionary);
+
+                // Add mainDictionary to uniqueMainCombinations if it isn't included yet.
                 if (![uniqueMainCombinations containsObject:mainDictionary]) {
                   [uniqueMainCombinations addObject:mainDictionary];
                 }
@@ -427,7 +389,10 @@ extern NSString *const kFIRLibraryVersionID;
                 NSMutableDictionary *expectedAnalyticsOptions =
                     [[NSMutableDictionary alloc] initWithDictionary:optionsDictionary];
                 [expectedAnalyticsOptions addEntriesFromDictionary:mainDictionary];
-                XCTAssertEqualObjects(options.analyticsOptionsDictionary, expectedAnalyticsOptions);
+
+                NSDictionary *analyticsOptions =
+                    [options analyticsOptionsDictionaryWithInfoDictionary:mainDictionary];
+                XCTAssertEqualObjects(analyticsOptions, expectedAnalyticsOptions);
 
                 combinationCount++;
               }

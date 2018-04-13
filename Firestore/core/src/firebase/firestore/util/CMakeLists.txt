@@ -16,69 +16,132 @@
 # libraries in here are an implementation detail of making this a
 # mutli-platform build.
 
-add_library(
+include(CheckSymbolExists)
+include(CheckIncludeFiles)
+
+cc_library(
   firebase_firestore_util_base
-  secure_random_arc4random.cc
-  string_printf.cc
-)
-target_link_libraries(
-  firebase_firestore_util_base
-  PUBLIC
-  absl_base
+  SOURCES
+    string_printf.cc
+    string_printf.h
+  DEPENDS
+    absl_base
 )
 
-# stdio-dependent bits can be built and tested everywhere
-add_library(
-  firebase_firestore_util_stdio
-  assert_stdio.cc
-  log_stdio.cc
-)
-target_link_libraries(
-  firebase_firestore_util_stdio
-  PUBLIC
-  firebase_firestore_util_base
+## assert and log
+
+cc_library(
+  firebase_firestore_util_log_stdio
+  SOURCES
+    firebase_assert.h
+    assert_stdio.cc
+    log.h
+    log_stdio.cc
+  DEPENDS
+    firebase_firestore_util_base
+    absl_base
+  EXCLUDE_FROM_ALL
 )
 
-# apple-dependent bits can only built and tested on apple plaforms
-if(APPLE)
-  add_library(
-    firebase_firestore_util_apple
+cc_library(
+  firebase_firestore_util_log_apple
+  SOURCES
+    firebase_assert.h
     assert_apple.mm
+    log.h
     log_apple.mm
-  )
-  target_compile_options(
-    firebase_firestore_util_apple
-    PRIVATE
-    ${OBJC_FLAGS}
-  )
-  target_link_libraries(
-    firebase_firestore_util_apple
-    PUBLIC
+    string_apple.h
+  DEPENDS
     FirebaseCore
-  )
-endif(APPLE)
-
-add_library(
-  firebase_firestore_util
-  autoid.cc
+    absl_strings
+  EXCLUDE_FROM_ALL
 )
 
-# Export a dependency on the correct logging library for this platform. All
-# buildable libraries are built and tested but only the best fit is exported.
 if(APPLE)
-  target_link_libraries(
-    firebase_firestore_util
-    PUBLIC
-    firebase_firestore_util_apple
-    firebase_firestore_util_base
+  set(
+    FIREBASE_FIRESTORE_UTIL_LOG
+    firebase_firestore_util_log_apple
+  )
+else()
+  set(
+    FIREBASE_FIRESTORE_UTIL_LOG
+    firebase_firestore_util_log_stdio
+  )
+endif()
+
+
+## secure_random
+
+check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
+cc_library(
+  firebase_firestore_util_random_arc4random
+  SOURCES
+    secure_random_arc4random.cc
+)
+
+get_target_property(
+  CMAKE_REQUIRED_INCLUDES
+  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+)
+check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+cc_library(
+  firebase_firestore_util_random_openssl
+  SOURCES
+    secure_random_openssl.cc
+  DEPENDS
+    OpenSSL::Crypto
+)
+
+if(HAVE_ARC4RANDOM)
+  set(
+    FIREBASE_FIRESTORE_UTIL_RANDOM
+    firebase_firestore_util_random_arc4random
   )
 
-else(NOT APPLE)
-  target_link_libraries(
-    firebase_firestore_util
-    PUBLIC
-    firebase_firestore_util_stdio
-    firebase_firestore_util_base
+elseif(HAVE_OPENSSL_RAND_H)
+  set(
+    FIREBASE_FIRESTORE_UTIL_RANDOM
+    firebase_firestore_util_random_openssl
   )
 
-endif(APPLE)
+else()
+  message(FATAL_ERROR "No implementation for SecureRandom available.")
+
+endif()
+
+
+## main library
+
+configure_file(
+  config.h.in
+  config.h
+)
+
+cc_library(
+  firebase_firestore_util
+  SOURCES
+    autoid.cc
+    autoid.h
+    bits.cc
+    bits.h
+    comparator_holder.h
+    comparison.cc
+    comparison.h
+    config.h
+    iterator_adaptors.h
+    ordered_code.cc
+    ordered_code.h
+    secure_random.h
+    status.cc
+    status.h
+    statusor.cc
+    statusor.h
+    statusor_internals.h
+    string_util.cc
+    string_util.h
+  DEPENDS
+    absl_base
+    firebase_firestore_util_base
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    ${FIREBASE_FIRESTORE_UTIL_RANDOM}
+)

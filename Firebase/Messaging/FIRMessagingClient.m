@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
 
+#import "FIRMessaging.h"
 #import "FIRMessagingConnection.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDataMessageManager.h"
@@ -168,8 +169,7 @@ static NSUInteger FIRMessagingServerPort() {
 
   _FIRMessagingDevAssert(handler != nil, @"Invalid handler to FIRMessaging subscribe");
 
-  FIRMessagingTopicOperationCompletion completion =
-      ^void(FIRMessagingTopicOperationResult result, NSError * error) {
+  FIRMessagingTopicOperationCompletion completion = ^void(NSError *error) {
     if (error) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeClient001, @"Failed to subscribe to topic %@",
                               error);
@@ -182,7 +182,7 @@ static NSUInteger FIRMessagingServerPort() {
                                @"Successfully subscribed to topic %@", topic);
       }
     }
-    handler(result, error);
+    handler(error);
   };
 
   [self.registrar tryToLoadValidCheckinInfo];

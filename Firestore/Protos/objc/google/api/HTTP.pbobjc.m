@@ -65,6 +65,7 @@ static GPBFileDescriptor *GAPIHTTPRoot_FileDescriptor(void) {
 @implementation GAPIHttp
 
 @dynamic rulesArray, rulesArray_Count;
+@dynamic fullyDecodeReservedExpansion;
 
 typedef struct GAPIHttp__storage_ {
   uint32_t _has_storage_[1];
@@ -85,6 +86,15 @@ typedef struct GAPIHttp__storage_ {
         .offset = (uint32_t)offsetof(GAPIHttp__storage_, rulesArray),
         .flags = GPBFieldRepeated,
         .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "fullyDecodeReservedExpansion",
+        .dataTypeSpecific.className = NULL,
+        .number = GAPIHttp_FieldNumber_FullyDecodeReservedExpansion,
+        .hasIndex = 0,
+        .offset = 1,  // Stored in _has_storage_ to save space.
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeBool,
       },
     };
     GPBDescriptor *localDescriptor =

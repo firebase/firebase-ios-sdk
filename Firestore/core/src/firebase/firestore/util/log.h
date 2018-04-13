@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_LOG_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_LOG_H_
 
-#include <stdarg.h>
+#include <cstdarg>
 
 namespace firebase {
 namespace firestore {

@@ -84,6 +84,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 
 static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
+static NSMutableDictionary *sLibraryVersions;
 
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
@@ -131,23 +132,6 @@ static FIRApp *sDefaultApp;
     if (!sDefaultApp.alreadySentConfigureNotification && sendNotifications) {
       [FIRApp sendNotificationsToSDKs:sDefaultApp];
       sDefaultApp.alreadySentConfigureNotification = YES;
-    }
-
-    if (![FIRAppEnvironmentUtil isFromAppStore]) {
-      // Support for iOS 7 has been deprecated, but will continue to function for the time being.
-      // Log a notice for developers who are still targeting iOS 7 as the minimum OS version
-      // supported.
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        NSDictionary<NSString *, id> *info = [[NSBundle mainBundle] infoDictionary];
-
-        NSString *minVersion = info[@"MinimumOSVersion"];
-        if ([minVersion hasPrefix:@"7."]) {
-          FIRLogNotice(kFIRLoggerCore, @"I-COR000026",
-                       @"Support for iOS 7 is deprecated and will "
-                       @"stop working in the future. Please upgrade your app to target iOS 8 or "
-                       @"above.");
-        }
-      });
     }
   }
 }
@@ -228,6 +212,8 @@ static FIRApp *sDefaultApp;
   sDefaultApp = nil;
   [sAllApps removeAllObjects];
   sAllApps = nil;
+  [sLibraryVersions removeAllObjects];
+  sLibraryVersions = nil;
 }
 
 - (void)deleteApp:(FIRAppVoidBoolCallback)completion {
@@ -312,13 +298,6 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-  if (NSClassFromString(@"FIRAppIndexing") != nil) {
-    FIRLogDebug(kFIRLoggerCore, @"I-COR000024",
-                @"Firebase App Indexing on iOS is deprecated. "
-                @"You don't need to take any action at this time. Learn more about Firebase App "
-                @"Indexing at https://firebase.google.com/docs/app-indexing/.");
-  }
-
   // Initialize the Analytics once there is a valid options under default app. Analytics should
   // always initialize first by itself before the other SDKs.
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
@@ -398,6 +377,38 @@ static FIRApp *sDefaultApp;
 
 + (BOOL)isDefaultAppConfigured {
   return (sDefaultApp != nil);
+}
+
++ (void)registerLibrary:(nonnull NSString *)library withVersion:(nonnull NSString *)version {
+  // Create the set of characters which aren't allowed, only if this feature is used.
+  NSMutableCharacterSet *allowedSet = [NSMutableCharacterSet alphanumericCharacterSet];
+  [allowedSet addCharactersInString:@"-_."];
+  NSCharacterSet *disallowedSet = [allowedSet invertedSet];
+  // Make sure the library name and version strings do not contain unexpected characters, and
+  // add the name/version pair to the dictionary.
+  if ([library rangeOfCharacterFromSet:disallowedSet].location == NSNotFound &&
+      [version rangeOfCharacterFromSet:disallowedSet].location == NSNotFound) {
+    if (!sLibraryVersions) {
+      sLibraryVersions = [[NSMutableDictionary alloc] init];
+    }
+    sLibraryVersions[library] = version;
+  } else {
+    FIRLogError(kFIRLoggerCore, @"I-COR000027",
+                @"The library name (%@) or version number (%@) contain illegal characters. "
+                @"Only alphanumeric, dash, underscore and period characters are allowed.",
+                library, version);
+  }
+}
+
++ (NSString *)firebaseUserAgent {
+  NSMutableArray<NSString *> *libraries =
+      [[NSMutableArray<NSString *> alloc] initWithCapacity:sLibraryVersions.count];
+  for (NSString *libraryName in sLibraryVersions) {
+    [libraries
+        addObject:[NSString stringWithFormat:@"%@/%@", libraryName, sLibraryVersions[libraryName]]];
+  }
+  [libraries sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+  return [libraries componentsJoinedByString:@" "];
 }
 
 - (void)checkExpectedBundleID {

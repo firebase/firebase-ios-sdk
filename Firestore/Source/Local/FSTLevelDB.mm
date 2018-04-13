@@ -16,48 +16,75 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
-#include <leveldb/db.h>
+#include <memory>
 
 #import "FIRFirestoreErrors.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
-#import "Firestore/Source/Local/FSTWriteGroupTracker.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
+#include "leveldb/db.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::User;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kReservedPathComponent = @"firestore";
 
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
 using leveldb::Options;
+using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
 
 @interface FSTLevelDB ()
 
 @property(nonatomic, copy) NSString *directory;
-@property(nonatomic, strong) FSTWriteGroupTracker *writeGroupTracker;
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
 
 @end
 
-@implementation FSTLevelDB
+@implementation FSTLevelDB {
+  std::unique_ptr<LevelDbTransaction> _transaction;
+  FSTTransactionRunner _transactionRunner;
+}
+
+/**
+ * For now this is paranoid, but perhaps disable that in production builds.
+ */
++ (const ReadOptions)standardReadOptions {
+  ReadOptions options;
+  options.verify_checksums = true;
+  return options;
+}
 
 - (instancetype)initWithDirectory:(NSString *)directory
                        serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _directory = [directory copy];
-    _writeGroupTracker = [FSTWriteGroupTracker tracker];
     _serializer = serializer;
+    _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (const FSTTransactionRunner &)run {
+  return _transactionRunner;
 }
 
 + (NSString *)documentsDirectory {
@@ -78,7 +105,7 @@ using leveldb::WriteOptions;
 #endif
 }
 
-+ (NSString *)storageDirectoryForDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (NSString *)storageDirectoryForDatabaseInfo:(const DatabaseInfo &)databaseInfo
                            documentsDirectory:(NSString *)documentsDirectory {
   // Use two different path formats:
   //
@@ -88,11 +115,13 @@ using leveldb::WriteOptions;
   // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
-  directory = [directory stringByAppendingPathComponent:databaseInfo.persistenceKey];
+  directory = [directory
+      stringByAppendingPathComponent:util::WrapNSStringNoCopy(databaseInfo.persistence_key())];
 
-  NSString *segment = databaseInfo.databaseID.projectID;
-  if (![databaseInfo.databaseID isDefaultDatabase]) {
-    segment = [NSString stringWithFormat:@"%@.%@", segment, databaseInfo.databaseID.databaseID];
+  NSString *segment = util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
+  if (!databaseInfo.database_id().IsDefaultDatabase()) {
+    segment = [NSString
+        stringWithFormat:@"%@.%s", segment, databaseInfo.database_id().database_id().c_str()];
   }
   directory = [directory stringByAppendingPathComponent:segment];
 
@@ -115,8 +144,10 @@ using leveldb::WriteOptions;
   if (!database) {
     return NO;
   }
-
   _ptr.reset(database);
+  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
+  transaction.Commit();
   return YES;
 }
 
@@ -176,35 +207,34 @@ using leveldb::WriteOptions;
   return database;
 }
 
+- (LevelDbTransaction *)currentTransaction {
+  FSTAssert(_transaction != nullptr, @"Attempting to access transaction before one has started");
+  return _transaction.get();
+}
+
 #pragma mark - Persistence Factory methods
 
-- (id<FSTMutationQueue>)mutationQueueForUser:(FSTUser *)user {
-  return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:_ptr serializer:self.serializer];
+- (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
+  return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:self serializer:self.serializer];
 }
 
 - (id<FSTQueryCache>)queryCache {
-  return [[FSTLevelDBQueryCache alloc] initWithDB:_ptr serializer:self.serializer];
+  return [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
 }
 
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache {
-  return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:_ptr serializer:self.serializer];
+  return [[FSTLevelDBRemoteDocumentCache alloc] initWithDB:self serializer:self.serializer];
 }
 
-- (FSTWriteGroup *)startGroupWithAction:(NSString *)action {
-  return [self.writeGroupTracker startGroupWithAction:action];
+- (void)startTransaction:(absl::string_view)label {
+  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
 }
 
-- (void)commitGroup:(FSTWriteGroup *)group {
-  [self.writeGroupTracker endGroup:group];
-
-  NSString *description = [group description];
-  FSTLog(@"Committing %@", description);
-
-  Status status = [group writeToDB:_ptr];
-  if (!status.ok()) {
-    FSTFail(@"%@ failed with status: %s, description: %@", group.action, status.ToString().c_str(),
-            description);
-  }
+- (void)commitTransaction {
+  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
+  _transaction->Commit();
+  _transaction.reset();
 }
 
 - (void)shutdown {

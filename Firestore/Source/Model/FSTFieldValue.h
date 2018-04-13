@@ -18,10 +18,11 @@
 
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
-@class FSTDatabaseID;
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+
 @class FSTDocumentKey;
-@class FSTFieldPath;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
 @class FIRSnapshotOptions;
@@ -54,6 +55,8 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 
 @property(nonatomic, readonly, assign) FSTServerTimestampBehavior serverTimestampBehavior;
 
+@property(nonatomic) BOOL timestampsInSnapshotsEnabled;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
@@ -61,10 +64,12 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  * server timestamps.
  */
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
     NS_DESIGNATED_INITIALIZER;
 
-/** Creates an FSTFieldValueOption instance from FIRSnapshotOptions. */
-+ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value;
+/** Creates an FSTFieldValueOptions instance from FIRSnapshotOptions. */
++ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value
+             timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled;
 
 @end
 
@@ -162,9 +167,8 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 /**
  * A timestamp value stored in Firestore.
  */
-@interface FSTTimestampValue : FSTFieldValue <NSDate *>
-+ (instancetype)timestampValue:(FSTTimestamp *)value;
-- (FSTTimestamp *)internalValue;
+@interface FSTTimestampValue : FSTFieldValue <FIRTimestamp *>
++ (instancetype)timestampValue:(FIRTimestamp *)value;
 @end
 
 /**
@@ -180,10 +184,10 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *   sort by their localWriteTime.
  */
 @interface FSTServerTimestampValue : FSTFieldValue <id>
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue;
 
-@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly, nullable) FSTFieldValue *previousValue;
 
 @end
@@ -193,7 +197,6 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  */
 @interface FSTGeoPointValue : FSTFieldValue <FIRGeoPoint *>
 + (instancetype)geoPointValue:(FIRGeoPoint *)value;
-- (FIRGeoPoint *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
@@ -201,16 +204,16 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  */
 @interface FSTBlobValue : FSTFieldValue <NSData *>
 + (instancetype)blobValue:(NSData *)value;
-- (NSData *)valueWithOptions:(FSTFieldValueOptions *)options;
 @end
 
 /**
  * A reference value stored in Firestore.
  */
 @interface FSTReferenceValue : FSTFieldValue <FSTDocumentKey *>
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID;
-- (FSTDocumentKey *)valueWithOptions:(FSTFieldValueOptions *)options;
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
++ (instancetype)referenceValue:(FSTDocumentKey *)value
+                    databaseID:(const firebase::firestore::model::DatabaseId *)databaseID;
+// Does not own this DatabaseId.
+@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 @end
 
 /**
@@ -236,23 +239,23 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 - (instancetype)initWithImmutableDictionary:
     (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)value NS_DESIGNATED_INITIALIZER;
 
-- (NSDictionary<NSString *, id> *)valueWithOptions:(FSTFieldValueOptions *)options;
 - (FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *)internalValue;
 
 /** Returns the value at the given path if it exists. Returns nil otherwise. */
-- (nullable FSTFieldValue *)valueForPath:(FSTFieldPath *)fieldPath;
+- (nullable FSTFieldValue *)valueForPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has its value set to the given value.
  * This object remains unmodified.
  */
-- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value forPath:(FSTFieldPath *)fieldPath;
+- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
+                                 forPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 
 /**
  * Returns a new object where the field at the named path has been removed. If any segment of the
  * path does not exist within this object's structure, no change is performed.
  */
-- (FSTObjectValue *)objectByDeletingPath:(FSTFieldPath *)fieldPath;
+- (FSTObjectValue *)objectByDeletingPath:(const firebase::firestore::model::FieldPath &)fieldPath;
 @end
 
 /**

@@ -34,7 +34,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -42,7 +43,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -62,7 +64,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -70,7 +73,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       }
     ]
@@ -115,7 +119,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -123,7 +128,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -131,7 +137,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -151,7 +158,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -159,7 +167,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       }
     ]
@@ -199,7 +208,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -207,7 +217,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -240,7 +251,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -270,7 +282,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -278,7 +291,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -381,7 +395,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "stateExpect": {
           "activeTargets": {
@@ -401,7 +416,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         }
       },
       {
@@ -409,7 +425,8 @@
           "error": {
             "code": 14,
             "message": "Simulated Backend Error"
-          }
+          },
+          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -454,6 +471,611 @@
             },
             "errorCode": 0,
             "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Queries with limbo documents handle going offline.": {
+    "describeName": "Offline:",
+    "itName": "Queries with limbo documents handle going offline.",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ],
+        "watchSnapshot": 1000,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchReset": [
+          2
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1001"
+        ],
+        "watchSnapshot": 1001,
+        "stateExpect": {
+          "limboDocs": [
+            "collection/a"
+          ],
+          "activeTargets": {
+            "1": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        },
+        "stateExpect": {
+          "activeTargets": {
+            "1": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1001"
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1001"
+        ],
+        "watchSnapshot": 1001
+      },
+      {
+        "watchAck": [
+          1
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            1
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            1
+          ],
+          "resume-token-1001"
+        ],
+        "watchSnapshot": 1001,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "stateExpect": {
+          "limboDocs": [],
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1001"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "OnlineState timeout triggers offline behavior": {
+    "describeName": "Offline:",
+    "itName": "OnlineState timeout triggers offline behavior",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "runTimer": "online_state_timeout",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ],
+        "watchSnapshot": 1000,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "runTimer": "all"
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        },
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        }
+      },
+      {
+        "runTimer": "online_state_timeout",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "New queries return immediately with fromCache=true when offline due to stream failures.": {
+    "describeName": "Offline:",
+    "itName": "New queries return immediately with fromCache=true when offline due to stream failures.",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        }
+      },
+      {
+        "watchStreamClose": {
+          "error": {
+            "code": 14,
+            "message": "Simulated Backend Error"
+          },
+          "runBackoffTimer": true
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection2",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "New queries return immediately with fromCache=true when offline due to OnlineState timeout.": {
+    "describeName": "Offline:",
+    "itName": "New queries return immediately with fromCache=true when offline due to OnlineState timeout.",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "runTimer": "online_state_timeout",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection2",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
             "hasPendingWrites": false
           }
         ]

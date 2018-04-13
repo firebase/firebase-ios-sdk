@@ -481,6 +481,7 @@
     WAIT_FOR(count == 2);
 
     // cleanup
+    [reader removeAllObservers];
     [FRepoManager disposeRepos:writerCfg];
 }
 

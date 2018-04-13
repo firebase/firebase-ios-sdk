@@ -20,8 +20,10 @@
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMutation;
-@class FSTTimestamp;
+@class FIRTimestamp;
 @class FSTMutationResult;
 @class FSTMutationBatchResult;
 @class FSTSnapshotVersion;
@@ -45,7 +47,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 
 /** Initializes a mutation batch with the given batchID, localWriteTime, and mutations. */
 - (instancetype)initWithBatchID:(FSTBatchID)batchID
-                 localWriteTime:(FSTTimestamp *)localWriteTime
+                 localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
@@ -60,7 +62,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
  *   their hasLocalMutations flag set.
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(FSTDocumentKey *)documentKey
+                           documentKey:(const firebase::firestore::model::DocumentKey &)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult;
 
 /**
@@ -68,7 +70,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
  * the backend).
  */
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(FSTDocumentKey *)documentKey;
+                           documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Returns YES if this mutation batch has already been removed from the mutation queue.
@@ -86,7 +88,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 - (FSTDocumentKeySet *)keys;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
-@property(nonatomic, strong, readonly) FSTTimestamp *localWriteTime;
+@property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
 @property(nonatomic, strong, readonly) NSArray<FSTMutation *> *mutations;
 
 @end

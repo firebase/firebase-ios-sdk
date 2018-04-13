@@ -13,9 +13,51 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 2.8.11)
-project(firestore)
+project(firestore C CXX)
 
-set(FIREBASE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
+option(WITH_ASAN "Build with Address Sanitizer" OFF)
+# TODO(varconst): msan
+# Memory sanitizer is more complicated:
+# - it requires all dependencies to be compiled with msan enabled (see
+#   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
+# - AppleClang doesn't support it.
+option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
+option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
+
+macro(add_to_compile_and_link_flags flag)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
+endmacro()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(WITH_ASAN)
+    add_to_compile_and_link_flags("-fsanitize=address")
+  endif()
+
+  if(WITH_TSAN)
+    if(WITH_ASAN OR WITH_UBSAN)
+      message(FATAL_ERROR "Cannot combine TSan with other santizers")
+    endif()
+    add_to_compile_and_link_flags("-fsanitize=thread")
+  endif()
+
+  if(WITH_UBSAN)
+    add_to_compile_and_link_flags("-fsanitize=undefined")
+  endif()
+
+  if (WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    # Recommended to "get nicer stack traces in error messages"
+    # TODO(varconst): double-check that TSan actually needs this flag (it's
+    # explicitly recommended in the docs for ASan and UBSan)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+  endif()
+else()
+  if(WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    message(FATAL_ERROR "Only Clang and GCC support sanitizers")
+  endif()
+endif()
+
+set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
 # CMAKE_INSTALL_PREFIX should be passed in to this build so that it can find
 # outputs of the superbuild. This is handled automatically if run via the
@@ -23,39 +65,46 @@ set(FIREBASE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 #
 # If you want to use this project directly in e.g. CLion, make sure you
 # configure this.
-set(FIREBASE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}")
+set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(utils)
 
-find_package(GTest REQUIRED)
+# Include GoogleTest directly in the build.
+set(gtest_dir ${FIREBASE_INSTALL_DIR}/external/googletest)
+add_subdirectory(
+  ${gtest_dir}/src/googletest
+  ${gtest_dir}/src/googletest-build
+  EXCLUDE_FROM_ALL
+)
+
+# Set up aliases with the same names as available via FindGTest.
+add_library(
+  GTest::GTest ALIAS gtest
+)
+
+add_library(
+  GTest::Main ALIAS gtest_main
+)
+
 find_package(LevelDB REQUIRED)
+find_package(GRPC REQUIRED)
+find_package(Nanopb REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
 endif()
 
-# We use C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+enable_testing()
+add_subdirectory(third_party/abseil-cpp)
+
+include(CompilerSetup)
+
+# Generated sources will be relative to the binary directory.
+include_directories(${FIREBASE_INSTALL_DIR})
 
 # Fully qualified imports, project wide
-include_directories("${FIREBASE_SOURCE_DIR}")
+include_directories(${FIREBASE_SOURCE_DIR})
 
-if(APPLE)
-  # CMake has no special support for Objective-C as a distinct language but enabling modules and
-  # other clang extensions would apply even to regular C++ sources which is nonportable. Keep these
-  # flags separate to avoid misuse.
-  set(
-    OBJC_FLAGS
-    -fobjc-arc
-    -fmodules
-    -fno-autolink
-    -F${FIREBASE_INSTALL_DIR}/Frameworks
-  )
-endif(APPLE)
-
-enable_testing()
-add_subdirectory(third_party/abseil-cpp EXCLUDE_FROM_ALL)
 add_subdirectory(core)
+add_subdirectory(Protos)

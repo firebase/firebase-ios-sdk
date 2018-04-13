@@ -37,7 +37,9 @@ set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR})
 enable_testing()
 
 include(external/FirebaseCore)
-
 include(external/googletest)
 include(external/leveldb)
+include(external/grpc)
+include(external/protobuf)
+include(external/nanopb)
 include(external/firestore)

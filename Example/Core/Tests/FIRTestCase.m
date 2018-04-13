@@ -14,6 +14,7 @@
 
 #import "FIRTestCase.h"
 
+NSString *const kAndroidClientID = @"correct_android_client_id";
 NSString *const kAPIKey = @"correct_api_key";
 NSString *const kCustomizedAPIKey = @"customized_api_key";
 NSString *const kClientID = @"correct_client_id";

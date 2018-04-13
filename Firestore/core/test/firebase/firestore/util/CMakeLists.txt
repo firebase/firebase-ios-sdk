@@ -12,35 +12,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_test(
-  firebase_firestore_util_test
-  autoid_test.cc
-  secure_random_test.cc
-  string_printf_test.cc
-)
-target_link_libraries(
-  firebase_firestore_util_test
-  firebase_firestore_util
-)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+# Required to allow 0 length printf style strings for testing purposes.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
+
+## assert and log
 
 if(APPLE)
   cc_test(
-    firebase_firestore_util_apple_test
-    assert_test.cc
-    log_test.cc
-  )
-  target_link_libraries(
-    firebase_firestore_util_apple_test
-    firebase_firestore_util_apple
+    firebase_firestore_util_log_apple_test
+    SOURCES
+      assert_test.cc
+      log_test.cc
+    DEPENDS
+      firebase_firestore_util_log_apple
   )
 endif(APPLE)
 
 cc_test(
-  firebase_firestore_util_stdio_test
-  assert_test.cc
-  log_test.cc
+  firebase_firestore_util_log_stdio_test
+  SOURCES
+    assert_test.cc
+    log_test.cc
+  DEPENDS
+    firebase_firestore_util_log_stdio
 )
-target_link_libraries(
-  firebase_firestore_util_stdio_test
-  firebase_firestore_util_stdio
+
+## secure random
+
+if(HAVE_ARC4RANDOM)
+  cc_test(
+    firebase_firestore_util_random_arc4random_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_random_arc4random
+  )
+endif()
+
+if(HAVE_OPENSSL_RAND_H)
+  cc_test(
+    firebase_firestore_util_random_openssl_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_random_openssl
+  )
+endif()
+
+## main library
+
+cc_test(
+  firebase_firestore_util_test
+  SOURCES
+    autoid_test.cc
+    bits_test.cc
+    comparison_test.cc
+    iterator_adaptors_test.cc
+    ordered_code_test.cc
+    status_test.cc
+    status_test_util.h
+    statusor_test.cc
+    string_printf_test.cc
+    string_util_test.cc
+  DEPENDS
+    absl_base
+    absl_strings
+    firebase_firestore_util
+    gmock
 )

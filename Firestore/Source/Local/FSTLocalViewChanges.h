@@ -18,7 +18,6 @@
 
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
-@class FSTDocumentKey;
 @class FSTDocumentSet;
 @class FSTMutation;
 @class FSTQuery;

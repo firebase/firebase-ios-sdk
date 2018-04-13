@@ -17,9 +17,11 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
-@class FSTDatabaseInfo;
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+
 @class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
@@ -32,7 +34,6 @@
 @class GRPCCall;
 @class GRXWriter;
 
-@protocol FSTCredentialsProvider;
 @protocol FSTWatchStreamDelegate;
 @protocol FSTWriteStreamDelegate;
 
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *   - Restarting a stream is allowed (after failure)
  *   - Exponential backoff on failure (independent of the underlying channel)
- *   - Authentication via FSTCredentialsProvider
+ *   - Authentication via CredentialsProvider
  *   - Dispatching all callbacks into the shared worker queue
  *
  * Subclasses of FSTStream implement serialization of models to and from bytes (via protocol
@@ -88,9 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTStream <__covariant FSTStreamDelegate> : NSObject
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -141,8 +144,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)stop;
 
 /**
- * Initializes the idle timer. If no write takes place within one minute, the GRPC stream will be
- * closed.
+ * Marks this stream as idle. If no further actions are performed on the stream for one minute, the
+ * stream will automatically close itself and notify the stream's close handler. The stream will
+ * then be in a non-started state, requiring the caller to start the stream again before further
+ * use.
+ *
+ * Only streams that are in state 'Open' can be marked idle, as all other states imply pending
+ * network operations.
  */
 - (void)markIdle;
 
@@ -197,14 +205,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the watch stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passsing ownership
                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -271,14 +283,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Initializes the write stream with its dependencies.
  */
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
                       serializer:(FSTSerializerBeta *)serializer;
 
-- (instancetype)initWithDatabase:(FSTDatabaseInfo *)database
+- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(id<FSTCredentialsProvider>)credentials
+               connectionTimerID:(FSTTimerID)connectionTimerID
+                     idleTimerID:(FSTTimerID)idleTimerID
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
 
 - (instancetype)init NS_UNAVAILABLE;

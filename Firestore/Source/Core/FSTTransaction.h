@@ -16,13 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @class FIRSetOptions;
 @class FSTDatastore;
-@class FSTDocumentKey;
-@class FSTFieldMask;
-@class FSTFieldTransform;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
 @class FSTParsedSetData;
@@ -42,25 +43,27 @@ NS_ASSUME_NONNULL_BEGIN
  * Takes a set of keys and asynchronously attempts to fetch all the documents from the backend,
  * ignoring any local changes.
  */
-- (void)lookupDocumentsForKeys:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocumentsForKeys:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
                     completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
 
 /**
  * Stores mutation for the given key and set data, to be committed when commitWithCompletion is
  * called.
  */
-- (void)setData:(FSTParsedSetData *)data forDocument:(FSTDocumentKey *)key;
+- (void)setData:(FSTParsedSetData *)data
+    forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Stores mutations for the given key and update data, to be committed when commitWithCompletion
  * is called.
  */
-- (void)updateData:(FSTParsedUpdateData *)data forDocument:(FSTDocumentKey *)key;
+- (void)updateData:(FSTParsedUpdateData *)data
+       forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Stores a delete mutation for the given key, to be committed when commitWithCompletion is called.
  */
-- (void)deleteDocument:(FSTDocumentKey *)key;
+- (void)deleteDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Attempts to commit the mutations set on this transaction. Calls the given completion block when

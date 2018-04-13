@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.9.4'
+  s.version          = '0.11.0'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -24,17 +24,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.ios.deployment_target = '7.0'
 
-  s.cocoapods_version = '>= 1.4.0.beta.2'
+  s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
 
   s.source_files = [
     'Firestore/Source/**/*',
     'Firestore/Port/**/*',
+    'Firestore/Protos/nanopb/**/*.[hc]',
     'Firestore/Protos/objc/**/*.[hm]',
+    'Firestore/core/include/**/*.{h,cc,mm}',
     'Firestore/core/src/**/*.{h,cc,mm}',
     'Firestore/third_party/Immutable/*.[mh]',
-    'Firestore/third_party/abseil-cpp/absl/*.{h,cc}'
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
@@ -46,7 +47,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
-    'Firestore/core/src/firebase/firestore/util/log_stdio.cc'
+    'Firestore/core/src/firebase/firestore/util/assert_stdio.cc',
+    'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
+    'Firestore/core/src/firebase/firestore/util/secure_random_openssl.cc'
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
@@ -62,7 +65,32 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp"',
-    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s
+      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
+      '"${PODS_ROOT}/nanopb" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
+    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s + ' -DPB_FIELD_16BIT'
   }
+
+  s.prepare_command = <<-CMD
+    # Generate a version of the config.h header suitable for building with
+    # CocoaPods.
+    sed '/^#cmakedefine/ d' \
+        Firestore/core/src/firebase/firestore/util/config.h.in > \
+        Firestore/core/src/firebase/firestore/util/config.h
+  CMD
+
+  s.subspec 'abseil-cpp' do |ss|
+    ss.preserve_path = [
+      'Firestore/third_party/abseil-cpp/absl'
+    ]
+    ss.source_files = [
+      'Firestore/third_party/abseil-cpp/**/*.cc'
+    ]
+    ss.exclude_files = [
+      'Firestore/third_party/abseil-cpp/**/*_test.cc',
+    ]
+
+    ss.library = 'c++'
+    ss.compiler_flags = '$(inherited) ' + '-Wno-comma -Wno-range-loop-analysis'
+  end
 end

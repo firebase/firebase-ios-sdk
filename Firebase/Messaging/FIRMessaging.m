@@ -28,7 +28,6 @@
 #import "FIRMessagingContextManagerService.h"
 #import "FIRMessagingDataMessageManager.h"
 #import "FIRMessagingDefines.h"
-#import "FIRMessagingInstanceIDProxy.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
@@ -38,6 +37,7 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseCore/FIRReachabilityChecker.h>
+#import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -70,10 +70,31 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     @"com.firebase.messaging.notif.fcm-token-refreshed";
 #endif  // defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 
-// Copied from Apple's header in case it is missing in some cases (e.g. pre-Xcode 8 builds).
-#ifndef NSFoundationVersionNumber_iOS_8_x_Max
-#define NSFoundationVersionNumber_iOS_8_x_Max 1199
-#endif
+NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
+    @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
+
+static NSString *const kFIRMessagingPlistAutoInitEnabled =
+    @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+/// A private helper to convert enum values without depending on their numerical values
+/// (avoid casting). This can be removed when InstanceID's deprecated APNS type enum is
+/// removed.
+FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNSTokenType type) {
+  switch (type) {
+    case FIRMessagingAPNSTokenTypeProd:
+      return FIRInstanceIDAPNSTokenTypeProd;
+    case FIRMessagingAPNSTokenTypeSandbox:
+      return FIRInstanceIDAPNSTokenTypeSandbox;
+    case FIRMessagingAPNSTokenTypeUnknown:
+      return FIRInstanceIDAPNSTokenTypeUnknown;
+
+    default:
+      return FIRInstanceIDAPNSTokenTypeUnknown;
+  }
+}
+#pragma clang diagnostic pop
 
 @interface FIRMessagingMessageInfo ()
 
@@ -120,17 +141,17 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 @end
 
-@interface FIRMessaging ()
-    <FIRMessagingClientDelegate, FIRMessagingReceiverDelegate, FIRReachabilityDelegate>
+@interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
+                           FIRReachabilityDelegate> {
+  BOOL _shouldEstablishDirectChannel;
+}
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
-// This object is used as a proxy for reflection-based calls to FIRInstanceID.
-// Due to our packaging requirements, we can't directly depend on FIRInstanceID currently.
-@property(nonatomic, readwrite, strong) FIRMessagingInstanceIDProxy *instanceIDProxy;
+@property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
 
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
@@ -141,11 +162,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
 @property(nonatomic, readwrite, strong) FIRMessagingReceiver *receiver;
 @property(nonatomic, readwrite, strong) FIRMessagingSyncMessageManager *syncMessageManager;
+@property(nonatomic, readwrite, strong) NSUserDefaults *messagingUserDefaults;
 
 /// Message ID's logged for analytics. This prevents us from logging the same message twice
 /// which can happen if the user inadvertently calls `appDidReceiveMessage` along with us
 /// calling it implicitly during swizzling.
 @property(nonatomic, readwrite, strong) NSMutableSet *loggedMessageIDs;
+
+- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID
+                      userDefaults:(NSUserDefaults *)defaults NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -161,27 +186,26 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   return messaging;
 }
 
-- (instancetype)initPrivately {
+- (instancetype)initWithInstanceID:(FIRInstanceID *)instanceID
+                      userDefaults:(NSUserDefaults *)defaults {
   self = [super init];
-  if (self) {
+  if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
-    _instanceIDProxy = [[FIRMessagingInstanceIDProxy alloc] init];
+    _instanceID = instanceID;
+    _messagingUserDefaults = defaults;
   }
   return self;
+}
+
+- (instancetype)initPrivately {
+  return [self initWithInstanceID:[FIRInstanceID instanceID]
+                     userDefaults:[NSUserDefaults standardUserDefaults]];
 }
 
 - (void)dealloc {
   [self.reachability stop];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [self teardown];
-}
-
-- (void)setRemoteMessageDelegate:(id<FIRMessagingDelegate>)delegate {
-  _delegate = delegate;
-}
-
-- (id<FIRMessagingDelegate>)remoteMessageDelegate {
-  return self.delegate;
 }
 
 #pragma mark - Config
@@ -404,7 +428,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     }];
 
   } else if ([appDelegate respondsToSelector:openURLWithOptionsSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     [appDelegate application:application openURL:url options:@{}];
+#pragma clang diagnostic pop
 
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
@@ -443,16 +470,48 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     return;
   }
   self.apnsTokenData = apnsToken;
-  [self.instanceIDProxy setAPNSToken:apnsToken type:(FIRMessagingInstanceIDProxyAPNSTokenType)type];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  [self.instanceID setAPNSToken:apnsToken
+                           type:FIRIIDAPNSTokenTypeFromAPNSTokenType(type)];
+#pragma clang diagnostic pop
 }
 
 #pragma mark - FCM
+
+- (BOOL)isAutoInitEnabled {
+  // Check storage
+  id isAutoInitEnabledObject =
+      [_messagingUserDefaults objectForKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+
+  // Check Info.plist
+  isAutoInitEnabledObject =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled];
+  if (isAutoInitEnabledObject) {
+    return [isAutoInitEnabledObject boolValue];
+  }
+  // If none of above exists, we default assume FCM auto init is enabled.
+  return YES;
+}
+
+- (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
+  BOOL isFCMAutoInitEnabled = [self isAutoInitEnabled];
+  [_messagingUserDefaults setBool:autoInitEnabled
+                           forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
+  if (!isFCMAutoInitEnabled && autoInitEnabled) {
+    self.defaultFcmToken = self.instanceID.token;
+  }
+}
 
 - (NSString *)FCMToken {
   NSString *token = self.defaultFcmToken;
   if (!token) {
     // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
-    token = [self.instanceIDProxy token];
+    token = self.instanceID.token;
   }
   return token;
 }
@@ -482,10 +541,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
                            @"Be sure to re-retrieve the FCM token once the APNS device token is "
                            @"set.", senderID);
   }
-  [self.instanceIDProxy tokenWithAuthorizedEntity:senderID
-                                            scope:kFIRMessagingDefaultTokenScope
-                                          options:options
-                                          handler:completion];
+  [self.instanceID tokenWithAuthorizedEntity:senderID
+                                       scope:kFIRMessagingDefaultTokenScope
+                                     options:options
+                                     handler:completion];
 }
 
 - (void)deleteFCMTokenForSenderID:(nonnull NSString *)senderID
@@ -502,9 +561,9 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     }
     return;
   }
-  [self.instanceIDProxy deleteTokenWithAuthorizedEntity:senderID
-                                                  scope:kFIRMessagingDefaultTokenScope
-                                                handler:completion];
+  [self.instanceID deleteTokenWithAuthorizedEntity:senderID
+                                             scope:kFIRMessagingDefaultTokenScope
+                                           handler:completion];
 }
 
 #pragma mark - FIRMessagingDelegate helper methods
@@ -513,18 +572,16 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
   [self validateDelegateConformsToTokenAvailabilityMethods];
 }
 
-// Check if the delegate conforms to either |didReceiveRegistrationToken:| or
-// |didRefreshRegistrationToken:|, and display a warning to the developer if not.
+// Check if the delegate conforms to |didReceiveRegistrationToken:|
+// and display a warning to the developer if not.
 // NOTE: Once |didReceiveRegistrationToken:| can be made a required method, this
 // check can be removed.
 - (void)validateDelegateConformsToTokenAvailabilityMethods {
   if (self.delegate &&
-      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)] &&
-      ![self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
+      ![self.delegate respondsToSelector:@selector(messaging:didReceiveRegistrationToken:)]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented,
                            @"The object %@ does not respond to "
-                           @"-messaging:didReceiveRegistrationToken:, nor "
-                           @"-messaging:didRefreshRegistrationToken:. Please implement "
+                           @"-messaging:didReceiveRegistrationToken:. Please implement "
                            @"-messaging:didReceiveRegistrationToken: to be provided with an FCM "
                            @"token.", self.delegate.description);
   }
@@ -643,10 +700,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)subscribeToTopic:(NSString *)topic {
+  [self subscribeToTopic:topic completion:nil];
+}
+
+- (void)subscribeToTopic:(NSString *)topic
+              completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub subscribeToTopic:normalizeTopic];
+      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                               @"Cannot parse topic name %@. Will not subscribe.", topic);
@@ -659,10 +721,15 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
+  [self unsubscribeFromTopic:topic completion:nil];
+}
+
+- (void)unsubscribeFromTopic:(NSString *)topic
+                  completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
     if (normalizeTopic.length) {
-      [self.pubsub unsubscribeFromTopic:normalizeTopic];
+      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
                               @"Cannot parse topic name %@. Will not unsubscribe.", topic);
@@ -728,12 +795,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 - (void)receiver:(FIRMessagingReceiver *)receiver
       receivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
   if ([self.delegate respondsToSelector:@selector(messaging:didReceiveMessage:)]) {
-    [self.delegate messaging:self didReceiveMessage:remoteMessage];
-  } else if ([self.delegate respondsToSelector:@selector(applicationReceivedRemoteMessage:)]) {
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [self.delegate applicationReceivedRemoteMessage:remoteMessage];
-#pragma clang diagnostic pop
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+    [self.delegate messaging:self didReceiveMessage:remoteMessage];
+#pragma pop
   } else {
     // Delegate methods weren't implemented, so messages are being dropped, log a warning
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeRemoteMessageDelegateMethodNotImplemented,
@@ -781,7 +846,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 #pragma mark - Notifications
 
 - (void)didReceiveDefaultInstanceIDToken:(NSNotification *)notification {
-  if (![notification.object isKindOfClass:[NSString class]]) {
+  if (notification.object && ![notification.object isKindOfClass:[NSString class]]) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging015,
                             @"Invalid default FCM token type %@",
                             NSStringFromClass([notification.object class]));
@@ -800,7 +865,7 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and if it is non-nil, post it
-  NSString *token = [self.instanceIDProxy token];
+  NSString *token = self.instanceID.token;
   // Sometimes Instance ID doesn't yet have a token, so wait until the default
   // token is fetched, and then notify. This ensures that this token should not
   // be nil when the developer accesses it.
@@ -810,13 +875,6 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
     if (self.defaultFcmToken && ![self.defaultFcmToken isEqualToString:oldToken]) {
       [self notifyDelegateOfFCMTokenAvailability];
     }
-    // Call deprecated refresh method, because it should still work (until it is removed).
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    if ([self.delegate respondsToSelector:@selector(messaging:didRefreshRegistrationToken:)]) {
-      [self.delegate messaging:self didRefreshRegistrationToken:token];
-    }
-#pragma clang diagnostic pop
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
   }

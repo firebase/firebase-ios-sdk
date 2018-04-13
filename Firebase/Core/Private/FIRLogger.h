@@ -40,6 +40,7 @@ extern FIRLoggerService kFIRLoggerMessaging;
 extern FIRLoggerService kFIRLoggerPerf;
 extern FIRLoggerService kFIRLoggerRemoteConfig;
 extern FIRLoggerService kFIRLoggerStorage;
+extern FIRLoggerService kFIRLoggerSwizzler;
 
 #ifdef __cplusplus
 extern "C" {
