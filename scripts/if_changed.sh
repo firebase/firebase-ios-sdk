@@ -66,6 +66,8 @@ else
   esac
 fi
 
+run=true
+
 if [[ "$run" == true ]]; then
   "$@"
 else
