@@ -12,28 +12,28 @@ jobs:
     - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - ./scripts/before_install_cmake.sh
+        - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
-        - ./scripts/before_install_cmake.sh
+        - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
     - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
-        - ./scripts/before_install_cmake.sh
+        - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
     - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=ubsan
       before_install:
-        - ./scripts/before_install_cmake.sh
+        - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
