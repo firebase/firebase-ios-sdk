@@ -19,6 +19,7 @@
 #include <ctype.h>
 
 #include <gtest/gtest.h>
+#include <limits>
 
 #include <pthread.h>
 
@@ -77,7 +78,7 @@ int bad_switch(Bar bar) {
 
 TEST(AutoId, IsSane) {
   for (int i = 0; i < 50; i++) {
-    int k = 0x7fffffff;
+    int k = std::numeric_limits<int>::max();
     k += i;
     std::string auto_id = CreateAutoId();
 
