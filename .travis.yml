@@ -19,7 +19,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS="asan ubsan"
       before_install:
         - ./scripts/before_install_firestore_xcodebuild.sh
       script:
@@ -34,14 +34,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
     - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
-      before_install:
-        - ./scripts/before_install_firestore_xcodebuild.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
-
-    - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
@@ -49,7 +41,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
-      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
@@ -57,13 +49,6 @@ jobs:
 
     - stage: test
       env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
-      before_install:
-        - ./scripts/before_install_firestore_cmake.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
-
-    - stage: test
-      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=ubsan
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
