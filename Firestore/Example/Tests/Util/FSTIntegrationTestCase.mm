@@ -246,13 +246,14 @@ NS_ASSUME_NONNULL_BEGIN
   XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];
   id<FIRListenerRegistration> listener = [ref
       addSnapshotListenerWithIncludeMetadataChanges:YES
-                            listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-                              XCTAssertNil(error);
-                              if (!requireOnline || !snapshot.metadata.fromCache) {
-                                result = snapshot;
-                                [expectation fulfill];
-                              }
-                            }];
+                                           listener:^(FIRDocumentSnapshot *snapshot,
+                                                      NSError *error) {
+                                             XCTAssertNil(error);
+                                             if (!requireOnline || !snapshot.metadata.fromCache) {
+                                               result = snapshot;
+                                               [expectation fulfill];
+                                             }
+                                           }];
 
   [self awaitExpectations];
   [listener remove];

@@ -370,29 +370,30 @@
   __block XCTestExpectation *dataCompletion;
   __block int callbacks = 0;
 
-  id<FIRListenerRegistration> listenerRegistration =
-  [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
-                                    listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
-                                      callbacks++;
+  id<FIRListenerRegistration> listenerRegistration = [docRef
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:^(FIRDocumentSnapshot *_Nullable doc,
+                                                      NSError *error) {
+                                             callbacks++;
 
-                                      if (callbacks == 1) {
-                                        XCTAssertNotNil(doc);
-                                        XCTAssertFalse(doc.exists);
-                                        [emptyCompletion fulfill];
+                                             if (callbacks == 1) {
+                                               XCTAssertNotNil(doc);
+                                               XCTAssertFalse(doc.exists);
+                                               [emptyCompletion fulfill];
 
-                                      } else if (callbacks == 2) {
-                                        XCTAssertEqualObjects(doc.data, (@{ @"a" : @1 }));
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
+                                             } else if (callbacks == 2) {
+                                               XCTAssertEqualObjects(doc.data, (@{ @"a" : @1 }));
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
 
-                                      } else if (callbacks == 3) {
-                                        XCTAssertEqualObjects(doc.data, (@{ @"a" : @1 }));
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        [dataCompletion fulfill];
+                                             } else if (callbacks == 3) {
+                                               XCTAssertEqualObjects(doc.data, (@{ @"a" : @1 }));
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               [dataCompletion fulfill];
 
-                                      } else if (callbacks == 4) {
-                                        XCTFail("Should not have received this callback");
-                                      }
-                                    }];
+                                             } else if (callbacks == 4) {
+                                               XCTFail("Should not have received this callback");
+                                             }
+                                           }];
 
   [self awaitExpectations];
   dataCompletion = [self expectationWithDescription:@"data snapshot"];
@@ -455,37 +456,38 @@
   __block XCTestExpectation *changeCompletion;
   __block int callbacks = 0;
 
-  id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
-                                    listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
-                                      callbacks++;
+  id<FIRListenerRegistration> listenerRegistration = [docRef
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:^(FIRDocumentSnapshot *_Nullable doc,
+                                                      NSError *error) {
+                                             callbacks++;
 
-                                      if (callbacks == 1) {
-                                        XCTAssertEqualObjects(doc.data, initialData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, YES);
+                                             if (callbacks == 1) {
+                                               XCTAssertEqualObjects(doc.data, initialData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, YES);
 
-                                      } else if (callbacks == 2) {
-                                        XCTAssertEqualObjects(doc.data, initialData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, NO);
-                                        [initialCompletion fulfill];
+                                             } else if (callbacks == 2) {
+                                               XCTAssertEqualObjects(doc.data, initialData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, NO);
+                                               [initialCompletion fulfill];
 
-                                      } else if (callbacks == 3) {
-                                        XCTAssertEqualObjects(doc.data, changedData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
-                                        XCTAssertEqual(doc.metadata.isFromCache, NO);
+                                             } else if (callbacks == 3) {
+                                               XCTAssertEqualObjects(doc.data, changedData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, YES);
+                                               XCTAssertEqual(doc.metadata.isFromCache, NO);
 
-                                      } else if (callbacks == 4) {
-                                        XCTAssertEqualObjects(doc.data, changedData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, NO);
-                                        [changeCompletion fulfill];
+                                             } else if (callbacks == 4) {
+                                               XCTAssertEqualObjects(doc.data, changedData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, NO);
+                                               [changeCompletion fulfill];
 
-                                      } else if (callbacks == 5) {
-                                        XCTFail("Should not have received this callback");
-                                      }
-                                    }];
+                                             } else if (callbacks == 5) {
+                                               XCTFail("Should not have received this callback");
+                                             }
+                                           }];
 
   [self awaitExpectations];
   changeCompletion = [self expectationWithDescription:@"listen for changed data"];
@@ -546,32 +548,33 @@
   __block XCTestExpectation *changeCompletion;
   __block int callbacks = 0;
 
-  id<FIRListenerRegistration> listenerRegistration =
-      [docRef addSnapshotListenerWithIncludeMetadataChanges:YES
-                                    listener:^(FIRDocumentSnapshot *_Nullable doc, NSError *error) {
-                                      callbacks++;
+  id<FIRListenerRegistration> listenerRegistration = [docRef
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:^(FIRDocumentSnapshot *_Nullable doc,
+                                                      NSError *error) {
+                                             callbacks++;
 
-                                      if (callbacks == 1) {
-                                        XCTAssertEqualObjects(doc.data, initialData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, YES);
+                                             if (callbacks == 1) {
+                                               XCTAssertEqualObjects(doc.data, initialData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, YES);
 
-                                      } else if (callbacks == 2) {
-                                        XCTAssertEqualObjects(doc.data, initialData);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, NO);
-                                        [initialCompletion fulfill];
+                                             } else if (callbacks == 2) {
+                                               XCTAssertEqualObjects(doc.data, initialData);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, NO);
+                                               [initialCompletion fulfill];
 
-                                      } else if (callbacks == 3) {
-                                        XCTAssertFalse(doc.exists);
-                                        XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
-                                        XCTAssertEqual(doc.metadata.isFromCache, NO);
-                                        [changeCompletion fulfill];
+                                             } else if (callbacks == 3) {
+                                               XCTAssertFalse(doc.exists);
+                                               XCTAssertEqual(doc.metadata.hasPendingWrites, NO);
+                                               XCTAssertEqual(doc.metadata.isFromCache, NO);
+                                               [changeCompletion fulfill];
 
-                                      } else if (callbacks == 4) {
-                                        XCTFail("Should not have received this callback");
-                                      }
-                                    }];
+                                             } else if (callbacks == 4) {
+                                               XCTFail("Should not have received this callback");
+                                             }
+                                           }];
 
   [self awaitExpectations];
   changeCompletion = [self expectationWithDescription:@"listen for changed data"];
