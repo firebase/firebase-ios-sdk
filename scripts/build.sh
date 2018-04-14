@@ -19,10 +19,11 @@
 # Builds the given product for the given platform using the given build method
 
 set -euo pipefail
+set -x
 
 if [[ $# -lt 1 ]]; then
   cat 1>&2 <<EOF
-USAGE: $0 product [platform] [method]
+USAGE: $0 product [platform] [method] [sanitizers]
 
 product can be one of:
   Firebase
@@ -36,6 +37,11 @@ platform can be one of:
 method can be one of:
   xcodebuild (default)
   cmake
+
+sanitizers can be a combination of:
+  asan
+  tsan
+  ubsan
 EOF
   exit 1
 fi
