@@ -1,13 +1,13 @@
 GIT
   remote: https://github.com/CocoaPods/CocoaPods.git
-  revision: df6872de04fd1808fde71c824530e3a784e6a2d2
+  revision: d4468d5bfa5e34a05b230c08497ed88e5d025a2d
   specs:
-    cocoapods (1.4.0)
+    cocoapods (1.5.0)
       activesupport (>= 4.0.2, < 5)
       claide (>= 1.0.2, < 2.0)
-      cocoapods-core (= 1.4.0)
+      cocoapods-core (= 1.5.0)
       cocoapods-deintegrate (>= 1.0.2, < 2.0)
-      cocoapods-downloader (>= 1.1.3, < 2.0)
+      cocoapods-downloader (>= 1.2.0, < 2.0)
       cocoapods-plugins (>= 1.0.0, < 2.0)
       cocoapods-search (>= 1.0.0, < 2.0)
       cocoapods-stats (>= 1.0.0, < 2.0)
@@ -17,44 +17,44 @@ GIT
       escape (~> 0.0.4)
       fourflusher (~> 2.0.1)
       gh_inspector (~> 1.0)
-      molinillo (~> 0.6.4)
+      molinillo (~> 0.6.5)
       nap (~> 1.0)
       ruby-macho (~> 1.1)
-      xcodeproj (>= 1.5.4, < 2.0)
+      xcodeproj (>= 1.5.7, < 2.0)
 
 GIT
   remote: https://github.com/CocoaPods/Core.git
-  revision: b4fb2f193897c789c094d126ebca91034edc261d
+  revision: 35b53a939c553c510e81fcf2cec0ff6682399b9a
   specs:
-    cocoapods-core (1.4.0)
+    cocoapods-core (1.5.0)
       activesupport (>= 4.0.2, < 6)
       fuzzy_match (~> 2.0.4)
       nap (~> 1.0)
 
 GIT
   remote: https://github.com/CocoaPods/Xcodeproj.git
-  revision: 531d8aa8ab4805c84f5e0fe94181ae3995430d05
+  revision: 2bd7a5483407dc8c1be49d5cbdc1a48ccf016cf5
   specs:
-    xcodeproj (1.5.4)
-      CFPropertyList (~> 2.3.3)
-      atomos (~> 0.1.0)
+    xcodeproj (1.5.7)
+      CFPropertyList (>= 2.3.3, < 4.0)
+      atomos (~> 0.1.2)
       claide (>= 1.0.2, < 2.0)
       colored2 (~> 3.1)
-      nanaimo (~> 0.2.3)
+      nanaimo (~> 0.2.5)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    CFPropertyList (2.3.6)
+    CFPropertyList (3.0.0)
     activesupport (4.2.10)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    atomos (0.1.0)
+    atomos (0.1.2)
     claide (1.0.2)
     cocoapods-deintegrate (1.0.2)
-    cocoapods-downloader (1.1.3)
+    cocoapods-downloader (1.2.0)
     cocoapods-plugins (1.0.0)
       nap
     cocoapods-search (1.0.0)
@@ -68,17 +68,17 @@ GEM
     escape (0.0.4)
     fourflusher (2.0.1)
     fuzzy_match (2.0.4)
-    gh_inspector (1.0.3)
-    i18n (0.9.3)
+    gh_inspector (1.1.3)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
-    minitest (5.11.1)
-    molinillo (0.6.4)
-    nanaimo (0.2.3)
+    minitest (5.11.3)
+    molinillo (0.6.5)
+    nanaimo (0.2.5)
     nap (1.1.0)
     netrc (0.11.0)
     ruby-macho (1.1.0)
     thread_safe (0.3.6)
-    tzinfo (1.2.4)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
 
 PLATFORMS
@@ -90,4 +90,4 @@ DEPENDENCIES
   xcodeproj!
 
 BUNDLED WITH
-   1.16.0
+   1.16.1

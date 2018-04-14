@@ -35,7 +35,7 @@ run=false
 
 # To force Travis to do a full run, change the "false" to "{PR number}" like
 # if [[ "$TRAVIS_PULL_REQUEST" == "904" ]]; then
-if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+if [[ "$TRAVIS_PULL_REQUEST" == "1103" ]]; then
   # Full builds should run everything
   run=true
 
