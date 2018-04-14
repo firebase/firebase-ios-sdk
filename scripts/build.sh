@@ -108,8 +108,8 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
-xcb_flags_sanitizers=('')
-cmake_options=('')
+xcb_flags_sanitizers=()
+cmake_options=()
 
 for sanitizer in $sanitizers; do
   echo $sanitizer
@@ -196,6 +196,7 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-xcodebuild-iOS)
+    set +u
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme 'Firestore_Tests' \
@@ -203,6 +204,7 @@ case "$product-$method-$platform" in
         "${xcb_flags_sanitizers[@]}" \
         build \
         test
+    set -u
 
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
@@ -214,7 +216,9 @@ case "$product-$method-$platform" in
   Firestore-cmake-macOS)
     test -d build || mkdir build
     echo "Preparing cmake build ..."
+    set -u
     (cd build; cmake "${cmake_options[@]}" ..)
+    set +u
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
