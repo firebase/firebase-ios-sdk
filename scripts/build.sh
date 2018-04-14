@@ -206,8 +206,8 @@ case "$product-$method-$platform" in
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme 'Firestore_Tests' \
-        -enableAddressSanitizer YES \
         "${xcb_flags[@]}" \
+        "${xcb_flags_sanitizers[@]}" \
         build \
         test
     set -u

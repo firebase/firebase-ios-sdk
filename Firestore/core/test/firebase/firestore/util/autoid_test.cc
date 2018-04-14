@@ -16,75 +16,15 @@
 
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 
-#include <ctype.h>
+#include <cctype>
 
-#include <gtest/gtest.h>
-#include <limits>
-
-#include <pthread.h>
-
-int Global;
-
-void *Thread1(void *x) {
-  Global++;
-  (void)x;
-  return NULL;
-}
-
-void *Thread2(void *x) {
-  Global--;
-  (void)x;
-  return NULL;
-}
-
-void bad_thread() {
-  pthread_t t[2];
-  pthread_create(&t[0], NULL, Thread1, NULL);
-  pthread_create(&t[1], NULL, Thread2, NULL);
-  pthread_join(t[0], NULL);
-  pthread_join(t[1], NULL);
-}
+#include "gtest/gtest.h"
 
 using firebase::firestore::util::CreateAutoId;
 
-struct Foo {
-  int uninit;
-};
-
-int foo(int i) {
-  char *x = (char*)malloc(10 * sizeof(char*));
-  free(x);
-
-  int* a = new int[10];
-    a[5] = 0;
-    if (a[i])
-      printf("xx\n");
-
-  return x[5];
-}
-
-enum class Bar {
-  X, Y
-};
-
-int bad_switch(Bar bar) {
-  switch (bar) {
-    case Bar::X:
-      return 1;
-    case Bar::Y:
-      return 2;
-  }
-}
-
 TEST(AutoId, IsSane) {
   for (int i = 0; i < 50; i++) {
-    int k = std::numeric_limits<int>::max();
-    k += i;
     std::string auto_id = CreateAutoId();
-
-    Foo foo;
-    EXPECT_EQ(foo.uninit, 42) << "obc";
-
     EXPECT_EQ(20u, auto_id.length());
     for (size_t pos = 0; pos < 20; pos++) {
       char c = auto_id[pos];
@@ -93,17 +33,4 @@ TEST(AutoId, IsSane) {
           << auto_id << "\"";
     }
   }
-  const auto bad = []{
-    std::string pending = "obc";
-    pending += "d";
-    auto* ptr = &pending;
-    return ptr;
-  }();
-  EXPECT_TRUE(!bad->empty()) << "obc";
-  EXPECT_FALSE(!bad->empty()) << "obcd";
-  EXPECT_EQ(foo(0), 42);
-
-  // bad_switch(static_cast<Bar>(42));
-  bad_thread();
-
 }
