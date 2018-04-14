@@ -108,14 +108,15 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
-cmake_options=()
+xcb_flags_sanitizers=('')
+cmake_options=('')
 
 for sanitizer in $sanitizers; do
   echo $sanitizer
 
   case "$sanitizer" in
     asan)
-      xcb_flags+=(
+      xcb_flags_sanitizers+=(
         -enableAddressSanitizer YES
       )
       cmake_options+=(
@@ -124,7 +125,7 @@ for sanitizer in $sanitizers; do
       ;;
 
     tsan)
-      xcb_flags+=(
+      xcb_flags_sanitizers+=(
         -enableThreadSanitizer YES
       )
       cmake_options+=(
@@ -133,7 +134,7 @@ for sanitizer in $sanitizers; do
       ;;
 
     ubsan)
-      xcb_flags+=(
+      xcb_flags_sanitizers+=(
         -enableUndefinedBehaviorSanitizer YES
       )
       cmake_options+=(
@@ -199,6 +200,7 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme 'Firestore_Tests' \
         "${xcb_flags[@]}" \
+        "${xcb_flags_sanitizers[@]}" \
         build \
         test
 
