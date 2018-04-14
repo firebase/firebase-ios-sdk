@@ -216,9 +216,9 @@ case "$product-$method-$platform" in
   Firestore-cmake-macOS)
     test -d build || mkdir build
     echo "Preparing cmake build ..."
-    set -u
-    (cd build; cmake "${cmake_options[@]}" ..)
     set +u
+    (cd build; cmake "${cmake_options[@]}" ..)
+    set -u
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
