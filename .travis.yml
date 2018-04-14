@@ -10,20 +10,30 @@ rvm: 2.3.1
 jobs:
   include:
     - stage: test
-      env:
-        regular:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
-        asan:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
-        tsan:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - bundle install
-        - gem install xcpretty
-        - brew install cmake
-        - brew install go # Somehow the build for Abseil requires this.
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+        - ./scripts/before_install_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+      before_install:
+        - ./scripts/before_install_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+    - stage: test
+      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      before_install:
+        - ./scripts/before_install_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+    - stage: test
+      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=ubsan
+      before_install:
+        - ./scripts/before_install_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
