@@ -294,7 +294,7 @@ using firebase::firestore::model::TransformOperation;
   XCTAssertEqualObjects(transformedDoc, expectedDoc);
 }
 
-- (void)testAppliesServerAckedTransformsToDocuments {
+- (void)testAppliesServerAckedServerTimestampTransformToDocuments {
   NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
@@ -313,6 +313,29 @@ using firebase::firestore::model::TransformOperation;
   NSDictionary *expectedData =
       @{ @"foo" : @{@"bar" : _timestamp.dateValue},
          @"baz" : @"baz-value" };
+  XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
+}
+
+- (void)testAppliesServerAckedArrayTransformsToDocuments {
+  NSDictionary *docData = @{ @"array_1" : @[ @1, @2 ], @"array_2" : @[ @"a", @"b" ] };
+  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
+
+  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
+    @"array_1" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @3 ]],
+    @"array_2" : [FIRFieldValue fieldValueForArrayRemove:@[ @"a", @"c" ]]
+  });
+
+  // Server just sends null transform results for array operations.
+  FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
+       initWithVersion:FSTTestVersion(1)
+      transformResults:@[ [FSTNullValue nullValue], [FSTNullValue nullValue] ]];
+
+  FSTMaybeDocument *transformedDoc = [transform applyTo:baseDoc
+                                           baseDocument:baseDoc
+                                         localWriteTime:_timestamp
+                                         mutationResult:mutationResult];
+
+  NSDictionary *expectedData = @{ @"array_1" : @[ @1, @2, @3 ], @"array_2" : @[ @"b" ] };
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
 }
 
