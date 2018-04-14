@@ -52,6 +52,7 @@ if [[ $# -gt 2 ]]; then
   method="$3"
 fi
 
+sanitizers=""
 if [[ $# -gt 3 ]]; then
   sanitizers="$4"
 fi
