@@ -19,7 +19,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild $SANITIZERS=asan
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
         - ./scripts/before_install_firestore_xcodebuild.sh
       script:
@@ -27,7 +27,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild $SANITIZERS=tsan
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
         - ./scripts/before_install_firestore_xcodebuild.sh
       script:
@@ -35,7 +35,7 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild $SANITIZERS=ubsan
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
       before_install:
         - ./scripts/before_install_firestore_xcodebuild.sh
       script:
