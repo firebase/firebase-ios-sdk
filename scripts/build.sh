@@ -107,6 +107,46 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
+cmake_options=()
+
+for sanitizer in $sanitizers; do
+  echo $sanitizer
+
+  case "$sanitizer" in
+    asan)
+      xcb_flags+=(
+        -enableAddressSanitizer YES
+      )
+      cmake_options+=(
+        -DWITH_ASAN=ON
+      )
+      ;;
+
+    tsan)
+      xcb_flags+=(
+        -enableThreadSanitizer YES
+      )
+      cmake_options+=(
+        -DWITH_TSAN=ON
+      )
+      ;;
+
+    ubsan)
+      xcb_flags+=(
+        -enableUndefinedBehaviorSanitizer YES
+      )
+      cmake_options+=(
+        -DWITH_UBSAN=ON
+      )
+      ;;
+
+    *)
+      echo "Unknown sanitizer '$sanitizer'" 1>&2
+      exit 1
+      ;;
+  esac
+done
+
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
     RunXcodebuild \
@@ -169,22 +209,9 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
-    sanitizer_options=""
-    for s in $sanitizers; do
-      echo $s
-      if [[ $s == "asan" ]]; then
-        sanitizer_options="$sanitizer_options -DWITH_ASAN=ON"
-      elif [[ $s == "tsan" ]]; then
-        sanitizer_options="$sanitizer_options -DWITH_TSAN=ON"
-      elif [[ $s == "ubsan" ]]; then
-        sanitizer_options="$sanitizer_options -DWITH_UBSAN=ON"
-      fi
-    done
-    echo $sanitizer_options
-
     test -d build || mkdir build
     echo "Preparing cmake build ..."
-    (cd build; cmake $sanitizer_options ..)
+    (cd build; cmake "${cmake_options[@]}" ..)
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
