@@ -24,17 +24,12 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
+        regular:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+        asan:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
+        tsan:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
         - bundle install
         - gem install xcpretty
@@ -43,7 +38,7 @@ jobs:
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
       script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
 branches:
   only:

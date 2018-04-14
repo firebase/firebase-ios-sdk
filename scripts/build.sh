@@ -52,6 +52,10 @@ if [[ $# -gt 2 ]]; then
   method="$3"
 fi
 
+if [[ $# -gt 3 ]]; then
+  sanitizers="$4"
+fi
+
 echo "Building $product for $platform using $method"
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
@@ -165,9 +169,22 @@ case "$product-$method-$platform" in
     ;;
 
   Firestore-cmake-macOS)
+    sanitizer_options=""
+    for s in $sanitizers; do
+      echo $s
+      if [[ $s == "asan" ]]; then
+        sanitizer_options="$sanitizer_options -DWITH_ASAN=ON"
+      elif [[ $s == "tsan" ]]; then
+        sanitizer_options="$sanitizer_options -DWITH_TSAN=ON"
+      elif [[ $s == "ubsan" ]]; then
+        sanitizer_options="$sanitizer_options -DWITH_UBSAN=ON"
+      fi
+    done
+    echo $sanitizer_options
+
     test -d build || mkdir build
     echo "Preparing cmake build ..."
-    (cd build; cmake ..)
+    (cd build; cmake $sanitizer_options ..)
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
