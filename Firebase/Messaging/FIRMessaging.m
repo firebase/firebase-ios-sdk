@@ -73,28 +73,10 @@ NSString * const FIRMessagingRegistrationTokenRefreshedNotification =
 NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
     @"com.firebase.messaging.auto-init.enabled";  // Auto Init Enabled key stored in NSUserDefaults
 
+NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token type key stored in user info.
+
 static NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-/// A private helper to convert enum values without depending on their numerical values
-/// (avoid casting). This can be removed when InstanceID's deprecated APNS type enum is
-/// removed.
-FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNSTokenType type) {
-  switch (type) {
-    case FIRMessagingAPNSTokenTypeProd:
-      return FIRInstanceIDAPNSTokenTypeProd;
-    case FIRMessagingAPNSTokenTypeSandbox:
-      return FIRInstanceIDAPNSTokenTypeSandbox;
-    case FIRMessagingAPNSTokenTypeUnknown:
-      return FIRInstanceIDAPNSTokenTypeUnknown;
-
-    default:
-      return FIRInstanceIDAPNSTokenTypeUnknown;
-  }
-}
-#pragma clang diagnostic pop
 
 @interface FIRMessagingMessageInfo ()
 
@@ -257,11 +239,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
              selector:@selector(defaultInstanceIDTokenWasRefreshed:)
                  name:kFIRMessagingRegistrationTokenRefreshNotification
                object:nil];
-  [center addObserver:self
-             selector:@selector(didReceiveAPNSToken:)
-                 name:kFIRMessagingAPNSTokenNotification
-               object:nil];
-
   [center addObserver:self
              selector:@selector(applicationStateChanged)
                  name:UIApplicationDidBecomeActiveNotification
@@ -471,11 +448,13 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   }
   self.apnsTokenData = apnsToken;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [self.instanceID setAPNSToken:apnsToken
-                           type:FIRIIDAPNSTokenTypeFromAPNSTokenType(type)];
-#pragma clang diagnostic pop
+  // Notify InstanceID that APNS Token has been set.
+  NSDictionary *userInfo = @{kFIRMessagingAPNSTokenType : @(type)};
+  NSNotification *notification =
+      [NSNotification notificationWithName:kFIRMessagingAPNSTokenNotification
+                                    object:[apnsToken copy]
+                                  userInfo:userInfo];
+  [[NSNotificationQueue defaultQueue] enqueueNotification:notification postingStyle:NSPostASAP];
 }
 
 #pragma mark - FCM
@@ -784,12 +763,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
   return [self currentLocale];
 }
 
-- (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error {
-  if (apnsToken) {
-    self.apnsTokenData = [apnsToken copy];
-  }
-}
-
 #pragma mark - FIRMessagingReceiverDelegate
 
 - (void)receiver:(FIRMessagingReceiver *)receiver
@@ -878,17 +851,6 @@ FIRInstanceIDAPNSTokenType FIRIIDAPNSTokenTypeFromAPNSTokenType(FIRMessagingAPNS
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center postNotificationName:FIRMessagingRegistrationTokenRefreshedNotification object:nil];
   }
-}
-
-- (void)didReceiveAPNSToken:(NSNotification *)notification {
-  NSData *apnsToken = notification.object;
-  if (![apnsToken isKindOfClass:[NSData class]]) {
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeMessaging016, @"Invalid APNS token type %@",
-                            NSStringFromClass([notification.object class]));
-    return;
-  }
-  // Set this value directly, and since this came from InstanceID, don't set it back to InstanceID
-  self.apnsTokenData = [apnsToken copy];
 }
 
 #pragma mark - Application Support Directory

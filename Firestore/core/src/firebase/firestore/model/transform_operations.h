@@ -17,6 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
+#include <vector>
+
+#if defined(__OBJC__)
+#import "Firestore/Source/Model/FSTFieldValue.h"
+#endif
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -31,6 +37,8 @@ class TransformOperation {
   /** All the different kinds to TransformOperation. */
   enum class Type {
     ServerTimestamp,
+    ArrayUnion,
+    ArrayRemove,
     Test,  // Purely for test purpose.
   };
 
@@ -89,6 +97,65 @@ class ServerTimestampTransform : public TransformOperation {
   ServerTimestampTransform() {
   }
 };
+
+// TODO(mikelehen): ArrayTransform can only be used from Obj-C until we switch
+// to using FieldValue instead of FSTFieldValue.
+#if defined(__OBJC__)
+/**
+ * Transforms an array via a union or remove operation (for convenience, we use
+ * this class for both Type::ArrayUnion and Type::ArrayRemove).
+ */
+class ArrayTransform : public TransformOperation {
+ public:
+  ArrayTransform(const Type& type, const std::vector<FSTFieldValue*> elements)
+      : type_(type), elements_(elements) {
+  }
+
+  ~ArrayTransform() override {
+  }
+
+  Type type() const override {
+    return type_;
+  }
+
+  const std::vector<FSTFieldValue*>& elements() const {
+    return elements_;
+  }
+
+  bool operator==(const TransformOperation& other) const override {
+    if (other.type() != type()) {
+      return false;
+    }
+    auto array_transform = static_cast<const ArrayTransform&>(other);
+    if (array_transform.elements_.size() != elements_.size()) {
+      return false;
+    }
+    for (int i = 0; i < elements_.size(); i++) {
+      if (![array_transform.elements_[i] isEqual:elements_[i]]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+#if defined(__OBJC__)
+  // For Objective-C++ hash; to be removed after migration.
+  // Do NOT use in C++ code.
+  NSUInteger Hash() const override {
+    NSUInteger result = 37;
+    result = 31 * result + (type() == Type::ArrayUnion ? 1231 : 1237);
+    for (FSTFieldValue* element : elements_) {
+      result = 31 * result + [element hash];
+    }
+    return result;
+  }
+#endif  // defined(__OBJC__)
+
+ private:
+  Type type_;
+  std::vector<FSTFieldValue*> elements_;
+};
+#endif
 
 }  // namespace model
 }  // namespace firestore

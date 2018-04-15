@@ -100,6 +100,10 @@ func writeDocument(at docRef: DocumentReference) {
   let updateData = [
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
+    "server_timestamp": FieldValue.serverTimestamp(),
+    "array_union": FieldValue.arrayUnion(["a", "b"]),
+    "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 
   docRef.setData(setData)
@@ -260,6 +264,19 @@ func listenToDocument(at docRef: DocumentReference) {
   listener.remove()
 }
 
+func listenToDocumentWithMetadataChanges(at docRef: DocumentReference) {
+  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, error in
+    if let document = document {
+      if document.metadata.hasPendingWrites {
+        print("Has pending writes")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove()
+}
+
 func listenToDocuments(matching query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let error = error {
@@ -335,7 +352,6 @@ func transactions() {
 func types() {
   let _: CollectionReference
   let _: DocumentChange
-  let _: DocumentListenOptions
   let _: DocumentReference
   let _: DocumentSnapshot
   let _: FieldPath
