@@ -248,9 +248,7 @@
 - (void)testCanWriteTheSameDocumentMultipleTimes {
   FIRDocumentReference *doc = [self documentRef];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [doc
-      addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
-                            listener:accumulator.valueEventHandler];
+  [doc addSnapshotListenerWithIncludeMetadataChanges:YES listener:accumulator.valueEventHandler];
   FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertFalse(initialSnap.exists);
 

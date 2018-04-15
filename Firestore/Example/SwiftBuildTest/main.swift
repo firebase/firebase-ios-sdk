@@ -255,6 +255,19 @@ func listenToDocument(at docRef: DocumentReference) {
   listener.remove()
 }
 
+func listenToDocumentWithMetadataChanges(at docRef: DocumentReference) {
+  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, error in
+    if let document = document {
+      if document.metadata.hasPendingWrites {
+        print("Has pending writes")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove()
+}
+
 func listenToDocuments(matching query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let error = error {
@@ -330,7 +343,6 @@ func transactions() {
 func types() {
   let _: CollectionReference
   let _: DocumentChange
-  let _: DocumentListenOptions
   let _: DocumentReference
   let _: DocumentSnapshot
   let _: FieldPath
