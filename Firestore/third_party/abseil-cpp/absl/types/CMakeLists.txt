@@ -15,54 +15,9 @@
 #
 
 list(APPEND TYPES_PUBLIC_HEADERS
-  "any.h"
-  "bad_any_cast.h"
   "bad_optional_access.h"
   "optional.h"
-  "span.h"
 )
-
-
-# any library
-absl_header_library(
-  TARGET
-    absl_any
-  PUBLIC_LIBRARIES
-    absl::utility
-  PRIVATE_COMPILE_FLAGS
-    ${ABSL_EXCEPTIONS_FLAG}
-  EXPORT_NAME
-    any
-)
-
-# span library
-absl_header_library(
-  TARGET
-    absl_span
-  PUBLIC_LIBRARIES
-    absl::utility
-  EXPORT_NAME
-    span
-)
-
-
-# bad_any_cast library
-list(APPEND BAD_ANY_CAST_SRC
-  "bad_any_cast.cc"
-  ${TYPES_PUBLIC_HEADERS}
-)
-
-absl_library(
-  TARGET
-    absl_bad_any_cast
-  SOURCES
-    ${BAD_ANY_CAST_SRC}
-  PUBLIC_LIBRARIES
-    absl::base absl::any
-  EXPORT_NAME
-    bad_any_cast
-)
-
 
 # optional library
 list(APPEND OPTIONAL_SRC
@@ -96,81 +51,9 @@ absl_library(
 )
 
 
-
 #
 ## TESTS
 #
-
-
-# test any_test
-set(ANY_TEST_SRC "any_test.cc")
-set(ANY_TEST_PUBLIC_LIBRARIES absl::base absl::throw_delegate absl::any absl::bad_any_cast test_instance_tracker_lib)
-
-absl_test(
-  TARGET
-    any_test
-  SOURCES
-    ${ANY_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${ANY_TEST_PUBLIC_LIBRARIES}
-  PRIVATE_COMPILE_FLAGS
-    ${ABSL_EXCEPTIONS_FLAG}
-)
-
-
-# test any_test_noexceptions
-absl_test(
-  TARGET
-    any_test_noexceptions
-  SOURCES
-    ${ANY_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${ANY_TEST_PUBLIC_LIBRARIES}
-)
-
-# test any_exception_safety_test
-set(ANY_EXCEPTION_SAFETY_TEST_SRC "any_exception_safety_test.cc")
-set(ANY_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES absl::any absl::base absl::base_internal_exception_safety_testing)
-
-absl_test(
-  TARGET
-    any_exception_safety_test
-  SOURCES
-    ${ANY_EXCEPTION_SAFETY_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${ANY_EXCEPTION_SAFETY_TEST_PUBLIC_LIBRARIES}
-  PRIVATE_COMPILE_FLAGS
-    ${ABSL_EXCEPTIONS_FLAG}
-)
-
-
-# test span_test
-set(SPAN_TEST_SRC "span_test.cc")
-set(SPAN_TEST_PUBLIC_LIBRARIES absl::base absl::strings absl::throw_delegate absl::span test_instance_tracker_lib)
-
-absl_test(
-  TARGET
-    span_test
-  SOURCES
-    ${SPAN_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${SPAN_TEST_PUBLIC_LIBRARIES}
-  PRIVATE_COMPILE_FLAGS
-    ${ABSL_EXCEPTIONS_FLAG}
-)
-
-
-# test span_test_noexceptions
-absl_test(
-  TARGET
-    span_test_noexceptions
-  SOURCES
-    ${SPAN_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${SPAN_TEST_PUBLIC_LIBRARIES}
-)
-
-
 
 # test optional_test
 set(OPTIONAL_TEST_SRC "optional_test.cc")
