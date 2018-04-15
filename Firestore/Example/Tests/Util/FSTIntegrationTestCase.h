@@ -82,6 +82,8 @@ extern "C" {
 
 - (void)deleteDocumentRef:(FIRDocumentReference *)ref;
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
+
 - (void)disableNetwork;
 
 - (void)enableNetwork;

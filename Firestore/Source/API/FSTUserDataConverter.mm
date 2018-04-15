@@ -515,6 +515,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   input = self.preConverter(input);
   if ([input isKindOfClass:[NSDictionary class]]) {
     return [self parseDictionary:(NSDictionary *)input context:context];
+
+  } else if ([input isKindOfClass:[FIRFieldValue class]]) {
+    // parseSentinelFieldValue may add an FSTFieldTransform, but nothing should be included in
+    // the actual parsed data, so we don't add this path to our fieldMask and we return nil.
+    [self parseSentinelFieldValue:(FIRFieldValue *)input context:context];
+    return nil;
+
   } else {
     // If context.path is nil we are already inside an array and we don't support field mask paths
     // more granular than the top-level array.
@@ -528,11 +535,6 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
         FSTThrowInvalidArgument(@"Nested arrays are not supported");
       }
       return [self parseArray:(NSArray *)input context:context];
-    } else if ([input isKindOfClass:[FIRFieldValue class]]) {
-      // parseSentinelFieldValue may add an FSTFieldTransform, but we return nil since nothing
-      // should be included in the actual parsed data.
-      [self parseSentinelFieldValue:(FIRFieldValue *)input context:context];
-      return nil;
     } else {
       return [self parseScalarValue:input context:context];
     }
@@ -582,7 +584,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   if ([fieldValue isKindOfClass:[FSTDeleteFieldValue class]]) {
     if (context.dataSource == FSTUserDataSourceMergeSet) {
-      // No transform to add for a delete, so we do nothing.
+      // No transform to add for a delete, but we need to add it to our fieldMask so it gets
+      // deleted.
+      [context appendToFieldMaskWithFieldPath:*context.path];
     } else if (context.dataSource == FSTUserDataSourceUpdate) {
       FSTAssert(context.path->size() > 0,
                 @"FieldValue.delete() at the top level should have already been handled.");
@@ -777,13 +781,15 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (std::vector<FSTFieldValue *>)parseArrayTransformElements:(NSArray<id> *)elements {
   std::vector<FSTFieldValue *> results;
-  for (id element in elements) {
+  for (NSUInteger i = 0; i < elements.count; i++) {
+    id element = elements[i];
     // Although array transforms are used with writes, the actual elements being unioned or removed
     // are not considered writes since they cannot contain any FieldValue sentinels, etc.
     FSTParseContext *context =
         [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                       path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
-    FSTFieldValue *parsedElement = [self parseData:element context:context];
+    FSTFieldValue *parsedElement =
+        [self parseData:element context:[context contextForArrayIndex:i]];
     FSTAssert(parsedElement && context.fieldTransforms->size() == 0,
               @"Failed to properly parse array transform element: %@", element);
     results.push_back(parsedElement);
