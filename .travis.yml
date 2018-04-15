@@ -43,15 +43,8 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
-      before_install:
-        - ./scripts/before_install_firestore_cmake.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
-
-    - stage: test
-      env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
