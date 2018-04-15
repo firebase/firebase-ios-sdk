@@ -18,10 +18,9 @@
 
 #import "FIRListenerRegistration.h"
 
-@class FIRFirestore;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
-@class FIRSetOptions;
+@class FIRFirestore;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,14 +81,14 @@ NS_SWIFT_NAME(DocumentReference)
 
 /**
  * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `FIRSetOptions`, the provided data will be merged into
- * an existing document.
+ * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * any existing document.
  *
  * @param documentData An `NSDictionary` that contains the fields and data to write to the
  * document.
- * @param options A `FIRSetOptions` used to configure the set behavior.
+ * @param merge Whether to merge the provided data into any existing document.
  */
-- (void)setData:(NSDictionary<NSString *, id> *)documentData options:(FIRSetOptions *)options;
+- (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge;
 
 /**
  * Overwrites the document referred to by this `FIRDocumentReference`. If no document exists, it
@@ -106,18 +105,18 @@ NS_SWIFT_NAME(DocumentReference)
 
 /**
  * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `FIRSetOptions`, the provided data will be merged into
- * an existing document.
+ * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * any existing document.
  *
  * @param documentData An `NSDictionary` containing the fields that make up the document
  * to be written.
- * @param options A `FIRSetOptions` used to configure the set behavior.
+ * @param merge Whether to merge the provided data into any existing document.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
-        options:(FIRSetOptions *)options
+          merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**

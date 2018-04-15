@@ -20,14 +20,13 @@
 #include <utility>
 #include <vector>
 
+#import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 
-#import "FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -595,7 +594,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
       FSTThrowInvalidArgument(
           @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"SetOptions.merge()%@",
+          @"merge:true%@",
           [context fieldDescription]);
     }
 
@@ -748,7 +747,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
         // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only be used with updateData() and setData() with "
-            @"SetOptions.merge().");
+            @"merge: true.");
       }
     } else if ([input isKindOfClass:[FSTServerTimestampFieldValue class]]) {
       if (![context isWrite]) {

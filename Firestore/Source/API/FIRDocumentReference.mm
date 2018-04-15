@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -117,24 +116,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:nil];
+  return [self setData:documentData merge:NO completion:nil];
 }
 
-- (void)setData:(NSDictionary<NSString *, id> *)documentData options:(FIRSetOptions *)options {
-  return [self setData:documentData options:options completion:nil];
+- (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge {
+  return [self setData:documentData merge:merge completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:completion];
+  return [self setData:documentData merge:NO completion:completion];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
-        options:(FIRSetOptions *)options
+          merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed = options.isMerge
-                                 ? [self.firestore.dataConverter parsedMergeData:documentData]
-                                 : [self.firestore.dataConverter parsedSetData:documentData];
+  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData]
+                                   : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
       writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];

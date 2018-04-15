@@ -3,6 +3,9 @@
   Instead of calling
   `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
   call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] Replaced the `SetOptions` object with a simple boolean. Instead of
+  calling `setData(["a": "b"], options: SetOptions.merge())` call
+  `setData(["a": "b"], merge: true)`.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
