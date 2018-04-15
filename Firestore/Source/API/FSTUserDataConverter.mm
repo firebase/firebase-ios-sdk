@@ -589,7 +589,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
       FSTThrowInvalidArgument(
           @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"merge:true %@",
+          @"merge:true%@",
           [context fieldDescription]);
     }
   } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
