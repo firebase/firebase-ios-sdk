@@ -58,6 +58,16 @@ NS_SWIFT_NAME(QuerySnapshot)
  */
 @property(nonatomic, strong, readonly) NSArray<FIRDocumentChange *> *documentChanges;
 
+/**
+ * Returns an array of the documents that changed since the last snapshot. If this is the first
+ * snapshot, all documents will be in the list as Added changes.
+ *
+ * @param includeMetadataChanges Whether metadata-only changes (i.e. only
+ *     `FIRDocumentSnapshot.metadata` changed) should be included.
+ */
+- (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
+    (BOOL)includeMetadataChanges NS_SWIFT_NAME(documentChanges(includeMetadataChanges:));
+
 @end
 
 NS_ASSUME_NONNULL_END

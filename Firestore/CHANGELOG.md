@@ -3,6 +3,16 @@
   Instead of calling
   `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
   call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] Replaced the `QueryListenOptions` object with simple booleans.
+  Instead of calling
+  `addSnapshotListener(options:
+      QueryListenOptions.includeQueryMetadataChanges(true)
+          .includeDocumentMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] `QuerySnapshot.documentChanges()` is now a method which optionally
+  takes `includeMetadataChanges:true`. By default even when listening to a
+  query with `includeMetadataChanges:true` metadata-only document changes are
+  suppressed in `documentChanges()`.
 - [changed] Replaced the `SetOptions` object with a simple boolean. Instead of
   calling `setData(["a": "b"], options: SetOptions.merge())` call
   `setData(["a": "b"], merge: true)`.

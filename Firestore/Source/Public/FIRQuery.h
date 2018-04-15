@@ -25,46 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Options for use with `[FIRQuery addSnapshotListener]` to control the behavior of the snapshot
- * listener.
- */
-NS_SWIFT_NAME(QueryListenOptions)
-@interface FIRQueryListenOptions : NSObject
-
-+ (instancetype)options NS_SWIFT_UNAVAILABLE("Use initializer");
-
-- (instancetype)init;
-
-@property(nonatomic, assign, readonly) BOOL includeQueryMetadataChanges;
-
-/**
- * Sets the includeQueryMetadataChanges option which controls whether metadata-only changes on the
- * query (i.e. only `FIRQuerySnapshot.metadata` changed) should trigger snapshot events. Default is
- * NO.
- *
- * @param includeQueryMetadataChanges Whether to raise events for metadata-only changes on the
- *     query.
- * @return The receiver is returned for optional method chaining.
- */
-- (instancetype)includeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-    NS_SWIFT_NAME(includeQueryMetadataChanges(_:));
-
-@property(nonatomic, assign, readonly) BOOL includeDocumentMetadataChanges;
-
-/**
- * Sets the includeDocumentMetadataChanges option which controls whether document metadata-only
- * changes (i.e. only `FIRDocumentSnapshot.metadata` on a document contained in the query
- * changed) should trigger snapshot events. Default is NO.
- *
- * @param includeDocumentMetadataChanges Whether to raise events for document metadata-only changes.
- * @return The receiver is returned for optional method chaining.
- */
-- (instancetype)includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-    NS_SWIFT_NAME(includeDocumentMetadataChanges(_:));
-
-@end
-
 typedef void (^FIRQuerySnapshotBlock)(FIRQuerySnapshot *_Nullable snapshot,
                                       NSError *_Nullable error);
 
@@ -103,16 +63,17 @@ NS_SWIFT_NAME(Query)
 /**
  * Attaches a listener for QuerySnapshot events.
  *
- * @param options Options controlling the listener behavior.
+ * @param includeMetadataChanges Whether metadata-only changes (i.e. only
+ *     `FIRDocumentSnapshot.metadata` changed) should trigger snapshot events.
  * @param listener The listener to attach.
  *
  * @return A FIRListenerRegistration that can be used to remove this listener.
  */
 // clang-format off
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (nullable FIRQueryListenOptions *)options
-                                                     listener:(FIRQuerySnapshotBlock)listener
-    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
+- (id<FIRListenerRegistration>)
+addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                     listener:(FIRQuerySnapshotBlock)listener
+    NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 // clang-format on
 
 #pragma mark - Filtering Data

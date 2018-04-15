@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Calculates the array of FIRDocumentChange's based on the given FSTViewSnapshot. */
 + (NSArray<FIRDocumentChange *> *)documentChangesForSnapshot:(FSTViewSnapshot *)snapshot
+                                      includeMetadataChanges:(BOOL)includeMetadataChanges
                                                    firestore:(FIRFirestore *)firestore;
 
 @end
