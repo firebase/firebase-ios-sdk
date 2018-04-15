@@ -55,12 +55,10 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
   allow_failures:
-    - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+    - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
     - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
-    - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=ubsan
-    - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS="asan ubsan"
     - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
-    - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
 
 branches:
   only:
