@@ -367,10 +367,27 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
-- (void)testEncodesTransformMutation {
+- (void)testEncodesServerTimestampTransformMutation {
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForServerTimestamp],
     @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+  proto.transform.fieldTransformsArray =
+      [self.serializer encodedFieldTransforms:mutation.fieldTransforms];
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesArrayTransformMutations {
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
+      @{ @"x" : @1 }
+    ]]
   });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];

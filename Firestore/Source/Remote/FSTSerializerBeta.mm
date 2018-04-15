@@ -57,6 +57,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -572,29 +573,93 @@ NS_ASSUME_NONNULL_BEGIN
     (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : fieldTransforms) {
-    FSTAssert(fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp,
-              @"Unknown transform: %d type", fieldTransform.transformation().type());
-    GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-    proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
-    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+    GCFSDocumentTransform_FieldTransform *proto = [self encodedFieldTransform:fieldTransform];
     [protos addObject:proto];
   }
   return protos;
+}
+
+- (GCFSDocumentTransform_FieldTransform *)encodedFieldTransform:
+    (const FieldTransform &)fieldTransform {
+  GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
+  proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
+  if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
+    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
+    proto.appendMissingElements = [self encodedArrayTransformElements:array_transform.elements()];
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
+    proto.removeAllFromArray_p = [self encodedArrayTransformElements:array_transform.elements()];
+
+  } else {
+    FSTFail(@"Unknown transform: %d type", fieldTransform.transformation().type());
+  }
+  return proto;
+}
+
+- (GCFSArrayValue *)encodedArrayTransformElements:(const std::vector<FSTFieldValue *> &)elements {
+  GCFSArrayValue *proto = [GCFSArrayValue message];
+  NSMutableArray<GCFSValue *> *protoContents = [proto valuesArray];
+
+  for (FSTFieldValue *element : elements) {
+    GCFSValue *converted = [self encodedFieldValue:element];
+    [protoContents addObject:converted];
+  }
+  return proto;
 }
 
 - (std::vector<FieldTransform>)decodedFieldTransforms:
     (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
   std::vector<FieldTransform> fieldTransforms;
   fieldTransforms.reserve(protos.count);
+
   for (GCFSDocumentTransform_FieldTransform *proto in protos) {
-    FSTAssert(
-        proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
-        @"Unknown transform setToServerValue: %d", proto.setToServerValue);
-    fieldTransforms.emplace_back(
-        FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
-        absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+    switch (proto.transformTypeOneOfCase) {
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_SetToServerValue: {
+        FSTAssert(
+            proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
+            @"Unknown transform setToServerValue: %d", proto.setToServerValue);
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements: {
+        std::vector<FSTFieldValue *> elements;
+        [self decodeArrayTransformElements:proto.appendMissingElements into:elements];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, elements));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p: {
+        std::vector<FSTFieldValue *> elements;
+        [self decodeArrayTransformElements:proto.removeAllFromArray_p into:elements];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, elements));
+        break;
+      }
+
+      default:
+        FSTFail(@"Unknown transform: %@", proto);
+    }
   }
+
   return fieldTransforms;
+}
+
+// TODO(mikelehen): Is passing elements by reference (for use as an out param) sane / good practice?
+- (void)decodeArrayTransformElements:(GCFSArrayValue *)proto
+                                into:(std::vector<FSTFieldValue *> &)elements {
+  [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
+    elements.push_back([self decodedFieldValue:value]);
+  }];
 }
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
