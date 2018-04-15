@@ -62,6 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Cached value of the documentChanges property.
   NSArray<FIRDocumentChange *> *_documentChanges;
+  BOOL _documentChangesIncludeMetadataChanges;
 }
 
 - (instancetype)initWithFirestore:(FIRFirestore *)firestore
@@ -73,6 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     _originalQuery = query;
     _snapshot = snapshot;
     _metadata = metadata;
+    _documentChangesIncludeMetadataChanges = NO;
   }
   return self;
 }
@@ -139,9 +141,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSArray<FIRDocumentChange *> *)documentChanges {
-  if (!_documentChanges) {
-    _documentChanges =
-        [FIRDocumentChange documentChangesForSnapshot:self.snapshot firestore:self.firestore];
+  return [self documentChangesWithIncludeMetadataChanges:NO];
+}
+
+- (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
+    (BOOL)includeMetadataChanges {
+  if (!_documentChanges || _documentChangesIncludeMetadataChanges != includeMetadataChanges) {
+    _documentChanges = [FIRDocumentChange documentChangesForSnapshot:self.snapshot
+                                              includeMetadataChanges:includeMetadataChanges
+                                                           firestore:self.firestore];
+    _documentChangesIncludeMetadataChanges = includeMetadataChanges;
   }
   return _documentChanges;
 }

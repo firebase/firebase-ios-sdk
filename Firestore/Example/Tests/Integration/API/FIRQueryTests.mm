@@ -221,16 +221,14 @@
 
   FIRFirestore *firestore = collectionRef.firestore;
 
-  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
-      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
-
-  [collectionRef addSnapshotListenerWithOptions:options
-                                       listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
-                                         XCTAssertNil(error);
-                                         if (!snapshot.empty && !snapshot.metadata.fromCache) {
-                                           [testExpectiation fulfill];
-                                         }
-                                       }];
+  [collectionRef
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                                             XCTAssertNil(error);
+                                             if (!snapshot.empty && !snapshot.metadata.fromCache) {
+                                               [testExpectiation fulfill];
+                                             }
+                                           }];
 
   [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
@@ -249,11 +247,9 @@
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
-  FIRQueryListenOptions *options = [[[FIRQueryListenOptions options]
-      includeDocumentMetadataChanges:YES] includeQueryMetadataChanges:YES];
-  id<FIRListenerRegistration> registration =
-      [collection addSnapshotListenerWithOptions:options
-                                        listener:self.eventAccumulator.valueEventHandler];
+  id<FIRListenerRegistration> registration = [collection
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);

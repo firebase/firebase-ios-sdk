@@ -304,7 +304,7 @@ func listenToDocuments(matching query: Query) {
 func listenToQueryDiffs(onQuery query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let snap = snap {
-      for change in snap.documentChanges {
+      for change in snap.documentChanges() {
         switch change.type {
         case .added:
           print("New document: \(change.document.data())")
@@ -361,7 +361,6 @@ func types() {
   let _: GeoPoint
   let _: Timestamp
   let _: ListenerRegistration
-  let _: QueryListenOptions
   let _: Query
   let _: QuerySnapshot
   let _: SnapshotMetadata

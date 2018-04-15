@@ -35,6 +35,22 @@ NS_SWIFT_NAME(QuerySnapshot)
 - (id)init __attribute__((unavailable("FIRQuerySnapshot cannot be created directly.")));
 
 /**
+ * Returns an array of the documents that changed since the last snapshot. If this is the first
+ * snapshot, all documents will be in the list as Added changes.
+ */
+- (NSArray<FIRDocumentChange *> *)documentChanges;
+
+/**
+ * Returns an array of the documents that changed since the last snapshot. If this is the first
+ * snapshot, all documents will be in the list as Added changes.
+ *
+ * @param includeMetadataChanges Whether metadata-only changes (i.e. only
+ *     `FIRDocumentSnapshot.metadata` changed) should be included.
+ */
+- (NSArray<FIRDocumentChange *> *)documentChangesWithIncludeMetadataChanges:
+    (BOOL)includeMetadataChanges NS_SWIFT_NAME(documentChanges(includeMetadataChanges:));
+
+/**
  * The query on which you called `getDocuments` or listened to in order to get this
  * `FIRQuerySnapshot`.
  */
@@ -51,12 +67,6 @@ NS_SWIFT_NAME(QuerySnapshot)
 
 /** An Array of the `FIRDocumentSnapshots` that make up this document set. */
 @property(nonatomic, strong, readonly) NSArray<FIRQueryDocumentSnapshot *> *documents;
-
-/**
- * An array of the documents that changed since the last snapshot. If this is the first snapshot,
- * all documents will be in the list as Added changes.
- */
-@property(nonatomic, strong, readonly) NSArray<FIRDocumentChange *> *documentChanges;
 
 @end
 

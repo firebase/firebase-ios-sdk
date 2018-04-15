@@ -147,9 +147,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -177,9 +176,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -211,9 +209,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
