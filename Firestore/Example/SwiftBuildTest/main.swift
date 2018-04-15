@@ -304,7 +304,27 @@ func listenToDocuments(matching query: Query) {
 func listenToQueryDiffs(onQuery query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let snap = snap {
-      for change in snap.documentChanges() {
+      for change in snap.documentChanges {
+        switch change.type {
+        case .added:
+          print("New document: \(change.document.data())")
+        case .modified:
+          print("Modified document: \(change.document.data())")
+        case .removed:
+          print("Removed document: \(change.document.data())")
+        }
+      }
+    }
+  }
+
+  // Unsubscribe
+  listener.remove()
+}
+
+func listenToQueryDiffsWithMetadata(onQuery query: Query) {
+  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, error in
+    if let snap = snap {
+      for change in snap.documentChanges(includeMetadataChanges: true) {
         switch change.type {
         case .added:
           print("New document: \(change.document.data())")
