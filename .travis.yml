@@ -34,31 +34,38 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
     - stage: test
-      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
-      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
     - stage: test
-      env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
         - ./scripts/before_install_firestore_cmake.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
 
   allow_failures:
-    - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
-    - env: PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
-    - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS="asan ubsan"
-    - env: PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS="asan ubsan"
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS="asan ubsan"
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
 
 branches:
   only:
