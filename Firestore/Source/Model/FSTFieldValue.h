@@ -25,7 +25,6 @@
 @class FIRTimestamp;
 @class FSTFieldValueOptions;
 @class FIRGeoPoint;
-@class FIRSnapshotOptions;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,10 +65,6 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled
     NS_DESIGNATED_INITIALIZER;
-
-/** Creates an FSTFieldValueOptions instance from FIRSnapshotOptions. */
-+ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)value
-             timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled;
 
 @end
 

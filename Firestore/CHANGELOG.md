@@ -16,6 +16,10 @@
 - [changed] Replaced the `SetOptions` object with a simple boolean. Instead of
   calling `setData(["a": "b"], options: SetOptions.merge())` call
   `setData(["a": "b"], merge: true)`.
+- [changed] Replaced the `SnapshotOptions` object with direct use of the
+  `FIRServerTimestampBehavior` on `DocumentSnapshot`. Instead of calling
+  `get(field, SnapshotOptions.serverTimestampBehavior(.estimate))` call
+  `get(field, serverTimestampBehavior: .estimate)`.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
