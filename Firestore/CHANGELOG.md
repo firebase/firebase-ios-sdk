@@ -1,4 +1,8 @@
 # Unreleased
+- [feature] Added FieldValue.arrayUnion() and FieldValue.arrayRemove() methods
+  which can be used inside setData() or updateData() calls to atomically add
+  or remove specific elements to an array field in a document without using a
+  transaction.
 - [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
   Instead of calling
   `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
