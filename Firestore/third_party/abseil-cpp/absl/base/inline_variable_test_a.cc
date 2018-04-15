@@ -1,4 +1,3 @@
-//
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file contains :int128 implementation details that depend on internal
-// representation when ABSL_HAVE_INTRINSIC_INT128 is *not* defined. This file
-// is included by int128.h.
+#include "absl/base/internal/inline_variable_testing.h"
+
+namespace absl {
+namespace inline_variable_testing_internal {
+
+const Foo& get_foo_a() { return inline_variable_foo; }
+
+const int& get_int_a() { return inline_variable_int; }
+
+}  // namespace inline_variable_testing_internal
+}  // namespace absl

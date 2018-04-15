@@ -22,6 +22,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "absl/container/fixed_array.h"
 #include "absl/strings/str_cat.h"
 
 #include "absl/strings/internal/escaping_test_common.inc"
