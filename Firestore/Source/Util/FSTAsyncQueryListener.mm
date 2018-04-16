@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
+
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;
   FSTViewSnapshotHandler _snapshotHandler;

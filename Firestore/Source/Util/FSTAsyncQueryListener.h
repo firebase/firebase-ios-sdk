@@ -17,12 +17,11 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDispatchQueue;
 @class FSTQueryListener;
+@class FSTUserQueue;
 
 /**
  * A wrapper class around FSTQueryListener that dispatches events asynchronously.

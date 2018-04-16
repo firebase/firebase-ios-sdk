@@ -295,7 +295,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.delayedCallbacks removeObjectAtIndex:index];
 }
 
-#pragma mark - Private Methods
+#pragma mark - FSTDispatchQueue Private Methods
 
 - (NSString *)currentQueueLabel {
   return [NSString stringWithUTF8String:dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)];
@@ -312,12 +312,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark - FSTUserQueue
-
-@interface FSTUserQueue ()
-
-- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
-
-@end
 
 @implementation FSTUserQueue
 
