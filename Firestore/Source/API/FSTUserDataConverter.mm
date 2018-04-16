@@ -517,8 +517,10 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     return [self parseDictionary:(NSDictionary *)input context:context];
 
   } else if ([input isKindOfClass:[FIRFieldValue class]]) {
-    // parseSentinelFieldValue may add an FSTFieldTransform, but nothing should be included in
-    // the actual parsed data, so we don't add this path to our fieldMask and we return nil.
+    // FieldValues usually parse into transforms (except FieldValue.delete()) in which case we
+    // do not want to include this field in our parsed data (as doing so will overwrite the field
+    // directly prior to the transform trying to transform it). So we don't call appendToFieldMask
+    // and we return nil as our parsing result.
     [self parseSentinelFieldValue:(FIRFieldValue *)input context:context];
     return nil;
 
