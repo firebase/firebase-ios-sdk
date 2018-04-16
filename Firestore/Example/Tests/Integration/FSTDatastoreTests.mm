@@ -42,12 +42,14 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -238,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
        initWithKey:[FSTDocumentKey keyWithPathString:@"rooms/eros"]
              value:[[FSTObjectValue alloc]
                        initWithDictionary:@{@"name" : [FSTStringValue stringValue:@"Eros"]}]
-      precondition:[FSTPrecondition none]];
+      precondition:Precondition::None()];
 }
 
 @end

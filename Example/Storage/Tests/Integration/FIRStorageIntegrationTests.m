@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseStorage/FIRStorageMetadata.h>
 #import <XCTest/XCTest.h>
-#import <math.h>
-
 #import "FirebaseStorage.h"
 
 #import <FirebaseCore/FIRApp.h>
@@ -381,10 +378,37 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   /// Only allow 1kB size, which is smaller than our file
   [ref dataWithMaxSize:1 * 1024
             completion:^(NSData *data, NSError *error) {
-              XCTAssertEqual(data, nil);
+              XCTAssertNil(data);
               XCTAssertEqual(error.code, FIRStorageErrorCodeDownloadSizeExceeded);
               [expectation fulfill];
             }];
+
+  [self waitForExpectations];
+}
+
+- (void)testUnauthenticatedSimpleGetDownloadURL {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimpleGetDownloadURL"];
+
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/1mb"];
+
+  // Download URL format is
+  // "https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{path}?alt=media&token={token}"
+  NSString *downloadURLPattern =
+      @"^https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/[^\\/]*\\/o\\/"
+      @"ios%2Fpublic%2F1mb\\?alt=media&token=[a-z0-9-]*$";
+
+  [ref downloadURLWithCompletion:^(NSURL *downloadURL, NSError *error) {
+    XCTAssertNil(error);
+    NSRegularExpression *testRegex =
+        [NSRegularExpression regularExpressionWithPattern:downloadURLPattern options:0 error:nil];
+    NSString *urlString = [downloadURL absoluteString];
+    XCTAssertEqual([testRegex numberOfMatchesInString:urlString
+                                              options:0
+                                                range:NSMakeRange(0, [urlString length])],
+                   1);
+    [expectation fulfill];
+  }];
 
   [self waitForExpectations];
 }

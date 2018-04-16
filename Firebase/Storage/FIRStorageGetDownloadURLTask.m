@@ -1,4 +1,4 @@
-// Copyright 2017 Google
+// Copyright 2018 Google
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,18 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorageGetMetadataTask.h"
+#import "FIRStorageGetDownloadURLTask.h"
 
-#import "FIRStorageConstants.h"
-#import "FIRStorageMetadata_Private.h"
 #import "FIRStorageTask_Private.h"
-#import "FIRStorageUtils.h"
 
-#import "FirebaseStorage.h"
-
-@implementation FIRStorageGetMetadataTask {
+@implementation FIRStorageGetDownloadURLTask {
  @private
-  FIRStorageVoidMetadataError _completion;
+  FIRStorageVoidURLError _completion;
 }
 
 @synthesize fetcher = _fetcher;
@@ -31,7 +26,7 @@
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
-                       completion:(FIRStorageVoidMetadataError)completion {
+                       completion:(FIRStorageVoidURLError)completion {
   self = [super initWithReference:reference fetcherService:service];
   if (self) {
     _completion = [completion copy];
@@ -43,22 +38,50 @@
   [_fetcher stopFetching];
 }
 
++ (NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary {
+  NSString *downloadTokens = dictionary[kFIRStorageMetadataDownloadTokens];
+
+  if (downloadTokens && downloadTokens.length > 0) {
+    NSArray<NSString *> *downloadTokenArray = [downloadTokens componentsSeparatedByString:@","];
+    NSString *bucket = dictionary[kFIRStorageMetadataBucket];
+    NSString *path = dictionary[kFIRStorageMetadataName];
+    NSString *fullPath = [NSString stringWithFormat:kFIRStorageFullPathFormat, bucket,
+                                                    [FIRStorageUtils GCSEscapedString:path]];
+
+    NSURLComponents *components = [[NSURLComponents alloc] init];
+    components.scheme = kFIRStorageScheme;
+    components.host = kFIRStorageHost;
+    components.percentEncodedPath = fullPath;
+
+    // The backend can return an arbitrary number of download tokens, but we only expose the first
+    // token via the download URL.
+    NSURLQueryItem *altItem = [[NSURLQueryItem alloc] initWithName:@"alt" value:@"media"];
+    NSURLQueryItem *tokenItem =
+        [[NSURLQueryItem alloc] initWithName:@"token" value:downloadTokenArray[0]];
+    components.queryItems = @[ altItem, tokenItem ];
+
+    return [components URL];
+  }
+
+  return nil;
+}
+
 - (void)enqueue {
   NSMutableURLRequest *request = [self.baseRequest mutableCopy];
   request.HTTPMethod = @"GET";
   request.timeoutInterval = self.reference.storage.maxOperationRetryTime;
 
-  FIRStorageVoidMetadataError callback = _completion;
+  FIRStorageVoidURLError callback = _completion;
   _completion = nil;
 
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
   _fetcher = fetcher;
-  fetcher.comment = @"GetMetadataTask";
+  fetcher.comment = @"GetDownloadURLTask";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *data, NSError *error) {
-    FIRStorageMetadata *metadata;
+    NSURL *downloadURL;
     if (error) {
       if (!self.error) {
         self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
@@ -66,21 +89,26 @@
     } else {
       NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
       if (responseDictionary != nil) {
-        metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
-        [metadata setType:FIRStorageMetadataTypeFile];
+        downloadURL =
+            [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
+        if (!downloadURL) {
+          self.error =
+              [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL."];
+        }
       } else {
         self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
     }
 
     if (callback) {
-      callback(metadata, self.error);
+      callback(downloadURL, self.error);
     }
+
     self->_fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
 
-  __weak FIRStorageGetMetadataTask *weakSelf = self;
+  __weak FIRStorageGetDownloadURLTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);
   }];

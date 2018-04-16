@@ -28,7 +28,6 @@
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -41,48 +40,16 @@
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FIRDocumentListenOptions
-
-@interface FIRDocumentListenOptions ()
-
-- (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-    NS_DESIGNATED_INITIALIZER;
-
-@property(nonatomic, assign, readonly) BOOL includeMetadataChanges;
-
-@end
-
-@implementation FIRDocumentListenOptions
-
-+ (instancetype)options {
-  return [[FIRDocumentListenOptions alloc] init];
-}
-
-- (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  if (self = [super init]) {
-    _includeMetadataChanges = includeMetadataChanges;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  return [self initWithIncludeMetadataChanges:NO];
-}
-
-- (instancetype)includeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FIRDocumentListenOptions alloc] initWithIncludeMetadataChanges:includeMetadataChanges];
-}
-
-@end
 
 #pragma mark - FIRDocumentReference
 
@@ -149,26 +116,25 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:nil];
+  return [self setData:documentData merge:NO completion:nil];
 }
 
-- (void)setData:(NSDictionary<NSString *, id> *)documentData options:(FIRSetOptions *)options {
-  return [self setData:documentData options:options completion:nil];
+- (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge {
+  return [self setData:documentData merge:merge completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:completion];
+  return [self setData:documentData merge:NO completion:completion];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
-        options:(FIRSetOptions *)options
+          merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed = options.isMerge
-                                 ? [self.firestore.dataConverter parsedMergeData:documentData]
-                                 : [self.firestore.dataConverter parsedSetData:documentData];
+  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData]
+                                   : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];
 }
 
@@ -180,8 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key
-                                 precondition:[FSTPrecondition preconditionWithExists:YES]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::Exists(true)]
           completion:completion];
 }
 
@@ -191,16 +156,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTDeleteMutation *mutation =
-      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:[FSTPrecondition none]];
+      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:Precondition::None()];
   return [self.firestore.client writeMutations:@[ mutation ] completion:completion];
 }
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
-  FSTListenOptions *listenOptions =
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                     includeDocumentMetadataChanges:YES
-                                              waitForSyncWhenOnline:YES];
+  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                                             includeDocumentMetadataChanges:YES
+                                                                      waitForSyncWhenOnline:YES];
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -237,20 +201,20 @@ NS_ASSUME_NONNULL_BEGIN
     }
   };
 
-  listenerRegistration =
-      [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
+  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
   dispatch_semaphore_signal(registered);
 }
 
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener {
-  return [self addSnapshotListenerWithOptions:nil listener:listener];
+  return [self addSnapshotListenerWithIncludeMetadataChanges:NO listener:listener];
 }
 
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (nullable FIRDocumentListenOptions *)options
-                                                     listener:(FIRDocumentSnapshotBlock)listener {
-  return [self addSnapshotListenerInternalWithOptions:[self internalOptions:options]
-                                             listener:listener];
+- (id<FIRListenerRegistration>)
+addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                     listener:(FIRDocumentSnapshotBlock)listener {
+  FSTListenOptions *options =
+      [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
@@ -290,11 +254,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 /** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptions:(nullable FIRDocumentListenOptions *)options {
-  return
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:options.includeMetadataChanges
-                                     includeDocumentMetadataChanges:options.includeMetadataChanges
-                                              waitForSyncWhenOnline:NO];
+- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
+  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
+                                        includeDocumentMetadataChanges:includeMetadataChanges
+                                                 waitForSyncWhenOnline:NO];
 }
 
 @end
