@@ -66,6 +66,10 @@ else
   esac
 fi
 
+# Always rebuild if Travis configuration and/or build scripts changed.
+check_changes '^.travis.yml'
+check_changes '^scripts/(build|if_changed).sh'
+
 if [[ "$run" == true ]]; then
   "$@"
 else
