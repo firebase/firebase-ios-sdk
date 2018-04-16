@@ -16,6 +16,9 @@
 
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+#include <algorithm>
+#include <string>
+
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
@@ -273,7 +276,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
 @implementation FSTUserQueueTests {
   FSTUserQueue *_queue;
-  XCTestExpectation *_expectation;
+  std::string _steps;
 }
 
 - (void)setUp {
@@ -283,42 +286,63 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 - (void)testUserQueueSupportsNestedDispatchForSerialQueues {
   _queue =
       [FSTUserQueue queueWith:dispatch_queue_create("FSTUserQueueTests", DISPATCH_QUEUE_SERIAL)];
-  _expectation = [self expectationWithDescription:@"completion"];
+  __block XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
   __block NSException *caught = nil;
 
   [_queue dispatchAsync:^{
     @try {
       [self->_queue dispatchAsync:^{
-        [self->_expectation fulfill];
+        self->_steps += '2';
       }];
+      [self->_queue dispatchAsync:^{
+        self->_steps += '3';
+        [expectation fulfill];
+      }];
+      self->_steps += '1';
     } @catch (NSException *ex) {
       caught = ex;
-      [self->_expectation fulfill];
+      [expectation fulfill];
     }
   }];
 
   [self awaitExpectations];
   XCTAssertNil(caught);
+  XCTAssertTrue(_steps == "123");
 }
 
 - (void)testUserQueueSupportsNestedDispatchForConcurrentQueues {
   _queue = [FSTUserQueue queueWith:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
-  _expectation = [self expectationWithDescription:@"completion"];
   __block NSException *caught = nil;
+  dispatch_semaphore_t doneSemaphore = dispatch_semaphore_create(0);
 
   [_queue dispatchAsync:^{
     @try {
-      [_queue dispatchAsync:^{
-        [self->_expectation fulfill];
+      [self->_queue dispatchAsync:^{
+        self->_steps += '2';
+        dispatch_semaphore_signal(doneSemaphore);
       }];
+      [self->_queue dispatchAsync:^{
+        self->_steps += '3';
+        dispatch_semaphore_signal(doneSemaphore);
+      }];
+      self->_steps += '1';
+      dispatch_semaphore_signal(doneSemaphore);
+
     } @catch (NSException *ex) {
       caught = ex;
-      [self->_expectation fulfill];
+      for (int i = 0; i != 3; ++i) {
+        dispatch_semaphore_signal(doneSemaphore);
+      }
     }
   }];
 
-  [self awaitExpectations];
+  for (int i = 0; i != 3; ++i) {
+    dispatch_semaphore_wait(doneSemaphore, DISPATCH_TIME_FOREVER);
+  }
+
   XCTAssertNil(caught);
+  XCTAssertEqual(_steps.size(), 3);
+  XCTAssertTrue(std::is_permutation(_steps.begin(), _steps.end(), "123"));
 }
 
 @end
