@@ -264,3 +264,61 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 }
 
 @end
+
+// For user queue, the FSTDispatchQueue enforcement of serial execution does not apply; the tests
+// explicitly check that concurrent execution works correctly.
+
+@interface FSTUserQueueTests : XCTestCase
+@end
+
+@implementation FSTUserQueueTests {
+  FSTUserQueue *_queue;
+  XCTestExpectation *_expectation;
+}
+
+- (void)setUp {
+  [super setUp];
+}
+
+- (void)testUserQueueSupportsNestedDispatchForSerialQueues {
+  _queue =
+      [FSTUserQueue queueWith:dispatch_queue_create("FSTUserQueueTests", DISPATCH_QUEUE_SERIAL)];
+  _expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+
+  [_queue dispatchAsync:^{
+    @try {
+      [self->_queue dispatchAsync:^{
+        [self->_expectation fulfill];
+      }];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [self->_expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(caught);
+}
+
+- (void)testUserQueueSupportsNestedDispatchForConcurrentQueues {
+  _queue = [FSTUserQueue queueWith:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  _expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+
+  [_queue dispatchAsync:^{
+    @try {
+      [_queue dispatchAsync:^{
+        [self->_expectation fulfill];
+      }];
+    } @catch (NSException *ex) {
+      caught = ex;
+      [self->_expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(caught);
+}
+
+@end
