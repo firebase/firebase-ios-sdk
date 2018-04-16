@@ -16,10 +16,10 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
+#import "FIRDocumentSnapshot.h"
 #import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
@@ -45,28 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTFieldValueOptions
 
 @implementation FSTFieldValueOptions
-
-+ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options
-             timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
-  FSTServerTimestampBehavior convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
-  switch (options.serverTimestampBehavior) {
-    case FIRServerTimestampBehaviorNone:
-      convertedServerTimestampBehavior = FSTServerTimestampBehaviorNone;
-      break;
-    case FIRServerTimestampBehaviorEstimate:
-      convertedServerTimestampBehavior = FSTServerTimestampBehaviorEstimate;
-      break;
-    case FIRServerTimestampBehaviorPrevious:
-      convertedServerTimestampBehavior = FSTServerTimestampBehaviorPrevious;
-      break;
-    default:
-      FSTFail(@"Unexpected server timestamp option: %ld", (long)options.serverTimestampBehavior);
-  }
-
-  return
-      [[FSTFieldValueOptions alloc] initWithServerTimestampBehavior:convertedServerTimestampBehavior
-                                       timestampsInSnapshotsEnabled:timestampsInSnapshotsEnabled];
-}
 
 - (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
                    timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {

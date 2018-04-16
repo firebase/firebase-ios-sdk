@@ -198,13 +198,13 @@ func readDocument(at docRef: DocumentReference) {
       if let data = document.data() {
         print("Read document: \(data)")
       }
-      if let data = document.data(with: SnapshotOptions.serverTimestampBehavior(.estimate)) {
+      if let data = document.data(with: .estimate) {
         print("Read document: \(data)")
       }
       if let foo = document.get("foo") {
         print("Field: \(foo)")
       }
-      if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+      if let foo = document.get("foo", serverTimestampBehavior: .previous) {
         print("Field: \(foo)")
       }
       // Fields can also be read via subscript notation.
