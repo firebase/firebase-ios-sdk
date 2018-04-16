@@ -40,25 +40,21 @@
 }
 
 - (void)testSystemVersionInfoMajorOnly {
-  NSOperatingSystemVersion osTen = { .majorVersion = 10, .minorVersion = 0, .patchVersion = 0 };
+  NSOperatingSystemVersion osTen = {.majorVersion = 10, .minorVersion = 0, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTen);
 
   XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10"]);
 }
 
 - (void)testSystemVersionInfoMajorMinor {
-  NSOperatingSystemVersion osTenTwo = { .majorVersion = 10, .minorVersion = 2, .patchVersion = 0 };
+  NSOperatingSystemVersion osTenTwo = {.majorVersion = 10, .minorVersion = 2, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTenTwo);
 
   XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.2"]);
 }
 
 - (void)testSystemVersionInfoMajorMinorPatch {
-  NSOperatingSystemVersion osTenTwoOne = {
-    .majorVersion = 10,
-    .minorVersion = 2,
-    .patchVersion = 1
-  };
+  NSOperatingSystemVersion osTenTwoOne = {.majorVersion = 10, .minorVersion = 2, .patchVersion = 1};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTenTwoOne);
 
   XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.2.1"]);
