@@ -342,6 +342,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
   XCTAssertNil(caught);
   XCTAssertEqual(_steps.size(), 3);
+  // On a concurrent queue, steps may have been appended in arbitrary order.
   XCTAssertTrue(std::is_permutation(_steps.begin(), _steps.end(), "123"));
 }
 
