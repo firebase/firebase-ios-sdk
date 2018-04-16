@@ -238,6 +238,16 @@ using firebase::firestore::model::TransformOperation;
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
+- (void)testAppliesLocalArrayUnionTransformWithPartiallyOverlappingElements {
+  // Union objects that partially overlap an existing object.
+  auto baseDoc = @{ @"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"} ] };
+  auto transform =
+      @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]] };
+  auto expected =
+      @{ @"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"}, @{@"a" : @"b"}, @{@"c" : @"d"} ] };
+  [self transformBaseDoc:baseDoc with:transform expecting:expected];
+}
+
 - (void)testAppliesLocalArrayRemoveTransformToMissingField {
   auto baseDoc = @{};
   auto transform = @{ @"missing" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]] };

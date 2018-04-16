@@ -48,47 +48,6 @@ using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRQueryListenOptions ()
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges
-    NS_DESIGNATED_INITIALIZER;
-
-@end
-
-@implementation FIRQueryListenOptions
-
-+ (instancetype)options {
-  return [[FIRQueryListenOptions alloc] init];
-}
-
-- (instancetype)initWithIncludeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges
-                     includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges {
-  if (self = [super init]) {
-    _includeQueryMetadataChanges = includeQueryMetadataChanges;
-    _includeDocumentMetadataChanges = includeDocumentMetadataChanges;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  return [self initWithIncludeQueryMetadataChanges:NO includeDocumentMetadataChanges:NO];
-}
-
-- (instancetype)includeQueryMetadataChanges:(BOOL)includeQueryMetadataChanges {
-  return [[FIRQueryListenOptions alloc]
-      initWithIncludeQueryMetadataChanges:includeQueryMetadataChanges
-           includeDocumentMetadataChanges:_includeDocumentMetadataChanges];
-}
-
-- (instancetype)includeDocumentMetadataChanges:(BOOL)includeDocumentMetadataChanges {
-  return [[FIRQueryListenOptions alloc]
-      initWithIncludeQueryMetadataChanges:_includeQueryMetadataChanges
-           includeDocumentMetadataChanges:includeDocumentMetadataChanges];
-}
-
-@end
-
 @interface FIRQuery ()
 @property(nonatomic, strong, readonly) FSTQuery *query;
 @end
@@ -162,14 +121,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRQuerySnapshotBlock)listener {
-  return [self addSnapshotListenerWithOptions:nil listener:listener];
+  return [self addSnapshotListenerWithIncludeMetadataChanges:NO listener:listener];
 }
 
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (nullable FIRQueryListenOptions *)options
-                                                     listener:(FIRQuerySnapshotBlock)listener {
-  return [self addSnapshotListenerInternalWithOptions:[self internalOptions:options]
-                                             listener:listener];
+- (id<FIRListenerRegistration>)
+addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                     listener:(FIRQuerySnapshotBlock)listener {
+  auto options = [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
@@ -629,11 +588,10 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 /** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptions:(nullable FIRQueryListenOptions *)options {
-  return [[FSTListenOptions alloc]
-      initWithIncludeQueryMetadataChanges:options.includeQueryMetadataChanges
-           includeDocumentMetadataChanges:options.includeDocumentMetadataChanges
-                    waitForSyncWhenOnline:NO];
+- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
+  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
+                                        includeDocumentMetadataChanges:includeMetadataChanges
+                                                 waitForSyncWhenOnline:NO];
 }
 
 @end

@@ -198,13 +198,13 @@ func readDocument(at docRef: DocumentReference) {
       if let data = document.data() {
         print("Read document: \(data)")
       }
-      if let data = document.data(with: SnapshotOptions.serverTimestampBehavior(.estimate)) {
+      if let data = document.data(with: .estimate) {
         print("Read document: \(data)")
       }
       if let foo = document.get("foo") {
         print("Field: \(foo)")
       }
-      if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+      if let foo = document.get("foo", serverTimestampBehavior: .previous) {
         print("Field: \(foo)")
       }
       // Fields can also be read via subscript notation.
@@ -321,6 +321,26 @@ func listenToQueryDiffs(onQuery query: Query) {
   listener.remove()
 }
 
+func listenToQueryDiffsWithMetadata(onQuery query: Query) {
+  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, error in
+    if let snap = snap {
+      for change in snap.documentChanges(includeMetadataChanges: true) {
+        switch change.type {
+        case .added:
+          print("New document: \(change.document.data())")
+        case .modified:
+          print("Modified document: \(change.document.data())")
+        case .removed:
+          print("Removed document: \(change.document.data())")
+        }
+      }
+    }
+  }
+
+  // Unsubscribe
+  listener.remove()
+}
+
 func transactions() {
   let db = Firestore.firestore()
 
@@ -361,7 +381,6 @@ func types() {
   let _: GeoPoint
   let _: Timestamp
   let _: ListenerRegistration
-  let _: QueryListenOptions
   let _: Query
   let _: QuerySnapshot
   let _: SnapshotMetadata
