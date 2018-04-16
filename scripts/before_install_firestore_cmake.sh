@@ -13,6 +13,8 @@
 # limitations under the License.
 
 bundle install
+# xcpretty is helpful for the intermediate step which builds FirebaseCore using
+# xcodebuild.
 gem install xcpretty
 brew install cmake
 brew install go # Somehow the build for Abseil requires this.
