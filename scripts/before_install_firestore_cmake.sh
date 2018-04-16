@@ -13,6 +13,7 @@
 # limitations under the License.
 
 bundle install
+gem install xcpretty
 brew install cmake
 brew install go # Somehow the build for Abseil requires this.
 ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
