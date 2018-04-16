@@ -583,6 +583,21 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 }
 
+- (void)testCollectsGarbageAfterChangeBatchWithNoTargetIDs {
+  if ([self isTestBaseClass]) return;
+
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
+  FSTAssertRemoved(@[ @"foo/bar" ]);
+
+  [self collectGarbage];
+  FSTAssertNotContains(@"foo/bar");
+
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
+                                                        @[ @1 ], @[])];
+  [self collectGarbage];
+  FSTAssertNotContains(@"foo/bar");
+}
+
 - (void)testCollectsGarbageAfterChangeBatch {
   if ([self isTestBaseClass]) return;
 
@@ -712,10 +727,12 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   if ([self isTestBaseClass]) return;
 
   FSTTargetID targetID = 321;
-  FSTAssertThrows(
-          [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{}, NO),
-                  @[ @(targetID) ], @[])],
-          @"Processing a target change for an unknown target: 321");
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{}, NO),
+                                                  @[ @(targetID) ], @[])];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{}, NO));
+
+  [self collectGarbage];
+  FSTAssertNotContains(@"foo/bar");
 }
 
 - (void)testCanExecuteDocumentQueries {
