@@ -102,6 +102,10 @@ func writeDocument(at docRef: DocumentReference) {
   let updateData = [
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
+    "server_timestamp": FieldValue.serverTimestamp(),
+    "array_union": FieldValue.arrayUnion(["a", "b"]),
+    "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 
   docRef.setData(setData)
@@ -116,8 +120,16 @@ func writeDocument(at docRef: DocumentReference) {
     print("Set complete!")
   }
 
-  // SetOptions
-  docRef.setData(setData, options: SetOptions.merge())
+  // merge
+  docRef.setData(setData, merge: true)
+  docRef.setData(setData, merge: true) { error in
+    if let error = error {
+      print("Uh oh! \(error)")
+      return
+    }
+
+    print("Set complete!")
+  }
 
   docRef.updateData(updateData)
   docRef.delete()
@@ -154,6 +166,7 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
 
   batch = db.batch()
   batch.setData(["a": "b"], forDocument: docRef)
+  batch.setData(["a": "b"], forDocument: docRef, merge: true)
   batch.setData(["c": "d"], forDocument: docRef)
   // commit without completion callback.
   batch.commit()
@@ -271,6 +284,19 @@ func listenToDocument(at docRef: DocumentReference) {
   listener.remove()
 }
 
+func listenToDocumentWithMetadataChanges(at docRef: DocumentReference) {
+  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, error in
+    if let document = document {
+      if document.metadata.hasPendingWrites {
+        print("Has pending writes")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove()
+}
+
 func listenToDocuments(matching query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let error = error {
@@ -299,6 +325,26 @@ func listenToQueryDiffs(onQuery query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let snap = snap {
       for change in snap.documentChanges {
+        switch change.type {
+        case .added:
+          print("New document: \(change.document.data())")
+        case .modified:
+          print("Modified document: \(change.document.data())")
+        case .removed:
+          print("Removed document: \(change.document.data())")
+        }
+      }
+    }
+  }
+
+  // Unsubscribe
+  listener.remove()
+}
+
+func listenToQueryDiffsWithMetadata(onQuery query: Query) {
+  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, error in
+    if let snap = snap {
+      for change in snap.documentChanges(includeMetadataChanges: true) {
         switch change.type {
         case .added:
           print("New document: \(change.document.data())")
@@ -346,7 +392,6 @@ func transactions() {
 func types() {
   let _: CollectionReference
   let _: DocumentChange
-  let _: DocumentListenOptions
   let _: DocumentReference
   let _: DocumentSnapshot
   let _: FieldPath
@@ -356,10 +401,8 @@ func types() {
   let _: GeoPoint
   let _: Timestamp
   let _: ListenerRegistration
-  let _: QueryListenOptions
   let _: Query
   let _: QuerySnapshot
-  let _: SetOptions
   let _: SnapshotMetadata
   let _: Transaction
   let _: WriteBatch

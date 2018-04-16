@@ -19,7 +19,6 @@
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -62,15 +61,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
                 forDocument:(FIRDocumentReference *)document {
-  return [self setData:data forDocument:document options:[FIRSetOptions overwrite]];
+  return [self setData:data forDocument:document merge:NO];
 }
 
 - (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
                 forDocument:(FIRDocumentReference *)document
-                    options:(FIRSetOptions *)options {
+                      merge:(BOOL)merge {
   [self validateReference:document];
-  FSTParsedSetData *parsed = options.isMerge ? [self.firestore.dataConverter parsedMergeData:data]
-                                             : [self.firestore.dataConverter parsedSetData:data];
+  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:data]
+                                   : [self.firestore.dataConverter parsedSetData:data];
   [self.internalTransaction setData:parsed forDocument:document.key];
   return self;
 }

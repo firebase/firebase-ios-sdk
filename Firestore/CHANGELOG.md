@@ -1,4 +1,21 @@
 # Unreleased
+- [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
+  Instead of calling
+  `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] Replaced the `QueryListenOptions` object with simple booleans.
+  Instead of calling
+  `addSnapshotListener(options:
+      QueryListenOptions.includeQueryMetadataChanges(true)
+          .includeDocumentMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] `QuerySnapshot.documentChanges()` is now a method which optionally
+  takes `includeMetadataChanges:true`. By default even when listening to a
+  query with `includeMetadataChanges:true` metadata-only document changes are
+  suppressed in `documentChanges()`.
+- [changed] Replaced the `SetOptions` object with a simple boolean. Instead of
+  calling `setData(["a": "b"], options: SetOptions.merge())` call
+  `setData(["a": "b"], merge: true)`.
 - [changed] Added ability to control whether DocumentReference.getDocument() and
   Query.getDocuments() should fetch from server only, cache only, or attempt
   server and fall back to the cache (which was the only option previously, and
