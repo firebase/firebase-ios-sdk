@@ -121,6 +121,9 @@ jobs:
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
 
+  # Don't wait for jobs that are allowed to fail before reporting the results.
+  fast_finish: true
+
 branches:
   only:
     - master
