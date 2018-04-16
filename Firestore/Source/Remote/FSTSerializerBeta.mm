@@ -630,7 +630,7 @@ NS_ASSUME_NONNULL_BEGIN
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements: {
         std::vector<FSTFieldValue *> elements;
-        [self decodeArrayTransformElements:proto.appendMissingElements into:elements];
+        [self decodeArrayTransformElements:proto.appendMissingElements into:&elements];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, elements));
@@ -639,7 +639,7 @@ NS_ASSUME_NONNULL_BEGIN
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p: {
         std::vector<FSTFieldValue *> elements;
-        [self decodeArrayTransformElements:proto.removeAllFromArray_p into:elements];
+        [self decodeArrayTransformElements:proto.removeAllFromArray_p into:&elements];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, elements));
@@ -654,11 +654,10 @@ NS_ASSUME_NONNULL_BEGIN
   return fieldTransforms;
 }
 
-// TODO(mikelehen): Is passing elements by reference (for use as an out param) sane / good practice?
 - (void)decodeArrayTransformElements:(GCFSArrayValue *)proto
-                                into:(std::vector<FSTFieldValue *> &)elements {
+                                into:(std::vector<FSTFieldValue *> *)elements {
   [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
-    elements.push_back([self decodedFieldValue:value]);
+    elements->push_back([self decodedFieldValue:value]);
   }];
 }
 
