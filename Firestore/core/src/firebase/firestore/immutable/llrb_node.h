@@ -155,9 +155,7 @@ class LlrbNode : public SortedMapBase {
   }
 
   LlrbNode Copy() const {
-    value_type entry_copy = entry();
-    return LlrbNode{
-        Rep{std::move(entry_copy), color(), size(), left(), right()}};
+    return LlrbNode{*rep_};
   }
 
   void set_size(size_type size) {
