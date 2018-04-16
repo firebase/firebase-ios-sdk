@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys;
 
 /** The documents added to the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *addedDocuments;
+@property(nonatomic, strong) FSTDocumentKeySet *addedDocuments;
 /** The documents removed from the target. */
 @property(nonatomic, strong, readonly) FSTDocumentKeySet *removedDocuments;
 @end

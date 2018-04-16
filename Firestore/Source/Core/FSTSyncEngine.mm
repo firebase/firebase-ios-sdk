@@ -289,15 +289,38 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   });
 }
 
+// Strips out mapping changes that aren't actually changes. That is, if the document already
+// existed in the target, and is being added in the target, and this is not a reset, we can
+// skip doing the work to associate the document with the target because it has already been done.
+- (void)filterUpdatesFromChange:(FSTTargetChange *)targetChange
+                  boxedTargetID:(FSTBoxedTargetID *)targetID {
+  if ([[targetChange.mapping class] isEqual:[FSTUpdateMapping class]]) {
+    FSTUpdateMapping *update = (FSTUpdateMapping *)targetChange.mapping;
+    FSTQueryView *qv = self.queryViewsByTarget[targetID];
+    FSTView *view = qv.view;
+    FSTAssert(qv, @"Missing queryview for non-limbo query: %i", [targetID intValue]);
+    FSTDocumentKeySet *added = update.addedDocuments;
+    __block FSTDocumentKeySet *result = added;
+    [added enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
+      if ([view.syncedDocuments containsObject:docKey]) {
+        result = [result setByRemovingObject:docKey];
+      }
+    }];
+    update.addedDocuments = result;
+  }
+}
+
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
-  // Make sure limbo documents are deleted if there were no results
+  // Make sure limbo documents are deleted if there were no results.
+  // Filter out document additions to targets that they already belong to.
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  FSTBoxedTargetID *_Nonnull targetID,
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
     const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
     if (iter == self->_limboKeysByTarget.end()) {
+      [self filterUpdatesFromChange:targetChange boxedTargetID:targetID];
       return;
     }
     const DocumentKey &limboKey = iter->second;

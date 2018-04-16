@@ -109,7 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTUpdateMapping
 
 @interface FSTUpdateMapping ()
-@property(nonatomic, strong) FSTDocumentKeySet *addedDocuments;
 @property(nonatomic, strong) FSTDocumentKeySet *removedDocuments;
 @end
 
