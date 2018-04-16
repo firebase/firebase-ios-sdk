@@ -304,7 +304,7 @@ func listenToDocuments(matching query: Query) {
 func listenToQueryDiffs(onQuery query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let snap = snap {
-      for change in snap.documentChanges() {
+      for change in snap.documentChanges {
         switch change.type {
         case .added:
           print("New document: \(change.document.data())")

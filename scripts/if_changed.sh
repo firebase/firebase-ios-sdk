@@ -50,11 +50,11 @@ else
       ;;
 
     Firestore-xcodebuild)
-      check_changes '^Firestore/(core|third_party)'
+      check_changes '^Firestore'
       ;;
 
     Firestore-cmake)
-      check_changes '^Firestore'
+      check_changes '^Firestore/(core|third_party)'
       ;;
 
     *)
