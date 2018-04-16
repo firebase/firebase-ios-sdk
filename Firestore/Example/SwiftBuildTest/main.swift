@@ -198,13 +198,13 @@ func readDocument(at docRef: DocumentReference) {
       if let data = document.data() {
         print("Read document: \(data)")
       }
-      if let data = document.data(with: SnapshotOptions.serverTimestampBehavior(.estimate)) {
+      if let data = document.data(with: .estimate) {
         print("Read document: \(data)")
       }
       if let foo = document.get("foo") {
         print("Field: \(foo)")
       }
-      if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+      if let foo = document.get("foo", serverTimestampBehavior: .previous) {
         print("Field: \(foo)")
       }
       // Fields can also be read via subscript notation.
@@ -304,7 +304,7 @@ func listenToDocuments(matching query: Query) {
 func listenToQueryDiffs(onQuery query: Query) {
   let listener = query.addSnapshotListener { snap, error in
     if let snap = snap {
-      for change in snap.documentChanges {
+      for change in snap.documentChanges() {
         switch change.type {
         case .added:
           print("New document: \(change.document.data())")
