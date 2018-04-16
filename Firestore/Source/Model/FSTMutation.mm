@@ -51,8 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMutationResult
 
-- (instancetype)initWithVersion:(FSTSnapshotVersion *_Nullable)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults {
+- (instancetype)initWithVersion:(nullable FSTSnapshotVersion *)version
+               transformResults:(nullable NSArray<FSTFieldValue *> *)transformResults {
   if (self = [super init]) {
     _version = version;
     _transformResults = transformResults;
@@ -375,7 +375,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)
-serverTransformResultsWithBaseDocument:(FSTMaybeDocument *_Nullable)baseDocument
+serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
                 serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   FSTAssert(self.fieldTransforms.size() == serverTransformResults.count,
@@ -413,7 +413,7 @@ serverTransformResultsWithBaseDocument:(FSTMaybeDocument *_Nullable)baseDocument
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
-                                  (FSTMaybeDocument *_Nullable)baseDocument
+                                  (nullable FSTMaybeDocument *)baseDocument
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
@@ -449,7 +449,7 @@ serverTransformResultsWithBaseDocument:(FSTMaybeDocument *_Nullable)baseDocument
  */
 - (FSTFieldValue *)arrayTransformResultWithPreviousValue:(FSTFieldValue *)previousValue
                                                transform:(const FieldTransform &)fieldTransform {
-  NSMutableArray *result = [self coercedFieldValuesArray:previousValue];
+  NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
   auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
   if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
     for (FSTFieldValue *element : array_transform.elements()) {
@@ -472,7 +472,7 @@ serverTransformResultsWithBaseDocument:(FSTMaybeDocument *_Nullable)baseDocument
  * Inspects the provided value, returning a mutable copy of the internal array if it's an
  * FSTArrayValue and an empty mutable array if it's nil or any other type of FSTFieldValue.
  */
-- (NSMutableArray<FSTFieldValue *> *)coercedFieldValuesArray:(FSTFieldValue *_Nullable)value {
+- (NSMutableArray<FSTFieldValue *> *)coercedFieldValuesArray:(nullable FSTFieldValue *)value {
   if ([value isMemberOfClass:[FSTArrayValue class]]) {
     return [NSMutableArray arrayWithArray:((FSTArrayValue *)value).internalValue];
   } else {
