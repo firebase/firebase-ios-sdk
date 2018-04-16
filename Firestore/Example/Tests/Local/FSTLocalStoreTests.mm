@@ -253,8 +253,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @(targetID) ], @[])];
+  [self
+      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
+                                                @[ @(targetID) ], @[])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
 }
@@ -283,8 +284,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertRemoved(@[ @"bar/baz" ]);
   FSTAssertNotContains(@"bar/baz");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO), @[ @(targetID) ], @[])];
+  [self
+      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
+                                                @[ @(targetID) ], @[])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO));
   FSTAssertNotContains(@"bar/baz");
@@ -296,7 +298,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
+                                                  @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
 
@@ -320,7 +323,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
+                                                  @[])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 }
@@ -346,8 +350,9 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertChanged(@[]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, YES));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @(targetID) ], @[])];
+  [self
+      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO),
+                                                @[ @(targetID) ], @[])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
 }
@@ -380,12 +385,14 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
 
   [self acknowledgeMutationWithVersion:2];
-  // We still haven't seen the remote events for the patch, so the local changes remain, and there are no changes
+  // We still haven't seen the remote events for the patch, so the local changes remain, and there
+  // are no changes
   FSTAssertChanged(@[]);
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo": @"bar", @"it" : @"base"}, NO),
-          @[], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar", @"it" : @"base"}, NO), @[],
+                             @[])];
 
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, NO));
@@ -480,12 +487,14 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
+                                                  @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(
-                             FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO), @[ @(targetID) ], @[])];
+  [self
+      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO),
+                                                @[ @(targetID) ], @[])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO));
 }
@@ -593,7 +602,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTAssertNotContains(@"foo/bar");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                        @[ @1 ], @[])];
+                                                  @[ @1 ], @[])];
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 }
