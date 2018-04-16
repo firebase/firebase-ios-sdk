@@ -393,14 +393,14 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
     // The server just sends null as the transform result for array union / remove operations, so
     // we have to calculate a result the same as we do for local applications.
     if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
-      auto elements =
-          static_cast<const ArrayTransform &>(fieldTransform.transformation()).elements();
-      transformResult = [self arrayUnionResultWithElements:elements previousValue:previousValue];
+      transformResult = [self
+          arrayUnionResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                         previousValue:previousValue];
 
     } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
-      auto elements =
-          static_cast<const ArrayTransform &>(fieldTransform.transformation()).elements();
-      transformResult = [self arrayRemoveResultWithElements:elements previousValue:previousValue];
+      transformResult = [self
+          arrayRemoveResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                          previousValue:previousValue];
 
     } else {
       // Just use the server-supplied result.

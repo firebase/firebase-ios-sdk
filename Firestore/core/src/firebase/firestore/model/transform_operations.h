@@ -151,6 +151,13 @@ class ArrayTransform : public TransformOperation {
   }
 #endif  // defined(__OBJC__)
 
+  static const std::vector<FSTFieldValue*>& Elements(
+      const TransformOperation& op) {
+    FIREBASE_ASSERT(op.type() == Type::ArrayUnion ||
+                    op.type() == Type::ArrayRemove);
+    return static_cast<const ArrayTransform&>(op).elements();
+  }
+
  private:
   Type type_;
   std::vector<FSTFieldValue*> elements_;
