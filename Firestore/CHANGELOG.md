@@ -18,8 +18,8 @@
   `setData(["a": "b"], merge: true)`.
 - [changed] Replaced the `SnapshotOptions` object with direct use of the
   `FIRServerTimestampBehavior` on `DocumentSnapshot`. Instead of calling
-  `get(field, SnapshotOptions.serverTimestampBehavior(.estimate))` call
-  `get(field, serverTimestampBehavior: .estimate)`.
+  `data(SnapshotOptions.serverTimestampBehavior(.estimate)` call
+  `data(serverTimestampBehavior: .estimate)`. Chagned `get` similarly.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
