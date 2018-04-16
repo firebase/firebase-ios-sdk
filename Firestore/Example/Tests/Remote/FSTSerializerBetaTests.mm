@@ -401,12 +401,12 @@ NS_ASSUME_NONNULL_BEGIN
   [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
   [proto.transform.fieldTransformsArray addObject:arrayUnion];
 
-  GCFSDocumentTransform_FieldTransform *arrayRemove = [GCFSDocumentTransform_FieldTransform
-      message];
+  GCFSDocumentTransform_FieldTransform *arrayRemove =
+      [GCFSDocumentTransform_FieldTransform message];
   arrayRemove.fieldPath = @"bar.baz";
   arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
   NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
-  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{@"x": @1})]];
+  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{ @"x" : @1 })]];
   [proto.transform.fieldTransformsArray addObject:arrayRemove];
 
   proto.currentDocument.exists = YES;

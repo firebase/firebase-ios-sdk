@@ -629,8 +629,8 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements: {
-        std::vector<FSTFieldValue *> elements;
-        [self decodeArrayTransformElements:proto.appendMissingElements into:&elements];
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.appendMissingElements];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, elements));
@@ -638,8 +638,8 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p: {
-        std::vector<FSTFieldValue *> elements;
-        [self decodeArrayTransformElements:proto.removeAllFromArray_p into:&elements];
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.removeAllFromArray_p];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
             absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, elements));
@@ -654,11 +654,12 @@ NS_ASSUME_NONNULL_BEGIN
   return fieldTransforms;
 }
 
-- (void)decodeArrayTransformElements:(GCFSArrayValue *)proto
-                                into:(std::vector<FSTFieldValue *> *)elements {
+- (std::vector<FSTFieldValue *>)decodedArrayTransformElements:(GCFSArrayValue *)proto {
+  __block std::vector<FSTFieldValue *> elements;
   [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
-    elements->push_back([self decodedFieldValue:value]);
+    elements.push_back([self decodedFieldValue:value]);
   }];
+  return elements;
 }
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
