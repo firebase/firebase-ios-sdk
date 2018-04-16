@@ -204,7 +204,18 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  return [NSProcessInfo processInfo].operatingSystemVersionString;
+  // Assemble the systemVersion, excluding any insignificant digits.
+  NSOperatingSystemVersion osVersion = [NSProcessInfo processInfo].operatingSystemVersion;
+  NSMutableString *versionString = [[NSMutableString alloc] initWithFormat:@"%ld", (long)osVersion.majorVersion];
+  if (osVersion.minorVersion != 0) {
+    [versionString appendFormat:@".%ld", (long)osVersion.minorVersion];
+  }
+
+  if (osVersion.patchVersion != 0) {
+    [versionString appendFormat:@".%ld", (long)osVersion.patchVersion];
+  }
+
+  return versionString;
 }
 
 + (BOOL)isAppExtension {
