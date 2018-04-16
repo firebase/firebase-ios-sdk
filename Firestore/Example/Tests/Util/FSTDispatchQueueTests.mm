@@ -16,10 +16,9 @@
 
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+#import <XCTest/XCTest.h>
 #include <algorithm>
 #include <string>
-
-#import <XCTest/XCTest.h>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
