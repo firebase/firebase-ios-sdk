@@ -460,7 +460,7 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
  * Transforms the provided `previousValue` via the provided `elements`. Used both for local
  * application and after server acknowledgement.
  */
-- (FSTFieldValue *)arrayUnionResultWithElements:(const std::vector<FSTFieldValue *>)elements
+- (FSTFieldValue *)arrayUnionResultWithElements:(const std::vector<FSTFieldValue *> &)elements
                                   previousValue:(FSTFieldValue *)previousValue {
   NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
   for (FSTFieldValue *element : elements) {
