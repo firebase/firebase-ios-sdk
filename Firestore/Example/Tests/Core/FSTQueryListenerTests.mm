@@ -30,13 +30,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTQueryListenerTests : XCTestCase
-@property(nonatomic, strong, readonly) FSTDispatchQueue *asyncQueue;
+@property(nonatomic, strong, readonly) FSTUserQueue *asyncQueue;
 @end
 
 @implementation FSTQueryListenerTests
 
 - (void)setUp {
-  _asyncQueue = [FSTDispatchQueue
+  _asyncQueue = [FSTUserQueue
       queueWith:dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL)];
 }
 

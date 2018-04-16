@@ -144,4 +144,20 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 
 @end
 
+@interface FSTUserQueue : NSObject
+
+/** Creates and returns an FSTDispatchQueue wrapping the specified dispatch_queue_t. */
++ (instancetype)queueWith:(dispatch_queue_t)dispatchQueue;
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+
+- (void)dispatchAsync:(void (^)(void))block;
+
+/** The underlying wrapped dispatch_queue_t */
+@property(nonatomic, strong, readonly) dispatch_queue_t queue;
+
+@end
+
 NS_ASSUME_NONNULL_END

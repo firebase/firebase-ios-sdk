@@ -16,15 +16,13 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
-
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;
   FSTViewSnapshotHandler _snapshotHandler;
-  FSTDispatchQueue *_dispatchQueue;
+  FSTUserQueue *_dispatchQueue;
 }
 
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
+- (instancetype)initWithDispatchQueue:(FSTUserQueue *)dispatchQueue
                       snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler {
   if (self = [super init]) {
     _dispatchQueue = dispatchQueue;

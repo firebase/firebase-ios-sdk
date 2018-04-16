@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTAsyncQueryListener : NSObject
 
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
+- (instancetype)initWithDispatchQueue:(FSTUserQueue *)dispatchQueue
                       snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler
     NS_DESIGNATED_INITIALIZER;
 

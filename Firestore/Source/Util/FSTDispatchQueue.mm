@@ -311,4 +311,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - FSTUserQueue
+
+@interface FSTUserQueue ()
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
+
+@end
+
+@implementation FSTUserQueue
+
++ (instancetype)queueWith:(dispatch_queue_t)dispatchQueue {
+  return [[FSTUserQueue alloc] initWithQueue:dispatchQueue];
+}
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue {
+  if (self = [super init]) {
+    _queue = queue;
+  }
+  return self;
+}
+
+- (void)dispatchAsync:(void (^)(void))block {
+  dispatch_async(self.queue, ^{
+    block();
+  });
+}
+
+@end
 NS_ASSUME_NONNULL_END
