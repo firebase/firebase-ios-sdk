@@ -154,7 +154,7 @@ class LlrbNode : public SortedMapBase {
     return empty_rep;
   }
 
-  LlrbNode Copy() const {
+  LlrbNode ShallowCopy() const {
     return LlrbNode{*rep_};
   }
 
@@ -198,9 +198,8 @@ class LlrbNode : public SortedMapBase {
   void RotateRight();
   void FlipColor();
 
-  /** Returns the opposite color of the argument. */
-  static size_type OppositeColor(size_type color) {
-    return color == Color::Red ? Color::Black : Color::Red;
+  size_type OppositeColor() const noexcept {
+    return rep_->color_ == Color::Red ? Color::Black : Color::Red;
   }
 
   std::shared_ptr<Rep> rep_;
@@ -225,13 +224,13 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerInsert(const K& key,
                                            const V& value,
                                            const Comparator& comparator) const {
   if (empty()) {
-    return LlrbNode{Rep{{key, value}, Color::Red, 1u, LlrbNode{}, LlrbNode{}}};
+    return LlrbNode{Rep{{key, value}, Color::Red, LlrbNode{}, LlrbNode{}}};
   }
 
   // Inserting is going to result in a copy but we can save some allocations by
   // creating the copy once and fixing that up, rather than copying and
   // re-copying the result.
-  LlrbNode result = Copy();
+  LlrbNode result = ShallowCopy();
 
   const K& this_key = this->key();
   bool descending = comparator(key, this_key);
@@ -306,14 +305,14 @@ void LlrbNode<K, V>::RotateRight() {
 
 template <typename K, typename V>
 void LlrbNode<K, V>::FlipColor() {
-  LlrbNode new_left = left().Copy();
-  new_left.set_color(OppositeColor(left().color()));
+  LlrbNode new_left = left().ShallowCopy();
+  new_left.set_color(left().OppositeColor());
 
-  LlrbNode new_right = right().Copy();
-  new_right.set_color(OppositeColor(right().color()));
+  LlrbNode new_right = right().ShallowCopy();
+  new_right.set_color(right().OppositeColor());
 
   // Preserve contents_ and size_
-  set_color(OppositeColor(color()));
+  set_color(OppositeColor());
   set_left(std::move(new_left));
   set_right(std::move(new_right));
 }

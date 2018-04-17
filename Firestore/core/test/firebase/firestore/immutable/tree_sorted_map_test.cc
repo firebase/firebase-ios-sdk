@@ -69,28 +69,64 @@ TEST(TreeSortedMap, PropertiesForNonEmpty) {
 
 TEST(TreeSortedMap, RotatesLeft) {
   IntMap map;
+  EXPECT_EQ(Color::Black, map.root().color());
+
+  // root node, with two empty children
   map = map.insert(1, 1);
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // insert successor, leans left, rotation required
   map = map.insert(2, 2);
-
-  EXPECT_EQ(2, map.root().key());
-  EXPECT_EQ(1, map.root().left().key());
-
+  EXPECT_EQ(Color::Black, map.root().color());
   EXPECT_EQ(Color::Red, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // insert successor, balanced, color flip required
+  map = map.insert(3, 3);
+  EXPECT_EQ(2, map.root().key());
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+}
+
+TEST(TreeSortedMap, RotatesLeftWithSubtree) {
+  // Build an initially balanced, all black tree
+  IntMap map;
+  map = map.insert(5, 5);
+  map = map.insert(3, 3);
+  map = map.insert(7, 7);
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // left child of right, no rotation yet
+  map = map.insert(6, 6);
+  EXPECT_EQ(5, map.root().key());
+  EXPECT_EQ(6, map.root().right().left().key());
+  EXPECT_EQ(Color::Red, map.root().right().left().color());
+
+  // right child of right, triggers a color flip in the right node and forces
+  // a left rotation of the root
+  map = map.insert(8, 8);
+  EXPECT_EQ(7, map.root().key());
+  EXPECT_EQ(Color::Black, map.root().color());
+
+  EXPECT_EQ(5, map.root().left().key());
+  EXPECT_EQ(Color::Red, map.root().left().color());
+
+  EXPECT_EQ(3, map.root().left().left().key());
+  EXPECT_EQ(Color::Black, map.root().left().left().color());
+
+  EXPECT_EQ(6, map.root().left().right().key());
+  EXPECT_EQ(Color::Black, map.root().left().right().color());
+
+  EXPECT_EQ(8, map.root().right().key());
+  EXPECT_EQ(Color::Black, map.root().right().color());
 }
 
 TEST(TreeSortedMap, RotatesRight) {
-  IntMap map;
-  map = map.insert(3, 3);
-  EXPECT_EQ(3, map.root().key());
-
-  map = map.insert(2, 2);
-  EXPECT_EQ(3, map.root().key());
-
-  map = map.insert(1, 1);
-  EXPECT_EQ(2, map.root().value());
-}
-
-TEST(TreeSortedMap, RotatesRightAndMaintainsColorInvariants) {
   IntMap map;
   EXPECT_EQ(Color::Black, map.root().color());
 
@@ -106,14 +142,72 @@ TEST(TreeSortedMap, RotatesRightAndMaintainsColorInvariants) {
   EXPECT_EQ(Color::Red, map.root().left().color());
   EXPECT_EQ(Color::Black, map.root().right().color());
 
-  EXPECT_EQ(Color::Black, map.root().left().left().color());
-
   // insert predecessor, rotation required
   map = map.insert(1, 2);
   EXPECT_EQ(2, map.root().key());
   EXPECT_EQ(Color::Black, map.root().color());
   EXPECT_EQ(Color::Black, map.root().left().color());
   EXPECT_EQ(Color::Black, map.root().right().color());
+}
+
+TEST(TreeSortedMap, RotatesRightWithSubtree) {
+  // Build an initially balanced, all black tree
+  IntMap map;
+  map = map.insert(5, 5);
+  map = map.insert(3, 3);
+  map = map.insert(7, 7);
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // insert left.left, no rotation yet
+  map = map.insert(1, 1);
+  EXPECT_EQ(5, map.root().key());
+  EXPECT_EQ(1, map.root().left().left().key());
+  EXPECT_EQ(Color::Red, map.root().left().left().color());
+
+  // insert left.right, triggers a color flip in left but no rotation
+  map = map.insert(4, 4);
+  EXPECT_EQ(5, map.root().key());
+  EXPECT_EQ(Color::Red, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().left().left().color());
+  EXPECT_EQ(Color::Black, map.root().left().right().color());
+
+  // insert left.left.left; still no rotation
+  map = map.insert(0, 0);
+  EXPECT_EQ(5, map.root().key());
+  EXPECT_EQ(Color::Black, map.root().color());
+  EXPECT_EQ(Color::Red, map.root().left().color());
+  EXPECT_EQ(Color::Black, map.root().left().left().color());
+  EXPECT_EQ(Color::Red, map.root().left().left().left().color());
+
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  // insert left.left.right:
+  //   * triggers a color flip on left.left => Red
+  //   * triggers right rotation at the root because left and left.left are Red
+  //   * triggers a color flip on root => whole tree black
+  map = map.insert(2, 2);
+  EXPECT_EQ(3, map.root().key());
+  EXPECT_EQ(Color::Black, map.root().color());
+
+  EXPECT_EQ(1, map.root().left().key());
+  EXPECT_EQ(Color::Black, map.root().left().color());
+
+  EXPECT_EQ(0, map.root().left().left().key());
+  EXPECT_EQ(Color::Black, map.root().left().left().color());
+
+  EXPECT_EQ(2, map.root().left().right().key());
+  EXPECT_EQ(Color::Black, map.root().left().right().color());
+
+  EXPECT_EQ(5, map.root().right().key());
+  EXPECT_EQ(Color::Black, map.root().right().color());
+
+  EXPECT_EQ(4, map.root().right().left().key());
+  EXPECT_EQ(Color::Black, map.root().right().left().color());
+
+  EXPECT_EQ(7, map.root().right().right().key());
+  EXPECT_EQ(Color::Black, map.root().right().right().color());
 }
 
 TEST(TreeSortedMap, InsertIsImmutable) {

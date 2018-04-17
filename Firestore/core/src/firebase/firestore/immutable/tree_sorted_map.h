@@ -56,7 +56,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * Creates an empty TreeSortedMap.
    */
   explicit TreeSortedMap(const C& comparator = {})
-      : util::ComparatorHolder<C>{comparator}, root_{} {
+      : util::ComparatorHolder<C>{comparator} {
   }
 
   /**

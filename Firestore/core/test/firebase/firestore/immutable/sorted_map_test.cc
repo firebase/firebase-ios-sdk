@@ -49,11 +49,11 @@ struct TestPolicy<impl::ArraySortedMap<int, int>> {
 template <typename IntMap>
 class SortedMapTest : public ::testing::Test {
  public:
-  SortedMapBase::size_type large_size() {
+  SortedMapBase::size_type large_size() const {
     return TestPolicy<IntMap>::kLargeSize;
   }
 
-  int large_number() {
+  int large_number() const {
     return static_cast<int>(large_size());
   }
 };
@@ -105,8 +105,7 @@ TYPED_TEST(SortedMapTest, Increasing) {
   TypeParam map = ToMap<TypeParam>(to_insert);
   ASSERT_EQ(this->large_size(), map.size());
 
-  int n = this->large_number();
-  for (int i = 0; i < n; i++) {
+  for (int i : to_insert) {
     map = map.erase(i);
   }
   ASSERT_EQ(0u, map.size());

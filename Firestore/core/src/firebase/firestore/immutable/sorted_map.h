@@ -56,8 +56,7 @@ class SortedMap : public impl::SortedMapBase {
       tag_ = Tag::Array;
       new (&array_) array_type{entries, comparator};
     } else {
-      // TODO(wilhuff): implement tree initialization
-      abort();
+      new (&tree_) tree_type{tree_type::Create(entries, comparator)};
     }
   }
 
