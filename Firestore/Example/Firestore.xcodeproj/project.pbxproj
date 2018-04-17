@@ -24,6 +24,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		132E361FD9B05D99937B967B /* FSTLevelDBBenchmarkTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E34AD8523A9078580B506 /* FSTLevelDBBenchmarkTests.mm */; };
 		132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */; };
 		3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 3B843E4A1F3930A400548890 /* remote_store_spec_test.json */; };
 		5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5436F32320008FAD006E51E3 /* string_printf_test.cc */; };
@@ -229,6 +230,7 @@
 /* Begin PBXFileReference section */
 		04DF37A117F88A9891379ED6 /* Pods-Firestore_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		132E34AD8523A9078580B506 /* FSTLevelDBBenchmarkTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBBenchmarkTests.mm; sourceTree = "<group>"; };
 		132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBTransactionTests.mm; sourceTree = "<group>"; };
 		245812330F6A31632BB4B623 /* Pods_Firestore_Example_Firestore_SwiftTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_Firestore_SwiftTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftBuildTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -752,6 +754,7 @@
 				5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */,
 				5492E0932021552B00B64F25 /* StringViewTests.mm */,
 				132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */,
+				132E34AD8523A9078580B506 /* FSTLevelDBBenchmarkTests.mm */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -1329,6 +1332,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests/Pods-Firestore_Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-Defines-NSData+zlib/GoogleToolboxForMac.framework",
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleBenchmark/GoogleBenchmark.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 			);
@@ -1336,6 +1340,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleBenchmark.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
 			);
@@ -1548,6 +1553,7 @@
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
 				5492E0BE2021555100B64F25 /* FSTMutationTests.mm in Sources */,
 				132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */,
+				132E361FD9B05D99937B967B /* FSTLevelDBBenchmarkTests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1863,11 +1869,12 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
+					"\"$(inherited)\"",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
+					"\"${PODS_ROOT}/GoogleBenchmark/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
@@ -1896,11 +1903,12 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
+					"\"$(inherited)\"",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
+					"\"${PODS_ROOT}/GoogleBenchmark/include\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";

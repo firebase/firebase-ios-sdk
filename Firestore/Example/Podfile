@@ -19,6 +19,7 @@ target 'Firestore_Example' do
 
     pod 'OCMock'
     pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
+    pod 'GoogleBenchmark', :podspec => 'Tests/GoogleBenchmark/GoogleBenchmark.podspec'
   end
 
   target 'Firestore_IntegrationTests' do
