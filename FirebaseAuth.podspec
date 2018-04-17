@@ -62,7 +62,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'SafariServices'
   s.framework = 'Security'
   s.dependency 'FirebaseCore', '~> 5.0'
-  s.ios.dependency 'FirebaseAnalytics', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end
