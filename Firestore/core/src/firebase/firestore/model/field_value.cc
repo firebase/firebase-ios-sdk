@@ -263,13 +263,12 @@ FieldValue FieldValue::TimestampValue(const Timestamp& value) {
   return result;
 }
 
-FieldValue FieldValue::ServerTimestampValue(
-    const Timestamp& local_write_time,
-    absl::optional<Timestamp> previous_value) {
+FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
+                                            const Timestamp& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.previous_value = std::move(previous_value);
+  result.server_timestamp_value_.previous_value = previous_value;
   return result;
 }
 

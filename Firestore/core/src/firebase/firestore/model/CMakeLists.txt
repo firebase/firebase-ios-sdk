@@ -43,6 +43,7 @@ cc_library(
     transform_operations.h
     types.h
   DEPENDS
+    absl_bad_optional_access
     absl_optional
     absl_strings
     firebase_firestore_util

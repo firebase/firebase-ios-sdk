@@ -41,7 +41,7 @@ TEST(MutationResult, PatchResult) {
 
 TEST(MutationResult, TransformResult) {
   const MutationResult result{testutil::Version(12345),
-                              {FieldValue::TrueValue()}};
+                              std::vector<FieldValue>{FieldValue::TrueValue()}};
   EXPECT_EQ(testutil::Version(12345), result.version());
   EXPECT_EQ(std::vector<FieldValue>{FieldValue::TrueValue()},
             result.transform_results());

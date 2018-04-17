@@ -190,17 +190,18 @@ std::vector<FieldValue> TransformMutation::LocalTransformResults(
   for (const FieldTransform& field_transform : field_transforms_) {
     if (field_transform.transformation().type() ==
         TransformOperation::Type::ServerTimestamp) {
-      absl::optional<Timestamp> previous_value = absl::nullopt;
-
       if (base_doc && base_doc->type() == MaybeDocument::Type::Document) {
         const absl::optional<FieldValue> value =
             static_cast<Document*>(base_doc.get())
                 ->field(field_transform.path());
-        // update here: previous_value =
+        if (value && value->type() == FieldValue::Type::Timestamp) {
+          transform_results.push_back(FieldValue::ServerTimestampValue(
+              local_write_time, value->timestamp_value()));
+          continue;
+        }
       }
-
       transform_results.push_back(
-          FieldValue::ServerTimestampValue(local_write_time, previous_value));
+          FieldValue::ServerTimestampValue(local_write_time));
     } else {
       FIREBASE_ASSERT_MESSAGE(false, "Encountered unknown transform: %d type",
                               field_transform.transformation().type());

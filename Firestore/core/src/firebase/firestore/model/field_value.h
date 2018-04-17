@@ -118,6 +118,11 @@ class FieldValue {
     return integer_value_;
   }
 
+  const Timestamp timestamp_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Timestamp);
+    return timestamp_value_;
+  }
+
   const std::string& string_value() const {
     FIREBASE_ASSERT(tag_ == Type::String);
     return string_value_;
@@ -163,9 +168,8 @@ class FieldValue {
   static FieldValue IntegerValue(int64_t value);
   static FieldValue DoubleValue(double value);
   static FieldValue TimestampValue(const Timestamp& value);
-  static FieldValue ServerTimestampValue(
-      const Timestamp& local_write_time,
-      absl::optional<Timestamp> previous_value);
+  static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
+                                         const Timestamp& previous_value);
   static FieldValue ServerTimestampValue(const Timestamp& local_write_time);
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
