@@ -1,4 +1,3 @@
-//
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This file contains :int128 implementation details that depend on internal
-// representation when ABSL_HAVE_INTRINSIC_INT128 is *not* defined. This file
-// is included by int128.h.
+#include "absl/types/bad_optional_access.h"
+
+#include <cstdlib>
+
+#include "absl/base/config.h"
+#include "absl/base/internal/raw_logging.h"
+
+namespace absl {
+
+bad_optional_access::~bad_optional_access() = default;
+
+const char* bad_optional_access::what() const noexcept {
+  return "optional has no value";
+}
+
+namespace optional_internal {
+
+void throw_bad_optional_access() {
+#ifdef ABSL_HAVE_EXCEPTIONS
+  throw bad_optional_access();
+#else
+  ABSL_RAW_LOG(FATAL, "Bad optional access");
+  abort();
+#endif
+}
+
+}  // namespace optional_internal
+}  // namespace absl

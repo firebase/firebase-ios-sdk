@@ -1,4 +1,3 @@
-//
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
 
-// This file contains :int128 implementation details that depend on internal
-// representation when ABSL_HAVE_INTRINSIC_INT128 is *not* defined. This file
-// is included by int128.h.
+#ifndef ABSL_BASE_INTERNAL_IDENTITY_H_
+#define ABSL_BASE_INTERNAL_IDENTITY_H_
+
+namespace absl {
+namespace internal {
+
+template <typename T>
+struct identity {
+  typedef T type;
+};
+
+template <typename T>
+using identity_t = typename identity<T>::type;
+
+}  //  namespace internal
+}  //  namespace absl
+
+#endif  // ABSL_BASE_INTERNAL_IDENTITY_H_

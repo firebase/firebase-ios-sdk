@@ -208,7 +208,7 @@ class ByAnyChar {
 //   using absl::ByLength;
 //   std::vector<std::string> v = absl::StrSplit("12345", ByLength(2));
 //
-//   // v[0] == "12", v[1] == "35", v[2] == "5"
+//   // v[0] == "12", v[1] == "34", v[2] == "5"
 class ByLength {
  public:
   explicit ByLength(ptrdiff_t length);
@@ -402,7 +402,7 @@ struct SkipWhitespace {
 //
 //   std::vector<std::string> v = absl::StrSplit(" a , ,,b,",
 //                                               ',', SkipWhitespace());
-//   // v[0] == "a", v[1] == "b"
+//   // v[0] == " a ", v[1] == "b"
 //
 // See above for more information on predicates.
 //
