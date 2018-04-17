@@ -60,7 +60,7 @@ if [[ $# -gt 2 ]]; then
 fi
 
 echo "Building $product for $platform using $method"
-if [[ -n "$SANITIZERS" ]]; then
+if [[ -n "${SANITIZERS:-}" ]]; then
   echo "Using sanitizers: $SANITIZERS"
 fi
 
@@ -116,41 +116,43 @@ xcb_flags+=(
 xcb_flags_sanitizers=()
 cmake_options=()
 
-for sanitizer in $SANITIZERS; do
-  case "$sanitizer" in
-    asan)
-      xcb_flags_sanitizers+=(
-        -enableAddressSanitizer YES
-      )
-      cmake_options+=(
-        -DWITH_ASAN=ON
-      )
-      ;;
+if [[ -n "${SANITIZERS:-}" ]]; then
+  for sanitizer in $SANITIZERS; do
+    case "$sanitizer" in
+      asan)
+        xcb_flags_sanitizers+=(
+          -enableAddressSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_ASAN=ON
+        )
+        ;;
 
-    tsan)
-      xcb_flags_sanitizers+=(
-        -enableThreadSanitizer YES
-      )
-      cmake_options+=(
-        -DWITH_TSAN=ON
-      )
-      ;;
+      tsan)
+        xcb_flags_sanitizers+=(
+          -enableThreadSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_TSAN=ON
+        )
+        ;;
 
-    ubsan)
-      xcb_flags_sanitizers+=(
-        -enableUndefinedBehaviorSanitizer YES
-      )
-      cmake_options+=(
-        -DWITH_UBSAN=ON
-      )
-      ;;
+      ubsan)
+        xcb_flags_sanitizers+=(
+          -enableUndefinedBehaviorSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_UBSAN=ON
+        )
+        ;;
 
-    *)
-      echo "Unknown sanitizer '$sanitizer'" 1>&2
-      exit 1
-      ;;
-  esac
-done
+      *)
+        echo "Unknown sanitizer '$sanitizer'" 1>&2
+        exit 1
+        ;;
+    esac
+  done
+fi
 
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
