@@ -204,7 +204,7 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  // Assemble the systemVersion, excluding any insignificant digits.
+  // Assemble the systemVersion, excluding the patch version if it's 0.
   NSOperatingSystemVersion osVersion = [NSProcessInfo processInfo].operatingSystemVersion;
   NSMutableString *versionString = [[NSMutableString alloc] initWithFormat:@"%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion];
   if (osVersion.patchVersion != 0) {
