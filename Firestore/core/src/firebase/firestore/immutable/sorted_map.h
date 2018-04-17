@@ -56,8 +56,7 @@ class SortedMap : public impl::SortedMapBase {
       tag_ = Tag::Array;
       new (&array_) array_type{entries, comparator};
     } else {
-      // TODO(wilhuff): implement tree initialization
-      abort();
+      new (&tree_) tree_type{tree_type::Create(entries, comparator)};
     }
   }
 
@@ -139,8 +138,19 @@ class SortedMap : public impl::SortedMapBase {
   SortedMap insert(const K& key, const V& value) const {
     switch (tag_) {
       case Tag::Array:
-        // TODO(wilhuff): convert to TreeSortedMap
-        return SortedMap{array_.insert(key, value)};
+        if (array_.size() >= kFixedSize) {
+          // Strictly speaking this conversion is more eager than it needs to
+          // be since we could be replacing an existing key. However, the
+          // benefit of using the array for small maps doesn't really depend on
+          // exactly where this cut-off happens and just unconditionally
+          // converting if the next insertion could overflow keeps things
+          // simpler.
+          const C& comparator = array_.comparator().comparator();
+          tree_type tree = tree_type::Create(array_, comparator);
+          return SortedMap{tree.insert(key, value)};
+        } else {
+          return SortedMap{array_.insert(key, value)};
+        }
       case Tag::Tree:
         return SortedMap{tree_.insert(key, value)};
     }
