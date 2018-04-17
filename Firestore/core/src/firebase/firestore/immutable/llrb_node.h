@@ -154,7 +154,11 @@ class LlrbNode : public SortedMapBase {
     return empty_rep;
   }
 
-  LlrbNode ShallowCopy() const {
+  /**
+   * Creates a new copy of this node, duplicating the Rep but without
+   * duplicating the left_ and right_ children.
+   */
+  LlrbNode Clone() const {
     return LlrbNode{*rep_};
   }
 
@@ -230,7 +234,7 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerInsert(const K& key,
   // Inserting is going to result in a copy but we can save some allocations by
   // creating the copy once and fixing that up, rather than copying and
   // re-copying the result.
-  LlrbNode result = ShallowCopy();
+  LlrbNode result = Clone();
 
   const K& this_key = this->key();
   bool descending = comparator(key, this_key);
@@ -305,10 +309,10 @@ void LlrbNode<K, V>::RotateRight() {
 
 template <typename K, typename V>
 void LlrbNode<K, V>::FlipColor() {
-  LlrbNode new_left = left().ShallowCopy();
+  LlrbNode new_left = left().Clone();
   new_left.set_color(left().OppositeColor());
 
-  LlrbNode new_right = right().ShallowCopy();
+  LlrbNode new_right = right().Clone();
   new_right.set_color(right().OppositeColor());
 
   // Preserve contents_ and size_
