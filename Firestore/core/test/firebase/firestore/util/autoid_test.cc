@@ -18,8 +18,7 @@
 
 #include <pthread.h>
 #include <cctype>
-
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 int Global;
 
@@ -50,20 +49,17 @@ struct Foo {
 };
 
 int foo(int i) {
-  char *x = (char*)malloc(10 * sizeof(char*));
+  char *x = reinterpret_cast<char *>(malloc(10 * sizeof(char *)));
   free(x);
 
-  int* a = new int[10];
-    a[5] = 0;
-    if (a[i])
-      printf("xx\n");
+  int *a = new int[10];
+  a[5] = 0;
+  if (a[i]) printf("xx\n");
 
   return x[5];
 }
 
-enum class Bar {
-  X, Y
-};
+enum class Bar { X, Y };
 
 TEST(AutoId, IsSane) {
   for (int i = 0; i < 50; i++) {
@@ -85,10 +81,10 @@ TEST(AutoId, IsSane) {
           << auto_id << "\"";
     }
   }
-  volatile auto bad = []{
+  volatile auto bad = [] {
     std::string pending = "obc";
     pending += "d";
-    auto* ptr = &pending;
+    auto *ptr = &pending;
     return ptr;
   }();
   (void)bad;
@@ -96,5 +92,4 @@ TEST(AutoId, IsSane) {
   (void)f;
 
   bad_thread();
-
 }
