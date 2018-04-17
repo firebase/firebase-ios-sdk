@@ -22,7 +22,7 @@ jobs:
         # Google C++ style compliance
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
-    # Firebase
+    # Core platforms
 
     - stage: test
       env:
@@ -47,6 +47,26 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # Alternative platforms
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # Community-supported platforms
+
+    - stage: test
+      env:
         - PROJECT=Firebase PLATFORM=macOS
       before_install:
         - bundle install
@@ -65,15 +85,7 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
-    # Firestore XCode
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/before_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+    # Firestore sanitizers
 
     - stage: test
       env:
@@ -94,16 +106,6 @@ jobs:
     # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
     # linkage (it works if enabled together with ASan, but it's supposed to be
     # usable on its own, too).
-
-    # Firestore CMake
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
-      before_install:
-        - ./scripts/before_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:
