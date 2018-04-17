@@ -33,7 +33,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.frameworks = ['CFNetwork', 'Security', 'SystemConfiguration']
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseCore', '~> 5.0'
-  s.ios.dependency 'FirebaseAnalytics', '~> 5.0'
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'FIRDatabase_VERSION=' + s.version.to_s }
