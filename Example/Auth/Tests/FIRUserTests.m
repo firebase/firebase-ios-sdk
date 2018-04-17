@@ -2244,11 +2244,12 @@ static const NSTimeInterval kExpectationTimeout = 2;
   });
   [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                             NSError *_Nullable error) {
-    XCTAssertNotNil(user);
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+    XCTAssertNotNil(result.user);
     XCTAssertNil(error);
-    completion(user);
+    completion(result.user);
   }];
 }
 

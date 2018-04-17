@@ -562,10 +562,10 @@ static const NSTimeInterval kWaitInterval = .5;
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:kVerificationID
                                                    verificationCode:@""];
 
-  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRAuthDataResult *_Nullable result,
                                                                NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingVerificationCode);
     [expectation fulfill];
   }];
@@ -584,10 +584,10 @@ static const NSTimeInterval kWaitInterval = .5;
       [[FIRPhoneAuthProvider provider] credentialWithVerificationID:@""
                                                    verificationCode:kVerificationCode];
 
-  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInWithCredential:credential completion:^(FIRAuthDataResult *_Nullable result,
                                                                NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingVerificationID);
     [expectation fulfill];
   }];
@@ -712,10 +712,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail
                          password:kFakePassword
-                       completion:^(FIRUser *_Nullable user,
+                       completion:^(FIRAuthDataResult *_Nullable result,
                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -734,10 +734,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail
                          password:kFakePassword
-                       completion:^(FIRUser *_Nullable user,
+                       completion:^(FIRAuthDataResult *_Nullable result,
                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1071,10 +1071,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail link:kFakeEmailSignInlink];
-  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
-                                                                    NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1107,10 +1108,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
-                                                                    NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1145,10 +1147,11 @@ static const NSTimeInterval kWaitInterval = .5;
   FIRAuthCredential *emailCredential =
       [FIREmailPasswordAuthProvider credentialWithEmail:kEmail password:kFakePassword];
 #pragma clang diagnostic pop
-  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
-                                                                    NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1168,10 +1171,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:kFakePassword];
-  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
-                                                                    NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeUserDisabled);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1193,8 +1197,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *emailCredential =
       [FIREmailAuthProvider credentialWithEmail:kEmail password:emptyString];
-  [[FIRAuth auth] signInWithCredential:emailCredential completion:^(FIRUser *_Nullable user,
-                                                                    NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:emailCredential
+                            completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWrongPassword);
     [expectation fulfill];
@@ -1228,8 +1232,9 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-  [[FIRAuth auth] signInWithCredential:googleCredential completion:^(FIRUser *_Nullable user,
-                                                                     NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeAccountExistsWithDifferentCredential);
     XCTAssertEqualObjects(error.userInfo[FIRAuthErrorUserInfoEmailKey], kEmail);
@@ -1267,10 +1272,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-  [[FIRAuth auth] signInWithCredential:googleCredential completion:^(FIRUser *_Nullable user,
-                                                                     NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUserGoogle:user];
+    [self assertUserGoogle:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1336,10 +1342,11 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   FIRAuthCredential *googleCredential =
       [FIRGoogleAuthProvider credentialWithIDToken:kGoogleIDToken accessToken:kGoogleAccessToken];
-  [[FIRAuth auth] signInWithCredential:googleCredential  completion:^(FIRUser *_Nullable user,
-                                                                      NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCredential:googleCredential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeEmailAlreadyInUse);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1369,10 +1376,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [self expectGetAccountInfoAnonymous];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUserAnonymous:user];
+    [self assertUserAnonymous:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1389,10 +1396,10 @@ static const NSTimeInterval kWaitInterval = .5;
       .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
                                                     NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeOperationNotAllowed);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -1474,10 +1481,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [self expectGetAccountInfo];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithCustomToken:kCustomToken completion:^(FIRUser *_Nullable user,
+  [[FIRAuth auth] signInWithCustomToken:kCustomToken completion:^(FIRAuthDataResult *_Nullable result,
                                                                   NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1494,10 +1501,11 @@ static const NSTimeInterval kWaitInterval = .5;
       .andDispatchError2([FIRAuthErrorUtils invalidCustomTokenErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth] signInWithCustomToken:kCustomToken completion:^(FIRUser *_Nullable user,
-                                                                  NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithCustomToken:kCustomToken
+                             completion:^(FIRAuthDataResult *_Nullable result,
+                                          NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidCustomToken);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     [expectation fulfill];
@@ -2434,13 +2442,14 @@ static const NSTimeInterval kWaitInterval = .5;
   });
   [self expectGetAccountInfoWithAccessToken:accessToken];
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] signInWithEmail:kEmail password:kFakePassword completion:^(FIRUser *_Nullable user,
-                                                                             NSError *_Nullable error) {
+  [[FIRAuth auth] signInWithEmail:kEmail
+                         password:kFakePassword
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
 
-    user.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+    result.user.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
     [expectation fulfill];
     if (completion) {
-      completion(user, error);
+      completion(result.user, error);
     }
   }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
