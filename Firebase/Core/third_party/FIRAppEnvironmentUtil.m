@@ -97,7 +97,7 @@ static BOOL isAppEncrypted() {
 
   BOOL is64bit = (executableHeader->magic == MH_MAGIC_64);
   uintptr_t cursor = (uintptr_t)executableHeader +
-      (is64bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header));
+                     (is64bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header));
   const struct segment_command *segmentCommand = NULL;
   uint32_t i = 0;
 
@@ -162,8 +162,7 @@ static BOOL isAppEncrypted() {
   // Info.plist if developers opted out of this check.
   id enableSandboxCheck =
       [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRAppStoreReceiptURLCheckEnabledKey];
-  if (enableSandboxCheck &&
-      [enableSandboxCheck isKindOfClass:[NSNumber class]] &&
+  if (enableSandboxCheck && [enableSandboxCheck isKindOfClass:[NSNumber class]] &&
       ![enableSandboxCheck boolValue]) {
     return NO;
   }
@@ -174,20 +173,20 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)hasEmbeddedMobileProvision {
-  #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
-  #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NO;
-  #endif
+#endif
 }
 
 + (BOOL)isSimulator {
-  #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *platform = [FIRAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
-  #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NO;
-  #endif
+#endif
 }
 
 + (NSString *)deviceModel {
@@ -204,13 +203,10 @@ static BOOL isAppEncrypted() {
 }
 
 + (NSString *)systemVersion {
-  // Assemble the systemVersion, excluding any insignificant digits.
+  // Assemble the systemVersion, excluding the patch version if it's 0.
   NSOperatingSystemVersion osVersion = [NSProcessInfo processInfo].operatingSystemVersion;
-  NSMutableString *versionString = [[NSMutableString alloc] initWithFormat:@"%ld", (long)osVersion.majorVersion];
-  if (osVersion.minorVersion != 0) {
-    [versionString appendFormat:@".%ld", (long)osVersion.minorVersion];
-  }
-
+  NSMutableString *versionString = [[NSMutableString alloc]
+      initWithFormat:@"%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion];
   if (osVersion.patchVersion != 0) {
     [versionString appendFormat:@".%ld", (long)osVersion.patchVersion];
   }
@@ -219,25 +215,25 @@ static BOOL isAppEncrypted() {
 }
 
 + (BOOL)isAppExtension {
-  #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-  #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NO;
-  #endif
+#endif
 }
 
 #pragma mark - Helper methods
 
 + (BOOL)hasSCInfoFolder {
-  #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV
   NSString *bundlePath = [NSBundle mainBundle].bundlePath;
   NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
   return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
-  #elif TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NO;
-  #endif
+#endif
 }
 
 @end
