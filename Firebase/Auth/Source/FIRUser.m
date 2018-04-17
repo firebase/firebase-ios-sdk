@@ -836,6 +836,11 @@ static void callInMainThreadWithAuthDataResultAndError(
     @param token The raw text of the Firebase IDToken encoded in base64.
     @param error An out parameter which would contain any error that occurs during parsing.
     @return An instance of FIRAuthTokenResult containing claims obtained from the IDToken.
+
+    @remarks IDToken returned from the backend in some cases is of a length that is not a multiple
+        of 4. In these cases this function pads the token with as many "=" characters as needed and
+        then attempts to parse the token. If the token cannot be parsed an error is returned via the
+        "error" out parameter.
  */
 - (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
   error = nil;
