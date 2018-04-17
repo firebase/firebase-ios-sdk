@@ -45,29 +45,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
-      before_install:
-        - bundle install
-        - gem install xcpretty
-        - brew install cmake
-        - brew install go # Somehow the build for Abseil requires this.
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
         - PROJECT=Firebase PLATFORM=macOS
       before_install:
         - bundle install
@@ -85,6 +62,67 @@ jobs:
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/before_install_firestore_xcodebuild.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+      before_install:
+        - ./scripts/before_install_firestore_xcodebuild.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+      before_install:
+        - ./scripts/before_install_firestore_xcodebuild.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/before_install_firestore_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+      before_install:
+        - ./scripts/before_install_firestore_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      before_install:
+        - ./scripts/before_install_firestore_cmake.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD $SANITIZERS
+
+  allow_failures:
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+
+  # Don't wait for jobs that are allowed to fail before reporting the results.
+  fast_finish: true
 
 branches:
   only:
