@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
+#include <utility>
 #include <vector>
 
 #if defined(__OBJC__)
@@ -107,8 +108,8 @@ class ServerTimestampTransform : public TransformOperation {
  */
 class ArrayTransform : public TransformOperation {
  public:
-  ArrayTransform(const Type& type, const std::vector<FSTFieldValue*> elements)
-      : type_(type), elements_(elements) {
+  ArrayTransform(Type type, std::vector<FSTFieldValue*> elements)
+      : type_(type), elements_(std::move(elements)) {
   }
 
   ~ArrayTransform() override {

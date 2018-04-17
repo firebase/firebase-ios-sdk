@@ -606,16 +606,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
     std::vector<FSTFieldValue *> parsedElements =
         [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
-    auto array_union =
-        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, parsedElements);
+    auto array_union = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
+                                                         std::move(parsedElements));
     [context appendToFieldTransformsWithFieldPath:*context.path
                                transformOperation:std::move(array_union)];
 
   } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
     std::vector<FSTFieldValue *> parsedElements =
         [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
-    auto array_remove =
-        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, parsedElements);
+    auto array_remove = absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
+                                                          std::move(parsedElements));
     [context appendToFieldTransformsWithFieldPath:*context.path
                                transformOperation:std::move(array_remove)];
 

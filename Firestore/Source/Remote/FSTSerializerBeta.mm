@@ -587,12 +587,12 @@ NS_ASSUME_NONNULL_BEGIN
     proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
 
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
-    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
-    proto.appendMissingElements = [self encodedArrayTransformElements:array_transform.elements()];
+    proto.appendMissingElements = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
 
   } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
-    auto array_transform = static_cast<const ArrayTransform &>(fieldTransform.transformation());
-    proto.removeAllFromArray_p = [self encodedArrayTransformElements:array_transform.elements()];
+    proto.removeAllFromArray_p = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
 
   } else {
     FSTFail(@"Unknown transform: %d type", fieldTransform.transformation().type());
@@ -633,7 +633,8 @@ NS_ASSUME_NONNULL_BEGIN
             [self decodedArrayTransformElements:proto.appendMissingElements];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
-            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, elements));
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
+                                              std::move(elements)));
         break;
       }
 
@@ -642,7 +643,8 @@ NS_ASSUME_NONNULL_BEGIN
             [self decodedArrayTransformElements:proto.removeAllFromArray_p];
         fieldTransforms.emplace_back(
             FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
-            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, elements));
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
+                                              std::move(elements)));
         break;
       }
 
