@@ -152,6 +152,72 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
   }
 }
 
+FieldValue FieldValue::Set(FieldPath field_path, FieldValue value) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot set field for non-object FieldValue");
+  FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
+                          "Cannot set field for empty path on FieldValue");
+  const std::string& child_name = field_path.first_segment();
+  if (field_path.size() == 1) {
+    // TODO(zxu): Once immutable type is available, rewrite these.
+    auto copy = object_value_.internal_value;
+    copy[child_name] = std::move(value);
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  } else {
+    auto copy = object_value_.internal_value;
+    const auto iter = copy.find(child_name);
+    if (iter == copy.end() || iter->second.type() != Type::Object) {
+      copy[child_name] = FieldValue::ObjectValueFromMap({});
+    }
+    copy[child_name] =
+        copy[child_name].Set(field_path.PopFirst(), std::move(value));
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  }
+}
+
+FieldValue FieldValue::Delete(FieldPath field_path) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot delete field for non-object FieldValue");
+  FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
+                          "Cannot delete field for empty path on FieldValue");
+  const std::string& child_name = field_path.first_segment();
+  if (field_path.size() == 1) {
+    // TODO(zxu): Once immutable type is available, rewrite these.
+    auto copy = object_value_.internal_value;
+    copy.erase(child_name);
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  } else {
+    const auto iter = object_value_.internal_value.find(child_name);
+    if (iter == object_value_.internal_value.end() ||
+        iter->second.type() != Type::Object) {
+      // Don't actually change a primitive value to an object for a delete.
+      return *this;
+    } else {
+      auto copy = object_value_.internal_value;
+      copy[child_name] = copy[child_name].Delete(field_path.PopFirst());
+      return FieldValue::ObjectValueFromMap(std::move(copy));
+    }
+  }
+}
+
+absl::optional<FieldValue> FieldValue::Get(FieldPath field_path) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot get field for non-object FieldValue");
+  const FieldValue* current = this;
+  for (const auto& path : field_path) {
+    if (current->type() != Type::Object) {
+      return absl::nullopt;
+    }
+    const auto iter = current->object_value_.internal_value.find(path);
+    if (iter == current->object_value_.internal_value.end()) {
+      return absl::nullopt;
+    } else {
+      current = &iter->second;
+    }
+  }
+  return *current;
+}
+
 const FieldValue& FieldValue::NullValue() {
   static const FieldValue kNullInstance;
   return kNullInstance;
@@ -197,13 +263,13 @@ FieldValue FieldValue::TimestampValue(const Timestamp& value) {
   return result;
 }
 
-FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
-                                            const Timestamp& previous_value) {
+FieldValue FieldValue::ServerTimestampValue(
+    const Timestamp& local_write_time,
+    absl::optional<Timestamp> previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.previous_value = previous_value;
-  result.server_timestamp_value_.has_previous_value_ = true;
+  result.server_timestamp_value_.previous_value = std::move(previous_value);
   return result;
 }
 
@@ -211,7 +277,7 @@ FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.has_previous_value_ = false;
+  result.server_timestamp_value_.previous_value = absl::nullopt;
   return result;
 }
 

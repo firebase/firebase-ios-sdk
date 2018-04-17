@@ -492,6 +492,66 @@ TEST(FieldValue, CompareWithOperator) {
   EXPECT_FALSE(small == large);
 }
 
+TEST(FieldValue, Set) {
+  const FieldValue value_one = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+            })},
+  });
+  const FieldValue expected_one = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(expected_one, value_one.Set("b/bb", FieldValue::StringValue("BB")));
+  const FieldValue value_two = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+  });
+  const FieldValue expected_two = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(expected_two, value_two.Set("b/bb", FieldValue::StringValue("BB")));
+}
+
+TEST(FieldValue, Delete) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+            })},
+  });
+  EXPECT_EQ(value, value.Delete("aa"));
+  EXPECT_EQ(expected, value.Delete("b/bb"));
+}
+
+TEST(FieldValue, Get) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(absl::nullopt, value.Get("aa"));
+  EXPECT_EQ(FieldValue::StringValue("A"), value.Get("a"));
+  EXPECT_EQ(absl::nullopt, value.Get("a/a"));
+  EXPECT_EQ(FieldValue::StringValue("BA"), value.Get("b/a"));
+  EXPECT_EQ(FieldValue::StringValue("BB"), value.Get("b/b"));
+}
+
 }  //  namespace model
 }  //  namespace firestore
 }  //  namespace firebase

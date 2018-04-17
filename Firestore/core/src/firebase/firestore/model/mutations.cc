@@ -75,7 +75,7 @@ MaybeDocumentPointer SetMutation::ApplyTo(
 
   FIREBASE_ASSERT_MESSAGE(doc->key() == key_,
                           "Can only set a document with the same key");
-  return std::make_shared<Document>(value_, key_, doc->version(),
+  return std::make_shared<Document>(FieldValue{value_}, key_, doc->version(),
                                     has_local_mutations);
 }
 
@@ -128,11 +128,11 @@ MaybeDocumentPointer PatchMutation::ApplyTo(
 FieldValue PatchMutation::PatchObject(FieldValue value) const {
   for (auto iter = field_mask_.begin(); iter != field_mask_.end(); ++iter) {
     const FieldPath& field_path = *iter;
-    FieldValue new_value = value_.ValueForPath(field_path);
-    if (new_value != FieldValue::NullValue()) {
-      value = value.ObjectBySettingValue(new_value, field_path);
+    absl::optional<FieldValue> new_value = value_.Get(field_path);
+    if (new_value == absl::nullopt) {
+      value = value.Delete(field_path);
     } else {
-      value = value.ObjectByDeletingPath(field_path);
+      value = value.Set(field_path, new_value.value());
     }
   }
   return value;
@@ -174,7 +174,7 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
   FieldValue new_data;
   if (mutation_result) {
     new_data = TransformObject(doc->data(),
-                               mutation_result->transform_results()->value());
+                               mutation_result->transform_results().value());
   } else {
     new_data = TransformObject(
         doc->data(), LocalTransformResults(base_doc, local_write_time));
@@ -190,11 +190,13 @@ std::vector<FieldValue> TransformMutation::LocalTransformResults(
   for (const FieldTransform& field_transform : field_transforms_) {
     if (field_transform.transformation().type() ==
         TransformOperation::Type::ServerTimestamp) {
-      FieldValue previous_value = FieldValue::NullValue();
+      absl::optional<Timestamp> previous_value = absl::nullopt;
 
       if (base_doc && base_doc->type() == MaybeDocument::Type::Document) {
-        previous_value = static_cast<Document*>(base_doc->get())
-                             ->FieldForPath(field_transform.path());
+        const absl::optional<FieldValue> value =
+            static_cast<Document*>(base_doc.get())
+                ->field(field_transform.path());
+        // update here: previous_value =
       }
 
       transform_results.push_back(
@@ -217,7 +219,7 @@ FieldValue TransformMutation::TransformObject(
     const TransformOperation& transform = field_transform.transformation();
     const FieldPath& field_path = field_transform.path();
     if (transform.type() == TransformOperation::Type::ServerTimestamp) {
-      value = value.ObjectBySettingValue(transform_results[i], field_path);
+      value = value.Set(field_path, transform_results[i]);
     } else {
       FIREBASE_ASSERT_MESSAGE(false, "Encountered unknown transform: %d type",
                               transform.type());
