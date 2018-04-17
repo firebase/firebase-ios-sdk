@@ -22,6 +22,8 @@ jobs:
         # Google C++ style compliance
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
+    # Firebase
+
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS
@@ -63,6 +65,8 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
+    # Firestore XCode
+
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
@@ -73,11 +77,72 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # Firestore CMake
+
+    - stage: test
+      env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
         - ./scripts/before_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+      # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by
+      # default, need to make them fatal for the purposes of the test run.
+
+  # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
+  allow_failures:
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
+
+  # Don't wait for jobs that are allowed to fail before reporting the results.
+  fast_finish: true
 
 branches:
   only:
