@@ -138,12 +138,16 @@
 // supported.
 #ifdef ABSL_HAVE_THREAD_LOCAL
 #error ABSL_HAVE_THREAD_LOCAL cannot be directly set
-#elif (!defined(__apple_build_version__) || \
-       (__apple_build_version__ >= 8000042)) && \
-      !(defined(__APPLE__) && TARGET_OS_IPHONE && \
-        __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)
+#elif defined(__APPLE__)
 // Notes: Xcode's clang did not support `thread_local` until version
-// 8, and even then not for all iOS < 9.0.
+// 8, and even then not for all iOS < 9.0. Also, Xcode 9.3 started disallowing
+// `thread_local` for 32-bit iOS simulator targeting iOS 9.x.
+// `__has_feature` is only supported by Clang so it has be inside
+// `defined(__APPLE__)` check.
+#if __has_feature(cxx_thread_local)
+#define ABSL_HAVE_THREAD_LOCAL 1
+#endif
+#else  // !defined(__APPLE__)
 #define ABSL_HAVE_THREAD_LOCAL 1
 #endif
 
@@ -176,16 +180,22 @@
 // Checks whether the __int128 compiler extension for a 128-bit integral type is
 // supported.
 //
-// Notes: __SIZEOF_INT128__ is defined by Clang and GCC when __int128 is
-// supported, except on ppc64 and aarch64 where __int128 exists but has exhibits
-// a sporadic compiler crashing bug. Nvidia's nvcc also defines __GNUC__ and
-// __SIZEOF_INT128__ but not all versions actually support __int128.
+// Note: __SIZEOF_INT128__ is defined by Clang and GCC when __int128 is
+// supported, but we avoid using it in certain cases:
+// * On Clang:
+//   * Building using Clang for Windows, where the Clang runtime library has
+//     128-bit support only on LP64 architectures, but Windows is LLP64.
+//   * Building for aarch64, where __int128 exists but has exhibits a sporadic
+//     compiler crashing bug.
+// * On Nvidia's nvcc:
+//   * nvcc also defines __GNUC__ and __SIZEOF_INT128__, but not all versions
+//     actually support __int128.
 #ifdef ABSL_HAVE_INTRINSIC_INT128
 #error ABSL_HAVE_INTRINSIC_INT128 cannot be directly set
 #elif defined(__SIZEOF_INT128__)
-#if (defined(__clang__) && !defined(__aarch64__)) ||      \
-    (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) || \
-    (!defined(__clang__) && !defined(__CUDACC__) && defined(__GNUC__))
+#if (defined(__clang__) && !defined(_WIN32) && !defined(__aarch64__)) || \
+    (defined(__CUDACC__) && __CUDACC_VER_MAJOR__ >= 9) ||                \
+    (defined(__GNUC__) && !defined(__clang__) && !defined(__CUDACC__))
 #define ABSL_HAVE_INTRINSIC_INT128 1
 #elif defined(__CUDACC__)
 // __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
@@ -244,6 +254,7 @@
 //   Windows                           _WIN32
 //   NaCL                              __native_client__
 //   AsmJS                             __asmjs__
+//   WebAssembly                       __wasm__
 //   Fuchsia                           __Fuchsia__
 //
 // Note that since Android defines both __ANDROID__ and __linux__, one
@@ -257,7 +268,7 @@
 #error ABSL_HAVE_MMAP cannot be directly set
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) ||   \
     defined(__ros__) || defined(__native_client__) || defined(__asmjs__) || \
-    defined(__Fuchsia__)
+    defined(__wasm__) || defined(__Fuchsia__)
 #define ABSL_HAVE_MMAP 1
 #endif
 
