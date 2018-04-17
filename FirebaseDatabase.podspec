@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '4.1.5'
-  s.summary          = 'Firebase Open Source Libraries for iOS.'
+  s.version          = '5.0.0'
+  s.summary          = 'Firebase Open Source Libraries for iOS (plus experimental support for macOS and tvOS)'
 
   s.description      = <<-DESC
 Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
@@ -13,10 +13,10 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'Database-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
@@ -32,8 +32,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.libraries = ['c++', 'icucore']
   s.frameworks = ['CFNetwork', 'Security', 'SystemConfiguration']
   s.dependency 'leveldb-library', '~> 1.18'
-  s.dependency 'FirebaseCore', '~> 4.0'
-  s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
+  s.dependency 'FirebaseCore', '~> 5.0'
+  s.ios.dependency 'FirebaseAnalytics', '~> 5.0'
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'FIRDatabase_VERSION=' + s.version.to_s }

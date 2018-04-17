@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '4.0.20'
-  s.summary          = 'Firebase Core for iOS'
+  s.version          = '5.0.0'
+  s.summary          = 'Firebase Core for iOS (plus experimental support for macOS and tvOS)'
 
   s.description      = <<-DESC
 Firebase Core includes FIRApp and FIROptions which provide central configuration for other Firebase services.
@@ -13,10 +13,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+    :tag => 'Core-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
@@ -34,6 +34,6 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink ' +
-      '-DFIRCore_VERSION=' + s.version.to_s + ' -DFirebase_VERSION=4.13.0'
+      '-DFIRCore_VERSION=' + s.version.to_s + ' -DFirebase_VERSION=5.0.0'
   }
 end
