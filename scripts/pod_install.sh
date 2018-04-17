@@ -21,17 +21,13 @@
 
 case "$PROJECT-$METHOD" in
   Firestore-xcodebuild)
-    bundle install
-    gem install xcpretty
+    bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
   Firestore-cmake)
-    bundle install
-    # xcpretty is helpful for the intermediate step which builds FirebaseCore
-    # using xcodebuild.
-    gem install xcpretty
-    brew install cmake
-    brew install go # Somehow the build for Abseil requires this.
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Firestore/Example \
+        --no-repo-update
     ;;
 
   *)
@@ -42,3 +38,4 @@ case "$PROJECT-$METHOD" in
     exit 1
     ;;
 esac
+

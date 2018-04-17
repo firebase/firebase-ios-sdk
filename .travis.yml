@@ -49,7 +49,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -59,7 +60,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -91,7 +93,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -99,7 +102,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -111,7 +115,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -119,7 +124,8 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
-        - ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
