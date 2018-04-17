@@ -19,6 +19,7 @@
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
 
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -258,12 +259,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   }
 
   struct Closure {
-    std::vector<DocumentKey> keys;
-    FSTMaybeDocumentDictionary *results;
+    std::map<DocumentKey, FSTMaybeDocument *> results;
   };
 
-  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(
-      Closure{keys, [FSTMaybeDocumentDictionary maybeDocumentDictionary]});
+  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(Closure{});
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
@@ -283,19 +282,17 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   closure->results =
-                                       [closure->results dictionaryBySettingObject:doc
-                                                                            forKey:doc.key];
+                                   closure->results.insert({doc.key, doc});
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:closure->keys.size()];
-                                   for (const DocumentKey &key : closure->keys) {
-                                     [docs addObject:closure->results[static_cast<FSTDocumentKey *>(
-                                                         key)]];
+                                       [NSMutableArray arrayWithCapacity:closure->results.size()];
+                                   for (auto &&entry : closure->results) {
+                                     FSTMaybeDocument *doc = entry.second;
+                                     [docs addObject:doc];
                                    }
                                    completion(docs, nil);
                                  }

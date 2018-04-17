@@ -41,7 +41,6 @@
     _contentType = dictionary[kFIRStorageMetadataContentType];
     _customMetadata = dictionary[kFIRStorageMetadataCustomMetadata];
     _size = [dictionary[kFIRStorageMetadataSize] longLongValue];
-    _downloadURLs = dictionary[kFIRStorageMetadataDownloadURLs];
     _generation = [dictionary[kFIRStorageMetadataGeneration] longLongValue];
     _metageneration = [dictionary[kFIRStorageMetadataMetageneration] longLongValue];
     _timeCreated = [self dateFromRFC3339String:dictionary[kFIRStorageMetadataTimeCreated]];
@@ -50,26 +49,6 @@
     // GCS "name" is our path, our "name" is just the last path component of the path
     _path = dictionary[kFIRStorageMetadataName];
     _name = [_path lastPathComponent];
-    NSString *downloadTokens = dictionary[kFIRStorageMetadataDownloadTokens];
-    if (downloadTokens) {
-      NSArray<NSString *> *downloadStringArray = [downloadTokens componentsSeparatedByString:@","];
-      NSMutableArray<NSURL *> *downloadURLArray =
-          [[NSMutableArray alloc] initWithCapacity:[downloadStringArray count]];
-      [downloadStringArray enumerateObjectsUsingBlock:^(NSString *_Nonnull token, NSUInteger idx,
-                                                        BOOL *_Nonnull stop) {
-        NSURLComponents *components = [[NSURLComponents alloc] init];
-        components.scheme = kFIRStorageScheme;
-        components.host = kFIRStorageHost;
-        NSString *path = [FIRStorageUtils GCSEscapedString:self->_path];
-        NSString *fullPath =
-            [NSString stringWithFormat:kFIRStorageFullPathFormat, self->_bucket, path];
-        components.percentEncodedPath = fullPath;
-        components.query = [NSString stringWithFormat:@"alt=media&token=%@", token];
-
-        [downloadURLArray insertObject:[components URL] atIndex:idx];
-      }];
-      _downloadURLs = downloadURLArray;
-    }
   }
   return self;
 }
@@ -147,29 +126,6 @@
     metadataDictionary[kFIRStorageMetadataCustomMetadata] = _customMetadata;
   }
 
-  if (_downloadURLs) {
-    NSMutableArray *downloadTokens = [[NSMutableArray alloc] init];
-    [_downloadURLs
-        enumerateObjectsUsingBlock:^(NSURL *_Nonnull URL, NSUInteger idx, BOOL *_Nonnull stop) {
-          NSArray *queryItems = [URL.query componentsSeparatedByString:@"&"];
-          [queryItems enumerateObjectsUsingBlock:^(NSString *queryString, NSUInteger idx,
-                                                   BOOL *_Nonnull stop) {
-            NSString *key;
-            NSString *value;
-            NSScanner *scanner = [NSScanner scannerWithString:queryString];
-            [scanner scanUpToString:@"=" intoString:&key];
-            [scanner scanString:@"=" intoString:NULL];
-            [scanner scanUpToString:@"\n" intoString:&value];
-            if ([key isEqual:@"token"]) {
-              [downloadTokens addObject:value];
-              *stop = YES;
-            }
-          }];
-        }];
-    NSString *downloadTokenString = [downloadTokens componentsJoinedByString:@","];
-    metadataDictionary[kFIRStorageMetadataDownloadTokens] = downloadTokenString;
-  }
-
   if (_generation) {
     NSString *generationString = [NSString stringWithFormat:@"%lld", _generation];
     metadataDictionary[kFIRStorageMetadataGeneration] = generationString;
@@ -205,10 +161,6 @@
 
 - (BOOL)isFolder {
   return _type == FIRStorageMetadataTypeFolder;
-}
-
-- (nullable NSURL *)downloadURL {
-  return [_downloadURLs firstObject];
 }
 
 #pragma mark - Private methods

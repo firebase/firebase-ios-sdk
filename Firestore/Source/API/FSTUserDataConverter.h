@@ -22,12 +22,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
-@class FIRSetOptions;
 @class FSTObjectValue;
 @class FSTFieldValue;
 @class FSTMutation;
-@class FSTPrecondition;
 @class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -58,7 +57,8 @@ NS_ASSUME_NONNULL_BEGIN
  * field transforms) using the specified document key and precondition.
  */
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition;
+                                precondition:
+                                    (const firebase::firestore::model::Precondition &)precondition;
 
 @end
 
@@ -83,7 +83,8 @@ NS_ASSUME_NONNULL_BEGIN
  * field transforms) using the specified document key and precondition.
  */
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition;
+                                precondition:
+                                    (const firebase::firestore::model::Precondition &)precondition;
 
 @end
 
@@ -128,7 +129,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 /** Parse document data from a non-merge setData call.*/
 - (FSTParsedSetData *)parsedSetData:(id)input;
 
-/** Parse document data from a setData call with '[FIRSetOptions merge]'. */
+/** Parse document data from a setData call with `merge:YES`. */
 - (FSTParsedSetData *)parsedMergeData:(id)input;
 
 /** Parse update data from an updateData call. */

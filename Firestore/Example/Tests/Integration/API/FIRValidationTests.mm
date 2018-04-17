@@ -282,7 +282,7 @@
   [self expectSet:@{@"foo" : [FIRFieldValue fieldValueForDelete]}
       toFailWithReason:
           @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"SetOptions.merge() (found in field foo)"];
+          @"merge:true (found in field foo)"];
 }
 
 - (void)testUpdatesWithNestedFieldValueDeleteFail {
@@ -304,7 +304,7 @@
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
   FIRWriteBatch *batch = [db1 batch];
   FSTAssertThrows([batch setData:data forDocument:badRef], reason);
-  FSTAssertThrows([batch setData:data forDocument:badRef options:[FIRSetOptions merge]], reason);
+  FSTAssertThrows([batch setData:data forDocument:badRef merge:YES], reason);
   FSTAssertThrows([batch updateData:data forDocument:badRef], reason);
   FSTAssertThrows([batch deleteDocument:badRef], reason);
 }
@@ -322,7 +322,7 @@
   [db1 runTransactionWithBlock:^id(FIRTransaction *txn, NSError **pError) {
     FSTAssertThrows([txn getDocument:badRef error:nil], reason);
     FSTAssertThrows([txn setData:data forDocument:badRef], reason);
-    FSTAssertThrows([txn setData:data forDocument:badRef options:[FIRSetOptions merge]], reason);
+    FSTAssertThrows([txn setData:data forDocument:badRef merge:YES], reason);
     FSTAssertThrows([txn updateData:data forDocument:badRef], reason);
     FSTAssertThrows([txn deleteDocument:badRef], reason);
     return nil;

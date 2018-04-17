@@ -170,4 +170,21 @@
   return clientError;
 }
 
++ (NSError *)errorWithInvalidRequest:(NSData *)request {
+  NSString *requestString = [[NSString alloc] initWithData:request encoding:NSUTF8StringEncoding];
+  NSString *invalidDataString =
+      [NSString stringWithFormat:kFIRStorageInvalidDataFormat, requestString];
+  NSDictionary *dict;
+  if (invalidDataString.length > 0) {
+    dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
+  }
+  return [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+}
+
++ (NSError *)errorWithCustomMessage:(NSString *)errorMessage {
+  return [NSError errorWithDomain:FIRStorageErrorDomain
+                             code:FIRStorageErrorCodeUnknown
+                         userInfo:@{NSLocalizedDescriptionKey : errorMessage}];
+}
+
 @end

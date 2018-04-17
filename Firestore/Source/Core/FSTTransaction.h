@@ -22,7 +22,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
-@class FIRSetOptions;
 @class FSTDatastore;
 @class FSTMaybeDocument;
 @class FSTObjectValue;

@@ -24,7 +24,6 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -39,6 +38,21 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** Converts a public FIRServerTimestampBehavior into its internal equivalent. */
+static FSTServerTimestampBehavior InternalServerTimestampBehavor(
+    FIRServerTimestampBehavior behavior) {
+  switch (behavior) {
+    case FIRServerTimestampBehaviorNone:
+      return FSTServerTimestampBehaviorNone;
+    case FIRServerTimestampBehaviorEstimate:
+      return FSTServerTimestampBehaviorEstimate;
+    case FIRServerTimestampBehaviorPrevious:
+      return FSTServerTimestampBehaviorPrevious;
+    default:
+      FIREBASE_ASSERT_MESSAGE(false, "Unexpected server timestamp option: %ld", (long)behavior);
+  }
+}
 
 @interface FIRDocumentSnapshot ()
 
@@ -144,24 +158,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable NSDictionary<NSString *, id> *)data {
-  return [self dataWithOptions:[FIRSnapshotOptions defaultOptions]];
+  return [self dataWithServerTimestampBehavior:FIRServerTimestampBehaviorNone];
 }
 
-- (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
+- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
   return self.internalDocument == nil
              ? nil
-             : [self convertedObject:[self.internalDocument data]
-                             options:[FSTFieldValueOptions
-                                            optionsForSnapshotOptions:options
-                                         timestampsInSnapshotsEnabled:
-                                             self.firestore.settings.timestampsInSnapshotsEnabled]];
+             : [self convertedObject:[self.internalDocument data] options:options];
 }
 
 - (nullable id)valueForField:(id)field {
-  return [self valueForField:field options:[FIRSnapshotOptions defaultOptions]];
+  return [self valueForField:field serverTimestampBehavior:FIRServerTimestampBehaviorNone];
 }
 
-- (nullable id)valueForField:(id)field options:(FIRSnapshotOptions *)options {
+- (nullable id)valueForField:(id)field
+     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
   FIRFieldPath *fieldPath;
 
   if ([field isKindOfClass:[NSString class]]) {
@@ -173,13 +186,17 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTFieldValue *fieldValue = [[self.internalDocument data] valueForPath:fieldPath.internalValue];
-  return fieldValue == nil
-             ? nil
-             : [self convertedValue:fieldValue
-                            options:[FSTFieldValueOptions
-                                           optionsForSnapshotOptions:options
-                                        timestampsInSnapshotsEnabled:
-                                            self.firestore.settings.timestampsInSnapshotsEnabled]];
+  FSTFieldValueOptions *options = [self optionsForServerTimestampBehavior:serverTimestampBehavior];
+  return fieldValue == nil ? nil : [self convertedValue:fieldValue options:options];
+}
+
+- (FSTFieldValueOptions *)optionsForServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+  FSTServerTimestampBehavior internalBehavior =
+      InternalServerTimestampBehavor(serverTimestampBehavior);
+  return [[FSTFieldValueOptions alloc]
+      initWithServerTimestampBehavior:internalBehavior
+         timestampsInSnapshotsEnabled:self.firestore.settings.timestampsInSnapshotsEnabled];
 }
 
 - (nullable id)objectForKeyedSubscript:(id)key {
@@ -262,8 +279,10 @@ NS_ASSUME_NONNULL_BEGIN
   return data;
 }
 
-- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options {
-  NSDictionary<NSString *, id> *data = [super dataWithOptions:options];
+- (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior {
+  NSDictionary<NSString *, id> *data =
+      [super dataWithServerTimestampBehavior:serverTimestampBehavior];
   FSTAssert(data, @"Document in a QueryDocumentSnapshot should exist");
   return data;
 }
