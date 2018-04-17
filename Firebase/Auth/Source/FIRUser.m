@@ -829,13 +829,21 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+/** @fn parseIDToken:error:
+    @brief Parses the provided IDToken and returns an instance of FIRAuthTokenResult containing
+        claims obtained from the IDToken.
+
+    @param token The raw text of the Firebase IDToken encoded in base64.
+    @param error An out parameter which would contain any error that occurs during parsing.
+    @return An instance of FIRAuthTokenResult containing claims obtained from the IDToken.
+ */
 - (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
   error = nil;
   NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
   // The token payload is always the second index of the array.
   NSMutableString *tokenPayload = [[NSMutableString alloc] initWithString:tokenStringArray[1]];
 
-  // Pad the token payload with "=" signs if the payload's length is not a multple of 4.
+  // Pad the token payload with "=" signs if the payload's length is not a multiple of 4.
   while ((tokenPayload.length % 4) != 0) {
     [tokenPayload appendFormat:@"="];
   }
