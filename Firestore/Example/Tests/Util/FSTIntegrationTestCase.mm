@@ -276,6 +276,13 @@ NS_ASSUME_NONNULL_BEGIN
   [self awaitExpectations];
 }
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
+  [ref setData:data
+           merge:YES
+      completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
+  [self awaitExpectations];
+}
+
 - (void)disableNetwork {
   [self.db.client
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
