@@ -38,7 +38,6 @@ device, and it is completely free.
   s.framework = 'AddressBook'
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 5.0'
-  s.ios.dependency 'FirebaseAnalytics', '~> 5.0'
   s.dependency 'FirebaseInstanceID', '~> 3.0'
   s.dependency 'GoogleToolboxForMac/Logger', '~> 2.1'
   s.dependency 'Protobuf', '~> 3.1'
