@@ -43,7 +43,7 @@
   NSOperatingSystemVersion osTen = {.majorVersion = 10, .minorVersion = 0, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTen);
 
-  XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10"]);
+  XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.0"]);
 }
 
 - (void)testSystemVersionInfoMajorMinor {
