@@ -91,13 +91,9 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
-      before_install:
-        - ./scripts/before_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+    # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
+    # linkage (it works if enabled together with ASan, but it's supposed to be
+    # usable on its own, too).
 
     # Firestore CMake
 
@@ -138,8 +134,6 @@ jobs:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
     - env:
       - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
-    - env:
-      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=ubsan
 
   # Don't wait for jobs that are allowed to fail before reporting the results.
   fast_finish: true
