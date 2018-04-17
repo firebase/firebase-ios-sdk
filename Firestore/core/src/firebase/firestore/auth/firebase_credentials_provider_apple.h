@@ -78,7 +78,7 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
    */
   struct Contents {
     Contents(FIRApp* app, User&& user)
-        : app(app), current_user(std::move(user)), mutex() {
+        : app(app), current_user(std::move(user)) {
     }
 
     const FIRApp* app;

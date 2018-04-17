@@ -17,6 +17,7 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import <FirebaseFirestore/FIRFieldPath.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
 #import <FirebaseFirestore/FIRTimestamp.h>
@@ -50,6 +51,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -58,6 +60,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -365,7 +368,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesTransformMutation {
-  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @[ @"a", @"bar.baz" ]);
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
   proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
@@ -377,12 +383,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSetMutationWithPrecondition {
-  FSTSetMutation *mutation = [[FSTSetMutation alloc]
-       initWithKey:FSTTestDocKey(@"foo/bar")
-             value:FSTTestObjectValue(
-                       @{ @"a" : @"b",
-                          @"num" : @1 })
-      precondition:[FSTPrecondition preconditionWithUpdateTime:FSTTestVersion(4)]];
+  FSTSetMutation *mutation =
+      [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
+                                    value:FSTTestObjectValue(
+                                              @{ @"a" : @"b",
+                                                 @"num" : @1 })
+                             precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.currentDocument.updateTime =

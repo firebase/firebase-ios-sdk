@@ -411,7 +411,7 @@ TEST(FieldValue, Move) {
   EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
                                        &database_id),
             clone);
-  clone = null_value;
+  clone = null_value;  // NOLINT: use after move intended
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
   FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});

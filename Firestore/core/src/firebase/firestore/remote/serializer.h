@@ -72,7 +72,7 @@ class Serializer {
   // TODO(rsgowman): If we never support any output except to a vector, it may
   // make sense to have Serializer own the vector and provide an accessor rather
   // than asking the user to create it first.
-  static util::Status EncodeFieldValue(
+  util::Status EncodeFieldValue(
       const firebase::firestore::model::FieldValue& field_value,
       std::vector<uint8_t>* out_bytes);
 
@@ -84,8 +84,7 @@ class Serializer {
    * @return The model equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  static firebase::firestore::model::FieldValue DecodeFieldValue(
-      const uint8_t* bytes, size_t length);
+  model::FieldValue DecodeFieldValue(const uint8_t* bytes, size_t length);
 
   /**
    * @brief Converts from bytes to the model FieldValue format.
@@ -95,14 +94,13 @@ class Serializer {
    * @return The model equivalent of the bytes.
    */
   // TODO(rsgowman): error handling.
-  static firebase::firestore::model::FieldValue DecodeFieldValue(
-      const std::vector<uint8_t>& bytes) {
+  model::FieldValue DecodeFieldValue(const std::vector<uint8_t>& bytes) {
     return DecodeFieldValue(bytes.data(), bytes.size());
   }
 
  private:
   // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
-  // const firebase::firestore::model::DatabaseId& database_id_;
+  // model::DatabaseId* database_id_;
 };
 
 }  // namespace remote

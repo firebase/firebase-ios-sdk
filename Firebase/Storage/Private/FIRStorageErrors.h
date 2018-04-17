@@ -44,10 +44,26 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates a Firebase Storage error from a specific GCS error and FIRStorageReference.
  * @param error Server error to wrap and return as a Firebase Storage error.
  * @param reference FIRStorageReference which provides context about the request being made.
- * @return Returns an Firebase Storage error, or nil if no error is provided.
+ * @return Returns a Firebase Storage error, or nil if no error is provided.
  */
 + (nullable NSError *)errorWithServerError:(nullable NSError *)error
                                  reference:(nullable FIRStorageReference *)reference;
+
+/**
+ * Creates a Firebase Storage error from an invalid request.
+ *
+ * @param request The NSData representation of the invalid user request.
+ * @return Returns the corresponding Firebase Storage error.
+ */
++ (NSError *)errorWithInvalidRequest:(NSData *)request;
+
+/**
+ * Creates a Firebase Storage error with a custom error message.
+ *
+ * @param errorMessage A custom error message.
+ * @return Returns the corresponding Firebase Storage error.
+ */
++ (NSError *)errorWithCustomMessage:(NSString *)errorMessage;
 
 @end
 

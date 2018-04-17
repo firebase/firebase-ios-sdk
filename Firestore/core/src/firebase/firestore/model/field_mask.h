@@ -44,9 +44,7 @@ class FieldMask {
 
   FieldMask(std::initializer_list<FieldPath> list) : fields_{list} {
   }
-  explicit FieldMask(const std::vector<FieldPath>& fields) : fields_{fields} {
-  }
-  explicit FieldMask(std::vector<FieldPath>&& fields)
+  explicit FieldMask(std::vector<FieldPath> fields)
       : fields_{std::move(fields)} {
   }
 

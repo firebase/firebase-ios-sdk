@@ -33,7 +33,7 @@ namespace immutable {
  */
 template <typename K, typename V, typename C = std::less<K>>
 struct KeyComparator {
-  typedef std::pair<K, V> pair_type;
+  using pair_type = std::pair<K, V>;
 
   explicit KeyComparator(const C& comparator = C())
       : key_comparator_(comparator) {

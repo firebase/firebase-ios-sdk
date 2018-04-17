@@ -48,7 +48,7 @@ Timestamp Timestamp::Now() {
 }
 
 Timestamp Timestamp::FromTimeT(const time_t seconds_since_unix_epoch) {
-  return Timestamp(seconds_since_unix_epoch, 0);
+  return {seconds_since_unix_epoch, 0};
 }
 
 #if !defined(_STLPORT_VERSION)

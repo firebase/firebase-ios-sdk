@@ -32,6 +32,8 @@ cc_library(
     maybe_document.h
     no_document.cc
     no_document.h
+    precondition.cc
+    precondition.h
     resource_path.cc
     resource_path.h
     snapshot_version.cc

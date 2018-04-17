@@ -20,14 +20,13 @@
 #include <utility>
 #include <vector>
 
+#import "FIRGeoPoint.h"
 #import "FIRTimestamp.h"
 
-#import "FIRGeoPoint.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -38,16 +37,19 @@
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
 
@@ -91,7 +93,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 }
 
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition {
+                                precondition:(const Precondition &)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   if (self.isPatch) {
     [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
@@ -132,7 +134,7 @@ static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
 }
 
 - (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(FSTPrecondition *)precondition {
+                                precondition:(const Precondition &)precondition {
   NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
   [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
                                                    fieldMask:self.fieldMask
@@ -163,7 +165,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   FSTUserDataSourceSet,
   FSTUserDataSourceMergeSet,
   FSTUserDataSourceUpdate,
-  FSTUserDataSourceQueryValue,  // from a where clause or cursor bound.
+  /**
+   * Indicates the source is a where clause, cursor bound, arrayUnion() element, etc. In particular,
+   * this will result in [FSTParseContext isWrite] returning NO.
+   */
+  FSTUserDataSourceArgument,
 };
 
 #pragma mark - FSTParseContext
@@ -316,7 +322,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     case FSTUserDataSourceMergeSet:  // Falls through.
     case FSTUserDataSourceUpdate:
       return YES;
-    case FSTUserDataSourceQueryValue:
+    case FSTUserDataSourceArgument:
       return NO;
     default:
       FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
@@ -487,7 +493,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
   FSTParseContext *context =
-      [FSTParseContext contextWithSource:FSTUserDataSourceQueryValue
+      [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
   FSTAssert(parsed, @"Parsed data should not be nil.");
@@ -507,64 +513,128 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  */
 - (nullable FSTFieldValue *)parseData:(id)input context:(FSTParseContext *)context {
   input = self.preConverter(input);
-  if ([input isKindOfClass:[NSArray class]]) {
-    // TODO(b/34871131): Include the path containing the array in the error message.
-    if (context.isArrayElement) {
-      FSTThrowInvalidArgument(@"Nested arrays are not supported");
-    }
-    NSArray *array = input;
-    NSMutableArray<FSTFieldValue *> *result = [NSMutableArray arrayWithCapacity:array.count];
-    [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *stop) {
-      FSTFieldValue *_Nullable parsedEntry =
-          [self parseData:entry context:[context contextForArrayIndex:idx]];
-      if (!parsedEntry) {
-        // Just include nulls in the array for fields being replaced with a sentinel.
-        parsedEntry = [FSTNullValue nullValue];
-      }
-      [result addObject:parsedEntry];
-    }];
+  if ([input isKindOfClass:[NSDictionary class]]) {
+    return [self parseDictionary:(NSDictionary *)input context:context];
+  } else {
     // If context.path is nil we are already inside an array and we don't support field mask paths
     // more granular than the top-level array.
     if (context.path) {
       [context appendToFieldMaskWithFieldPath:*context.path];
     }
-    return [[FSTArrayValue alloc] initWithValueNoCopy:result];
 
-  } else if ([input isKindOfClass:[NSDictionary class]]) {
-    NSDictionary *dict = input;
-    NSMutableDictionary<NSString *, FSTFieldValue *> *result =
-        [NSMutableDictionary dictionaryWithCapacity:dict.count];
-    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-      FSTFieldValue *_Nullable parsedValue =
-          [self parseData:value context:[context contextForField:key]];
-      if (parsedValue) {
-        result[key] = parsedValue;
+    if ([input isKindOfClass:[NSArray class]]) {
+      // TODO(b/34871131): Include the path containing the array in the error message.
+      if (context.isArrayElement) {
+        FSTThrowInvalidArgument(@"Nested arrays are not supported");
       }
-    }];
-    return [[FSTObjectValue alloc] initWithDictionary:result];
+      return [self parseArray:(NSArray *)input context:context];
+    } else if ([input isKindOfClass:[FIRFieldValue class]]) {
+      // parseSentinelFieldValue may add an FSTFieldTransform, but we return nil since nothing
+      // should be included in the actual parsed data.
+      [self parseSentinelFieldValue:(FIRFieldValue *)input context:context];
+      return nil;
+    } else {
+      return [self parseScalarValue:input context:context];
+    }
+  }
+}
+
+- (FSTFieldValue *)parseDictionary:(NSDictionary *)dict context:(FSTParseContext *)context {
+  NSMutableDictionary<NSString *, FSTFieldValue *> *result =
+      [NSMutableDictionary dictionaryWithCapacity:dict.count];
+  [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+    FSTFieldValue *_Nullable parsedValue =
+        [self parseData:value context:[context contextForField:key]];
+    if (parsedValue) {
+      result[key] = parsedValue;
+    }
+  }];
+  return [[FSTObjectValue alloc] initWithDictionary:result];
+}
+
+- (FSTFieldValue *)parseArray:(NSArray *)array context:(FSTParseContext *)context {
+  NSMutableArray<FSTFieldValue *> *result = [NSMutableArray arrayWithCapacity:array.count];
+  [array enumerateObjectsUsingBlock:^(id entry, NSUInteger idx, BOOL *stop) {
+    FSTFieldValue *_Nullable parsedEntry =
+        [self parseData:entry context:[context contextForArrayIndex:idx]];
+    if (!parsedEntry) {
+      // Just include nulls in the array for fields being replaced with a sentinel.
+      parsedEntry = [FSTNullValue nullValue];
+    }
+    [result addObject:parsedEntry];
+  }];
+  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+}
+
+/**
+ * "Parses" the provided FIRFieldValue, adding any necessary transforms to
+ * context.fieldTransforms.
+ */
+- (void)parseSentinelFieldValue:(FIRFieldValue *)fieldValue context:(FSTParseContext *)context {
+  // Sentinels are only supported with writes, and not within arrays.
+  if (![context isWrite]) {
+    FSTThrowInvalidArgument(@"%@ can only be used with updateData() and setData()%@",
+                            fieldValue.methodName, [context fieldDescription]);
+  }
+  if (!context.path) {
+    FSTThrowInvalidArgument(@"%@ is not currently supported inside arrays", fieldValue.methodName);
+  }
+
+  if ([fieldValue isKindOfClass:[FSTDeleteFieldValue class]]) {
+    if (context.dataSource == FSTUserDataSourceMergeSet) {
+      // No transform to add for a delete, so we do nothing.
+    } else if (context.dataSource == FSTUserDataSourceUpdate) {
+      FSTAssert(context.path->size() > 0,
+                @"FieldValue.delete() at the top level should have already been handled.");
+      FSTThrowInvalidArgument(
+          @"FieldValue.delete() can only appear at the top level of your "
+           "update data%@",
+          [context fieldDescription]);
+    } else {
+      // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
+      FSTThrowInvalidArgument(
+          @"FieldValue.delete() can only be used with updateData() and setData() with "
+          @"merge:true%@",
+          [context fieldDescription]);
+    }
+
+  } else if ([fieldValue isKindOfClass:[FSTServerTimestampFieldValue class]]) {
+    [context appendToFieldTransformsWithFieldPath:*context.path
+                               transformOperation:absl::make_unique<ServerTimestampTransform>(
+                                                      ServerTimestampTransform::Get())];
+
+  } else if ([fieldValue isKindOfClass:[FSTArrayUnionFieldValue class]]) {
+    std::vector<FSTFieldValue *> parsedElements =
+        [self parseArrayTransformElements:((FSTArrayUnionFieldValue *)fieldValue).elements];
+    auto array_union =
+        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion, parsedElements);
+    [context appendToFieldTransformsWithFieldPath:*context.path
+                               transformOperation:std::move(array_union)];
+
+  } else if ([fieldValue isKindOfClass:[FSTArrayRemoveFieldValue class]]) {
+    std::vector<FSTFieldValue *> parsedElements =
+        [self parseArrayTransformElements:((FSTArrayRemoveFieldValue *)fieldValue).elements];
+    auto array_remove =
+        absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove, parsedElements);
+    [context appendToFieldTransformsWithFieldPath:*context.path
+                               transformOperation:std::move(array_remove)];
 
   } else {
-    // If context.path is null, we are inside an array and we should have already added the root of
-    // the array to the field mask.
-    if (context.path) {
-      [context appendToFieldMaskWithFieldPath:*context.path];
-    }
-    return [self parseScalarValue:input context:context];
+    FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([fieldValue class]));
   }
 }
 
 /**
- * Helper to parse a scalar value (i.e. not an NSDictionary or NSArray).
+ * Helper to parse a scalar value (i.e. not an NSDictionary, NSArray, or FIRFieldValue).
  *
  * Note that it handles all NSNumber values that are encodable as int64_t or doubles
  * (depending on the underlying type of the NSNumber). Unsigned integer values are handled though
  * any value outside what is representable by int64_t (a signed 64-bit value) will throw an
  * exception.
  *
- * @return The parsed value, or nil if the value was a FieldValue sentinel that should not be
- *   included in the resulting parsed data.
+ * @return The parsed value.
  */
-- (nullable FSTFieldValue *)parseScalarValue:(nullable id)input context:(FSTParseContext *)context {
+- (FSTFieldValue *)parseScalarValue:(nullable id)input context:(FSTParseContext *)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
     return [FSTNullValue nullValue];
 
@@ -671,14 +741,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
         FSTAssert(context.path->size() > 0,
                   @"FieldValue.delete() at the top level should have already been handled.");
         FSTThrowInvalidArgument(
-            @"FieldValue.delete() can only appear at the top level of your "
-             "update data%@",
+            @"FieldValue.delete() can only appear at the top level of your update data%@",
             [context fieldDescription]);
       } else {
         // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only be used with updateData() and setData() with "
-            @"SetOptions.merge().");
+            @"merge: true.");
       }
     } else if ([input isKindOfClass:[FSTServerTimestampFieldValue class]]) {
       if (![context isWrite]) {
@@ -704,6 +773,22 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     FSTThrowInvalidArgument(@"Unsupported type: %@%@", NSStringFromClass([input class]),
                             [context fieldDescription]);
   }
+}
+
+- (std::vector<FSTFieldValue *>)parseArrayTransformElements:(NSArray<id> *)elements {
+  std::vector<FSTFieldValue *> results;
+  for (id element in elements) {
+    // Although array transforms are used with writes, the actual elements being unioned or removed
+    // are not considered writes since they cannot contain any FieldValue sentinels, etc.
+    FSTParseContext *context =
+        [FSTParseContext contextWithSource:FSTUserDataSourceArgument
+                                      path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
+    FSTFieldValue *parsedElement = [self parseData:element context:context];
+    FSTAssert(parsedElement && context.fieldTransforms->size() == 0,
+              @"Failed to properly parse array transform element: %@", element);
+    results.push_back(parsedElement);
+  }
+  return results;
 }
 
 @end
