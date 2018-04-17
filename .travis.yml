@@ -45,22 +45,6 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/before_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
-      before_install:
-        - ./scripts/before_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-
-    - stage: test
-      env:
         - PROJECT=Firebase PLATFORM=macOS
       before_install:
         - bundle install
@@ -78,6 +62,22 @@ jobs:
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/before_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
 branches:
   only:
