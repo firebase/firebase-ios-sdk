@@ -17,6 +17,8 @@
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import <XCTest/XCTest.h>
+#include <algorithm>
+#include <string>
 
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 
@@ -261,6 +263,86 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 
   [_queue runDelayedCallbacksUntil:timerID3];
   XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
+}
+
+@end
+
+// For user queue, the FSTDispatchQueue enforcement of serial execution does not apply; the tests
+// explicitly check that concurrent execution works correctly.
+
+@interface FSTUserQueueTests : XCTestCase
+@end
+
+@implementation FSTUserQueueTests {
+  FSTUserQueue *_queue;
+  std::string _steps;
+}
+
+- (void)setUp {
+  [super setUp];
+}
+
+- (void)testUserQueueSupportsNestedDispatchForSerialQueues {
+  _queue =
+      [FSTUserQueue queueWith:dispatch_queue_create("FSTUserQueueTests", DISPATCH_QUEUE_SERIAL)];
+  __block XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block NSException *caught = nil;
+
+  [_queue dispatchAsync:^{
+    @try {
+      [self->_queue dispatchAsync:^{
+        self->_steps += '2';
+      }];
+      [self->_queue dispatchAsync:^{
+        self->_steps += '3';
+        [expectation fulfill];
+      }];
+      self->_steps += '1';
+    } @catch (NSException *ex) {
+      caught = ex;
+      [expectation fulfill];
+    }
+  }];
+
+  [self awaitExpectations];
+  XCTAssertNil(caught);
+  XCTAssertTrue(_steps == "123");
+}
+
+- (void)testUserQueueSupportsNestedDispatchForConcurrentQueues {
+  _queue = [FSTUserQueue queueWith:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)];
+  __block NSException *caught = nil;
+  dispatch_semaphore_t doneSemaphore = dispatch_semaphore_create(0);
+
+  [_queue dispatchAsync:^{
+    @try {
+      [self->_queue dispatchAsync:^{
+        self->_steps += '2';
+        dispatch_semaphore_signal(doneSemaphore);
+      }];
+      [self->_queue dispatchAsync:^{
+        self->_steps += '3';
+        dispatch_semaphore_signal(doneSemaphore);
+      }];
+      self->_steps += '1';
+      dispatch_semaphore_signal(doneSemaphore);
+
+    } @catch (NSException *ex) {
+      caught = ex;
+      for (int i = 0; i != 3; ++i) {
+        dispatch_semaphore_signal(doneSemaphore);
+      }
+    }
+  }];
+
+  for (int i = 0; i != 3; ++i) {
+    dispatch_semaphore_wait(doneSemaphore, DISPATCH_TIME_FOREVER);
+  }
+
+  XCTAssertNil(caught);
+  XCTAssertEqual(_steps.size(), 3);
+  // On a concurrent queue, steps may have been appended in arbitrary order.
+  XCTAssertTrue(std::is_permutation(_steps.begin(), _steps.end(), "123"));
 }
 
 @end

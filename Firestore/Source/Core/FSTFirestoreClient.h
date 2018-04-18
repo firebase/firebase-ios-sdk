@@ -37,6 +37,7 @@
 @class FSTQuery;
 @class FSTQueryListener;
 @class FSTTransaction;
+@class FSTUserQueue;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
                                            credentialsProvider  // no passing ownership
-                     userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                     userDispatchQueue:(FSTUserQueue *)userDispatchQueue
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
@@ -111,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-@property(nonatomic, strong, readonly) FSTDispatchQueue *userDispatchQueue;
+@property(nonatomic, strong, readonly) FSTUserQueue *userDispatchQueue;
 
 @end
 

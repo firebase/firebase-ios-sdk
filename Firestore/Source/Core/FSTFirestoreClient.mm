@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                   userDispatchQueue:(FSTUserQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
@@ -96,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
-                     userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                     userDispatchQueue:(FSTUserQueue *)userDispatchQueue
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                            usePersistence:usePersistence
@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                   userDispatchQueue:(FSTUserQueue *)userDispatchQueue
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;

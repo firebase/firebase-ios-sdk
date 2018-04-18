@@ -20,15 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDispatchQueue;
 @class FSTQueryListener;
+@class FSTUserQueue;
 
 /**
  * A wrapper class around FSTQueryListener that dispatches events asynchronously.
  */
 @interface FSTAsyncQueryListener : NSObject
 
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
+- (instancetype)initWithDispatchQueue:(FSTUserQueue *)dispatchQueue
                       snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler
     NS_DESIGNATED_INITIALIZER;
 

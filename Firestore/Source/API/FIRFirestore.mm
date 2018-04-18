@@ -272,7 +272,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
                                        util::MakeStringView(_settings.host), _settings.sslEnabled);
 
-      FSTDispatchQueue *userDispatchQueue = [FSTDispatchQueue queueWith:_settings.dispatchQueue];
+      FSTUserQueue *userDispatchQueue = [FSTUserQueue queueWith:_settings.dispatchQueue];
 
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
                                             usePersistence:_settings.persistenceEnabled

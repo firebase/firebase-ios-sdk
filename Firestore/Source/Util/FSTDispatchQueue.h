@@ -144,4 +144,29 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 
 @end
 
+/**
+ * Wrapper for the dispatch queue on which user callbacks are invoked. Unlike FSTDispatchQueue, this
+ * queue might be concurrent as well as serial.
+ */
+@interface FSTUserQueue : NSObject
+
+/** Creates and returns an FSTUserQueue wrapping the specified dispatch_queue_t. */
++ (instancetype)queueWith:(dispatch_queue_t)dispatchQueue;
+
+- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init __attribute__((unavailable("Use static constructor method.")));
+
+/**
+ * A thin wrapper over dispatch_async.
+
+ * @param block The block to run.
+ */
+- (void)dispatchAsync:(void (^)(void))block;
+
+/** The underlying wrapped dispatch_queue_t */
+@property(nonatomic, strong, readonly) dispatch_queue_t queue;
+
+@end
+
 NS_ASSUME_NONNULL_END
