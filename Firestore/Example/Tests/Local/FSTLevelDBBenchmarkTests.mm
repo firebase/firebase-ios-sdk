@@ -1,14 +1,29 @@
-#import <Firestore/Source/Model/FSTDocumentKey.h>
+/*
+ * Copyright 2017 Google
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#include "benchmark/benchmark.h"
-#include "gtest/gtest.h"
-
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#include "benchmark/benchmark.h"
+
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Model/FSTDocumentKey.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -70,10 +85,10 @@ class LevelDBFixture : public benchmark::Fixture {
 // In each test, either overwrite index entries and documents, or just documents
 
 BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
-  bool writeIndexes = state.range(0);
-  int documentSize = state.range(1);
-  int docsToUpdate = state.range(2);
-  std::string documentUpdate = UpdatedDocumentData(documentSize);
+  bool writeIndexes = (bool)state.range(0);
+  int64_t documentSize = state.range(1);
+  int64_t docsToUpdate = state.range(2);
+  std::string documentUpdate = UpdatedDocumentData((int)documentSize);
   for (auto _ : state) {
     LevelDbTransaction txn(_db.ptr.get(), "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
@@ -115,8 +130,9 @@ BENCHMARK_REGISTER_F(LevelDBFixture, RemoteEvent)
 - (void)testRunBenchmarks {
   // Enable to run benchmarks.
   if (false) {
-    char *argv[3] = {"Benchmarks", "--benchmark_out=/tmp/leveldb_benchmark",
-                     "--benchmark_out_format=csv"};
+    char *argv[3] = {const_cast<char *>("Benchmarks"),
+                     const_cast<char *>("--benchmark_out=/tmp/leveldb_benchmark"),
+                     const_cast<char *>("--benchmark_out_format=csv")};
     int argc = 3;
     benchmark::Initialize(&argc, argv);
     benchmark::RunSpecifiedBenchmarks();
