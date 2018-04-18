@@ -308,7 +308,7 @@ class TransformMutation : public Mutation {
    * value representing the result of applying a transform) for use when
    * applying a TransformMutation locally.
    *
-   * @param base_document The document prior to applying this mutation batch.
+   * @param base_doc The document prior to applying this mutation batch.
    * @param local_write_time The local time of the transform mutation (used to
    * generate ServerTimestampValues).
    * @return The transform results array.
