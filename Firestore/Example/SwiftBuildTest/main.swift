@@ -83,6 +83,9 @@ func makeRefs(database db: Firestore) -> (CollectionReference, DocumentReference
 func makeQuery(collection collectionRef: CollectionReference) -> Query {
   let query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
     .whereField("age", isGreaterThanOrEqualTo: 24)
+    // TODO(array-features): Uncomment when API is publicly exposed.
+    // .whereField("tags", arrayContains:"active")
+    // .whereField(FieldPath(["tags"]), arrayContains:"active")
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)

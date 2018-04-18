@@ -20,6 +20,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 // We have tests for passing nil when nil is not supposed to be allowed. So suppress the warnings.
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -417,13 +418,14 @@
                   @"Invalid Query. Query limit (-1) is invalid. Limit must be positive.");
 }
 
-- (void)testQueryInequalityOnNullOrNaNFails {
+- (void)testNonEqualityQueriesOnNullOrNaNFail {
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:nil],
                   @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
                   @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
-
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
+                  @"Invalid Query. You can only perform equality comparisons on NaN.");
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)],
                   @"Invalid Query. You can only perform equality comparisons on NaN.");
 }
 
@@ -496,6 +498,12 @@
       @"Invalid query. When querying by document ID you must provide a valid string or "
        "DocumentReference, but it was of type: __NSCFNumber";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
+
+  reason =
+      @"Invalid query. You can't do arrayContains queries on document ID since document IDs are "
+      @"not arrays.";
+  FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
+                  reason);
 }
 
 - (void)testQueryInequalityFieldMustMatchFirstOrderByField {
@@ -524,6 +532,8 @@
 
   XCTAssertNoThrow([base queryWhereField:@"y" isEqualTo:@"cat"],
                    @"Inequality and equality on different fields works");
+  XCTAssertNoThrow([base queryWhereField:@"y" arrayContains:@"cat"],
+                   @"Inequality and array_contains on different fields works");
 
   XCTAssertNoThrow([base queryOrderedByField:@"x"], @"inequality same as order by works");
   XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"x" isGreaterThan:@32],
@@ -533,6 +543,11 @@
   XCTAssertNoThrow([[[coll queryOrderedByField:@"x"] queryOrderedByField:@"y"] queryWhereField:@"x"
                                                                                  isGreaterThan:@32],
                    @"inequality same as first order by works.");
+
+  XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"y" isEqualTo:@"cat"],
+                   @"equality different than orderBy works.");
+  XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"y" arrayContains:@"cat"],
+                   @"array_contains different than orderBy works.");
 }
 
 #pragma mark - GeoPoint Validation

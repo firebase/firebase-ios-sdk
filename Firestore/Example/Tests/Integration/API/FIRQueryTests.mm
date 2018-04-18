@@ -20,8 +20,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Core/FSTFirestoreClient.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -292,6 +291,28 @@
                           @{@"key1b" : @"value1b"},
                           @{@"key2b" : @"value2b"},
                         ]));
+}
+
+// TODO(array-features): Enable once backend support lands.
+- (void)xtestArrayContainsQueries {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"array" : @[ @42 ]},
+    @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
+    @"c" : @{@"array" : @[ @41.999, @"42",
+                           @{ @"a" : @[ @42 ] } ]},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+
+  // Search for 42
+  FIRQuerySnapshot *snapshot =
+      [self readDocumentSetForRef:[collection queryWhereField:@"array" arrayContains:@42]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          @{ @"array" : @[ @42 ] },
+                          @{ @"array" : @[ @"a", @42, @"c" ] }
+                        ]));
+
+  // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much
+  // of anything else interesting to test.
 }
 
 @end
