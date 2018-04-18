@@ -114,7 +114,7 @@
   // update the docs (though don't wait for a server response. We're offline; so
   // that ain't happening!). This allows us to further distinguished cached vs
   // server responses below.
-  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} options:FIRSetOptions.merge];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} merge:YES];
   [[col documentWithPath:@"doc3"] setData:@{@"key3b" : @"value3b"}];
   [[col documentWithPath:@"doc4"] setData:@{@"key4" : @"value4"}];
 
@@ -224,7 +224,7 @@
   // update the docs (though don't wait for a server response. We're offline; so
   // that ain't happening!). This allows us to further distinguished cached vs
   // server responses below.
-  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} options:FIRSetOptions.merge];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} merge:YES];
   [[col documentWithPath:@"doc3"] setData:@{@"key3b" : @"value3b"}];
   [[col documentWithPath:@"doc4"] setData:@{@"key4" : @"value4"}];
 
@@ -409,7 +409,7 @@
   // update the docs (though don't wait for a server response. We're offline; so
   // that ain't happening!). This allows us to further distinguished cached vs
   // server responses below.
-  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} options:FIRSetOptions.merge];
+  [[col documentWithPath:@"doc2"] setData:@{@"key2b" : @"value2b"} merge:YES];
   [[col documentWithPath:@"doc3"] setData:@{@"key3b" : @"value3b"}];
   [[col documentWithPath:@"doc4"] setData:@{@"key4" : @"value4"}];
 
