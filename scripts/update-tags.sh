@@ -1,0 +1,41 @@
+# Script to update the tags for the Firebase 5.0.0 release process
+# Before running, make sure everything is pushed.
+
+# This script should be a spec for a more robust python script that does
+# the following.
+# 1. Verify all files are committed
+# 2. Verify running on a release branch
+# 3. Read the versions from the podspec (or incorporate into even more
+#    automated version management)
+
+# Delete any existing tags at origin
+
+git push --delete origin 'Core-5.0.0'
+git push --delete origin 'Auth-5.0.0'
+git push --delete origin 'Database-5.0.0'
+git push --delete origin 'Firestore-0.12.0'
+git push --delete origin 'Functions-2.0.0'
+git push --delete origin 'Messaging-3.0.0'
+git push --delete origin 'Storage-3.0.0'
+
+# Delete local tags
+
+git tag --delete 'Core-5.0.0'
+git tag --delete 'Auth-5.0.0'
+git tag --delete 'Database-5.0.0'
+git tag --delete 'Firestore-0.12.0'
+git tag --delete 'Functions-2.0.0'
+git tag --delete 'Messaging-3.0.0'
+git tag --delete 'Storage-3.0.0'
+
+# Add and push the tags
+
+git tag 'Core-5.0.0'
+git tag 'Auth-5.0.0'
+git tag 'Database-5.0.0'
+git tag 'Firestore-0.12.0'
+git tag 'Functions-2.0.0'
+git tag 'Messaging-3.0.0'
+git tag 'Storage-3.0.0'
+
+git push origin --tags
