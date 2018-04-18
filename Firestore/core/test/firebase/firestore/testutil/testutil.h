@@ -17,13 +17,18 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
+#include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdint>
+#include <utility>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/mutations.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -56,14 +61,72 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
+// Returns a valid arbitray constant of timestamp.
+inline const Timestamp& TestTimestamp() {
+  static const Timestamp timestamp = Timestamp::Now();
+  return timestamp;
+}
+
 inline model::Document Doc(absl::string_view key, int64_t version) {
   return model::Document{model::FieldValue::ObjectValueFromMap({}), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
 }
 
+inline model::Document Doc(absl::string_view key,
+                           int64_t version,
+                           model::ObjectValue::Map data) {
+  return model::Document{model::FieldValue::ObjectValueFromMap(std::move(data)),
+                         Key(key), Version(version),
+                         /* has_local_mutations= */ false};
+}
+
+inline model::MaybeDocumentPointer DocPointer(absl::string_view key,
+                                              int64_t version,
+                                              model::ObjectValue::Map data) {
+  return std::make_shared<model::Document>(
+      model::FieldValue::ObjectValueFromMap(std::move(data)), Key(key),
+      Version(version),
+      /* has_local_mutations= */ false);
+}
+
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version)};
+}
+
+inline model::SetMutation TestSetMutation(absl::string_view path,
+                                          model::ObjectValue::Map values) {
+  return model::SetMutation{
+      Key(path), model::FieldValue::ObjectValueFromMap(std::move(values)),
+      model::Precondition::None()};
+}
+
+inline model::PatchMutation TestPatchMutation(
+    absl::string_view path,
+    model::ObjectValue::Map values,
+    std::vector<model::FieldPath> update_mask = {}) {
+  // A string sentinel, specific to this helper function, to mark a field for
+  // deletion.
+  const model::FieldValue delete_sentinel =
+      model::FieldValue::StringValue("<DELETE>");
+
+  model::FieldValue object = model::FieldValue::ObjectValueFromMap({});
+  std::vector<model::FieldPath> object_mask;
+  for (const auto& entry : values) {
+    object_mask.push_back(Field(entry.first));
+    if (entry.second != delete_sentinel) {
+      object = object.Set(Field(entry.first), entry.second);
+    }
+  }
+
+  bool merge = !update_mask.empty();
+
+  // We sort the fieldMaskPaths to make the order deterministic in tests.
+  std::sort(object_mask.begin(), object_mask.end());
+
+  return model::PatchMutation{
+      Key(path), model::FieldMask{merge ? update_mask : object_mask}, object,
+      merge ? model::Precondition::None() : model::Precondition::Exists(true)};
 }
 
 // Add a non-inline function to make this library buildable.
