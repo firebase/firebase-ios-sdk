@@ -18,13 +18,23 @@
 # specified in an env: block
 #   - PROJECT - only Firestore is supported for now
 #   - METHOD - xcodebuild or cmake
+#   - PLATFORM - iOS, macOS, or tvOS
 
-case "$PROJECT-$METHOD" in
-  Firestore-xcodebuild)
+case "$PROJECT-$METHOD-$PLATFORM" in
+  Firebase-xcodebuild-iOS)
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Functions/Example
+    ;;
+
+  Firebase-xcodebuild-*)
+    bundle exec pod install --project-directory=Example --repo-update
+    ;;
+
+  Firestore-xcodebuild-*)
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
-  Firestore-cmake)
+  Firestore-cmake-*)
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Firestore/Example \
         --no-repo-update

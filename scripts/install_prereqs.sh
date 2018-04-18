@@ -20,6 +20,13 @@
 #   - METHOD - xcodebuild or cmake
 
 case "$PROJECT-$METHOD" in
+  Firebase-xcodebuild)
+    # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+    # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
+    bundle install
+    gem install xcpretty
+    ;;
+
   Firestore-xcodebuild)
     bundle install
     gem install xcpretty
