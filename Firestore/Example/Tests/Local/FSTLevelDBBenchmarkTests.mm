@@ -30,13 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
 
+// Pre-existing document size
 static const int kDocumentSize = 1024 * 2;  // 2 kb
 
-std::string DocumentData() {
+static std::string DocumentData() {
   return std::string(kDocumentSize, 'a');
 }
 
-std::string UpdatedDocumentData(int documentSize) {
+static std::string UpdatedDocumentData(int documentSize) {
   return std::string(documentSize, 'b');
 }
 
@@ -61,7 +62,7 @@ class LevelDBFixture : public benchmark::Fixture {
       WriteIndex(txn, docKey);
     }
     txn.Commit();
-    // Force a write to disk to simulate startup
+    // Force a write to disk to simulate startup situation
     _db.ptr->CompactRange(NULL, NULL);
   }
 
