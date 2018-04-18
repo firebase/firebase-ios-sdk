@@ -18,15 +18,32 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_IMMUTABLE_TESTING_H_
 
 #include <algorithm>
+#include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+#include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
+
+template <typename K, typename V>
+std::string Describe(const std::pair<K, V>& pair) {
+  return absl::StrCat("(", pair.first, ", ", pair.second, ")");
+}
+
+// Describes the given item by its std::to_string implementation (if
+// std::to_string is defined for V). The return type is not defined directly
+// in terms of std::string in order to allow specialization failure to select
+// a different overload.
+template <typename V>
+auto Describe(const V& item) -> decltype(std::to_string(item)) {
+  return std::to_string(item);
+}
 
 template <typename Container, typename K>
 testing::AssertionResult NotFound(const Container& map, const K& key) {
@@ -40,8 +57,7 @@ testing::AssertionResult NotFound(const Container& map, const K& key) {
     return testing::AssertionSuccess();
   } else {
     return testing::AssertionFailure()
-           << "Should not have found (" << found->first << ", " << found->second
-           << ")";
+           << "Should not have found " << Describe(*found);
   }
 }
 
