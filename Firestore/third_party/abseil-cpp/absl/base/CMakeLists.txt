@@ -131,24 +131,6 @@ absl_test(
     ${CONFIG_TEST_PUBLIC_LIBRARIES}
 )
 
-# test inline_variable_test
-list(APPEND INLINE_VARIABLE_TEST_SRC
-  "internal/inline_variable_testing.h"
-  "inline_variable_test.cc"
-  "inline_variable_test_a.cc"
-  "inline_variable_test_b.cc"
-)
-set(INLINE_VARIABLE_TEST_PUBLIC_LIBRARIES absl::base)
-
-absl_test(
-  TARGET
-    inline_variable_test
-  SOURCES
-    ${INLINE_VARIABLE_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${INLINE_VARIABLE_TEST_PUBLIC_LIBRARIES}
-)
-
 # test raw_logging_test
 set(RAW_LOGGING_TEST_SRC "raw_logging_test.cc")
 set(RAW_LOGGING_TEST_PUBLIC_LIBRARIES absl::base)
