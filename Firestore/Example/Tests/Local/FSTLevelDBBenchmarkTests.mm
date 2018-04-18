@@ -87,6 +87,11 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
   }
 }
 
+/**
+ * Adjust ranges to control what test cases run. Outermost loop controls whether or
+ * not indexes are written, the inner loops control size of document writes and number
+ * of document writes.
+ */
 static void TestCases(benchmark::internal::Benchmark *b) {
   for (int writeIndexes = 0; writeIndexes <= 1; writeIndexes++) {
     for (int documentSize = 1 << 10; documentSize <= 1 << 20; documentSize *= 4) {
