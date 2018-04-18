@@ -15,17 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
 
-static void BM_StringCreation(benchmark::State& state) {
-  for (auto _ : state) {
-    std::string empty_string;
-  }
-}
-
-BENCHMARK(BM_StringCreation);
+static const int kDocumentSize = 1024 * 2;  // 2 kb
 
 std::string DocumentData() {
-  // TODO(gsoltis): implement this, return a large string
-  return "";
+  return std::string(kDocumentSize, 'a');
+}
+
+std::string UpdatedDocumentData(int documentSize) {
+  return std::string(documentSize, 'b');
 }
 
 class LevelDBFixture : public benchmark::Fixture {
@@ -40,23 +37,29 @@ class LevelDBFixture : public benchmark::Fixture {
 
   void FillDB() {
     LevelDbTransaction txn(_db.ptr.get(), "benchmark");
-    std::string empty_buffer;
+
     for (int i = 0; i < _numDocuments; i++) {
-      FSTDocumentKey *docKey = [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"doc_%i", i]];
+      FSTDocumentKey *docKey = [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
       std::string docKeyString = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:docKey];
       txn.Put(docKeyString, DocumentData());
-      txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:_targetID], empty_buffer);
-      txn.Put([FSTLevelDBTargetDocumentKey keyWithTargetID:_targetID documentKey:docKey], empty_buffer);
+      WriteIndex(txn, docKey);
     }
     txn.Commit();
-    _db.ptr()->CompactRange("", <#const leveldb::Slice * end#>)
+    // Force a write to disk to simulate startup
+    _db.ptr->CompactRange(NULL, NULL);
   }
 
  protected:
+  void WriteIndex(LevelDbTransaction& txn, FSTDocumentKey *docKey) {
+    txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:_targetID], _emptyBuffer);
+    txn.Put([FSTLevelDBTargetDocumentKey keyWithTargetID:_targetID documentKey:docKey], _emptyBuffer);
+  }
+
   FSTLevelDB *_db;
   // Arbitrary target ID
   FSTTargetID _targetID = 1;
   int _numDocuments = 10;
+  std::string _emptyBuffer;
 
 };
 
@@ -64,17 +67,37 @@ class LevelDBFixture : public benchmark::Fixture {
 // Write a couple large values (documents)
 // In each test, either overwrite index entries and documents, or just documents
 
-BENCHMARK_F(LevelDBFixture, TripleWrite)(benchmark::State& state) {
+BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State& state) {
+  bool writeIndexes = state.range(0);
+  int documentSize = state.range(1);
+  int docsToUpdate = state.range(2);
+  std::string documentUpdate = UpdatedDocumentData(documentSize);
   for (auto _ : state) {
     LevelDbTransaction txn(_db.ptr.get(), "benchmark");
-
+    for (int i = 0; i < docsToUpdate; i++) {
+      FSTDocumentKey *docKey = [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
+      if (writeIndexes) WriteIndex(txn, docKey);
+      std::string docKeyString = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:docKey];
+      txn.Put(docKeyString, documentUpdate);
+    }
     txn.Commit();
   }
 }
 
-static void singleWriteCase() {
-
+static void TestCases(benchmark::internal::Benchmark *b) {
+  for (int writeIndexes = 0; writeIndexes <= 1; writeIndexes++) {
+    for (int documentSize = 1<<10; documentSize <= 1<<20; documentSize *= 4) {
+      for (int docsToUpdate = 1; docsToUpdate <= 5; docsToUpdate++) {
+        b->Args({writeIndexes, documentSize, docsToUpdate});
+      }
+    }
+  }
 }
+
+BENCHMARK_REGISTER_F(LevelDBFixture, RemoteEvent)
+    ->Apply(TestCases)
+    ->Unit(benchmark::kMicrosecond)
+    ->Repetitions(5);
 
 @interface FSTLevelDBBenchmarkTests : XCTestCase
 @end
@@ -82,10 +105,12 @@ static void singleWriteCase() {
 @implementation FSTLevelDBBenchmarkTests
 
 - (void)testRunBenchmarks {
-  char name[] = "Benchmarks";
-  int argc = 1;
-  char* argv = &name[0];
-  benchmark::Initialize(&argc, &argv);
+  char *argv[3] = {
+          "Benchmarks",
+          "--benchmark_out=/tmp/leveldb_benchmark",
+          "--benchmark_out_format=csv"};
+  int argc = 3;
+  benchmark::Initialize(&argc, argv);
   benchmark::RunSpecifiedBenchmarks();
 }
 
