@@ -72,6 +72,20 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
     return TreeSortedMap{std::move(node), comparator};
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return root_.empty();
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return root_.size();
+  }
+
+  const node_type& root() const {
+    return root_;
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -95,20 +109,6 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
     // TODO(wilhuff): Actually implement erase
     (void)key;
     return TreeSortedMap{this->comparator()};
-  }
-
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return root_.empty();
-  }
-
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return root_.size();
-  }
-
-  const node_type& root() const {
-    return root_;
   }
 
   /**

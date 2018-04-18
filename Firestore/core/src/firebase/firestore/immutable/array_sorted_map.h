@@ -152,6 +152,20 @@ class ArraySortedMap : public SortedMapBase {
         key_comparator_{comparator} {
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return size() == 0;
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return array_->size();
+  }
+
+  const key_comparator_type& comparator() const {
+    return key_comparator_;
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -227,20 +241,6 @@ class ArraySortedMap : public SortedMapBase {
     } else {
       return not_found;
     }
-  }
-
-  const key_comparator_type& comparator() const {
-    return key_comparator_;
-  }
-
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return size() == 0;
-  }
-
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return array_->size();
   }
 
   /**

@@ -133,6 +133,28 @@ class SortedMap : public impl::SortedMapBase {
     return *this;
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.empty();
+      case Tag::Tree:
+        return tree_.empty();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.size();
+      case Tag::Tree:
+        return tree_.size();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -175,28 +197,6 @@ class SortedMap : public impl::SortedMapBase {
         return SortedMap{array_.erase(key)};
       case Tag::Tree:
         return SortedMap{tree_.erase(key)};
-    }
-    FIREBASE_UNREACHABLE();
-  }
-
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    switch (tag_) {
-      case Tag::Array:
-        return array_.empty();
-      case Tag::Tree:
-        return tree_.empty();
-    }
-    FIREBASE_UNREACHABLE();
-  }
-
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    switch (tag_) {
-      case Tag::Array:
-        return array_.size();
-      case Tag::Tree:
-        return tree_.size();
     }
     FIREBASE_UNREACHABLE();
   }
