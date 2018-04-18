@@ -22,7 +22,6 @@
 #include <vector>
 
 #import "FIRFirestoreErrors.h"
-#import "FIRSetOptions.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"

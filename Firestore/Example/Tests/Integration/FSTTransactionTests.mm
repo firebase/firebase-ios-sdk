@@ -203,12 +203,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction"];
   [firestore runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
     [transaction setData:@{ @"a" : @"b", @"nested" : @{@"a" : @"b"} } forDocument:doc];
-    [transaction setData:@{
-      @"c" : @"d",
-      @"nested" : @{@"c" : @"d"}
-    }
-             forDocument:doc
-                 options:[FIRSetOptions merge]];
+    [transaction setData:@{ @"c" : @"d", @"nested" : @{@"c" : @"d"} } forDocument:doc merge:YES];
     return @YES;
   }
       completion:^(id _Nullable result, NSError *_Nullable error) {

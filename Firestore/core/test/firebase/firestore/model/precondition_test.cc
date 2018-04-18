@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
 #include "gtest/gtest.h"
 
 namespace firebase {

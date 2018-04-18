@@ -1,4 +1,33 @@
 # Unreleased
+- [feature] Added FieldValue.arrayUnion() and FieldValue.arrayRemove() methods
+  which can be used inside setData() or updateData() calls to atomically add
+  or remove specific elements to an array field in a document without using a
+  transaction.
+- [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
+  Instead of calling
+  `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] Replaced the `QueryListenOptions` object with simple booleans.
+  Instead of calling
+  `addSnapshotListener(options:
+      QueryListenOptions.includeQueryMetadataChanges(true)
+          .includeDocumentMetadataChanges(true))`
+  call `addSnapshotListener(includeMetadataChanges:true)`.
+- [changed] `QuerySnapshot.documentChanges()` is now a method which optionally
+  takes `includeMetadataChanges:true`. By default even when listening to a
+  query with `includeMetadataChanges:true` metadata-only document changes are
+  suppressed in `documentChanges()`.
+- [changed] Replaced the `SetOptions` object with a simple boolean. Instead of
+  calling `setData(["a": "b"], options: SetOptions.merge())` call
+  `setData(["a": "b"], merge: true)`.
+- [changed] Replaced the `SnapshotOptions` object with direct use of the
+  `FIRServerTimestampBehavior` on `DocumentSnapshot`. Instead of calling
+  `data(SnapshotOptions.serverTimestampBehavior(.estimate))` call
+  `data(serverTimestampBehavior: .estimate)`. Changed `get` similarly.
+- [changed] Added ability to control whether DocumentReference.getDocument() and
+  Query.getDocuments() should fetch from server only, cache only, or attempt
+  server and fall back to the cache (which was the only option previously, and
+  is now the default.)
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could

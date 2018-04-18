@@ -78,7 +78,7 @@ ComparisonResult CompareMixedNumber(double double_value, int64_t int64_value) {
 
   // At this point the long representations are equal but this could be due to
   // rounding.
-  double int64_as_double = static_cast<double>(int64_value);
+  auto int64_as_double = static_cast<double>(int64_value);
   return Compare<double>(double_value, int64_as_double);
 }
 

@@ -16,37 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
-@class FIRFirestore;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
-@class FIRSetOptions;
+@class FIRFirestore;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/**
- * Options for use with `[FIRDocumentReference addSnapshotListener]` to control the behavior of the
- * snapshot listener.
- */
-NS_SWIFT_NAME(DocumentListenOptions)
-@interface FIRDocumentListenOptions : NSObject
-
-+ (instancetype)options NS_SWIFT_UNAVAILABLE("Use initializer");
-
-- (instancetype)init;
-
-/**
- * Sets the includeMetadataChanges option which controls whether metadata-only changes (i.e. only
- * `FIRDocumentSnapshot.metadata` changed) should trigger snapshot events. Default is NO.
- *
- * @param includeMetadataChanges Whether to raise events for metadata-only changes.
- * @return The receiver is returned for optional method chaining.
- */
-- (instancetype)includeMetadataChanges:(BOOL)includeMetadataChanges
-    NS_SWIFT_NAME(includeMetadataChanges(_:));
-
-@end
 
 typedef void (^FIRDocumentSnapshotBlock)(FIRDocumentSnapshot *_Nullable snapshot,
                                          NSError *_Nullable error);
@@ -105,14 +82,14 @@ NS_SWIFT_NAME(DocumentReference)
 
 /**
  * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `FIRSetOptions`, the provided data will be merged into
- * an existing document.
+ * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * any existing document.
  *
  * @param documentData An `NSDictionary` that contains the fields and data to write to the
  * document.
- * @param options A `FIRSetOptions` used to configure the set behavior.
+ * @param merge Whether to merge the provided data into any existing document.
  */
-- (void)setData:(NSDictionary<NSString *, id> *)documentData options:(FIRSetOptions *)options;
+- (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge;
 
 /**
  * Overwrites the document referred to by this `FIRDocumentReference`. If no document exists, it
@@ -129,18 +106,18 @@ NS_SWIFT_NAME(DocumentReference)
 
 /**
  * Writes to the document referred to by this DocumentReference. If the document does not yet
- * exist, it will be created. If you pass `FIRSetOptions`, the provided data will be merged into
- * an existing document.
+ * exist, it will be created. If you pass `merge:YES`, the provided data will be merged into
+ * any existing document.
  *
  * @param documentData An `NSDictionary` containing the fields that make up the document
  * to be written.
- * @param options A `FIRSetOptions` used to configure the set behavior.
+ * @param merge Whether to merge the provided data into any existing document.
  * @param completion A block to execute once the document has been successfully written to the
  *     server. This block will not be called while the client is offline, though local
  *     changes will be visible immediately.
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
-        options:(FIRSetOptions *)options
+          merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**
@@ -190,10 +167,28 @@ NS_SWIFT_NAME(DocumentReference)
 /**
  * Reads the document referenced by this `FIRDocumentReference`.
  *
+ * This method attempts to provide up-to-date data when possible by waiting for
+ * data from the server, but it may return cached data or fail if you are
+ * offline and the server cannot be reached. See the
+ * `getDocument(source:completion:)` method to change this behavior.
+ *
  * @param completion a block to execute once the document has been successfully read.
  */
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(completion:));
+
+/**
+ * Reads the document referenced by this `FIRDocumentReference`.
+ *
+ * @param source indicates whether the results should be fetched from the cache
+ *     only (`Source.cache`), the server only (`Source.server`), or to attempt
+ *     the server and fall back to the cache (`Source.default`).
+ * @param completion a block to execute once the document has been successfully read.
+ */
+// clang-format off
+- (void)getDocumentWithSource:(FIRFirestoreSource)source completion:(FIRDocumentSnapshotBlock)completion
+    NS_SWIFT_NAME(getDocument(source:completion:));
+// clang-format on
 
 /**
  * Attaches a listener for DocumentSnapshot events.
@@ -208,16 +203,17 @@ NS_SWIFT_NAME(DocumentReference)
 /**
  * Attaches a listener for DocumentSnapshot events.
  *
- * @param options Options controlling the listener behavior.
+ * @param includeMetadataChanges Whether metadata-only changes (i.e. only
+ *     `FIRDocumentSnapshot.metadata` changed) should trigger snapshot events.
  * @param listener The listener to attach.
  *
  * @return A FIRListenerRegistration that can be used to remove this listener.
  */
 // clang-format off
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (nullable FIRDocumentListenOptions *)options
-                                                     listener:(FIRDocumentSnapshotBlock)listener
-    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
+- (id<FIRListenerRegistration>)
+addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                     listener:(FIRDocumentSnapshotBlock)listener
+    NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 // clang-format on
 
 @end

@@ -15,6 +15,48 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(firestore C CXX)
 
+option(WITH_ASAN "Build with Address Sanitizer" OFF)
+# TODO(varconst): msan
+# Memory sanitizer is more complicated:
+# - it requires all dependencies to be compiled with msan enabled (see
+#   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
+# - AppleClang doesn't support it.
+option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
+option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
+
+macro(add_to_compile_and_link_flags flag)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
+endmacro()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(WITH_ASAN)
+    add_to_compile_and_link_flags("-fsanitize=address")
+  endif()
+
+  if(WITH_TSAN)
+    if(WITH_ASAN OR WITH_UBSAN)
+      message(FATAL_ERROR "Cannot combine TSan with other santizers")
+    endif()
+    add_to_compile_and_link_flags("-fsanitize=thread")
+  endif()
+
+  if(WITH_UBSAN)
+    add_to_compile_and_link_flags("-fsanitize=undefined")
+  endif()
+
+  if (WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    # Recommended to "get nicer stack traces in error messages"
+    # TODO(varconst): double-check that TSan actually needs this flag (it's
+    # explicitly recommended in the docs for ASan and UBSan)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+  endif()
+else()
+  if(WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
+    message(FATAL_ERROR "Only Clang and GCC support sanitizers")
+  endif()
+endif()
+
 set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
 # CMAKE_INSTALL_PREFIX should be passed in to this build so that it can find

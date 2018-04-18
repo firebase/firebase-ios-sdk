@@ -55,8 +55,11 @@ inline model::ResourcePath Resource(absl::string_view field) {
   return model::ResourcePath::FromString(field);
 }
 
-// Version is epoch time in microseconds. This helper is defined so to match
-// SDKs in other platform.
+/**
+ * Creates a snapshot version from the given version timestamp.
+ *
+ * @param version a timestamp in microseconds since the epoch.
+ */
 inline model::SnapshotVersion Version(int64_t version) {
   namespace chr = std::chrono;
   auto timepoint =

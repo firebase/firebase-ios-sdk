@@ -154,14 +154,7 @@
       [metadata setType:FIRStorageMetadataTypeFile];
       self.metadata = metadata;
     } else {
-      NSString *returnedData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-      NSString *invalidDataString =
-          [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
-      NSDictionary *dict;
-      if (invalidDataString.length > 0) {
-        dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
-      }
-      self.error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+      self.error = [FIRStorageErrors errorWithInvalidRequest:data];
     }
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];

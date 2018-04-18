@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -70,8 +71,8 @@ class FixedArray {
    */
   template <typename SourceIterator>
   void append(SourceIterator src_begin, SourceIterator src_end) {
-    size_type appending = static_cast<size_type>(src_end - src_begin);
-    size_type new_size = size_ + appending;
+    auto appending = static_cast<size_type>(src_end - src_begin);
+    auto new_size = size_ + appending;
     FIREBASE_ASSERT(new_size <= fixed_size);
 
     std::copy(src_begin, src_end, end());
@@ -118,7 +119,7 @@ class FixedArray {
  * ArraySortedMap is a value type containing a map. It is immutable, but has
  * methods to efficiently create new maps that are mutations of it.
  */
-template <typename K, typename V, typename C = std::less<K>>
+template <typename K, typename V, typename C = util::Comparator<K>>
 class ArraySortedMap : public SortedMapBase {
  public:
   using key_comparator_type = KeyComparator<K, V, C>;
@@ -229,7 +230,9 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
-  // TODO(wilhuff): indexof
+  const key_comparator_type& comparator() const {
+    return key_comparator_;
+  }
 
   /** Returns true if the map contains no elements. */
   bool empty() const {

@@ -24,6 +24,12 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
+@class FIRDocumentReference;
+@class FIRDocumentSnapshot;
+@class FIRQuery;
+@class FIRQuerySnapshot;
+@class FSTDatabaseID;
+@class FSTDatabaseInfo;
 @class FSTDispatchQueue;
 @class FSTDocument;
 @class FSTListenOptions;
@@ -71,6 +77,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Stops listening to a query previously listened to. */
 - (void)removeListener:(FSTQueryListener *)listener;
+
+/**
+ * Retrieves a document from the cache via the indicated completion. If the doc
+ * doesn't exist, an error will be sent to the completion.
+ */
+- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
+                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                            NSError *_Nullable error))completion;
+
+/**
+ * Retrieves a (possibly empty) set of documents from the cache via the
+ * indicated completion.
+ */
+- (void)getDocumentsFromLocalCache:(FIRQuery *)query
+                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
+                                             NSError *_Nullable error))completion;
 
 /** Write mutations. completion will be notified when it's written to the backend. */
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations

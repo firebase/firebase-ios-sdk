@@ -29,13 +29,8 @@ namespace firestore {
 namespace immutable {
 namespace impl {
 
-typedef ArraySortedMap<int, int> IntMap;
+using IntMap = ArraySortedMap<int, int>;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
-
-// TODO(wilhuff): ReverseTraversal
-
-#define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Append(y));
-#define EXPECT_SEQ_EQ(x, y) EXPECT_EQ((x), Append(y));
 
 TEST(ArraySortedMap, SearchForSpecificKey) {
   IntMap map{{1, 3}, {2, 4}};
@@ -105,21 +100,6 @@ TEST(ArraySortedMap, RemovesMiddle) {
   ASSERT_TRUE(Found(s1, 3, 3));
 }
 
-TEST(ArraySortedMap, Increasing) {
-  auto total = static_cast<int>(kFixedSize);
-  IntMap map;
-
-  for (int i = 0; i < total; i++) {
-    map = map.insert(i, i);
-  }
-  ASSERT_EQ(kFixedSize, map.size());
-
-  for (int i = 0; i < total; i++) {
-    map = map.erase(i);
-  }
-  ASSERT_EQ(0u, map.size());
-}
-
 TEST(ArraySortedMap, Override) {
   IntMap map = IntMap{}.insert(10, 10).insert(10, 8);
 
@@ -153,7 +133,7 @@ TEST(ArraySortedMap, EmptyRemoval) {
 
 TEST(ArraySortedMap, InsertionAndRemovalOfMaxItems) {
   auto expected_size = kFixedSize;
-  int n = static_cast<int>(expected_size);
+  auto n = static_cast<int>(expected_size);
   std::vector<int> to_insert = Shuffled(Sequence(n));
   std::vector<int> to_remove = Shuffled(to_insert);
 

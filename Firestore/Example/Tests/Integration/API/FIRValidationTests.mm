@@ -282,7 +282,7 @@
   [self expectSet:@{@"foo" : [FIRFieldValue fieldValueForDelete]}
       toFailWithReason:
           @"FieldValue.delete() can only be used with updateData() and setData() with "
-          @"SetOptions.merge()."];
+          @"merge:true (found in field foo)"];
 }
 
 - (void)testUpdatesWithNestedFieldValueDeleteFail {
@@ -304,7 +304,7 @@
   FIRDocumentReference *badRef = [db2 documentWithPath:@"foo/bar"];
   FIRWriteBatch *batch = [db1 batch];
   FSTAssertThrows([batch setData:data forDocument:badRef], reason);
-  FSTAssertThrows([batch setData:data forDocument:badRef options:[FIRSetOptions merge]], reason);
+  FSTAssertThrows([batch setData:data forDocument:badRef merge:YES], reason);
   FSTAssertThrows([batch updateData:data forDocument:badRef], reason);
   FSTAssertThrows([batch deleteDocument:badRef], reason);
 }
@@ -322,7 +322,7 @@
   [db1 runTransactionWithBlock:^id(FIRTransaction *txn, NSError **pError) {
     FSTAssertThrows([txn getDocument:badRef error:nil], reason);
     FSTAssertThrows([txn setData:data forDocument:badRef], reason);
-    FSTAssertThrows([txn setData:data forDocument:badRef options:[FIRSetOptions merge]], reason);
+    FSTAssertThrows([txn setData:data forDocument:badRef merge:YES], reason);
     FSTAssertThrows([txn updateData:data forDocument:badRef], reason);
     FSTAssertThrows([txn deleteDocument:badRef], reason);
     return nil;
@@ -361,6 +361,51 @@
                       fieldPath];
     [self expectFieldPath:fieldPath toFailWithReason:reason];
   }
+}
+
+#pragma mark - ArrayUnion / ArrayRemove Validation
+
+- (void)testArrayTransformsInQueriesFail {
+  FSTAssertThrows(
+      [[self collectionRef] queryWhereField:@"test"
+                                  isEqualTo:@{
+                                    @"test" : [FIRFieldValue fieldValueForArrayUnion:@[ @1 ]]
+                                  }],
+      @"FieldValue.arrayUnion() can only be used with updateData() and setData() (found in field "
+       "test)");
+
+  FSTAssertThrows(
+      [[self collectionRef] queryWhereField:@"test"
+                                  isEqualTo:@{
+                                    @"test" : [FIRFieldValue fieldValueForArrayRemove:@[ @1 ]]
+                                  }],
+      @"FieldValue.arrayRemove() can only be used with updateData() and setData() (found in field "
+      @"test)");
+}
+
+- (void)testInvalidArrayTransformElementFails {
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, self ]]
+  }
+      toFailWithReason:@"Unsupported type: FIRValidationTests"];
+
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, self ]]
+  }
+      toFailWithReason:@"Unsupported type: FIRValidationTests"];
+}
+
+- (void)testArraysInArrayTransformsFail {
+  // This would result in a directly nested array which is not supported.
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @[ @"nested" ] ]]
+  }
+      toFailWithReason:@"Nested arrays are not supported"];
+
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @[ @"nested" ] ]]
+  }
+      toFailWithReason:@"Nested arrays are not supported"];
 }
 
 #pragma mark - Query Validation

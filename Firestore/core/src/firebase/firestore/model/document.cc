@@ -39,7 +39,7 @@ bool Document::Equals(const MaybeDocument& other) const {
   if (other.type() != Type::Document) {
     return false;
   }
-  const Document& other_doc = static_cast<const Document&>(other);
+  auto& other_doc = static_cast<const Document&>(other);
   return MaybeDocument::Equals(other) &&
          has_local_mutations_ == other_doc.has_local_mutations_ &&
          data_ == other_doc.data_;

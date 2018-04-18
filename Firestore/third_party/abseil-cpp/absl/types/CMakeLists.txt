@@ -35,6 +35,7 @@ absl_library(
     optional
 )
 
+
 set(BAD_OPTIONAL_ACCESS_SRC "bad_optional_access.cc")
 set(BAD_OPTIONAL_ACCESS_LIBRARIES absl::base)
 
@@ -48,6 +49,7 @@ absl_library(
   EXPORT_NAME
     bad_optional_access
 )
+
 
 #
 ## TESTS
@@ -65,3 +67,5 @@ absl_test(
   PUBLIC_LIBRARIES
     ${OPTIONAL_TEST_PUBLIC_LIBRARIES}
 )
+
+

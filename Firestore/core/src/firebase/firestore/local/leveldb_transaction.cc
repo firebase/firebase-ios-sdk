@@ -123,7 +123,7 @@ void LevelDbTransaction::Iterator::AdvanceLDB() {
 void LevelDbTransaction::Iterator::Next() {
   FIREBASE_ASSERT_MESSAGE(Valid(), "Next() called on invalid iterator");
   bool advanced = SyncToTransaction();
-  if (!advanced) {
+  if (!advanced && is_valid_) {
     if (is_mutation_) {
       // A mutation might be shadowing leveldb. If so, advance both.
       if (db_iter_->Valid() && db_iter_->key() == mutations_iter_->first) {

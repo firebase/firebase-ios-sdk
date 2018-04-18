@@ -56,7 +56,19 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * Creates an empty TreeSortedMap.
    */
   explicit TreeSortedMap(const C& comparator = {})
-      : util::ComparatorHolder<C>{comparator}, root_{node_type::Empty()} {
+      : util::ComparatorHolder<C>{comparator} {
+  }
+
+  /**
+   * Creates a TreeSortedMap from a range of pairs to insert.
+   */
+  template <typename Range>
+  static TreeSortedMap Create(const Range& range, const C& comparator) {
+    node_type node;
+    for (auto&& element : range) {
+      node = node.insert(element.first, element.second, comparator);
+    }
+    return TreeSortedMap{std::move(node), comparator};
   }
 
   /**
@@ -68,10 +80,8 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * @return A new dictionary with the added/updated value.
    */
   TreeSortedMap insert(const K& key, const V& value) const {
-    // TODO(wilhuff): Actually implement insert
-    (void)key;
-    (void)value;
-    return *this;
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.insert(key, value, comparator), comparator};
   }
 
   /**
@@ -83,7 +93,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   TreeSortedMap erase(const K& key) const {
     // TODO(wilhuff): Actually implement erase
     (void)key;
-    return *this;
+    return TreeSortedMap{this->comparator()};
   }
 
   /** Returns true if the map contains no elements. */
