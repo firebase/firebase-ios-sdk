@@ -32,8 +32,10 @@ func main() {
   addDocument(to: collectionRef)
 
   readDocument(at: documentRef)
+  readDocumentWithSource(at: documentRef)
 
   readDocuments(matching: query)
+  readDocumentsWithSource(matching: query)
 
   listenToDocument(at: documentRef)
 
@@ -230,6 +232,15 @@ func readDocument(at docRef: DocumentReference) {
   }
 }
 
+func readDocumentWithSource(at docRef: DocumentReference) {
+  docRef.getDocument(source: FirestoreSource.default) { document, error in
+  }
+  docRef.getDocument(source: .server) { document, error in
+  }
+  docRef.getDocument(source: FirestoreSource.cache) { document, error in
+  }
+}
+
 func readDocuments(matching query: Query) {
   query.getDocuments { querySnapshot, error in
     // TODO(mikelehen): Figure out how to make "for..in" syntax work
@@ -237,6 +248,15 @@ func readDocuments(matching query: Query) {
     for document in querySnapshot!.documents {
       print(document.data())
     }
+  }
+}
+
+func readDocumentsWithSource(matching query: Query) {
+  query.getDocuments(source: FirestoreSource.default) { querySnapshot, error in
+  }
+  query.getDocuments(source: .server) { querySnapshot, error in
+  }
+  query.getDocuments(source: FirestoreSource.cache) { querySnapshot, error in
   }
 }
 

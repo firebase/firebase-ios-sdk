@@ -20,6 +20,8 @@
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#import "FIRFirestoreSource.h"
+
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
@@ -71,7 +73,12 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref;
 
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                     source:(FIRFirestoreSource)source;
+
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query;
+
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source;
 
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
                               requireOnline:(BOOL)online;
@@ -107,6 +114,10 @@ NSArray<NSDictionary<NSString *, id> *> *FIRQuerySnapshotGetData(FIRQuerySnapsho
 
 /** Converts the FIRQuerySnapshot to an NSArray containing the document IDs in order. */
 NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs);
+
+/** Converts the FIRQuerySnapshot to an NSArray containing an NSArray containing the doc change data
+ * in order of { type, doc title, doc data }. */
+NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs);
 
 #if __cplusplus
 }  // extern "C"
