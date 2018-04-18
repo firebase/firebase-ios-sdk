@@ -22,7 +22,10 @@ jobs:
         # Google C++ style compliance
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
-    # Core platforms
+      # The order of builds matters (even though they are run in parallel):
+      # Travis will schedule them in the same order they are listed here.
+
+    # Primary platforms
 
     - stage: test
       env:
