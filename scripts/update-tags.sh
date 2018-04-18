@@ -18,8 +18,8 @@
 
 # Before running, make sure everything is pushed.
 
-# This script should be a spec for a more robust python script that does
-# the following.
+# This script should be a spec for a more robust Python or Swift script that
+# does the following.
 # 1. Verify all files are committed
 # 2. Verify running on a release branch
 # 3. Read the versions from the podspec (or incorporate into even more
