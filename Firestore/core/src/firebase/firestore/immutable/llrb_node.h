@@ -97,6 +97,28 @@ class LlrbNode : public SortedMapBase {
                   const V& value,
                   const Comparator& comparator) const;
 
+  const LlrbNode& min() const {
+    const LlrbNode* node = this;
+    for (;;) {
+      const LlrbNode& left_node = node->left();
+      if (left_node.empty()) {
+        return *node;
+      }
+      node = &left_node;
+    }
+  }
+
+  const LlrbNode& max() const {
+    const LlrbNode* node = this;
+    for (;;) {
+      const LlrbNode& right_node = node->right();
+      if (right_node.empty()) {
+        return *node;
+      }
+      node = &right_node;
+    }
+  }
+
  private:
   struct Rep {
     Rep(value_type&& entry,

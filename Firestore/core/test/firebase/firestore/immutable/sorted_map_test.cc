@@ -159,6 +159,40 @@ TYPED_TEST(SortedMapTest, FindIndex) {
   ASSERT_EQ(5u, map.find_index(50));
 }
 
+TYPED_TEST(SortedMapTest, MinMax) {
+  TypeParam empty;
+  auto min = empty.min();
+  auto max = empty.max();
+  ASSERT_EQ(empty.end(), min);
+  ASSERT_EQ(empty.end(), max);
+  ASSERT_EQ(min, max);
+
+  TypeParam one = empty.insert(1, 1);
+  min = one.min();
+  max = one.max();
+  ASSERT_NE(one.end(), min);
+  ASSERT_NE(one.end(), max);
+  ASSERT_EQ(1, min->first);
+  ASSERT_EQ(1, max->first);
+
+  // Just a regular iterator
+  ++min;
+  ASSERT_EQ(one.end(), min);
+
+  TypeParam two = one.insert(2, 2);
+  min = two.min();
+  max = two.max();
+  ASSERT_EQ(1, min->first);
+  ASSERT_EQ(2, max->first);
+
+  std::vector<int> to_insert = Sequence(this->large_number());
+  TypeParam lots = ToMap<TypeParam>(to_insert);
+  min = lots.min();
+  max = lots.max();
+  ASSERT_EQ(to_insert[0], min->first);
+  ASSERT_EQ(to_insert[to_insert.size() - 1], max->first);
+}
+
 TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {
   // If this compiles the test has succeeded
   typename TypeParam::const_iterator iter;

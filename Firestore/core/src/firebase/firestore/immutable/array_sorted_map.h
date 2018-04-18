@@ -258,6 +258,18 @@ class ArraySortedMap : public SortedMapBase {
     return found == end() ? npos : static_cast<size_type>(found - begin());
   }
 
+  const_iterator min() const {
+    return begin();
+  }
+
+  const_iterator max() const {
+    if (empty()) {
+      return end();
+    }
+
+    return end() - 1;
+  }
+
   /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().

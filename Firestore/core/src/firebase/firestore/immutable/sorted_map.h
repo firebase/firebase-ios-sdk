@@ -244,6 +244,26 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  const_iterator min() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.min());
+      case Tag::Tree:
+        return const_iterator{tree_.min()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  const_iterator max() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.max());
+      case Tag::Tree:
+        return const_iterator{tree_.max()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   /**
    * Returns an iterator pointing to the first entry in the map. If there are
    * no entries in the map, begin() == end().
