@@ -494,6 +494,7 @@ TEST(FieldValue, CompareWithOperator) {
 }
 
 TEST(FieldValue, Set) {
+  // Set a field in an object.
   const FieldValue value_one = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
       {"b", FieldValue::ObjectValueFromMap({
@@ -507,8 +508,9 @@ TEST(FieldValue, Set) {
                 {"bb", FieldValue::StringValue("BB")},
             })},
   });
-  EXPECT_EQ(expected_one, value_one.Set(testutil::Field("b/bb"),
+  EXPECT_EQ(expected_one, value_one.Set(testutil::Field("b.bb"),
                                         FieldValue::StringValue("BB")));
+  // Set a field in a new object.
   const FieldValue value_two = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
   });
@@ -518,7 +520,7 @@ TEST(FieldValue, Set) {
                 {"bb", FieldValue::StringValue("BB")},
             })},
   });
-  EXPECT_EQ(expected_two, value_two.Set(testutil::Field("b/bb"),
+  EXPECT_EQ(expected_two, value_two.Set(testutil::Field("b.bb"),
                                         FieldValue::StringValue("BB")));
 }
 
@@ -537,7 +539,7 @@ TEST(FieldValue, Delete) {
             })},
   });
   EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
-  EXPECT_EQ(expected, value.Delete(testutil::Field("b/bb")));
+  EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
 }
 
 TEST(FieldValue, Get) {
@@ -550,9 +552,9 @@ TEST(FieldValue, Get) {
   });
   EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
   EXPECT_EQ(FieldValue::StringValue("A"), value.Get(testutil::Field("a")));
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a/a")));
-  EXPECT_EQ(FieldValue::StringValue("BA"), value.Get(testutil::Field("b/a")));
-  EXPECT_EQ(FieldValue::StringValue("BB"), value.Get(testutil::Field("b/b")));
+  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
+  EXPECT_EQ(FieldValue::StringValue("BA"), value.Get(testutil::Field("b.ba")));
+  EXPECT_EQ(FieldValue::StringValue("BB"), value.Get(testutil::Field("b.bb")));
 }
 
 }  //  namespace model
