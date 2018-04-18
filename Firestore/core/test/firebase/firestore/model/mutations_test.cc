@@ -58,9 +58,10 @@ TEST(Mutation, AppliesSetsToDocument) {
   const MaybeDocumentPointer set_doc =
       set.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
   EXPECT_TRUE(set_doc);
-  EXPECT_EQ(testutil::Doc("collection/key", 0,
-                          {{"bar", FieldValue::StringValue("bar-value")}}),
-            *set_doc);
+  EXPECT_EQ(
+      testutil::Doc("collection/key", 0,
+                    {{"bar", FieldValue::StringValue("bar-value")}}, true),
+      *set_doc);
 }
 
 TEST(Mutation, AppliesPatchesToDocuments) {
@@ -70,8 +71,8 @@ TEST(Mutation, AppliesPatchesToDocuments) {
                    {{"bar", FieldValue::StringValue("bar-value")}})},
        {"baz", FieldValue::StringValue("baz-value")}});
   const PatchMutation patch = testutil::TestPatchMutation(
-      "collection/key", {{"foo.bar", FieldValue::StringValue("new-bar-value")}},
-      {});
+      "collection/key",
+      {{"foo.bar", FieldValue::StringValue("new-bar-value")}});
   const MaybeDocumentPointer patched_doc =
       patch.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
   EXPECT_TRUE(patched_doc);
@@ -80,180 +81,190 @@ TEST(Mutation, AppliesPatchesToDocuments) {
           "collection/key", 0,
           {{"foo", FieldValue::ObjectValueFromMap(
                        {{"bar", FieldValue::StringValue("new-bar-value")}})},
-           {"baz", FieldValue::StringValue("baz-value")}}),
+           {"baz", FieldValue::StringValue("baz-value")}},
+          true),
       *patched_doc);
 }
 
-/*
-- (void)testDeletesValuesFromTheFieldMask {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value", @"baz" :
-@"baz-value"} }; FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData,
-NO);
-
-  DocumentKey key = testutil::Key("collection/key");
-  FSTFieldMask *mask = [[FSTFieldMask alloc]
-initWithFields:{testutil::Field("foo.bar")}]; FSTMutation *patch =
-[[FSTPatchMutation alloc] initWithKey:key fieldMask:mask value:[FSTObjectValue
-objectValue] precondition:[FSTPrecondition none]]; FSTMaybeDocument *patchedDoc
-= [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
-
-  NSDictionary *expectedData = @{ @"foo" : @{@"baz" : @"baz-value"} };
-  XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 0,
-expectedData, YES));
+TEST(Mutation, DeletesValuesFromTheFieldMask) {
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0,
+      {{"foo", FieldValue::ObjectValueFromMap(
+                   {{"bar", FieldValue::StringValue("bar-value")},
+                    {"baz", FieldValue::StringValue("baz-value")}})}});
+  const PatchMutation patch = testutil::TestPatchMutation(
+      "collection/key", {{"foo.bar", FieldValue::StringValue("<DELETE>")}});
+  const MaybeDocumentPointer patched_doc =
+      patch.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
+  EXPECT_TRUE(patched_doc);
+  EXPECT_EQ(testutil::Doc(
+                "collection/key", 0,
+                {{"foo", FieldValue::ObjectValueFromMap(
+                             {{"baz", FieldValue::StringValue("baz-value")}})}},
+                true),
+            *patched_doc);
 }
 
-- (void)testPatchesPrimitiveValue {
-  NSDictionary *docData = @{@"foo" : @"foo-value", @"baz" : @"baz-value"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
-
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" :
-@"new-bar-value"}, {}); FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
-baseDocument:baseDoc localWriteTime:_timestamp];
-
-  NSDictionary *expectedData = @{ @"foo" : @{@"bar" : @"new-bar-value"}, @"baz"
-: @"baz-value" }; XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key",
-0, expectedData, YES));
+TEST(Mutation, PatchesPrimitiveValue) {
+  const MaybeDocumentPointer base_doc =
+      testutil::DocPointer("collection/key", 0,
+                           {{"foo", FieldValue::StringValue("foo-value")},
+                            {"baz", FieldValue::StringValue("baz-value")}});
+  const PatchMutation patch = testutil::TestPatchMutation(
+      "collection/key",
+      {{"foo.bar", FieldValue::StringValue("new-bar-value")}});
+  const MaybeDocumentPointer patched_doc =
+      patch.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
+  EXPECT_TRUE(patched_doc);
+  EXPECT_EQ(
+      testutil::Doc(
+          "collection/key", 0,
+          {{"foo", FieldValue::ObjectValueFromMap(
+                       {{"bar", FieldValue::StringValue("new-bar-value")}})},
+           {"baz", FieldValue::StringValue("baz-value")}},
+          true),
+      *patched_doc);
 }
 
-- (void)testPatchingDeletedDocumentsDoesNothing {
-  FSTMaybeDocument *baseDoc = FSTTestDeletedDoc("collection/key", 0);
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" :
-@"bar"}, {}); FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
-baseDocument:baseDoc localWriteTime:_timestamp];
-  XCTAssertEqualObjects(patchedDoc, baseDoc);
+TEST(Mutation, PatchingDeletedDocumentsDoesNothing) {
+  const MaybeDocumentPointer base_doc =
+      testutil::DeletedDocPointer("collection/key", 0);
+  const PatchMutation patch = testutil::TestPatchMutation(
+      "collection/key", {{"foo", FieldValue::StringValue("bar")}});
+  const MaybeDocumentPointer patched_doc =
+      patch.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
+  EXPECT_TRUE(patched_doc);
+  EXPECT_EQ(*base_doc, *patched_doc);
 }
 
-- (void)testAppliesLocalTransformsToDocuments {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" :
-@"baz-value" }; FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData,
-NO);
-
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @[
-@"foo.bar" ]); FSTMaybeDocument *transformedDoc = [transform applyTo:baseDoc
-baseDocument:baseDoc localWriteTime:_timestamp];
-
-  // Server timestamps aren't parsed, so we manually insert it.
-  FSTObjectValue *expectedData = FSTTestObjectValue(
-      @{ @"foo" : @{@"bar" : @"<server-timestamp>"},
-         @"baz" : @"baz-value" });
-  expectedData =
-      [expectedData objectBySettingValue:[FSTServerTimestampValue
-                                             serverTimestampValueWithLocalWriteTime:_timestamp
-                                                                      previousValue:nil]
-                                 forPath:testutil::Field("foo.bar")];
-
-  FSTDocument *expectedDoc = [FSTDocument documentWithData:expectedData
-                                                       key:FSTTestDocKey(@"collection/key")
-                                                   version:FSTTestVersion(0)
-                                         hasLocalMutations:YES];
-
-  XCTAssertEqualObjects(transformedDoc, expectedDoc);
+TEST(Mutation, AppliesLocalTransformsToDocuments) {
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0,
+      {{"foo", FieldValue::ObjectValueFromMap(
+                   {{"bar", FieldValue::StringValue("bar-value")}})},
+       {"baz", FieldValue::StringValue("baz-value")}});
+  const TransformMutation transform =
+      testutil::ServerTimestampMutation("collection/key", {"foo.bar"});
+  const MaybeDocumentPointer transformed_doc = transform.Mutation::ApplyTo(
+      base_doc, base_doc, testutil::TestTimestamp());
+  EXPECT_TRUE(transformed_doc);
+  EXPECT_EQ(
+      testutil::Doc("collection/key", 0,
+                    {{"foo", FieldValue::ObjectValueFromMap(
+                                 {{"bar", FieldValue::ServerTimestampValue(
+                                              testutil::TestTimestamp())}})},
+                     {"baz", FieldValue::StringValue("baz-value")}},
+                    true),
+      *transformed_doc);
 }
 
-- (void)testAppliesServerAckedTransformsToDocuments {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" :
-@"baz-value" }; FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData,
-NO);
-
-  FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @[
-@"foo.bar" ]);
-
-  FSTMutationResult *mutationResult = [[FSTMutationResult alloc]
-       initWithVersion:FSTTestVersion(1)
-      transformResults:@[ [FSTTimestampValue timestampValue:_timestamp] ]];
-
-  FSTMaybeDocument *transformedDoc = [transform applyTo:baseDoc
-                                           baseDocument:baseDoc
-                                         localWriteTime:_timestamp
-                                         mutationResult:mutationResult];
-
-  NSDictionary *expectedData =
-      @{ @"foo" : @{@"bar" : _timestamp.dateValue},
-         @"baz" : @"baz-value" };
-  XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0,
-expectedData, NO));
+TEST(Mutation, AppliesServerAckedTransformsToDocuments) {
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0,
+      {{"foo", FieldValue::ObjectValueFromMap(
+                   {{"bar", FieldValue::StringValue("bar-value")}})},
+       {"baz", FieldValue::StringValue("baz-value")}});
+  const TransformMutation transform =
+      testutil::ServerTimestampMutation("collection/key", {"foo.bar"});
+  const MutationResult mutation_result{
+      testutil::Version(1), std::vector<FieldValue>{FieldValue::TimestampValue(
+                                testutil::TestTimestamp())}};
+  const MaybeDocumentPointer transformed_doc = transform.ApplyTo(
+      base_doc, base_doc, testutil::TestTimestamp(), mutation_result);
+  EXPECT_TRUE(transformed_doc);
+  EXPECT_EQ(
+      testutil::Doc("collection/key", 0,
+                    {{"foo", FieldValue::ObjectValueFromMap(
+                                 {{"bar", FieldValue::TimestampValue(
+                                              testutil::TestTimestamp())}})},
+                     {"baz", FieldValue::StringValue("baz-value")}}),
+      *transformed_doc);
 }
 
-- (void)testDeleteDeletes {
-  NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
-
-  FSTMutation *mutation = FSTTestDeleteMutation(@"collection/key");
-  FSTMaybeDocument *result =
-      [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
-  XCTAssertEqualObjects(result, FSTTestDeletedDoc("collection/key", 0));
+TEST(Mutation, DeleteDeletes) {  // This name is consistent with the Firestore
+                                 // test in other platforms.
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0, {{"foo", FieldValue::StringValue("bar")}});
+  const DeleteMutation mutation =
+      testutil::TestDeleteMutation("collection/key");
+  const MaybeDocumentPointer deleted_doc =
+      mutation.Mutation::ApplyTo(base_doc, base_doc, testutil::TestTimestamp());
+  EXPECT_TRUE(deleted_doc);
+  EXPECT_EQ(testutil::DeletedDoc("collection/key", 0), *deleted_doc);
 }
 
-- (void)testSetWithMutationResult {
-  NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
-
-  FSTMutation *set = FSTTestSetMutation(@"collection/key", @{@"foo" :
-@"new-bar"}); FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4)
-transformResults:nil]; FSTMaybeDocument *setDoc = [set applyTo:baseDoc
-                             baseDocument:baseDoc
-                           localWriteTime:_timestamp
-                           mutationResult:mutationResult];
-
-  NSDictionary *expectedData = @{@"foo" : @"new-bar"};
-  XCTAssertEqualObjects(setDoc, FSTTestDoc("collection/key", 0, expectedData,
-NO));
+TEST(Mutation, SetWithMutationResult) {
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0, {{"foo", FieldValue::StringValue("bar")}});
+  const SetMutation set = testutil::TestSetMutation(
+      "collection/key", {{"foo", FieldValue::StringValue("new-bar")}});
+  const MutationResult mutation_result{testutil::Version(4)};
+  const MaybeDocumentPointer set_doc = set.ApplyTo(
+      base_doc, base_doc, testutil::TestTimestamp(), mutation_result);
+  EXPECT_TRUE(set_doc);
+  EXPECT_EQ(testutil::Doc("collection/key", 0,
+                          {{"foo", FieldValue::StringValue("new-bar")}}),
+            *set_doc);
 }
 
-- (void)testPatchWithMutationResult {
-  NSDictionary *docData = @{@"foo" : @"bar"};
-  FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
-
-  FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo" :
-@"new-bar"}, {}); FSTMutationResult *mutationResult =
-      [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(4)
-transformResults:nil]; FSTMaybeDocument *patchedDoc = [patch applyTo:baseDoc
-                                   baseDocument:baseDoc
-                                 localWriteTime:_timestamp
-                                 mutationResult:mutationResult];
-
-  NSDictionary *expectedData = @{@"foo" : @"new-bar"};
-  XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 0,
-expectedData, NO));
+TEST(Mutation, PatchWithMutationResult) {
+  const MaybeDocumentPointer base_doc = testutil::DocPointer(
+      "collection/key", 0, {{"foo", FieldValue::StringValue("bar")}});
+  const PatchMutation patch = testutil::TestPatchMutation(
+      "collection/key", {{"foo", FieldValue::StringValue("new-bar")}});
+  const MutationResult mutation_result{testutil::Version(4)};
+  const MaybeDocumentPointer patched_doc = patch.ApplyTo(
+      base_doc, base_doc, testutil::TestTimestamp(), mutation_result);
+  EXPECT_TRUE(patched_doc);
+  EXPECT_EQ(testutil::Doc("collection/key", 0,
+                          {{"foo", FieldValue::StringValue("new-bar")}}),
+            *patched_doc);
 }
 
-#define ASSERT_VERSION_TRANSITION(mutation, base, expected) \
-  do { \
-    FSTMutationResult *mutationResult = \
-        [[FSTMutationResult alloc] initWithVersion:FSTTestVersion(0)
-transformResults:nil]; \
-    FSTMaybeDocument *actual = [mutation applyTo:base \
-                                    baseDocument:base \
-                                  localWriteTime:_timestamp \
-                                  mutationResult:mutationResult]; \
-    XCTAssertEqualObjects(actual, expected); \ } while (0);
-
- * Tests the transition table documented in FSTMutation.h.
-- (void)testTransitions {
-  FSTDocument *docV0 = FSTTestDoc("collection/key", 0, @{}, NO);
-  FSTDeletedDocument *deletedV0 = FSTTestDeletedDoc("collection/key", 0);
-
-  FSTDocument *docV3 = FSTTestDoc("collection/key", 3, @{}, NO);
-  FSTDeletedDocument *deletedV3 = FSTTestDeletedDoc("collection/key", 3);
-
-  FSTMutation *setMutation = FSTTestSetMutation(@"collection/key", @{});
-  FSTMutation *patchMutation = FSTTestPatchMutation("collection/key", {}, {});
-  FSTMutation *deleteMutation = FSTTestDeleteMutation(@"collection/key");
-
-  ASSERT_VERSION_TRANSITION(setMutation, docV3, docV3);
-  ASSERT_VERSION_TRANSITION(setMutation, deletedV3, docV0);
-  ASSERT_VERSION_TRANSITION(setMutation, nil, docV0);
-
-  ASSERT_VERSION_TRANSITION(patchMutation, docV3, docV3);
-  ASSERT_VERSION_TRANSITION(patchMutation, deletedV3, deletedV3);
-  ASSERT_VERSION_TRANSITION(patchMutation, nil, nil);
-
-  ASSERT_VERSION_TRANSITION(deleteMutation, docV3, deletedV0);
-  ASSERT_VERSION_TRANSITION(deleteMutation, deletedV3, deletedV0);
-  ASSERT_VERSION_TRANSITION(deleteMutation, nil, deletedV0);
+void AssertVersionTransition(const Mutation& mutation,
+                             MaybeDocumentPointer base,
+                             MaybeDocumentPointer expected) {
+  const MutationResult mutation_result{testutil::Version(0)};
+  const MaybeDocumentPointer mutated_doc =
+      mutation.ApplyTo(base, base, testutil::TestTimestamp(), mutation_result);
+  if (expected) {
+    EXPECT_TRUE(mutated_doc);
+    EXPECT_EQ(*expected, *mutated_doc);
+  } else {
+    EXPECT_FALSE(mutated_doc);
+  }
 }
-*/
+
+// Tests the transition table documented in FSTMutation.h.
+TEST(Mutation, Transitions) {
+  const MaybeDocumentPointer doc_v0 =
+      testutil::DocPointer("collection/key", 0, {});
+  const MaybeDocumentPointer deleted_v0 =
+      testutil::DeletedDocPointer("collection/key", 0);
+
+  const MaybeDocumentPointer doc_v3 =
+      testutil::DocPointer("collection/key", 3, {});
+  const MaybeDocumentPointer deleted_v3 =
+      testutil::DeletedDocPointer("collection/key", 3);
+
+  SetMutation set_mutation = testutil::TestSetMutation("collection/key", {});
+  PatchMutation patch_mutation =
+      testutil::TestPatchMutation("collection/key", {}, {});
+  DeleteMutation delete_mutation =
+      testutil::TestDeleteMutation("collection/key");
+
+  AssertVersionTransition(set_mutation, doc_v3, doc_v3);
+  AssertVersionTransition(set_mutation, deleted_v3, doc_v0);
+  AssertVersionTransition(set_mutation, nullptr, doc_v0);
+
+  AssertVersionTransition(patch_mutation, doc_v3, doc_v3);
+  AssertVersionTransition(patch_mutation, deleted_v3, deleted_v3);
+  AssertVersionTransition(patch_mutation, nullptr, nullptr);
+
+  AssertVersionTransition(delete_mutation, doc_v3, deleted_v0);
+  AssertVersionTransition(delete_mutation, deleted_v3, deleted_v0);
+  AssertVersionTransition(delete_mutation, nullptr, deleted_v0);
+}
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

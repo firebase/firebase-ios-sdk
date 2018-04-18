@@ -62,7 +62,7 @@ MaybeDocumentPointer SetMutation::ApplyTo(
     return maybe_doc;
   }
 
-  bool has_local_mutations = mutation_result.has_value();
+  bool has_local_mutations = !mutation_result.has_value();
   if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // If the document didn't exist before, create it.
     return std::make_shared<Document>(
@@ -102,7 +102,7 @@ MaybeDocumentPointer PatchMutation::ApplyTo(
     return maybe_doc;
   }
 
-  bool has_local_mutations = mutation_result.has_value();
+  bool has_local_mutations = !mutation_result.has_value();
   if (!maybe_doc || maybe_doc->type() == MaybeDocument::Type::NoDocument) {
     // Precondition applied, so create the document if necessary
     const DocumentKey& key = maybe_doc ? maybe_doc->key() : key_;
@@ -158,7 +158,7 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
                             "Transform results missing for TransformMutation.");
   }
 
-  if (precondition_.IsValidFor(maybe_doc)) {
+  if (!precondition_.IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 
@@ -170,7 +170,7 @@ MaybeDocumentPointer TransformMutation::ApplyTo(
 
   FIREBASE_ASSERT_MESSAGE(doc->key() == key_,
                           "Can only transform a document with the same key");
-  bool has_local_mutations = mutation_result.has_value();
+  bool has_local_mutations = !mutation_result.has_value();
   FieldValue new_data;
   if (mutation_result) {
     new_data = TransformObject(doc->data(),
@@ -243,7 +243,7 @@ MaybeDocumentPointer DeleteMutation::ApplyTo(
                             "Transform results received by DeleteMutation.");
   }
 
-  if (precondition_.IsValidFor(maybe_doc)) {
+  if (!precondition_.IsValidFor(maybe_doc)) {
     return maybe_doc;
   }
 

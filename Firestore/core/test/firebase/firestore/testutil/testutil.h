@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdint>
+#include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -32,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -67,18 +70,22 @@ inline const Timestamp& TestTimestamp() {
   return timestamp;
 }
 
-inline model::Document Doc(absl::string_view key, int64_t version) {
-  return model::Document{model::FieldValue::ObjectValueFromMap({}), Key(key),
-                         Version(version),
-                         /* has_local_mutations= */ false};
+inline model::Document Doc(absl::string_view key,
+                           int64_t version,
+                           model::ObjectValue::Map data,
+                           bool has_local_mutations) {
+  return model::Document{model::FieldValue::ObjectValueFromMap(std::move(data)),
+                         Key(key), Version(version), has_local_mutations};
 }
 
 inline model::Document Doc(absl::string_view key,
                            int64_t version,
                            model::ObjectValue::Map data) {
-  return model::Document{model::FieldValue::ObjectValueFromMap(std::move(data)),
-                         Key(key), Version(version),
-                         /* has_local_mutations= */ false};
+  return Doc(key, version, std::move(data), /* has_local_mutations= */ false);
+}
+
+inline model::Document Doc(absl::string_view key, int64_t version) {
+  return Doc(key, version, {});
 }
 
 inline model::MaybeDocumentPointer DocPointer(absl::string_view key,
@@ -92,6 +99,11 @@ inline model::MaybeDocumentPointer DocPointer(absl::string_view key,
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version)};
+}
+
+inline model::MaybeDocumentPointer DeletedDocPointer(absl::string_view key,
+                                                     int64_t version) {
+  return std::make_shared<model::NoDocument>(Key(key), Version(version));
 }
 
 inline model::SetMutation TestSetMutation(absl::string_view path,
@@ -125,8 +137,25 @@ inline model::PatchMutation TestPatchMutation(
   std::sort(object_mask.begin(), object_mask.end());
 
   return model::PatchMutation{
-      Key(path), model::FieldMask{merge ? update_mask : object_mask}, object,
+      Key(path), model::FieldMask{merge ? update_mask : object_mask},
+      std::move(object),
       merge ? model::Precondition::None() : model::Precondition::Exists(true)};
+}
+
+inline model::TransformMutation ServerTimestampMutation(
+    absl::string_view path,
+    const std::vector<std::string>& server_timestamp_fields) {
+  std::vector<model::FieldTransform> field_transforms;
+  for (const std::string& field : server_timestamp_fields) {
+    field_transforms.emplace_back(
+        Field(field), absl::make_unique<model::ServerTimestampTransform>(
+                          model::ServerTimestampTransform::Get()));
+  }
+  return model::TransformMutation{Key(path), std::move(field_transforms)};
+}
+
+inline model::DeleteMutation TestDeleteMutation(absl::string_view path) {
+  return model::DeleteMutation{Key(path), model::Precondition::None()};
 }
 
 // Add a non-inline function to make this library buildable.
