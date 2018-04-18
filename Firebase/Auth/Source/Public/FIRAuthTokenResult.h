@@ -57,7 +57,7 @@ NS_SWIFT_NAME(AuthTokenResult)
     @brief Stores the entire payload of claims found on the ID token. This includes the standard
         reserved claims as well as custom claims set by the developer via the Admin SDK.
  */
-@property (nonatomic, readonly) NSDictionary<NSString *, NSString *> *claims;
+@property (nonatomic, readonly) NSDictionary<NSString *, id> *claims;
 
 
 
