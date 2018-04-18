@@ -113,14 +113,17 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
-xcb_flags_sanitizers=()
-cmake_options=()
+cmake_options=(
+  -Wdeprecated
+  --warn-uninitialized
+  --warn-unused-vars
+)
 
 if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
     case "$sanitizer" in
       asan)
-        xcb_flags_sanitizers+=(
+        xcb_flags+=(
           -enableAddressSanitizer YES
         )
         cmake_options+=(
@@ -129,7 +132,7 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         ;;
 
       tsan)
-        xcb_flags_sanitizers+=(
+        xcb_flags+=(
           -enableThreadSanitizer YES
         )
         cmake_options+=(
@@ -138,7 +141,7 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         ;;
 
       ubsan)
-        xcb_flags_sanitizers+=(
+        xcb_flags+=(
           -enableUndefinedBehaviorSanitizer YES
         )
         cmake_options+=(
@@ -205,7 +208,6 @@ case "$product-$method-$platform" in
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme 'Firestore_Tests' \
         "${xcb_flags[@]}" \
-        ${xcb_flags_sanitizers[@]+"${xcb_flags_sanitizers[@]}"} \
         build \
         test
 
@@ -219,7 +221,7 @@ case "$product-$method-$platform" in
   Firestore-cmake-macOS)
     test -d build || mkdir build
     echo "Preparing cmake build ..."
-    (cd build; cmake ${cmake_options[@]+"${cmake_options[@]}"} ..)
+    (cd build; cmake "${cmake_options[@]}" ..)
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
