@@ -113,10 +113,11 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
+# TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
+# Travis.
 cmake_options=(
   -Wdeprecated
   --warn-uninitialized
-  --warn-unused-vars
 )
 
 if [[ -n "${SANITIZERS:-}" ]]; then

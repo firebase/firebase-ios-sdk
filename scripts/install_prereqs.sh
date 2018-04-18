@@ -16,11 +16,15 @@
 
 # Examines the following configured environment variables that should be
 # specified in an env: block
-#   - PROJECT - only Firestore is supported for now
-#   - METHOD - xcodebuild or cmake
+#   - PROJECT - Firebase or Firestore
+#   - METHOD - xcodebuild or cmake; default is xcodebuild
+
+if [[ -z "$METHOD" ]]; then
+  METHOD="xcodebuild"
+fi
 
 case "$PROJECT-$METHOD" in
-  Firebase-xcodebuild)
+  Firebase-*)
     # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
     # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
     bundle install
@@ -45,7 +49,6 @@ case "$PROJECT-$METHOD" in
     echo "Unknown project-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
     echo "  METHOD=$METHOD" 1>&2
-    echo "Only Firestore is supported now."
     exit 1
     ;;
 esac

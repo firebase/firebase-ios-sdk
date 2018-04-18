@@ -16,9 +16,13 @@
 
 # Examines the following configured environment variables that should be
 # specified in an env: block
-#   - PROJECT - only Firestore is supported for now
-#   - METHOD - xcodebuild or cmake
+#   - PROJECT - Firebase or Firestore
+#   - METHOD - xcodebuild or cmake; default is xcodebuild
 #   - PLATFORM - iOS, macOS, or tvOS
+
+if [[ -z "$METHOD" ]]; then
+  METHOD="xcodebuild"
+fi
 
 case "$PROJECT-$METHOD-$PLATFORM" in
   Firebase-xcodebuild-iOS)
@@ -44,7 +48,6 @@ case "$PROJECT-$METHOD-$PLATFORM" in
     echo "Unknown project-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
     echo "  METHOD=$METHOD" 1>&2
-    echo "Only Firestore is supported now."
     exit 1
     ;;
 esac
