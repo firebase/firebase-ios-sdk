@@ -29,6 +29,8 @@ list(APPEND BASE_PUBLIC_HEADERS
 list(APPEND BASE_INTERNAL_HEADERS
   "internal/atomic_hook.h"
   "internal/endian.h"
+  "internal/identity.h"
+  "internal/inline_variable.h"
   "internal/raw_logging.h"
   "internal/throw_delegate.h"
   "internal/unaligned_access.h"
@@ -85,6 +87,26 @@ absl_library(
 #
 ## TESTS
 #
+
+# test inline_variable_test
+list(APPEND INLINE_VARIABLE_TEST_SRC
+  "internal/inline_variable_testing.h"
+  "inline_variable_test.cc"
+  "inline_variable_test_a.cc"
+  "inline_variable_test_b.cc"
+)
+
+set(INLINE_VARIABLE_TEST_PUBLIC_LIBRARIES absl::base)
+
+absl_test(
+  TARGET
+    inline_variable_test
+  SOURCES
+    ${INLINE_VARIABLE_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${INLINE_VARIABLE_TEST_PUBLIC_LIBRARIES}
+)
+
 
 # test endian_test
 set(ENDIAN_TEST_SRC "internal/endian_test.cc")

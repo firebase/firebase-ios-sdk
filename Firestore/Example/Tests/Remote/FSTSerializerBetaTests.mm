@@ -367,7 +367,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
-- (void)testEncodesTransformMutation {
+- (void)testEncodesServerTimestampTransformMutation {
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForServerTimestamp],
     @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
@@ -377,6 +377,38 @@ NS_ASSUME_NONNULL_BEGIN
   proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
   proto.transform.fieldTransformsArray =
       [self.serializer encodedFieldTransforms:mutation.fieldTransforms];
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesArrayTransformMutations {
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
+      @{ @"x" : @1 }
+    ]]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+
+  GCFSDocumentTransform_FieldTransform *arrayUnion = [GCFSDocumentTransform_FieldTransform message];
+  arrayUnion.fieldPath = @"a";
+  arrayUnion.appendMissingElements = [GCFSArrayValue message];
+  NSMutableArray *unionElements = arrayUnion.appendMissingElements.valuesArray;
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@"a")]];
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
+  [proto.transform.fieldTransformsArray addObject:arrayUnion];
+
+  GCFSDocumentTransform_FieldTransform *arrayRemove =
+      [GCFSDocumentTransform_FieldTransform message];
+  arrayRemove.fieldPath = @"bar.baz";
+  arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
+  NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
+  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{ @"x" : @1 })]];
+  [proto.transform.fieldTransformsArray addObject:arrayRemove];
+
   proto.currentDocument.exists = YES;
 
   [self assertRoundTripForMutation:mutation proto:proto];

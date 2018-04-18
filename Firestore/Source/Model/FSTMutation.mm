@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
@@ -50,8 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMutationResult
 
-- (instancetype)initWithVersion:(FSTSnapshotVersion *_Nullable)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults {
+- (instancetype)initWithVersion:(nullable FSTSnapshotVersion *)version
+               transformResults:(nullable NSArray<FSTFieldValue *> *)transformResults {
   if (self = [super init]) {
     _version = version;
     _transformResults = transformResults;
@@ -345,18 +346,70 @@ NS_ASSUME_NONNULL_BEGIN
             [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the same key");
+  FSTAssert([doc.key isEqual:self.key], @"Can only transform a document with the same key");
 
   BOOL hasLocalMutations = (mutationResult == nil);
-  NSArray<FSTFieldValue *> *transformResults =
-      mutationResult
-          ? mutationResult.transformResults
-          : [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
+  NSArray<FSTFieldValue *> *transformResults;
+  if (mutationResult) {
+    transformResults =
+        [self serverTransformResultsWithBaseDocument:baseDoc
+                              serverTransformResults:mutationResult.transformResults];
+  } else {
+    transformResults =
+        [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
+  }
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
   return [FSTDocument documentWithData:newData
                                    key:doc.key
                                version:doc.version
                      hasLocalMutations:hasLocalMutations];
+}
+
+/**
+ * Creates an array of "transform results" (a transform result is a field value representing the
+ * result of applying a transform) for use after a FSTTransformMutation has been acknowledged by
+ * the server.
+ *
+ * @param baseDocument The document prior to applying this mutation batch.
+ * @param serverTransformResults The transform results received by the server.
+ * @return The transform results array.
+ */
+- (NSArray<FSTFieldValue *> *)
+serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
+                serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
+  NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
+  FSTAssert(self.fieldTransforms.size() == serverTransformResults.count,
+            @"server transform result count (%ld) should match field transforms count (%ld)",
+            serverTransformResults.count, self.fieldTransforms.size());
+
+  for (NSUInteger i = 0; i < serverTransformResults.count; i++) {
+    const FieldTransform &fieldTransform = self.fieldTransforms[i];
+    FSTFieldValue *previousValue = nil;
+    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    }
+
+    FSTFieldValue *transformResult;
+    // The server just sends null as the transform result for array union / remove operations, so
+    // we have to calculate a result the same as we do for local applications.
+    if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+      transformResult = [self
+          arrayUnionResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                         previousValue:previousValue];
+
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+      transformResult = [self
+          arrayRemoveResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                          previousValue:previousValue];
+
+    } else {
+      // Just use the server-supplied result.
+      transformResult = serverTransformResults[i];
+    }
+
+    [transformResults addObject:transformResult];
+  }
+  return transformResults;
 }
 
 /**
@@ -369,25 +422,79 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
-                                  (FSTMaybeDocument *_Nullable)baseDocument
+                                  (nullable FSTMaybeDocument *)baseDocument
                                                           writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : self.fieldTransforms) {
+    FSTFieldValue *previousValue = nil;
+    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    }
+
+    FSTFieldValue *transformResult;
     if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
-      FSTFieldValue *previousValue = nil;
+      transformResult =
+          [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
+                                                            previousValue:previousValue];
 
-      if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
-      }
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+      transformResult = [self
+          arrayUnionResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                         previousValue:previousValue];
 
-      [transformResults
-          addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
-                                                                      previousValue:previousValue]];
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+      transformResult = [self
+          arrayRemoveResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                          previousValue:previousValue];
+
     } else {
       FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
     }
+
+    [transformResults addObject:transformResult];
   }
   return transformResults;
+}
+
+/**
+ * Transforms the provided `previousValue` via the provided `elements`. Used both for local
+ * application and after server acknowledgement.
+ */
+- (FSTFieldValue *)arrayUnionResultWithElements:(const std::vector<FSTFieldValue *> &)elements
+                                  previousValue:(FSTFieldValue *)previousValue {
+  NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
+  for (FSTFieldValue *element : elements) {
+    if (![result containsObject:element]) {
+      [result addObject:element];
+    }
+  }
+  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+}
+
+/**
+ * Transforms the provided `previousValue` via the provided `elements`. Used both for local
+ * application and after server acknowledgement.
+ */
+- (FSTFieldValue *)arrayRemoveResultWithElements:(const std::vector<FSTFieldValue *> &)elements
+                                   previousValue:(FSTFieldValue *)previousValue {
+  NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
+  for (FSTFieldValue *element : elements) {
+    [result removeObject:element];
+  }
+  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+}
+
+/**
+ * Inspects the provided value, returning a mutable copy of the internal array if it's an
+ * FSTArrayValue and an empty mutable array if it's nil or any other type of FSTFieldValue.
+ */
+- (NSMutableArray<FSTFieldValue *> *)coercedFieldValuesArray:(nullable FSTFieldValue *)value {
+  if ([value isMemberOfClass:[FSTArrayValue class]]) {
+    return [NSMutableArray arrayWithArray:((FSTArrayValue *)value).internalValue];
+  } else {
+    // coerce to empty array.
+    return [NSMutableArray array];
+  }
 }
 
 - (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
@@ -397,13 +504,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
-    const TransformOperation &transform = fieldTransform.transformation();
     const FieldPath &fieldPath = fieldTransform.path();
-    if (transform.type() == TransformOperation::Type::ServerTimestamp) {
-      objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
-    } else {
-      FSTFail(@"Encountered unknown transform: %d type", transform.type());
-    }
+    objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
   }
   return objectValue;
 }

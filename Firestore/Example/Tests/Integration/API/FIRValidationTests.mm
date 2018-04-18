@@ -363,6 +363,51 @@
   }
 }
 
+#pragma mark - ArrayUnion / ArrayRemove Validation
+
+- (void)testArrayTransformsInQueriesFail {
+  FSTAssertThrows(
+      [[self collectionRef] queryWhereField:@"test"
+                                  isEqualTo:@{
+                                    @"test" : [FIRFieldValue fieldValueForArrayUnion:@[ @1 ]]
+                                  }],
+      @"FieldValue.arrayUnion() can only be used with updateData() and setData() (found in field "
+       "test)");
+
+  FSTAssertThrows(
+      [[self collectionRef] queryWhereField:@"test"
+                                  isEqualTo:@{
+                                    @"test" : [FIRFieldValue fieldValueForArrayRemove:@[ @1 ]]
+                                  }],
+      @"FieldValue.arrayRemove() can only be used with updateData() and setData() (found in field "
+      @"test)");
+}
+
+- (void)testInvalidArrayTransformElementFails {
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, self ]]
+  }
+      toFailWithReason:@"Unsupported type: FIRValidationTests"];
+
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, self ]]
+  }
+      toFailWithReason:@"Unsupported type: FIRValidationTests"];
+}
+
+- (void)testArraysInArrayTransformsFail {
+  // This would result in a directly nested array which is not supported.
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @[ @"nested" ] ]]
+  }
+      toFailWithReason:@"Nested arrays are not supported"];
+
+  [self expectWrite:@{
+    @"foo" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @[ @"nested" ] ]]
+  }
+      toFailWithReason:@"Nested arrays are not supported"];
+}
+
 #pragma mark - Query Validation
 
 - (void)testQueryWithNonPositiveLimitFails {
