@@ -111,6 +111,24 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
     return TreeSortedMap{this->comparator()};
   }
 
+  bool contains(const K& key) const {
+    // Inline the tree traversal here to avoid building up the stack required
+    // to construct a full iterator.
+    const C& comparator = this->comparator();
+    const node_type* node = &root();
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return true;
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+      } else {
+        node = &node->right();
+      }
+    }
+    return false;
+  }
+
   /**
    * Finds a value in the map.
    *

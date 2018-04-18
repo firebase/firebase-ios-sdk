@@ -201,6 +201,16 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  bool contains(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.contains(key);
+      case Tag::Tree:
+        return tree_.contains(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   /**
    * Finds a value in the map.
    *

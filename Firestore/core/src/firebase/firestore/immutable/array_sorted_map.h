@@ -226,6 +226,10 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
+  bool contains(const K& key) const {
+    return find(key) != end();
+  }
+
   /**
    * Finds a value in the map.
    *
