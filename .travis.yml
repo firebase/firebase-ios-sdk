@@ -126,8 +126,8 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
-      # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by
-      # default, need to make them fatal for the purposes of the test run.
+    # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
+    # need to make them fatal for the purposes of the test run.
 
   # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
   allow_failures:
