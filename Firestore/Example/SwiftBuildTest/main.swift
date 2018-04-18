@@ -103,8 +103,9 @@ func writeDocument(at docRef: DocumentReference) {
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
     "server_timestamp": FieldValue.serverTimestamp(),
-    "array_union": FieldValue.arrayUnion(["a", "b"]),
-    "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    // TODO(array-features): Uncomment once we add these to the public API
+    // "array_union": FieldValue.arrayUnion(["a", "b"]),
+    // "array_remove": FieldValue.arrayRemove(["a", "b"]),
     "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 
