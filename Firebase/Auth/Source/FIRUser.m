@@ -830,7 +830,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
-  error = nil;
+  *error = nil;
   NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
   // The token payload is always the second index of the array.
   NSMutableString *tokenPayload = [[NSMutableString alloc] initWithString:tokenStringArray[1]];
@@ -850,7 +850,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
                                       options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
                                         error:error];
-  if (error) {
+  if (*error) {
     return nil;
   }
 
