@@ -26,7 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 
+@end
+
 // TODO(array-features): Move to FIRQuery.h once backend support is available.
+@interface FIRQuery ()
+
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field, it must be an array, and the array must contain the provided value.
