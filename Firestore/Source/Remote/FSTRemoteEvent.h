@@ -173,7 +173,7 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 - (void)handleExistenceFilterMismatchForTargetID:(FSTBoxedTargetID *)targetID;
 
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
-                                         key:(const firebase::firestore::model::DocumentKey&)key;
+                                         key:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Strips out mapping changes that aren't actually changes. That is, if the document already

@@ -297,9 +297,9 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 }
 
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
-                                         key:(const DocumentKey&)key {
+                                         key:(const DocumentKey &)key {
   if (targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
-          _documentUpdates.find(key) == _documentUpdates.end()) {
+      _documentUpdates.find(key) == _documentUpdates.end()) {
     // When listening to a query the server responds with a snapshot containing documents
     // matching the query and a current marker telling us we're now in sync. It's possible for
     // these to arrive as separate remote events or as a single remote event. For a document
