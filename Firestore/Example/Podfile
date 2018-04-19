@@ -9,7 +9,7 @@ pod 'FirebaseAuth', :path => '../../'
 pod 'FirebaseCore', :path => '../../'
 pod 'FirebaseFirestore', :path => '../../'
 
-target 'Firestore_Example' do
+target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
   target 'Firestore_Tests' do
