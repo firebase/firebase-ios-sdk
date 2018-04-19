@@ -13,60 +13,9 @@
 
 set -eo pipefail
 
-test_iOS() {
-  xcodebuild \
-    -workspace Example/Firebase.xcworkspace \
-    -scheme AllUnitTests_iOS \
-    -sdk iphonesimulator \
-    -destination 'platform=iOS Simulator,name=iPhone 7' \
-    build \
-    test \
-    ONLY_ACTIVE_ARCH=YES \
-    CODE_SIGNING_REQUIRED=NO \
-    | xcpretty
-}
+top_dir=$(dirname "${BASH_SOURCE[0]}")
+scripts_dir="$top_dir/scripts"
 
-test_macOS() {
-  xcodebuild \
-    -workspace Example/Firebase.xcworkspace \
-    -scheme AllUnitTests_macOS \
-    -sdk macosx \
-    -destination 'platform=OS X,arch=x86_64' \
-    build \
-    test \
-    ONLY_ACTIVE_ARCH=YES \
-    CODE_SIGNING_REQUIRED=NO \
-    | xcpretty
-}
-
-test_tvOS() {
-  xcodebuild \
-    -workspace Example/Firebase.xcworkspace \
-    -scheme AllUnitTests_tvOS \
-    -sdk appletvsimulator \
-    -destination 'platform=tvOS Simulator,name=Apple TV' \
-    build \
-    test \
-    ONLY_ACTIVE_ARCH=YES \
-    CODE_SIGNING_REQUIRED=NO \
-    | xcpretty
-}
-
-test_iOS; RESULT=$?
-
-if [ $RESULT != 0 ]; then exit $RESULT; fi
-
-test_macOS; RESULT=$?
-
-if [ $RESULT == 65 ]; then
-  echo "xcodebuild exited with 65, retrying"
-  sleep 5
-
-  test_macOS; RESULT=$?
-fi
-
-if [ $RESULT != 0 ]; then exit $RESULT; fi
-
-test_tvOS; RESULT=$?
-
-if [ $RESULT != 0 ]; then exit $RESULT; fi
+$scripts_dir/build.sh Firebase iOS
+$scripts_dir/build.sh Firebase macOS
+$scripts_dir/build.sh Firebase tvOS

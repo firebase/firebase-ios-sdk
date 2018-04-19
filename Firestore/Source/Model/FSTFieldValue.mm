@@ -16,18 +16,22 @@
 
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
-#include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#import "FIRDocumentSnapshot.h"
+#import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
-#import "Firestore/Source/API/FIRSnapshotOptions+Internal.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::util::Comparator;
 using firebase::firestore::util::CompareMixedNumber;
 using firebase::firestore::util::DoubleBitwiseEquals;
@@ -42,28 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFieldValueOptions
 
-+ (instancetype)optionsForSnapshotOptions:(FIRSnapshotOptions *)options {
-  if (options.serverTimestampBehavior == FSTServerTimestampBehaviorNone) {
-    static FSTFieldValueOptions *defaultInstance = nil;
-    static dispatch_once_t onceToken;
-
-    dispatch_once(&onceToken, ^{
-      defaultInstance = [[FSTFieldValueOptions alloc]
-          initWithServerTimestampBehavior:FSTServerTimestampBehaviorNone];
-    });
-    return defaultInstance;
-  } else {
-    return [[FSTFieldValueOptions alloc]
-        initWithServerTimestampBehavior:options.serverTimestampBehavior];
-  }
-}
-
-- (instancetype)initWithServerTimestampBehavior:
-    (FSTServerTimestampBehavior)serverTimestampBehavior {
+- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior
+                   timestampsInSnapshotsEnabled:(BOOL)timestampsInSnapshotsEnabled {
   self = [super init];
 
   if (self) {
     _serverTimestampBehavior = serverTimestampBehavior;
+    _timestampsInSnapshotsEnabled = timestampsInSnapshotsEnabled;
   }
   return self;
 }
@@ -83,12 +72,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id)value {
-  return [self valueWithOptions:[FSTFieldValueOptions
-                                    optionsForSnapshotOptions:[FIRSnapshotOptions defaultOptions]]];
+  @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  @throw FSTAbstractMethodException();  // NOLINT
+  return [self value];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -137,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderNull;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return [NSNull null];
 }
 
@@ -203,7 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
   return FSTTypeOrderBoolean;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue ? @YES : @NO;
 }
 
@@ -284,7 +272,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return @(self.internalValue);
 }
 
@@ -336,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return @(self.internalValue);
 }
 
@@ -394,7 +382,7 @@ struct Comparator<NSString *> {
   return FSTTypeOrderString;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -420,19 +408,19 @@ struct Comparator<NSString *> {
 #pragma mark - FSTTimestampValue
 
 @interface FSTTimestampValue ()
-@property(nonatomic, strong, readonly) FSTTimestamp *internalValue;
+@property(nonatomic, strong, readonly) FIRTimestamp *internalValue;
 @end
 
 @implementation FSTTimestampValue
 
-+ (instancetype)timestampValue:(FSTTimestamp *)value {
++ (instancetype)timestampValue:(FIRTimestamp *)value {
   return [[FSTTimestampValue alloc] initWithValue:value];
 }
 
-- (id)initWithValue:(FSTTimestamp *)value {
+- (id)initWithValue:(FIRTimestamp *)value {
   self = [super init];
   if (self) {
-    _internalValue = value;  // FSTTimestamp is immutable.
+    _internalValue = value;  // FIRTimestamp is immutable.
   }
   return self;
 }
@@ -441,9 +429,16 @@ struct Comparator<NSString *> {
   return FSTTypeOrderTimestamp;
 }
 
+- (id)value {
+  return self.internalValue;
+}
+
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
-  // For developers, we expose Timestamps as Dates.
-  return self.internalValue.approximateDateValue;
+  if (options.timestampsInSnapshotsEnabled) {
+    return self.value;
+  } else {
+    return [self.value dateValue];
+  }
 }
 
 - (BOOL)isEqual:(id)other {
@@ -467,18 +462,17 @@ struct Comparator<NSString *> {
 }
 
 @end
-
 #pragma mark - FSTServerTimestampValue
 
 @implementation FSTServerTimestampValue
 
-+ (instancetype)serverTimestampValueWithLocalWriteTime:(FSTTimestamp *)localWriteTime
++ (instancetype)serverTimestampValueWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                                          previousValue:(nullable FSTFieldValue *)previousValue {
   return [[FSTServerTimestampValue alloc] initWithLocalWriteTime:localWriteTime
                                                    previousValue:previousValue];
 }
 
-- (id)initWithLocalWriteTime:(FSTTimestamp *)localWriteTime
+- (id)initWithLocalWriteTime:(FIRTimestamp *)localWriteTime
                previousValue:(nullable FSTFieldValue *)previousValue {
   self = [super init];
   if (self) {
@@ -492,16 +486,20 @@ struct Comparator<NSString *> {
   return FSTTypeOrderTimestamp;
 }
 
+- (id)value {
+  return [NSNull null];
+}
+
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
   switch (options.serverTimestampBehavior) {
     case FSTServerTimestampBehaviorNone:
       return [NSNull null];
     case FSTServerTimestampBehaviorEstimate:
-      return [self.localWriteTime approximateDateValue];
+      return [[FSTTimestampValue timestampValue:self.localWriteTime] valueWithOptions:options];
     case FSTServerTimestampBehaviorPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
-      FSTFail(@"Unexpected server timestamp option: %d", (int)options.serverTimestampBehavior);
+      FSTFail(@"Unexpected server timestamp option: %ld", (long)options.serverTimestampBehavior);
   }
 }
 
@@ -555,7 +553,7 @@ struct Comparator<NSString *> {
   return FSTTypeOrderGeoPoint;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -577,7 +575,6 @@ struct Comparator<NSString *> {
 }
 
 @end
-
 #pragma mark - FSTBlobValue
 
 static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
@@ -619,7 +616,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   return FSTTypeOrderBlob;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.internalValue;
 }
 
@@ -650,11 +647,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 
 @implementation FSTReferenceValue
 
-+ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID {
++ (instancetype)referenceValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   return [[FSTReferenceValue alloc] initWithValue:value databaseID:databaseID];
 }
 
-- (id)initWithValue:(FSTDocumentKey *)value databaseID:(FSTDatabaseID *)databaseID {
+- (id)initWithValue:(FSTDocumentKey *)value databaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _key = value;
@@ -663,7 +660,7 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   return self;
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   return self.key;
 }
 
@@ -680,12 +677,11 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
   }
 
   FSTReferenceValue *otherRef = (FSTReferenceValue *)other;
-  return [self.key isEqualToKey:otherRef.key] &&
-         [self.databaseID isEqualToDatabaseId:otherRef.databaseID];
+  return [self.key isEqualToKey:otherRef.key] && *self.databaseID == *otherRef.databaseID;
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.databaseID hash];
+  NSUInteger result = self.databaseID->Hash();
   result = 31 * result + [self.key hash];
   return result;
 }
@@ -693,7 +689,13 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = [self.databaseID compare:ref.databaseID];
+    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID->project_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->project_id())];
+    if (cmp != NSOrderedSame) {
+      return cmp;
+    }
+    cmp = [util::WrapNSStringNoCopy(self.databaseID->database_id())
+        compare:util::WrapNSStringNoCopy(ref.databaseID->database_id())];
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];
@@ -740,6 +742,15 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   FSTImmutableSortedDictionary<NSString *, FSTFieldValue *> *dictionary =
       [FSTImmutableSortedDictionary dictionaryWithDictionary:value comparator:StringComparator];
   return [self initWithImmutableDictionary:dictionary];
+}
+
+- (id)value {
+  NSMutableDictionary *result = [NSMutableDictionary dictionary];
+  [self.internalValue
+      enumerateKeysAndObjectsUsingBlock:^(NSString *key, FSTFieldValue *obj, BOOL *stop) {
+        result[key] = [obj value];
+      }];
+  return result;
 }
 
 - (id)valueWithOptions:(FSTFieldValueOptions *)options {
@@ -798,30 +809,31 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   }
 }
 
-- (nullable FSTFieldValue *)valueForPath:(FSTFieldPath *)fieldPath {
+- (nullable FSTFieldValue *)valueForPath:(const FieldPath &)fieldPath {
   FSTFieldValue *value = self;
-  for (int i = 0, max = fieldPath.length; value && i < max; i++) {
+  for (size_t i = 0, max = fieldPath.size(); value && i < max; i++) {
     if (![value isMemberOfClass:[FSTObjectValue class]]) {
       return nil;
     }
 
-    NSString *fieldName = fieldPath[i];
+    NSString *fieldName = util::WrapNSStringNoCopy(fieldPath[i]);
     value = ((FSTObjectValue *)value).internalValue[fieldName];
   }
 
   return value;
 }
 
-- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value forPath:(FSTFieldPath *)fieldPath {
-  FSTAssert([fieldPath length] > 0, @"Cannot set value with an empty path");
+- (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
+                                 forPath:(const FieldPath &)fieldPath {
+  FSTAssert(fieldPath.size() > 0, @"Cannot set value with an empty path");
 
-  NSString *childName = [fieldPath firstSegment];
-  if ([fieldPath length] == 1) {
+  NSString *childName = util::WrapNSString(fieldPath.first_segment());
+  if (fieldPath.size() == 1) {
     // Recursive base case:
     return [self objectBySettingValue:value forField:childName];
   } else {
-    // Nested path. Recursively generate a new sub-object and then wrap a new FSTObjectValue around
-    // the result.
+    // Nested path. Recursively generate a new sub-object and then wrap a new FSTObjectValue
+    // around the result.
     FSTFieldValue *child = [_internalValue objectForKey:childName];
     FSTObjectValue *childObject;
     if ([child isKindOfClass:[FSTObjectValue class]]) {
@@ -831,23 +843,22 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
       // there.
       childObject = [FSTObjectValue objectValue];
     }
-    FSTFieldValue *newChild =
-        [childObject objectBySettingValue:value forPath:[fieldPath pathByRemovingFirstSegment]];
+    FSTFieldValue *newChild = [childObject objectBySettingValue:value forPath:fieldPath.PopFirst()];
     return [self objectBySettingValue:newChild forField:childName];
   }
 }
 
-- (FSTObjectValue *)objectByDeletingPath:(FSTFieldPath *)fieldPath {
-  FSTAssert([fieldPath length] > 0, @"Cannot delete an empty path");
-  NSString *childName = [fieldPath firstSegment];
-  if ([fieldPath length] == 1) {
+- (FSTObjectValue *)objectByDeletingPath:(const FieldPath &)fieldPath {
+  FSTAssert(fieldPath.size() > 0, @"Cannot delete an empty path");
+  NSString *childName = util::WrapNSString(fieldPath.first_segment());
+  if (fieldPath.size() == 1) {
     return [[FSTObjectValue alloc]
         initWithImmutableDictionary:[_internalValue dictionaryByRemovingObjectForKey:childName]];
   } else {
     FSTFieldValue *child = _internalValue[childName];
     if ([child isKindOfClass:[FSTObjectValue class]]) {
       FSTObjectValue *newChild =
-          [((FSTObjectValue *)child) objectByDeletingPath:[fieldPath pathByRemovingFirstSegment]];
+          [((FSTObjectValue *)child) objectByDeletingPath:fieldPath.PopFirst()];
       return [self objectBySettingValue:newChild forField:childName];
     } else {
       // If the child is not found or is a primitive type, make no modifications
@@ -897,10 +908,18 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
   return [self.internalValue hash];
 }
 
-- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+- (id)value {
   NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
   [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
     [result addObject:[obj value]];
+  }];
+  return result;
+}
+
+- (id)valueWithOptions:(FSTFieldValueOptions *)options {
+  NSMutableArray *result = [NSMutableArray arrayWithCapacity:_internalValue.count];
+  [self.internalValue enumerateObjectsUsingBlock:^(FSTFieldValue *obj, NSUInteger idx, BOOL *stop) {
+    [result addObject:[obj valueWithOptions:options]];
   }];
   return result;
 }

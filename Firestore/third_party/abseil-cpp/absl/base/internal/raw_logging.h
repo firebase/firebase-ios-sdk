@@ -20,7 +20,7 @@
 #define ABSL_BASE_INTERNAL_RAW_LOGGING_H_
 
 #include "absl/base/attributes.h"
-#include "absl/base/internal/log_severity.h"
+#include "absl/base/log_severity.h"
 #include "absl/base/macros.h"
 #include "absl/base/port.h"
 
@@ -73,6 +73,13 @@ namespace raw_logging_internal {
 // This does not allocate memory or acquire locks.
 void RawLog(absl::LogSeverity severity, const char* file, int line,
             const char* format, ...) ABSL_PRINTF_ATTRIBUTE(4, 5);
+
+// Writes the provided buffer directly to stderr, in a safe, low-level manner.
+//
+// In POSIX this means calling write(), which is async-signal safe and does
+// not malloc.  If the platform supports the SYS_write syscall, we invoke that
+// directly to side-step any libc interception.
+void SafeWriteToStderr(const char *s, size_t len);
 
 // compile-time function to get the "base" filename, that is, the part of
 // a filename after the last "/" or "\" path separator.  The search starts at

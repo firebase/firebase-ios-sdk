@@ -60,8 +60,7 @@ static NSString *const kPendingSubscriptionsListKey =
   _FIRMessagingDevAssert([token length], @"FIRMessaging error no token specified");
   _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
   if (!self.client) {
-    handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
 
@@ -75,8 +74,7 @@ static NSString *const kPendingSubscriptionsListKey =
   if (![[self class] isValidTopicWithPrefix:topic]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub000,
                             @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
     return;
   }
 
@@ -93,11 +91,9 @@ static NSString *const kPendingSubscriptionsListKey =
                                      topic:topic
                                    options:options
                               shouldDelete:NO
-                                   handler:
-      ^void(FIRMessagingTopicOperationResult result, NSError * error) {
-
-    handler(result, error);
-  }];
+                                   handler:^void(NSError *error) {
+                                     handler(error);
+                                   }];
 }
 
 - (void)unsubscribeWithToken:(NSString *)token
@@ -108,8 +104,7 @@ static NSString *const kPendingSubscriptionsListKey =
   _FIRMessagingDevAssert([topic length], @"FIRMessaging error Invalid empty topic specified");
 
   if (!self.client) {
-    handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
+    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubFIRMessagingNotSetup]);
     return;
   }
 
@@ -122,8 +117,7 @@ static NSString *const kPendingSubscriptionsListKey =
   if (![[self class] isValidTopicWithPrefix:topic]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodePubSub002,
                             @"Invalid FIRMessaging Pubsub topic %@", topic);
-    handler(FIRMessagingTopicOperationResultError,
-            [NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
+    handler([NSError errorWithFCMErrorCode:kFIRMessagingErrorCodePubSubInvalidTopic]);
     return;
   }
   if (![self verifyPubSubOptions:options]) {
@@ -139,11 +133,9 @@ static NSString *const kPendingSubscriptionsListKey =
                                      topic:topic
                                    options:options
                               shouldDelete:YES
-                                   handler:
-      ^void(FIRMessagingTopicOperationResult result, NSError * error) {
-
-    handler(result, error);
-  }];
+                                   handler:^void(NSError *error) {
+                                     handler(error);
+                                   }];
 }
 
 - (void)subscribeToTopic:(NSString *)topic

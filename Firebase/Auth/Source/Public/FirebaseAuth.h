@@ -22,6 +22,7 @@
 #import "FIRAuthCredential.h"
 #import "FIRAuthDataResult.h"
 #import "FIRAuthErrors.h"
+#import "FIRAuthTokenResult.h"
 #import "FirebaseAuthVersion.h"
 #import "FIREmailAuthProvider.h"
 #import "FIRFacebookAuthProvider.h"

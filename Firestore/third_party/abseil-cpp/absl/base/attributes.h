@@ -281,6 +281,18 @@
 #define ABSL_ATTRIBUTE_NO_SANITIZE_CFI
 #endif
 
+// ABSL_ATTRIBUTE_RETURNS_NONNULL
+//
+// Tells the compiler that a particular function never returns a null pointer.
+#if ABSL_HAVE_ATTRIBUTE(returns_nonnull) || \
+    (defined(__GNUC__) && \
+     (__GNUC__ > 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9)) && \
+     !defined(__clang__))
+#define ABSL_ATTRIBUTE_RETURNS_NONNULL __attribute__((returns_nonnull))
+#else
+#define ABSL_ATTRIBUTE_RETURNS_NONNULL
+#endif
+
 // ABSL_HAVE_ATTRIBUTE_SECTION
 //
 // Indicates whether labeled sections are supported. Labeled sections are not
@@ -304,6 +316,7 @@
 #define ABSL_ATTRIBUTE_SECTION(name) \
   __attribute__((section(#name))) __attribute__((noinline))
 #endif
+
 
 // ABSL_ATTRIBUTE_SECTION_VARIABLE
 //
@@ -344,6 +357,7 @@
   (reinterpret_cast<void *>(__start_##name))
 #define ABSL_ATTRIBUTE_SECTION_STOP(name) \
   (reinterpret_cast<void *>(__stop_##name))
+
 #else  // !ABSL_HAVE_ATTRIBUTE_SECTION
 
 #define ABSL_HAVE_ATTRIBUTE_SECTION 0
@@ -356,6 +370,7 @@
 #define ABSL_DECLARE_ATTRIBUTE_SECTION_VARS(name)
 #define ABSL_ATTRIBUTE_SECTION_START(name) (reinterpret_cast<void *>(0))
 #define ABSL_ATTRIBUTE_SECTION_STOP(name) (reinterpret_cast<void *>(0))
+
 #endif  // ABSL_ATTRIBUTE_SECTION
 
 // ABSL_ATTRIBUTE_STACK_ALIGN_FOR_OLD_LIBC
@@ -512,17 +527,34 @@
 #define ABSL_ATTRIBUTE_PACKED
 #endif
 
+// ABSL_ATTRIBUTE_FUNC_ALIGN
+//
+// Tells the compiler to align the function start at least to certain
+// alignment boundary
+#if ABSL_HAVE_ATTRIBUTE(aligned) || (defined(__GNUC__) && !defined(__clang__))
+#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes) __attribute__((aligned(bytes)))
+#else
+#define ABSL_ATTRIBUTE_FUNC_ALIGN(bytes)
+#endif
+
 // ABSL_CONST_INIT
 //
 // A variable declaration annotated with the `ABSL_CONST_INIT` attribute will
 // not compile (on supported platforms) unless the variable has a constant
 // initializer. This is useful for variables with static and thread storage
 // duration, because it guarantees that they will not suffer from the so-called
-// "static init order fiasco".
+// "static init order fiasco".  Prefer to put this attribute on the most visible
+// declaration of the variable, if there's more than one, because code that
+// accesses the variable can then use the attribute for optimization.
 //
 // Example:
 //
-//   ABSL_CONST_INIT static MyType my_var = MakeMyType(...);
+//   class MyClass {
+//    public:
+//     ABSL_CONST_INIT static MyType my_var;
+//   };
+//
+//   MyType MyClass::my_var = MakeMyType(...);
 //
 // Note that this attribute is redundant if the variable is declared constexpr.
 #if ABSL_HAVE_CPP_ATTRIBUTE(clang::require_constant_initialization)

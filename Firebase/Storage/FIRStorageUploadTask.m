@@ -117,7 +117,7 @@
     weakSelf.state = FIRStorageTaskStateProgress;
     weakSelf.progress.completedUnitCount = totalBytesSent;
     weakSelf.progress.totalUnitCount = totalBytesExpectedToSend;
-    weakSelf.metadata = _uploadMetadata;
+    weakSelf.metadata = self->_uploadMetadata;
     [weakSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:weakSelf.snapshot];
     weakSelf.state = FIRStorageTaskStateRunning;
   }];
@@ -137,10 +137,10 @@
     if (error) {
       self.state = FIRStorageTaskStateFailed;
       self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-      self.metadata = _uploadMetadata;
+      self.metadata = self->_uploadMetadata;
       [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
       [self removeAllObservers];
-      _fetcherCompletion = nil;
+      self->_fetcherCompletion = nil;
       return;
     }
 
@@ -154,19 +154,12 @@
       [metadata setType:FIRStorageMetadataTypeFile];
       self.metadata = metadata;
     } else {
-      NSString *returnedData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-      NSString *invalidDataString =
-          [NSString stringWithFormat:kFIRStorageInvalidDataFormat, returnedData];
-      NSDictionary *dict;
-      if (invalidDataString.length > 0) {
-        dict = @{NSLocalizedFailureReasonErrorKey : invalidDataString};
-      }
-      self.error = [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnknown infoDictionary:dict];
+      self.error = [FIRStorageErrors errorWithInvalidRequest:data];
     }
 
     [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
     [self removeAllObservers];
-    _fetcherCompletion = nil;
+    self->_fetcherCompletion = nil;
   };
 #pragma clang diagnostic pop
 

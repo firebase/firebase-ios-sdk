@@ -50,9 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (NSArray<FIRDocumentChange *> *)documentChangesForSnapshot:(FSTViewSnapshot *)snapshot
+                                      includeMetadataChanges:(BOOL)includeMetadataChanges
                                                    firestore:(FIRFirestore *)firestore {
   if (snapshot.oldDocuments.isEmpty) {
-    // Special case the first snapshot because index calculation is easy and fast
+    // Special case the first snapshot because index calculation is easy and fast. Also all changes
+    // on the first snapshot are adds so there are also no metadata-only changes to filter out.
     FSTDocument *_Nullable lastDocument = nil;
     NSUInteger index = 0;
     NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
@@ -79,6 +81,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocumentSet *indexTracker = snapshot.oldDocuments;
     NSMutableArray<FIRDocumentChange *> *changes = [NSMutableArray array];
     for (FSTDocumentViewChange *change in snapshot.documentChanges) {
+      if (!includeMetadataChanges && change.type == FSTDocumentViewChangeTypeMetadata) {
+        continue;
+      }
+
       FIRQueryDocumentSnapshot *document =
           [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
                                               documentKey:change.document.key
@@ -122,6 +128,23 @@ NS_ASSUME_NONNULL_BEGIN
     _newIndex = newIndex;
   }
   return self;
+}
+
+- (BOOL)isEqual:(nullable id)other {
+  if (other == self) return YES;
+  if (![other isKindOfClass:[FIRDocumentChange class]]) return NO;
+
+  FIRDocumentChange *change = (FIRDocumentChange *)other;
+  return self.type == change.type && [self.document isEqual:change.document] &&
+         self.oldIndex == change.oldIndex && self.newIndex == change.newIndex;
+}
+
+- (NSUInteger)hash {
+  NSUInteger result = (NSUInteger)self.type;
+  result = result * 31u + [self.document hash];
+  result = result * 31u + (NSUInteger)self.oldIndex;
+  result = result * 31u + (NSUInteger)self.newIndex;
+  return result;
 }
 
 @end

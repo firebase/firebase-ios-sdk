@@ -16,205 +16,43 @@
 
 #import "Firestore/Source/Model/FSTMutation.h"
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+#import "FIRTimestamp.h"
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+
+using firebase::firestore::model::ArrayTransform;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::TransformOperation;
+
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FSTFieldMask
-
-@implementation FSTFieldMask
-
-- (instancetype)initWithFields:(NSArray<FSTFieldPath *> *)fields {
-  if (self = [super init]) {
-    _fields = fields;
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  if (![other isKindOfClass:[FSTFieldMask class]]) {
-    return NO;
-  }
-
-  FSTFieldMask *otherMask = (FSTFieldMask *)other;
-  return [self.fields isEqual:otherMask.fields];
-}
-
-- (NSUInteger)hash {
-  return self.fields.hash;
-}
-@end
-
-#pragma mark - FSTServerTimestampTransform
-
-@implementation FSTServerTimestampTransform
-
-+ (instancetype)serverTimestampTransform {
-  static FSTServerTimestampTransform *sharedInstance = nil;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    sharedInstance = [[FSTServerTimestampTransform alloc] init];
-  });
-  return sharedInstance;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) {
-    return YES;
-  }
-  return [other isKindOfClass:[FSTServerTimestampTransform class]];
-}
-
-- (NSUInteger)hash {
-  // arbitrary number since all instances are equal.
-  return 37;
-}
-
-@end
-
-#pragma mark - FSTFieldTransform
-
-@implementation FSTFieldTransform
-
-- (instancetype)initWithPath:(FSTFieldPath *)path transform:(id<FSTTransformOperation>)transform {
-  self = [super init];
-  if (self) {
-    _path = path;
-    _transform = transform;
-  }
-  return self;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (other == self) return YES;
-  if (![[other class] isEqual:[self class]]) return NO;
-  FSTFieldTransform *otherFieldTransform = other;
-  return [self.path isEqual:otherFieldTransform.path] &&
-         [self.transform isEqual:otherFieldTransform.transform];
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = [self.path hash];
-  hash = hash * 31 + [self.transform hash];
-  return hash;
-}
-
-@end
-
-#pragma mark - FSTPrecondition
-
-@implementation FSTPrecondition
-
-+ (FSTPrecondition *)preconditionWithExists:(BOOL)exists {
-  FSTPreconditionExists existsEnum = exists ? FSTPreconditionExistsYes : FSTPreconditionExistsNo;
-  return [[FSTPrecondition alloc] initWithUpdateTime:nil exists:existsEnum];
-}
-
-+ (FSTPrecondition *)preconditionWithUpdateTime:(FSTSnapshotVersion *)updateTime {
-  return [[FSTPrecondition alloc] initWithUpdateTime:updateTime exists:FSTPreconditionExistsNotSet];
-}
-
-+ (FSTPrecondition *)none {
-  static dispatch_once_t onceToken;
-  static FSTPrecondition *noPrecondition;
-  dispatch_once(&onceToken, ^{
-    noPrecondition =
-        [[FSTPrecondition alloc] initWithUpdateTime:nil exists:FSTPreconditionExistsNotSet];
-  });
-  return noPrecondition;
-}
-
-- (instancetype)initWithUpdateTime:(FSTSnapshotVersion *_Nullable)updateTime
-                            exists:(FSTPreconditionExists)exists {
-  if (self = [super init]) {
-    _updateTime = updateTime;
-    _exists = exists;
-  }
-  return self;
-}
-
-- (BOOL)isValidForDocument:(FSTMaybeDocument *_Nullable)maybeDoc {
-  if (self.updateTime) {
-    return
-        [maybeDoc isKindOfClass:[FSTDocument class]] && [maybeDoc.version isEqual:self.updateTime];
-  } else if (self.exists != FSTPreconditionExistsNotSet) {
-    if (self.exists == FSTPreconditionExistsYes) {
-      return [maybeDoc isKindOfClass:[FSTDocument class]];
-    } else {
-      FSTAssert(self.exists == FSTPreconditionExistsNo, @"Invalid precondition");
-      return maybeDoc == nil || [maybeDoc isKindOfClass:[FSTDeletedDocument class]];
-    }
-  } else {
-    FSTAssert(self.isNone, @"Precondition should be empty");
-    return YES;
-  }
-}
-
-- (BOOL)isNone {
-  return self.updateTime == nil && self.exists == FSTPreconditionExistsNotSet;
-}
-
-- (BOOL)isEqual:(id)other {
-  if (self == other) {
-    return YES;
-  }
-
-  if (![other isKindOfClass:[FSTPrecondition class]]) {
-    return NO;
-  }
-
-  FSTPrecondition *otherPrecondition = (FSTPrecondition *)other;
-  // Compare references to cover nil equality
-  return (self.updateTime == otherPrecondition.updateTime ||
-          [self.updateTime isEqual:otherPrecondition.updateTime]) &&
-         self.exists == otherPrecondition.exists;
-}
-
-- (NSUInteger)hash {
-  NSUInteger hash = [self.updateTime hash];
-  hash = hash * 31 + self.exists;
-  return hash;
-}
-
-- (NSString *)description {
-  if (self.isNone) {
-    return @"<FSTPrecondition <none>>";
-  } else {
-    NSString *existsString;
-    switch (self.exists) {
-      case FSTPreconditionExistsYes:
-        existsString = @"yes";
-        break;
-      case FSTPreconditionExistsNo:
-        existsString = @"no";
-        break;
-      default:
-        existsString = @"<not-set>";
-        break;
-    }
-    return [NSString stringWithFormat:@"<FSTPrecondition updateTime=%@ exists=%@>", self.updateTime,
-                                      existsString];
-  }
-}
-
-@end
 
 #pragma mark - FSTMutationResult
 
 @implementation FSTMutationResult
 
-- (instancetype)initWithVersion:(FSTSnapshotVersion *_Nullable)version
-               transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults {
+- (instancetype)initWithVersion:(nullable FSTSnapshotVersion *)version
+               transformResults:(nullable NSArray<FSTFieldValue *> *)transformResults {
   if (self = [super init]) {
     _version = version;
     _transformResults = transformResults;
@@ -226,28 +64,39 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutation
 
-@implementation FSTMutation
+@implementation FSTMutation {
+  DocumentKey _key;
+  Precondition _precondition;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key precondition:(FSTPrecondition *)precondition {
+- (instancetype)initWithKey:(DocumentKey)key precondition:(Precondition)precondition {
   if (self = [super init]) {
-    _key = key;
-    _precondition = precondition;
+    _key = std::move(key);
+    _precondition = std::move(precondition);
   }
   return self;
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(nullable FSTTimestamp *)localWriteTime {
+                        localWriteTime:(nullable FIRTimestamp *)localWriteTime {
   return
       [self applyTo:maybeDoc baseDocument:baseDoc localWriteTime:localWriteTime mutationResult:nil];
+}
+
+- (const DocumentKey &)key {
+  return _key;
+}
+
+- (const firebase::firestore::model::Precondition &)precondition {
+  return _precondition;
 }
 
 @end
@@ -256,18 +105,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTSetMutation
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition {
-  if (self = [super initWithKey:key precondition:precondition]) {
+               precondition:(Precondition)precondition {
+  if (self = [super initWithKey:std::move(key) precondition:std::move(precondition)]) {
     _value = value;
   }
   return self;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTSetMutation key=%@ value=%@ precondition=%@>", self.key,
-                                    self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTSetMutation key=%s value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.value,
+                                    self.precondition.description()];
 }
 
 - (BOOL)isEqual:(id)other {
@@ -280,25 +130,25 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSetMutation *otherMutation = (FSTSetMutation *)other;
   return [self.key isEqual:otherMutation.key] && [self.value isEqual:otherMutation.value] &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   result = 31 * result + [self.value hash];
   return result;
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTSetMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
@@ -325,18 +175,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTPatchMutation
 
-@implementation FSTPatchMutation
+@implementation FSTPatchMutation {
+  FieldMask _fieldMask;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
-                  fieldMask:(FSTFieldMask *)fieldMask
+- (instancetype)initWithKey:(DocumentKey)key
+                  fieldMask:(FieldMask)fieldMask
                       value:(FSTObjectValue *)value
-               precondition:(FSTPrecondition *)precondition {
-  self = [super initWithKey:key precondition:precondition];
+               precondition:(Precondition)precondition {
+  self = [super initWithKey:std::move(key) precondition:std::move(precondition)];
   if (self) {
-    _fieldMask = fieldMask;
+    _fieldMask = std::move(fieldMask);
     _value = value;
   }
   return self;
+}
+
+- (const firebase::firestore::model::FieldMask &)fieldMask {
+  return _fieldMask;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -348,40 +204,41 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTPatchMutation *otherMutation = (FSTPatchMutation *)other;
-  return [self.key isEqual:otherMutation.key] && [self.fieldMask isEqual:otherMutation.fieldMask] &&
+  return [self.key isEqual:otherMutation.key] && self.fieldMask == otherMutation.fieldMask &&
          [self.value isEqual:otherMutation.value] &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
-  result = 31 * result + [self.fieldMask hash];
+  result = 31 * result + self.precondition.Hash();
+  result = 31 * result + self.fieldMask.Hash();
   result = 31 * result + [self.value hash];
   return result;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTPatchMutation key=%@ mask=%@ value=%@ precondition=%@>",
-                                    self.key, self.fieldMask, self.value, self.precondition];
+  return [NSString stringWithFormat:@"<FSTPatchMutation key=%s mask=%s value=%@ precondition=%@>",
+                                    self.key.ToString().c_str(), self.fieldMask.ToString().c_str(),
+                                    self.value, self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTPatchMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
   BOOL hasLocalMutations = (mutationResult == nil);
   if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
     // Precondition applied, so create the document if necessary
-    FSTDocumentKey *key = maybeDoc ? maybeDoc.key : self.key;
+    const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
     FSTSnapshotVersion *version = maybeDoc ? maybeDoc.version : [FSTSnapshotVersion noVersion];
     maybeDoc = [FSTDocument documentWithData:[FSTObjectValue objectValue]
                                          key:key
@@ -404,7 +261,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
   FSTObjectValue *result = objectValue;
-  for (FSTFieldPath *fieldPath in self.fieldMask.fields) {
+  for (const FieldPath &fieldPath : self.fieldMask) {
     FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
     if (newValue) {
       result = [result objectBySettingValue:newValue forPath:fieldPath];
@@ -417,17 +274,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTTransformMutation
+@implementation FSTTransformMutation {
+  /** The field transforms to use when transforming the document. */
+  std::vector<FieldTransform> _fieldTransforms;
+}
 
-- (instancetype)initWithKey:(FSTDocumentKey *)key
-            fieldTransforms:(NSArray<FSTFieldTransform *> *)fieldTransforms {
+- (instancetype)initWithKey:(DocumentKey)key
+            fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
   // NOTE: We set a precondition of exists: true as a safety-check, since we always combine
   // FSTTransformMutations with a FSTSetMutation or FSTPatchMutation which (if successful) should
   // end up with an existing document.
-  if (self = [super initWithKey:key precondition:[FSTPrecondition preconditionWithExists:YES]]) {
-    _fieldTransforms = fieldTransforms;
+  if (self = [super initWithKey:std::move(key) precondition:Precondition::Exists(true)]) {
+    _fieldTransforms = std::move(fieldTransforms);
   }
   return self;
+}
+
+- (const std::vector<FieldTransform> &)fieldTransforms {
+  return _fieldTransforms;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -440,32 +304,39 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTransformMutation *otherMutation = (FSTTransformMutation *)other;
   return [self.key isEqual:otherMutation.key] &&
-         [self.fieldTransforms isEqual:otherMutation.fieldTransforms] &&
-         [self.precondition isEqual:otherMutation.precondition];
+         self.fieldTransforms == otherMutation.fieldTransforms &&
+         self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
-  result = 31 * result + [self.fieldTransforms hash];
+  result = 31 * result + self.precondition.Hash();
+  for (const auto &transform : self.fieldTransforms) {
+    result = 31 * result + transform.Hash();
+  }
   return result;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTTransformMutation key=%@ transforms=%@ precondition=%@>",
-                                    self.key, self.fieldTransforms, self.precondition];
+  std::string fieldTransforms;
+  for (const auto &transform : self.fieldTransforms) {
+    fieldTransforms += " " + transform.path().CanonicalString();
+  }
+  return [NSString stringWithFormat:@"<FSTTransformMutation key=%s transforms=%s precondition=%@>",
+                                    self.key.ToString().c_str(), fieldTransforms.c_str(),
+                                    self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(mutationResult.transformResults,
               @"Transform results missing for FSTTransformMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 
@@ -475,18 +346,70 @@ NS_ASSUME_NONNULL_BEGIN
             [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the same key");
+  FSTAssert([doc.key isEqual:self.key], @"Can only transform a document with the same key");
 
   BOOL hasLocalMutations = (mutationResult == nil);
-  NSArray<FSTFieldValue *> *transformResults =
-      mutationResult
-          ? mutationResult.transformResults
-          : [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
+  NSArray<FSTFieldValue *> *transformResults;
+  if (mutationResult) {
+    transformResults =
+        [self serverTransformResultsWithBaseDocument:baseDoc
+                              serverTransformResults:mutationResult.transformResults];
+  } else {
+    transformResults =
+        [self localTransformResultsWithBaseDocument:baseDoc writeTime:localWriteTime];
+  }
   FSTObjectValue *newData = [self transformObject:doc.data transformResults:transformResults];
   return [FSTDocument documentWithData:newData
                                    key:doc.key
                                version:doc.version
                      hasLocalMutations:hasLocalMutations];
+}
+
+/**
+ * Creates an array of "transform results" (a transform result is a field value representing the
+ * result of applying a transform) for use after a FSTTransformMutation has been acknowledged by
+ * the server.
+ *
+ * @param baseDocument The document prior to applying this mutation batch.
+ * @param serverTransformResults The transform results received by the server.
+ * @return The transform results array.
+ */
+- (NSArray<FSTFieldValue *> *)
+serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
+                serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
+  NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
+  FSTAssert(self.fieldTransforms.size() == serverTransformResults.count,
+            @"server transform result count (%ld) should match field transforms count (%ld)",
+            serverTransformResults.count, self.fieldTransforms.size());
+
+  for (NSUInteger i = 0; i < serverTransformResults.count; i++) {
+    const FieldTransform &fieldTransform = self.fieldTransforms[i];
+    FSTFieldValue *previousValue = nil;
+    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
+    }
+
+    FSTFieldValue *transformResult;
+    // The server just sends null as the transform result for array union / remove operations, so
+    // we have to calculate a result the same as we do for local applications.
+    if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+      transformResult = [self
+          arrayUnionResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                         previousValue:previousValue];
+
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+      transformResult = [self
+          arrayRemoveResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                          previousValue:previousValue];
+
+    } else {
+      // Just use the server-supplied result.
+      transformResult = serverTransformResults[i];
+    }
+
+    [transformResults addObject:transformResult];
+  }
+  return transformResults;
 }
 
 /**
@@ -499,41 +422,90 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)localTransformResultsWithBaseDocument:
-                                  (FSTMaybeDocument *_Nullable)baseDocument
-                                                          writeTime:(FSTTimestamp *)localWriteTime {
+                                  (nullable FSTMaybeDocument *)baseDocument
+                                                          writeTime:(FIRTimestamp *)localWriteTime {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
-  for (FSTFieldTransform *fieldTransform in self.fieldTransforms) {
-    if ([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]]) {
-      FSTFieldValue *previousValue = nil;
-
-      if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
-        previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path];
-      }
-
-      [transformResults
-          addObject:[FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
-                                                                      previousValue:previousValue]];
-    } else {
-      FSTFail(@"Encountered unknown transform: %@", fieldTransform);
+  for (const FieldTransform &fieldTransform : self.fieldTransforms) {
+    FSTFieldValue *previousValue = nil;
+    if ([baseDocument isMemberOfClass:[FSTDocument class]]) {
+      previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
     }
+
+    FSTFieldValue *transformResult;
+    if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
+      transformResult =
+          [FSTServerTimestampValue serverTimestampValueWithLocalWriteTime:localWriteTime
+                                                            previousValue:previousValue];
+
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+      transformResult = [self
+          arrayUnionResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                         previousValue:previousValue];
+
+    } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+      transformResult = [self
+          arrayRemoveResultWithElements:ArrayTransform::Elements(fieldTransform.transformation())
+                          previousValue:previousValue];
+
+    } else {
+      FSTFail(@"Encountered unknown transform: %d type", fieldTransform.transformation().type());
+    }
+
+    [transformResults addObject:transformResult];
   }
   return transformResults;
 }
 
+/**
+ * Transforms the provided `previousValue` via the provided `elements`. Used both for local
+ * application and after server acknowledgement.
+ */
+- (FSTFieldValue *)arrayUnionResultWithElements:(const std::vector<FSTFieldValue *> &)elements
+                                  previousValue:(FSTFieldValue *)previousValue {
+  NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
+  for (FSTFieldValue *element : elements) {
+    if (![result containsObject:element]) {
+      [result addObject:element];
+    }
+  }
+  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+}
+
+/**
+ * Transforms the provided `previousValue` via the provided `elements`. Used both for local
+ * application and after server acknowledgement.
+ */
+- (FSTFieldValue *)arrayRemoveResultWithElements:(const std::vector<FSTFieldValue *> &)elements
+                                   previousValue:(FSTFieldValue *)previousValue {
+  NSMutableArray<FSTFieldValue *> *result = [self coercedFieldValuesArray:previousValue];
+  for (FSTFieldValue *element : elements) {
+    [result removeObject:element];
+  }
+  return [[FSTArrayValue alloc] initWithValueNoCopy:result];
+}
+
+/**
+ * Inspects the provided value, returning a mutable copy of the internal array if it's an
+ * FSTArrayValue and an empty mutable array if it's nil or any other type of FSTFieldValue.
+ */
+- (NSMutableArray<FSTFieldValue *> *)coercedFieldValuesArray:(nullable FSTFieldValue *)value {
+  if ([value isMemberOfClass:[FSTArrayValue class]]) {
+    return [NSMutableArray arrayWithArray:((FSTArrayValue *)value).internalValue];
+  } else {
+    // coerce to empty array.
+    return [NSMutableArray array];
+  }
+}
+
 - (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
                    transformResults:(NSArray<FSTFieldValue *> *)transformResults {
-  FSTAssert(transformResults.count == self.fieldTransforms.count,
+  FSTAssert(transformResults.count == self.fieldTransforms.size(),
             @"Transform results length mismatch.");
 
-  for (NSUInteger i = 0; i < self.fieldTransforms.count; i++) {
-    FSTFieldTransform *fieldTransform = self.fieldTransforms[i];
-    id<FSTTransformOperation> transform = fieldTransform.transform;
-    FSTFieldPath *fieldPath = fieldTransform.path;
-    if ([transform isKindOfClass:[FSTServerTimestampTransform class]]) {
-      objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
-    } else {
-      FSTFail(@"Encountered unknown transform: %@", transform);
-    }
+  for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
+    const FieldTransform &fieldTransform = self.fieldTransforms[i];
+    const FieldPath &fieldPath = fieldTransform.path();
+    objectValue = [objectValue objectBySettingValue:transformResults[i] forPath:fieldPath];
   }
   return objectValue;
 }
@@ -553,31 +525,30 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDeleteMutation *otherMutation = (FSTDeleteMutation *)other;
-  return [self.key isEqual:otherMutation.key] &&
-         [self.precondition isEqual:otherMutation.precondition];
+  return [self.key isEqual:otherMutation.key] && self.precondition == otherMutation.precondition;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = 31 * result + [self.precondition hash];
+  result = 31 * result + self.precondition.Hash();
   return result;
 }
 
 - (NSString *)description {
-  return [NSString
-      stringWithFormat:@"<FSTDeleteMutation key=%@ precondition=%@>", self.key, self.precondition];
+  return [NSString stringWithFormat:@"<FSTDeleteMutation key=%s precondition=%@>",
+                                    self.key.ToString().c_str(), self.precondition.description()];
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
                           baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FSTTimestamp *)localWriteTime
+                        localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
     FSTAssert(!mutationResult.transformResults,
               @"Transform results received by FSTDeleteMutation.");
   }
 
-  if (![self.precondition isValidForDocument:maybeDoc]) {
+  if (!self.precondition.IsValidFor(maybeDoc)) {
     return maybeDoc;
   }
 

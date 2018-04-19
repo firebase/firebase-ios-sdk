@@ -16,14 +16,19 @@
 
 #import "Firestore/Source/Core/FSTView.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,26 +66,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLimboDocumentChange ()
 
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(FSTDocumentKey *)key;
++ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key;
 
 - (instancetype)initWithType:(FSTLimboDocumentChangeType)type
-                         key:(FSTDocumentKey *)key NS_DESIGNATED_INITIALIZER;
+                         key:(DocumentKey)key NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FSTLimboDocumentChange
-
-+ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(FSTDocumentKey *)key {
-  return [[FSTLimboDocumentChange alloc] initWithType:type key:key];
+@implementation FSTLimboDocumentChange {
+  DocumentKey _key;
 }
 
-- (instancetype)initWithType:(FSTLimboDocumentChangeType)type key:(FSTDocumentKey *)key {
++ (instancetype)changeWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key {
+  return [[FSTLimboDocumentChange alloc] initWithType:type key:std::move(key)];
+}
+
+- (instancetype)initWithType:(FSTLimboDocumentChangeType)type key:(DocumentKey)key {
   self = [super init];
   if (self) {
     _type = type;
-    _key = key;
+    _key = std::move(key);
   }
   return self;
+}
+
+- (const DocumentKey &)key {
+  return _key;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -216,8 +227,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      FSTAssert([key isEqual:newDoc.key], @"Mismatching key in document changes: %@ != %@", key,
-                newDoc.key);
+      FSTAssert([key isEqual:newDoc.key], @"Mismatching key in document changes: %@ != %s", key,
+                newDoc.key.ToString().c_str());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }
@@ -337,7 +348,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 }
 
 - (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState {
-  if (self.isCurrent && onlineState == FSTOnlineStateFailed) {
+  if (self.isCurrent && onlineState == FSTOnlineStateOffline) {
     // If we're offline, set `current` to NO and then call applyChanges to refresh our syncState
     // and generate an FSTViewChange as appropriate. We are guaranteed to get a new FSTTargetChange
     // that sets `current` back to YES once the client is back online.
@@ -357,7 +368,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 #pragma mark - Private methods
 
 /** Returns whether the doc for the given key should be in limbo. */
-- (BOOL)shouldBeLimboDocumentKey:(FSTDocumentKey *)key {
+- (BOOL)shouldBeLimboDocumentKey:(const DocumentKey &)key {
   // If the remote end says it's part of this query, it's not in limbo.
   if ([self.syncedDocuments containsObject:key]) {
     return NO;

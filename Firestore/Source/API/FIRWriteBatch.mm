@@ -18,11 +18,14 @@
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+
+using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,18 +62,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
                forDocument:(FIRDocumentReference *)document {
-  return [self setData:data forDocument:document options:[FIRSetOptions overwrite]];
+  return [self setData:data forDocument:document merge:NO];
 }
 
 - (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
                forDocument:(FIRDocumentReference *)document
-                   options:(FIRSetOptions *)options {
+                     merge:(BOOL)merge {
   [self verifyNotCommitted];
   [self validateReference:document];
-  FSTParsedSetData *parsed = options.isMerge ? [self.firestore.dataConverter parsedMergeData:data]
-                                             : [self.firestore.dataConverter parsedSetData:data];
-  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
-                                                  precondition:[FSTPrecondition none]]];
+  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:data]
+                                   : [self.firestore.dataConverter parsedSetData:data];
+  [self.mutations
+      addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
   return self;
 }
 
@@ -79,9 +82,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self verifyNotCommitted];
   [self validateReference:document];
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.mutations
-      addObjectsFromArray:[parsed mutationsWithKey:document.key
-                                      precondition:[FSTPrecondition preconditionWithExists:YES]]];
+  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
+                                                  precondition:Precondition::Exists(true)]];
   return self;
 }
 
@@ -89,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self verifyNotCommitted];
   [self validateReference:document];
   [self.mutations addObject:[[FSTDeleteMutation alloc] initWithKey:document.key
-                                                      precondition:[FSTPrecondition none]]];
+                                                      precondition:Precondition::None()]];
   return self;
 }
 

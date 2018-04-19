@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
-#include <inttypes.h>
-#include <math.h>
-
+#include <cinttypes>
+#include <cmath>
 #include <limits>
 
 #include "Firestore/core/src/firebase/firestore/util/string_printf.h"

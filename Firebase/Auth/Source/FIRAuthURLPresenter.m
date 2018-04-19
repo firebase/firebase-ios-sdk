@@ -81,17 +81,19 @@ NS_ASSUME_NONNULL_BEGIN
   _callbackMatcher = callbackMatcher;
   _completion = completion;
   dispatch_async(dispatch_get_main_queue(), ^() {
-    _UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
+    self->_UIDelegate = UIDelegate ?: [FIRAuthDefaultUIDelegate defaultUIDelegate];
     if ([SFSafariViewController class]) {
-      _safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
-      _safariViewController.delegate = self;
-      [_UIDelegate presentViewController:_safariViewController animated:YES completion:nil];
+      self->_safariViewController = [[SFSafariViewController alloc] initWithURL:URL];
+      self->_safariViewController.delegate = self;
+      [self->_UIDelegate presentViewController:self->_safariViewController
+                                      animated:YES
+                                    completion:nil];
       return;
     } else {
-      _webViewController = [[FIRAuthWebViewController alloc] initWithURL:URL delegate:self];
+      self->_webViewController = [[FIRAuthWebViewController alloc] initWithURL:URL delegate:self];
       UINavigationController *navController =
-          [[UINavigationController alloc] initWithRootViewController:_webViewController];
-      [_UIDelegate presentViewController:navController animated:YES completion:nil];
+          [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
+      [self->_UIDelegate presentViewController:navController animated:YES completion:nil];
     }
   });
 }
@@ -108,8 +110,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    if (controller == _safariViewController) {
-      _safariViewController = nil;
+    if (controller == self->_safariViewController) {
+      self->_safariViewController = nil;
       //TODO:Ensure that the SFSafariViewController is actually removed from the screen before
       //invoking finishPresentationWithURL:error:
       [self finishPresentationWithURL:nil
@@ -123,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)webViewController:(FIRAuthWebViewController *)webViewController canHandleURL:(NSURL *)URL {
   __block BOOL result = NO;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^() {
-    if (webViewController == _webViewController) {
+    if (webViewController == self->_webViewController) {
       result = [self canHandleURL:URL];
     }
   });
@@ -132,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)webViewControllerDidCancel:(FIRAuthWebViewController *)webViewController {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    if (webViewController == _webViewController) {
+    if (webViewController == self->_webViewController) {
       [self finishPresentationWithURL:nil
                                 error:[FIRAuthErrorUtils webContextCancelledErrorWithMessage:nil]];
     }
@@ -142,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)webViewController:(FIRAuthWebViewController *)webViewController
          didFailWithError:(NSError *)error {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-    if (webViewController == _webViewController) {
+    if (webViewController == self->_webViewController) {
       [self finishPresentationWithURL:nil error:error];
     }
   });
@@ -163,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRAuthURLPresentationCompletion completion = _completion;
   _completion = nil;
   void (^finishBlock)(void) = ^() {
-    _isPresenting = NO;
+    self->_isPresenting = NO;
     completion(URL, error);
   };
   SFSafariViewController *safariViewController = _safariViewController;

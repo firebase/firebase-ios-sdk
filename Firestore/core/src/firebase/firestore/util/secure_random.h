@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_SECURE_RANDOM_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <limits>
 

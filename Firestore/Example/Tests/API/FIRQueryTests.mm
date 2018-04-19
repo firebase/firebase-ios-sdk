@@ -20,7 +20,6 @@
 
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTPath.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 
@@ -33,9 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEquals {
   FIRFirestore *firestore = FSTTestFirestore();
-  FIRQuery *queryFoo = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
-  FIRQuery *queryFooDup = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
-  FIRQuery *queryBar = [FIRQuery referenceWithQuery:FSTTestQuery(@"bar") firestore:firestore];
+  FIRQuery *queryFoo = [FIRQuery referenceWithQuery:FSTTestQuery("foo") firestore:firestore];
+  FIRQuery *queryFooDup = [FIRQuery referenceWithQuery:FSTTestQuery("foo") firestore:firestore];
+  FIRQuery *queryBar = [FIRQuery referenceWithQuery:FSTTestQuery("bar") firestore:firestore];
   XCTAssertEqualObjects(queryFoo, queryFooDup);
   XCTAssertNotEqualObjects(queryFoo, queryBar);
   XCTAssertEqualObjects([queryFoo queryWhereField:@"f" isEqualTo:@1],
@@ -53,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFilteringWithPredicate {
   FIRFirestore *firestore = FSTTestFirestore();
-  FIRQuery *query = [FIRQuery referenceWithQuery:FSTTestQuery(@"foo") firestore:firestore];
+  FIRQuery *query = [FIRQuery referenceWithQuery:FSTTestQuery("foo") firestore:firestore];
   FIRQuery *query1 = [query queryWhereField:@"f" isLessThanOrEqualTo:@1];
   FIRQuery *query2 = [query queryFilteredUsingPredicate:[NSPredicate predicateWithFormat:@"f<=1"]];
   FIRQuery *query3 =

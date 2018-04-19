@@ -19,7 +19,9 @@
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <GRPCClient/GRPCCall.h>
 
-#import "Firestore/Source/Auth/FSTUser.h"
+#include <map>
+#include <unordered_map>
+
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
@@ -30,11 +32,24 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::auth::HashUser;
+using firebase::firestore::auth::User;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,6 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTRemoteStore *remoteStore;
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
+@property(nonatomic, strong, readonly) FSTDispatchQueue *dispatchQueue;
 
 #pragma mark - Data structures for holding events sent by the watch stream.
 
@@ -71,47 +87,53 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryListener *> *queryListeners;
 
-#pragma mark - Other data structures.
-@property(nonatomic, strong, readwrite) FSTUser *currentUser;
-
 @end
 
 @implementation FSTSyncEngineTestDriver {
   // ivar is declared as mutable.
-  NSMutableDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *_outstandingWrites;
+  std::unordered_map<User, NSMutableArray<FSTOutstandingWrite *> *, HashUser> _outstandingWrites;
+
+  DatabaseInfo _databaseInfo;
+  User _currentUser;
+  EmptyCredentialsProvider _credentialProvider;
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector {
   return [self initWithPersistence:persistence
                   garbageCollector:garbageCollector
-                       initialUser:[FSTUser unauthenticatedUser]
-                 outstandingWrites:@{}];
+                       initialUser:User::Unauthenticated()
+                 outstandingWrites:{}];
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
                    garbageCollector:(id<FSTGarbageCollector>)garbageCollector
-                        initialUser:(FSTUser *)initialUser
-                  outstandingWrites:(FSTOutstandingWriteQueues *)outstandingWrites {
+                        initialUser:(const User &)initialUser
+                  outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
   if (self = [super init]) {
-    // Create mutable copy of outstandingWrites.
-    _outstandingWrites = [NSMutableDictionary dictionary];
-    [outstandingWrites enumerateKeysAndObjectsUsingBlock:^(
-                           FSTUser *user, NSArray<FSTOutstandingWrite *> *writes, BOOL *stop) {
-      _outstandingWrites[user] = [writes mutableCopy];
-    }];
+    // Do a deep copy.
+    for (const auto &pair : outstandingWrites) {
+      _outstandingWrites[pair.first] = [pair.second mutableCopy];
+    }
 
     _events = [NSMutableArray array];
 
+    _databaseInfo = {DatabaseId{"project", "database"}, "persistence", "host", false};
+
     // Set up the sync engine and various stores.
-    dispatch_queue_t mainQueue = dispatch_get_main_queue();
-    FSTDispatchQueue *dispatchQueue = [FSTDispatchQueue queueWith:mainQueue];
+    dispatch_queue_t queue =
+        dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
+    _dispatchQueue = [FSTDispatchQueue queueWith:queue];
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
                                             garbageCollector:garbageCollector
                                                  initialUser:initialUser];
-    _datastore = [FSTMockDatastore mockDatastoreWithWorkerDispatchQueue:dispatchQueue];
+    _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                            workerDispatchQueue:_dispatchQueue
+                                                    credentials:&_credentialProvider];
 
-    _remoteStore = [FSTRemoteStore remoteStoreWithLocalStore:_localStore datastore:_datastore];
+    _remoteStore = [[FSTRemoteStore alloc] initWithLocalStore:_localStore
+                                                    datastore:_datastore
+                                          workerDispatchQueue:_dispatchQueue];
 
     _syncEngine = [[FSTSyncEngine alloc] initWithLocalStore:_localStore
                                                 remoteStore:_remoteStore
@@ -139,9 +161,12 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *)outstandingWrites {
-  return static_cast<NSDictionary<FSTUser *, NSMutableArray<FSTOutstandingWrite *> *> *>(
-      _outstandingWrites);
+- (const FSTOutstandingWriteQueues &)outstandingWrites {
+  return _outstandingWrites;
+}
+
+- (const User &)currentUser {
+  return _currentUser;
 }
 
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
@@ -150,8 +175,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)start {
-  [self.localStore start];
-  [self.remoteStore start];
+  [self.dispatchQueue dispatchSync:^{
+    [self.localStore start];
+    [self.remoteStore start];
+  }];
 }
 
 - (void)validateUsage {
@@ -162,8 +189,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)shutdown {
-  [self.remoteStore shutdown];
-  [self.localStore shutdown];
+  [self.dispatchQueue dispatchSync:^{
+    [self.remoteStore shutdown];
+  }];
 }
 
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
@@ -190,19 +218,29 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)disableNetwork {
-  // Make sure to execute all writes that are currently queued. This allows us
-  // to assert on the total number of requests sent before shutdown.
-  [self.remoteStore fillWritePipeline];
-  [self.remoteStore disableNetwork];
+  [self.dispatchQueue dispatchSync:^{
+    // Make sure to execute all writes that are currently queued. This allows us
+    // to assert on the total number of requests sent before shutdown.
+    [self.remoteStore fillWritePipeline];
+    [self.remoteStore disableNetwork];
+  }];
 }
 
 - (void)enableNetwork {
-  [self.remoteStore enableNetwork];
+  [self.dispatchQueue dispatchSync:^{
+    [self.remoteStore enableNetwork];
+  }];
 }
 
-- (void)changeUser:(FSTUser *)user {
-  self.currentUser = user;
-  [self.syncEngine userDidChange:user];
+- (void)runTimer:(FSTTimerID)timerID {
+  [self.dispatchQueue runDelayedCallbacksUntil:timerID];
+}
+
+- (void)changeUser:(const User &)user {
+  _currentUser = user;
+  [self.dispatchQueue dispatchSync:^{
+    [self.syncEngine userDidChange:user];
+  }];
 }
 
 - (FSTOutstandingWrite *)receiveWriteAckWithVersion:(FSTSnapshotVersion *)commitVersion
@@ -212,7 +250,9 @@ NS_ASSUME_NONNULL_BEGIN
   [[self currentOutstandingWrites] removeObjectAtIndex:0];
   [self validateNextWriteSent:write.write];
 
-  [self.datastore ackWriteWithVersion:commitVersion mutationResults:mutationResults];
+  [self.dispatchQueue dispatchSync:^{
+    [self.datastore ackWriteWithVersion:commitVersion mutationResults:mutationResults];
+  }];
 
   return write;
 }
@@ -232,7 +272,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTLog(@"Failing a write.");
-  [self.datastore failWriteWithError:error];
+  [self.dispatchQueue dispatchSync:^{
+    [self.datastore failWriteWithError:error];
+  }];
 
   return write;
 }
@@ -260,13 +302,19 @@ NS_ASSUME_NONNULL_BEGIN
         [self.events addObject:event];
       }];
   self.queryListeners[query] = listener;
-  return [self.eventManager addListener:listener];
+  __block FSTTargetID targetID;
+  [self.dispatchQueue dispatchSync:^{
+    targetID = [self.eventManager addListener:listener];
+  }];
+  return targetID;
 }
 
 - (void)removeUserListenerWithQuery:(FSTQuery *)query {
   FSTQueryListener *listener = self.queryListeners[query];
   [self.queryListeners removeObjectForKey:query];
-  [self.eventManager removeListener:listener];
+  [self.dispatchQueue dispatchSync:^{
+    [self.eventManager removeListener:listener];
+  }];
 }
 
 - (void)writeUserMutation:(FSTMutation *)mutation {
@@ -274,31 +322,37 @@ NS_ASSUME_NONNULL_BEGIN
   write.write = mutation;
   [[self currentOutstandingWrites] addObject:write];
   FSTLog(@"sending a user write.");
-  [self.syncEngine writeMutations:@[ mutation ]
-                       completion:^(NSError *_Nullable error) {
-                         FSTLog(@"A callback was called with error: %@", error);
-                         write.done = YES;
-                         write.error = error;
-                       }];
+  [self.dispatchQueue dispatchSync:^{
+    [self.syncEngine writeMutations:@[ mutation ]
+                         completion:^(NSError *_Nullable error) {
+                           FSTLog(@"A callback was called with error: %@", error);
+                           write.done = YES;
+                           write.error = error;
+                         }];
+  }];
 }
 
 - (void)receiveWatchChange:(FSTWatchChange *)change
            snapshotVersion:(FSTSnapshotVersion *_Nullable)snapshot {
-  [self.datastore writeWatchChange:change snapshotVersion:snapshot];
+  [self.dispatchQueue dispatchSync:^{
+    [self.datastore writeWatchChange:change snapshotVersion:snapshot];
+  }];
 }
 
 - (void)receiveWatchStreamError:(int)errorCode userInfo:(NSDictionary<NSString *, id> *)userInfo {
   NSError *error =
       [NSError errorWithDomain:FIRFirestoreErrorDomain code:errorCode userInfo:userInfo];
 
-  [self.datastore failWatchStreamWithError:error];
-  // Unlike web, stream should re-open synchronously (if we have any listeners)
-  if (self.queryListeners.count > 0) {
-    FSTAssert(self.datastore.isWatchStreamOpen, @"Watch stream is open");
-  }
+  [self.dispatchQueue dispatchSync:^{
+    [self.datastore failWatchStreamWithError:error];
+    // Unlike web, stream should re-open synchronously (if we have any listeners)
+    if (self.queryListeners.count > 0) {
+      FSTAssert(self.datastore.isWatchStreamOpen, @"Watch stream is open");
+    }
+  }];
 }
 
-- (NSDictionary<FSTDocumentKey *, FSTBoxedTargetID *> *)currentLimboDocuments {
+- (std::map<DocumentKey, TargetId>)currentLimboDocuments {
   return [self.syncEngine currentLimboDocuments];
 }
 
@@ -309,10 +363,10 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Helper Methods
 
 - (NSMutableArray<FSTOutstandingWrite *> *)currentOutstandingWrites {
-  NSMutableArray<FSTOutstandingWrite *> *writes = _outstandingWrites[self.currentUser];
+  NSMutableArray<FSTOutstandingWrite *> *writes = _outstandingWrites[_currentUser];
   if (!writes) {
     writes = [NSMutableArray array];
-    _outstandingWrites[self.currentUser] = writes;
+    _outstandingWrites[_currentUser] = writes;
   }
   return writes;
 }

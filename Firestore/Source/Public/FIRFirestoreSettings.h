@@ -44,6 +44,23 @@ NS_SWIFT_NAME(FirestoreSettings)
 /** Set to false to disable local persistent storage. */
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
 
+/**
+ * Enables the use of FIRTimestamps for timestamp fields in FIRDocumentSnapshots.
+ *
+ * Currently, Firestore returns timestamp fields as an NSDate but NSDate is implemented as a double
+ * which loses precision and causes unexpected behavior when using a timestamp from a snapshot as
+ * a part of a subsequent query.
+ *
+ * Setting timestampsInSnapshotsEnabled to true will cause Firestore to return FIRTimestamp values
+ * instead of NSDate, avoiding this kind of problem. To make this work you must also change any code
+ * that uses NSDate to use FIRTimestamp instead.
+ *
+ * NOTE: in the future timestampsInSnapshotsEnabled = true will become the default and this option
+ * will be removed so you should change your code to use FIRTimestamp now and opt-in to this new
+ * behavior as soon as you can.
+ */
+@property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled;
+
 @end
 
 NS_ASSUME_NONNULL_END

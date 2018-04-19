@@ -16,9 +16,12 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#include <inttypes.h>
-
 #import <GRPCClient/GRPCCall.h>
+
+#include <cinttypes>
+#include <string>
+#include <utility>
+#include <vector>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Common.pbobjc.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Document.pbobjc.h"
@@ -30,30 +33,52 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::ArrayTransform;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
+using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TransformOperation;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTSerializerBeta ()
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+// Does not own this DatabaseId.
+@property(nonatomic, assign, readonly) const DatabaseId *databaseID;
 @end
 
 @implementation FSTSerializerBeta
 
-- (instancetype)initWithDatabaseID:(FSTDatabaseID *)databaseID {
+- (instancetype)initWithDatabaseID:(const DatabaseId *)databaseID {
   self = [super init];
   if (self) {
     _databaseID = databaseID;
@@ -63,15 +88,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTSnapshotVersion <=> GPBTimestamp
 
-- (GPBTimestamp *)encodedTimestamp:(FSTTimestamp *)timestamp {
+- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
   result.seconds = timestamp.seconds;
-  result.nanos = timestamp.nanos;
+  result.nanos = timestamp.nanoseconds;
   return result;
 }
 
-- (FSTTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FSTTimestamp alloc] initWithSeconds:timestamp.seconds nanos:timestamp.nanos];
+- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
+  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanoseconds:timestamp.nanos];
 }
 
 - (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {
@@ -95,69 +120,70 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FIRGeoPoint alloc] initWithLatitude:latLng.latitude longitude:latLng.longitude];
 }
 
-#pragma mark - FSTDocumentKey <=> Key proto
+#pragma mark - DocumentKey <=> Key proto
 
-- (NSString *)encodedDocumentKey:(FSTDocumentKey *)key {
-  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path];
+- (NSString *)encodedDocumentKey:(const DocumentKey &)key {
+  return [self encodedResourcePathForDatabaseID:self.databaseID path:key.path()];
 }
 
-- (FSTDocumentKey *)decodedDocumentKey:(NSString *)name {
-  FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:name];
-  FSTAssert([[path segmentAtIndex:1] isEqualToString:self.databaseID.projectID],
+- (DocumentKey)decodedDocumentKey:(NSString *)name {
+  const ResourcePath path = [self decodedResourcePathWithDatabaseID:name];
+  FSTAssert(path[1] == self.databaseID->project_id(),
             @"Tried to deserialize key from different project.");
-  FSTAssert([[path segmentAtIndex:3] isEqualToString:self.databaseID.databaseID],
+  FSTAssert(path[3] == self.databaseID->database_id(),
             @"Tried to deserialize key from different datbase.");
-  return [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
+  return DocumentKey{[self localResourcePathForQualifiedResourcePath:path]};
 }
 
-- (NSString *)encodedResourcePathForDatabaseID:(FSTDatabaseID *)databaseID
-                                          path:(FSTResourcePath *)path {
-  return [[[[self encodedResourcePathForDatabaseID:databaseID] pathByAppendingSegment:@"documents"]
-      pathByAppendingPath:path] canonicalString];
+- (NSString *)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID
+                                          path:(const ResourcePath &)path {
+  return util::WrapNSString([self encodedResourcePathForDatabaseID:databaseID]
+                                .Append("documents")
+                                .Append(path)
+                                .CanonicalString());
 }
 
-- (FSTResourcePath *)decodedResourcePathWithDatabaseID:(NSString *)name {
-  FSTResourcePath *path = [FSTResourcePath pathWithString:name];
-  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %@", path);
+- (ResourcePath)decodedResourcePathWithDatabaseID:(NSString *)name {
+  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(name));
+  FSTAssert([self validQualifiedResourcePath:path], @"Tried to deserialize invalid key %s",
+            path.CanonicalString().c_str());
   return path;
 }
 
-- (NSString *)encodedQueryPath:(FSTResourcePath *)path {
-  if (path.length == 0) {
+- (NSString *)encodedQueryPath:(const ResourcePath &)path {
+  if (path.size() == 0) {
     // If the path is empty, the backend requires we leave off the /documents at the end.
     return [self encodedDatabaseID];
   }
   return [self encodedResourcePathForDatabaseID:self.databaseID path:path];
 }
 
-- (FSTResourcePath *)decodedQueryPath:(NSString *)name {
-  FSTResourcePath *resource = [self decodedResourcePathWithDatabaseID:name];
-  if (resource.length == 4) {
-    return [FSTResourcePath pathWithSegments:@[]];
+- (ResourcePath)decodedQueryPath:(NSString *)name {
+  const ResourcePath resource = [self decodedResourcePathWithDatabaseID:name];
+  if (resource.size() == 4) {
+    return ResourcePath{};
   } else {
     return [self localResourcePathForQualifiedResourcePath:resource];
   }
 }
 
-- (FSTResourcePath *)encodedResourcePathForDatabaseID:(FSTDatabaseID *)databaseID {
-  return [FSTResourcePath
-      pathWithSegments:@[ @"projects", databaseID.projectID, @"databases", databaseID.databaseID ]];
+- (ResourcePath)encodedResourcePathForDatabaseID:(const DatabaseId *)databaseID {
+  return ResourcePath{"projects", databaseID->project_id(), "databases", databaseID->database_id()};
 }
 
-- (FSTResourcePath *)localResourcePathForQualifiedResourcePath:(FSTResourcePath *)resourceName {
-  FSTAssert(
-      resourceName.length > 4 && [[resourceName segmentAtIndex:4] isEqualToString:@"documents"],
-      @"Tried to deserialize invalid key %@", resourceName);
-  return [resourceName pathByRemovingFirstSegments:5];
+- (ResourcePath)localResourcePathForQualifiedResourcePath:(const ResourcePath &)resourceName {
+  FSTAssert(resourceName.size() > 4 && resourceName[4] == "documents",
+            @"Tried to deserialize invalid key %s", resourceName.CanonicalString().c_str());
+  return resourceName.PopFirst(5);
 }
 
-- (BOOL)validQualifiedResourcePath:(FSTResourcePath *)path {
-  return path.length >= 4 && [[path segmentAtIndex:0] isEqualToString:@"projects"] &&
-         [[path segmentAtIndex:2] isEqualToString:@"databases"];
+- (BOOL)validQualifiedResourcePath:(const ResourcePath &)path {
+  return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
 }
 
 - (NSString *)encodedDatabaseID {
-  return [[self encodedResourcePathForDatabaseID:self.databaseID] canonicalString];
+  return util::WrapNSString(
+      [self encodedResourcePathForDatabaseID:self.databaseID].CanonicalString());
 }
 
 #pragma mark - FSTFieldValue <=> Value proto
@@ -180,7 +206,7 @@ NS_ASSUME_NONNULL_BEGIN
     return [self encodedString:[fieldValue value]];
 
   } else if (fieldClass == [FSTTimestampValue class]) {
-    return [self encodedTimestampValue:((FSTTimestampValue *)fieldValue).internalValue];
+    return [self encodedTimestampValue:[fieldValue value]];
 
   } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
@@ -277,7 +303,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedTimestampValue:(FSTTimestamp *)value {
+- (GCFSValue *)encodedTimestampValue:(FIRTimestamp *)value {
   GCFSValue *result = [GCFSValue message];
   result.timestampValue = [self encodedTimestamp:value];
   return result;
@@ -295,21 +321,27 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedReferenceValueForDatabaseID:(FSTDatabaseID *)databaseID
-                                              key:(FSTDocumentKey *)key {
+- (GCFSValue *)encodedReferenceValueForDatabaseID:(const DatabaseId *)databaseID
+                                              key:(const DocumentKey &)key {
+  FSTAssert(*databaseID == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
+            self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
+            databaseID->project_id().c_str(), databaseID->database_id().c_str());
   GCFSValue *result = [GCFSValue message];
-  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path];
+  result.referenceValue = [self encodedResourcePathForDatabaseID:databaseID path:key.path()];
   return result;
 }
 
 - (FSTReferenceValue *)decodedReferenceValue:(NSString *)resourceName {
-  FSTResourcePath *path = [self decodedResourcePathWithDatabaseID:resourceName];
-  NSString *project = [path segmentAtIndex:1];
-  NSString *database = [path segmentAtIndex:3];
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:project database:database];
-  FSTDocumentKey *key =
-      [FSTDocumentKey keyWithPath:[self localResourcePathForQualifiedResourcePath:path]];
-  return [FSTReferenceValue referenceValue:key databaseID:databaseID];
+  const ResourcePath path = [self decodedResourcePathWithDatabaseID:resourceName];
+  const std::string &project = path[1];
+  const std::string &database = path[3];
+  const DocumentKey key{[self localResourcePathForQualifiedResourcePath:path]};
+
+  const DatabaseId database_id(project, database);
+  FSTAssert(database_id == *self.databaseID, @"Database %s:%s cannot encode reference from %s:%s",
+            self.databaseID->project_id().c_str(), self.databaseID->database_id().c_str(),
+            database_id.project_id().c_str(), database_id.database_id().c_str());
+  return [FSTReferenceValue referenceValue:key databaseID:self.databaseID];
 }
 
 - (GCFSArrayValue *)encodedArrayValue:(FSTArrayValue *)arrayValue {
@@ -363,7 +395,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTObjectValue *result = [FSTObjectValue objectValue];
   [fields enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, GCFSValue *_Nonnull obj,
                                               BOOL *_Nonnull stop) {
-    FSTFieldPath *path = [FSTFieldPath pathWithSegments:@[ key ]];
+    FieldPath path{util::MakeString(key)};
     FSTFieldValue *value = [self decodedFieldValue:obj];
     result = [result objectBySettingValue:value forPath:path];
   }];
@@ -373,7 +405,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTObjectValue <=> Document proto
 
 - (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue
-                                        key:(FSTDocumentKey *)key {
+                                        key:(const DocumentKey &)key {
   GCFSDocument *proto = [GCFSDocument message];
   proto.name = [self encodedDocumentKey:key];
   proto.fields = [self encodedFields:objectValue];
@@ -395,7 +427,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocument *)decodedFoundDocument:(GCFSBatchGetDocumentsResponse *)response {
   FSTAssert(!!response.found, @"Tried to deserialize a found document from a deleted document.");
-  FSTDocumentKey *key = [self decodedDocumentKey:response.found.name];
+  const DocumentKey key = [self decodedDocumentKey:response.found.name];
   FSTObjectValue *value = [self decodedFields:response.found.fields];
   FSTSnapshotVersion *version = [self decodedVersion:response.found.updateTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
@@ -406,7 +438,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
   FSTAssert(!!response.missing, @"Tried to deserialize a deleted document from a found document.");
-  FSTDocumentKey *key = [self decodedDocumentKey:response.missing];
+  const DocumentKey key = [self decodedDocumentKey:response.missing];
   FSTSnapshotVersion *version = [self decodedVersion:response.readTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
             @"Got a no document response with no snapshot version");
@@ -447,7 +479,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTFail(@"Unknown mutation type %@", NSStringFromClass(mutationClass));
   }
 
-  if (!mutation.precondition.isNone) {
+  if (!mutation.precondition.IsNone()) {
     proto.currentDocument = [self encodedPrecondition:mutation.precondition];
   }
 
@@ -455,9 +487,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMutation *)decodedMutation:(GCFSWrite *)mutation {
-  FSTPrecondition *precondition = [mutation hasCurrentDocument]
-                                      ? [self decodedPrecondition:mutation.currentDocument]
-                                      : [FSTPrecondition none];
+  Precondition precondition = [mutation hasCurrentDocument]
+                                  ? [self decodedPrecondition:mutation.currentDocument]
+                                  : Precondition::None();
 
   switch (mutation.operationOneOfCase) {
     case GCFSWrite_Operation_OneOfCase_Update:
@@ -477,8 +509,7 @@ NS_ASSUME_NONNULL_BEGIN
                                        precondition:precondition];
 
     case GCFSWrite_Operation_OneOfCase_Transform: {
-      FSTPreconditionExists exists = precondition.exists;
-      FSTAssert(exists == FSTPreconditionExistsYes,
+      FSTAssert(precondition == Precondition::Exists(true),
                 @"Transforms must have precondition \"exists == true\"");
 
       return [[FSTTransformMutation alloc]
@@ -492,80 +523,145 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (GCFSPrecondition *)encodedPrecondition:(FSTPrecondition *)precondition {
-  FSTAssert(!precondition.isNone, @"Can't serialize an empty precondition");
+- (GCFSPrecondition *)encodedPrecondition:(const Precondition &)precondition {
+  FSTAssert(!precondition.IsNone(), @"Can't serialize an empty precondition");
   GCFSPrecondition *message = [GCFSPrecondition message];
-  if (precondition.updateTime) {
-    message.updateTime = [self encodedVersion:precondition.updateTime];
-  } else if (precondition.exists != FSTPreconditionExistsNotSet) {
-    message.exists = precondition.exists == FSTPreconditionExistsYes;
+  if (precondition.type() == Precondition::Type::UpdateTime) {
+    message.updateTime = [self encodedVersion:precondition.update_time()];
+  } else if (precondition.type() == Precondition::Type::Exists) {
+    message.exists = precondition == Precondition::Exists(true);
   } else {
-    FSTFail(@"Unknown precondition: %@", precondition);
+    FSTFail(@"Unknown precondition: %@", precondition.description());
   }
   return message;
 }
 
-- (FSTPrecondition *)decodedPrecondition:(GCFSPrecondition *)precondition {
+- (Precondition)decodedPrecondition:(GCFSPrecondition *)precondition {
   switch (precondition.conditionTypeOneOfCase) {
     case GCFSPrecondition_ConditionType_OneOfCase_GPBUnsetOneOfCase:
-      return [FSTPrecondition none];
+      return Precondition::None();
 
     case GCFSPrecondition_ConditionType_OneOfCase_Exists:
-      return [FSTPrecondition preconditionWithExists:precondition.exists];
+      return Precondition::Exists(precondition.exists);
 
     case GCFSPrecondition_ConditionType_OneOfCase_UpdateTime:
-      return [FSTPrecondition
-          preconditionWithUpdateTime:[self decodedVersion:precondition.updateTime]];
+      return Precondition::UpdateTime([self decodedVersion:precondition.updateTime]);
 
     default:
       FSTFail(@"Unrecognized Precondition one-of case %@", precondition);
   }
 }
 
-- (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask {
+- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask {
   GCFSDocumentMask *mask = [GCFSDocumentMask message];
-  for (FSTFieldPath *field in fieldMask.fields) {
-    [mask.fieldPathsArray addObject:field.canonicalString];
+  for (const FieldPath &field : fieldMask) {
+    [mask.fieldPathsArray addObject:util::WrapNSString(field.CanonicalString())];
   }
   return mask;
 }
 
-- (FSTFieldMask *)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
-  NSMutableArray<FSTFieldPath *> *fields =
-      [NSMutableArray arrayWithCapacity:fieldMask.fieldPathsArray_Count];
+- (FieldMask)decodedFieldMask:(GCFSDocumentMask *)fieldMask {
+  std::vector<FieldPath> fields;
+  fields.reserve(fieldMask.fieldPathsArray_Count);
   for (NSString *path in fieldMask.fieldPathsArray) {
-    [fields addObject:[FSTFieldPath pathWithServerFormat:path]];
+    fields.push_back(FieldPath::FromServerFormat(util::MakeStringView(path)));
   }
-  return [[FSTFieldMask alloc] initWithFields:fields];
+  return FieldMask(std::move(fields));
 }
 
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
-    (NSArray<FSTFieldTransform *> *)fieldTransforms {
+    (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
-  for (FSTFieldTransform *fieldTransform in fieldTransforms) {
-    FSTAssert([fieldTransform.transform isKindOfClass:[FSTServerTimestampTransform class]],
-              @"Unknown transform: %@", fieldTransform.transform);
-    GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-    proto.fieldPath = fieldTransform.path.canonicalString;
-    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+  for (const FieldTransform &fieldTransform : fieldTransforms) {
+    GCFSDocumentTransform_FieldTransform *proto = [self encodedFieldTransform:fieldTransform];
     [protos addObject:proto];
   }
   return protos;
 }
 
-- (NSArray<FSTFieldTransform *> *)decodedFieldTransforms:
-    (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
-  NSMutableArray<FSTFieldTransform *> *fieldTransforms = [NSMutableArray array];
-  for (GCFSDocumentTransform_FieldTransform *proto in protos) {
-    FSTAssert(
-        proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
-        @"Unknown transform setToServerValue: %d", proto.setToServerValue);
-    [fieldTransforms
-        addObject:[[FSTFieldTransform alloc]
-                      initWithPath:[FSTFieldPath pathWithServerFormat:proto.fieldPath]
-                         transform:[FSTServerTimestampTransform serverTimestampTransform]]];
+- (GCFSDocumentTransform_FieldTransform *)encodedFieldTransform:
+    (const FieldTransform &)fieldTransform {
+  GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
+  proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
+  if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
+    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+    proto.appendMissingElements = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+    proto.removeAllFromArray_p = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+
+  } else {
+    FSTFail(@"Unknown transform: %d type", fieldTransform.transformation().type());
   }
+  return proto;
+}
+
+- (GCFSArrayValue *)encodedArrayTransformElements:(const std::vector<FSTFieldValue *> &)elements {
+  GCFSArrayValue *proto = [GCFSArrayValue message];
+  NSMutableArray<GCFSValue *> *protoContents = [proto valuesArray];
+
+  for (FSTFieldValue *element : elements) {
+    GCFSValue *converted = [self encodedFieldValue:element];
+    [protoContents addObject:converted];
+  }
+  return proto;
+}
+
+- (std::vector<FieldTransform>)decodedFieldTransforms:
+    (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
+  std::vector<FieldTransform> fieldTransforms;
+  fieldTransforms.reserve(protos.count);
+
+  for (GCFSDocumentTransform_FieldTransform *proto in protos) {
+    switch (proto.transformTypeOneOfCase) {
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_SetToServerValue: {
+        FSTAssert(
+            proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
+            @"Unknown transform setToServerValue: %d", proto.setToServerValue);
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements: {
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.appendMissingElements];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
+                                              std::move(elements)));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p: {
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.removeAllFromArray_p];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
+                                              std::move(elements)));
+        break;
+      }
+
+      default:
+        FSTFail(@"Unknown transform: %@", proto);
+    }
+  }
+
   return fieldTransforms;
+}
+
+- (std::vector<FSTFieldValue *>)decodedArrayTransformElements:(GCFSArrayValue *)proto {
+  __block std::vector<FSTFieldValue *> elements;
+  [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
+    elements.push_back([self decodedFieldValue:value]);
+  }];
+  return elements;
 }
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
@@ -649,14 +745,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSTarget_QueryTarget *)encodedQueryTarget:(FSTQuery *)query {
   // Dissect the path into parent, collectionId, and optional key filter.
   GCFSTarget_QueryTarget *queryTarget = [GCFSTarget_QueryTarget message];
-  if (query.path.length == 0) {
+  if (query.path.size() == 0) {
     queryTarget.parent = [self encodedQueryPath:query.path];
   } else {
-    FSTResourcePath *path = query.path;
-    FSTAssert(path.length % 2 != 0, @"Document queries with filters are not supported.");
-    queryTarget.parent = [self encodedQueryPath:[path pathByRemovingLastSegment]];
+    const ResourcePath &path = query.path;
+    FSTAssert(path.size() % 2 != 0, @"Document queries with filters are not supported.");
+    queryTarget.parent = [self encodedQueryPath:path.PopLast()];
     GCFSStructuredQuery_CollectionSelector *from = [GCFSStructuredQuery_CollectionSelector message];
-    from.collectionId = path.lastSegment;
+    from.collectionId = util::WrapNSString(path.last_segment());
     [queryTarget.structuredQuery.fromArray addObject:from];
   }
 
@@ -687,7 +783,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target {
-  FSTResourcePath *path = [self decodedQueryPath:target.parent];
+  ResourcePath path = [self decodedQueryPath:target.parent];
 
   GCFSStructuredQuery *query = target.structuredQuery;
   NSUInteger fromCount = query.fromArray_Count;
@@ -696,7 +792,7 @@ NS_ASSUME_NONNULL_BEGIN
               @"StructuredQuery.from with more than one collection is not supported.");
 
     GCFSStructuredQuery_CollectionSelector *from = query.fromArray[0];
-    path = [path pathByAppendingSegment:from.collectionId];
+    path = path.Append(util::MakeString(from.collectionId));
   }
 
   NSArray<id<FSTFilter>> *filterBy;
@@ -804,7 +900,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTRelationFilter *)decodedRelationFilter:(GCFSStructuredQuery_FieldFilter *)proto {
-  FSTFieldPath *fieldPath = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   FSTRelationFilterOperator filterOperator = [self decodedRelationFilterOperator:proto.op];
   FSTFieldValue *value = [self decodedFieldValue:proto.value];
   return [FSTRelationFilter filterWithField:fieldPath filterOperator:filterOperator value:value];
@@ -824,7 +920,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTFilter>)decodedUnaryFilter:(GCFSStructuredQuery_UnaryFilter *)proto {
-  FSTFieldPath *field = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath field = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   switch (proto.op) {
     case GCFSStructuredQuery_UnaryFilter_Operator_IsNan:
       return [[FSTNanFilter alloc] initWithField:field];
@@ -837,9 +933,9 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(FSTFieldPath *)fieldPath {
+- (GCFSStructuredQuery_FieldReference *)encodedFieldPath:(const FieldPath &)fieldPath {
   GCFSStructuredQuery_FieldReference *ref = [GCFSStructuredQuery_FieldReference message];
-  ref.fieldPath = fieldPath.canonicalString;
+  ref.fieldPath = util::WrapNSString(fieldPath.CanonicalString());
   return ref;
 }
 
@@ -909,7 +1005,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTSortOrder *)decodedSortOrder:(GCFSStructuredQuery_Order *)proto {
-  FSTFieldPath *fieldPath = [FSTFieldPath pathWithServerFormat:proto.field.fieldPath];
+  FieldPath fieldPath = FieldPath::FromServerFormat(util::MakeString(proto.field.fieldPath));
   BOOL ascending;
   switch (proto.direction) {
     case GCFSStructuredQuery_Direction_Ascending:
@@ -1034,7 +1130,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentWatchChange *)decodedDocumentChange:(GCFSDocumentChange *)change {
   FSTObjectValue *value = [self decodedFields:change.document.fields];
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document.name];
+  const DocumentKey key = [self decodedDocumentKey:change.document.name];
   FSTSnapshotVersion *version = [self decodedVersion:change.document.updateTime];
   FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
             @"Got a document change with no snapshot version");
@@ -1051,7 +1147,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentWatchChange *)decodedDocumentDelete:(GCFSDocumentDelete *)change {
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document];
+  const DocumentKey key = [self decodedDocumentKey:change.document];
   // Note that version might be unset in which case we use [FSTSnapshotVersion noVersion]
   FSTSnapshotVersion *version = [self decodedVersion:change.readTime];
   FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
@@ -1065,7 +1161,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentWatchChange *)decodedDocumentRemove:(GCFSDocumentRemove *)change {
-  FSTDocumentKey *key = [self decodedDocumentKey:change.document];
+  const DocumentKey key = [self decodedDocumentKey:change.document];
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];
 
   return [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]

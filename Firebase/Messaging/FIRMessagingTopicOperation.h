@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRMessaging.h"
 #import "FIRMessagingCheckinService.h"
 #import "FIRMessagingTopicsCommon.h"
 

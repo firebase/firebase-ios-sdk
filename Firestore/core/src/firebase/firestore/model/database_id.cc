@@ -22,17 +22,13 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-constexpr const char* DatabaseId::kDefaultDatabaseId;
+constexpr const char* DatabaseId::kDefault;
 
 DatabaseId::DatabaseId(const absl::string_view project_id,
                        const absl::string_view database_id)
     : project_id_(project_id), database_id_(database_id) {
   FIREBASE_ASSERT(!project_id.empty());
   FIREBASE_ASSERT(!database_id.empty());
-}
-
-bool DatabaseId::IsDefaultDatabase() {
-  return database_id_ == kDefaultDatabaseId;
 }
 
 }  // namespace model

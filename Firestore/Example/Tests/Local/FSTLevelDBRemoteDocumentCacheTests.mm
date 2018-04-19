@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
+#include <string>
+
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
-
-#include <leveldb/db.h>
-
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
-
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -58,7 +57,6 @@ static const char *kDummy = "1";
 }
 
 - (void)tearDown {
-  [self.remoteDocumentCache shutdown];
   self.remoteDocumentCache = nil;
   self.persistence = nil;
   _db = nil;

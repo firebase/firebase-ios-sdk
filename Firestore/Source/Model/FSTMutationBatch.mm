@@ -16,12 +16,16 @@
 
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
+#import "FIRTimestamp.h"
+
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,7 +34,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 @implementation FSTMutationBatch
 
 - (instancetype)initWithBatchID:(FSTBatchID)batchID
-                 localWriteTime:(FSTTimestamp *)localWriteTime
+                 localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations {
   self = [super init];
   if (self) {
@@ -67,10 +71,11 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(FSTDocumentKey *)documentKey
+                           documentKey:(const DocumentKey &)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
   FSTAssert(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
-            @"applyTo: key %@ doesn't match maybeDoc key %@", documentKey, maybeDoc.key);
+            @"applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString().c_str(),
+            maybeDoc.key.ToString().c_str());
   FSTMaybeDocument *baseDoc = maybeDoc;
   if (mutationBatchResult) {
     FSTAssert(mutationBatchResult.mutationResults.count == self.mutations.count,
@@ -93,7 +98,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(FSTDocumentKey *)documentKey {
+                           documentKey:(const DocumentKey &)documentKey {
   return [self applyTo:maybeDoc documentKey:documentKey mutationBatchResult:nil];
 }
 

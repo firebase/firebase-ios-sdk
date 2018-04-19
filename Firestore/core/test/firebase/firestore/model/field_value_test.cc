@@ -16,8 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include <limits.h>
-
+#include <climits>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -57,7 +56,7 @@ TEST(FieldValue, NumberType) {
   const FieldValue integer_value = FieldValue::IntegerValue(10L);
   const FieldValue double_value = FieldValue::DoubleValue(10.1);
   EXPECT_EQ(Type::Double, nan_value.type());
-  EXPECT_EQ(Type::Long, integer_value.type());
+  EXPECT_EQ(Type::Integer, integer_value.type());
   EXPECT_EQ(Type::Double, double_value.type());
   EXPECT_TRUE(nan_value < integer_value);
   EXPECT_TRUE(nan_value < double_value);
@@ -144,6 +143,20 @@ TEST(FieldValue, BlobType) {
   EXPECT_FALSE(a < a);
 }
 
+TEST(FieldValue, ReferenceType) {
+  const DatabaseId id("project", "database");
+  const FieldValue a =
+      FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"), &id);
+  DocumentKey key = DocumentKey::FromPathString("root/def");
+  const FieldValue b = FieldValue::ReferenceValue(key, &id);
+  const FieldValue c = FieldValue::ReferenceValue(std::move(key), &id);
+  EXPECT_EQ(Type::Reference, a.type());
+  EXPECT_EQ(Type::Reference, b.type());
+  EXPECT_EQ(Type::Reference, c.type());
+  EXPECT_TRUE(a < b);
+  EXPECT_FALSE(a < a);
+}
+
 TEST(FieldValue, GeoPointType) {
   const FieldValue a = FieldValue::GeoPointValue({1, 2});
   const FieldValue b = FieldValue::GeoPointValue({3, 4});
@@ -175,18 +188,17 @@ TEST(FieldValue, ArrayType) {
 }
 
 TEST(FieldValue, ObjectType) {
-  const FieldValue empty =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{});
-  std::map<const std::string, const FieldValue> object{
-      {"null", FieldValue::NullValue()},
-      {"true", FieldValue::TrueValue()},
-      {"false", FieldValue::FalseValue()}};
+  const FieldValue empty = FieldValue::ObjectValueFromMap({});
+  ObjectValue::Map object{{"null", FieldValue::NullValue()},
+                          {"true", FieldValue::TrueValue()},
+                          {"false", FieldValue::FalseValue()}};
   // copy the map
-  const FieldValue small = FieldValue::ObjectValue(object);
-  std::map<const std::string, const FieldValue> another_object{
-      {"null", FieldValue::NullValue()}, {"true", FieldValue::FalseValue()}};
+  const FieldValue small = FieldValue::ObjectValueFromMap(object);
+  ObjectValue::Map another_object{{"null", FieldValue::NullValue()},
+                                  {"true", FieldValue::FalseValue()}};
   // move the array
-  const FieldValue large = FieldValue::ObjectValue(std::move(another_object));
+  const FieldValue large =
+      FieldValue::ObjectValueFromMap(std::move(another_object));
   EXPECT_EQ(Type::Object, empty.type());
   EXPECT_EQ(Type::Object, small.type());
   EXPECT_EQ(Type::Object, large.type());
@@ -280,6 +292,23 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
+  const DatabaseId database_id("project", "database");
+  const FieldValue reference_value = FieldValue::ReferenceValue(
+      DocumentKey::FromPathString("root/abc"), &database_id);
+  clone = reference_value;
+  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
+                                       &database_id),
+            clone);
+  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
+                                       &database_id),
+            reference_value);
+  clone = clone;
+  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
+                                       &database_id),
+            clone);
+  clone = null_value;
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   clone = geo_point_value;
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
@@ -305,27 +334,23 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}});
+  const FieldValue object_value = FieldValue::ObjectValueFromMap(
+      ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                       {"false", FieldValue::FalseValue()}});
   clone = object_value;
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      object_value);
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
+            clone);
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
+            object_value);
   clone = clone;
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
+            clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 }
@@ -361,7 +386,7 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
+  FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   clone = std::move(timestamp_value);
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
   clone = FieldValue::NullValue();
@@ -373,13 +398,23 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = std::move(blob_value);
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  const DatabaseId database_id("project", "database");
+  FieldValue reference_value = FieldValue::ReferenceValue(
+      DocumentKey::FromPathString("root/abc"), &database_id);
+  clone = std::move(reference_value);
+  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
+                                       &database_id),
+            clone);
+  clone = null_value;  // NOLINT: use after move intended
+  EXPECT_EQ(FieldValue::NullValue(), clone);
+
+  FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   clone = std::move(geo_point_value);
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   clone = null_value;
@@ -394,16 +429,13 @@ TEST(FieldValue, Move) {
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
-  FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}});
+  FieldValue object_value = FieldValue::ObjectValueFromMap(ObjectValue::Map{
+      {"true", FieldValue::TrueValue()}, {"false", FieldValue::FalseValue()}});
   clone = std::move(object_value);
-  EXPECT_EQ(
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>{
-          {"true", FieldValue::TrueValue()},
-          {"false", FieldValue::FalseValue()}}),
-      clone);
+  EXPECT_EQ(FieldValue::ObjectValueFromMap(
+                ObjectValue::Map{{"true", FieldValue::TrueValue()},
+                                 {"false", FieldValue::FalseValue()}}),
+            clone);
   clone = FieldValue::NullValue();
   EXPECT_EQ(FieldValue::NullValue(), clone);
 }
@@ -415,17 +447,20 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
   const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  const DatabaseId database_id("project", "database");
+  const FieldValue reference_value = FieldValue::ReferenceValue(
+      DocumentKey::FromPathString("root/abc"), &database_id);
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<FieldValue>());
-  const FieldValue object_value =
-      FieldValue::ObjectValue(std::map<const std::string, const FieldValue>());
+  const FieldValue object_value = FieldValue::ObjectValueFromMap({});
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);
   EXPECT_TRUE(number_value < timestamp_value);
   EXPECT_TRUE(timestamp_value < string_value);
   EXPECT_TRUE(string_value < blob_value);
-  EXPECT_TRUE(blob_value < geo_point_value);
+  EXPECT_TRUE(blob_value < reference_value);
+  EXPECT_TRUE(reference_value < geo_point_value);
   EXPECT_TRUE(geo_point_value < array_value);
   EXPECT_TRUE(array_value < object_value);
 }

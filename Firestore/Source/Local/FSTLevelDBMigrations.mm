@@ -14,55 +14,85 @@
  * limitations under the License.
  */
 
-#include "Firestore/Source/Local/FSTLevelDBMigrations.h"
+#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
+#include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Local/FSTWriteGroup.h"
+#import "Firestore/Source/Util/FSTAssert.h"
+
+#include "absl/strings/match.h"
+#include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // Current version of the schema defined in this file.
-static FSTLevelDBSchemaVersion kSchemaVersion = 1;
+static FSTLevelDBSchemaVersion kSchemaVersion = 2;
 
+using firebase::firestore::local::LevelDbTransaction;
 using leveldb::DB;
+using leveldb::Iterator;
 using leveldb::Status;
 using leveldb::Slice;
 using leveldb::WriteOptions;
 
 /**
  * Ensures that the global singleton target metadata row exists in LevelDB.
- * @param db The db in which to require the row.
  */
-static void EnsureTargetGlobal(std::shared_ptr<DB> db, FSTWriteGroup *group) {
-  FSTPBTargetGlobal *targetGlobal = [FSTLevelDBQueryCache readTargetMetadataFromDB:db];
+static void EnsureTargetGlobal(LevelDbTransaction *transaction) {
+  FSTPBTargetGlobal *targetGlobal =
+      [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
   if (!targetGlobal) {
-    [group setMessage:[FSTPBTargetGlobal message] forKey:[FSTLevelDBTargetGlobalKey key]];
+    transaction->Put([FSTLevelDBTargetGlobalKey key], [FSTPBTargetGlobal message]);
   }
 }
 
 /**
  * Save the given version number as the current version of the schema of the database.
  * @param version The version to save
- * @param group The transaction in which to save the new version number
+ * @param transaction The transaction in which to save the new version number
  */
-static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
+static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *transaction) {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string = std::to_string(version);
-  [group setData:version_string forKey:key];
+  transaction->Put(key, version_string);
+}
+
+/**
+ * This function counts the number of targets that currently exist in the given db. It
+ * then reads the target global row, adds the count to the metadata from that row, and writes
+ * the metadata back.
+ *
+ * It assumes the metadata has already been written and is able to be read in this transaction.
+ */
+static void AddTargetCount(LevelDbTransaction *transaction) {
+  auto it = transaction->NewIterator();
+  std::string start_key = [FSTLevelDBTargetKey keyPrefix];
+  it->Seek(start_key);
+
+  int32_t count = 0;
+  while (it->Valid() && absl::StartsWith(it->key(), start_key)) {
+    count++;
+    it->Next();
+  }
+
+  FSTPBTargetGlobal *targetGlobal =
+      [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
+  FSTCAssert(targetGlobal != nil,
+             @"We should have a metadata row as it was added in an earlier migration");
+  targetGlobal.targetCount = count;
+  transaction->Put([FSTLevelDBTargetGlobalKey key], targetGlobal);
 }
 
 @implementation FSTLevelDBMigrations
 
-+ (FSTLevelDBSchemaVersion)schemaVersionForDB:(std::shared_ptr<DB>)db {
++ (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
+    (firebase::firestore::local::LevelDbTransaction *)transaction {
   std::string key = [FSTLevelDBVersionKey key];
   std::string version_string;
-  Status status = db->Get([FSTLevelDB standardReadOptions], key, &version_string);
+  Status status = transaction->Get(key, &version_string);
   if (status.IsNotFound()) {
     return 0;
   } else {
@@ -70,23 +100,23 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, FSTWriteGroup *group) {
   }
 }
 
-+ (void)runMigrationsOnDB:(std::shared_ptr<DB>)db {
-  FSTWriteGroup *group = [FSTWriteGroup groupWithAction:@"Migrations"];
-  FSTLevelDBSchemaVersion currentVersion = [self schemaVersionForDB:db];
++ (void)runMigrationsWithTransaction:(firebase::firestore::local::LevelDbTransaction *)transaction {
+  FSTLevelDBSchemaVersion currentVersion = [self schemaVersionWithTransaction:transaction];
   // Each case in this switch statement intentionally falls through. This lets us
   // start at the current schema version and apply any migrations that have not yet
   // been applied, to bring us up to current, as defined by the kSchemaVersion constant.
   switch (currentVersion) {
     case 0:
-      EnsureTargetGlobal(db, group);
+      EnsureTargetGlobal(transaction);
+      // Fallthrough
+    case 1:
+      // We're now guaranteed that the target global exists. We can safely add a count to it.
+      AddTargetCount(transaction);
       // Fallthrough
     default:
       if (currentVersion < kSchemaVersion) {
-        SaveVersion(kSchemaVersion, group);
+        SaveVersion(kSchemaVersion, transaction);
       }
-  }
-  if (!group.isEmpty) {
-    [group writeToDB:db];
   }
 }
 

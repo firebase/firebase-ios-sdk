@@ -17,10 +17,14 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #import <FirebaseFirestore/FIRFieldPath.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRGeoPoint.h>
+#import <FirebaseFirestore/FIRTimestamp.h>
 #import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
+
+#include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
@@ -33,19 +37,30 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
-#import "Firestore/Source/Core/FSTTimestamp.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
 #import "Firestore/Example/Tests/API/FSTAPIHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
+
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/field_mask.h"
+#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::FieldMask;
+using firebase::firestore::model::FieldTransform;
+using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -57,9 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (GCFSValue *)encodedString:(NSString *)value;
 - (GCFSValue *)encodedDate:(NSDate *)value;
 
-- (GCFSDocumentMask *)encodedFieldMask:(FSTFieldMask *)fieldMask;
+- (GCFSDocumentMask *)encodedFieldMask:(const FieldMask &)fieldMask;
 - (NSMutableArray<GCFSDocumentTransform_FieldTransform *> *)encodedFieldTransforms:
-    (NSArray<FSTFieldTransform *> *)fieldTransforms;
+    (const std::vector<FieldTransform> &)fieldTransforms;
 
 - (GCFSStructuredQuery_Filter *)encodedRelationFilter:(FSTRelationFilter *)filter;
 @end
@@ -79,15 +94,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 @end
 
-@interface FSTSerializerBetaTests : XCTestCase
+@interface FSTSerializerBetaTests : XCTestCase {
+  DatabaseId _databaseId;
+}
+
 @property(nonatomic, strong) FSTSerializerBeta *serializer;
 @end
 
 @implementation FSTSerializerBetaTests
 
 - (void)setUp {
-  FSTDatabaseID *databaseID = [FSTDatabaseID databaseIDWithProject:@"p" database:@"d"];
-  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseID];
+  _databaseId = DatabaseId("p", "d");
+  self.serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&_databaseId];
 }
 
 - (void)testEncodesNull {
@@ -231,7 +249,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResourceNames {
-  FSTDocumentKeyReference *reference = FSTTestRef(@"project", kDefaultDatabaseID, @"foo/bar");
+  FSTDocumentKeyReference *reference = FSTTestRef("project", DatabaseId::kDefault, @"foo/bar");
+  _databaseId = DatabaseId("project", DatabaseId::kDefault);
   GCFSValue *proto = [GCFSValue message];
   proto.referenceValue = @"projects/project/databases/(default)/documents/foo/bar";
 
@@ -327,11 +346,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEncodesPatchMutation {
   FSTPatchMutation *mutation =
-      FSTTestPatchMutation(@"docs/1",
+      FSTTestPatchMutation("docs/1",
                            @{ @"a" : @"b",
                               @"num" : @1,
                               @"some.de\\\\ep.th\\ing'" : @2 },
-                           nil);
+                           {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.updateMask = [self.serializer encodedFieldMask:mutation.fieldMask];
@@ -348,8 +367,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
-- (void)testEncodesTransformMutation {
-  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @[ @"a", @"bar.baz" ]);
+- (void)testEncodesServerTimestampTransformMutation {
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
+  });
   GCFSWrite *proto = [GCFSWrite message];
   proto.transform = [GCFSDocumentTransform message];
   proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
@@ -360,17 +382,49 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
+- (void)testEncodesArrayTransformMutations {
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
+      @{ @"x" : @1 }
+    ]]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+
+  GCFSDocumentTransform_FieldTransform *arrayUnion = [GCFSDocumentTransform_FieldTransform message];
+  arrayUnion.fieldPath = @"a";
+  arrayUnion.appendMissingElements = [GCFSArrayValue message];
+  NSMutableArray *unionElements = arrayUnion.appendMissingElements.valuesArray;
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@"a")]];
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
+  [proto.transform.fieldTransformsArray addObject:arrayUnion];
+
+  GCFSDocumentTransform_FieldTransform *arrayRemove =
+      [GCFSDocumentTransform_FieldTransform message];
+  arrayRemove.fieldPath = @"bar.baz";
+  arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
+  NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
+  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{ @"x" : @1 })]];
+  [proto.transform.fieldTransformsArray addObject:arrayRemove];
+
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
 - (void)testEncodesSetMutationWithPrecondition {
-  FSTSetMutation *mutation = [[FSTSetMutation alloc]
-       initWithKey:FSTTestDocKey(@"foo/bar")
-             value:FSTTestObjectValue(
-                       @{ @"a" : @"b",
-                          @"num" : @1 })
-      precondition:[FSTPrecondition preconditionWithUpdateTime:FSTTestVersion(4)]];
+  FSTSetMutation *mutation =
+      [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
+                                    value:FSTTestObjectValue(
+                                              @{ @"a" : @"b",
+                                                 @"num" : @1 })
+                             precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
   proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FSTTimestamp alloc] initWithSeconds:0 nanos:4000]];
+      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:4000]];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
@@ -395,7 +449,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesListenRequestLabels {
-  FSTQuery *query = FSTTestQuery(@"collection/key");
+  FSTQuery *query = FSTTestQuery("collection/key");
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                        targetID:2
                                            listenSequenceNumber:3
@@ -421,7 +475,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesRelationFilter {
-  FSTRelationFilter *input = FSTTestFilter(@"item.part.top", @"==", @"food");
+  FSTRelationFilter *input = FSTTestFilter("item.part.top", @"==", @"food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -435,7 +489,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - encodedQuery
 
 - (void)testEncodesFirstLevelKeyQueries {
-  FSTQuery *q = FSTTestQuery(@"docs/1");
+  FSTQuery *q = FSTTestQuery("docs/1");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -446,7 +500,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesFirstLevelAncestorQueries {
-  FSTQuery *q = FSTTestQuery(@"messages");
+  FSTQuery *q = FSTTestQuery("messages");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -462,7 +516,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesNestedAncestorQueries {
-  FSTQuery *q = FSTTestQuery(@"rooms/1/messages/10/attachments");
+  FSTQuery *q = FSTTestQuery("rooms/1/messages/10/attachments");
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -478,7 +532,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSingleFiltersAtFirstLevelCollections {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"<", @(42))];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"<", @(42))];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -501,9 +555,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingFilter:FSTTestFilter(@"prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter(@"author", @"==", @"dimond")];
+  FSTQuery *q = [[FSTTestQuery("rooms/1/messages/10/attachments")
+      queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -551,7 +605,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)unaryFilterTestWithValue:(id)value
            expectedUnaryOperator:(GCFSStructuredQuery_UnaryFilter_Operator)op {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryByAddingFilter:FSTTestFilter(@"prop", @"==", value)];
+  FSTQuery *q = [FSTTestQuery("docs") queryByAddingFilter:FSTTestFilter("prop", @"==", value)];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -571,8 +625,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrders {
-  FSTQuery *q = [FSTTestQuery(@"docs")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+  FSTQuery *q = [FSTTestQuery("docs")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:YES]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
@@ -591,8 +645,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSortOrdersDescending {
-  FSTQuery *q = [FSTTestQuery(@"rooms/1/messages/10/attachments")
-      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:FSTTestFieldPath(@"prop")
+  FSTQuery *q = [FSTTestQuery("rooms/1/messages/10/attachments")
+      queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("prop")
                                                         ascending:NO]];
   FSTQueryData *model = [self queryDataForQuery:q];
 
@@ -611,7 +665,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesLimits {
-  FSTQuery *q = [FSTTestQuery(@"docs") queryBySettingLimit:26];
+  FSTQuery *q = [FSTTestQuery("docs") queryBySettingLimit:26];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -628,7 +682,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesResumeTokens {
-  FSTQuery *q = FSTTestQuery(@"docs");
+  FSTQuery *q = FSTTestQuery("docs");
   FSTQueryData *model = [[FSTQueryData alloc] initWithQuery:q
                                                    targetID:1
                                        listenSequenceNumber:0
@@ -731,7 +785,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @1, @2 ]
               removedTargetIDs:@[]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc(@"coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -750,7 +804,7 @@ NS_ASSUME_NONNULL_BEGIN
       initWithUpdatedTargetIDs:@[ @2 ]
               removedTargetIDs:@[ @1 ]
                    documentKey:FSTTestDocKey(@"coll/1")
-                      document:FSTTestDoc(@"coll/1", 5, @{@"foo" : @"bar"}, NO)];
+                      document:FSTTestDoc("coll/1", 5, @{@"foo" : @"bar"}, NO)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentChange.document.name = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentChange.document.updateTime.nanos = 5000;
@@ -769,7 +823,7 @@ NS_ASSUME_NONNULL_BEGIN
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]
                                               removedTargetIDs:@[ @1, @2 ]
                                                    documentKey:FSTTestDocKey(@"coll/1")
-                                                      document:FSTTestDeletedDoc(@"coll/1", 5)];
+                                                      document:FSTTestDeletedDoc("coll/1", 5)];
   GCFSListenResponse *listenResponse = [GCFSListenResponse message];
   listenResponse.documentDelete.document = @"projects/p/databases/d/documents/coll/1";
   listenResponse.documentDelete.readTime.nanos = 5000;

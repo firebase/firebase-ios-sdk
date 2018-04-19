@@ -28,14 +28,14 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRDocumentSnapshotTests
 
 - (void)testEquals {
-  FIRDocumentSnapshot *base = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
-  FIRDocumentSnapshot *baseDup = FSTTestDocSnapshot(@"rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
-  FIRDocumentSnapshot *nilData = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
-  FIRDocumentSnapshot *nilDataDup = FSTTestDocSnapshot(@"rooms/foo", 1, nil, NO, NO);
-  FIRDocumentSnapshot *differentPath = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, NO);
-  FIRDocumentSnapshot *differentData = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"b" : @1 }, NO, NO);
-  FIRDocumentSnapshot *hasMutations = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, YES, NO);
-  FIRDocumentSnapshot *fromCache = FSTTestDocSnapshot(@"rooms/bar", 1, @{ @"a" : @1 }, NO, YES);
+  FIRDocumentSnapshot *base = FSTTestDocSnapshot("rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *baseDup = FSTTestDocSnapshot("rooms/foo", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *nilData = FSTTestDocSnapshot("rooms/foo", 1, nil, NO, NO);
+  FIRDocumentSnapshot *nilDataDup = FSTTestDocSnapshot("rooms/foo", 1, nil, NO, NO);
+  FIRDocumentSnapshot *differentPath = FSTTestDocSnapshot("rooms/bar", 1, @{ @"a" : @1 }, NO, NO);
+  FIRDocumentSnapshot *differentData = FSTTestDocSnapshot("rooms/bar", 1, @{ @"b" : @1 }, NO, NO);
+  FIRDocumentSnapshot *hasMutations = FSTTestDocSnapshot("rooms/bar", 1, @{ @"a" : @1 }, YES, NO);
+  FIRDocumentSnapshot *fromCache = FSTTestDocSnapshot("rooms/bar", 1, @{ @"a" : @1 }, NO, YES);
   XCTAssertEqualObjects(base, baseDup);
   XCTAssertEqualObjects(nilData, nilDataDup);
   XCTAssertNotEqualObjects(base, nilData);

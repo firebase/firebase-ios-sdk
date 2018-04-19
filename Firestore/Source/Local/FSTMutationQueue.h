@@ -19,12 +19,12 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTQuery;
-@class FSTTimestamp;
-@class FSTWriteGroup;
+@class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,10 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
  * than nextBatchID. This prevents the local store from creating new batches that the mutation
  * queue would consider erroneously acknowledged.
  */
-- (void)startWithGroup:(FSTWriteGroup *)group;
-
-/** Shuts this mutation queue down, closing open files, etc. */
-- (void)shutdown;
+- (void)start;
 
 /** Returns YES if this queue contains no mutation batches. */
 - (BOOL)isEmpty;
@@ -64,20 +61,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTBatchID)highestAcknowledgedBatchID;
 
 /** Acknowledges the given batch. */
-- (void)acknowledgeBatch:(FSTMutationBatch *)batch
-             streamToken:(nullable NSData *)streamToken
-                   group:(FSTWriteGroup *)group;
+- (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken;
 
 /** Returns the current stream token for this mutation queue. */
 - (nullable NSData *)lastStreamToken;
 
 /** Sets the stream token for this mutation queue. */
-- (void)setLastStreamToken:(nullable NSData *)streamToken group:(FSTWriteGroup *)group;
+- (void)setLastStreamToken:(nullable NSData *)streamToken;
 
 /** Creates a new mutation batch and adds it to this mutation queue. */
-- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FSTTimestamp *)localWriteTime
-                                          mutations:(NSArray<FSTMutation *> *)mutations
-                                              group:(FSTWriteGroup *)group;
+- (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
+                                          mutations:(NSArray<FSTMutation *> *)mutations;
 
 /** Loads the mutation batch with the given batchID. */
 - (nullable FSTMutationBatch *)lookupMutationBatch:(FSTBatchID)batchID;
@@ -123,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 // TODO(mcg): This should really return an NSEnumerator
 // also for b/32992024, all backing stores should really index by document key
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
-    (FSTDocumentKey *)documentKey;
+    (const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Finds all mutation batches that could affect the results for the given query. Not all
@@ -149,7 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
  * In both cases, the array of mutations to remove must be a contiguous range of batchIds. This is
  * most easily accomplished by loading mutations with @a -allMutationBatchesThroughBatchID:.
  */
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches group:(FSTWriteGroup *)group;
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches;
 
 /** Performs a consistency check, examining the mutation queue for any leaks, if possible. */
 - (void)performConsistencyCheck;

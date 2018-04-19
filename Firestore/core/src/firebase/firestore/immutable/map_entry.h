@@ -33,7 +33,7 @@ namespace immutable {
  */
 template <typename K, typename V, typename C = std::less<K>>
 struct KeyComparator {
-  typedef std::pair<K, V> pair_type;
+  using pair_type = std::pair<K, V>;
 
   explicit KeyComparator(const C& comparator = C())
       : key_comparator_(comparator) {
@@ -49,6 +49,10 @@ struct KeyComparator {
 
   bool operator()(const pair_type& lhs, const pair_type& rhs) const noexcept {
     return key_comparator_(lhs.first, rhs.first);
+  }
+
+  const C& comparator() const {
+    return key_comparator_;
   }
 
  private:

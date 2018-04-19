@@ -18,95 +18,54 @@
 
 #import <GRPCClient/GRPCCall.h>
 
+#include <memory>
+#include <utility>
+
 #import "FIRFirestoreErrors.h"
+#import "FIRFirestoreSource.h"
 #import "FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRListenerRegistration+Internal.h"
-#import "Firestore/Source/API/FIRSetOptions+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Model/FSTPath.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::Precondition;
+using firebase::firestore::model::ResourcePath;
+
 NS_ASSUME_NONNULL_BEGIN
-
-#pragma mark - FIRDocumentListenOptions
-
-@interface FIRDocumentListenOptions ()
-
-- (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-    NS_DESIGNATED_INITIALIZER;
-
-@property(nonatomic, assign, readonly) BOOL includeMetadataChanges;
-
-@end
-
-@implementation FIRDocumentListenOptions
-
-+ (instancetype)options {
-  return [[FIRDocumentListenOptions alloc] init];
-}
-
-- (instancetype)initWithIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  if (self = [super init]) {
-    _includeMetadataChanges = includeMetadataChanges;
-  }
-  return self;
-}
-
-- (instancetype)init {
-  return [self initWithIncludeMetadataChanges:NO];
-}
-
-- (instancetype)includeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FIRDocumentListenOptions alloc] initWithIncludeMetadataChanges:includeMetadataChanges];
-}
-
-@end
 
 #pragma mark - FIRDocumentReference
 
 @interface FIRDocumentReference ()
-- (instancetype)initWithKey:(FSTDocumentKey *)key
+- (instancetype)initWithKey:(DocumentKey)key
                   firestore:(FIRFirestore *)firestore NS_DESIGNATED_INITIALIZER;
-@property(nonatomic, strong, readonly) FSTDocumentKey *key;
 @end
 
-@implementation FIRDocumentReference (Internal)
-
-+ (instancetype)referenceWithPath:(FSTResourcePath *)path firestore:(FIRFirestore *)firestore {
-  if (path.length % 2 != 0) {
-    FSTThrowInvalidArgument(
-        @"Invalid document reference. Document references must have an even "
-         "number of segments, but %@ has %d",
-        path.canonicalString, path.length);
-  }
-  return
-      [FIRDocumentReference referenceWithKey:[FSTDocumentKey keyWithPath:path] firestore:firestore];
+@implementation FIRDocumentReference {
+  DocumentKey _key;
 }
 
-+ (instancetype)referenceWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
-  return [[FIRDocumentReference alloc] initWithKey:key firestore:firestore];
-}
-
-@end
-
-@implementation FIRDocumentReference
-
-- (instancetype)initWithKey:(FSTDocumentKey *)key firestore:(FIRFirestore *)firestore {
+- (instancetype)initWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
   if (self = [super init]) {
-    _key = key;
+    _key = std::move(key);
     _firestore = firestore;
   }
   return self;
@@ -124,60 +83,59 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEqualToReference:(nullable FIRDocumentReference *)reference {
   if (self == reference) return YES;
   if (reference == nil) return NO;
-  return [self.firestore isEqual:reference.firestore] && [self.key isEqualToKey:reference.key];
+  return [self.firestore isEqual:reference.firestore] && self.key == reference.key;
 }
 
 - (NSUInteger)hash {
   NSUInteger hash = [self.firestore hash];
-  hash = hash * 31u + [self.key hash];
+  hash = hash * 31u + self.key.Hash();
   return hash;
 }
 
 #pragma mark - Public Methods
 
 - (NSString *)documentID {
-  return [self.key.path lastSegment];
+  return util::WrapNSString(self.key.path().last_segment());
 }
 
 - (FIRCollectionReference *)parent {
-  FSTResourcePath *parentPath = [self.key.path pathByRemovingLastSegment];
-  return [FIRCollectionReference referenceWithPath:parentPath firestore:self.firestore];
+  return
+      [FIRCollectionReference referenceWithPath:self.key.path().PopLast() firestore:self.firestore];
 }
 
 - (NSString *)path {
-  return [self.key.path canonicalString];
+  return util::WrapNSString(self.key.path().CanonicalString());
 }
 
 - (FIRCollectionReference *)collectionWithPath:(NSString *)collectionPath {
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  FSTResourcePath *subPath = [FSTResourcePath pathWithString:collectionPath];
-  FSTResourcePath *path = [self.key.path pathByAppendingPath:subPath];
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
+  const ResourcePath path = self.key.path().Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:nil];
+  return [self setData:documentData merge:NO completion:nil];
 }
 
-- (void)setData:(NSDictionary<NSString *, id> *)documentData options:(FIRSetOptions *)options {
-  return [self setData:documentData options:options completion:nil];
+- (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge {
+  return [self setData:documentData merge:merge completion:nil];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  return [self setData:documentData options:[FIRSetOptions overwrite] completion:completion];
+  return [self setData:documentData merge:NO completion:completion];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
-        options:(FIRSetOptions *)options
+          merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed = options.isMerge
-                                 ? [self.firestore.dataConverter parsedMergeData:documentData]
-                                 : [self.firestore.dataConverter parsedSetData:documentData];
+  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData]
+                                   : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:[FSTPrecondition none]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];
 }
 
@@ -189,8 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
         completion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key
-                                 precondition:[FSTPrecondition preconditionWithExists:YES]]
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::Exists(true)]
           completion:completion];
 }
 
@@ -200,16 +157,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)deleteDocumentWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   FSTDeleteMutation *mutation =
-      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:[FSTPrecondition none]];
+      [[FSTDeleteMutation alloc] initWithKey:self.key precondition:Precondition::None()];
   return [self.firestore.client writeMutations:@[ mutation ] completion:completion];
 }
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
-  FSTListenOptions *listenOptions =
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                     includeDocumentMetadataChanges:YES
-                                              waitForSyncWhenOnline:YES];
+  return [self getDocumentWithSource:FIRFirestoreSourceDefault completion:completion];
+}
+
+- (void)getDocumentWithSource:(FIRFirestoreSource)source
+                   completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                        NSError *_Nullable error))completion {
+  if (source == FIRFirestoreSourceCache) {
+    [self.firestore.client getDocumentFromLocalCache:self completion:completion];
+    return;
+  }
+
+  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                                             includeDocumentMetadataChanges:YES
+                                                                      waitForSyncWhenOnline:YES];
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -233,7 +200,6 @@ NS_ASSUME_NONNULL_BEGIN
       //    offline.
       // 2) Actually call the completion handler with an error if the document doesn't exist when
       //    you are offline.
-      // TODO(dimond): Use proper error domain
       completion(nil,
                  [NSError errorWithDomain:FIRFirestoreErrorDomain
                                      code:FIRFirestoreErrorCodeUnavailable
@@ -241,33 +207,45 @@ NS_ASSUME_NONNULL_BEGIN
                                    NSLocalizedDescriptionKey :
                                        @"Failed to get document because the client is offline.",
                                  }]);
+    } else if (snapshot.exists && snapshot.metadata.fromCache &&
+               source == FIRFirestoreSourceServer) {
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get document from server. (However, this "
+                                       @"document does exist in the local cache. Run again "
+                                       @"without setting source to FIRFirestoreSourceServer to "
+                                       @"retrieve the cached document.)"
+                                 }]);
     } else {
       completion(snapshot, nil);
     }
   };
 
-  listenerRegistration =
-      [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
+  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
   dispatch_semaphore_signal(registered);
 }
 
 - (id<FIRListenerRegistration>)addSnapshotListener:(FIRDocumentSnapshotBlock)listener {
-  return [self addSnapshotListenerWithOptions:nil listener:listener];
+  return [self addSnapshotListenerWithIncludeMetadataChanges:NO listener:listener];
 }
 
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (nullable FIRDocumentListenOptions *)options
-                                                     listener:(FIRDocumentSnapshotBlock)listener {
-  return [self addSnapshotListenerInternalWithOptions:[self internalOptions:options]
-                                             listener:listener];
+- (id<FIRListenerRegistration>)
+addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                     listener:(FIRDocumentSnapshotBlock)listener {
+  FSTListenOptions *options =
+      [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
+  return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
 addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                               listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
-  FSTQuery *query = [FSTQuery queryWithPath:self.key.path];
-  FSTDocumentKey *key = self.key;
+  FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
+  const DocumentKey key = self.key;
 
   FSTViewSnapshotHandler snapshotHandler = ^(FSTViewSnapshot *snapshot, NSError *error) {
     if (error) {
@@ -299,11 +277,34 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 }
 
 /** Converts the public API options object to the internal options object. */
-- (FSTListenOptions *)internalOptions:(nullable FIRDocumentListenOptions *)options {
-  return
-      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:options.includeMetadataChanges
-                                     includeDocumentMetadataChanges:options.includeMetadataChanges
-                                              waitForSyncWhenOnline:NO];
+- (FSTListenOptions *)internalOptionsForIncludeMetadataChanges:(BOOL)includeMetadataChanges {
+  return [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:includeMetadataChanges
+                                        includeDocumentMetadataChanges:includeMetadataChanges
+                                                 waitForSyncWhenOnline:NO];
+}
+
+@end
+
+#pragma mark - FIRDocumentReference (Internal)
+
+@implementation FIRDocumentReference (Internal)
+
++ (instancetype)referenceWithPath:(const ResourcePath &)path firestore:(FIRFirestore *)firestore {
+  if (path.size() % 2 != 0) {
+    FSTThrowInvalidArgument(
+        @"Invalid document reference. Document references must have an even "
+         "number of segments, but %s has %zu",
+        path.CanonicalString().c_str(), path.size());
+  }
+  return [FIRDocumentReference referenceWithKey:DocumentKey{path} firestore:firestore];
+}
+
++ (instancetype)referenceWithKey:(DocumentKey)key firestore:(FIRFirestore *)firestore {
+  return [[FIRDocumentReference alloc] initWithKey:std::move(key) firestore:firestore];
+}
+
+- (const firebase::firestore::model::DocumentKey &)key {
+  return _key;
 }
 
 @end

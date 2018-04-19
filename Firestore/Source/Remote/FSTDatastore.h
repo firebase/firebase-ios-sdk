@@ -16,10 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 
-@class FSTDatabaseInfo;
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "absl/strings/string_view.h"
+
 @class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
@@ -31,9 +37,6 @@
 @class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
-
-@protocol FSTCredentialsProvider;
-@class FSTDatabaseID;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -52,15 +55,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTDatastore : NSObject
 
 /** Creates a new Datastore instance with the given database info. */
-+ (instancetype)datastoreWithDatabase:(FSTDatabaseInfo *)database
++ (instancetype)datastoreWithDatabase:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                          credentials:(id<FSTCredentialsProvider>)credentials;
+                          credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                          credentials;  // no passing ownership
 
 - (instancetype)init __attribute__((unavailable("Use a static constructor method.")));
 
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo *)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                         credentials:(id<FSTCredentialsProvider>)credentials
+                         credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                         credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;
 
 /**
@@ -81,11 +86,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(FSTDatabaseID *)databaseID
-                       token:(nullable NSString *)token;
+                  databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+                       token:(const absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
-- (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
 
 /** Commits data to datastore. */
@@ -99,7 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
-@property(nonatomic, strong, readonly) FSTDatabaseInfo *databaseInfo;
+// Does not own this DatabaseInfo.
+@property(nonatomic, assign, readonly) const firebase::firestore::core::DatabaseInfo *databaseInfo;
 
 @end
 

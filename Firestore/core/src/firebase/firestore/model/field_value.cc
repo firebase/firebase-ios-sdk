@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 
-#include <math.h>
-
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -39,15 +38,15 @@ namespace {
 /**
  * This deviates from the other platforms that define TypeOrder. Since
  * we already define Type for union types, we use it together with this
- * function to achive the equivalent order of types i.e.
+ * function to achieve the equivalent order of types i.e.
  *     i) if two types are comparable, then they are of equal order;
  *    ii) otherwise, their order is the same as the order of their Type.
  */
 bool Comparable(Type lhs, Type rhs) {
   switch (lhs) {
-    case Type::Long:
+    case Type::Integer:
     case Type::Double:
-      return rhs == Type::Long || rhs == Type::Double;
+      return rhs == Type::Integer || rhs == Type::Double;
     case Type::Timestamp:
     case Type::ServerTimestamp:
       return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
@@ -78,7 +77,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     case Type::Boolean:
       boolean_value_ = value.boolean_value_;
       break;
-    case Type::Long:
+    case Type::Integer:
       integer_value_ = value.integer_value_;
       break;
     case Type::Double:
@@ -99,6 +98,9 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       std::swap(blob_value_, tmp);
       break;
     }
+    case Type::Reference:
+      reference_value_ = value.reference_value_;
+      break;
     case Type::GeoPoint:
       geo_point_value_ = value.geo_point_value_;
       break;
@@ -110,8 +112,8 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
     }
     case Type::Object: {
       // copy-and-swap
-      std::map<const std::string, const FieldValue> tmp = value.object_value_;
-      std::swap(object_value_, tmp);
+      ObjectValue::Map tmp = value.object_value_.internal_value;
+      std::swap(object_value_.internal_value, tmp);
       break;
     }
     default:
@@ -131,6 +133,11 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       SwitchTo(Type::Blob);
       std::swap(blob_value_, value.blob_value_);
       return *this;
+    case Type::Reference:
+      SwitchTo(Type::Reference);
+      std::swap(reference_value_.reference, value.reference_value_.reference);
+      reference_value_.database_id = value.reference_value_.database_id;
+      return *this;
     case Type::Array:
       SwitchTo(Type::Array);
       std::swap(array_value_, value.array_value_);
@@ -141,7 +148,8 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       return *this;
     default:
       // We just copy over POD union types.
-      return *this = value;
+      *this = value;
+      return *this;
   }
 }
 
@@ -171,7 +179,7 @@ const FieldValue& FieldValue::NanValue() {
 
 FieldValue FieldValue::IntegerValue(int64_t value) {
   FieldValue result;
-  result.SwitchTo(Type::Long);
+  result.SwitchTo(Type::Integer);
   result.integer_value_ = value;
   return result;
 }
@@ -233,6 +241,26 @@ FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
   return result;
 }
 
+// Does NOT pass ownership of database_id.
+FieldValue FieldValue::ReferenceValue(const DocumentKey& value,
+                                      const DatabaseId* database_id) {
+  FieldValue result;
+  result.SwitchTo(Type::Reference);
+  result.reference_value_.reference = value;
+  result.reference_value_.database_id = database_id;
+  return result;
+}
+
+// Does NOT pass ownership of database_id.
+FieldValue FieldValue::ReferenceValue(DocumentKey&& value,
+                                      const DatabaseId* database_id) {
+  FieldValue result;
+  result.SwitchTo(Type::Reference);
+  std::swap(result.reference_value_.reference, value);
+  result.reference_value_.database_id = database_id;
+  return result;
+}
+
 FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
   FieldValue result;
   result.SwitchTo(Type::GeoPoint);
@@ -252,17 +280,15 @@ FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
   return result;
 }
 
-FieldValue FieldValue::ObjectValue(
-    const std::map<const std::string, const FieldValue>& value) {
-  std::map<const std::string, const FieldValue> copy(value);
-  return ObjectValue(std::move(copy));
+FieldValue FieldValue::ObjectValueFromMap(const ObjectValue::Map& value) {
+  ObjectValue::Map copy(value);
+  return ObjectValueFromMap(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValue(
-    std::map<const std::string, const FieldValue>&& value) {
+FieldValue FieldValue::ObjectValueFromMap(ObjectValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
-  std::swap(result.object_value_, value);
+  std::swap(result.object_value_.internal_value, value);
   return result;
 }
 
@@ -276,8 +302,8 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return false;
     case Type::Boolean:
       return Comparator<bool>()(lhs.boolean_value_, rhs.boolean_value_);
-    case Type::Long:
-      if (rhs.type() == Type::Long) {
+    case Type::Integer:
+      if (rhs.type() == Type::Integer) {
         return Comparator<int64_t>()(lhs.integer_value_, rhs.integer_value_);
       } else {
         return util::CompareMixedNumber(rhs.double_value_,
@@ -309,6 +335,12 @@ bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
       return lhs.string_value_.compare(rhs.string_value_) < 0;
     case Type::Blob:
       return lhs.blob_value_ < rhs.blob_value_;
+    case Type::Reference:
+      return *lhs.reference_value_.database_id <
+                 *rhs.reference_value_.database_id ||
+             (*lhs.reference_value_.database_id ==
+                  *rhs.reference_value_.database_id &&
+              lhs.reference_value_.reference < rhs.reference_value_.reference);
     case Type::GeoPoint:
       return lhs.geo_point_value_ < rhs.geo_point_value_;
     case Type::Array:
@@ -343,6 +375,9 @@ void FieldValue::SwitchTo(const Type type) {
     case Type::Blob:
       blob_value_.~vector();
       break;
+    case Type::Reference:
+      reference_value_.~ReferenceValue();
+      break;
     case Type::GeoPoint:
       geo_point_value_.~GeoPoint();
       break;
@@ -350,7 +385,7 @@ void FieldValue::SwitchTo(const Type type) {
       array_value_.~vector();
       break;
     case Type::Object:
-      object_value_.~map();
+      object_value_.internal_value.~map();
       break;
     default: {}  // The other types where there is nothing to worry about.
   }
@@ -370,6 +405,10 @@ void FieldValue::SwitchTo(const Type type) {
       // Do not even bother to allocate a new array of size 0.
       new (&blob_value_) std::vector<uint8_t>();
       break;
+    case Type::Reference:
+      // Qualified name to avoid conflict with the member function of same name.
+      new (&reference_value_) firebase::firestore::model::ReferenceValue();
+      break;
     case Type::GeoPoint:
       new (&geo_point_value_) GeoPoint();
       break;
@@ -377,7 +416,7 @@ void FieldValue::SwitchTo(const Type type) {
       new (&array_value_) std::vector<FieldValue>();
       break;
     case Type::Object:
-      new (&object_value_) std::map<const std::string, const FieldValue>();
+      new (&object_value_) ObjectValue{};
       break;
     default: {}  // The other types where there is nothing to worry about.
   }

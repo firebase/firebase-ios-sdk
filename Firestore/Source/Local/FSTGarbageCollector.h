@@ -16,9 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
+#include <set>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 
-@class FSTDocumentKey;
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
 @class FSTDocumentReference;
 @protocol FSTGarbageCollector;
 
@@ -41,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  * garbage collectors to double-check if a key exists in this collection when it was released
  * elsewhere.
  */
-- (BOOL)containsKey:(FSTDocumentKey *)key;
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey&)key;
 
 @end
 
@@ -85,10 +88,10 @@ NS_ASSUME_NONNULL_BEGIN
  * matches any active targets. This behavior allows the client to avoid re-showing an old document
  * in the next latency-compensated view.
  */
-- (void)addPotentialGarbageKey:(FSTDocumentKey *)key;
+- (void)addPotentialGarbageKey:(const firebase::firestore::model::DocumentKey&)key;
 
 /** Returns the contents of the garbage bin and clears it. */
-- (NSSet<FSTDocumentKey *> *)collectGarbage;
+- (std::set<firebase::firestore::model::DocumentKey>)collectGarbage;
 
 @end
 

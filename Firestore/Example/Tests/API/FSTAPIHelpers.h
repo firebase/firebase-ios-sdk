@@ -18,6 +18,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "absl/strings/string_view.h"
+
 @class FIRCollectionReference;
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
@@ -34,17 +36,17 @@ extern "C" {
 FIRFirestore *FSTTestFirestore();
 
 /** A convenience method for creating a doc snapshot for tests. */
-FIRDocumentSnapshot *FSTTestDocSnapshot(NSString *path,
+FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         FSTTestSnapshotVersion version,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache);
 
 /** A convenience method for creating a collection reference from a path string. */
-FIRCollectionReference *FSTTestCollectionRef(NSString *path);
+FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path);
 
 /** A convenience method for creating a document reference from a path string. */
-FIRDocumentReference *FSTTestDocRef(NSString *path);
+FIRDocumentReference *FSTTestDocRef(const absl::string_view path);
 
 /**
  * A convenience method for creating a particular query snapshot for tests.
@@ -61,7 +63,7 @@ FIRDocumentReference *FSTTestDocRef(NSString *path);
  * @returns A query snapshot that consists of both sets of documents.
  */
 FIRQuerySnapshot *FSTTestQuerySnapshot(
-    NSString *path,
+    const absl::string_view path,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *oldDocs,
     NSDictionary<NSString *, NSDictionary<NSString *, id> *> *docsToAdd,
     BOOL hasPendingWrites,

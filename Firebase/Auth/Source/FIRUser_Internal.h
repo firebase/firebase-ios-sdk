@@ -17,6 +17,7 @@
 #import "FIRUser.h"
 
 @class FIRAuth;
+@class FIRAuthRequestConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,6 +42,11 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
     @brief A weak reference to a FIRAuth instance associated with this instance.
  */
 @property(nonatomic, weak) FIRAuth *auth;
+
+/** @property auth
+    @brief A strong reference to a requestConfiguration instance associated with this user instance.
+ */
+@property(nonatomic, strong) FIRAuthRequestConfiguration *requestConfiguration;
 
 /** @var accessTokenExpirationDate
     @brief The expiration date of the cached access token.

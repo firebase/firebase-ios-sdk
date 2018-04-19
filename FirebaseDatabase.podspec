@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
-  s.version          = '4.1.4'
+  s.version          = '4.1.5'
   s.summary          = 'Firebase Open Source Libraries for iOS.'
 
   s.description      = <<-DESC
@@ -20,7 +20,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
-  s.cocoapods_version = '>= 1.4.0.beta.2'
+  s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
 

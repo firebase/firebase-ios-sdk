@@ -87,4 +87,7 @@ message TargetGlobal {
   // This is updated whenever our we get a TargetChange with a read_time and
   // empty target_ids.
   google.protobuf.Timestamp last_remote_snapshot_version = 3;
+
+  // On platforms that need it, holds the number of targets persisted.
+  int32 target_count = 4;
 }

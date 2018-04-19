@@ -22,6 +22,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <string>
+
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -37,10 +39,30 @@ inline NSString* WrapNSStringNoCopy(const char* c_str) {
              freeWhenDone:NO];
 }
 
-// Creates an absl::string_view wrapper for the contents of the given NSString.
+// Translates a string_view to the equivalent NSString without making a copy.
+inline NSString* WrapNSStringNoCopy(const absl::string_view str) {
+  return WrapNSStringNoCopy(str.data());
+}
+
+// Translates a string_view string to the equivalent NSString by making a copy.
+inline NSString* WrapNSString(const absl::string_view str) {
+  return [[NSString alloc]
+      initWithBytes:const_cast<void*>(static_cast<const void*>(str.data()))
+             length:str.length()
+           encoding:NSUTF8StringEncoding];
+}
+
+// Creates an absl::string_view wrapper for the contents of the given
+// NSString.
 inline absl::string_view MakeStringView(NSString* str) {
   return absl::string_view(
       [str UTF8String], [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
+}
+
+// Creates a std::string wrapper for the contents of the given NSString.
+inline std::string MakeString(NSString* str) {
+  return std::string([str UTF8String],
+                     [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
 }
 
 }  // namespace util

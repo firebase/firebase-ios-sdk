@@ -42,7 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
-  [self.queryCache shutdown];
   self.persistence = nil;
   self.queryCache = nil;
 

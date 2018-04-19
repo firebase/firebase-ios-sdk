@@ -26,7 +26,6 @@ typedef NS_ENUM(int8_t, FIRMessagingNetworkStatus) {
 };
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
-FOUNDATION_EXPORT NSString *const kFIRMessagingSuiteName;
 
 @interface FIRMessagingRemoteMessage ()
 
@@ -52,8 +51,5 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingSuiteName;
 
 - (BOOL)isNetworkAvailable;
 - (FIRMessagingNetworkStatus)networkType;
-
-// Set the APNS token for FCM.
-- (void)setAPNSToken:(NSData *)apnsToken error:(NSError *)error;
 
 @end

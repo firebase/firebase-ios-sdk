@@ -20,6 +20,14 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+
+@class FIRDocumentReference;
+@class FIRDocumentSnapshot;
+@class FIRQuery;
+@class FIRQuerySnapshot;
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
 @class FSTDispatchQueue;
@@ -29,7 +37,6 @@
 @class FSTQuery;
 @class FSTQueryListener;
 @class FSTTransaction;
-@protocol FSTCredentialsProvider;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,9 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * All callbacks and events will be triggered on the provided userDispatchQueue.
  */
-+ (instancetype)clientWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
++ (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
-                   credentialsProvider:(id<FSTCredentialsProvider>)credentialsProvider
+                   credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
+                                           credentialsProvider  // no passing ownership
                      userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
 
@@ -70,6 +78,22 @@ NS_ASSUME_NONNULL_BEGIN
 /** Stops listening to a query previously listened to. */
 - (void)removeListener:(FSTQueryListener *)listener;
 
+/**
+ * Retrieves a document from the cache via the indicated completion. If the doc
+ * doesn't exist, an error will be sent to the completion.
+ */
+- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
+                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                            NSError *_Nullable error))completion;
+
+/**
+ * Retrieves a (possibly empty) set of documents from the cache via the
+ * indicated completion.
+ */
+- (void)getDocumentsFromLocalCache:(FIRQuery *)query
+                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
+                                             NSError *_Nullable error))completion;
+
 /** Write mutations. completion will be notified when it's written to the backend. */
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations
             completion:(nullable FSTVoidErrorBlock)completion;
@@ -80,7 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
                     completion:(FSTVoidIDErrorBlock)completion;
 
 /** The database ID of the databaseInfo this client was initialized with. */
-@property(nonatomic, strong, readonly) FSTDatabaseID *databaseID;
+// Ownes a DatabaseInfo instance, which contains the id here.
+@property(nonatomic, assign, readonly) const firebase::firestore::model::DatabaseId *databaseID;
 
 /**
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the

@@ -19,15 +19,15 @@
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
 
+#include <map>
+#include <memory>
+#include <vector>
+
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
-#import "Firestore/Source/Auth/FSTCredentialsProvider.h"
-#import "Firestore/Source/Core/FSTDatabaseInfo.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -36,6 +36,21 @@
 #import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
+
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::Token;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,8 +77,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
 
-/** An object for getting an auth token before each request. */
-@property(nonatomic, strong, readonly) id<FSTCredentialsProvider> credentials;
+/**
+ * An object for getting an auth token before each request. Does not own the CredentialsProvider
+ * instance.
+ */
+@property(nonatomic, assign, readonly) CredentialsProvider *credentials;
 
 @property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
 
@@ -71,33 +89,36 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @implementation FSTDatastore
 
-+ (instancetype)datastoreWithDatabase:(FSTDatabaseInfo *)databaseInfo
++ (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                          credentials:(id<FSTCredentialsProvider>)credentials {
+                          credentials:(CredentialsProvider *)credentials {
   return [[FSTDatastore alloc] initWithDatabaseInfo:databaseInfo
                                 workerDispatchQueue:workerDispatchQueue
                                         credentials:credentials];
 }
 
-- (instancetype)initWithDatabaseInfo:(FSTDatabaseInfo *)databaseInfo
+- (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                         credentials:(id<FSTCredentialsProvider>)credentials {
+                         credentials:(CredentialsProvider *)credentials {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
-    if (!databaseInfo.isSSLEnabled) {
-      GRPCHost *hostConfig = [GRPCHost hostWithAddress:databaseInfo.host];
+    NSString *host = util::WrapNSString(databaseInfo->host());
+    if (!databaseInfo->ssl_enabled()) {
+      GRPCHost *hostConfig = [GRPCHost hostWithAddress:host];
       hostConfig.secure = NO;
     }
-    _service = [GCFSFirestore serviceWithHost:databaseInfo.host];
+    _service = [GCFSFirestore serviceWithHost:host];
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
-    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:databaseInfo.databaseID];
+    _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
   }
   return self;
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDatastore: %@>", self.databaseInfo];
+  return [NSString stringWithFormat:@"<FSTDatastore: <DatabaseInfo: database_id:%s host:%s>>",
+                                    self.databaseInfo->database_id().database_id().c_str(),
+                                    self.databaseInfo->host().c_str()];
 }
 
 /**
@@ -168,9 +189,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 }
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
-+ (NSString *)googleCloudResourcePrefixForDatabaseID:(FSTDatabaseID *)databaseID {
-  return [NSString
-      stringWithFormat:@"projects/%@/databases/%@", databaseID.projectID, databaseID.databaseID];
++ (NSString *)googleCloudResourcePrefixForDatabaseID:(const DatabaseId *)databaseID {
+  return [NSString stringWithFormat:@"projects/%s/databases/%s", databaseID->project_id().c_str(),
+                                    databaseID->database_id().c_str()];
 }
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
@@ -229,17 +250,19 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   [self invokeRPCWithFactory:rpcFactory errorHandler:completion];
 }
 
-- (void)lookupDocuments:(NSArray<FSTDocumentKey *> *)keys
+- (void)lookupDocuments:(const std::vector<DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
   GCFSBatchGetDocumentsRequest *request = [GCFSBatchGetDocumentsRequest message];
   request.database = [self.serializer encodedDatabaseID];
-  for (FSTDocumentKey *key in keys) {
+  for (const DocumentKey &key : keys) {
     [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
   }
 
-  __block FSTMaybeDocumentDictionary *results =
-      [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+  struct Closure {
+    std::map<DocumentKey, FSTMaybeDocument *> results;
+  };
 
+  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(Closure{});
   RPCFactory rpcFactory = ^GRPCProtoCall * {
     __block GRPCProtoCall *rpc = [self.service
         RPCToBatchGetDocumentsWithRequest:request
@@ -259,16 +282,17 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    // Streaming response, accumulate result
                                    FSTMaybeDocument *doc =
                                        [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   results = [results dictionaryBySettingObject:doc forKey:doc.key];
+                                   closure->results.insert({doc.key, doc});
                                  } else {
                                    // Streaming response is done, call completion
                                    FSTLog(@"RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:keys.count];
-                                   for (FSTDocumentKey *key in keys) {
-                                     [docs addObject:results[key]];
+                                       [NSMutableArray arrayWithCapacity:closure->results.size()];
+                                   for (auto &&entry : closure->results) {
+                                     FSTMaybeDocument *doc = entry.second;
+                                     [docs addObject:doc];
                                    }
                                    completion(docs, nil);
                                  }
@@ -288,22 +312,23 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
-  [self.credentials
-      getTokenForcingRefresh:NO
-                  completion:^(FSTGetTokenResult *_Nullable result, NSError *_Nullable error) {
-                    error = [FSTDatastore firestoreErrorForError:error];
-                    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-                      if (error) {
-                        errorHandler(error);
-                      } else {
-                        GRPCProtoCall *rpc = rpcFactory();
-                        [FSTDatastore prepareHeadersForRPC:rpc
-                                                databaseID:self.databaseInfo.databaseID
-                                                     token:result.token];
-                        [rpc start];
-                      }
-                    }];
-                  }];
+  _credentials->GetToken(
+      /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
+        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+          if (!result.ok()) {
+            errorHandler(util::MakeNSError(result.status()));
+          } else {
+            GRPCProtoCall *rpc = rpcFactory();
+            const Token &token = result.ValueOrDie();
+            [FSTDatastore
+                prepareHeadersForRPC:rpc
+                          databaseID:&self.databaseInfo->database_id()
+                               token:(token.user().is_authenticated() ? token.token()
+                                                                      : absl::string_view())];
+            [rpc start];
+          }
+        }];
+      });
 }
 
 - (FSTWatchStream *)createWatchStream {
@@ -322,9 +347,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(FSTDatabaseID *)databaseID
-                       token:(nullable NSString *)token {
-  rpc.oauth2AccessToken = token;
+                  databaseID:(const DatabaseId *)databaseID
+                       token:(const absl::string_view)token {
+  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =

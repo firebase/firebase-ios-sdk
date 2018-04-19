@@ -21,18 +21,27 @@
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Auth/FSTEmptyCredentialsProvider.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Model/FSTDatabaseID.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
-#import "Firestore/Example/Tests/Util/FSTTestDispatchQueue.h"
 
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::EmptyCredentialsProvider;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -121,6 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
   settings.host = host;
   settings.persistenceEnabled = YES;
+  settings.timestampsInSnapshotsEnabled = YES;
   NSLog(@"Configured integration test for %@ with SSL: %@", settings.host,
         settings.sslEnabled ? @"YES" : @"NO");
   return settings;
@@ -129,18 +139,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTTestDispatchQueue *workerDispatchQueue = [FSTTestDispatchQueue
+  FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
-
-  FSTEmptyCredentialsProvider *credentialsProvider = [[FSTEmptyCredentialsProvider alloc] init];
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
   // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
   FIRApp *app = nil;
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:projectID
-                                                           database:kDefaultDatabaseID
+  std::unique_ptr<CredentialsProvider> credentials_provider =
+      absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
+
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+                                                           database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
-                                                credentialsProvider:credentialsProvider
+                                                credentialsProvider:std::move(credentials_provider)
                                                 workerDispatchQueue:workerDispatchQueue
                                                         firebaseApp:app];
 
@@ -148,14 +159,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   [_firestores addObject:firestore];
   return firestore;
-}
-
-- (void)waitForIdleFirestore:(FIRFirestore *)firestore {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"idle"];
-  // Note that we wait on any task that is scheduled with a delay of 60s. Currently, the idle
-  // timeout is the only task that uses this delay.
-  [((FSTTestDispatchQueue *)firestore.workerDispatchQueue) fulfillOnExecution:expectation];
-  [self awaitExpectations];
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {
@@ -209,28 +212,39 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
+  return [self readDocumentForRef:ref source:FIRFirestoreSourceDefault];
+}
+
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                     source:(FIRFirestoreSource)source {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [ref getDocumentWithCompletion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
-    XCTAssertNil(error);
-    result = doc;
-    [expectation fulfill];
-  }];
+  [ref getDocumentWithSource:source
+                  completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                    XCTAssertNil(error);
+                    result = doc;
+                    [expectation fulfill];
+                  }];
   [self awaitExpectations];
 
   return result;
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
+  return [self readDocumentSetForRef:query source:FIRFirestoreSourceDefault];
+}
+
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error) {
-    XCTAssertNil(error);
-    result = documentSet;
-    [expectation fulfill];
-  }];
+  [query getDocumentsWithSource:source
+                     completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
+                       XCTAssertNil(error);
+                       result = documentSet;
+                       [expectation fulfill];
+                     }];
   [self awaitExpectations];
 
   return result;
@@ -242,14 +256,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"listener"];
   id<FIRListenerRegistration> listener = [ref
-      addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
-                            listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
-                              XCTAssertNil(error);
-                              if (!requireOnline || !snapshot.metadata.fromCache) {
-                                result = snapshot;
-                                [expectation fulfill];
-                              }
-                            }];
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:^(FIRDocumentSnapshot *snapshot,
+                                                      NSError *error) {
+                                             XCTAssertNil(error);
+                                             if (!requireOnline || !snapshot.metadata.fromCache) {
+                                               result = snapshot;
+                                               [expectation fulfill];
+                                             }
+                                           }];
 
   [self awaitExpectations];
   [listener remove];
@@ -272,6 +287,13 @@ NS_ASSUME_NONNULL_BEGIN
   [self awaitExpectations];
 }
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data {
+  [ref setData:data
+           merge:YES
+      completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
+  [self awaitExpectations];
+}
+
 - (void)disableNetwork {
   [self.db.client
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];
@@ -282,6 +304,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self.db.client
       enableNetworkWithCompletion:[self completionForExpectationWithName:@"Enable Network."]];
   [self awaitExpectations];
+}
+
+- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore {
+  return firestore.workerDispatchQueue;
 }
 
 - (void)waitUntil:(BOOL (^)())predicate {
@@ -310,6 +336,18 @@ extern "C" NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs) {
   NSMutableArray<NSString *> *result = [NSMutableArray array];
   for (FIRDocumentSnapshot *doc in docs.documents) {
     [result addObject:doc.documentID];
+  }
+  return result;
+}
+
+extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs) {
+  NSMutableArray<NSMutableArray<id> *> *result = [NSMutableArray array];
+  for (FIRDocumentChange *docChange in docs.documentChanges) {
+    NSMutableArray<id> *docChangeData = [NSMutableArray array];
+    [docChangeData addObject:@(docChange.type)];
+    [docChangeData addObject:docChange.document.documentID];
+    [docChangeData addObject:docChange.document.data];
+    [result addObject:docChangeData];
   }
   return result;
 }
