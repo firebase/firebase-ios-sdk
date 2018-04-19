@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6003F589195388D20070C39A"
-               BuildableName = "Firestore_Example.app"
-               BlueprintName = "Firestore_Example"
+               BuildableName = "Firestore_Example_iOS.app"
+               BlueprintName = "Firestore_Example_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,7 +26,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
@@ -54,8 +53,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "Firestore_Example.app"
-            BlueprintName = "Firestore_Example"
+            BuildableName = "Firestore_Example_iOS.app"
+            BlueprintName = "Firestore_Example_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -66,7 +65,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -78,8 +76,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "Firestore_Example.app"
-            BlueprintName = "Firestore_Example"
+            BuildableName = "Firestore_Example_iOS.app"
+            BlueprintName = "Firestore_Example_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -97,8 +95,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "Firestore_Example.app"
-            BlueprintName = "Firestore_Example"
+            BuildableName = "Firestore_Example_iOS.app"
+            BlueprintName = "Firestore_Example_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

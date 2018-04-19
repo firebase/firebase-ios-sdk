@@ -341,7 +341,7 @@
 		54E9281E1F33950B00C1953E /* FSTIntegrationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTIntegrationTestCase.h; sourceTree = "<group>"; };
 		54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+Await.h"; sourceTree = "<group>"; };
 		54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array_sorted_map_test.cc; path = ../../immutable/array_sorted_map_test.cc; sourceTree = "<group>"; };
-		6003F58A195388D20070C39A /* Firestore_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6003F58A195388D20070C39A /* Firestore_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6003F591195388D20070C39A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -561,7 +561,7 @@
 		6003F58B195388D20070C39A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6003F58A195388D20070C39A /* Firestore_Example.app */,
+				6003F58A195388D20070C39A /* Firestore_Example_iOS.app */,
 				6003F5AE195388D20070C39A /* Firestore_Tests.xctest */,
 				DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests.xctest */,
 				DE0761E41F2FE611003233AF /* SwiftBuildTest.app */,
@@ -924,9 +924,9 @@
 			productReference = 54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		6003F589195388D20070C39A /* Firestore_Example */ = {
+		6003F589195388D20070C39A /* Firestore_Example_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Example" */;
+			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Example_iOS" */;
 			buildPhases = (
 				FAB3416C6DD87D45081EC3E8 /* [CP] Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
@@ -938,9 +938,9 @@
 			);
 			dependencies = (
 			);
-			name = Firestore_Example;
+			name = Firestore_Example_iOS;
 			productName = Firestore;
-			productReference = 6003F58A195388D20070C39A /* Firestore_Example.app */;
+			productReference = 6003F58A195388D20070C39A /* Firestore_Example_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 		6003F5AD195388D20070C39A /* Firestore_Tests */ = {
@@ -1049,7 +1049,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6003F589195388D20070C39A /* Firestore_Example */,
+				6003F589195388D20070C39A /* Firestore_Example_iOS */,
 				6003F5AD195388D20070C39A /* Firestore_Tests */,
 				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 				DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests */,
@@ -1514,7 +1514,7 @@
 /* Begin PBXTargetDependency section */
 		54C9EDF72040E16300A969CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6003F589195388D20070C39A /* Firestore_Example */;
+			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = 54C9EDF62040E16300A969CD /* PBXContainerItemProxy */;
 		};
 		54C9EDFF2040E41900A969CD /* PBXTargetDependency */ = {
@@ -1524,12 +1524,12 @@
 		};
 		6003F5B4195388D20070C39A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6003F589195388D20070C39A /* Firestore_Example */;
+			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = 6003F5B3195388D20070C39A /* PBXContainerItemProxy */;
 		};
 		DE03B2951F2149D600A30B9C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6003F589195388D20070C39A /* Firestore_Example */;
+			target = 6003F589195388D20070C39A /* Firestore_Example_iOS */;
 			targetProxy = DE03B2961F2149D600A30B9C /* PBXContainerItemProxy */;
 		};
 		DE0761FA1F2FEE7E003233AF /* PBXTargetDependency */ = {
@@ -1612,7 +1612,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 			};
 			name = Debug;
 		};
@@ -1651,7 +1651,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 			};
 			name = Release;
 		};
@@ -1798,7 +1798,7 @@
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -1831,7 +1831,7 @@
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -1872,7 +1872,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Debug;
@@ -1913,7 +1913,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example.app/Firestore_Example";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
@@ -2009,7 +2009,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Example" */ = {
+		6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Example_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6003F5C0195388D20070C39A /* Debug */,
