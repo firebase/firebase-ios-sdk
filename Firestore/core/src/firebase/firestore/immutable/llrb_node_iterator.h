@@ -31,12 +31,35 @@ namespace immutable {
 namespace impl {
 
 /**
- * An iterator for traversing LlrbNodes.
+ * A forward iterator for traversing LlrbNodes. LlrbNodes represent the nodes
+ * in a tree implementing a sorted map so iterating with LlrbNodeIterator is
+ * an in-order traversal of the map.
  *
- * LlrbNode is an immutable tree, where insertions create new trees without
+ * ## Complexity
+ *
+ * LlrbNode is an immutable tree, where mutations create new trees without
  * invalidating any of the old instances. This means the tree cannot contain
  * parent pointers and thus this iterator implementation must keep an explicit
  * stack.
+ *
+ * For an underlying tree of size `n`:
+ *
+ *   * LlrbNodeIterator uses `O(lg(n))` memory for its stack, and
+ *   * incrementing an iterator is an `O(lg(n))` operation.
+ *
+ * ## Invalidation and Comparison
+ *
+ * LlrbNodeIterators compare based on the identity of the nodes themselves,
+ * not based on the values of the keys in the nodes. When adding and removing
+ * the same key and iterator obtained before and after will not compare equal.
+ *
+ * LlrbNodeIterators are not invalidated in any conventional sense because
+ * mutations of the underlying tree create new trees. Together this means that
+ * any given version of the tree can be iterated over from the same iterator
+ * repeatedly, but a "mutable view" of the tree kept by replacing the pointer
+ * to the root is effectively invalidated on each mutation.
+ *
+ * Note: LlrbNodeIterator does not extend the lifetime of its underlying tree.
  */
 template <typename N>
 class LlrbNodeIterator {
@@ -60,13 +83,7 @@ class LlrbNodeIterator {
    */
   static LlrbNodeIterator Begin(const node_type* root) {
     stack_type stack;
-
-    const node_type* node = root;
-    while (!node->empty()) {
-      stack.push(node);
-      node = &node->left();
-    }
-
+    AccumulateLeft(root, &stack);
     return LlrbNodeIterator{std::move(stack)};
   }
 
@@ -78,10 +95,14 @@ class LlrbNodeIterator {
     return LlrbNodeIterator{stack_type{}};
   }
 
+  // Default constructor to conform to the requirements of ForwardIterator
+  LlrbNodeIterator() {
+  }
+
   /**
    * Returns true if this iterator points at the end of the iteration sequence.
    */
-  bool end() const {
+  bool is_end() const {
     return stack_.empty();
   }
 
@@ -90,7 +111,7 @@ class LlrbNodeIterator {
    * This can only be called if `end()` is false.
    */
   pointer get() const {
-    FIREBASE_ASSERT(!end());
+    FIREBASE_ASSERT(!is_end());
     return &(stack_.top()->entry());
   }
 
@@ -103,9 +124,7 @@ class LlrbNodeIterator {
   }
 
   LlrbNodeIterator& operator++() {
-    if (end()) {
-      return *this;
-    }
+    FIREBASE_ASSERT(!is_end());
 
     // Pop the stack, moving the currently pointed to node to the parent.
     const node_type* node = stack_.top();
@@ -114,10 +133,7 @@ class LlrbNodeIterator {
     // If the popped node has a right subtree that has to precede the parent in
     // the iteration order so push those on.
     node = &node->right();
-    while (!node->empty()) {
-      stack_.push(node);
-      node = &node->left();
-    }
+    AccumulateLeft(node, &stack_);
 
     return *this;
   }
@@ -129,9 +145,9 @@ class LlrbNodeIterator {
   }
 
   friend bool operator==(const LlrbNodeIterator& a, const LlrbNodeIterator& b) {
-    if (a.end()) {
-      return b.end();
-    } else if (b.end()) {
+    if (a.is_end()) {
+      return b.is_end();
+    } else if (b.is_end()) {
       return false;
     } else {
       const key_type& left_key = a.get()->first;
@@ -140,12 +156,18 @@ class LlrbNodeIterator {
     }
   }
 
-  bool operator!=(LlrbNodeIterator b) const {
+  bool operator!=(const LlrbNodeIterator& b) const {
     return !(*this == b);
   }
 
  private:
   explicit LlrbNodeIterator(stack_type&& stack) : stack_(std::move(stack)) {
+  }
+
+  static void AccumulateLeft(const node_type* node, stack_type* stack) {
+    for (; !node->empty(); node = &node->left()) {
+      stack->push(node);
+    }
   }
 
   stack_type stack_;

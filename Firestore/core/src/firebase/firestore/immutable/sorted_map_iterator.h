@@ -37,21 +37,25 @@ class SortedMapIterator {
   using difference_type = std::ptrdiff_t;
 
  public:
+  // Default constructor to conform to the requirements of ForwardIterator
+  SortedMapIterator() : tag_{Tag::Array}, array_iter_{} {
+  }
+
   explicit SortedMapIterator(ArrayIter&& delegate)
-      : tag_(Tag::Array), array_iter_(std::move(delegate)) {
+      : tag_{Tag::Array}, array_iter_{std::move(delegate)} {
   }
 
   explicit SortedMapIterator(TreeIter&& delegate)
-      : tag_(Tag::Tree), tree_iter_(std::move(delegate)) {
+      : tag_{Tag::Tree}, tree_iter_{std::move(delegate)} {
   }
 
   SortedMapIterator(const SortedMapIterator& other) : tag_(other.tag_) {
     switch (tag_) {
       case Tag::Array:
-        new (&array_iter_) ArrayIter(other.array_iter_);
+        new (&array_iter_) ArrayIter{other.array_iter_};
         break;
       case Tag::Tree:
-        new (&tree_iter_) TreeIter(other.tree_iter_);
+        new (&tree_iter_) TreeIter{other.tree_iter_};
         break;
     }
   }
@@ -59,10 +63,10 @@ class SortedMapIterator {
   SortedMapIterator(SortedMapIterator&& other) : tag_(other.tag_) {
     switch (tag_) {
       case Tag::Array:
-        new (&array_iter_) ArrayIter(std::move(other.array_iter_));
+        new (&array_iter_) ArrayIter{std::move(other.array_iter_)};
         break;
       case Tag::Tree:
-        new (&tree_iter_) TreeIter(std::move(other.tree_iter_));
+        new (&tree_iter_) TreeIter{std::move(other.tree_iter_)};
         break;
     }
   }
@@ -159,9 +163,10 @@ class SortedMapIterator {
       case Tag::Tree:
         return a.tree_iter_ == b.tree_iter_;
     }
+    FIREBASE_UNREACHABLE();
   }
 
-  bool operator!=(SortedMapIterator b) const {
+  bool operator!=(const SortedMapIterator& b) const {
     return !(*this == b);
   }
 

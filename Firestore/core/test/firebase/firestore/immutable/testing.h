@@ -144,6 +144,15 @@ Container ToMap(const std::vector<int>& values) {
   return result;
 }
 
+template <typename Container>
+std::vector<int> Keys(const Container& container) {
+  std::vector<int> keys;
+  for (const auto& element : container) {
+    keys.push_back(element.first);
+  }
+  return keys;
+}
+
 /**
  * Appends the contents of the given container to a new vector.
  */

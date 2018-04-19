@@ -112,8 +112,10 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   }
 
   /**
-   * Returns an iterator pointing to the first entry in the map. If there are
-   * no entries in the map, begin() == end().
+   * Returns a forward iterator pointing to the first entry in the map. If there
+   * are no entries in the map, begin() == end().
+   *
+   * See LlrbNodeIterator for details
    */
   const_iterator begin() const {
     return const_iterator::Begin(&root_);
