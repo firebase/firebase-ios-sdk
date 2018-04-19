@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE29E7F51F2174B000909613"
-               BuildableName = "AllTests"
-               BlueprintName = "AllTests"
+               BuildableName = "AllTests_iOS"
+               BlueprintName = "AllTests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -77,8 +77,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllTests_iOS"
+            BlueprintName = "AllTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -99,8 +99,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllTests_iOS"
+            BlueprintName = "AllTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -117,8 +117,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BuildableName = "AllTests_iOS"
+            BlueprintName = "AllTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

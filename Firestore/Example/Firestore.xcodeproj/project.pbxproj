@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
-		DE29E7F51F2174B000909613 /* AllTests */ = {
+		DE29E7F51F2174B000909613 /* AllTests_iOS */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests" */;
+			buildConfigurationList = DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests_iOS" */;
 			buildPhases = (
 			);
 			dependencies = (
@@ -18,7 +18,7 @@
 				DE29E7FC1F2174DD00909613 /* PBXTargetDependency */,
 				DE0761FA1F2FEE7E003233AF /* PBXTargetDependency */,
 			);
-			name = AllTests;
+			name = AllTests_iOS;
 			productName = AllTests;
 		};
 /* End PBXAggregateTarget section */
@@ -1085,7 +1085,7 @@
 				6003F5AD195388D20070C39A /* Firestore_Tests_iOS */,
 				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 				DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests_iOS */,
-				DE29E7F51F2174B000909613 /* AllTests */,
+				DE29E7F51F2174B000909613 /* AllTests_iOS */,
 				DE0761E31F2FE611003233AF /* SwiftBuildTest */,
 			);
 		};
@@ -2077,7 +2077,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests" */ = {
+		DE29E7F81F2174B000909613 /* Build configuration list for PBXAggregateTarget "AllTests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DE29E7F61F2174B000909613 /* Debug */,
