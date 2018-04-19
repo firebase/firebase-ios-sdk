@@ -55,6 +55,22 @@ class FieldMask {
     return fields_.end();
   }
 
+  /**
+   * Verifies that `fieldPath` is included by at least one field in this field
+   * mask.
+   *
+   * This is an O(n) operation, where `n` is the size of the field mask.
+   */
+  bool covers(const FieldPath& fieldPath) const {
+    for (const FieldPath& fieldMaskPath : fields_) {
+      if (fieldMaskPath.IsPrefixOf(fieldPath)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   std::string ToString() const {
     // Ideally, one should use a string builder. Since this is only non-critical
     // code for logging and debugging, the logic is kept simple here.

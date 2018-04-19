@@ -24,6 +24,8 @@
   `FIRServerTimestampBehavior` on `DocumentSnapshot`. Instead of calling
   `data(SnapshotOptions.serverTimestampBehavior(.estimate))` call
   `data(serverTimestampBehavior: .estimate)`. Changed `get` similarly.
+- [feature] Added new `mergeFields:(NSArray<id>*)` overrides for `set()` 
+  which allow merging of a reduced subset of fields.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
