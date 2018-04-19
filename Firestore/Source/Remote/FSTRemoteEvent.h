@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys;
 
 /** The documents added to the target. */
-@property(nonatomic, strong) FSTDocumentKeySet *addedDocuments;
+@property(nonatomic, strong, readonly) FSTDocumentKeySet *addedDocuments;
 /** The documents removed from the target. */
 @property(nonatomic, strong, readonly) FSTDocumentKeySet *removedDocuments;
 @end
@@ -171,6 +171,17 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 
 /** Handles an existence filter mismatch */
 - (void)handleExistenceFilterMismatchForTargetID:(FSTBoxedTargetID *)targetID;
+
+- (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
+                                         key:(const firebase::firestore::model::DocumentKey&)key;
+
+/**
+ * Strips out mapping changes that aren't actually changes. That is, if the document already
+ * existed in the target, and is being added in the target, and this is not a reset, we can
+ * skip doing the work to associate the document with the target because it has already been done.
+ */
+- (void)filterUpdatesFromTargetChange:(FSTTargetChange *)targetChange
+                    existingDocuments:(FSTDocumentKeySet *)existingDocuments;
 
 @end
 
