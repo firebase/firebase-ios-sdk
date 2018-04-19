@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseDatabase'
   s.version          = '5.0.0'
-  s.summary          = 'Firebase Open Source Libraries for iOS (plus experimental support for macOS and tvOS)'
+  s.summary          = 'Firebase Open Source Libraries for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
 Simplify your iOS development, grow your user base, and monetize more effectively with Firebase.
