@@ -152,7 +152,7 @@ case "$product-$method-$platform" in
   Firestore-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme 'Firestore_Tests' \
+        -scheme "Firestore_Tests_$platform" \
         "${xcb_flags[@]}" \
         build \
         test
