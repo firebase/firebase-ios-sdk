@@ -40,7 +40,7 @@ inline NSError* MakeNSError(const int64_t error_code,
   }
   return [NSError
       errorWithDomain:FIRFirestoreErrorDomain
-                 code:error_code
+                 code:static_cast<NSInteger>(error_code)
              userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
 }
 
