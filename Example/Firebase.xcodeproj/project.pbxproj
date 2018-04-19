@@ -158,15 +158,6 @@
 		BD84035FA14A8647DCB7AEE7 /* Pods_Database_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CCF6BD7264693FD98E10850 /* Pods_Database_Tests_iOS.framework */; };
 		C344068A9C3B2487279AB0BC /* Pods_Auth_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1ACEE1E8A4E9B9D4455A09AB /* Pods_Auth_Sample.framework */; };
 		C521E0D6D9027DB7B2254B19 /* Pods_Storage_IntegrationTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 249A92EF1ADB4E2186F9F788 /* Pods_Storage_IntegrationTests_macOS.framework */; };
-		C8847EB92019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
-		C8847EBA2019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
-		C8847EBB2019110600033F6B /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EB82019110600033F6B /* FIRNetworkTest.m */; };
-		C8847EBD201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
-		C8847EBE201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
-		C8847EBF201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */; };
-		C8847EC1201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
-		C8847EC2201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
-		C8847EC3201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */; };
 		D018534D1EDACED4003A645C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D01853491EDACED4003A645C /* LaunchScreen.storyboard */; };
 		D018534E1EDACED4003A645C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D018534B1EDACED4003A645C /* Main.storyboard */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
@@ -602,9 +593,6 @@
 		E1AAE49ECC7CBAB74C290B25 /* Pods_Auth_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ECF3BF97E614E5E627B8AFF /* Pods_Auth_Tests_iOS.framework */; };
 		E3EE0971417119B44A7B6784 /* Pods_Messaging_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D1C7CFB87F3066712EF881B /* Pods_Messaging_Tests_iOS.framework */; };
 		ECBC321017C94478E9DCEB4E /* Pods_Auth_Tests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B687E5985EC23880B5FB9C0 /* Pods_Auth_Tests_macOS.framework */; };
-		ED8C80BD20877BEE0093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80BC20877BEE0093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		ED8C80BE20877BEE0093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80BC20877BEE0093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		ED8C80BF20877BEE0093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80BC20877BEE0093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1091,9 +1079,6 @@
 		BA1FFE4321DBF890ADDCAAEE /* Pods-Storage_Tests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Storage_Tests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Storage_Tests_macOS/Pods-Storage_Tests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		BC23B1A7390BEA04DE724F7C /* Pods-Database_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_iOS/Pods-Database_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		C2C9D2EB11B351A0EEB3B93D /* Pods-Messaging_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Messaging_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
-		C8847EB82019110600033F6B /* FIRNetworkTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRNetworkTest.m; sourceTree = "<group>"; };
-		C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMutableDictionaryTest.m; sourceTree = "<group>"; };
-		C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRReachabilityCheckerTest.m; sourceTree = "<group>"; };
 		CDEE84B9D494E05B9F9D46FF /* Pods-Core_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_macOS/Pods-Core_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		D018534A1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D018534C1EDACED4003A645C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1427,8 +1412,6 @@
 		EAB8C42B67530BE1F6913791 /* Pods-Database_Tests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_Tests_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Database_Tests_macOS/Pods-Database_Tests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		EBC238B93690B48A560707ED /* Pods_Storage_Example_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Storage_Example_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECDA16775B57C6E80011DD9B /* Pods-Core_Tests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Tests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Tests_iOS/Pods-Core_Tests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
-		ED8C80BB20877BEE0093EB8A /* GTMHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMHTTPServer.h; sourceTree = "<group>"; };
-		ED8C80BC20877BEE0093EB8A /* GTMHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMHTTPServer.m; sourceTree = "<group>"; };
 		EE6603729203B76D9914EE06 /* Pods-Core_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_iOS/Pods-Core_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		F2A878FAEAB3ACF41E7D630C /* Pods-Database_IntegrationTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Database_IntegrationTests_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Database_IntegrationTests_macOS/Pods-Database_IntegrationTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		F55411158F1D5AD6FC20B9B9 /* Pods-Core_Example_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Core_Example_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Core_Example_tvOS/Pods-Core_Example_tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -2565,30 +2548,17 @@
 		DEE14D741E844677006FA992 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				ED8C80BA20877BEE0093EB8A /* third_party */,
 				DEE14D7B1E844677006FA992 /* FIRTestCase.h */,
 				DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */,
 				DEE14D761E844677006FA992 /* FIRAppTest.m */,
 				DEE14D771E844677006FA992 /* FIRBundleUtilTest.m */,
 				DEE14D781E844677006FA992 /* FIRConfigurationTest.m */,
 				DEE14D791E844677006FA992 /* FIRLoggerTest.m */,
-				C8847EBC201AB9E500033F6B /* FIRMutableDictionaryTest.m */,
-				C8847EB82019110600033F6B /* FIRNetworkTest.m */,
 				DEE14D7A1E844677006FA992 /* FIROptionsTest.m */,
-				C8847EC0201ABA1100033F6B /* FIRReachabilityCheckerTest.m */,
 				DEE14D7C1E844677006FA992 /* FIRTestCase.m */,
 				DEE14D7D1E844677006FA992 /* Tests-Info.plist */,
 			);
 			path = Tests;
-			sourceTree = "<group>";
-		};
-		ED8C80BA20877BEE0093EB8A /* third_party */ = {
-			isa = PBXGroup;
-			children = (
-				ED8C80BB20877BEE0093EB8A /* GTMHTTPServer.h */,
-				ED8C80BC20877BEE0093EB8A /* GTMHTTPServer.m */,
-			);
-			path = third_party;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5865,17 +5835,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8847EC2201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
-				ED8C80BE20877BEE0093EB8A /* GTMHTTPServer.m in Sources */,
 				D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */,
 				D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */,
 				D064E6B21ED9B31C001956DF /* FIRLoggerTest.m in Sources */,
 				D064E6B31ED9B31C001956DF /* FIROptionsTest.m in Sources */,
-				C8847EBA2019110600033F6B /* FIRNetworkTest.m in Sources */,
 				D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */,
 				D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */,
-				C8847EBE201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6308,17 +6274,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8847EC3201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
-				ED8C80BF20877BEE0093EB8A /* GTMHTTPServer.m in Sources */,
 				DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */,
 				DEAAD3D51FBA34250053BF48 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */,
 				DEAAD3D61FBA34250053BF48 /* FIRAppTest.m in Sources */,
 				DEAAD3D81FBA34250053BF48 /* FIRConfigurationTest.m in Sources */,
-				C8847EBB2019110600033F6B /* FIRNetworkTest.m in Sources */,
 				DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */,
 				DEAAD3D71FBA34250053BF48 /* FIRBundleUtilTest.m in Sources */,
-				C8847EBF201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6399,17 +6361,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C8847EC1201ABA1100033F6B /* FIRReachabilityCheckerTest.m in Sources */,
-				ED8C80BD20877BEE0093EB8A /* GTMHTTPServer.m in Sources */,
 				DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */,
 				DEE14D911E84468D006FA992 /* FIRConfigurationTest.m in Sources */,
 				DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */,
 				DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */,
-				C8847EB92019110600033F6B /* FIRNetworkTest.m in Sources */,
 				DEE14D901E84468D006FA992 /* FIRBundleUtilTest.m in Sources */,
 				DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */,
-				C8847EBD201AB9E500033F6B /* FIRMutableDictionaryTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
