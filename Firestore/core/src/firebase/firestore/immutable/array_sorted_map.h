@@ -47,13 +47,12 @@ namespace impl {
  * to a FixedArray.
  *
  * @tparam T The type of an element in the array.
- * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, SortedMapBase::size_type fixed_size>
+template <typename T>
 class FixedArray {
  public:
   using size_type = SortedMapBase::size_type;
-  using array_type = std::array<T, fixed_size>;
+  using array_type = std::array<T, SortedMapBase::kFixedSize>;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
@@ -73,7 +72,7 @@ class FixedArray {
   void append(SourceIterator src_begin, SourceIterator src_end) {
     auto appending = static_cast<size_type>(src_end - src_begin);
     auto new_size = size_ + appending;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -84,7 +83,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     *end() = std::move(value);
     size_ = new_size;
@@ -132,7 +131,7 @@ class ArraySortedMap : public SortedMapBase {
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  using array_type = FixedArray<value_type, kFixedSize>;
+  using array_type = FixedArray<value_type>;
   using const_iterator = typename array_type::const_iterator;
 
   using array_pointer = std::shared_ptr<const array_type>;

@@ -20,6 +20,7 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/llrb_node_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 
 namespace firebase {
@@ -48,6 +49,7 @@ class LlrbNode : public SortedMapBase {
    * The type of the entries stored in the map.
    */
   using value_type = std::pair<K, V>;
+  using const_iterator = LlrbNodeIterator<LlrbNode<K, V>>;
 
   /**
    * Constructs an empty node.

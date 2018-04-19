@@ -51,6 +51,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * The type of the node containing entries of value_type.
    */
   using node_type = LlrbNode<K, V>;
+  using const_iterator = typename node_type::const_iterator;
 
   /**
    * Creates an empty TreeSortedMap.
@@ -108,6 +109,23 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
 
   const node_type& root() const {
     return root_;
+  }
+
+  /**
+   * Returns a forward iterator pointing to the first entry in the map. If there
+   * are no entries in the map, begin() == end().
+   *
+   * See LlrbNodeIterator for details
+   */
+  const_iterator begin() const {
+    return const_iterator::Begin(&root_);
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    return const_iterator::End();
   }
 
  private:

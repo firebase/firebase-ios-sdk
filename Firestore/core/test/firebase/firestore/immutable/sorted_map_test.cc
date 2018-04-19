@@ -19,6 +19,7 @@
 #include <numeric>
 #include <random>
 #include <unordered_set>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
@@ -110,6 +111,116 @@ TYPED_TEST(SortedMapTest, Increasing) {
     map = map.erase(i);
   }
   ASSERT_EQ(0u, map.size());
+
+  std::vector<int> empty;
+  ASSERT_EQ(Pairs(empty), Collect(map));
+}
+
+TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {
+  // If this compiles the test has succeeded
+  typename TypeParam::const_iterator iter;
+  (void)iter;
+}
+
+TYPED_TEST(SortedMapTest, BeginEndEmpty) {
+  TypeParam map;
+  ASSERT_EQ(map.begin(), map.end());
+}
+
+TYPED_TEST(SortedMapTest, BeginEndOne) {
+  TypeParam map = ToMap<TypeParam>(Sequence(1));
+  auto begin = map.begin();
+  auto end = map.end();
+
+  ASSERT_NE(begin, end);
+  ASSERT_EQ(0, begin->first);
+
+  ++begin;
+  ASSERT_EQ(begin, end);
+}
+
+TYPED_TEST(SortedMapTest, Iterates) {
+  std::vector<int> to_insert = Sequence(this->large_number());
+  TypeParam map = ToMap<TypeParam>(to_insert);
+  auto iter = map.begin();
+  auto end = map.end();
+
+  std::vector<int> actual;
+  for (; iter != end; ++iter) {
+    actual.push_back(iter->first);
+  }
+  ASSERT_EQ(to_insert, actual);
+}
+
+TYPED_TEST(SortedMapTest, IteratorsUsingRangeBasedForLoop) {
+  std::vector<int> to_insert = Sequence(this->large_number());
+  TypeParam map = ToMap<TypeParam>(to_insert);
+
+  std::vector<int> actual = Keys(map);
+  ASSERT_EQ(to_insert, actual);
+}
+
+TYPED_TEST(SortedMapTest, CompatibleWithStdDistance) {
+  int n = this->large_number();
+  TypeParam map = ToMap<TypeParam>(Sequence(n));
+
+  auto iter = map.begin();
+  ASSERT_EQ(map.size(), static_cast<size_t>(std::distance(iter, map.end())));
+
+  std::advance(iter, 1);
+  ASSERT_EQ(map.size() - 1,
+            static_cast<size_t>(std::distance(iter, map.end())));
+
+  std::advance(iter, map.size() - 1);
+  ASSERT_EQ(0u, static_cast<size_t>(std::distance(iter, map.end())));
+}
+
+TYPED_TEST(SortedMapTest, CompatibleWithStdAccumulate) {
+  // World's worst way to compute triangular numbers...
+  auto add = [](int lhs, const typename TypeParam::value_type& rhs) {
+    return lhs + rhs.first;
+  };
+
+  TypeParam map = ToMap<TypeParam>(Sequence(6));
+  int result = std::accumulate(map.begin(), map.end(), 0, add);
+  ASSERT_EQ(15, result);
+}
+
+TYPED_TEST(SortedMapTest, CompatibleWithStdMismatch) {
+  TypeParam lhs = TypeParam{}.insert(1, 1).insert(3, 3).insert(4, 4);
+  TypeParam rhs = TypeParam{}.insert(1, 1).insert(2, 2).insert(4, 4);
+
+  using Iter = typename TypeParam::const_iterator;
+
+  // C++11 does not define an overload of std::mismatch that takes the end of
+  // rhs, so rhs must be a sequence at least as long as lhs.
+  std::pair<Iter, Iter> miss =
+      std::mismatch(lhs.begin(), lhs.end(), rhs.begin());
+
+  auto lhs_miss = lhs.begin();
+  std::advance(lhs_miss, 1);
+
+  auto rhs_miss = rhs.begin();
+  std::advance(rhs_miss, 1);
+
+  ASSERT_EQ(std::make_pair(lhs_miss, rhs_miss), miss);
+}
+
+TYPED_TEST(SortedMapTest, IteratorInvalidation) {
+  // Tests that iterators are not invalidated by changes
+  int n = this->large_number();
+  TypeParam map = ToMap<TypeParam>(Sequence(0, n - 1, 2));
+  size_t size = static_cast<size_t>(n) / 2;
+  ASSERT_EQ(size, map.size());
+
+  // Insert elements ahead of the current iteration position
+  TypeParam result = map;
+  for (const auto& element : map) {
+    result = result.insert(element.first + 1, element.second + 1);
+  }
+  size *= 2;
+
+  ASSERT_EQ(size, result.size());
 }
 
 }  // namespace immutable
