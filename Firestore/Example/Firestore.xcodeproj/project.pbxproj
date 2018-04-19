@@ -358,7 +358,7 @@
 		6003F5A5195388D20070C39A /* FIRViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
 		6003F5A6195388D20070C39A /* FIRViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
 		6003F5A8195388D20070C39A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		6003F5AE195388D20070C39A /* Firestore_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -572,7 +572,7 @@
 			isa = PBXGroup;
 			children = (
 				6003F58A195388D20070C39A /* Firestore_Example_iOS.app */,
-				6003F5AE195388D20070C39A /* Firestore_Tests.xctest */,
+				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
 				DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests.xctest */,
 				DE0761E41F2FE611003233AF /* SwiftBuildTest.app */,
 				54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */,
@@ -959,9 +959,9 @@
 			productReference = 6003F58A195388D20070C39A /* Firestore_Example_iOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		6003F5AD195388D20070C39A /* Firestore_Tests */ = {
+		6003F5AD195388D20070C39A /* Firestore_Tests_iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Tests" */;
+			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Tests_iOS" */;
 			buildPhases = (
 				8D94B6319191CD7344A4D1B9 /* [CP] Check Pods Manifest.lock */,
 				6003F5AA195388D20070C39A /* Sources */,
@@ -974,9 +974,9 @@
 			dependencies = (
 				6003F5B4195388D20070C39A /* PBXTargetDependency */,
 			);
-			name = Firestore_Tests;
+			name = Firestore_Tests_iOS;
 			productName = FirestoreTests;
-			productReference = 6003F5AE195388D20070C39A /* Firestore_Tests.xctest */;
+			productReference = 6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests */ = {
@@ -1066,7 +1066,7 @@
 			projectRoot = "";
 			targets = (
 				6003F589195388D20070C39A /* Firestore_Example_iOS */,
-				6003F5AD195388D20070C39A /* Firestore_Tests */,
+				6003F5AD195388D20070C39A /* Firestore_Tests_iOS */,
 				54C9EDF02040E16300A969CD /* Firestore_SwiftTests_iOS */,
 				DE03B2941F2149D600A30B9C /* Firestore_IntegrationTests */,
 				DE29E7F51F2174B000909613 /* AllTests */,
@@ -1555,7 +1555,7 @@
 		};
 		DE29E7FA1F2174DD00909613 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 6003F5AD195388D20070C39A /* Firestore_Tests */;
+			target = 6003F5AD195388D20070C39A /* Firestore_Tests_iOS */;
 			targetProxy = DE29E7F91F2174DD00909613 /* PBXContainerItemProxy */;
 		};
 		DE29E7FC1F2174DD00909613 /* PBXTargetDependency */ = {
@@ -2034,7 +2034,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Tests" */ = {
+		6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Firestore_Tests_iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6003F5C3195388D20070C39A /* Debug */,
