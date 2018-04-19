@@ -4,19 +4,18 @@
 pod 'Firebase/Core', '4.13.0'
 
 use_frameworks!
-platform :ios, '8.0'
+
+pod 'FirebaseAuth', :path => '../../'
+pod 'FirebaseCore', :path => '../../'
+pod 'FirebaseFirestore', :path => '../../'
 
 target 'Firestore_Example' do
-  pod 'FirebaseAuth', :path => '../../'
-  pod 'FirebaseCore', :path => '../../'
-  pod 'FirebaseFirestore', :path => '../../'
+  platform :ios, '8.0'
 
   target 'Firestore_Tests' do
     inherit! :search_paths
 
-    pod 'FirebaseCore', :path => '../../'
     pod 'leveldb-library'
-
     pod 'OCMock'
     pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
   end
@@ -24,17 +23,14 @@ target 'Firestore_Example' do
   target 'Firestore_IntegrationTests' do
     inherit! :search_paths
 
-    pod 'FirebaseCore', :path => '../../'
-
     pod 'OCMock'
   end
 
   target 'Firestore_SwiftTests_iOS' do
-    pod 'FirebaseFirestore', :path => '../../'
     pod 'FirebaseFirestoreSwift', :path => '../../'
   end
 end
 
 target 'SwiftBuildTest' do
-  pod 'FirebaseFirestore', :path => '../../'
+  platform :ios, '8.0'
 end
