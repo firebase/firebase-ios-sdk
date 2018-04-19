@@ -161,11 +161,11 @@ FieldValue FieldValue::Set(FieldPath field_path, FieldValue value) const {
   const std::string& child_name = field_path.first_segment();
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
-    auto copy = object_value_.internal_value;
+    ObjectValue::Map copy = object_value_.internal_value;
     copy[child_name] = std::move(value);
     return FieldValue::ObjectValueFromMap(std::move(copy));
   } else {
-    auto copy = object_value_.internal_value;
+    ObjectValue::Map copy = object_value_.internal_value;
     const auto iter = copy.find(child_name);
     if (iter == copy.end() || iter->second.type() != Type::Object) {
       copy[child_name] = FieldValue::ObjectValueFromMap({});
@@ -184,7 +184,7 @@ FieldValue FieldValue::Delete(FieldPath field_path) const {
   const std::string& child_name = field_path.first_segment();
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
-    auto copy = object_value_.internal_value;
+    ObjectValue::Map copy = object_value_.internal_value;
     copy.erase(child_name);
     return FieldValue::ObjectValueFromMap(std::move(copy));
   } else {
@@ -194,7 +194,7 @@ FieldValue FieldValue::Delete(FieldPath field_path) const {
       // Don't actually change a primitive value to an object for a delete.
       return *this;
     } else {
-      auto copy = object_value_.internal_value;
+      ObjectValue::Map copy = object_value_.internal_value;
       copy[child_name] = copy[child_name].Delete(field_path.PopFirst());
       return FieldValue::ObjectValueFromMap(std::move(copy));
     }

@@ -32,9 +32,24 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-/** Represents the result from a Mutation. */
+/**
+ * The result of applying a mutation to the server. This is a model of the
+ * WriteResult proto message.
+ *
+ * Note that MutationResult does not name which document was mutated. The
+ * association is implied positionally: for each entry in the array of
+ * Mutations, there's a corresponding entry in the array of MutationResults.
+ */
 class MutationResult {
  public:
+  /**
+   * @param version The version at which the mutation was committed or
+   * absl::nullopt for a delete.
+   * @param transform_results The resulting fields returned from the backend
+   * after a TransformMutation has been committed. Contains one FieldValue for
+   * each FieldTransform that was in the mutation. Will be absl::nullopt if the
+   * mutation was not a TransformMutation.
+   */
   MutationResult(absl::optional<SnapshotVersion> version = absl::nullopt,
                  absl::optional<std::vector<FieldValue>> transform_results =
                      absl::nullopt);
@@ -48,15 +63,7 @@ class MutationResult {
   }
 
  private:
-  // The version at which the mutation was committed or absl::nullopt
-  // for a delete.
   absl::optional<SnapshotVersion> version_;
-
-  // The resulting fields returned from the backend after a TransformMutation
-  // has been committed. Contains one FieldValue for each FieldTransform that
-  // was in the mutation.
-  //
-  // Will be absl::nullopt if the mutation was not a TransformMutation.
   absl::optional<std::vector<FieldValue>> transform_results_;
 };
 
@@ -65,14 +72,39 @@ class MutationResult {
 // For now, put the interface and the only operation here.
 
 /**
- * A mutation describes a self-contained change to a document. Mutations can
- * create, replace, delete, and update subsets of documents.
- *
- * ## Subclassing Notes
- *
- * Subclasses of Mutation need to implement -applyTo:hasLocalMutations: to
- * implement the actual the behavior of mutation as applied to some source
+ * Represents a Mutation of a document. Different subclasses of Mutation will
+ * perform different kinds of changes to a base document. For example, a
+ * SetMutation replaces the value of a document and a DeleteMutation deletes a
  * document.
+ *
+ * In addition to the value of the document mutations also operate on the
+ * version. We preserve the version of the base document only in case of Set or
+ * Patch mutation to denote what version of original document we've changed. In
+ * case of DeleteMutation we always reset the version to 0.
+ *
+ * Here's the expected transition table.
+ *
+ *   MUTATION         APPLIED TO            RESULTS IN
+ *
+ *   SetMutation        Document(v3)          Document(v3)
+ *   SetMutation        NoDocument(v3)        Document(v0)
+ *   SetMutation        null                  Document(v0)
+ *   PatchMutation      Document(v3)          Document(v3)
+ *   PatchMutation      NoDocument(v3)        NoDocument(v3)
+ *   PatchMutation      null                  null
+ *   TransformMutation  Document(v3)          Document(v3)
+ *   TransformMutation  NoDocument(v3)        NoDocument(v3)
+ *   TransformMutation  null                  null
+ *   DeleteMutation     Document(v3)          NoDocument(v0)
+ *   DeleteMutation     NoDocument(v3)        NoDocument(v0)
+ *   DeleteMutation     null                  NoDocument(v0)
+ *
+ * Note that TransformMutations don't create Documents (in the case of being
+ * applied to a NoDocument), even though they would on the backend. This is
+ * because the client always combines the TransformMutation with a SetMutation
+ * or PatchMutation and we only want to apply the transform if the prior
+ * mutation resulted in a Document (always true for a SetMutation, but not
+ * necessarily for an PatchMutation).
  */
 class Mutation {
  public:
@@ -101,41 +133,16 @@ class Mutation {
    *
    * @param maybe_doc The current state of the document to mutate.
    * @param base_doc The state of the document prior to this mutation batch. The
-   * input document should be nil if it the document did not exist.
+   * input document should be absl::nullopt if it the document did not exist.
    * @param local_write_time A timestamp indicating the local write time of the
    * batch this mutation is a part of.
    * @param mutation_result Optional result info from the backend. If omitted,
    * it's assumed that this is merely a local (latency-compensated) application,
    * and the resulting document will have its has_local_mutations flag set.
    *
-   * @return The mutated document. The returned document may be nil, but only if
-   * maybe_doc was nil and the mutation would not create a new document.
-   *
-   * NOTE: We preserve the version of the base document only in case of Set or
-   * Patch mutation to denote what version of original document we've changed.
-   * In case of DeleteMutation we always reset the version.
-   *
-   * Here's the expected transition table.
-   *
-   * MUTATION         APPLIED TO            RESULTS IN
-   *
-   * SetMutation        Document(v3)          Document(v3)
-   * SetMutation        NoDocument(v3)        Document(v0)
-   * PatchMutation      Document(v3)          Document(v3)
-   * PatchMutation      NoDocument(v3)        NoDocument(v3)
-   * TransformMutation  Document(v3)          Document(v3)
-   * TransformMutation  NoDocument(v3)        NoDocument(v3)
-   * DeleteMutation     Document(v3)          NoDocument(v0)
-   * DeleteMutation     NoDocument(v3)        NoDocument(v0)
-   *
-   * Note that TransformMutations don't create Document (in the case of
-   * being applied to an NoDocument), even though they would on the
-   * backend. This is because the client always combines the
-   * TransformMutation with a SetMutation or PatchMutation and we only
-   * want to apply the transform if the prior mutation resulted in an
-   * Document (always true for an apply the transform if the prior mutation
-   * resulted in a Document (always true for an SetMutation, but not
-   * necessarily for an PatchMutation).
+   * @return The mutated document. The returned document may be absl::nullopt,
+   * but only if maybe_doc was absl::nullopt and the mutation would not create a
+   * new document.
    */
   virtual MaybeDocumentPointer ApplyTo(
       const MaybeDocumentPointer& maybe_doc,
@@ -191,7 +198,7 @@ class SetMutation : public Mutation {
 
   bool operator==(const Mutation& other) const override {
     return Mutation::operator==(other) &&
-           value_ == dynamic_cast<const SetMutation&>(other).value_;
+           value_ == static_cast<const SetMutation&>(other).value_;
   }
 
   MaybeDocumentPointer ApplyTo(
@@ -210,13 +217,13 @@ class SetMutation : public Mutation {
  * given values. The values are applied through a field mask:
  *
  *  * When a field is in both the mask and the values, the corresponding field
- * is updated.
+ *    is updated.
  *  * When a field is in neither the mask nor the values, the corresponding
- * field is unmodified.
+ *    field is unmodified.
  *  * When a field is in the mask but not in the values, the corresponding field
- * is deleted.
+ *    is deleted.
  *  * When a field is not in the mask but is in the values, the values map is
- * ignored.
+ *    ignored.
  */
 class PatchMutation : public Mutation {
  public:
@@ -244,8 +251,8 @@ class PatchMutation : public Mutation {
   bool operator==(const Mutation& other) const override {
     return Mutation::operator==(other) &&
            field_mask_ ==
-               dynamic_cast<const PatchMutation&>(other).field_mask_ &&
-           value_ == dynamic_cast<const PatchMutation&>(other).value_;
+               static_cast<const PatchMutation&>(other).field_mask_ &&
+           value_ == static_cast<const PatchMutation&>(other).value_;
   }
 
   MaybeDocumentPointer ApplyTo(
@@ -271,8 +278,8 @@ class PatchMutation : public Mutation {
  * IP Address, increment(n), etc. could be supported in the future.
  *
  * It is somewhat similar to a PatchMutation in that it patches specific fields
- * and has no effect when applied to nil or an NoDocument (see comment on
- * Mutation::ApplyTo() for rationale).
+ * and has no effect when applied to absl::nullopt or an NoDocument (see comment
+ * on Mutation::ApplyTo() for rationale).
  */
 class TransformMutation : public Mutation {
  public:
@@ -293,7 +300,7 @@ class TransformMutation : public Mutation {
   bool operator==(const Mutation& other) const override {
     return Mutation::operator==(other) &&
            field_transforms_ ==
-               dynamic_cast<const TransformMutation&>(other).field_transforms_;
+               static_cast<const TransformMutation&>(other).field_transforms_;
   }
 
   MaybeDocumentPointer ApplyTo(
