@@ -47,8 +47,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
-               BuildableName = "Firestore_IntegrationTests.xctest"
-               BlueprintName = "Firestore_IntegrationTests"
+               BuildableName = "Firestore_IntegrationTests_iOS.xctest"
+               BlueprintName = "Firestore_IntegrationTests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </TestableReference>
