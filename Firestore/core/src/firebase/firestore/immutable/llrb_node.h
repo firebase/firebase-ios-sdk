@@ -273,13 +273,14 @@ void LlrbNode<K, V>::FixUp() {
   }
 }
 
-// Rotates left:
-//
-//      X              R
-//    /   \          /   \
-//   L     R   =>   X    RR
-//        / \      / \
-//       RL RR     L RL
+/* Rotates left:
+ *
+ *      X              R
+ *    /   \          /   \
+ *   L     R   =>   X    RR
+ *        / \      / \
+ *       RL RR     L RL
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateLeft() {
   LlrbNode new_left{
@@ -291,13 +292,14 @@ void LlrbNode<K, V>::RotateLeft() {
   set_right(right().right());
 }
 
-// Rotates right:
-//
-//      X              L
-//    /   \          /   \
-//   L     R   =>   LL    X
-//  / \                  / \
-// LL LR                LR R
+/* Rotates right:
+ *
+ *      X              L
+ *    /   \          /   \
+ *   L     R   =>   LL    X
+ *  / \                  / \
+ * LL LR                LR R
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateRight() {
   LlrbNode new_right{
