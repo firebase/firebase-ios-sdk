@@ -153,11 +153,13 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
   }
 }
 
-FieldValue FieldValue::Set(FieldPath field_path, FieldValue value) const {
+FieldValue FieldValue::Set(const FieldPath& field_path,
+                           FieldValue value) const {
   FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
                           "Cannot set field for non-object FieldValue");
   FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
                           "Cannot set field for empty path on FieldValue");
+  // Set the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
@@ -176,11 +178,12 @@ FieldValue FieldValue::Set(FieldPath field_path, FieldValue value) const {
   }
 }
 
-FieldValue FieldValue::Delete(FieldPath field_path) const {
+FieldValue FieldValue::Delete(const FieldPath& field_path) const {
   FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
                           "Cannot delete field for non-object FieldValue");
   FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
                           "Cannot delete field for empty path on FieldValue");
+  // Delete the value by recursively calling on child object.
   const std::string& child_name = field_path.first_segment();
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
@@ -191,7 +194,9 @@ FieldValue FieldValue::Delete(FieldPath field_path) const {
     const auto iter = object_value_.internal_value.find(child_name);
     if (iter == object_value_.internal_value.end() ||
         iter->second.type() != Type::Object) {
-      // Don't actually change a primitive value to an object for a delete.
+      // If the found value isn't an object, it cannot contain the remaining
+      // segments of the path. We don't actually change a primitive value to
+      // an object for a delete.
       return *this;
     } else {
       ObjectValue::Map copy = object_value_.internal_value;
@@ -201,7 +206,7 @@ FieldValue FieldValue::Delete(FieldPath field_path) const {
   }
 }
 
-absl::optional<FieldValue> FieldValue::Get(FieldPath field_path) const {
+absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
   FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
                           "Cannot get field for non-object FieldValue");
   const FieldValue* current = this;
@@ -209,8 +214,9 @@ absl::optional<FieldValue> FieldValue::Get(FieldPath field_path) const {
     if (current->type() != Type::Object) {
       return absl::nullopt;
     }
-    const auto iter = current->object_value_.internal_value.find(path);
-    if (iter == current->object_value_.internal_value.end()) {
+    const ObjectValue::Map& object_map = current->object_value_.internal_value;
+    const auto iter = object_map.find(path);
+    if (iter == object_map.end()) {
       return absl::nullopt;
     } else {
       current = &iter->second;

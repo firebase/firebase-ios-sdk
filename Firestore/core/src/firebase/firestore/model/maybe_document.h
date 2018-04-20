@@ -97,8 +97,6 @@ struct DocumentKeyComparator : public std::less<MaybeDocument> {
   }
 };
 
-using MaybeDocumentPointer = std::shared_ptr<MaybeDocument>;
-
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

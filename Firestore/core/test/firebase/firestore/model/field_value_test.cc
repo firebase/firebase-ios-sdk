@@ -495,33 +495,36 @@ TEST(FieldValue, CompareWithOperator) {
 
 TEST(FieldValue, Set) {
   // Set a field in an object.
-  const FieldValue value_one = FieldValue::ObjectValueFromMap({
+  const FieldValue value = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
       {"b", FieldValue::ObjectValueFromMap({
                 {"ba", FieldValue::StringValue("BA")},
             })},
   });
-  const FieldValue expected_one = FieldValue::ObjectValueFromMap({
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
       {"b", FieldValue::ObjectValueFromMap({
                 {"ba", FieldValue::StringValue("BA")},
                 {"bb", FieldValue::StringValue("BB")},
             })},
   });
-  EXPECT_EQ(expected_one, value_one.Set(testutil::Field("b.bb"),
-                                        FieldValue::StringValue("BB")));
+  EXPECT_EQ(expected,
+            value.Set(testutil::Field("b.bb"), FieldValue::StringValue("BB")));
+}
+
+TEST(FieldValue, SetRecursive) {
   // Set a field in a new object.
-  const FieldValue value_two = FieldValue::ObjectValueFromMap({
+  const FieldValue value = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
   });
-  const FieldValue expected_two = FieldValue::ObjectValueFromMap({
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
       {"a", FieldValue::StringValue("A")},
       {"b", FieldValue::ObjectValueFromMap({
                 {"bb", FieldValue::StringValue("BB")},
             })},
   });
-  EXPECT_EQ(expected_two, value_two.Set(testutil::Field("b.bb"),
-                                        FieldValue::StringValue("BB")));
+  EXPECT_EQ(expected,
+            value.Set(testutil::Field("b.bb"), FieldValue::StringValue("BB")));
 }
 
 TEST(FieldValue, Delete) {
@@ -538,8 +541,18 @@ TEST(FieldValue, Delete) {
                 {"ba", FieldValue::StringValue("BA")},
             })},
   });
-  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
   EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
+}
+
+TEST(FieldValue, DeleteNothing) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
 }
 
 TEST(FieldValue, Get) {
@@ -550,11 +563,21 @@ TEST(FieldValue, Get) {
                 {"bb", FieldValue::StringValue("BB")},
             })},
   });
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
   EXPECT_EQ(FieldValue::StringValue("A"), value.Get(testutil::Field("a")));
-  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
   EXPECT_EQ(FieldValue::StringValue("BA"), value.Get(testutil::Field("b.ba")));
   EXPECT_EQ(FieldValue::StringValue("BB"), value.Get(testutil::Field("b.bb")));
+}
+
+TEST(FieldValue, GetNothing) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
+  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
 }
 
 }  //  namespace model
