@@ -30,6 +30,11 @@ namespace immutable {
 
 template <typename Container, typename K>
 testing::AssertionResult NotFound(const Container& map, const K& key) {
+  if (map.contains(key)) {
+    return testing::AssertionFailure()
+           << "Should not have found " << key << " using contains()";
+  }
+
   auto found = map.find(key);
   if (found == map.end()) {
     return testing::AssertionSuccess();
@@ -44,9 +49,15 @@ template <typename Container, typename K, typename V>
 testing::AssertionResult Found(const Container& map,
                                const K& key,
                                const V& expected) {
+  if (!map.contains(key)) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using contains()";
+  }
+
   auto found = map.find(key);
   if (found == map.end()) {
-    return testing::AssertionFailure() << "Did not find key " << key;
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using find()";
   }
   if (found->second == expected) {
     return testing::AssertionSuccess();

@@ -152,6 +152,20 @@ class ArraySortedMap : public SortedMapBase {
         key_comparator_{comparator} {
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return size() == 0;
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return array_->size();
+  }
+
+  const key_comparator_type& comparator() const {
+    return key_comparator_;
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -212,6 +226,10 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
+  bool contains(const K& key) const {
+    return find(key) != end();
+  }
+
   /**
    * Finds a value in the map.
    *
@@ -229,18 +247,15 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
-  const key_comparator_type& comparator() const {
-    return key_comparator_;
-  }
-
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return size() == 0;
-  }
-
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return array_->size();
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    auto found = find(key);
+    return found == end() ? npos : static_cast<size_type>(found - begin());
   }
 
   /**

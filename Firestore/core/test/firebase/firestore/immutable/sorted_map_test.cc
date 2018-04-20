@@ -77,9 +77,8 @@ TYPED_TEST(SortedMapTest, Empty) {
   EXPECT_TRUE(map.empty());
   EXPECT_EQ(0u, map.size());
 
-  // TODO(wilhuff): re-add find
-  // EXPECT_TRUE(NotFound(map, 1));
-  // EXPECT_TRUE(NotFound(map, 10));
+  EXPECT_TRUE(NotFound(map, 1));
+  EXPECT_TRUE(NotFound(map, 10));
 }
 
 TYPED_TEST(SortedMapTest, Size) {
@@ -114,6 +113,50 @@ TYPED_TEST(SortedMapTest, Increasing) {
 
   std::vector<int> empty;
   ASSERT_EQ(Pairs(empty), Collect(map));
+}
+
+TYPED_TEST(SortedMapTest, Overwrite) {
+  TypeParam map = TypeParam().insert(10, 10).insert(10, 8);
+
+  ASSERT_TRUE(Found(map, 10, 8));
+  ASSERT_FALSE(Found(map, 10, 10));
+}
+
+TYPED_TEST(SortedMapTest, BalanceProblem) {
+  std::vector<int> to_insert{1, 7, 8, 5, 2, 6, 4, 0, 3};
+
+  TypeParam map = ToMap<TypeParam>(to_insert);
+  ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
+}
+
+TYPED_TEST(SortedMapTest, FindEmpty) {
+  TypeParam map;
+  EXPECT_TRUE(NotFound(map, 10));
+}
+
+TYPED_TEST(SortedMapTest, FindSpecificKey) {
+  TypeParam map = TypeParam{}.insert(1, 3).insert(2, 4);
+
+  ASSERT_TRUE(Found(map, 1, 3));
+  ASSERT_TRUE(Found(map, 2, 4));
+  ASSERT_TRUE(NotFound(map, 3));
+}
+
+TYPED_TEST(SortedMapTest, FindIndex) {
+  std::vector<int> to_insert{1, 3, 4, 7, 9, 50};
+  TypeParam map = ToMap<TypeParam>(to_insert);
+
+  ASSERT_EQ(TypeParam::npos, map.find_index(0));
+  ASSERT_EQ(0u, map.find_index(1));
+  ASSERT_EQ(TypeParam::npos, map.find_index(2));
+  ASSERT_EQ(1u, map.find_index(3));
+  ASSERT_EQ(2u, map.find_index(4));
+  ASSERT_EQ(TypeParam::npos, map.find_index(5));
+  ASSERT_EQ(TypeParam::npos, map.find_index(6));
+  ASSERT_EQ(3u, map.find_index(7));
+  ASSERT_EQ(TypeParam::npos, map.find_index(8));
+  ASSERT_EQ(4u, map.find_index(9));
+  ASSERT_EQ(5u, map.find_index(50));
 }
 
 TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {
