@@ -20,7 +20,12 @@
 
 - (NSString *) urlDecoded {
     NSString* replaced = [self stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+#if TARGET_OS_TV
+    NSString* decoded = [replaced stringByAddingPercentEncodingWithAllowedCharacters:
+                         [NSCharacterSet URLFragmentAllowedCharacterSet]];
+#else
     NSString* decoded = [replaced stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+#endif
     // This is kind of a hack, but is generally how the js client works. We could run into trouble if
     // some piece is a correctly escaped %-sequence, and another isn't. But, that's bad input anyways...
     if (decoded) {
@@ -31,8 +36,13 @@
 }
 
 - (NSString *) urlEncoded {
-    CFStringRef urlString = CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)self, NULL, (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ", kCFStringEncodingUTF8);
-    return (__bridge NSString *) urlString;
+#if TARGET_OS_TV
+  return [self stringByAddingPercentEncodingWithAllowedCharacters:
+          [NSCharacterSet URLFragmentAllowedCharacterSet]];
+#else
+  CFStringRef urlString = CFURLCreateStringByAddingPercentEscapes(NULL, (__bridge CFStringRef)self, NULL, (CFStringRef)@"!*'\"();:@&=+$,/?%#[]% ", kCFStringEncodingUTF8);
+  return (__bridge NSString *) urlString;
+#endif
 }
 
 @end
