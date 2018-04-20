@@ -9,10 +9,10 @@ pod 'FirebaseAuth', :path => '../../'
 pod 'FirebaseCore', :path => '../../'
 pod 'FirebaseFirestore', :path => '../../'
 
-target 'Firestore_Example' do
+target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
-  target 'Firestore_Tests' do
+  target 'Firestore_Tests_iOS' do
     inherit! :search_paths
 
     pod 'leveldb-library'
@@ -20,7 +20,7 @@ target 'Firestore_Example' do
     pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
   end
 
-  target 'Firestore_IntegrationTests' do
+  target 'Firestore_IntegrationTests_iOS' do
     inherit! :search_paths
 
     pod 'OCMock'
