@@ -27,4 +27,14 @@ pod repo push io2018 FirebaseDatabase.podspec --allow-warnings
 pod repo push io2018 FirebaseFirestore.podspec --allow-warnings
 pod repo push io2018 FirebaseFunctions.podspec
 pod repo push io2018 FirebaseMessaging.podspec
-pod repo push io2018 FirebaseStorage.podspec --allow-warnings
+pod repo push io2018 FirebaseStorage.podspec
+
+# FirebaseAuth warnings
+#    https://github.com/firebase/firebase-ios-sdk/pull/1159
+#    https://github.com/google/google-toolbox-for-mac/issues/162
+
+# FirebaseDatabase warnings
+#    https://github.com/firebase/firebase-ios-sdk/pull/1155
+
+# FirebaseFirestore warning (no plan to fix)
+#    https://github.com/firebase/firebase-ios-sdk/issues/1143
