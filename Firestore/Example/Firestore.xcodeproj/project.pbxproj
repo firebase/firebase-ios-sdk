@@ -133,7 +133,6 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
-		6ED54761B845349D43DB6B78 /* Pods_Firestore_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75A6FE51C1A02DF38F62FAAD /* Pods_Firestore_Example.framework */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
@@ -175,9 +174,7 @@
 		DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0801F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m */; };
 		DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0821F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m */; };
 		DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE2EF0841F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m */; };
-		DEF43C59D90C3CF3CA34DDF4 /* Pods_Firestore_Example_Firestore_SwiftTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 245812330F6A31632BB4B623 /* Pods_Firestore_Example_Firestore_SwiftTests_iOS.framework */; };
 		F06EE8EB234BBE8B7898D5EE /* Pods_Firestore_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24A6BEC38BF31BC4BF0E9DA7 /* Pods_Firestore_Example_iOS.framework */; };
-		F104BBD69BC3F0796E3A77C1 /* Pods_Firestore_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F6A10DBD6187489481CD76 /* Pods_Firestore_Tests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -434,7 +431,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEF43C59D90C3CF3CA34DDF4 /* Pods_Firestore_Example_Firestore_SwiftTests_iOS.framework in Frameworks */,
 				D9AF2279747DE7213156646C /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -446,7 +442,6 @@
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
-				6ED54761B845349D43DB6B78 /* Pods_Firestore_Example.framework in Frameworks */,
 				F06EE8EB234BBE8B7898D5EE /* Pods_Firestore_Example_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -458,7 +453,6 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
-				F104BBD69BC3F0796E3A77C1 /* Pods_Firestore_Tests.framework in Frameworks */,
 				347FDC6AA737A754541F7C8A /* Pods_Firestore_Tests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
