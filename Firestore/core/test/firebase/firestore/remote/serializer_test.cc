@@ -237,14 +237,14 @@ TEST_F(SerializerTest, WritesNestedObjects) {
   google::firestore::v1beta1::Value middle_proto;
   google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
       middle_fields = middle_proto.mutable_map_value()->mutable_fields();
-  (*middle_fields)["d"] = ValueProto(100L);
+  (*middle_fields)["d"] = ValueProto(int64_t{100});
   (*middle_fields)["nested"] = inner_proto;
 
   google::firestore::v1beta1::Value proto;
   google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
       fields = proto.mutable_map_value()->mutable_fields();
   (*fields)["b"] = ValueProto(true);
-  (*fields)["i"] = ValueProto(1L);
+  (*fields)["i"] = ValueProto(int64_t{1});
   (*fields)["n"] = ValueProto();
   (*fields)["s"] = ValueProto("foo");
   (*fields)["o"] = middle_proto;
