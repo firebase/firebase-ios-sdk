@@ -123,6 +123,7 @@ class SortedMapIterator {
       case Tag::Tree:
         return tree_iter_.get();
     }
+    FIREBASE_UNREACHABLE();
   }
 
   reference operator*() const {
