@@ -115,7 +115,7 @@ TYPED_TEST(SortedMapTest, Increasing) {
   ASSERT_EQ(Pairs(empty), Collect(map));
 }
 
-TYPED_TEST(SortedMapTest, Override) {
+TYPED_TEST(SortedMapTest, Overwrite) {
   TypeParam map = TypeParam().insert(10, 10).insert(10, 8);
 
   ASSERT_TRUE(Found(map, 10, 8));
