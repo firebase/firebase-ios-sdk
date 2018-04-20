@@ -154,8 +154,8 @@ TEST(Split, APIExamples) {
   {
     // Uses the SkipWhitespace predicate.
     using absl::SkipWhitespace;
-    std::vector<std::string> v = absl::StrSplit("a, ,,b,", ',', SkipWhitespace());
-    EXPECT_THAT(v, ElementsAre("a", "b"));
+    std::vector<std::string> v = absl::StrSplit(" a , ,,b,", ',', SkipWhitespace());
+    EXPECT_THAT(v, ElementsAre(" a ", "b"));
   }
 
   {
@@ -241,10 +241,10 @@ TEST(SplitIterator, Basics) {
 
   EXPECT_NE(it, end);
   EXPECT_EQ("a", *it);  // tests dereference
-  ++it;  // tests preincrement
+  ++it;                 // tests preincrement
   EXPECT_NE(it, end);
   EXPECT_EQ("b", std::string(it->data(), it->size()));  // tests dereference as ptr
-  it++;  // tests postincrement
+  it++;                                            // tests postincrement
   EXPECT_EQ(it, end);
 }
 
@@ -265,10 +265,10 @@ TEST(SplitIterator, Predicate) {
 
   EXPECT_NE(it, end);
   EXPECT_EQ("a", *it);  // tests dereference
-  ++it;  // tests preincrement -- "b" should be skipped here.
+  ++it;                 // tests preincrement -- "b" should be skipped here.
   EXPECT_NE(it, end);
   EXPECT_EQ("c", std::string(it->data(), it->size()));  // tests dereference as ptr
-  it++;  // tests postincrement
+  it++;                                            // tests postincrement
   EXPECT_EQ(it, end);
 }
 
@@ -278,13 +278,13 @@ TEST(SplitIterator, EdgeCases) {
     std::string in;
     std::vector<std::string> expect;
   } specs[] = {
-    {"", {""}},
-    {"foo", {"foo"}},
-    {",", {"", ""}},
-    {",foo", {"", "foo"}},
-    {"foo,", {"foo", ""}},
-    {",foo,", {"", "foo", ""}},
-    {"foo,bar", {"foo", "bar"}},
+      {"", {""}},
+      {"foo", {"foo"}},
+      {",", {"", ""}},
+      {",foo", {"", "foo"}},
+      {"foo,", {"foo", ""}},
+      {",foo,", {"", "foo", ""}},
+      {"foo,bar", {"foo", "bar"}},
   };
 
   for (const auto& spec : specs) {
@@ -621,23 +621,28 @@ TEST(Split, StringDelimiter) {
 
 TEST(Split, UTF8) {
   // Tests splitting utf8 strings and utf8 delimiters.
+  std::string utf8_string = u8"\u03BA\u1F79\u03C3\u03BC\u03B5";
   {
     // A utf8 input std::string with an ascii delimiter.
-    std::vector<absl::string_view> v = absl::StrSplit("a,κόσμε", ',');
-    EXPECT_THAT(v, ElementsAre("a", "κόσμε"));
+    std::string to_split = "a," + utf8_string;
+    std::vector<absl::string_view> v = absl::StrSplit(to_split, ',');
+    EXPECT_THAT(v, ElementsAre("a", utf8_string));
   }
 
   {
     // A utf8 input std::string and a utf8 delimiter.
-    std::vector<absl::string_view> v = absl::StrSplit("a,κόσμε,b", ",κόσμε,");
+    std::string to_split = "a," + utf8_string + ",b";
+    std::string unicode_delimiter = "," + utf8_string + ",";
+    std::vector<absl::string_view> v =
+        absl::StrSplit(to_split, unicode_delimiter);
     EXPECT_THAT(v, ElementsAre("a", "b"));
   }
 
   {
     // A utf8 input std::string and ByAnyChar with ascii chars.
     std::vector<absl::string_view> v =
-        absl::StrSplit("Foo hällo th丞re", absl::ByAnyChar(" \t"));
-    EXPECT_THAT(v, ElementsAre("Foo", "hällo", "th丞re"));
+        absl::StrSplit(u8"Foo h\u00E4llo th\u4E1Ere", absl::ByAnyChar(" \t"));
+    EXPECT_THAT(v, ElementsAre("Foo", u8"h\u00E4llo", u8"th\u4E1Ere"));
   }
 }
 

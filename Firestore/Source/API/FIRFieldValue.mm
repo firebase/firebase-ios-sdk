@@ -95,6 +95,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
   return self;
 }
+
+- (NSString *)methodName {
+  return @"FieldValue.arrayUnion()";
+}
+
 @end
 
 #pragma mark - FSTArrayRemoveFieldValue
@@ -110,6 +115,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
   return self;
 }
+
+- (NSString *)methodName {
+  return @"FieldValue.arrayRemove()";
+}
+
 @end
 
 #pragma mark - FIRFieldValue

@@ -50,11 +50,11 @@ else
       ;;
 
     Firestore-xcodebuild)
-      check_changes '^Firestore/(core|third_party)'
+      check_changes '^Firestore'
       ;;
 
     Firestore-cmake)
-      check_changes '^Firestore'
+      check_changes '^Firestore/(core|third_party)'
       ;;
 
     *)
@@ -65,6 +65,10 @@ else
       ;;
   esac
 fi
+
+# Always rebuild if Travis configuration and/or build scripts changed.
+check_changes '^.travis.yml'
+check_changes '^scripts/(build|if_changed).sh'
 
 if [[ "$run" == true ]]; then
   "$@"

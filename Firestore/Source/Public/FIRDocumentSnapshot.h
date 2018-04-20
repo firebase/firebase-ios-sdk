@@ -48,29 +48,6 @@ typedef NS_ENUM(NSInteger, FIRServerTimestampBehavior) {
 } NS_SWIFT_NAME(ServerTimestampBehavior);
 
 /**
- * Options that configure how data is retrieved from a `DocumentSnapshot`
- * (e.g. the desired behavior for server timestamps that have not yet been set
- * to their final value).
- */
-NS_SWIFT_NAME(SnapshotOptions)
-@interface FIRSnapshotOptions : NSObject
-
-/**   */
-- (instancetype)init __attribute__((unavailable("FIRSnapshotOptions cannot be created directly.")));
-
-/**
- * If set, controls the return value for `FieldValue.serverTimestamp()`
- * fields that have not yet been set to their final value.
- *
- * If omitted, `NSNull` will be returned by default.
- *
- * @return The created `FIRSnapshotOptions` object.
- */
-+ (instancetype)serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
-
-@end
-
-/**
  * A `FIRDocumentSnapshot` contains data read from a document in your Firestore database. The data
  * can be extracted with the `data` property or by using subscript syntax to access a specific
  * field.
@@ -105,7 +82,7 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * `NSNull`. You can use `dataWithOptions()` to configure this behavior.
  *
  * @return An `NSDictionary` containing all fields in the document or `nil` if the document doesn't
- *      exist.
+ *     exist.
  */
 - (nullable NSDictionary<NSString *, id> *)data;
 
@@ -113,12 +90,13 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * Retrieves all fields in the document as a `Dictionary`. Returns `nil` if the document doesn't
  * exist.
  *
- * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
- *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @param serverTimestampBehavior Configures how server timestamps that have not yet been set to
+ *     their final value are returned from the snapshot.
  * @return A `Dictionary` containing all fields in the document or `nil` if the document doesn't
- *      exist.
+ *     exist.
  */
-- (nullable NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
+- (nullable NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior;
 
 /**
  * Retrieves a specific field from the document. Returns `nil` if the document or the field doesn't
@@ -140,14 +118,14 @@ NS_SWIFT_NAME(DocumentSnapshot)
  * can use `get(_:options:)` to configure this behavior.
  *
  * @param field The field to retrieve.
- * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
- *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @param serverTimestampBehavior Configures how server timestamps that have not yet been set to
+ *     their final value are returned from the snapshot.
  * @return The value contained in the field or `nil` if the document or field doesn't exist.
  */
 // clang-format off
 - (nullable id)valueForField:(id)field
-                     options:(FIRSnapshotOptions *)options
-               NS_SWIFT_NAME(get(_:options:));
+     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior
+               NS_SWIFT_NAME(get(_:serverTimestampBehavior:));
 // clang-format on
 
 /**
@@ -190,11 +168,12 @@ NS_SWIFT_NAME(QueryDocumentSnapshot)
 /**
  * Retrieves all fields in the document as a `Dictionary`.
  *
- * @param options `SnapshotOptions` to configure how data is returned from the snapshot (e.g. the
- *      desired behavior for server timestamps that have not yet been set to their final value).
+ * @param serverTimestampBehavior Configures how server timestamps that have not yet been set to
+ *     their final value are returned from the snapshot.
  * @return A `Dictionary` containing all fields in the document.
  */
-- (NSDictionary<NSString *, id> *)dataWithOptions:(FIRSnapshotOptions *)options;
+- (NSDictionary<NSString *, id> *)dataWithServerTimestampBehavior:
+    (FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

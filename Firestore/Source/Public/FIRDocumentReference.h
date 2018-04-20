@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
 @class FIRCollectionReference;
@@ -166,10 +167,28 @@ NS_SWIFT_NAME(DocumentReference)
 /**
  * Reads the document referenced by this `FIRDocumentReference`.
  *
+ * This method attempts to provide up-to-date data when possible by waiting for
+ * data from the server, but it may return cached data or fail if you are
+ * offline and the server cannot be reached. See the
+ * `getDocument(source:completion:)` method to change this behavior.
+ *
  * @param completion a block to execute once the document has been successfully read.
  */
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(completion:));
+
+/**
+ * Reads the document referenced by this `FIRDocumentReference`.
+ *
+ * @param source indicates whether the results should be fetched from the cache
+ *     only (`Source.cache`), the server only (`Source.server`), or to attempt
+ *     the server and fall back to the cache (`Source.default`).
+ * @param completion a block to execute once the document has been successfully read.
+ */
+// clang-format off
+- (void)getDocumentWithSource:(FIRFirestoreSource)source completion:(FIRDocumentSnapshotBlock)completion
+    NS_SWIFT_NAME(getDocument(source:completion:));
+// clang-format on
 
 /**
  * Attaches a listener for DocumentSnapshot events.

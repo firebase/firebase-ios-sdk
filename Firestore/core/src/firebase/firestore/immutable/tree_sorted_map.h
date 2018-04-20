@@ -51,12 +51,25 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * The type of the node containing entries of value_type.
    */
   using node_type = LlrbNode<K, V>;
+  using const_iterator = typename node_type::const_iterator;
 
   /**
    * Creates an empty TreeSortedMap.
    */
   explicit TreeSortedMap(const C& comparator = {})
-      : util::ComparatorHolder<C>{comparator}, root_{node_type::Empty()} {
+      : util::ComparatorHolder<C>{comparator} {
+  }
+
+  /**
+   * Creates a TreeSortedMap from a range of pairs to insert.
+   */
+  template <typename Range>
+  static TreeSortedMap Create(const Range& range, const C& comparator) {
+    node_type node;
+    for (auto&& element : range) {
+      node = node.insert(element.first, element.second, comparator);
+    }
+    return TreeSortedMap{std::move(node), comparator};
   }
 
   /**
@@ -68,10 +81,8 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * @return A new dictionary with the added/updated value.
    */
   TreeSortedMap insert(const K& key, const V& value) const {
-    // TODO(wilhuff): Actually implement insert
-    (void)key;
-    (void)value;
-    return *this;
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.insert(key, value, comparator), comparator};
   }
 
   /**
@@ -83,7 +94,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
   TreeSortedMap erase(const K& key) const {
     // TODO(wilhuff): Actually implement erase
     (void)key;
-    return *this;
+    return TreeSortedMap{this->comparator()};
   }
 
   /** Returns true if the map contains no elements. */
@@ -98,6 +109,23 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
 
   const node_type& root() const {
     return root_;
+  }
+
+  /**
+   * Returns a forward iterator pointing to the first entry in the map. If there
+   * are no entries in the map, begin() == end().
+   *
+   * See LlrbNodeIterator for details
+   */
+  const_iterator begin() const {
+    return const_iterator::Begin(&root_);
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    return const_iterator::End();
   }
 
  private:

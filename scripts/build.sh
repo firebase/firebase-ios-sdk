@@ -152,7 +152,7 @@ case "$product-$method-$platform" in
   Firestore-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme 'Firestore_Tests' \
+        -scheme "Firestore_Tests_$platform" \
         "${xcb_flags[@]}" \
         build \
         test
@@ -171,7 +171,7 @@ case "$product-$method-$platform" in
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
-    (cd build; make -j $cpus all)
+    (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus all)
     ;;
 
   *)

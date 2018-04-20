@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -40,6 +41,11 @@ class SortedMap : public impl::SortedMapBase {
   using array_type = impl::ArraySortedMap<K, V, C>;
   using tree_type = impl::TreeSortedMap<K, V, C>;
 
+  using const_iterator = impl::SortedMapIterator<
+      value_type,
+      typename impl::FixedArray<value_type>::const_iterator,
+      typename impl::LlrbNode<K, V>::const_iterator>;
+
   /**
    * Creates an empty SortedMap.
    */
@@ -56,8 +62,7 @@ class SortedMap : public impl::SortedMapBase {
       tag_ = Tag::Array;
       new (&array_) array_type{entries, comparator};
     } else {
-      // TODO(wilhuff): implement tree initialization
-      abort();
+      new (&tree_) tree_type{tree_type::Create(entries, comparator)};
     }
   }
 
@@ -72,7 +77,7 @@ class SortedMap : public impl::SortedMapBase {
     }
   }
 
-  SortedMap(SortedMap&& other) : tag_{other.tag_} {
+  SortedMap(SortedMap&& other) noexcept : tag_{other.tag_} {
     switch (tag_) {
       case Tag::Array:
         new (&array_) array_type{std::move(other.array_)};
@@ -111,7 +116,7 @@ class SortedMap : public impl::SortedMapBase {
     return *this;
   }
 
-  SortedMap& operator=(SortedMap&& other) {
+  SortedMap& operator=(SortedMap&& other) noexcept {
     if (tag_ == other.tag_) {
       switch (tag_) {
         case Tag::Array:
@@ -139,8 +144,19 @@ class SortedMap : public impl::SortedMapBase {
   SortedMap insert(const K& key, const V& value) const {
     switch (tag_) {
       case Tag::Array:
-        // TODO(wilhuff): convert to TreeSortedMap
-        return SortedMap{array_.insert(key, value)};
+        if (array_.size() >= kFixedSize) {
+          // Strictly speaking this conversion is more eager than it needs to
+          // be since we could be replacing an existing key. However, the
+          // benefit of using the array for small maps doesn't really depend on
+          // exactly where this cut-off happens and just unconditionally
+          // converting if the next insertion could overflow keeps things
+          // simpler.
+          const C& comparator = array_.comparator().comparator();
+          tree_type tree = tree_type::Create(array_, comparator);
+          return SortedMap{tree.insert(key, value)};
+        } else {
+          return SortedMap{array_.insert(key, value)};
+        }
       case Tag::Tree:
         return SortedMap{tree_.insert(key, value)};
     }
@@ -181,6 +197,33 @@ class SortedMap : public impl::SortedMapBase {
         return array_.size();
       case Tag::Tree:
         return tree_.size();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing to the first entry in the map. If there are
+   * no entries in the map, begin() == end().
+   */
+  const_iterator begin() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.begin()};
+      case Tag::Tree:
+        return const_iterator{tree_.begin()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.end()};
+      case Tag::Tree:
+        return const_iterator{tree_.end()};
     }
     FIREBASE_UNREACHABLE();
   }
