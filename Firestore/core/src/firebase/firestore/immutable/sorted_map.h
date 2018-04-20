@@ -229,7 +229,7 @@ class SortedMap : public impl::SortedMapBase {
   }
 
   /**
-   * Finds the index of the give key in the map.
+   * Finds the index of the given key in the map.
    *
    * @param key The key to look up.
    * @return The index of the entry containing the key, or npos if not found.

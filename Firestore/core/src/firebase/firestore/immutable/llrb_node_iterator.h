@@ -100,11 +100,11 @@ class LlrbNodeIterator {
   }
 
   /**
-   * Constructs an iterator pointing to the first node whose key is less than
-   * the given key. If the key is in the tree then the lower bound will be the
-   * node containing the key. If the key is not in the tree, the lower bound
-   * will the first node greater than the key. If all nodes in the key are
-   * less than the given key, returns an equivalent to `End()`.
+   * Constructs an iterator pointing to the first node whose key is not less
+   * than the given key. If the key is in the tree then the lower bound will be
+   * the node containing the key. If the key is not in the tree, the lower bound
+   * will the first node greater than the key. If all nodes in the tree are less
+   * than the given key, returns an equivalent to `End()`.
    */
   template <typename C>
   static LlrbNodeIterator LowerBound(const node_type* root,
