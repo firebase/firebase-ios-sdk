@@ -20,12 +20,13 @@
 #include <utility>
 
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
+#import "Firestore/Source/Util/FSTLogger.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
@@ -323,7 +324,7 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges {
-  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *>(_targetChanges);
+  return _targetChanges;
 }
 
 - (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
@@ -381,6 +382,8 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   NSMutableDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *_existenceFilters;
   /** Keeps track of document to update */
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
+
+  FSTDocumentKeySet *_limboDocuments;
 }
 
 - (instancetype)
@@ -395,14 +398,14 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
     _targetChanges = [NSMutableDictionary dictionary];
     _listenTargets = listenTargets;
     _pendingTargetResponses = [NSMutableDictionary dictionaryWithDictionary:pendingTargetResponses];
-
+    _limboDocuments = [FSTDocumentKeySet keySet];
     _existenceFilters = [NSMutableDictionary dictionary];
   }
   return self;
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *)existenceFilters {
-  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *>(_existenceFilters);
+  return _existenceFilters;
 }
 
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {
@@ -439,9 +442,13 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   BOOL relevant = NO;
 
   for (FSTBoxedTargetID *targetID in docChange.updatedTargetIDs) {
-    if ([self isActiveTarget:targetID]) {
+    FSTQueryData *queryData = [self activeTarget:targetID];
+    if (queryData) {
       FSTTargetChange *change = [self targetChangeForTargetID:targetID];
       [change.mapping addDocumentKey:docChange.documentKey];
+      if (queryData.purpose == FSTQueryPurposeLimboResolution) {
+        _limboDocuments = [_limboDocuments setByAddingObject:docChange.documentKey];
+      }
       relevant = YES;
     }
   }
@@ -473,7 +480,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
         break;
       case FSTWatchTargetChangeStateAdded:
         [self recordResponseForTargetID:targetID];
-        if (![self.pendingTargetResponses objectForKey:targetID]) {
+        if (!self.pendingTargetResponses[targetID]) {
           // We have a freshly added target, so we need to reset any state that we had previously
           // This can happen e.g. when remove and add back a target for existence filter
           // mismatches.
@@ -514,12 +521,12 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
  * responses that we have.
  */
 - (void)recordResponseForTargetID:(FSTBoxedTargetID *)targetID {
-  NSNumber *count = [self.pendingTargetResponses objectForKey:targetID];
+  NSNumber *count = self.pendingTargetResponses[targetID];
   int newCount = count ? [count intValue] - 1 : -1;
   if (newCount == 0) {
     [self.pendingTargetResponses removeObjectForKey:targetID];
   } else {
-    [self.pendingTargetResponses setObject:[NSNumber numberWithInt:newCount] forKey:targetID];
+    self.pendingTargetResponses[targetID] = @(newCount);
   }
 }
 
@@ -532,8 +539,12 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
  * yet acknowledged the intended change in state.
  */
 - (BOOL)isActiveTarget:(FSTBoxedTargetID *)targetID {
-  return [self.listenTargets objectForKey:targetID] &&
-         ![self.pendingTargetResponses objectForKey:targetID];
+  return self.listenTargets[targetID] && !self.pendingTargetResponses[targetID];
+}
+
+- (FSTQueryData *_Nullable)activeTarget:(FSTBoxedTargetID *)targetID {
+  FSTQueryData *queryData = self.listenTargets[targetID];
+  return queryData && !self.pendingTargetResponses[targetID] ? queryData : nil;
 }
 
 - (void)addExistenceFilterChange:(FSTExistenceFilterWatchChange *)existenceFilterChange {
