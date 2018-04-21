@@ -17,6 +17,7 @@
 #import "FIRStorageConstants_Private.h"
 #import "FIRStorageDeleteTask.h"
 #import "FIRStorageDownloadTask_Private.h"
+#import "FIRStorageGetDownloadURLTask.h"
 #import "FIRStorageGetMetadataTask.h"
 #import "FIRStorageMetadata_Private.h"
 #import "FIRStorageReference_Private.h"
@@ -319,16 +320,11 @@
 }
 
 - (void)downloadURLWithCompletion:(FIRStorageVoidURLError)completion {
-  dispatch_queue_t callbackQueue = _storage.fetcherServiceForApp.callbackQueue;
-  if (!callbackQueue) {
-    callbackQueue = dispatch_get_main_queue();
-  }
-
-  return [self metadataWithCompletion:^(FIRStorageMetadata *metadata, NSError *error) {
-    dispatch_async(callbackQueue, ^{
-      completion(metadata.downloadURL, error);
-    });
-  }];
+  FIRStorageGetDownloadURLTask *task =
+      [[FIRStorageGetDownloadURLTask alloc] initWithReference:self
+                                               fetcherService:_storage.fetcherServiceForApp
+                                                   completion:completion];
+  [task enqueue];
 }
 
 #pragma mark - Metadata Operations

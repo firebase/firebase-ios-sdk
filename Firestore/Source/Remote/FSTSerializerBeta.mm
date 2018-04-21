@@ -57,6 +57,7 @@
 #include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -572,29 +573,95 @@ NS_ASSUME_NONNULL_BEGIN
     (const std::vector<FieldTransform> &)fieldTransforms {
   NSMutableArray *protos = [NSMutableArray array];
   for (const FieldTransform &fieldTransform : fieldTransforms) {
-    FSTAssert(fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp,
-              @"Unknown transform: %d type", fieldTransform.transformation().type());
-    GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
-    proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
-    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+    GCFSDocumentTransform_FieldTransform *proto = [self encodedFieldTransform:fieldTransform];
     [protos addObject:proto];
   }
   return protos;
+}
+
+- (GCFSDocumentTransform_FieldTransform *)encodedFieldTransform:
+    (const FieldTransform &)fieldTransform {
+  GCFSDocumentTransform_FieldTransform *proto = [GCFSDocumentTransform_FieldTransform message];
+  proto.fieldPath = util::WrapNSString(fieldTransform.path().CanonicalString());
+  if (fieldTransform.transformation().type() == TransformOperation::Type::ServerTimestamp) {
+    proto.setToServerValue = GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime;
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayUnion) {
+    proto.appendMissingElements = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+
+  } else if (fieldTransform.transformation().type() == TransformOperation::Type::ArrayRemove) {
+    proto.removeAllFromArray_p = [self
+        encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
+
+  } else {
+    FSTFail(@"Unknown transform: %d type", fieldTransform.transformation().type());
+  }
+  return proto;
+}
+
+- (GCFSArrayValue *)encodedArrayTransformElements:(const std::vector<FSTFieldValue *> &)elements {
+  GCFSArrayValue *proto = [GCFSArrayValue message];
+  NSMutableArray<GCFSValue *> *protoContents = [proto valuesArray];
+
+  for (FSTFieldValue *element : elements) {
+    GCFSValue *converted = [self encodedFieldValue:element];
+    [protoContents addObject:converted];
+  }
+  return proto;
 }
 
 - (std::vector<FieldTransform>)decodedFieldTransforms:
     (NSArray<GCFSDocumentTransform_FieldTransform *> *)protos {
   std::vector<FieldTransform> fieldTransforms;
   fieldTransforms.reserve(protos.count);
+
   for (GCFSDocumentTransform_FieldTransform *proto in protos) {
-    FSTAssert(
-        proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
-        @"Unknown transform setToServerValue: %d", proto.setToServerValue);
-    fieldTransforms.emplace_back(
-        FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
-        absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+    switch (proto.transformTypeOneOfCase) {
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_SetToServerValue: {
+        FSTAssert(
+            proto.setToServerValue == GCFSDocumentTransform_FieldTransform_ServerValue_RequestTime,
+            @"Unknown transform setToServerValue: %d", proto.setToServerValue);
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ServerTimestampTransform>(ServerTimestampTransform::Get()));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_AppendMissingElements: {
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.appendMissingElements];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayUnion,
+                                              std::move(elements)));
+        break;
+      }
+
+      case GCFSDocumentTransform_FieldTransform_TransformType_OneOfCase_RemoveAllFromArray_p: {
+        std::vector<FSTFieldValue *> elements =
+            [self decodedArrayTransformElements:proto.removeAllFromArray_p];
+        fieldTransforms.emplace_back(
+            FieldPath::FromServerFormat(util::MakeStringView(proto.fieldPath)),
+            absl::make_unique<ArrayTransform>(TransformOperation::Type::ArrayRemove,
+                                              std::move(elements)));
+        break;
+      }
+
+      default:
+        FSTFail(@"Unknown transform: %@", proto);
+    }
   }
+
   return fieldTransforms;
+}
+
+- (std::vector<FSTFieldValue *>)decodedArrayTransformElements:(GCFSArrayValue *)proto {
+  __block std::vector<FSTFieldValue *> elements;
+  [proto.valuesArray enumerateObjectsUsingBlock:^(GCFSValue *value, NSUInteger idx, BOOL *stop) {
+    elements.push_back([self decodedFieldValue:value]);
+  }];
+  return elements;
 }
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto

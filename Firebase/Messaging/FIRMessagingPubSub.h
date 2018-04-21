@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)subscribeWithToken:(NSString *)token
                      topic:(NSString *)topic
-                   options:(NSDictionary *)options
+                   options:(nullable NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler;
 
 /**
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)unsubscribeWithToken:(NSString *)token
                        topic:(NSString *)topic
-                     options:(NSDictionary *)options
+                     options:(nullable NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler;
 
 /**

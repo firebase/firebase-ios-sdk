@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FIRStorageTask.h"
 
-@interface NSString (FURLUtils)
+@class GTMSessionFetcherService;
 
-- (NSString *) urlEncoded;
-- (NSString *) urlDecoded;
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Task which provides the ability to get a download URL for an object in Firebase Storage.
+ */
+@interface FIRStorageGetDownloadURLTask : FIRStorageTask <FIRStorageTaskManagement>
+
+- (instancetype)initWithReference:(FIRStorageReference *)reference
+                   fetcherService:(GTMSessionFetcherService *)service
+                       completion:(FIRStorageVoidURLError)completion;
 
 @end
+
+NS_ASSUME_NONNULL_END

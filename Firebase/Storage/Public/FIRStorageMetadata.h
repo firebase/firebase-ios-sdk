@@ -113,12 +113,6 @@ NS_SWIFT_NAME(StorageMetadata)
 @property(strong, nonatomic, readonly, nullable) FIRStorageReference *storageReference;
 
 /**
- * An array containing all download URLs available for the object.
- */
-@property(strong, nonatomic, readonly, nullable) NSArray<NSURL *> *downloadURLs __deprecated_msg(
-    "Use `StorageReference.downloadURLWithCompletion()` to obtain a current download URL.");
-
-/**
  * Creates an instanece of FIRStorageMetadata from the contents of a dictionary.
  * @return An instance of FIRStorageMetadata that represents the contents of a dictionary.
  */
@@ -140,14 +134,6 @@ NS_SWIFT_NAME(StorageMetadata)
  * Determines if the current metadata represents a "folder".
  */
 @property(readonly, getter=isFolder) BOOL folder;
-
-/**
- * Retrieves a download URL for the given object, or nil if none exist.
- * Note that if there are many valid download tokens, this will always return the first
- * valid token created.
- */
-- (nullable NSURL *)downloadURL __deprecated_msg(
-    "Use `StorageReference.downloadURLWithCompletion()` to obtain a current download URL.");
 
 @end
 

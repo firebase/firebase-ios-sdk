@@ -79,12 +79,7 @@
   XCTestExpectation *batchExpectation = [self expectationWithDescription:@"batch written"];
   FIRWriteBatch *batch = [doc.firestore batch];
   [batch setData:@{ @"a" : @"b", @"nested" : @{@"a" : @"b"} } forDocument:doc];
-  [batch setData:@{
-    @"c" : @"d",
-    @"nested" : @{@"c" : @"d"}
-  }
-      forDocument:doc
-          options:[FIRSetOptions merge]];
+  [batch setData:@{ @"c" : @"d", @"nested" : @{@"c" : @"d"} } forDocument:doc merge:YES];
   [batch commitWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
     [batchExpectation fulfill];
@@ -152,9 +147,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -182,9 +176,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -216,9 +209,8 @@
   FIRDocumentReference *docA = [collection documentWithPath:@"a"];
   FIRDocumentReference *docB = [collection documentWithPath:@"b"];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [collection addSnapshotListenerWithOptions:[[FIRQueryListenOptions options]
-                                                 includeQueryMetadataChanges:YES]
-                                    listener:accumulator.valueEventHandler];
+  [collection addSnapshotListenerWithIncludeMetadataChanges:YES
+                                                   listener:accumulator.valueEventHandler];
   FIRQuerySnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertEqual(initialSnap.count, 0);
 
@@ -248,9 +240,7 @@
 - (void)testCanWriteTheSameDocumentMultipleTimes {
   FIRDocumentReference *doc = [self documentRef];
   FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
-  [doc
-      addSnapshotListenerWithOptions:[[FIRDocumentListenOptions options] includeMetadataChanges:YES]
-                            listener:accumulator.valueEventHandler];
+  [doc addSnapshotListenerWithIncludeMetadataChanges:YES listener:accumulator.valueEventHandler];
   FIRDocumentSnapshot *initialSnap = [accumulator awaitEventWithName:@"initial event"];
   XCTAssertFalse(initialSnap.exists);
 

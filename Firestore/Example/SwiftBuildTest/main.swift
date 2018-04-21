@@ -32,8 +32,10 @@ func main() {
   addDocument(to: collectionRef)
 
   readDocument(at: documentRef)
+  readDocumentWithSource(at: documentRef)
 
   readDocuments(matching: query)
+  readDocumentsWithSource(matching: query)
 
   listenToDocument(at: documentRef)
 
@@ -100,6 +102,11 @@ func writeDocument(at docRef: DocumentReference) {
   let updateData = [
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
+    "server_timestamp": FieldValue.serverTimestamp(),
+    // TODO(array-features): Uncomment once we add these to the public API
+    // "array_union": FieldValue.arrayUnion(["a", "b"]),
+    // "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 
   docRef.setData(setData)
@@ -114,8 +121,16 @@ func writeDocument(at docRef: DocumentReference) {
     print("Set complete!")
   }
 
-  // SetOptions
-  docRef.setData(setData, options: SetOptions.merge())
+  // merge
+  docRef.setData(setData, merge: true)
+  docRef.setData(setData, merge: true) { error in
+    if let error = error {
+      print("Uh oh! \(error)")
+      return
+    }
+
+    print("Set complete!")
+  }
 
   docRef.updateData(updateData)
   docRef.delete()
@@ -152,6 +167,7 @@ func writeDocuments(at docRef: DocumentReference, database db: Firestore) {
 
   batch = db.batch()
   batch.setData(["a": "b"], forDocument: docRef)
+  batch.setData(["a": "b"], forDocument: docRef, merge: true)
   batch.setData(["c": "d"], forDocument: docRef)
   // commit without completion callback.
   batch.commit()
@@ -185,13 +201,13 @@ func readDocument(at docRef: DocumentReference) {
       if let data = document.data() {
         print("Read document: \(data)")
       }
-      if let data = document.data(with: SnapshotOptions.serverTimestampBehavior(.estimate)) {
+      if let data = document.data(with: .estimate) {
         print("Read document: \(data)")
       }
       if let foo = document.get("foo") {
         print("Field: \(foo)")
       }
-      if let foo = document.get("foo", options: SnapshotOptions.serverTimestampBehavior(.previous)) {
+      if let foo = document.get("foo", serverTimestampBehavior: .previous) {
         print("Field: \(foo)")
       }
       // Fields can also be read via subscript notation.
@@ -217,6 +233,15 @@ func readDocument(at docRef: DocumentReference) {
   }
 }
 
+func readDocumentWithSource(at docRef: DocumentReference) {
+  docRef.getDocument(source: FirestoreSource.default) { document, error in
+  }
+  docRef.getDocument(source: .server) { document, error in
+  }
+  docRef.getDocument(source: FirestoreSource.cache) { document, error in
+  }
+}
+
 func readDocuments(matching query: Query) {
   query.getDocuments { querySnapshot, error in
     // TODO(mikelehen): Figure out how to make "for..in" syntax work
@@ -224,6 +249,15 @@ func readDocuments(matching query: Query) {
     for document in querySnapshot!.documents {
       print(document.data())
     }
+  }
+}
+
+func readDocumentsWithSource(matching query: Query) {
+  query.getDocuments(source: FirestoreSource.default) { querySnapshot, error in
+  }
+  query.getDocuments(source: .server) { querySnapshot, error in
+  }
+  query.getDocuments(source: FirestoreSource.cache) { querySnapshot, error in
   }
 }
 
@@ -243,6 +277,19 @@ func listenToDocument(at docRef: DocumentReference) {
         print("From Cache")
       } else {
         print("From Server")
+      }
+    }
+  }
+
+  // Unsubscribe.
+  listener.remove()
+}
+
+func listenToDocumentWithMetadataChanges(at docRef: DocumentReference) {
+  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, error in
+    if let document = document {
+      if document.metadata.hasPendingWrites {
+        print("Has pending writes")
       }
     }
   }
@@ -295,6 +342,26 @@ func listenToQueryDiffs(onQuery query: Query) {
   listener.remove()
 }
 
+func listenToQueryDiffsWithMetadata(onQuery query: Query) {
+  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, error in
+    if let snap = snap {
+      for change in snap.documentChanges(includeMetadataChanges: true) {
+        switch change.type {
+        case .added:
+          print("New document: \(change.document.data())")
+        case .modified:
+          print("Modified document: \(change.document.data())")
+        case .removed:
+          print("Removed document: \(change.document.data())")
+        }
+      }
+    }
+  }
+
+  // Unsubscribe
+  listener.remove()
+}
+
 func transactions() {
   let db = Firestore.firestore()
 
@@ -326,7 +393,6 @@ func transactions() {
 func types() {
   let _: CollectionReference
   let _: DocumentChange
-  let _: DocumentListenOptions
   let _: DocumentReference
   let _: DocumentSnapshot
   let _: FieldPath
@@ -336,10 +402,8 @@ func types() {
   let _: GeoPoint
   let _: Timestamp
   let _: ListenerRegistration
-  let _: QueryListenOptions
   let _: Query
   let _: QuerySnapshot
-  let _: SetOptions
   let _: SnapshotMetadata
   let _: Transaction
   let _: WriteBatch

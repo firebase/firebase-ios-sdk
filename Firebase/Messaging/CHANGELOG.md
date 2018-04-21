@@ -1,3 +1,9 @@
+# 2018-05-08 -- v3.0.0
+- Remove deprecated delegate property `remoteMessageDelegate`, please use `delegate` instead.
+- Remove deprecated method `messaging:didRefreshRegistrationToken:` defined in FIRMessagingDelegate protocol, please use `messaging:didReceiveRegistrationToken:` instead.
+- Remove deprecated method `applicationReceivedRemoteMessage:` defined in FIRMessagingDelegate protocol, please use `messaging:didReceiveMessage:` instead.
+- Fix an issue that data messages were not tracked successfully.
+
 # 2018-04-01 -- v2.2.0
 - Add new methods that provide completion handlers for topic subscription and unsubscription.
 

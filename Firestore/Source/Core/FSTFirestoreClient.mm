@@ -19,15 +19,25 @@
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
 
+#import "FIRFirestoreErrors.h"
+#import "Firestore/Source/API/FIRDocumentReference+Internal.h"
+#import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+#import "Firestore/Source/API/FIRQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Core/FSTEventManager.h"
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
+#import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
+#import "Firestore/Source/Model/FSTDocument.h"
+#import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -268,6 +278,59 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeListener:(FSTQueryListener *)listener {
   [self.workerDispatchQueue dispatchAsync:^{
     [self.eventManager removeListener:listener];
+  }];
+}
+
+- (void)getDocumentFromLocalCache:(FIRDocumentReference *)doc
+                       completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                            NSError *_Nullable error))completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+    FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
+    if (maybeDoc) {
+      completion([FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
+                                                documentKey:doc.key
+                                                   document:(FSTDocument *)maybeDoc
+                                                  fromCache:YES],
+                 nil);
+    } else {
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get document from cache. (However, this "
+                                       @"document may exist on the server. Run again without "
+                                       @"setting source to FIRFirestoreSourceCache to attempt to "
+                                       @"retrieve the document from the server.)",
+                                 }]);
+    }
+  }];
+}
+
+- (void)getDocumentsFromLocalCache:(FIRQuery *)query
+                        completion:(void (^)(FIRQuerySnapshot *_Nullable query,
+                                             NSError *_Nullable error))completion {
+  [self.workerDispatchQueue dispatchAsync:^{
+
+    FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
+    FSTDocumentKeySet *remoteKeys = [FSTDocumentKeySet keySet];
+
+    FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:remoteKeys];
+    FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
+    FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
+    FSTAssert(viewChange.limboChanges.count == 0,
+              @"View returned limbo documents during local-only query execution.");
+
+    FSTViewSnapshot *snapshot = viewChange.snapshot;
+    FIRSnapshotMetadata *metadata =
+        [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
+                                                     fromCache:snapshot.fromCache];
+
+    completion([FIRQuerySnapshot snapshotWithFirestore:query.firestore
+                                         originalQuery:query.query
+                                              snapshot:snapshot
+                                              metadata:metadata],
+               nil);
   }];
 }
 

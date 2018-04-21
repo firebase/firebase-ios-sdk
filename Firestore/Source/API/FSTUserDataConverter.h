@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
-@class FIRSetOptions;
 @class FSTObjectValue;
 @class FSTFieldValue;
 @class FSTMutation;
@@ -130,7 +129,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 /** Parse document data from a non-merge setData call.*/
 - (FSTParsedSetData *)parsedSetData:(id)input;
 
-/** Parse document data from a setData call with '[FIRSetOptions merge]'. */
+/** Parse document data from a setData call with `merge:YES`. */
 - (FSTParsedSetData *)parsedMergeData:(id)input;
 
 /** Parse update data from an updateData call. */

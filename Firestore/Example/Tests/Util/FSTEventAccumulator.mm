@@ -75,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
     id event = value ? value : [NSNull null];
 
     @synchronized(self) {
-      [_events addObject:event];
+      [self->_events addObject:event];
       [self checkFulfilled];
     }
   };

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
-
-#import <Foundation/Foundation.h>
-
-#import "Firestore/Source/Model/FSTFieldValue.h"
+#import "FIRStorageGetDownloadURLTask.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRSnapshotOptions (Internal)
+/**
+ * Task which provides the ability to get a download URL for an object in Firebase Storage.
+ */
+@interface FIRStorageGetDownloadURLTask ()
 
-/** Returns a default instance of FIRSnapshotOptions that specifies no options. */
-+ (instancetype)defaultOptions;
-
-/* Initializes a new instance with the specified server timestamp behavior. */
-- (instancetype)initWithServerTimestampBehavior:(FSTServerTimestampBehavior)serverTimestampBehavior;
-
-/* Returns the server timestamp behavior. Returns -1 if no behavior is specified. */
-- (FSTServerTimestampBehavior)serverTimestampBehavior;
+/** Extracts a download URL from the StorageMetadata dictonary representation. */
++ (nullable NSURL *)downloadURLFromMetadataDictionary:(NSDictionary *)dictionary;
 
 @end
 

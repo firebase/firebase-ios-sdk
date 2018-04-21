@@ -54,6 +54,12 @@ class SortedMapBase {
    */
   // TODO(wilhuff): actually use this for switching implementations.
   static constexpr size_type kFixedSize = 25;
+
+  /**
+   * A sentinel return value that indicates not found. Functionally similar to
+   * std::string::npos.
+   */
+  static constexpr size_type npos = static_cast<size_type>(-1);
 };
 
 }  // namespace impl

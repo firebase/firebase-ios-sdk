@@ -26,6 +26,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -46,13 +47,12 @@ namespace impl {
  * to a FixedArray.
  *
  * @tparam T The type of an element in the array.
- * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, SortedMapBase::size_type fixed_size>
+template <typename T>
 class FixedArray {
  public:
   using size_type = SortedMapBase::size_type;
-  using array_type = std::array<T, fixed_size>;
+  using array_type = std::array<T, SortedMapBase::kFixedSize>;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
@@ -72,7 +72,7 @@ class FixedArray {
   void append(SourceIterator src_begin, SourceIterator src_end) {
     auto appending = static_cast<size_type>(src_end - src_begin);
     auto new_size = size_ + appending;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -83,7 +83,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     *end() = std::move(value);
     size_ = new_size;
@@ -118,7 +118,7 @@ class FixedArray {
  * ArraySortedMap is a value type containing a map. It is immutable, but has
  * methods to efficiently create new maps that are mutations of it.
  */
-template <typename K, typename V, typename C = std::less<K>>
+template <typename K, typename V, typename C = util::Comparator<K>>
 class ArraySortedMap : public SortedMapBase {
  public:
   using key_comparator_type = KeyComparator<K, V, C>;
@@ -131,7 +131,7 @@ class ArraySortedMap : public SortedMapBase {
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  using array_type = FixedArray<value_type, kFixedSize>;
+  using array_type = FixedArray<value_type>;
   using const_iterator = typename array_type::const_iterator;
 
   using array_pointer = std::shared_ptr<const array_type>;
@@ -150,6 +150,20 @@ class ArraySortedMap : public SortedMapBase {
                  const C& comparator = C())
       : array_{std::make_shared<array_type>(entries.begin(), entries.end())},
         key_comparator_{comparator} {
+  }
+
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return size() == 0;
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return array_->size();
+  }
+
+  const key_comparator_type& comparator() const {
+    return key_comparator_;
   }
 
   /**
@@ -212,6 +226,10 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
+  bool contains(const K& key) const {
+    return find(key) != end();
+  }
+
   /**
    * Finds a value in the map.
    *
@@ -229,14 +247,15 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return size() == 0;
-  }
-
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return array_->size();
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    auto found = find(key);
+    return found == end() ? npos : static_cast<size_type>(found - begin());
   }
 
   /**
