@@ -856,7 +856,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 
   // Replace "-" with "+"
   tokenPayload =
-      [[idToken stringByReplacingOccurrencesOfString:@"-" withString:@"+"] mutableCopy];
+      [[tokenPayload stringByReplacingOccurrencesOfString:@"-" withString:@"+"] mutableCopy];
 
   // Pad the token payload with "=" signs if the payload's length is not a multiple of 4.
   while ((tokenPayload.length % 4) != 0) {
