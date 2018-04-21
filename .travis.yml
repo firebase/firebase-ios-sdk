@@ -62,7 +62,7 @@ jobs:
         - bundle install
         - gem install xcpretty
         - brew outdated cmake || brew upgrade cmake
-        - brew install go # Somehow the build for Abseil requires this.
+        - brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
       script:
