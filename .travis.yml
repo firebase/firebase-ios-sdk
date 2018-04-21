@@ -103,8 +103,10 @@ jobs:
         - bundle install
         - gem install xcpretty
         - pod --version
-        - sed -i.bak -e s/use_frameworks/#use_frameworks/ Example/Podfile
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
+        - cd Example # Pre Firebase 5.0.0 Analytics modular header workaround requires cd
+        - sed -i.bak -e s/use_frameworks/#use_frameworks/ Podfile
+        - ../scripts/if_changed.sh bundle exec pod install --repo-update
+        - cd ..
         # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
         # Remove when updating to CocoaPods 1.5.1
         - sed -i.bak -e 's/-l"FirebaseMessaging"//' "Example/Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.debug.xcconfig"
