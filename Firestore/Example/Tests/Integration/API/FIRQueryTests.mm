@@ -300,6 +300,7 @@
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
     @"c" : @{@"array" : @[ @41.999, @"42",
                            @{ @"a" : @[ @42 ] } ]},
+    @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
 
@@ -308,7 +309,26 @@
       [self readDocumentSetForRef:[collection queryWhereField:@"array" arrayContains:@42]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
                           @{ @"array" : @[ @42 ] },
-                          @{ @"array" : @[ @"a", @42, @"c" ] }
+                          @{ @"array" : @[ @"a", @42, @"c" ] },
+                          @{ @"array" : @[ @42 ],
+                             @"array2" : @[ @"bingo" ] }
+                        ]));
+
+  // Search for "array" to contain both @42 and "a".
+  snapshot = [self readDocumentSetForRef:[[collection queryWhereField:@"array" arrayContains:@42]
+                                             queryWhereField:@"array"
+                                               arrayContains:@"a"]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          @{ @"array" : @[ @"a", @42, @"c" ] },
+                        ]));
+
+  // Search two different array fields ("array" contains 42 and "array2" contains "bingo").
+  snapshot = [self readDocumentSetForRef:[[collection queryWhereField:@"array" arrayContains:@42]
+                                             queryWhereField:@"array2"
+                                               arrayContains:@"bingo"]];
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
+                          @{ @"array" : @[ @42 ],
+                             @"array2" : @[ @"bingo" ] }
                         ]));
 
   // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much

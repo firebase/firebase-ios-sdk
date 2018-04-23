@@ -424,6 +424,11 @@
                   @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:[NSNull null]],
                   @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:nil],
+                  @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
+  FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:[NSNull null]],
+                  @"Invalid Query. You can only perform equality comparisons on nil / NSNull.");
+
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" isGreaterThan:@(NAN)],
                   @"Invalid Query. You can only perform equality comparisons on NaN.");
   FSTAssertThrows([[self collectionRef] queryWhereField:@"a" arrayContains:@(NAN)],
