@@ -25,6 +25,7 @@
 @interface FIRMessagingRegistrar ()
 
 @property(nonatomic, readwrite, assign) BOOL stopAllSubscriptions;
+
 @property(nonatomic, readwrite, strong) FIRMessagingCheckinService *checkinService;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSubRegistrar *pubsubRegistrar;
 
