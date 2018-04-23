@@ -126,13 +126,12 @@ MaybeDocumentPointer PatchMutation::ApplyTo(
 }
 
 FieldValue PatchMutation::PatchObject(FieldValue value) const {
-  for (auto iter = field_mask_.begin(); iter != field_mask_.end(); ++iter) {
-    const FieldPath& field_path = *iter;
+  for (const FieldPath& field_path : field_mask_) {
     absl::optional<FieldValue> new_value = value_.Get(field_path);
-    if (new_value == absl::nullopt) {
-      value = value.Delete(field_path);
-    } else {
+    if (new_value.has_value()) {
       value = value.Set(field_path, new_value.value());
+    } else {
+      value = value.Delete(field_path);
     }
   }
   return value;

@@ -235,7 +235,7 @@ void AssertVersionTransition(const Mutation& mutation,
   }
 }
 
-// Tests the transition table documented in FSTMutation.h.
+// Tests the transition table documented in mutations.h.
 TEST(Mutation, Transitions) {
   const MaybeDocumentPointer doc_v0 =
       testutil::DocPointer("collection/key", 0, {});

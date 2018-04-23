@@ -67,7 +67,7 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-// Returns a valid arbitray constant of timestamp.
+// Returns a valid arbitrary constant of timestamp.
 inline const Timestamp& TestTimestamp() {
   static const Timestamp timestamp = Timestamp::Now();
   return timestamp;
@@ -75,20 +75,10 @@ inline const Timestamp& TestTimestamp() {
 
 inline model::Document Doc(absl::string_view key,
                            int64_t version,
-                           model::ObjectValue::Map data,
-                           bool has_local_mutations) {
+                           model::ObjectValue::Map data = {},
+                           bool has_local_mutations = false) {
   return model::Document{model::FieldValue::ObjectValueFromMap(std::move(data)),
                          Key(key), Version(version), has_local_mutations};
-}
-
-inline model::Document Doc(absl::string_view key,
-                           int64_t version,
-                           model::ObjectValue::Map data) {
-  return Doc(key, version, std::move(data), /* has_local_mutations= */ false);
-}
-
-inline model::Document Doc(absl::string_view key, int64_t version) {
-  return Doc(key, version, {});
 }
 
 inline model::MaybeDocumentPointer DocPointer(absl::string_view key,

@@ -128,10 +128,12 @@ class Mutation {
   }
 
   /**
-   * Applies this mutation to the given Document or NoDocument.,
-   * if we don't have information about this document.
+   * Applies this mutation to the given Document, NoDocument or absl::nullopt,
+   * if we don't have information about this document. Both the input and
+   * returned documents can be absl::nullopt.
    *
-   * @param maybe_doc The current state of the document to mutate.
+   * @param maybe_doc The current state of the document to mutate. The input
+   * document should be absl::nullopt if it does not currently exist.
    * @param base_doc The state of the document prior to this mutation batch. The
    * input document should be absl::nullopt if it the document did not exist.
    * @param local_write_time A timestamp indicating the local write time of the
@@ -154,10 +156,9 @@ class Mutation {
    * A helper version of applyTo for applying mutations locally (without a
    * mutation result from the backend).
    */
-  virtual MaybeDocumentPointer ApplyTo(
-      const MaybeDocumentPointer& maybe_doc,
-      const MaybeDocumentPointer& base_doc,
-      const Timestamp& local_write_time) const {
+  MaybeDocumentPointer ApplyTo(const MaybeDocumentPointer& maybe_doc,
+                               const MaybeDocumentPointer& base_doc,
+                               const Timestamp& local_write_time) const {
     return ApplyTo(maybe_doc, base_doc, local_write_time, absl::nullopt);
   }
 
