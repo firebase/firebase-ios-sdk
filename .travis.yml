@@ -31,6 +31,9 @@ jobs:
       env:
         - PROJECT=Firebase PLATFORM=iOS
       before_install:
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability
+        # issues with simulator:
+        # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
         - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
