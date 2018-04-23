@@ -292,38 +292,19 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
-  // Make sure limbo documents are deleted if there were no results
+  // Make sure limbo documents are deleted if there were no results.
+  // Filter out document additions to targets that they already belong to.
   [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
                                  FSTBoxedTargetID *_Nonnull targetID,
                                  FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
     const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
     if (iter == self->_limboKeysByTarget.end()) {
-      return;
-    }
-    const DocumentKey &limboKey = iter->second;
-    if (targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
-        remoteEvent.documentUpdates.find(limboKey) == remoteEvent.documentUpdates.end()) {
-      // When listening to a query the server responds with a snapshot containing documents
-      // matching the query and a current marker telling us we're now in sync. It's possible for
-      // these to arrive as separate remote events or as a single remote event. For a document
-      // query, there will be no documents sent in the response if the document doesn't exist.
-      //
-      // If the snapshot arrives separately from the current marker, we handle it normally and
-      // updateTrackedLimboDocumentsWithChanges:targetID: will resolve the limbo status of the
-      // document, removing it from limboDocumentRefs. This works because clients only initiate
-      // limbo resolution when a target is current and because all current targets are always at a
-      // consistent snapshot.
-      //
-      // However, if the document doesn't exist and the current marker arrives, the document is
-      // not present in the snapshot and our normal view handling would consider the document to
-      // remain in limbo indefinitely because there are no updates to the document. To avoid this,
-      // we specially handle this just this case here: synthesizing a delete.
-      //
-      // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
-      // explicit delete message and we could remove this special logic.
-      [remoteEvent
-          addDocumentUpdate:[FSTDeletedDocument documentWithKey:limboKey
-                                                        version:remoteEvent.snapshotVersion]];
+      FSTQueryView *qv = self.queryViewsByTarget[targetID];
+      FSTAssert(qv, @"Missing queryview for non-limbo query: %i", [targetID intValue]);
+      [remoteEvent filterUpdatesFromTargetChange:targetChange
+                               existingDocuments:qv.view.syncedDocuments];
+    } else {
+      [remoteEvent synthesizeDeleteForLimboTargetChange:targetChange key:iter->second];
     }
   }];
 

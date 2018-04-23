@@ -44,7 +44,7 @@ class Document : public MaybeDocument {
     return data_;
   }
 
-  absl::optional<FieldValue> field(FieldPath path) const {
+  absl::optional<FieldValue> field(const FieldPath& path) const {
     return data_.Get(path);
   }
 

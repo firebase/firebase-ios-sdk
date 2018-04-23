@@ -118,7 +118,7 @@ class FieldValue {
     return integer_value_;
   }
 
-  const Timestamp timestamp_value() const {
+  Timestamp timestamp_value() const {
     FIREBASE_ASSERT(tag_ == Type::Timestamp);
     return timestamp_value_;
   }
@@ -128,36 +128,38 @@ class FieldValue {
     return string_value_;
   }
 
-  const ObjectValue object_value() const {
+  ObjectValue object_value() const {
     FIREBASE_ASSERT(tag_ == Type::Object);
     return ObjectValue{object_value_};
   }
 
   /**
    * Returns a FieldValue with the field at the named path set to value.
+   * Any absent parent of the field will also be created accordingly.
    *
-   * @param field_path The field path to set.
+   * @param field_path The field path to set. Cannot be empty.
    * @param value The value to set.
    * @return A new FieldValue with the field set.
    */
-  FieldValue Set(FieldPath field_path, FieldValue value) const;
+  FieldValue Set(const FieldPath& field_path, FieldValue value) const;
 
   /**
    * Returns a FieldValue with the field path deleted. If there is no field at
-   * the specified path nothing is changed.
+   * the specified path, the returned value is an identical copy.
    *
-   * @param field_path The field path to remove
+   * @param field_path The field path to remove. Cannot be empty.
    * @return A new FieldValue with the field path removed.
    */
-  FieldValue Delete(FieldPath field_path) const;
+  FieldValue Delete(const FieldPath& field_path) const;
 
   /**
-   * Returns the value at the given path or absl::nullopt.
+   * Returns the value at the given path or absl::nullopt. If the path is empty,
+   * an identical copy of the FieldValue is returned.
    *
-   * @param field_path the path to search
+   * @param field_path the path to search.
    * @return The value at the path or absl::nullopt if it doesn't exist.
    */
-  absl::optional<FieldValue> Get(FieldPath field_path) const;
+  absl::optional<FieldValue> Get(const FieldPath& field_path) const;
 
   /** factory methods. */
   static const FieldValue& NullValue();

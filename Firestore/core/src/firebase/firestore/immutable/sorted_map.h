@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -39,6 +40,11 @@ class SortedMap : public impl::SortedMapBase {
   using value_type = std::pair<K, V>;
   using array_type = impl::ArraySortedMap<K, V, C>;
   using tree_type = impl::TreeSortedMap<K, V, C>;
+
+  using const_iterator = impl::SortedMapIterator<
+      value_type,
+      typename impl::FixedArray<value_type>::const_iterator,
+      typename impl::LlrbNode<K, V>::const_iterator>;
 
   /**
    * Creates an empty SortedMap.
@@ -71,7 +77,7 @@ class SortedMap : public impl::SortedMapBase {
     }
   }
 
-  SortedMap(SortedMap&& other) : tag_{other.tag_} {
+  SortedMap(SortedMap&& other) noexcept : tag_{other.tag_} {
     switch (tag_) {
       case Tag::Array:
         new (&array_) array_type{std::move(other.array_)};
@@ -110,7 +116,7 @@ class SortedMap : public impl::SortedMapBase {
     return *this;
   }
 
-  SortedMap& operator=(SortedMap&& other) {
+  SortedMap& operator=(SortedMap&& other) noexcept {
     if (tag_ == other.tag_) {
       switch (tag_) {
         case Tag::Array:
@@ -125,6 +131,28 @@ class SortedMap : public impl::SortedMapBase {
       new (this) SortedMap{std::move(other)};
     }
     return *this;
+  }
+
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.empty();
+      case Tag::Tree:
+        return tree_.empty();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.size();
+      case Tag::Tree:
+        return tree_.size();
+    }
+    FIREBASE_UNREACHABLE();
   }
 
   /**
@@ -173,24 +201,72 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
+  bool contains(const K& key) const {
     switch (tag_) {
       case Tag::Array:
-        return array_.empty();
+        return array_.contains(key);
       case Tag::Tree:
-        return tree_.empty();
+        return tree_.contains(key);
     }
     FIREBASE_UNREACHABLE();
   }
 
-  /** Returns the number of items in this map. */
-  size_type size() const {
+  /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
     switch (tag_) {
       case Tag::Array:
-        return array_.size();
+        return const_iterator(array_.find(key));
       case Tag::Tree:
-        return tree_.size();
+        return const_iterator{tree_.find(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.find_index(key);
+      case Tag::Tree:
+        return tree_.find_index(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing to the first entry in the map. If there are
+   * no entries in the map, begin() == end().
+   */
+  const_iterator begin() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.begin()};
+      case Tag::Tree:
+        return const_iterator{tree_.begin()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.end()};
+      case Tag::Tree:
+        return const_iterator{tree_.end()};
     }
     FIREBASE_UNREACHABLE();
   }

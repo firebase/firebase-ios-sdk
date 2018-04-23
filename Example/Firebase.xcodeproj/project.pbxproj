@@ -571,6 +571,18 @@
 		DEF6C33D1FBCE775005D0740 /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151F1E86C6FF0083EDBF /* FIRVerifyPasswordRequestTest.m */; };
 		DEF6C33E1FBCE775005D0740 /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315201E86C6FF0083EDBF /* FIRVerifyPasswordResponseTests.m */; };
 		DEF6C3411FBCE775005D0740 /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */; };
+		ED8C81002088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FA2088EFA10093EB8A /* FIRMutableDictionaryTest.m */; };
+		ED8C81012088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FA2088EFA10093EB8A /* FIRMutableDictionaryTest.m */; };
+		ED8C81022088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FA2088EFA10093EB8A /* FIRMutableDictionaryTest.m */; };
+		ED8C81032088EFA20093EB8A /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */; };
+		ED8C81042088EFA20093EB8A /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */; };
+		ED8C81052088EFA20093EB8A /* FIRNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */; };
+		ED8C81062088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */; };
+		ED8C81072088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */; };
+		ED8C81082088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */; };
+		ED8C81092088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		ED8C810A2088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		ED8C810B2088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1254,6 +1266,11 @@
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		E2C2834C90DBAB56D568189F /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		ED8C80FA2088EFA10093EB8A /* FIRMutableDictionaryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMutableDictionaryTest.m; sourceTree = "<group>"; };
+		ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRNetworkTest.m; sourceTree = "<group>"; };
+		ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRReachabilityCheckerTest.m; sourceTree = "<group>"; };
+		ED8C80FE2088EFA20093EB8A /* GTMHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMHTTPServer.h; sourceTree = "<group>"; };
+		ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMHTTPServer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2277,6 +2294,10 @@
 		DEE14D741E844677006FA992 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				ED8C80FA2088EFA10093EB8A /* FIRMutableDictionaryTest.m */,
+				ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */,
+				ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */,
+				ED8C80FD2088EFA20093EB8A /* third_party */,
 				DE4B26DE20855F1F0030A38C /* FIRAppEnvironmentUtilTest.m */,
 				DEE14D7B1E844677006FA992 /* FIRTestCase.h */,
 				DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */,
@@ -2289,6 +2310,15 @@
 				DEE14D7D1E844677006FA992 /* Tests-Info.plist */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		ED8C80FD2088EFA20093EB8A /* third_party */ = {
+			isa = PBXGroup;
+			children = (
+				ED8C80FE2088EFA20093EB8A /* GTMHTTPServer.h */,
+				ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */,
+			);
+			path = third_party;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3644,12 +3674,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED8C81072088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */,
+				ED8C81042088EFA20093EB8A /* FIRNetworkTest.m in Sources */,
 				D064E6AF1ED9B31C001956DF /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
+				ED8C81012088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */,
 				D064E6B01ED9B31C001956DF /* FIRAppTest.m in Sources */,
 				D064E6B11ED9B31C001956DF /* FIRConfigurationTest.m in Sources */,
 				DE4B26E120855F500030A38C /* FIRAppEnvironmentUtilTest.m in Sources */,
 				D064E6B21ED9B31C001956DF /* FIRLoggerTest.m in Sources */,
 				D064E6B31ED9B31C001956DF /* FIROptionsTest.m in Sources */,
+				ED8C810A2088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */,
 				D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */,
 			);
@@ -4099,12 +4133,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED8C81082088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */,
+				ED8C81052088EFA20093EB8A /* FIRNetworkTest.m in Sources */,
 				DEAAD3DA1FBA34250053BF48 /* FIROptionsTest.m in Sources */,
+				ED8C81022088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */,
 				DEAAD3D51FBA34250053BF48 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
 				DEAAD3D91FBA34250053BF48 /* FIRLoggerTest.m in Sources */,
 				DE4B26E220855F520030A38C /* FIRAppEnvironmentUtilTest.m in Sources */,
 				DEAAD3D61FBA34250053BF48 /* FIRAppTest.m in Sources */,
 				DEAAD3D81FBA34250053BF48 /* FIRConfigurationTest.m in Sources */,
+				ED8C810B2088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */,
 				DEAAD3D71FBA34250053BF48 /* FIRBundleUtilTest.m in Sources */,
 			);
@@ -4187,12 +4225,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED8C81062088EFA20093EB8A /* FIRReachabilityCheckerTest.m in Sources */,
+				ED8C81032088EFA20093EB8A /* FIRNetworkTest.m in Sources */,
 				DEE14D8E1E84468D006FA992 /* FIRAppAssociationRegistrationUnitTests.m in Sources */,
+				ED8C81002088EFA20093EB8A /* FIRMutableDictionaryTest.m in Sources */,
 				DEE14D8F1E84468D006FA992 /* FIRAppTest.m in Sources */,
 				DEE14D911E84468D006FA992 /* FIRConfigurationTest.m in Sources */,
 				DE4B26E020855F4C0030A38C /* FIRAppEnvironmentUtilTest.m in Sources */,
 				DEE14D921E84468D006FA992 /* FIRLoggerTest.m in Sources */,
 				DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */,
+				ED8C81092088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				DEE14D901E84468D006FA992 /* FIRBundleUtilTest.m in Sources */,
 				DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */,
 			);

@@ -20,6 +20,7 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/llrb_node_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 
 namespace firebase {
@@ -48,6 +49,7 @@ class LlrbNode : public SortedMapBase {
    * The type of the entries stored in the map.
    */
   using value_type = std::pair<K, V>;
+  using const_iterator = LlrbNodeIterator<LlrbNode<K, V>>;
 
   /**
    * Constructs an empty node.
@@ -55,14 +57,14 @@ class LlrbNode : public SortedMapBase {
   LlrbNode() : LlrbNode{EmptyRep()} {
   }
 
-  /** Returns the number of elements at this node or beneath it in the tree. */
-  size_type size() const {
-    return rep_->size_;
-  }
-
   /** Returns true if this is an empty node--a leaf node in the tree. */
   bool empty() const {
     return size() == 0;
+  }
+
+  /** Returns the number of elements at this node or beneath it in the tree. */
+  size_type size() const {
+    return rep_->size_;
   }
 
   /** Returns true if this node is red (as opposed to black). */
@@ -271,13 +273,14 @@ void LlrbNode<K, V>::FixUp() {
   }
 }
 
-// Rotates left:
-//
-//      X              R
-//    /   \          /   \
-//   L     R   =>   X    RR
-//        / \      / \
-//       RL RR     L RL
+/* Rotates left:
+ *
+ *      X              R
+ *    /   \          /   \
+ *   L     R   =>   X    RR
+ *        / \      / \
+ *       RL RR     L RL
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateLeft() {
   LlrbNode new_left{
@@ -289,13 +292,14 @@ void LlrbNode<K, V>::RotateLeft() {
   set_right(right().right());
 }
 
-// Rotates right:
-//
-//      X              L
-//    /   \          /   \
-//   L     R   =>   LL    X
-//  / \                  / \
-// LL LR                LR R
+/* Rotates right:
+ *
+ *      X              L
+ *    /   \          /   \
+ *   L     R   =>   LL    X
+ *  / \                  / \
+ * LL LR                LR R
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateRight() {
   LlrbNode new_right{

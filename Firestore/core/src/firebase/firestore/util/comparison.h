@@ -114,9 +114,10 @@ struct Comparator<std::vector<uint8_t>>
  * Perform a three-way comparison between the left and right values using
  * the appropriate Comparator for the values based on their type.
  */
-template <typename T>
-ComparisonResult Compare(const T& left, const T& right) {
-  Comparator<T> less_than;
+template <typename T, typename C = Comparator<T>>
+ComparisonResult Compare(const T& left,
+                         const T& right,
+                         const C& less_than = C()) {
   if (less_than(left, right)) {
     return ComparisonResult::Ascending;
   } else if (less_than(right, left)) {

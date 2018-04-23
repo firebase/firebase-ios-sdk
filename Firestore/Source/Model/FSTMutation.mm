@@ -379,8 +379,8 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
                 serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   FSTAssert(self.fieldTransforms.size() == serverTransformResults.count,
-            @"server transform result count (%ld) should match field transforms count (%ld)",
-            serverTransformResults.count, self.fieldTransforms.size());
+            @"server transform result count (%lu) should match field transforms count (%zu)",
+            (unsigned long)serverTransformResults.count, self.fieldTransforms.size());
 
   for (NSUInteger i = 0; i < serverTransformResults.count; i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
