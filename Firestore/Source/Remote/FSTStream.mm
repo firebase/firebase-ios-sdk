@@ -691,7 +691,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.backoff reset];
 
   FSTWatchChange *change = [_serializer decodedWatchChange:proto];
-  FSTSnapshotVersion *snap = [_serializer versionFromListenResponse:proto];
+  SnapshotVersion snap = [_serializer versionFromListenResponse:proto];
   [self.delegate watchStreamDidChange:change snapshotVersion:snap];
 }
 
@@ -807,7 +807,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     // might be causing an error we want to back off from.
     [self.backoff reset];
 
-    FSTSnapshotVersion *commitVersion = [_serializer decodedVersion:response.commitTime];
+    SnapshotVersion commitVersion = [_serializer decodedVersion:response.commitTime];
     NSMutableArray<GCFSWriteResult *> *protos = response.writeResultsArray;
     NSMutableArray<FSTMutationResult *> *results = [NSMutableArray arrayWithCapacity:protos.count];
     for (GCFSWriteResult *proto in protos) {

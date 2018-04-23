@@ -23,11 +23,11 @@
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTDocument;
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
-@class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTQueryData;
 
@@ -115,6 +115,12 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
                 currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate;
 
 /**
+ * The snapshot version representing the last state at which this target received a consistent
+ * snapshot from the backend.
+ */
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
+
+/**
  * The new "current" (synced) status of this target. Set to CurrentStatusUpdateNone if the status
  * should not be updated. Note "current" has special meaning for in the RPC protocol that implies
  * that a target is both up-to-date and consistent with the rest of the watch stream.
@@ -123,12 +129,6 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 
 /** A set of changes to documents in this target. */
 @property(nonatomic, strong, readonly) FSTTargetMapping *mapping;
-
-/**
- * The snapshot version representing the last state at which this target received a consistent
- * snapshot from the backend.
- */
-@property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
 
 /**
  * An opaque, server-assigned token that allows watching a query to be resumed after disconnecting
@@ -148,13 +148,13 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 @interface FSTRemoteEvent : NSObject
 
 + (instancetype)
-eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+eventWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
          documentUpdates:
              (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
 
 /** The snapshot version this event brings us up to. */
-@property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /** A map from target to changes to the target. See TargetChange. */
 @property(nonatomic, strong, readonly)
@@ -194,7 +194,7 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 @interface FSTWatchChangeAggregator : NSObject
 
 - (instancetype)
-initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
           listenTargets:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)listenTargets
  pendingTargetResponses:(NSDictionary<FSTBoxedTargetID *, NSNumber *> *)pendingTargetResponses
     NS_DESIGNATED_INITIALIZER;

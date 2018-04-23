@@ -21,13 +21,13 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTDispatchQueue;
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQueryData;
 @class FSTSerializerBeta;
-@class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTWatchStream;
 @class FSTWriteStream;
@@ -179,7 +179,7 @@ NS_ASSUME_NONNULL_BEGIN
  * WatchChange responses sent back by the server.
  */
 - (void)watchStreamDidChange:(FSTWatchChange *)change
-             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
+             snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /**
  * Called by the FSTWatchStream when the underlying streaming RPC is interrupted for whatever
@@ -250,7 +250,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Called by the FSTWriteStream upon receiving a StreamingWriteResponse from the server that
  * contains mutation results.
  */
-- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+- (void)writeStreamDidReceiveResponseWithVersion:
+            (const firebase::firestore::model::SnapshotVersion &)commitVersion
                                  mutationResults:(NSArray<FSTMutationResult *> *)results;
 
 /**
