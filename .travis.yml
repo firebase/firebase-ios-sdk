@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode9.2
+osx_image: xcode9.3
 language: objective-c
 cache:
   - bundler
@@ -61,8 +61,8 @@ jobs:
       before_install:
         - bundle install
         - gem install xcpretty
-        - brew install cmake
-        - brew install go # Somehow the build for Abseil requires this.
+        - brew outdated cmake || brew upgrade cmake
+        - brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
         - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
       script:
