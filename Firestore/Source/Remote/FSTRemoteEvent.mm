@@ -324,6 +324,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
     // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
     // explicit delete message and we could remove this special logic.
     _documentUpdates[key] = [FSTDeletedDocument documentWithKey:key version:_snapshotVersion];
+    _limboDocumentChanges = [_limboDocumentChanges setByAddingObject:key];
   }
 }
 

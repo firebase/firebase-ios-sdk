@@ -581,14 +581,17 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDeletedDocument *expected =
       [FSTDeletedDocument documentWithKey:synthesized version:event.snapshotVersion];
   XCTAssertEqualObjects(expected, event.documentUpdates.at(synthesized));
+  XCTAssertTrue([event.limboDocumentChanges containsObject:synthesized]);
 
-  DocumentKey notSynthesized1 = DocumentKey::FromPathString("docs/no1");
-  [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@2] key:notSynthesized1];
-  XCTAssertEqual(event.documentUpdates.find(notSynthesized1), event.documentUpdates.end());
+  DocumentKey notSynthesized = DocumentKey::FromPathString("docs/no1");
+  [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@2] key:notSynthesized];
+  XCTAssertEqual(event.documentUpdates.find(notSynthesized), event.documentUpdates.end());
+  XCTAssertFalse([event.limboDocumentChanges containsObject:notSynthesized]);
 
   [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@3] key:doc.key];
   FSTMaybeDocument *docData = event.documentUpdates.at(doc.key);
   XCTAssertFalse([docData isKindOfClass:[FSTDeletedDocument class]]);
+  XCTAssertFalse([event.limboDocumentChanges containsObject:doc.key]);
 }
 
 - (void)testFilterUpdates {
