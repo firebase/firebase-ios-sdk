@@ -212,7 +212,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path);
 
 /**
  * A convenience method to create a FSTFilter using a string representation for both field
- * and operator (<, <=, ==, >=, >).
+ * and operator (<, <=, ==, >=, >, array_contains).
  */
 id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
 

@@ -133,6 +133,28 @@ class SortedMap : public impl::SortedMapBase {
     return *this;
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.empty();
+      case Tag::Tree:
+        return tree_.empty();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.size();
+      case Tag::Tree:
+        return tree_.size();
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -179,24 +201,45 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
+  bool contains(const K& key) const {
     switch (tag_) {
       case Tag::Array:
-        return array_.empty();
+        return array_.contains(key);
       case Tag::Tree:
-        return tree_.empty();
+        return tree_.contains(key);
     }
     FIREBASE_UNREACHABLE();
   }
 
-  /** Returns the number of items in this map. */
-  size_type size() const {
+  /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
     switch (tag_) {
       case Tag::Array:
-        return array_.size();
+        return const_iterator(array_.find(key));
       case Tag::Tree:
-        return tree_.size();
+        return const_iterator{tree_.find(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.find_index(key);
+      case Tag::Tree:
+        return tree_.find_index(key);
     }
     FIREBASE_UNREACHABLE();
   }

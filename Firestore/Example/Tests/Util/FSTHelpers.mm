@@ -210,6 +210,8 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
     op = FSTRelationFilterOperatorGreaterThanOrEqual;
   } else if ([opString isEqualToString:@">"]) {
     op = FSTRelationFilterOperatorGreaterThan;
+  } else if ([opString isEqualToString:@"array_contains"]) {
+    op = FSTRelationFilterOperatorArrayContains;
   } else {
     FSTCFail(@"Unsupported operator type: %@", opString);
   }

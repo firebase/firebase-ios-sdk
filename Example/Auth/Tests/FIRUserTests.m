@@ -72,6 +72,35 @@ static NSString *const kAccessToken = @"eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2
     "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW"
     "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
 
+/** @var kAccessTokenWithBase64URLCharacters
+    @brief The fake access where the AUD value is "??????????>>>>>>>>>>" and the email value is
+        ">>>>>>>>????????@gmail.com".
+ */
+static NSString *const kAccessTokenWithBase64URLCharacter = @"ey?hbGciOimnuzI1NiIsImtpZCI6ImY1YjE4M"
+    "jc2YTQ4NjYxZDBhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2ds"
+    "ZS5jb20vZmItc2EtdXBncmFkZWQiLCJhdWQiOiI_Pz8_Pz8_Pz8_Pj4-Pj4-Pj4-PiIsImF1dGhfdGltZSI6MTUyMjM2MD"
+    "U0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIsInN1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1"
+    "MjIzNjQxNTcsImVtYWlsIjoiPj4-Pj4-Pj4_Pz8_Pz8_P0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm"
+    "ZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYXVuaXRlc3R1c2VyQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9w"
+    "cm92aWRlciI6IlBhc3N3b3JkIn19.WFQqSrpVnxx7mUrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-"
+    "4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpOvqKC3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-XtBt"
+    "1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjNhHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-dDV7"
+    "jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbWlddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA";
+
+/** @var kbase64URLEncodedEmail
+    @brief The fake email address with a value containing non-valid base64 encoded characters.
+    @remarks This is used to ensure that the token parser is able to handle base64 URL enconded
+        strings.
+ */
+static NSString *const kbase64URLEncodedEmail = @">>>>>>>>????????@gmail.com";
+
+/** @var kbase64URLEncodedAUD
+    @brief The fake AUD with a value containing non-valid base64 encoded characters.
+    @remarks This is used to ensure that the token parser is able to handle base64 URL enconded
+        strings.
+ */
+static NSString *const kbase64URLEncodedAUD = @"??????????>>>>>>>>>>";
+
 /** @var kAccessTokenLength415
     @brief The fake access token with 415 characters in the claims potion of the token.
  */
@@ -1002,8 +1031,54 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength415];
   [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength416];
   [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenLength523];
+  [self getIDTokenResultForcingRefreshSuccessWithIDToken:kAccessTokenWithBase64URLCharacter];
 }
 
+/** @fn testGetIDTokenResultSuccessWithBase64EncodedURL
+    @brief Tests the flow of a successful @c getIDTokenResultWithCompletion: call using a base64 url
+        encoded string.
+ */
+ - (void)testGetIDTokenResultSuccessWithBase64EncodedURL {
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
+  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *user) {
+    OCMExpect([_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSecureTokenRequest *_Nullable request,
+                         FIRSecureTokenResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
+        OCMStub([mockSecureTokenResponse accessToken]).andReturn(kAccessTokenWithBase64URLCharacter);
+        callback(mockSecureTokenResponse, nil);
+      });
+    });
+    [user getIDTokenResultForcingRefresh:YES
+                              completion:^(FIRAuthTokenResult *_Nullable tokenResult,
+                                           NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(tokenResult.token, kAccessTokenWithBase64URLCharacter);
+      XCTAssertTrue(tokenResult.issuedAtDate &&
+          [tokenResult.issuedAtDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.authDate && [tokenResult.authDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.expirationDate &&
+          [tokenResult.expirationDate isKindOfClass:[NSDate class]]);
+      XCTAssertTrue(tokenResult.claims && [tokenResult.claims isKindOfClass:[NSDictionary class]]);
+      NSDictionary *claims = tokenResult.claims;
+      XCTAssertEqualObjects(claims[@"email"], kbase64URLEncodedEmail);
+      XCTAssertEqualObjects(claims[@"aud"], kbase64URLEncodedAUD);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
 
 /** @fn testGetIDTokenResultForcingRefreshFailure
     @brief Tests the flow of a failed @c getIDTokenResultForcingRefresh:completion: call.

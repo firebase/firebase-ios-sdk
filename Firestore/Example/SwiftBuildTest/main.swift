@@ -83,6 +83,9 @@ func makeRefs(database db: Firestore) -> (CollectionReference, DocumentReference
 func makeQuery(collection collectionRef: CollectionReference) -> Query {
   let query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
     .whereField("age", isGreaterThanOrEqualTo: 24)
+    // TODO(array-features): Uncomment when API is publicly exposed.
+    // .whereField("tags", arrayContains:"active")
+    // .whereField(FieldPath(["tags"]), arrayContains:"active")
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
@@ -103,8 +106,9 @@ func writeDocument(at docRef: DocumentReference) {
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
     "server_timestamp": FieldValue.serverTimestamp(),
-    "array_union": FieldValue.arrayUnion(["a", "b"]),
-    "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    // TODO(array-features): Uncomment once we add these to the public API
+    // "array_union": FieldValue.arrayUnion(["a", "b"]),
+    // "array_remove": FieldValue.arrayRemove(["a", "b"]),
     "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 

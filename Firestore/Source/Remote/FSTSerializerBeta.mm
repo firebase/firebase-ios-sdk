@@ -952,6 +952,8 @@ NS_ASSUME_NONNULL_BEGIN
       return GCFSStructuredQuery_FieldFilter_Operator_GreaterThanOrEqual;
     case FSTRelationFilterOperatorGreaterThan:
       return GCFSStructuredQuery_FieldFilter_Operator_GreaterThan;
+    case FSTRelationFilterOperatorArrayContains:
+      return GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
     default:
       FSTFail(@"Unhandled FSTRelationFilterOperator: %ld", (long)filterOperator);
   }
@@ -970,6 +972,8 @@ NS_ASSUME_NONNULL_BEGIN
       return FSTRelationFilterOperatorGreaterThanOrEqual;
     case GCFSStructuredQuery_FieldFilter_Operator_GreaterThan:
       return FSTRelationFilterOperatorGreaterThan;
+    case GCFSStructuredQuery_FieldFilter_Operator_ArrayContains:
+      return FSTRelationFilterOperatorArrayContains;
     default:
       FSTFail(@"Unhandled FieldFilter.operator: %d", filterOperator);
   }

@@ -17,8 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_H_
 
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,6 +42,10 @@ class Document : public MaybeDocument {
 
   const FieldValue& data() const {
     return data_;
+  }
+
+  absl::optional<FieldValue> field(const FieldPath& path) const {
+    return data_.Get(path);
   }
 
   bool has_local_mutations() const {

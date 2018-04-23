@@ -22,6 +22,7 @@
 
 #include <vector>
 
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 

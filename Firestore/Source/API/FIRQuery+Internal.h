@@ -23,7 +23,42 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRQuery API we don't want exposed in our public header files. */
 @interface FIRQuery (Internal)
 + (FIRQuery *)referenceWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore;
+
 @property(nonatomic, strong, readonly) FSTQuery *query;
+
+@end
+
+// TODO(array-features): Move to FIRQuery.h once backend support is available.
+@interface FIRQuery ()
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, it must be an array, and the array must contain the provided value.
+ *
+ * @param field The name of the field containing an array to search
+ * @param value The value that must be contained in the array
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereField:(NSString *)field
+                arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
+// clang-format on
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, it must be an array, and the array must contain the provided value.
+ *
+ * @param path The path of the field containing an array to search
+ * @param value The value that must be contained in the array
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                    arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
+// clang-format on
+
 @end
 
 NS_ASSUME_NONNULL_END

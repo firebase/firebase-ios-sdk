@@ -55,6 +55,19 @@ bool Comparable(Type lhs, Type rhs) {
   }
 }
 
+// Makes a copy excluding the specified child, which is expected to be assigned
+// different value afterwards.
+ObjectValue::Map CopyExcept(const ObjectValue::Map& object_map,
+                            const std::string exclude) {
+  ObjectValue::Map copy;
+  for (const auto& kv : object_map) {
+    if (kv.first != exclude) {
+      copy[kv.first] = kv.second;
+    }
+  }
+  return copy;
+}
+
 }  // namespace
 
 FieldValue::FieldValue(const FieldValue& value) {
@@ -153,6 +166,81 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
   }
 }
 
+FieldValue FieldValue::Set(const FieldPath& field_path,
+                           FieldValue value) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot set field for non-object FieldValue");
+  FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
+                          "Cannot set field for empty path on FieldValue");
+  // Set the value by recursively calling on child object.
+  const std::string& child_name = field_path.first_segment();
+  const ObjectValue::Map& object_map = object_value_.internal_value;
+  if (field_path.size() == 1) {
+    // TODO(zxu): Once immutable type is available, rewrite these.
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
+    copy[child_name] = std::move(value);
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  } else {
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
+    const auto iter = object_map.find(child_name);
+    if (iter == copy.end() || iter->second.type() != Type::Object) {
+      copy[child_name] = FieldValue::ObjectValueFromMap({}).Set(
+          field_path.PopFirst(), std::move(value));
+    } else {
+      copy[child_name] = object_map.at(child_name)
+                             .Set(field_path.PopFirst(), std::move(value));
+    }
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  }
+}
+
+FieldValue FieldValue::Delete(const FieldPath& field_path) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot delete field for non-object FieldValue");
+  FIREBASE_ASSERT_MESSAGE(!field_path.empty(),
+                          "Cannot delete field for empty path on FieldValue");
+  // Delete the value by recursively calling on child object.
+  const std::string& child_name = field_path.first_segment();
+  const ObjectValue::Map& object_map = object_value_.internal_value;
+  if (field_path.size() == 1) {
+    // TODO(zxu): Once immutable type is available, rewrite these.
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
+    return FieldValue::ObjectValueFromMap(std::move(copy));
+  } else {
+    const auto iter = object_map.find(child_name);
+    if (iter == object_map.end() || iter->second.type() != Type::Object) {
+      // If the found value isn't an object, it cannot contain the remaining
+      // segments of the path. We don't actually change a primitive value to
+      // an object for a delete.
+      return *this;
+    } else {
+      ObjectValue::Map copy = CopyExcept(object_map, child_name);
+      copy[child_name] =
+          object_map.at(child_name).Delete(field_path.PopFirst());
+      return FieldValue::ObjectValueFromMap(std::move(copy));
+    }
+  }
+}
+
+absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
+  FIREBASE_ASSERT_MESSAGE(type() == Type::Object,
+                          "Cannot get field for non-object FieldValue");
+  const FieldValue* current = this;
+  for (const auto& path : field_path) {
+    if (current->type() != Type::Object) {
+      return absl::nullopt;
+    }
+    const ObjectValue::Map& object_map = current->object_value_.internal_value;
+    const auto iter = object_map.find(path);
+    if (iter == object_map.end()) {
+      return absl::nullopt;
+    } else {
+      current = &iter->second;
+    }
+  }
+  return *current;
+}
+
 const FieldValue& FieldValue::NullValue() {
   static const FieldValue kNullInstance;
   return kNullInstance;
@@ -204,7 +292,6 @@ FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
   result.server_timestamp_value_.previous_value = previous_value;
-  result.server_timestamp_value_.has_previous_value_ = true;
   return result;
 }
 
@@ -212,7 +299,7 @@ FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
-  result.server_timestamp_value_.has_previous_value_ = false;
+  result.server_timestamp_value_.previous_value = absl::nullopt;
   return result;
 }
 

@@ -100,6 +100,41 @@ class LlrbNodeIterator {
   }
 
   /**
+   * Constructs an iterator pointing to the first node whose key is not less
+   * than the given key. If the key is in the tree then the lower bound will be
+   * the node containing the key. If the key is not in the tree, the lower bound
+   * will the first node greater than the key. If all nodes in the tree are less
+   * than the given key, returns an equivalent to `End()`.
+   */
+  template <typename C>
+  static LlrbNodeIterator LowerBound(const node_type* root,
+                                     const key_type& key,
+                                     const C& comparator) {
+    stack_type stack;
+
+    const node_type* node = root;
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        // Found exactly what we're looking for so we're done.
+        stack.push(node);
+        return LlrbNodeIterator{std::move(stack)};
+
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        // key < node.key (for the forward direction)
+        stack.push(node);
+        node = &node->left();
+      } else {
+        // key > node.key (for the forward direction). Don't put this in the
+        // stack because we don't need to revisit it in the iteration order.
+        node = &node->right();
+      }
+    }
+
+    return LlrbNodeIterator{std::move(stack)};
+  }
+
+  /**
    * Returns true if this iterator points at the end of the iteration sequence.
    */
   bool is_end() const {

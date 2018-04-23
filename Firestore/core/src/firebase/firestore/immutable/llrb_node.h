@@ -57,14 +57,14 @@ class LlrbNode : public SortedMapBase {
   LlrbNode() : LlrbNode{EmptyRep()} {
   }
 
-  /** Returns the number of elements at this node or beneath it in the tree. */
-  size_type size() const {
-    return rep_->size_;
-  }
-
   /** Returns true if this is an empty node--a leaf node in the tree. */
   bool empty() const {
     return size() == 0;
+  }
+
+  /** Returns the number of elements at this node or beneath it in the tree. */
+  size_type size() const {
+    return rep_->size_;
   }
 
   /** Returns true if this node is red (as opposed to black). */
