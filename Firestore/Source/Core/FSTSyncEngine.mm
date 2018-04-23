@@ -347,9 +347,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:[FSTSnapshotVersion noVersion]];
+    FSTDocumentKeySet *limboDocuments = [[FSTDocumentKeySet keySet] setByAddingObject:doc.key];
     FSTRemoteEvent *event = [FSTRemoteEvent eventWithSnapshotVersion:[FSTSnapshotVersion noVersion]
                                                        targetChanges:targetChanges
-                                                     documentUpdates:{{limboKey, doc}}];
+                                                     documentUpdates:{{limboKey, doc}}
+                                                     limboDocuments:limboDocuments];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];

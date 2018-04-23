@@ -639,6 +639,57 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertTrue([resetMapping.documents containsObject:existingDocKey]);
 }
 
+- (void)testTracksLimboDocuments {
+  // Add 3 docs: 1 is limbo and non-limbo, 2 is limbo-only, 3 is non-limbo
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"key" : @"value"}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 1, @{@"key" : @"value"}, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 1, @{@"key" : @"value"}, NO);
+
+  // Target 2 is a limbo target
+
+  FSTWatchChange *docChange1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2 ]
+                                                                       removedTargetIDs:@[]
+                                                                            documentKey:doc1.key
+                                                                               document:doc1];
+
+  FSTWatchChange *docChange2 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @2 ]
+                                                                       removedTargetIDs:@[]
+                                                                            documentKey:doc2.key
+                                                                               document:doc2];
+
+  FSTWatchChange *docChange3 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
+                                                                       removedTargetIDs:@[]
+                                                                            documentKey:doc3.key
+                                                                               document:doc3];
+
+
+
+  FSTWatchChange *targetsChange =
+          [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @1, @2 ]];
+
+  NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
+  listens[@1] = [FSTQueryData alloc];
+  listens[@2] = [[FSTQueryData alloc] initWithQuery:nil
+                                           targetID:2
+                               listenSequenceNumber:1000
+                                            purpose:FSTQueryPurposeLimboResolution];
+  FSTWatchChangeAggregator *aggregator =
+          [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(3)
+                                                      listenTargets:listens
+                                             pendingTargetResponses:@{}];
+
+  [aggregator addWatchChanges:@[docChange1, docChange2, docChange3, targetsChange]];
+
+  FSTRemoteEvent *event = [aggregator remoteEvent];
+  FSTDocumentKeySet *limboDocChanges = event.limboDocumentChanges;
+  // Doc1 is in both limbo and non-limbo targets, therefore not tracked as limbo
+  XCTAssertFalse([limboDocChanges containsObject:doc1.key]);
+  // Doc2 is only in the limbo target, so is tracked as a limbo document
+  XCTAssertTrue([limboDocChanges containsObject:doc2.key]);
+  // Doc3 is only in the non-limbo target, therefore not tracked as limbo
+  XCTAssertFalse([limboDocChanges containsObject:doc3.key]);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

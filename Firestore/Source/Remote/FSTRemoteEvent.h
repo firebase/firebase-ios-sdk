@@ -151,7 +151,8 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
          documentUpdates:
-             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
+             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates
+          limboDocuments:(FSTDocumentKeySet *)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
 @property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
@@ -159,6 +160,8 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 /** A map from target to changes to the target. See TargetChange. */
 @property(nonatomic, strong, readonly)
     NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *targetChanges;
+
+@property(nonatomic, strong, readonly) FSTDocumentKeySet *limboDocumentChanges;
 
 /**
  * A set of which documents have changed or been deleted, along with the doc's new values
