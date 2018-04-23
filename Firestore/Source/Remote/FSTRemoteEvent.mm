@@ -196,6 +196,10 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion {
+  return _snapshotVersion;
+}
+
 + (instancetype)changeWithDocuments:(NSArray<FSTMaybeDocument *> *)docs
                 currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate {
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
@@ -217,8 +221,15 @@ NS_ASSUME_NONNULL_BEGIN
               currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate {
   FSTTargetChange *change = [[FSTTargetChange alloc] init];
   change.mapping = mapping;
-  change._snapshotVersion = std::move(snapshotVersion);
+  change->_snapshotVersion = std::move(snapshotVersion);
   change.currentStatusUpdate = currentStatusUpdate;
+  return change;
+}
+
++ (instancetype)changeWithSnapshotVersion:
+    (firebase::firestore::model::SnapshotVersion)snapshotVersion {
+  FSTTargetChange *change = [[FSTTargetChange alloc] init];
+  change->_snapshotVersion = std::move(snapshotVersion);
   return change;
 }
 
@@ -259,6 +270,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
   SnapshotVersion _snapshotVersion;
 }
+
 + (instancetype)
 eventWithSnapshotVersion:(SnapshotVersion)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
@@ -328,6 +340,10 @@ eventWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 
 - (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
   return _documentUpdates;
+}
+
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion {
+  return _snapshotVersion;
 }
 
 /** Adds a document update to this remote event */
@@ -407,9 +423,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {
   FSTTargetChange *change = self.targetChanges[targetID];
   if (!change) {
-    change = [[FSTTargetChange alloc] init];
-    change._snapshotVersion = _snapshotVersion;
-    self.targetChanges[targetID] = change;
+    self.targetChanges[targetID] = [FSTTargetChange changeWithSnapshotVersion:_snapshotVersion];
   }
   return change;
 }

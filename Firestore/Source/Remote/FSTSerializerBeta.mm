@@ -33,7 +33,6 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
-#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -57,6 +56,7 @@
 #include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -88,15 +88,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - SnapshotVersion <=> GPBTimestamp
 
-- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
+- (GPBTimestamp *)encodedTimestamp:(const Timestamp &)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
-  result.seconds = timestamp.seconds;
-  result.nanos = timestamp.nanoseconds;
+  result.seconds = timestamp.seconds();
+  result.nanos = timestamp.nanoseconds();
   return result;
 }
 
-- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanoseconds:timestamp.nanos];
+- (Timestamp)decodedTimestamp:(GPBTimestamp *)timestamp {
+  return Timestamp{timestamp.seconds, timestamp.nanos};
 }
 
 - (GPBTimestamp *)encodedVersion:(const SnapshotVersion &)version {
@@ -206,8 +206,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [self encodedString:[fieldValue value]];
 
   } else if (fieldClass == [FSTTimestampValue class]) {
-    return [self encodedTimestampValue:[fieldValue value]];
-
+    FIRTimestamp *value = static_cast<FIRTimestamp *>([fieldValue value]);
+    return [self encodedTimestampValue:Timestamp{value.seconds, value.nanoseconds}];
   } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
 
@@ -250,8 +250,12 @@ NS_ASSUME_NONNULL_BEGIN
     case GCFSValue_ValueType_OneOfCase_StringValue:
       return [FSTStringValue stringValue:valueProto.stringValue];
 
-    case GCFSValue_ValueType_OneOfCase_TimestampValue:
-      return [FSTTimestampValue timestampValue:[self decodedTimestamp:valueProto.timestampValue]];
+    case GCFSValue_ValueType_OneOfCase_TimestampValue: {
+      Timestamp value = [self decodedTimestamp:valueProto.timestampValue];
+      return [FSTTimestampValue
+          timestampValue:[FIRTimestamp timestampWithSeconds:value.seconds()
+                                                nanoseconds:value.nanoseconds()]];
+    }
 
     case GCFSValue_ValueType_OneOfCase_GeoPointValue:
       return [FSTGeoPointValue geoPointValue:[self decodedGeoPoint:valueProto.geoPointValue]];
@@ -303,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedTimestampValue:(FIRTimestamp *)value {
+- (GCFSValue *)encodedTimestampValue:(const Timestamp &)value {
   GCFSValue *result = [GCFSValue message];
   result.timestampValue = [self encodedTimestamp:value];
   return result;
@@ -668,8 +672,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation {
   // NOTE: Deletes don't have an updateTime.
-  absl::optional<SnapshotVersion> version =
-      mutation.updateTime ? [self decodedVersion:mutation.updateTime] : absl::nullopt;
+  absl::optional<SnapshotVersion> version = absl::nullopt;
+  if (mutation.updateTime) {
+    version = [self decodedVersion:mutation.updateTime];
+  }
   NSMutableArray *_Nullable transformResults = nil;
   if (mutation.transformResultsArray.count > 0) {
     transformResults = [NSMutableArray array];
@@ -677,7 +683,8 @@ NS_ASSUME_NONNULL_BEGIN
       [transformResults addObject:[self decodedFieldValue:result]];
     }
   }
-  return [[FSTMutationResult alloc] initWithVersion:version transformResults:transformResults];
+  return [[FSTMutationResult alloc]
+      initWithVersion:(version ? version.value() : nil)transformResults:transformResults];
 }
 
 #pragma mark - FSTQueryData => GCFSTarget proto

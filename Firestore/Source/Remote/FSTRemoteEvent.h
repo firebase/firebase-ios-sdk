@@ -115,6 +115,12 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
                 currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate;
 
 /**
+ * Creates a new target change with the given SnapshotVersion.
+ */
++ (instancetype)changeWithSnapshotVersion:
+    (firebase::firestore::model::SnapshotVersion)snapshotVersion;
+
+/**
  * The snapshot version representing the last state at which this target received a consistent
  * snapshot from the backend.
  */

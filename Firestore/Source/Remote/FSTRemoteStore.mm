@@ -42,6 +42,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -316,7 +317,8 @@ static const int kMaxPendingWrites = 10;
     // using a resume token).
     [self.accumulatedChanges addObject:change];
     if (snapshotVersion == SnapshotVersion::None() ||
-        snapshotVersion < [self.localStore lastRemoteSnapshotVersion]) {
+        snapshotVersion <
+            static_cast<SnapshotVersion>([self.localStore lastRemoteSnapshotVersion])) {
       return;
     }
 
