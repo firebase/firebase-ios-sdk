@@ -51,6 +51,7 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * The type of the node containing entries of value_type.
    */
   using node_type = LlrbNode<K, V>;
+  using const_iterator = typename node_type::const_iterator;
 
   /**
    * Creates an empty TreeSortedMap.
@@ -69,6 +70,20 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
       node = node.insert(element.first, element.second, comparator);
     }
     return TreeSortedMap{std::move(node), comparator};
+  }
+
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return root_.empty();
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return root_.size();
+  }
+
+  const node_type& root() const {
+    return root_;
   }
 
   /**
@@ -96,23 +111,91 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
     return TreeSortedMap{this->comparator()};
   }
 
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return root_.empty();
+  bool contains(const K& key) const {
+    // Inline the tree traversal here to avoid building up the stack required
+    // to construct a full iterator.
+    const C& comparator = this->comparator();
+    const node_type* node = &root();
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return true;
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+      } else {
+        node = &node->right();
+      }
+    }
+    return false;
   }
 
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return root_.size();
+  /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
+    const_iterator found = LowerBound(key);
+    if (!found.is_end() && !this->comparator()(key, found->first)) {
+      return found;
+    } else {
+      return end();
+    }
   }
 
-  const node_type& root() const {
-    return root_;
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    const C& comparator = this->comparator();
+
+    size_type pruned_nodes = 0;
+    const node_type* node = &root_;
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return pruned_nodes + node->left().size();
+
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+
+      } else if (cmp == util::ComparisonResult::Descending) {
+        pruned_nodes += node->left().size() + 1;
+        node = &node->right();
+      }
+    }
+    return npos;
+  }
+
+  /**
+   * Returns a forward iterator pointing to the first entry in the map. If there
+   * are no entries in the map, begin() == end().
+   *
+   * See LlrbNodeIterator for details
+   */
+  const_iterator begin() const {
+    return const_iterator::Begin(&root_);
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    return const_iterator::End();
   }
 
  private:
   TreeSortedMap(node_type&& root, const C& comparator) noexcept
       : util::ComparatorHolder<C>{comparator}, root_{std::move(root)} {
+  }
+
+  const_iterator LowerBound(const K& key) const noexcept {
+    return const_iterator::LowerBound(&root_, key, this->comparator());
   }
 
   TreeSortedMap Wrap(node_type&& root) noexcept {

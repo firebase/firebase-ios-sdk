@@ -148,6 +148,12 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  */
 - (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState;
 
+/**
+ * The set of remote documents that the server has told us belongs to the target associated with
+ * this view.
+ */
+@property(nonatomic, strong, readonly) FSTDocumentKeySet *syncedDocuments;
+
 @end
 
 NS_ASSUME_NONNULL_END

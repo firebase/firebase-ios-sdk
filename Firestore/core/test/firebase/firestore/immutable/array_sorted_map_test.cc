@@ -32,14 +32,6 @@ namespace impl {
 using IntMap = ArraySortedMap<int, int>;
 constexpr IntMap::size_type kFixedSize = IntMap::kFixedSize;
 
-TEST(ArraySortedMap, SearchForSpecificKey) {
-  IntMap map{{1, 3}, {2, 4}};
-
-  ASSERT_TRUE(Found(map, 1, 3));
-  ASSERT_TRUE(Found(map, 2, 4));
-  ASSERT_TRUE(NotFound(map, 3));
-}
-
 TEST(ArraySortedMap, RemoveKeyValuePair) {
   IntMap map{{1, 3}, {2, 4}};
 
@@ -100,13 +92,6 @@ TEST(ArraySortedMap, RemovesMiddle) {
   ASSERT_TRUE(Found(s1, 3, 3));
 }
 
-TEST(ArraySortedMap, Override) {
-  IntMap map = IntMap{}.insert(10, 10).insert(10, 8);
-
-  ASSERT_TRUE(Found(map, 10, 8));
-  ASSERT_FALSE(Found(map, 10, 10));
-}
-
 TEST(ArraySortedMap, ChecksSize) {
   std::vector<int> to_insert = Sequence(kFixedSize);
   IntMap map = ToMap<IntMap>(to_insert);
@@ -116,11 +101,6 @@ TEST(ArraySortedMap, ChecksSize) {
 
   int next = kFixedSize;
   ASSERT_ANY_THROW(map.insert(next, next));
-}
-
-TEST(ArraySortedMap, EmptyGet) {
-  IntMap map;
-  EXPECT_TRUE(NotFound(map, 10));
 }
 
 TEST(ArraySortedMap, EmptyRemoval) {
@@ -156,26 +136,6 @@ TEST(ArraySortedMap, BalanceProblem) {
 
   IntMap map = ToMap<IntMap>(to_insert);
   ASSERT_SEQ_EQ(Pairs(Sorted(to_insert)), map);
-}
-
-// TODO(wilhuff): Iterators
-
-// TODO(wilhuff): IndexOf
-
-TEST(ArraySortedMap, AvoidsCopying) {
-  IntMap map = IntMap{}.insert(10, 20);
-  auto found = map.find(10);
-  ASSERT_NE(found, map.end());
-  EXPECT_EQ(20, found->second);
-
-  // Verify that inserting something with equal keys and values just returns
-  // the same underlying array.
-  IntMap duped = map.insert(10, 20);
-  auto duped_found = duped.find(10);
-
-  // If everything worked correctly, the backing array should not have been
-  // copied and the pointer to the entry with 10 as key should be the same.
-  EXPECT_EQ(found, duped_found);
 }
 
 }  // namespace impl
