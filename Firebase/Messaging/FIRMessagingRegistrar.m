@@ -45,8 +45,8 @@
   self = [super init];
   if (self) {
     _checkinService = [[FIRMessagingCheckinService alloc] init];
-    // TODO(Chliang): Merge pubsubRegistrar with Registrar as it is hard to track how many
-    // checkinService instances by seperating classes too often.
+    // TODO(chliangGoogle): Merge pubsubRegistrar with Registrar as it is hard to track how many
+    // checkinService instances by separating classes too often.
     _pubsubRegistrar = [[FIRMessagingPubSubRegistrar alloc] initWithCheckinService:_checkinService];
   }
   return self;
