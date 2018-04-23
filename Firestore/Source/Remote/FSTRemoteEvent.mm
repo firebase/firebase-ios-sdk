@@ -261,11 +261,11 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 @implementation FSTRemoteEvent {
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
 }
-+ (instancetype)
-eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
-        limboDocuments:(FSTDocumentKeySet *)limboDocuments {
++ (instancetype)eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+                           targetChanges:
+                               (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
+                         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
+                          limboDocuments:(FSTDocumentKeySet *)limboDocuments {
   return [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshotVersion
                                            targetChanges:targetChanges
                                          documentUpdates:std::move(documentUpdates)
@@ -443,30 +443,59 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   }
 }
 
+/**
+ * Updates limbo document tracking for a given target-document mapping change. If the target is a
+ * limbo target, and the change for the document has only seen limbo targets so far, and we are not
+ * already tracking a change for this document, then consider this document a limbo document update.
+ * Otherwise, ensure that we don't consider this document a limbo document. Returns true if the
+ * change still has only seen limbo resolution changes.
+ */
+- (BOOL)updateLimboDocuments:(const DocumentKey &)documentKey
+                   queryData:(FSTQueryData *)queryData
+                 isOnlyLimbo:(BOOL)isOnlyLimbo {
+  if (queryData.purpose == FSTQueryPurposeLimboResolution) {
+    // If there's already a document update for this document, it's either already in the limbo set,
+    // in which case we don't need to add it, or it wasn't a limbo document when it was added, in
+    // which case we still don't need to add it. So, we only add to the limbo set if we haven't seen
+    // it before and we haven't yet seen a non-limbo target in this change. If there's a non-limbo
+    // change for this document later, we'll remove it from the set. Either way, it will stay in the
+    // documentUpdates map.
+    if (isOnlyLimbo && !_documentUpdates[documentKey]) {
+      _limboDocuments = [_limboDocuments setByAddingObject:documentKey];
+      return YES;
+    }
+    // We could technically return isOnlyLimbo here, since this was not a non-limbo target. However,
+    // we know that if isOnlyLimbo is true, we must have already seen an update for this document.
+    // By returning NO, we can skip the lookup of the document again.
+  } else {
+    _limboDocuments = [_limboDocuments setByRemovingObject:documentKey];
+  }
+  return NO;
+}
+
 - (void)addDocumentChange:(FSTDocumentWatchChange *)docChange {
   BOOL relevant = NO;
+  BOOL isOnlyLimbo = YES;
 
   for (FSTBoxedTargetID *targetID in docChange.updatedTargetIDs) {
     FSTQueryData *queryData = [self activeTarget:targetID];
     if (queryData) {
       FSTTargetChange *change = [self targetChangeForTargetID:targetID];
-      if (queryData.purpose == FSTQueryPurposeLimboResolution) {
-        // if relevant is false, nothing else in this change has caused it to be included yet.
-        // if we already have an update for this document, some other change must've caused it to be relevant
-        if (!relevant && !_documentUpdates[docChange.documentKey]) {
-          _limboDocuments = [_limboDocuments setByAddingObject:docChange.documentKey];
-        }
-      } else {
-        _limboDocuments = [_limboDocuments setByRemovingObject:docChange.documentKey];
-      }
+      isOnlyLimbo = [self updateLimboDocuments:docChange.documentKey
+                                     queryData:queryData
+                                   isOnlyLimbo:isOnlyLimbo];
       [change.mapping addDocumentKey:docChange.documentKey];
       relevant = YES;
     }
   }
 
   for (FSTBoxedTargetID *targetID in docChange.removedTargetIDs) {
-    if ([self isActiveTarget:targetID]) {
+    FSTQueryData *queryData = [self activeTarget:targetID];
+    if (queryData) {
       FSTTargetChange *change = [self targetChangeForTargetID:targetID];
+      isOnlyLimbo = [self updateLimboDocuments:docChange.documentKey
+                                     queryData:queryData
+                                   isOnlyLimbo:isOnlyLimbo];
       [change.mapping removeDocumentKey:docChange.documentKey];
       relevant = YES;
     }

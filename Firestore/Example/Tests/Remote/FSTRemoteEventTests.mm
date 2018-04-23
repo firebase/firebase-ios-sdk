@@ -662,10 +662,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                                             documentKey:doc3.key
                                                                                document:doc3];
 
-
-
   FSTWatchChange *targetsChange =
-          [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @1, @2 ]];
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @1, @2 ]];
 
   NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
   listens[@1] = [FSTQueryData alloc];
@@ -674,11 +672,11 @@ NS_ASSUME_NONNULL_BEGIN
                                listenSequenceNumber:1000
                                             purpose:FSTQueryPurposeLimboResolution];
   FSTWatchChangeAggregator *aggregator =
-          [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(3)
-                                                      listenTargets:listens
-                                             pendingTargetResponses:@{}];
+      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(3)
+                                                  listenTargets:listens
+                                         pendingTargetResponses:@{}];
 
-  [aggregator addWatchChanges:@[docChange1, docChange2, docChange3, targetsChange]];
+  [aggregator addWatchChanges:@[ docChange1, docChange2, docChange3, targetsChange ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
   FSTDocumentKeySet *limboDocChanges = event.limboDocumentChanges;
