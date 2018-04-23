@@ -57,8 +57,8 @@ bool Comparable(Type lhs, Type rhs) {
 
 // Makes a copy excluding the specified child, which is expected to be assigned
 // different value afterwards.
-ObjectValue::Map MakePartialCopy(const ObjectValue::Map& object_map,
-                                 const std::string exclude) {
+ObjectValue::Map CopyExcept(const ObjectValue::Map& object_map,
+                            const std::string exclude) {
   ObjectValue::Map copy;
   for (const auto& kv : object_map) {
     if (kv.first != exclude) {
@@ -177,11 +177,11 @@ FieldValue FieldValue::Set(const FieldPath& field_path,
   const ObjectValue::Map& object_map = object_value_.internal_value;
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
-    ObjectValue::Map copy = MakePartialCopy(object_map, child_name);
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
     copy[child_name] = std::move(value);
     return FieldValue::ObjectValueFromMap(std::move(copy));
   } else {
-    ObjectValue::Map copy = MakePartialCopy(object_map, child_name);
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
     const auto iter = object_map.find(child_name);
     if (iter == copy.end() || iter->second.type() != Type::Object) {
       copy[child_name] = FieldValue::ObjectValueFromMap({}).Set(
@@ -204,7 +204,7 @@ FieldValue FieldValue::Delete(const FieldPath& field_path) const {
   const ObjectValue::Map& object_map = object_value_.internal_value;
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
-    ObjectValue::Map copy = MakePartialCopy(object_map, child_name);
+    ObjectValue::Map copy = CopyExcept(object_map, child_name);
     return FieldValue::ObjectValueFromMap(std::move(copy));
   } else {
     const auto iter = object_map.find(child_name);
@@ -214,7 +214,7 @@ FieldValue FieldValue::Delete(const FieldPath& field_path) const {
       // an object for a delete.
       return *this;
     } else {
-      ObjectValue::Map copy = MakePartialCopy(object_map, child_name);
+      ObjectValue::Map copy = CopyExcept(object_map, child_name);
       copy[child_name] =
           object_map.at(child_name).Delete(field_path.PopFirst());
       return FieldValue::ObjectValueFromMap(std::move(copy));
