@@ -74,7 +74,7 @@ class SerializerTest : public ::testing::Test {
     ExpectDeserializationRoundTrip(model, proto, type);
   }
 
-  google::firestore::v1beta1::Value ValueProto() {
+  google::firestore::v1beta1::Value ValueProto(nullptr_t) {
     std::vector<uint8_t> bytes;
     Status status =
         serializer.EncodeFieldValue(FieldValue::NullValue(), &bytes);
@@ -156,7 +156,7 @@ class SerializerTest : public ::testing::Test {
 
 TEST_F(SerializerTest, WritesNull) {
   FieldValue model = FieldValue::NullValue();
-  ExpectRoundTrip(model, ValueProto(), FieldValue::Type::Null);
+  ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
 }
 
 TEST_F(SerializerTest, WritesBool) {
@@ -195,7 +195,8 @@ TEST_F(SerializerTest, WritesString) {
       // start and assume that's the end of the string.
       {"\0\ud7ff\ue000\uffff", 10},
       {"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
-      "(╯°□°）╯︵ ┻━┻"};
+      "(╯°□°）╯︵ ┻━┻",
+  };
 
   for (const std::string& string_value : cases) {
     FieldValue model = FieldValue::StringValue(string_value);
@@ -213,21 +214,26 @@ TEST_F(SerializerTest, WritesEmptyMap) {
 }
 
 TEST_F(SerializerTest, WritesNestedObjects) {
-  FieldValue model = FieldValue::ObjectValueFromMap(
-      {{"b", FieldValue::TrueValue()},
-       // TODO(rsgowman): add doubles (once they're supported)
-       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
-       {"i", FieldValue::IntegerValue(1)},
-       {"n", FieldValue::NullValue()},
-       {"s", FieldValue::StringValue("foo")},
-       // TODO(rsgowman): add arrays (once they're supported)
-       // {"a", [2, "bar", {"b", false}]},
-       {"o", FieldValue::ObjectValueFromMap(
-                 {{"d", FieldValue::IntegerValue(100)},
-                  {"nested",
-                   FieldValue::ObjectValueFromMap(
-                       {{"e", FieldValue::IntegerValue(
-                                  std::numeric_limits<int64_t>::max())}})}})}});
+  FieldValue model = FieldValue::ObjectValueFromMap({
+      {"b", FieldValue::TrueValue()},
+      // TODO(rsgowman): add doubles (once they're supported)
+      // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+      {"i", FieldValue::IntegerValue(1)},
+      {"n", FieldValue::NullValue()},
+      {"s", FieldValue::StringValue("foo")},
+      // TODO(rsgowman): add arrays (once they're supported)
+      // {"a", [2, "bar", {"b", false}]},
+      {"o", FieldValue::ObjectValueFromMap({
+                {"d", FieldValue::IntegerValue(100)},
+                {"nested", FieldValue::ObjectValueFromMap({
+                               {
+                                   "e",
+                                   FieldValue::IntegerValue(
+                                       std::numeric_limits<int64_t>::max()),
+                               },
+                           })},
+            })},
+  });
 
   google::firestore::v1beta1::Value inner_proto;
   google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
@@ -245,7 +251,7 @@ TEST_F(SerializerTest, WritesNestedObjects) {
       fields = proto.mutable_map_value()->mutable_fields();
   (*fields)["b"] = ValueProto(true);
   (*fields)["i"] = ValueProto(int64_t{1});
-  (*fields)["n"] = ValueProto();
+  (*fields)["n"] = ValueProto(nullptr);
   (*fields)["s"] = ValueProto("foo");
   (*fields)["o"] = middle_proto;
 
