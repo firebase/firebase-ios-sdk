@@ -22,16 +22,20 @@ jobs:
         # Google C++ style compliance
         - ./scripts/lint.sh $TRAVIS_COMMIT_RANGE
 
+    # The order of builds matters (even though they are run in parallel):
+    # Travis will schedule them in the same order they are listed here.
+
+    # Primary platforms
+
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS
       before_install:
-        # Add next line back with updated DeviceUDID for xcode9.1 if stability issues with simulator
+        # Add next line back with updated DeviceUDID for xcode9.1 if stability
+        # issues with simulator:
         # - open -a "simulator" --args -CurrentDeviceUDID ABBD7191-486B-462F-80B4-AE08C5820DA1
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Functions/Example
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
@@ -49,32 +53,30 @@ jobs:
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --repo-update
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # Alternative platforms
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
-        - bundle install
-        - gem install xcpretty
-        - brew outdated cmake || brew upgrade cmake
-        - brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Firestore/Example --no-repo-update
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # Community-supported platforms
 
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=macOS
       before_install:
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
@@ -82,11 +84,71 @@ jobs:
       env:
         - PROJECT=Firebase PLATFORM=tvOS
       before_install:
-        - bundle install
-        - gem install xcpretty
-        - ./scripts/if_changed.sh bundle exec pod install --project-directory=Example --repo-update
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    # Firestore sanitizers
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # TODO(varconst): enable UBSan in xcodebuild. Right now if fails during
+    # linkage (it works if enabled together with ASan, but it's supposed to be
+    # usable on its own, too).
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
+    # need to make them fatal for the purposes of the test run.
+
+  # TODO(varconst): disallow sanitizers to fail once we fix all existing issues.
+  allow_failures:
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
+    - env:
+      - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
+
+  # TODO(varconst): enable if it's possible to make this flag work on build
+  # stages. It's supposed to avoid waiting for jobs that are allowed to fail
+  # before reporting the results.
+  # fast_finish: true
 
 branches:
   only:
