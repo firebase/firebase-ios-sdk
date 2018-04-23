@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_MAYBE_DOCUMENT_H_
 
 #include <functional>
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -43,6 +44,9 @@ class MaybeDocument {
   };
 
   MaybeDocument(DocumentKey key, SnapshotVersion version);
+
+  virtual ~MaybeDocument() {
+  }
 
   /** The runtime type of this document. */
   Type type() const {
