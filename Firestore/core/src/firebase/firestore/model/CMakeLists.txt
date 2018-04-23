@@ -41,6 +41,7 @@ cc_library(
     transform_operations.h
     types.h
   DEPENDS
+    absl_optional
     absl_strings
     firebase_firestore_util
     firebase_firestore_types

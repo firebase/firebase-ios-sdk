@@ -30,6 +30,11 @@ namespace immutable {
 
 template <typename Container, typename K>
 testing::AssertionResult NotFound(const Container& map, const K& key) {
+  if (map.contains(key)) {
+    return testing::AssertionFailure()
+           << "Should not have found " << key << " using contains()";
+  }
+
   auto found = map.find(key);
   if (found == map.end()) {
     return testing::AssertionSuccess();
@@ -44,9 +49,15 @@ template <typename Container, typename K, typename V>
 testing::AssertionResult Found(const Container& map,
                                const K& key,
                                const V& expected) {
+  if (!map.contains(key)) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using contains()";
+  }
+
   auto found = map.find(key);
   if (found == map.end()) {
-    return testing::AssertionFailure() << "Did not find key " << key;
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using find()";
   }
   if (found->second == expected) {
     return testing::AssertionSuccess();
@@ -144,16 +155,26 @@ Container ToMap(const std::vector<int>& values) {
   return result;
 }
 
+template <typename Container>
+std::vector<int> Keys(const Container& container) {
+  std::vector<int> keys;
+  for (const auto& element : container) {
+    keys.push_back(element.first);
+  }
+  return keys;
+}
+
 /**
  * Appends the contents of the given container to a new vector.
  */
 template <typename Container>
-std::vector<typename Container::value_type> Append(const Container& container) {
+std::vector<typename Container::value_type> Collect(
+    const Container& container) {
   return {container.begin(), container.end()};
 }
 
-#define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Append(y));
-#define EXPECT_SEQ_EQ(x, y) EXPECT_EQ((x), Append(y));
+#define ASSERT_SEQ_EQ(x, y) ASSERT_EQ((x), Collect(y));
+#define EXPECT_SEQ_EQ(x, y) EXPECT_EQ((x), Collect(y));
 
 }  // namespace immutable
 }  // namespace firestore

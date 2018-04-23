@@ -27,7 +27,9 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,9 +37,7 @@ namespace model {
 
 struct ServerTimestamp {
   Timestamp local_write_time;
-  Timestamp previous_value;
-  // TODO(zxu123): adopt absl::optional once abseil is ported.
-  bool has_previous_value_;
+  absl::optional<Timestamp> previous_value;
 };
 
 struct ReferenceValue {
@@ -118,15 +118,48 @@ class FieldValue {
     return integer_value_;
   }
 
+  Timestamp timestamp_value() const {
+    FIREBASE_ASSERT(tag_ == Type::Timestamp);
+    return timestamp_value_;
+  }
+
   const std::string& string_value() const {
     FIREBASE_ASSERT(tag_ == Type::String);
     return string_value_;
   }
 
-  const ObjectValue object_value() const {
+  ObjectValue object_value() const {
     FIREBASE_ASSERT(tag_ == Type::Object);
     return ObjectValue{object_value_};
   }
+
+  /**
+   * Returns a FieldValue with the field at the named path set to value.
+   * Any absent parent of the field will also be created accordingly.
+   *
+   * @param field_path The field path to set. Cannot be empty.
+   * @param value The value to set.
+   * @return A new FieldValue with the field set.
+   */
+  FieldValue Set(const FieldPath& field_path, FieldValue value) const;
+
+  /**
+   * Returns a FieldValue with the field path deleted. If there is no field at
+   * the specified path, the returned value is an identical copy.
+   *
+   * @param field_path The field path to remove. Cannot be empty.
+   * @return A new FieldValue with the field path removed.
+   */
+  FieldValue Delete(const FieldPath& field_path) const;
+
+  /**
+   * Returns the value at the given path or absl::nullopt. If the path is empty,
+   * an identical copy of the FieldValue is returned.
+   *
+   * @param field_path the path to search.
+   * @return The value at the path or absl::nullopt if it doesn't exist.
+   */
+  absl::optional<FieldValue> Get(const FieldPath& field_path) const;
 
   /** factory methods. */
   static const FieldValue& NullValue();

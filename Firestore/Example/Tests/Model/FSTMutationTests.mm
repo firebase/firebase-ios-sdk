@@ -22,6 +22,7 @@
 
 #include <vector>
 
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
@@ -145,7 +146,9 @@ using firebase::firestore::model::TransformOperation;
 - (void)testCreateArrayUnionTransform {
   FSTTransformMutation *transform = FSTTestTransformMutation(@"collection/key", @{
     @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
-    @"bar.baz" : [FIRFieldValue fieldValueForArrayUnion:@[ @YES, @[ @1, @2 ], @{@"a" : @"b"} ]]
+    @"bar.baz" :
+        [FIRFieldValue fieldValueForArrayUnion:@[ @YES,
+                                                  @{ @"nested" : @{@"a" : @[ @1, @2 ]} } ]]
   });
   XCTAssertEqual(transform.fieldTransforms.size(), 2);
 
@@ -161,7 +164,7 @@ using firebase::firestore::model::TransformOperation;
   XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
   {
     std::vector<FSTFieldValue *> expectedElements {
-      FSTTestFieldValue(@YES), FSTTestFieldValue(@[ @1, @2 ]), FSTTestFieldValue(@{@"a" : @"b"})
+      FSTTestFieldValue(@YES), FSTTestFieldValue(@{ @"nested" : @{@"a" : @[ @1, @2 ]} })
     };
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);

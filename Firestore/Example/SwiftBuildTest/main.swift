@@ -32,8 +32,10 @@ func main() {
   addDocument(to: collectionRef)
 
   readDocument(at: documentRef)
+  readDocumentWithSource(at: documentRef)
 
   readDocuments(matching: query)
+  readDocumentsWithSource(matching: query)
 
   listenToDocument(at: documentRef)
 
@@ -81,6 +83,9 @@ func makeRefs(database db: Firestore) -> (CollectionReference, DocumentReference
 func makeQuery(collection collectionRef: CollectionReference) -> Query {
   let query = collectionRef.whereField(FieldPath(["name"]), isEqualTo: "Fred")
     .whereField("age", isGreaterThanOrEqualTo: 24)
+    // TODO(array-features): Uncomment when API is publicly exposed.
+    // .whereField("tags", arrayContains:"active")
+    // .whereField(FieldPath(["tags"]), arrayContains:"active")
     .whereField(FieldPath.documentID(), isEqualTo: "fred")
     .order(by: FieldPath(["age"]))
     .order(by: "name", descending: true)
@@ -101,8 +106,9 @@ func writeDocument(at docRef: DocumentReference) {
     "bar.baz": 42,
     FieldPath(["foobar"]): 42,
     "server_timestamp": FieldValue.serverTimestamp(),
-    "array_union": FieldValue.arrayUnion(["a", "b"]),
-    "array_remove": FieldValue.arrayRemove(["a", "b"]),
+    // TODO(array-features): Uncomment once we add these to the public API
+    // "array_union": FieldValue.arrayUnion(["a", "b"]),
+    // "array_remove": FieldValue.arrayRemove(["a", "b"]),
     "field_delete": FieldValue.delete(),
   ] as [AnyHashable: Any]
 
@@ -230,6 +236,15 @@ func readDocument(at docRef: DocumentReference) {
   }
 }
 
+func readDocumentWithSource(at docRef: DocumentReference) {
+  docRef.getDocument(source: FirestoreSource.default) { document, error in
+  }
+  docRef.getDocument(source: .server) { document, error in
+  }
+  docRef.getDocument(source: FirestoreSource.cache) { document, error in
+  }
+}
+
 func readDocuments(matching query: Query) {
   query.getDocuments { querySnapshot, error in
     // TODO(mikelehen): Figure out how to make "for..in" syntax work
@@ -237,6 +252,15 @@ func readDocuments(matching query: Query) {
     for document in querySnapshot!.documents {
       print(document.data())
     }
+  }
+}
+
+func readDocumentsWithSource(matching query: Query) {
+  query.getDocuments(source: FirestoreSource.default) { querySnapshot, error in
+  }
+  query.getDocuments(source: .server) { querySnapshot, error in
+  }
+  query.getDocuments(source: FirestoreSource.cache) { querySnapshot, error in
   }
 }
 

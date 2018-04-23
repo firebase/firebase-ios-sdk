@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode9.2
+osx_image: xcode9.3
 language: objective-c
 cache:
   - bundler
@@ -38,7 +38,9 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
+
+        # Disabled because of url validation failures on April 20, 2018
+        #- ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
 
         # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
         #  - bundle exec pod lib lint FirebaseAuth.podspec

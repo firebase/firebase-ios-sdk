@@ -17,6 +17,8 @@
 #import "FIRQuery.h"
 
 #import "FIRDocumentReference.h"
+#import "FIRFirestoreErrors.h"
+#import "FIRFirestoreSource.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
@@ -96,9 +98,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentsWithCompletion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                              NSError *_Nullable error))completion {
-  FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
-                                                             includeDocumentMetadataChanges:YES
-                                                                      waitForSyncWhenOnline:YES];
+  [self getDocumentsWithSource:FIRFirestoreSourceDefault completion:completion];
+}
+
+- (void)getDocumentsWithSource:(FIRFirestoreSource)source
+                    completion:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                         NSError *_Nullable error))completion {
+  if (source == FIRFirestoreSourceCache) {
+    [self.firestore.client getDocumentsFromLocalCache:self completion:completion];
+    return;
+  }
+
+  FSTListenOptions *listenOptions =
+      [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
+                                     includeDocumentMetadataChanges:YES
+                                              waitForSyncWhenOnline:YES];
 
   dispatch_semaphore_t registered = dispatch_semaphore_create(0);
   __block id<FIRListenerRegistration> listenerRegistration;
@@ -113,10 +127,24 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_semaphore_wait(registered, DISPATCH_TIME_FOREVER);
     [listenerRegistration remove];
 
-    completion(snapshot, nil);
+    if (snapshot.metadata.fromCache && source == FIRFirestoreSourceServer) {
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get documents from server. (However, these "
+                                       @"documents may exist in the local cache. Run again "
+                                       @"without setting source to FIRFirestoreSourceServer to "
+                                       @"retrieve the cached documents.)"
+                                 }]);
+    } else {
+      completion(snapshot, nil);
+    }
   };
 
-  listenerRegistration = [self addSnapshotListenerInternalWithOptions:options listener:listener];
+  listenerRegistration =
+      [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
   dispatch_semaphore_signal(registered);
 }
 
@@ -206,6 +234,17 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
 
 - (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path isGreaterThan:(id)value {
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThan
+                                  path:path.internalValue
+                                 value:value];
+}
+
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContains:(id)value {
+  return
+      [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains field:field value:value];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContains:(id)value {
+  return [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains
                                   path:path.internalValue
                                  value:value];
 }
@@ -415,6 +454,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                 value:(id)value {
   FSTFieldValue *fieldValue;
   if (fieldPath.IsKeyFieldPath()) {
+    if (filterOperator == FSTRelationFilterOperatorArrayContains) {
+      FSTThrowInvalidArgument(
+          @"Invalid query. You can't do arrayContains queries on document ID since document IDs "
+          @"are not arrays.");
+    }
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
       if ([documentKey containsString:@"/"]) {

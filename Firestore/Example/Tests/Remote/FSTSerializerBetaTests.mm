@@ -35,6 +35,7 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -367,7 +368,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self assertRoundTripForMutation:mutation proto:proto];
 }
 
-- (void)testEncodesTransformMutation {
+- (void)testEncodesServerTimestampTransformMutation {
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForServerTimestamp],
     @"bar.baz" : [FIRFieldValue fieldValueForServerTimestamp]
@@ -377,6 +378,38 @@ NS_ASSUME_NONNULL_BEGIN
   proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
   proto.transform.fieldTransformsArray =
       [self.serializer encodedFieldTransforms:mutation.fieldTransforms];
+  proto.currentDocument.exists = YES;
+
+  [self assertRoundTripForMutation:mutation proto:proto];
+}
+
+- (void)testEncodesArrayTransformMutations {
+  FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
+    @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
+    @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
+      @{ @"x" : @1 }
+    ]]
+  });
+  GCFSWrite *proto = [GCFSWrite message];
+  proto.transform = [GCFSDocumentTransform message];
+  proto.transform.document = [self.serializer encodedDocumentKey:mutation.key];
+
+  GCFSDocumentTransform_FieldTransform *arrayUnion = [GCFSDocumentTransform_FieldTransform message];
+  arrayUnion.fieldPath = @"a";
+  arrayUnion.appendMissingElements = [GCFSArrayValue message];
+  NSMutableArray *unionElements = arrayUnion.appendMissingElements.valuesArray;
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@"a")]];
+  [unionElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@2)]];
+  [proto.transform.fieldTransformsArray addObject:arrayUnion];
+
+  GCFSDocumentTransform_FieldTransform *arrayRemove =
+      [GCFSDocumentTransform_FieldTransform message];
+  arrayRemove.fieldPath = @"bar.baz";
+  arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
+  NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
+  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{ @"x" : @1 })]];
+  [proto.transform.fieldTransformsArray addObject:arrayRemove];
+
   proto.currentDocument.exists = YES;
 
   [self assertRoundTripForMutation:mutation proto:proto];
@@ -454,6 +487,18 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 }
 
+- (void)testEncodesArrayContainsFilter {
+  FSTRelationFilter *input = FSTTestFilter("item.tags", @"array_contains", @"food");
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  prop.value.stringValue = @"food";
+  XCTAssertEqualObjects(actual, expected);
+}
+
 #pragma mark - encodedQuery
 
 - (void)testEncodesFirstLevelKeyQueries {
@@ -523,9 +568,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[FSTTestQuery("rooms/1/messages/10/attachments")
+  FSTQuery *q = [[[FSTTestQuery("rooms/1/messages/10/attachments")
       queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")]
+      queryByAddingFilter:FSTTestFilter("tags", @"array_contains", @"pending")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -546,11 +592,18 @@ NS_ASSUME_NONNULL_BEGIN
   field2.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
   field2.value.stringValue = @"dimond";
 
+  GCFSStructuredQuery_Filter *filter3 = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *field3 = filter3.fieldFilter;
+  field3.field.fieldPath = @"tags";
+  field3.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  field3.value.stringValue = @"pending";
+
   GCFSStructuredQuery_CompositeFilter *composite =
       expected.query.structuredQuery.where.compositeFilter;
   composite.op = GCFSStructuredQuery_CompositeFilter_Operator_And;
   [composite.filtersArray addObject:filter1];
   [composite.filtersArray addObject:filter2];
+  [composite.filtersArray addObject:filter3];
 
   [expected.query.structuredQuery.orderByArray
       addObject:[GCFSStructuredQuery_Order messageWithProperty:@"prop" ascending:YES]];

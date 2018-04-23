@@ -34,8 +34,8 @@ case "$PROJECT-$METHOD" in
     # xcpretty is helpful for the intermediate step which builds FirebaseCore
     # using xcodebuild.
     gem install xcpretty
-    brew install cmake
-    brew install go # Somehow the build for Abseil requires this.
+    brew outdated cmake || brew upgrade cmake
+    brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
     ;;
 
   *)

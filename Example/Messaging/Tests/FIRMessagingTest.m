@@ -61,11 +61,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)tearDown {
-  _messaging = nil;
   [_mockMessaging stopMocking];
-  _mockMessaging = nil;
   [_mockInstanceID stopMocking];
-  _mockInstanceID = nil;
   [super tearDown];
 }
 
@@ -135,7 +132,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 #pragma mark - FCM Token Fetching and Deleting
 
-#ifdef NEED_WORKAROUND_FOR_PRIVATE_OCMOCK_getArgumentAtIndexAsObject
 - (void)testAPNSTokenIncludedInOptionsIfAvailableDuringTokenFetch {
   self.messaging.apnsTokenData =
       [@"PRETENDING_TO_BE_A_DEVICE_TOKEN" dataUsingEncoding:NSUTF8StringEncoding];
@@ -143,8 +139,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
       [self expectationWithDescription:@"Included APNS Token data in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
-    NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
+  NSDictionary *options;
+  [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] != nil) {
       [expectation fulfill];
     }
@@ -160,8 +156,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
       [self expectationWithDescription:@"Included APNS Token data not included in options dict."];
   // Inspect the 'options' dictionary to tell whether our expectation was fulfilled
   [[[self.mockInstanceID stub] andDo:^(NSInvocation *invocation) {
-    // Calling getArgument:atIndex: directly leads to an EXC_BAD_ACCESS; use OCMock's wrapper.
-    NSDictionary *options = [invocation getArgumentAtIndexAsObject:4];
+    NSDictionary *options;
+    [invocation getArgument:&options atIndex:4];
     if (options[@"apns_token"] == nil) {
       [expectation fulfill];
     }
@@ -171,7 +167,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                                 NSError * _Nullable error) {}];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
-#endif
 
 - (void)testReturnsErrorWhenFetchingTokenWithoutSenderID {
   XCTestExpectation *expectation =
