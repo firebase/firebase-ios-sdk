@@ -25,7 +25,6 @@
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-
 #import "Firestore/Source/Util/FSTLogger.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
