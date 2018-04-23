@@ -487,6 +487,18 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actual, expected);
 }
 
+- (void)testEncodesArrayContainsFilter {
+  FSTRelationFilter *input = FSTTestFilter("item.tags", @"array_contains", @"food");
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  prop.value.stringValue = @"food";
+  XCTAssertEqualObjects(actual, expected);
+}
+
 #pragma mark - encodedQuery
 
 - (void)testEncodesFirstLevelKeyQueries {
@@ -556,9 +568,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[FSTTestQuery("rooms/1/messages/10/attachments")
+  FSTQuery *q = [[[FSTTestQuery("rooms/1/messages/10/attachments")
       queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")]
+      queryByAddingFilter:FSTTestFilter("tags", @"array_contains", @"pending")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -579,11 +592,18 @@ NS_ASSUME_NONNULL_BEGIN
   field2.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
   field2.value.stringValue = @"dimond";
 
+  GCFSStructuredQuery_Filter *filter3 = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *field3 = filter3.fieldFilter;
+  field3.field.fieldPath = @"tags";
+  field3.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  field3.value.stringValue = @"pending";
+
   GCFSStructuredQuery_CompositeFilter *composite =
       expected.query.structuredQuery.where.compositeFilter;
   composite.op = GCFSStructuredQuery_CompositeFilter_Operator_And;
   [composite.filtersArray addObject:filter1];
   [composite.filtersArray addObject:filter2];
+  [composite.filtersArray addObject:filter3];
 
   [expected.query.structuredQuery.orderByArray
       addObject:[GCFSStructuredQuery_Order messageWithProperty:@"prop" ascending:YES]];
