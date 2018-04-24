@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -34,6 +33,7 @@
 #import "FIRAuthRequestConfiguration.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIRAuthURLPresenter.h"
+#import "FIRAuthWebUtils.h"
 #import "FIRGetProjectConfigRequest.h"
 #import "FIRGetProjectConfigResponse.h"
 #import "FIRSendVerificationCodeRequest.h"
@@ -409,12 +409,19 @@ static const NSTimeInterval kExpectationTimeout = 2;
     XCTAssertEqualObjects(presentURL.scheme, @"https");
     XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
     XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
-    NSDictionary *params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:presentURL.query];
-    XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
-    XCTAssertEqualObjects(params[@"clientId"], kFakeClientID);
-    XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
-    XCTAssertEqualObjects(params[@"authType"], @"verifyApp");
-    XCTAssertNotNil(params[@"v"]);
+
+    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:presentURL
+                                                      resolvingAgainstBaseURL:NO];
+    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"ibi" from:queryItems],
+                          kFakeBundleID);
+    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"clientId" from:queryItems],
+                          kFakeClientID);
+    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"apiKey" from:queryItems],
+                          kFakeAPIKey);
+    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"authType" from:queryItems],
+                          @"verifyApp");
+    XCTAssertNotNil([FIRAuthWebUtils queryItemValue:@"v" from:queryItems]);
     // `callbackMatcher` is at index 4
     [invocation getArgument:&unretainedArgument atIndex:4];
     FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -423,7 +430,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     // Verify that the URL is rejected by the callback matcher without the event ID.
     XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
     [redirectURL appendString:@"%26eventId%3D"];
-    [redirectURL appendString:params[@"eventId"]];
+    [redirectURL appendString:[FIRAuthWebUtils queryItemValue:@"eventId"
+                                                         from:queryItems]];
     NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
     // Verify that the URL is accepted by the callback matcher with the matching event ID.
     XCTAssertTrue(callbackMatcher([originalComponents URL]));

@@ -22,7 +22,6 @@
 #import "FIRVerifyAssertionRequest.h"
 #import "FIRVerifyAssertionResponse.h"
 #import "FIRFakeBackendRPCIssuer.h"
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
 
 /** @var kTestAPIKey
     @brief Fake API key used for testing.
@@ -189,14 +188,17 @@ static NSString *const kAutoCreateKey = @"autoCreate";
                                            NSError *_Nullable error) {
   }];
 
-  NSDictionary *postBody = @{
-    kProviderIDKey : kTestProviderID,
-    kProviderAccessTokenKey : kTestProviderAccessToken
-  };
-  NSString *postBodyArgs = [postBody gtm_httpArgumentsString];
+  NSArray<NSURLQueryItem *> *queryItems = @[
+      [NSURLQueryItem queryItemWithName:kProviderIDKey
+                                  value:kTestProviderID],
+      [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
+                                  value:kTestProviderAccessToken],
+  ];
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  [components setQueryItems:queryItems];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest[kPostBodyKey]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPostBodyKey], postBodyArgs);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPostBodyKey], [components query]);
   XCTAssertNil(_RPCIssuer.decodedRequest[kIDTokenKey]);
   XCTAssertNil(_RPCIssuer.decodedRequest[kReturnSecureTokenKey]);
   // Auto-create flag Should be true by default.
@@ -223,17 +225,23 @@ static NSString *const kAutoCreateKey = @"autoCreate";
                                            NSError *_Nullable error) {
   }];
 
-  NSDictionary *postBody = @{
-    kProviderIDKey : kTestProviderID,
-    kProviderIDTokenKey : kTestProviderIDToken,
-    kProviderAccessTokenKey : kTestProviderAccessToken,
-    kProviderOAuthTokenSecretKey : kTestProviderOAuthTokenSecret,
-    kInputEmailKey : kTestInputEmail
-  };
-  NSString *postBodyArgs = [postBody gtm_httpArgumentsString];
+  NSArray<NSURLQueryItem *> *queryItems = @[
+      [NSURLQueryItem queryItemWithName:kProviderIDKey
+                                  value:kTestProviderID],
+      [NSURLQueryItem queryItemWithName:kProviderIDTokenKey
+                                  value:kTestProviderIDToken],
+      [NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
+                                  value:kTestProviderAccessToken],
+      [NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
+                                  value:kTestProviderOAuthTokenSecret],
+      [NSURLQueryItem queryItemWithName:kInputEmailKey
+                                  value:kTestInputEmail],
+      ];
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  [components setQueryItems:queryItems];
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest[kPostBodyKey]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPostBodyKey], postBodyArgs);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPostBodyKey], [components query]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kTestAccessToken);
   XCTAssertTrue([_RPCIssuer.decodedRequest[kReturnSecureTokenKey] boolValue]);
   XCTAssertFalse([_RPCIssuer.decodedRequest[kAutoCreateKey] boolValue]);
