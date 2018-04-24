@@ -219,6 +219,19 @@ TYPED_TEST(SortedMapTest, InsertionAndRemovalOfMaxItems) {
   ASSERT_EQ(0u, map.size()) << "Check we removed all of the items";
 }
 
+TYPED_TEST(SortedMapTest, EraseDoesNotInvalidateIterators) {
+  std::vector<int> keys = Sequence(1, 4);
+  TypeParam original = ToMap<TypeParam>(keys);
+
+  auto begin = original.begin();
+  auto end = original.end();
+  ASSERT_EQ(Collect(original), (std::vector<std::pair<int, int>>{begin, end}));
+
+  TypeParam erased = original.erase(2);
+  ASSERT_EQ(erased.size(), original.size() - 1);
+  ASSERT_EQ(Collect(original), (std::vector<std::pair<int, int>>{begin, end}));
+}
+
 TYPED_TEST(SortedMapTest, FindEmpty) {
   TypeParam map;
   EXPECT_TRUE(NotFound(map, 10));
@@ -279,8 +292,8 @@ TYPED_TEST(SortedMapTest, MinMax) {
   TypeParam lots = ToMap<TypeParam>(to_insert);
   min = lots.min();
   max = lots.max();
-  ASSERT_EQ(to_insert[0], min->first);
-  ASSERT_EQ(to_insert[to_insert.size() - 1], max->first);
+  ASSERT_EQ(to_insert.front(), min->first);
+  ASSERT_EQ(to_insert.back(), max->first);
 }
 
 TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {

@@ -102,24 +102,18 @@ class LlrbNode : public SortedMapBase {
 
   const LlrbNode& min() const {
     const LlrbNode* node = this;
-    for (;;) {
-      const LlrbNode& left_node = node->left();
-      if (left_node.empty()) {
-        return *node;
-      }
-      node = &left_node;
+    while (!node->left().empty()) {
+      node = &node->left();
     }
+    return *node;
   }
 
   const LlrbNode& max() const {
     const LlrbNode* node = this;
-    for (;;) {
-      const LlrbNode& right_node = node->right();
-      if (right_node.empty()) {
-        return *node;
-      }
-      node = &right_node;
+    while (!node->right().empty()) {
+      node = &node->right();
     }
+    return *node;
   }
 
  private:
@@ -330,6 +324,7 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerErase(const K& key,
         return LlrbNode{};
 
       } else {
+        // Move the minimum node from the right subtree in place of this node.
         LlrbNode smallest = n.right().min();
         LlrbNode new_right = n.right().Clone();
         new_right.RemoveMin();
@@ -378,10 +373,10 @@ void LlrbNode<K, V>::FixRootColor() {
 
 template <typename K, typename V>
 void LlrbNode<K, V>::RemoveMin() {
-  // If the left node is empty then the right node must empty (because the tree
-  // is left-leaning) and this node must be the minimum.
+  // If the left node is empty then the right node must be empty (because the
+  // tree is left-leaning) and this node must be the minimum.
   if (left().empty()) {
-    rep_ = EmptyRep();
+    *this = LlrbNode{};
     return;
   }
 
