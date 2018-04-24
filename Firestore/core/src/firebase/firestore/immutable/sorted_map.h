@@ -251,6 +251,25 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.lower_bound(key));
+      case Tag::Tree:
+        return const_iterator{tree_.lower_bound(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   const_iterator min() const {
     switch (tag_) {
       case Tag::Array:
@@ -267,25 +286,6 @@ class SortedMap : public impl::SortedMapBase {
         return const_iterator(array_.max());
       case Tag::Tree:
         return const_iterator{tree_.max()};
-    }
-    FIREBASE_UNREACHABLE();
-  }
-
-  /**
-   * Finds the first entry in the map containing a key greater than or equal
-   * to the given key.
-   *
-   * @param key The key to look up.
-   * @return An iterator pointing to the entry containing the key or the next
-   *     largest key. Can return end() if all keys in the map are less than the
-   *     requested key.
-   */
-  const_iterator lower_bound(const K& key) const {
-    switch (tag_) {
-      case Tag::Array:
-        return const_iterator(array_.lower_bound(key));
-      case Tag::Tree:
-        return const_iterator{tree_.lower_bound(key)};
     }
     FIREBASE_UNREACHABLE();
   }
