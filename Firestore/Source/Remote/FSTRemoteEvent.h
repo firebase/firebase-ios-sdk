@@ -147,12 +147,12 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
  */
 @interface FSTRemoteEvent : NSObject
 
-+ (instancetype)
-eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-         documentUpdates:
-             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates
-          limboDocuments:(FSTDocumentKeySet *)limboDocuments;
+- (instancetype)
+initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+          targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
+        documentUpdates:
+            (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates
+         limboDocuments:(FSTDocumentKeySet *)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
 @property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;

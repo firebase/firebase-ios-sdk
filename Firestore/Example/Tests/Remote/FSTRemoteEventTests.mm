@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -670,7 +671,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
   listens[@1] = [FSTQueryData alloc];
-  listens[@2] = [[FSTQueryData alloc] initWithQuery:nil
+  listens[@2] = [[FSTQueryData alloc] initWithQuery:[FSTQuery alloc]
                                            targetID:2
                                listenSequenceNumber:1000
                                             purpose:FSTQueryPurposeLimboResolution];
