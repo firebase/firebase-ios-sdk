@@ -23,7 +23,7 @@ pod update
 ./Pods/!ProtoCompiler/protoc \
   --plugin=protoc-gen-grpc=Pods/\!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin \
   --plugin=../../build/external/nanopb/src/nanopb/generator/protoc-gen-nanopb \
-  -I protos --objc_out=objc --grpc_out=objc \
+  -I protos --objc_out=objc --grpc_out=objc --cpp_out=cpp \
   --nanopb_out="--options-file=protos/%s.options:nanopb" \
   `find protos -name *.proto -print | xargs`
 

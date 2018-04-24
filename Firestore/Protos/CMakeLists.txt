@@ -50,3 +50,58 @@ target_include_directories(
   firebase_firestore_protos_nanopb PUBLIC
     ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
 )
+
+# libprotobuf based generated protos. Expected only to be used in test (as
+# libprotobuf[-lite] is too large; we're using nanopb instead. But we do want
+# to test our serialization logic against libprotobuf.)
+cc_library(
+  firebase_firestore_protos_libprotobuf
+  SOURCES
+    cpp/firestore/local/maybe_document.pb.cc
+    cpp/firestore/local/maybe_document.pb.h
+    cpp/firestore/local/mutation.pb.cc
+    cpp/firestore/local/mutation.pb.h
+    cpp/firestore/local/target.pb.cc
+    cpp/firestore/local/target.pb.h
+    cpp/google/api/annotations.pb.cc
+    cpp/google/api/annotations.pb.h
+    cpp/google/api/http.pb.cc
+    cpp/google/api/http.pb.h
+    cpp/google/firestore/v1beta1/common.pb.cc
+    cpp/google/firestore/v1beta1/common.pb.h
+    cpp/google/firestore/v1beta1/document.pb.cc
+    cpp/google/firestore/v1beta1/document.pb.h
+    cpp/google/firestore/v1beta1/firestore.pb.cc
+    cpp/google/firestore/v1beta1/firestore.pb.h
+    cpp/google/firestore/v1beta1/query.pb.cc
+    cpp/google/firestore/v1beta1/query.pb.h
+    cpp/google/firestore/v1beta1/write.pb.cc
+    cpp/google/firestore/v1beta1/write.pb.h
+    cpp/google/protobuf/any.pb.cc
+    cpp/google/protobuf/any.pb.h
+    cpp/google/protobuf/empty.pb.cc
+    cpp/google/protobuf/empty.pb.h
+    cpp/google/protobuf/struct.pb.cc
+    cpp/google/protobuf/struct.pb.h
+    cpp/google/protobuf/timestamp.pb.cc
+    cpp/google/protobuf/timestamp.pb.h
+    cpp/google/protobuf/wrappers.pb.cc
+    cpp/google/protobuf/wrappers.pb.h
+    cpp/google/rpc/status.pb.cc
+    cpp/google/rpc/status.pb.h
+    cpp/google/type/latlng.pb.cc
+    cpp/google/type/latlng.pb.h
+  DEPENDS
+    protobuf
+  EXCLUDE_FROM_ALL
+)
+
+target_include_directories(
+  firebase_firestore_protos_libprotobuf PUBLIC
+    ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
+)
+
+set_target_properties(
+  firebase_firestore_protos_libprotobuf PROPERTIES
+    COMPILE_FLAGS "-Wno-unused-parameter"
+)
