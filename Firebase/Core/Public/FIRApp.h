@@ -119,7 +119,8 @@ NS_SWIFT_NAME(FirebaseApp)
  * your app's Info.plist. This value is persisted across runs of the app so that it
  * can be set once when users have consented to collection.
  */
-@property(nonatomic, readwrite, getter=isAutomaticDataCollectionEnabled) BOOL automaticDataCollectionEnabled;
+@property(nonatomic, readwrite, getter=isAutomaticDataCollectionEnabled)
+    BOOL automaticDataCollectionEnabled;
 
 @end
 
