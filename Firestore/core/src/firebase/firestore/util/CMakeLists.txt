@@ -110,9 +110,35 @@ endif()
 
 ## async queue
 
-set(
-  FIREBASE_FIRESTORE_UTIL_EXECUTOR
+check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
+
+if(HAVE_LIBDISPATCH)
+cc_library(
+  firebase_firestore_util_executor_libdispatch
+  SOURCES
+    executor_libdispatch.cc
+    executor_libdispatch.h
+    executor.h
+  DEPENDS
+    absl_strings
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
 )
+endif()
+
+if(HAVE_LIBDISPATCH)
+  set(
+    FIREBASE_FIRESTORE_UTIL_EXECUTOR
+    firebase_firestore_util_executor_libdispatch
+  )
+
+else()
+  set(
+    FIREBASE_FIRESTORE_UTIL_EXECUTOR
+    # TODO(varconst): C++11 implementation
+  )
+
+endif()
 
 cc_library(
   firebase_firestore_util_async_queue
