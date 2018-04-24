@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/memory/memory.h"
 

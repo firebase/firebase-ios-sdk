@@ -16,12 +16,11 @@
 
 #include "Firestore/core/test/firebase/firestore/util/async_queue_test.h"
 
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
-
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
