@@ -963,7 +963,6 @@
 				54C9EDEE2040E16300A969CD /* Frameworks */,
 				54C9EDEF2040E16300A969CD /* Resources */,
 				9E2D564AC55ADE2D52B7E951 /* [CP] Embed Pods Frameworks */,
-				DCC943124729DD540164C37B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -984,7 +983,6 @@
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
 				7C5123A9C345ECE100DA21BD /* [CP] Embed Pods Frameworks */,
-				8D3A5D9A53B090F055543D70 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1004,7 +1002,6 @@
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
 				BB3FE78ABF533BFC38839A0E /* [CP] Embed Pods Frameworks */,
-				ED3C0CBCE50F0FD34CC65946 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1025,7 +1022,6 @@
 				DE03B2D31F2149D600A30B9C /* Frameworks */,
 				DE03B2D81F2149D600A30B9C /* Resources */,
 				DE03B2E41F2149D600A30B9C /* [CP] Embed Pods Frameworks */,
-				93F1C989DAB96A109D3D4691 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1046,7 +1042,6 @@
 				DE0761E11F2FE611003233AF /* Frameworks */,
 				DE0761E21F2FE611003233AF /* Resources */,
 				125BDFEB177CFD41D7A40928 /* [CP] Embed Pods Frameworks */,
-				9B486DFD76F22BA8297DDB6B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1261,21 +1256,6 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8D3A5D9A53B090F055543D70 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		8D94B6319191CD7344A4D1B9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1310,36 +1290,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		93F1C989DAB96A109D3D4691 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		9B486DFD76F22BA8297DDB6B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		9E2D564AC55ADE2D52B7E951 /* [CP] Embed Pods Frameworks */ = {
@@ -1400,21 +1350,6 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DCC943124729DD540164C37B /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		DE03B2971F2149D600A30B9C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1449,21 +1384,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		ED3C0CBCE50F0FD34CC65946 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FAB3416C6DD87D45081EC3E8 /* [CP] Check Pods Manifest.lock */ = {
