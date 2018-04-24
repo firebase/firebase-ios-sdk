@@ -24,6 +24,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {

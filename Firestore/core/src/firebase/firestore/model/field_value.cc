@@ -183,12 +183,12 @@ FieldValue FieldValue::Set(const FieldPath& field_path,
   } else {
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
     const auto iter = object_map.find(child_name);
-    if (iter == copy.end() || iter->second.type() != Type::Object) {
+    if (iter == object_map.end() || iter->second.type() != Type::Object) {
       copy[child_name] = FieldValue::ObjectValueFromMap({}).Set(
           field_path.PopFirst(), std::move(value));
     } else {
-      copy[child_name] = object_map.at(child_name)
-                             .Set(field_path.PopFirst(), std::move(value));
+      copy[child_name] =
+          iter->second.Set(field_path.PopFirst(), std::move(value));
     }
     return FieldValue::ObjectValueFromMap(std::move(copy));
   }

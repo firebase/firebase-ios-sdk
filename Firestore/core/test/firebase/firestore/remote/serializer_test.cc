@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-/* NB: proto bytes were created via:
-     echo 'TEXT_FORMAT_PROTO' \
-       | ./build/external/protobuf/src/protobuf-build/src/protoc \
-           -I./Firestore/Protos/protos \
-           -I./build/external/protobuf/src/protobuf/src \
-           --encode=google.firestore.v1beta1.Value \
-           google/firestore/v1beta1/document.proto \
-       | hexdump -C
- * where TEXT_FORMAT_PROTO is the text format of the protobuf. (go/textformat).
+/* Most tests use libprotobuf to create the bytes used for testing the
+ * serializer. (Previously, protoc was used, but that meant that the bytes were
+ * generated ahead of time and just copy+paste'd into the test suite, leading to
+ * a lot of magic.) Also note that bytes are no longer compared in any of the
+ * tests. Instead, we ensure that encoding with our serializer and decoding with
+ * libprotobuf (and vice versa) yield the same results.
  *
- * Examples:
- * - For null, TEXT_FORMAT_PROTO would be 'null_value: NULL_VALUE' and would
- *   yield the bytes: { 0x58, 0x00 }.
- * - For true, TEXT_FORMAT_PROTO would be 'boolean_value: true' and would yield
- *   the bytes { 0x08, 0x01 }.
- *
- * All uses are documented below, so search for TEXT_FORMAT_PROTO to find more
- * examples.
+ * libprotobuf is only used in the test suite, and should never be present in
+ * the production code.
  */
 
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -41,13 +32,18 @@
 #include <limits>
 #include <vector>
 
+#include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "google/protobuf/stubs/common.h"
+#include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::util::Status;
+using google::protobuf::util::MessageDifferencer;
 
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
@@ -65,215 +61,201 @@ class SerializerTest : public ::testing::Test {
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
-                       const std::vector<uint8_t>& bytes,
+                       const google::firestore::v1beta1::Value& proto,
                        FieldValue::Type type) {
-    EXPECT_EQ(type, model.type());
-    std::vector<uint8_t> actual_bytes;
-    Status status = serializer.EncodeFieldValue(model, &actual_bytes);
+    // First, serialize model with our (nanopb based) serializer, then
+    // deserialize the resulting bytes with libprotobuf and ensure the result is
+    // the same as the expected proto.
+    ExpectSerializationRoundTrip(model, proto, type);
+
+    // Next, serialize proto with libprotobuf, then deserialize the resulting
+    // bytes with our (nanopb based) deserializer and ensure the result is the
+    // same as the expected model.
+    ExpectDeserializationRoundTrip(model, proto, type);
+  }
+
+  google::firestore::v1beta1::Value ValueProto(nullptr_t) {
+    std::vector<uint8_t> bytes;
+    Status status =
+        serializer.EncodeFieldValue(FieldValue::NullValue(), &bytes);
     EXPECT_TRUE(status.ok());
-    EXPECT_EQ(bytes, actual_bytes);
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  google::firestore::v1beta1::Value ValueProto(bool b) {
+    std::vector<uint8_t> bytes;
+    Status status =
+        serializer.EncodeFieldValue(FieldValue::BooleanValue(b), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  google::firestore::v1beta1::Value ValueProto(int64_t i) {
+    std::vector<uint8_t> bytes;
+    Status status =
+        serializer.EncodeFieldValue(FieldValue::IntegerValue(i), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+  google::firestore::v1beta1::Value ValueProto(const char* s) {
+    return ValueProto(std::string(s));
+  }
+
+  google::firestore::v1beta1::Value ValueProto(const std::string& s) {
+    std::vector<uint8_t> bytes;
+    Status status =
+        serializer.EncodeFieldValue(FieldValue::StringValue(s), &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
+ private:
+  void ExpectSerializationRoundTrip(
+      const FieldValue& model,
+      const google::firestore::v1beta1::Value& proto,
+      FieldValue::Type type) {
+    EXPECT_EQ(type, model.type());
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(model, &bytes);
+    EXPECT_TRUE(status.ok());
+    google::firestore::v1beta1::Value actual_proto;
+    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    EXPECT_TRUE(MessageDifferencer::Equals(proto, actual_proto));
+  }
+
+  void ExpectDeserializationRoundTrip(
+      const FieldValue& model,
+      const google::firestore::v1beta1::Value& proto,
+      FieldValue::Type type) {
+    size_t size = proto.ByteSizeLong();
+    std::vector<uint8_t> bytes(size);
+    bool status = proto.SerializeToArray(bytes.data(), size);
+    EXPECT_TRUE(status);
     FieldValue actual_model = serializer.DecodeFieldValue(bytes);
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
   }
 };
 
-TEST_F(SerializerTest, WritesNullModelToBytes) {
+// TODO(rsgowman): whoops! A previous commit performed approx s/Encodes/Writes/,
+// but should not have done so here. Change it back in this file.
+
+TEST_F(SerializerTest, WritesNull) {
   FieldValue model = FieldValue::NullValue();
-
-  // TEXT_FORMAT_PROTO: 'null_value: NULL_VALUE'
-  std::vector<uint8_t> bytes{0x58, 0x00};
-  ExpectRoundTrip(model, bytes, FieldValue::Type::Null);
+  ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
 }
 
-TEST_F(SerializerTest, WritesBoolModelToBytes) {
-  struct TestCase {
-    bool value;
-    std::vector<uint8_t> bytes;
-  };
-
-  std::vector<TestCase> cases{// TEXT_FORMAT_PROTO: 'boolean_value: true'
-                              {true, {0x08, 0x01}},
-                              // TEXT_FORMAT_PROTO: 'boolean_value: false'
-                              {false, {0x08, 0x00}}};
-
-  for (const TestCase& test : cases) {
-    FieldValue model = FieldValue::BooleanValue(test.value);
-    ExpectRoundTrip(model, test.bytes, FieldValue::Type::Boolean);
+TEST_F(SerializerTest, WritesBool) {
+  for (bool bool_value : {true, false}) {
+    FieldValue model = FieldValue::BooleanValue(bool_value);
+    ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
   }
 }
 
-TEST_F(SerializerTest, WritesIntegersModelToBytes) {
-  // NB: because we're calculating the bytes via protoc (instead of
-  // libprotobuf) we have to look at values from numeric_limits<T> ahead of
-  // time. So these test cases make the following assumptions about
-  // numeric_limits: (linking libprotobuf is starting to sound like a better
-  // idea. :)
-  //   -9223372036854775808
-  //     == -8000000000000000
-  //     == numeric_limits<int64_t>::min()
-  //   9223372036854775807
-  //     == 7FFFFFFFFFFFFFFF
-  //     == numeric_limits<int64_t>::max()
-  //
-  // For now, lets at least verify these values:
-  EXPECT_EQ(-9223372036854775807 - 1, std::numeric_limits<int64_t>::min());
-  EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
-  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
-  // above.
+TEST_F(SerializerTest, WritesIntegers) {
+  std::vector<int64_t> cases{0,
+                             1,
+                             -1,
+                             100,
+                             -100,
+                             std::numeric_limits<int64_t>::min(),
+                             std::numeric_limits<int64_t>::max()};
 
-  struct TestCase {
-    int64_t value;
-    std::vector<uint8_t> bytes;
-  };
-
-  std::vector<TestCase> cases{
-      // TEXT_FORMAT_PROTO: 'integer_value: 0'
-      TestCase{0, {0x10, 0x00}},
-      // TEXT_FORMAT_PROTO: 'integer_value: 1'
-      TestCase{1, {0x10, 0x01}},
-      // TEXT_FORMAT_PROTO: 'integer_value: -1'
-      TestCase{
-          -1,
-          {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01}},
-      // TEXT_FORMAT_PROTO: 'integer_value: 100'
-      TestCase{100, {0x10, 0x64}},
-      // TEXT_FORMAT_PROTO: 'integer_value: -100'
-      TestCase{
-          -100,
-          {0x10, 0x9c, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01}},
-      // TEXT_FORMAT_PROTO: 'integer_value: -9223372036854775808'
-      TestCase{
-          -9223372036854775807 - 1,
-          {0x10, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}},
-      // TEXT_FORMAT_PROTO: 'integer_value: 9223372036854775807'
-      TestCase{9223372036854775807,
-               {0x10, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f}}};
-
-  for (const TestCase& test : cases) {
-    FieldValue model = FieldValue::IntegerValue(test.value);
-    ExpectRoundTrip(model, test.bytes, FieldValue::Type::Integer);
+  for (int64_t int_value : cases) {
+    FieldValue model = FieldValue::IntegerValue(int_value);
+    ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
   }
 }
 
-TEST_F(SerializerTest, WritesStringModelToBytes) {
-  struct TestCase {
-    std::string value;
-    std::vector<uint8_t> bytes;
-  };
-
-  std::vector<TestCase> cases{
-      // TEXT_FORMAT_PROTO: 'string_value: ""'
-      {"", {0x8a, 0x01, 0x00}},
-      // TEXT_FORMAT_PROTO: 'string_value: "a"'
-      {"a", {0x8a, 0x01, 0x01, 0x61}},
-      // TEXT_FORMAT_PROTO: 'string_value: "abc def"'
-      {"abc def", {0x8a, 0x01, 0x07, 0x61, 0x62, 0x63, 0x20, 0x64, 0x65, 0x66}},
-      // TEXT_FORMAT_PROTO: 'string_value: "æ"'
-      {"æ", {0x8a, 0x01, 0x02, 0xc3, 0xa6}},
-      // TEXT_FORMAT_PROTO: 'string_value: "\0\ud7ff\ue000\uffff"'
+TEST_F(SerializerTest, WritesString) {
+  std::vector<std::string> cases{
+      "",
+      "a",
+      "abc def",
+      "æ",
       // Note: Each one of the three embedded universal character names
       // (\u-escaped) maps to three chars, so the total length of the string
       // literal is 10 (ignoring the terminating null), and the resulting string
       // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
       // size of 10 must be added, or else std::string will see the \0 at the
       // start and assume that's the end of the string.
-      {{"\0\ud7ff\ue000\uffff", 10},
-       {0x8a, 0x01, 0x0a, 0x00, 0xed, 0x9f, 0xbf, 0xee, 0x80, 0x80, 0xef, 0xbf,
-        0xbf}},
-      {{"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
-       {0x8a, 0x01, 0x0a, 0x00, 0xed, 0x9f, 0xbf, 0xee, 0x80, 0x80, 0xef, 0xbf,
-        0xbf}},
-      // TEXT_FORMAT_PROTO: 'string_value: "(╯°□°）╯︵ ┻━┻"'
-      {"(╯°□°）╯︵ ┻━┻",
-       {0x8a, 0x01, 0x1e, 0x28, 0xe2, 0x95, 0xaf, 0xc2, 0xb0, 0xe2, 0x96,
-        0xa1, 0xc2, 0xb0, 0xef, 0xbc, 0x89, 0xe2, 0x95, 0xaf, 0xef, 0xb8,
-        0xb5, 0x20, 0xe2, 0x94, 0xbb, 0xe2, 0x94, 0x81, 0xe2, 0x94, 0xbb}}};
+      {"\0\ud7ff\ue000\uffff", 10},
+      {"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
+      "(╯°□°）╯︵ ┻━┻",
+  };
 
-  for (const TestCase& test : cases) {
-    FieldValue model = FieldValue::StringValue(test.value);
-    ExpectRoundTrip(model, test.bytes, FieldValue::Type::String);
+  for (const std::string& string_value : cases) {
+    FieldValue model = FieldValue::StringValue(string_value);
+    ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
   }
 }
 
-TEST_F(SerializerTest, WritesEmptyMapToBytes) {
+TEST_F(SerializerTest, WritesEmptyMap) {
   FieldValue model = FieldValue::ObjectValueFromMap({});
-  // TEXT_FORMAT_PROTO: 'map_value: {}'
-  std::vector<uint8_t> bytes{0x32, 0x00};
-  ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
+
+  google::firestore::v1beta1::Value proto;
+  proto.mutable_map_value();
+
+  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
-TEST_F(SerializerTest, WritesNestedObjectsToBytes) {
-  // As above, verify max int64_t value.
-  EXPECT_EQ(9223372036854775807, std::numeric_limits<int64_t>::max());
-  // TODO(rsgowman): link libprotobuf to the test suite and eliminate the
-  // above.
+TEST_F(SerializerTest, WritesNestedObjects) {
+  FieldValue model = FieldValue::ObjectValueFromMap({
+      {"b", FieldValue::TrueValue()},
+      // TODO(rsgowman): add doubles (once they're supported)
+      // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
+      {"i", FieldValue::IntegerValue(1)},
+      {"n", FieldValue::NullValue()},
+      {"s", FieldValue::StringValue("foo")},
+      // TODO(rsgowman): add arrays (once they're supported)
+      // {"a", [2, "bar", {"b", false}]},
+      {"o", FieldValue::ObjectValueFromMap({
+                {"d", FieldValue::IntegerValue(100)},
+                {"nested", FieldValue::ObjectValueFromMap({
+                               {
+                                   "e",
+                                   FieldValue::IntegerValue(
+                                       std::numeric_limits<int64_t>::max()),
+                               },
+                           })},
+            })},
+  });
 
-  FieldValue model = FieldValue::ObjectValueFromMap(
-      {{"b", FieldValue::TrueValue()},
-       // TODO(rsgowman): add doubles (once they're supported)
-       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
-       {"i", FieldValue::IntegerValue(1)},
-       {"n", FieldValue::NullValue()},
-       {"s", FieldValue::StringValue("foo")},
-       // TODO(rsgowman): add arrays (once they're supported)
-       // {"a", [2, "bar", {"b", false}]},
-       {"o", FieldValue::ObjectValueFromMap(
-                 {{"d", FieldValue::IntegerValue(100)},
-                  {"nested",
-                   FieldValue::ObjectValueFromMap(
-                       {{"e", FieldValue::IntegerValue(
-                                  std::numeric_limits<int64_t>::max())}})}})}});
+  google::firestore::v1beta1::Value inner_proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
+      inner_fields = inner_proto.mutable_map_value()->mutable_fields();
+  (*inner_fields)["e"] = ValueProto(std::numeric_limits<int64_t>::max());
 
-  /* WARNING: "Wire format ordering and map iteration ordering of map values is
-   * undefined, so you cannot rely on your map items being in a particular
-   * order."
-   * - https://developers.google.com/protocol-buffers/docs/proto#maps-features
-   *
-   * In reality, the map items are serialized by protoc in whatever order you
-   * provide them in. Since FieldValue::ObjectValue is currently backed by a
-   * std::map (and not an unordered_map) this implies ~alpha ordering. So we
-   * need to provide the text format input in alpha ordering for things to match
-   * up.
-   *
-   * This is... not ideal. Nothing stops libprotobuf from changing this
-   * behaviour (since it's not guaranteed) nor does anything stop us from
-   * switching map->unordered_map in FieldValue. (Arguably, that would be
-   * better.) But the alternative is to not test the serializing to bytes, and
-   * instead just assume we got that right. A *better* solution is to serialize
-   * to bytes, and then deserialize with libprotobuf (rather than nanopb) and
-   * then do a second test of serializing via libprotobuf and deserializing via
-   * nanopb. In both cases, we would ignore the bytes themselves (since the
-   * ordering is not defined) and instead compare the input objects with the
-   * output objects.
-   *
-   * TODO(rsgowman): ^
-   *
-   * TEXT_FORMAT_PROTO (with multi-line formatting to preserve sanity):
-   'map_value: {
-     fields: {key:"b", value:{boolean_value: true}}
-     fields: {key:"i", value:{integer_value: 1}}
-     fields: {key:"n", value:{null_value: NULL_VALUE}}
-     fields: {key:"o", value:{map_value: {
-       fields: {key:"d", value:{integer_value: 100}}
-       fields: {key:"nested", value{map_value: {
-         fields: {key:"e", value:{integer_value: 9223372036854775807}}
-       }}}
-     }}}
-     fields: {key:"s", value:{string_value: "foo"}}
-   }'
-   */
-  std::vector<uint8_t> bytes{
-      0x32, 0x59, 0x0a, 0x07, 0x0a, 0x01, 0x62, 0x12, 0x02, 0x08, 0x01, 0x0a,
-      0x07, 0x0a, 0x01, 0x69, 0x12, 0x02, 0x10, 0x01, 0x0a, 0x07, 0x0a, 0x01,
-      0x6e, 0x12, 0x02, 0x58, 0x00, 0x0a, 0x2f, 0x0a, 0x01, 0x6f, 0x12, 0x2a,
-      0x32, 0x28, 0x0a, 0x07, 0x0a, 0x01, 0x64, 0x12, 0x02, 0x10, 0x64, 0x0a,
-      0x1d, 0x0a, 0x06, 0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x12, 0x13, 0x32,
-      0x11, 0x0a, 0x0f, 0x0a, 0x01, 0x65, 0x12, 0x0a, 0x10, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff, 0xff, 0x7f, 0x0a, 0x0b, 0x0a, 0x01, 0x73, 0x12,
-      0x06, 0x8a, 0x01, 0x03, 0x66, 0x6f, 0x6f};
+  google::firestore::v1beta1::Value middle_proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
+      middle_fields = middle_proto.mutable_map_value()->mutable_fields();
+  (*middle_fields)["d"] = ValueProto(int64_t{100});
+  (*middle_fields)["nested"] = inner_proto;
 
-  ExpectRoundTrip(model, bytes, FieldValue::Type::Object);
+  google::firestore::v1beta1::Value proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
+      fields = proto.mutable_map_value()->mutable_fields();
+  (*fields)["b"] = ValueProto(true);
+  (*fields)["i"] = ValueProto(int64_t{1});
+  (*fields)["n"] = ValueProto(nullptr);
+  (*fields)["s"] = ValueProto("foo");
+  (*fields)["o"] = middle_proto;
+
+  ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
