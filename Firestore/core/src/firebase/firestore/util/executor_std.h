@@ -21,7 +21,7 @@
 #include <atomic>
 #include <condition_variable>  // NOLINT(build/c++11)
 #include <deque>
-#include <mutex>   // NOLINT(build/c++11)
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
 #include <utility>
