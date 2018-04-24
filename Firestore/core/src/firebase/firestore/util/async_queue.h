@@ -80,9 +80,6 @@ class AsyncQueue {
 
   explicit AsyncQueue(std::unique_ptr<internal::Executor> executor);
 
-  // Asserts for the caller that it is being invoked asynchronously on the
-  // `AsyncQueue.`
-  void VerifyIsAsyncCall() const;
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
   void VerifyCalledFromOperation() const;
@@ -148,6 +145,8 @@ class AsyncQueue {
 
   Operation Wrap(const Operation& operation);
 
+  // Asserts that the current invocation happens asynchronously on the queue.
+  void VerifyIsAsyncCall() const;
   void VerifySequentialOrder() const;
 
   std::atomic<bool> is_operation_in_progress_;
