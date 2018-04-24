@@ -112,6 +112,17 @@ endif()
 
 check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
 
+cc_library(
+  firebase_firestore_util_executor_std
+  SOURCES
+    executor_std.cc
+    executor_std.h
+    executor.h
+  DEPENDS
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
+
 if(HAVE_LIBDISPATCH)
 cc_library(
   firebase_firestore_util_executor_libdispatch
@@ -135,7 +146,7 @@ if(HAVE_LIBDISPATCH)
 else()
   set(
     FIREBASE_FIRESTORE_UTIL_EXECUTOR
-    # TODO(varconst): C++11 implementation
+    firebase_firestore_util_executor_std
   )
 
 endif()
