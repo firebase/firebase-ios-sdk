@@ -28,6 +28,7 @@
 @class FSTDocument;
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
+@class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTQueryData;
 
@@ -154,13 +155,13 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 @interface FSTRemoteEvent : NSObject
 
 + (instancetype)
-eventWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
+eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
            targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
          documentUpdates:
              (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
 
 /** The snapshot version this event brings us up to. */
-- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
+@property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
 
 /** A map from target to changes to the target. See TargetChange. */
 @property(nonatomic, strong, readonly)
@@ -200,7 +201,7 @@ eventWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVe
 @interface FSTWatchChangeAggregator : NSObject
 
 - (instancetype)
-initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
+initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
           listenTargets:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)listenTargets
  pendingTargetResponses:(NSDictionary<FSTBoxedTargetID *, NSNumber *> *)pendingTargetResponses
     NS_DESIGNATED_INITIALIZER;
