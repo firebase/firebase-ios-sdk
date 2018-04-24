@@ -196,7 +196,12 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Array:
         return SortedMap{array_.erase(key)};
       case Tag::Tree:
-        return SortedMap{tree_.erase(key)};
+        tree_type result = tree_.erase(key);
+        if (result.empty()) {
+          // Flip back to the array representation for empty arrays.
+          return SortedMap{};
+        }
+        return SortedMap{std::move(result)};
     }
     FIREBASE_UNREACHABLE();
   }
@@ -240,6 +245,26 @@ class SortedMap : public impl::SortedMapBase {
         return array_.find_index(key);
       case Tag::Tree:
         return tree_.find_index(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  const_iterator min() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.min());
+      case Tag::Tree:
+        return const_iterator{tree_.min()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  const_iterator max() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.max());
+      case Tag::Tree:
+        return const_iterator{tree_.max()};
     }
     FIREBASE_UNREACHABLE();
   }

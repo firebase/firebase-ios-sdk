@@ -76,6 +76,9 @@ class LlrbNodeIterator {
   using reference = typename node_type::value_type const&;
   using difference_type = std::ptrdiff_t;
 
+  explicit LlrbNodeIterator(stack_type&& stack) : stack_(std::move(stack)) {
+  }
+
   /**
    * Constructs an iterator starting at the first node in the iteration
    * sequence of the tree represented by the given root node (i.e. it points at
@@ -196,9 +199,6 @@ class LlrbNodeIterator {
   }
 
  private:
-  explicit LlrbNodeIterator(stack_type&& stack) : stack_(std::move(stack)) {
-  }
-
   static void AccumulateLeft(const node_type* node, stack_type* stack) {
     for (; !node->empty(); node = &node->left()) {
       stack->push(node);
