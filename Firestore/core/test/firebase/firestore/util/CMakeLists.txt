@@ -66,6 +66,7 @@ endif()
 cc_test(
   firebase_firestore_util_test
   SOURCES
+    async_queue_test.cc
     autoid_test.cc
     bits_test.cc
     comparison_test.cc
