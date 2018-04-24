@@ -109,10 +109,12 @@ static const NSTimeInterval kProbingTimeout = 1;
       [self->_application.delegate application:self->_application
             didReceiveRemoteNotification:proberNotification
                   fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
+#if !TARGET_OS_TV
     } else if ([self->_application.delegate respondsToSelector:
                    @selector(application:didReceiveRemoteNotification:)]) {
       [self->_application.delegate application:self->_application
             didReceiveRemoteNotification:proberNotification];
+#endif
     } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",
                     @"The UIApplicationDelegate must handle remote notification for phone number "

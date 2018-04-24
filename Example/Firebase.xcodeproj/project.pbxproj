@@ -539,7 +539,6 @@
 		DEF6C3171FBCE775005D0740 /* FIRAuthBackendRPCImplementationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FE1E86C6FF0083EDBF /* FIRAuthBackendRPCImplementationTests.m */; };
 		DEF6C3181FBCE775005D0740 /* FIRAuthGlobalWorkQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315001E86C6FF0083EDBF /* FIRAuthGlobalWorkQueueTests.m */; };
 		DEF6C3191FBCE775005D0740 /* FIRAuthKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315011E86C6FF0083EDBF /* FIRAuthKeychainTests.m */; };
-		DEF6C31A1FBCE775005D0740 /* FIRAuthNotificationManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB81EB3DD4000A75E47 /* FIRAuthNotificationManagerTests.m */; };
 		DEF6C31B1FBCE775005D0740 /* FIRAuthSerialTaskQueueTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315021E86C6FF0083EDBF /* FIRAuthSerialTaskQueueTests.m */; };
 		DEF6C31C1FBCE775005D0740 /* FIRAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315031E86C6FF0083EDBF /* FIRAuthTests.m */; };
 		DEF6C31E1FBCE775005D0740 /* FIRAuthUserDefaultsStorageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315041E86C6FF0083EDBF /* FIRAuthUserDefaultsStorageTests.m */; };
@@ -3956,7 +3955,6 @@
 				DEF6C32C1FBCE775005D0740 /* FIRResetPasswordRequestTests.m in Sources */,
 				DEF6C31F1FBCE775005D0740 /* FIRCreateAuthURIRequestTests.m in Sources */,
 				DEF6C3201FBCE775005D0740 /* FIRCreateAuthURIResponseTests.m in Sources */,
-				DEF6C31A1FBCE775005D0740 /* FIRAuthNotificationManagerTests.m in Sources */,
 				DEF6C33B1FBCE775005D0740 /* FIRVerifyCustomTokenRequestTests.m in Sources */,
 				DEF6C3221FBCE775005D0740 /* FIRDeleteAccountResponseTests.m in Sources */,
 				DEF6C3381FBCE775005D0740 /* FIRVerifyAssertionResponseTests.m in Sources */,
