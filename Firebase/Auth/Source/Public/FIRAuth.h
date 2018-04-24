@@ -432,8 +432,8 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthResultCallback)completion
-                      DEPRECATED_MSG_ATTRIBUTE("signInWithCtedential: is deprecated. Please use `si"
-                          "gnInAndRetrieveDataWithCredential:completion:` instead.");
+                      DEPRECATED_MSG_ATTRIBUTE("signInWithCredential: is deprecated. Please use
+                          "signInAndRetrieveDataWithCredential:completion:` instead.");
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
