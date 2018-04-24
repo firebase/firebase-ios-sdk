@@ -69,7 +69,6 @@ else()
   )
 endif()
 
-
 ## secure_random
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
@@ -108,7 +107,6 @@ else()
   message(FATAL_ERROR "No implementation for SecureRandom available.")
 
 endif()
-
 
 ## main library
 

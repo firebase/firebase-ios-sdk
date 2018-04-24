@@ -61,6 +61,16 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
+## async queue
+
+cc_test(
+  firebase_firestore_util_executor_test
+  SOURCES
+    executor_test.h
+    executor_test.cc
+    async_tests_util.h
+)
+
 ## main library
 
 cc_test(
