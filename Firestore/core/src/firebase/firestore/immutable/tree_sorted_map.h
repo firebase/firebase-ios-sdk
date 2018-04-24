@@ -107,9 +107,8 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
    * @return A new map without that value.
    */
   TreeSortedMap erase(const K& key) const {
-    // TODO(wilhuff): Actually implement erase
-    (void)key;
-    return TreeSortedMap{this->comparator()};
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.erase(key, comparator), comparator};
   }
 
   bool contains(const K& key) const {
@@ -171,6 +170,21 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
       }
     }
     return npos;
+  }
+
+  const_iterator min() const {
+    return begin();
+  }
+
+  const_iterator max() const {
+    if (empty()) {
+      return end();
+    }
+
+    const node_type& max_node = root_.max();
+    typename const_iterator::stack_type stack;
+    stack.push(&max_node);
+    return const_iterator{std::move(stack)};
   }
 
   /**

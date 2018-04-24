@@ -151,6 +151,55 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertFalse([query2 matchesDocument:doc6]);
 }
 
+- (void)testArrayContainsFilter {
+  FSTQuery *query = [FSTTestQuery("collection")
+      queryByAddingFilter:FSTTestFilter("array", @"array_contains", @42)];
+
+  // not an array.
+  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{ @"array" : @1 }, NO);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // empty array.
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[] }, NO);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // array without element (and make sure it doesn't match in a nested field or a different field).
+  doc = FSTTestDoc(
+      "collection/1", 0,
+      @{ @"array" : @[ @41, @"42",
+                       @{ @"a" : @42,
+                          @"b" : @[ @42 ] } ],
+         @"different" : @[ @42 ] },
+      NO);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // array with element.
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[ @1, @"2", @42, @{ @"a" : @1 } ] }, NO);
+  XCTAssertTrue([query matchesDocument:doc]);
+}
+
+- (void)testArrayContainsFilterWithObjectValue {
+  // Search for arrays containing the object { a: [42] }
+  FSTQuery *query =
+      [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("array", @"array_contains",
+                                                                    @{ @"a" : @[ @42 ] })];
+
+  // array without element.
+  FSTDocument *doc = FSTTestDoc(
+      "collection/1", 0,
+      @{ @"array" : @[
+        @{ @"a" : @42 },
+        @{ @"a" : @[ @42, @43 ] },
+        @{ @"b" : @[ @42 ] }
+      ] },
+      NO);
+  XCTAssertFalse([query matchesDocument:doc]);
+
+  // array with element.
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[ @1, @"2", @42, @{ @"a" : @[ @42 ] } ] }, NO);
+  XCTAssertTrue([query matchesDocument:doc]);
+}
+
 - (void)testNullFilter {
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];

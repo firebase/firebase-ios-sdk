@@ -21,7 +21,6 @@
 #include <cstdlib>
 #include <vector>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"

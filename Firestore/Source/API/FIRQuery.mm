@@ -238,6 +238,17 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                  value:value];
 }
 
+- (FIRQuery *)queryWhereField:(NSString *)field arrayContains:(id)value {
+  return
+      [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains field:field value:value];
+}
+
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path arrayContains:(id)value {
+  return [self queryWithFilterOperator:FSTRelationFilterOperatorArrayContains
+                                  path:path.internalValue
+                                 value:value];
+}
+
 - (FIRQuery *)queryWhereField:(NSString *)field isGreaterThanOrEqualTo:(id)value {
   return [self queryWithFilterOperator:FSTRelationFilterOperatorGreaterThanOrEqual
                                  field:field
@@ -443,6 +454,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
                                 value:(id)value {
   FSTFieldValue *fieldValue;
   if (fieldPath.IsKeyFieldPath()) {
+    if (filterOperator == FSTRelationFilterOperatorArrayContains) {
+      FSTThrowInvalidArgument(
+          @"Invalid query. You can't do arrayContains queries on document ID since document IDs "
+          @"are not arrays.");
+    }
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
       if ([documentKey containsString:@"/"]) {
