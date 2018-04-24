@@ -29,6 +29,7 @@
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthWebUtils.h"
 #import "FirebaseAuthVersion.h"
 #import <FirebaseCore/FIROptions.h>
 #import "FIRGetProjectConfigRequest.h"
@@ -235,22 +236,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
   return NO;
 }
 
-/** @fn queryItemValue:from:
- @brief Utility function to get a value from a NSURLQueryItem array.
- @param name The key.
- @param queryList The NSURLQueryItem array.
- @return The value for the key.
- */
-
-+ (NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList {
-  for (NSURLQueryItem *item in queryList) {
-    if ([item.name isEqualToString:name]) {
-      return item.value;
-    }
-  }
-  return nil;
-}
-
 /** @fn reCAPTCHATokenForURL:error:
     @brief Parses the reCAPTCHA URL and returns.
     @param URL The url to be parsed for a reCAPTCHA token.
@@ -260,16 +245,16 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 - (NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **)error {
   NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
   NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
-  NSString *deepLinkURL = [FIRPhoneAuthProvider queryItemValue:@"deep_link_id" from:queryItems];
+  NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
   NSData *errorData;
   if (deepLinkURL) {
     actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
     queryItems = [actualURLComponents queryItems];
-    NSString *recaptchaToken = [FIRPhoneAuthProvider queryItemValue:@"recaptchaToken" from:queryItems];
+    NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
     if (recaptchaToken) {
       return recaptchaToken;
     }
-    NSString *firebaseError = [FIRPhoneAuthProvider queryItemValue:@"firebaseError" from:queryItems];
+    NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
     errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
   } else {
     errorData = nil;
@@ -321,15 +306,15 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
   }
   actualURLComponents = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
   NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
-  NSString *deepLinkURL = [FIRPhoneAuthProvider queryItemValue:@"deep_link_id" from:queryItems];
+  NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
   if (deepLinkURL == nil) {
     return NO;
   }
   NSURLComponents *deepLinkURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
   NSArray<NSURLQueryItem *> *deepLinkQueryItems = [deepLinkURLComponents queryItems];
 
-  NSString *deepLinkAuthType = [FIRPhoneAuthProvider queryItemValue:@"authType" from:deepLinkQueryItems];
-  NSString *deepLinkEventID = [FIRPhoneAuthProvider queryItemValue:@"eventId" from:deepLinkQueryItems];
+  NSString *deepLinkAuthType = [FIRAuthWebUtils queryItemValue:@"authType" from:deepLinkQueryItems];
+  NSString *deepLinkEventID = [FIRAuthWebUtils queryItemValue:@"eventId" from:deepLinkQueryItems];
   if ([deepLinkAuthType isEqualToString:kAuthTypeVerifyApp] &&
       [deepLinkEventID isEqualToString:eventID]) {
     return YES;
