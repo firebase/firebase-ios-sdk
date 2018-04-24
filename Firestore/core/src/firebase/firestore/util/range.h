@@ -40,14 +40,14 @@ class range {
    * implementations where the end pointer is a null pointer or some other
    * default value, this ends up constructing the empty range.
    */
-  range() : begin_(), end_() {
+  range() : begin_{}, end_{} {
   }
 
   /**
-   * Creates a range starting from begin up to, but not including end.
+   * Creates a half-open range starting from begin up to, but not including end.
    */
   range(iterator&& begin, iterator&& end)
-      : begin_(std::move(begin)), end_(std::move(end)) {
+      : begin_{std::move(begin)}, end_{std::move(end)} {
   }
 
   iterator begin() const {
@@ -68,7 +68,7 @@ class range {
  */
 template <typename Iterator>
 range<Iterator> make_range(Iterator begin, Iterator end) {
-  return range<Iterator>(std::move(begin), std::move(end));
+  return range<Iterator>{std::move(begin), std::move(end)};
 }
 
 }  // namespace util

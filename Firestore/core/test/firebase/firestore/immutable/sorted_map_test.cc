@@ -302,7 +302,7 @@ TYPED_TEST(SortedMapTest, KeysIn) {
   TypeParam map = ToMap<TypeParam>(Shuffled(all));
   ASSERT_EQ(20u, map.size());
 
-  // Constructs a sequnce from `start` up to but not including `end` by 2.
+  // Constructs a sequence from `start` up to but not including `end` by 2.
   auto Seq = [](int start, int end) { return Sequence(start, end, 2); };
 
   ASSERT_SEQ_EQ(Empty(), map.keys_in(0, 1));   // before to before

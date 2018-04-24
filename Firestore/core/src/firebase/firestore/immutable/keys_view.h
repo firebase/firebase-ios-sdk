@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_KEYS_VIEW_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_KEYS_VIEW_H_
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
 #include "Firestore/core/src/firebase/firestore/util/range.h"
 
@@ -26,54 +28,54 @@ namespace immutable {
 namespace impl {
 
 template <typename Iterator>
-util::range<util::iterator_first<Iterator>> MakeKeysRange(Iterator begin,
-                                                          Iterator end) {
+using KeysRange = util::range<util::iterator_first<Iterator>>;
+
+template <typename Iterator>
+KeysRange<Iterator> MakeKeysRange(Iterator begin, Iterator end) {
   auto keys_begin = util::make_iterator_first(begin);
   auto keys_end = util::make_iterator_first(end);
   return util::make_range(keys_begin, keys_end);
 }
 
 /**
- * Returns of a view of the given range containing just the first part that have
- * been inserted.
+ * Returns a view of the keys of the given key-value range.
  */
 template <typename Range>
-auto KeysView(const Range& range)
-    -> util::range<util::iterator_first<decltype(std::begin(range))>> {
-  auto begin = std::begin(range);
-  auto end = std::end(range);
-  return MakeKeysRange(begin, end);
+auto KeysView(const Range& range) -> KeysRange<decltype(std::begin(range))> {
+  return MakeKeysRange(std::begin(range), std::end(range));
 }
 
 template <typename Range, typename K>
 auto KeysViewFrom(const Range& range, const K& key)
-    -> util::range<util::iterator_first<decltype(range.lower_bound(key))>> {
+    -> KeysRange<decltype(range.lower_bound(key))> {
   auto keys_begin = util::make_iterator_first(range.lower_bound(key));
   auto keys_end = util::make_iterator_first(std::end(range));
   return util::make_range(keys_begin, keys_end);
 }
 
+/**
+ * Returns a view of keys of the given key-value range that are greater than or
+ * equal to the given start_key and less than the given end_key.
+ *
+ * If `end_key` is less than or equal to `start_key`, creates empty range.
+ */
 template <typename Range, typename K, typename C>
 auto KeysViewIn(const Range& range,
                 const K& start_key,
                 const K& end_key,
                 const C& comparator)
-    -> util::range<
-        util::iterator_first<decltype(range.lower_bound(start_key))>> {
+    -> KeysRange<decltype(range.lower_bound(start_key))> {
   // Forward iterators can't ever reach the end if the end is behind the start:
   // they just keep incrementing until address space runs out. Adjust the range
   // accordingly.
-
-  bool descending = comparator(start_key, end_key);
-  if (descending) {
-    auto range_begin = range.lower_bound(start_key);
-    auto range_end = range.lower_bound(end_key);
-    return MakeKeysRange(range_begin, range_end);
-  } else {
-    auto range_begin = std::end(range);
-    auto range_end = std::end(range);
-    return MakeKeysRange(range_begin, range_end);
+  bool empty_range = !comparator(start_key, end_key);
+  if (empty_range) {
+    return MakeKeysRange(std::end(range), std::end(range));
   }
+
+  auto range_begin = range.lower_bound(start_key);
+  auto range_end = range.lower_bound(end_key);
+  return MakeKeysRange(std::move(range_begin), std::move(range_end));
 }
 
 }  // namespace impl

@@ -204,7 +204,7 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
   }
 
   /**
-   * Returns of a view of this SortedMap containing just the keys that have been
+   * Returns a view of this SortedMap containing just the keys that have been
    * inserted.
    */
   const util::range<const_key_iterator> keys() const {
@@ -212,7 +212,7 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
   }
 
   /**
-   * Returns of a view of this SortedMap containing just the keys that have been
+   * Returns a view of this SortedMap containing just the keys that have been
    * inserted that are greater than or equal to the given key.
    */
   const util::range<const_key_iterator> keys_from(const K& key) const {
@@ -220,8 +220,9 @@ class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
   }
 
   /**
-   * Returns of a view of this SortedMap containing just the keys that have been
-   * inserted that are greater than or equal to the given key.
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given start_key and less
+   * than the given end_key.
    */
   const util::range<const_key_iterator> keys_in(const K& start_key,
                                                 const K& end_key) const {
