@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
@@ -45,6 +46,8 @@ class SortedMap : public impl::SortedMapBase {
       value_type,
       typename impl::FixedArray<value_type>::const_iterator,
       typename impl::LlrbNode<K, V>::const_iterator>;
+
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   /**
    * Creates an empty SortedMap.
@@ -173,8 +176,7 @@ class SortedMap : public impl::SortedMapBase {
           // exactly where this cut-off happens and just unconditionally
           // converting if the next insertion could overflow keeps things
           // simpler.
-          const C& comparator = array_.comparator().comparator();
-          tree_type tree = tree_type::Create(array_, comparator);
+          tree_type tree = tree_type::Create(array_, comparator());
           return SortedMap{tree.insert(key, value)};
         } else {
           return SortedMap{array_.insert(key, value)};
@@ -249,6 +251,25 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.lower_bound(key));
+      case Tag::Tree:
+        return const_iterator{tree_.lower_bound(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
   const_iterator min() const {
     switch (tag_) {
       case Tag::Array:
@@ -296,6 +317,32 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return impl::KeysView(*this);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return impl::KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given start_key and less
+   * than the given end_key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, comparator());
+  }
+
  private:
   explicit SortedMap(array_type&& array)
       : tag_{Tag::Array}, array_{std::move(array)} {
@@ -303,6 +350,16 @@ class SortedMap : public impl::SortedMapBase {
 
   explicit SortedMap(tree_type&& tree)
       : tag_{Tag::Tree}, tree_{std::move(tree)} {
+  }
+
+  const C& comparator() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.comparator();
+      case Tag::Tree:
+        return tree_.comparator();
+    }
+    FIREBASE_UNREACHABLE();
   }
 
   enum class Tag {
