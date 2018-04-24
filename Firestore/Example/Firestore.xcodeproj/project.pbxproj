@@ -160,6 +160,7 @@
 		B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */; };
 		B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
 		B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
+		B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB467B208E9A8200554BA2 /* async_queue_test.cc */; };
 		B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4688208F9B9100554BA2 /* executor_test.cc */; };
 		C4E749275AD0FBDF9F4716A8 /* Pods_SwiftBuildTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32AD40BF6B0E849B07FFD05E /* Pods_SwiftBuildTest.framework */; };
 		CF08376B68945A0BB332D0C8 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B4EEE10E8E59CC91309335CA /* Pods_Firestore_IntegrationTests_iOS.framework */; };
@@ -402,6 +403,8 @@
 		B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTimestampTest.m; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
+		B6FB467A208E9A8200554BA2 /* async_queue_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = async_queue_test.h; path = ../../core/test/firebase/firestore/util/async_queue_test.h; sourceTree = "<group>"; };
+		B6FB467B208E9A8200554BA2 /* async_queue_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = async_queue_test.cc; path = ../../core/test/firebase/firestore/util/async_queue_test.cc; sourceTree = "<group>"; };
 		B6FB4686208F9B9100554BA2 /* async_tests_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = async_tests_util.h; path = ../../core/test/firebase/firestore/util/async_tests_util.h; sourceTree = "<group>"; };
 		B6FB4688208F9B9100554BA2 /* executor_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = executor_test.cc; path = ../../core/test/firebase/firestore/util/executor_test.cc; sourceTree = "<group>"; };
 		B6FB468A208F9B9100554BA2 /* executor_test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = executor_test.h; path = ../../core/test/firebase/firestore/util/executor_test.h; sourceTree = "<group>"; };
@@ -500,6 +503,8 @@
 				B6FB4686208F9B9100554BA2 /* async_tests_util.h */,
 				B6FB4688208F9B9100554BA2 /* executor_test.cc */,
 				B6FB468A208F9B9100554BA2 /* executor_test.h */,
+				B6FB467B208E9A8200554BA2 /* async_queue_test.cc */,
+				B6FB467A208E9A8200554BA2 /* async_queue_test.h */,
 				548DB926200D590300E00ABC /* assert_test.cc */,
 				54740A521FC913E500713A1A /* autoid_test.cc */,
 				AB380D01201BC69F00D97691 /* bits_test.cc */,
@@ -946,7 +951,7 @@
 				54C9EDEE2040E16300A969CD /* Frameworks */,
 				54C9EDEF2040E16300A969CD /* Resources */,
 				9E2D564AC55ADE2D52B7E951 /* [CP] Embed Pods Frameworks */,
-				7FA5D2D9507C7E1ECBBC1BE1 /* [CP] Copy Pods Resources */,
+				280C8C254FB46725620FE814 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -967,7 +972,7 @@
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
 				7C5123A9C345ECE100DA21BD /* [CP] Embed Pods Frameworks */,
-				607DA03F91DC6421EFC6D650 /* [CP] Copy Pods Resources */,
+				6843049D01BEDFA4B1083312 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -987,7 +992,7 @@
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
 				BB3FE78ABF533BFC38839A0E /* [CP] Embed Pods Frameworks */,
-				45C8CBD12304E066CAA38488 /* [CP] Copy Pods Resources */,
+				EA50835483B1F78FA6E58DEB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1008,7 +1013,7 @@
 				DE03B2D31F2149D600A30B9C /* Frameworks */,
 				DE03B2D81F2149D600A30B9C /* Resources */,
 				DE03B2E41F2149D600A30B9C /* [CP] Embed Pods Frameworks */,
-				00E728CA0837677506FFA523 /* [CP] Copy Pods Resources */,
+				0E84875DCC8B738B9EDC46D6 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1029,7 +1034,7 @@
 				DE0761E11F2FE611003233AF /* Frameworks */,
 				DE0761E21F2FE611003233AF /* Resources */,
 				125BDFEB177CFD41D7A40928 /* [CP] Embed Pods Frameworks */,
-				05347F1AD941979478AEBD16 /* [CP] Copy Pods Resources */,
+				C84BA8E1E534869BF0D1337A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1154,7 +1159,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		00E728CA0837677506FFA523 /* [CP] Copy Pods Resources */ = {
+		0E84875DCC8B738B9EDC46D6 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1167,21 +1172,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		05347F1AD941979478AEBD16 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		125BDFEB177CFD41D7A40928 /* [CP] Embed Pods Frameworks */ = {
@@ -1220,7 +1210,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		45C8CBD12304E066CAA38488 /* [CP] Copy Pods Resources */ = {
+		280C8C254FB46725620FE814 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1232,10 +1222,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		607DA03F91DC6421EFC6D650 /* [CP] Copy Pods Resources */ = {
+		6843049D01BEDFA4B1083312 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1302,21 +1292,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		7FA5D2D9507C7E1ECBBC1BE1 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8D94B6319191CD7344A4D1B9 /* [CP] Check Pods Manifest.lock */ = {
@@ -1413,6 +1388,21 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C84BA8E1E534869BF0D1337A /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-SwiftBuildTest/Pods-SwiftBuildTest-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		DE03B2971F2149D600A30B9C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1447,6 +1437,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_IntegrationTests_iOS/Pods-Firestore_IntegrationTests_iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EA50835483B1F78FA6E58DEB /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FAB3416C6DD87D45081EC3E8 /* [CP] Check Pods Manifest.lock */ = {
@@ -1554,6 +1559,7 @@
 				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
 				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
 				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
+				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
 				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,

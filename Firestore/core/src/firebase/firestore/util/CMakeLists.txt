@@ -108,6 +108,23 @@ else()
 
 endif()
 
+## async queue
+
+set(
+  FIREBASE_FIRESTORE_UTIL_EXECUTOR
+)
+
+cc_library(
+  firebase_firestore_util_async_queue
+  SOURCES
+    async_queue.cc
+    async_queue.h
+  DEPENDS
+    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
+
 ## main library
 
 configure_file(
@@ -141,6 +158,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_base
+    firebase_firestore_util_async_queue
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
