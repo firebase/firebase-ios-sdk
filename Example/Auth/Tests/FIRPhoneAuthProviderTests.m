@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
@@ -362,6 +361,22 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockAppCredentialManager);
 }
 
+/** @fn queryItemValue:from:
+ @brief Utility function to get a value from a NSURLQueryItem array.
+ @param name The key.
+ @param queryList The NSURLQueryItem array.
+ @return The value for the key.
+ */
+
++ (NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList {
+  for (NSURLQueryItem *item in queryList) {
+    if ([item.name isEqualToString:name]) {
+      return item.value;
+    }
+  }
+  return nil;
+}
+
 /** @fn testVerifyPhoneNumberUIDelegate
     @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
  */
@@ -409,12 +424,19 @@ static const NSTimeInterval kExpectationTimeout = 2;
     XCTAssertEqualObjects(presentURL.scheme, @"https");
     XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
     XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
-    NSDictionary *params = [NSDictionary gtm_dictionaryWithHttpArgumentsString:presentURL.query];
-    XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
-    XCTAssertEqualObjects(params[@"clientId"], kFakeClientID);
-    XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
-    XCTAssertEqualObjects(params[@"authType"], @"verifyApp");
-    XCTAssertNotNil(params[@"v"]);
+
+    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:presentURL
+                                                      resolvingAgainstBaseURL:NO];
+    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+    XCTAssertEqualObjects([FIRPhoneAuthProviderTests queryItemValue:@"ibi" from:queryItems],
+                          kFakeBundleID);
+    XCTAssertEqualObjects([FIRPhoneAuthProviderTests queryItemValue:@"clientId" from:queryItems],
+                          kFakeClientID);
+    XCTAssertEqualObjects([FIRPhoneAuthProviderTests queryItemValue:@"apiKey" from:queryItems],
+                          kFakeAPIKey);
+    XCTAssertEqualObjects([FIRPhoneAuthProviderTests queryItemValue:@"authType" from:queryItems],
+                          @"verifyApp");
+    XCTAssertNotNil([FIRPhoneAuthProviderTests queryItemValue:@"v" from:queryItems]);
     // `callbackMatcher` is at index 4
     [invocation getArgument:&unretainedArgument atIndex:4];
     FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
@@ -423,7 +445,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     // Verify that the URL is rejected by the callback matcher without the event ID.
     XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
     [redirectURL appendString:@"%26eventId%3D"];
-    [redirectURL appendString:params[@"eventId"]];
+    [redirectURL appendString:[FIRPhoneAuthProviderTests queryItemValue:@"eventId"
+                                                                   from:queryItems]];
     NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
     // Verify that the URL is accepted by the callback matcher with the matching event ID.
     XCTAssertTrue(callbackMatcher([originalComponents URL]));
