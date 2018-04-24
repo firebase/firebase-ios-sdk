@@ -183,7 +183,7 @@ using firebase::firestore::model::SnapshotVersion;
 
   FSTTargetID targetID = target.targetId;
   FSTListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
-  SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
+  const SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 
   FSTQuery *query;

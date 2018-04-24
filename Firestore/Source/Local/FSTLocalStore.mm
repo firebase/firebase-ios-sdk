@@ -330,7 +330,7 @@ NS_ASSUME_NONNULL_BEGIN
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
-    const SnapshotVersion lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
+    const SnapshotVersion& lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
     const SnapshotVersion remoteVersion = remoteEvent.snapshotVersion;
     if (remoteVersion != SnapshotVersion::None()) {
       FSTAssert(remoteVersion >= lastRemoteVersion,
