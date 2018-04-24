@@ -35,7 +35,7 @@ absl::string_view StringViewFromDispatchLabel(const char* const label) {
 // Since libdispatch doesn't provide a way to cancel a scheduled operation, once
 // a slot is created, it will always stay in the schedule until the time is
 // past. Consequently, it is more useful to think of a time slot than
-// a particular scheduled operation -- by the time the slot comes, operation may 
+// a particular scheduled operation -- by the time the slot comes, operation may
 // or may not be there (imagine getting to a meeting and finding out it's been
 // canceled).
 //
@@ -79,8 +79,8 @@ class TimeSlot {
   void Execute();
   void RemoveFromSchedule();
 
-  using TimePoint =
-      std::chrono::time_point<std::chrono::system_clock, Executor::Milliseconds>;
+  using TimePoint = std::chrono::time_point<std::chrono::system_clock,
+                                            Executor::Milliseconds>;
 
   ExecutorLibdispatch* const executor_;
   const TimePoint target_time_;  // Used for sorting

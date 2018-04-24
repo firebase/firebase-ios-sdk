@@ -181,6 +181,6 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
+}  // namespace util
 }  // namespace firestore
-}  // namespace firebase
 }  // namespace firebase

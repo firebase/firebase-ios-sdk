@@ -42,4 +42,3 @@ INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
-

@@ -27,7 +27,6 @@ namespace util {
 INSTANTIATE_TEST_CASE_P(AsyncQueueStd,
                         AsyncQueueTest,
                         ::testing::Values(new internal::ExecutorStd{}));
-
 }
 }  // namespace firestore
 }  // namespace firebase
