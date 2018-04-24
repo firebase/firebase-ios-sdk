@@ -415,7 +415,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
     NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
     XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"ibi" from:queryItems],
                           kFakeBundleID);
-    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"clientId" from:queryItems], 
+    XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"clientId" from:queryItems],
                           kFakeClientID);
     XCTAssertEqualObjects([FIRAuthWebUtils queryItemValue:@"apiKey" from:queryItems],
                           kFakeAPIKey);
