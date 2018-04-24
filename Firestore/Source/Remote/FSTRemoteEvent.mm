@@ -423,7 +423,8 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {
   FSTTargetChange *change = self.targetChanges[targetID];
   if (!change) {
-    self.targetChanges[targetID] = [FSTTargetChange changeWithSnapshotVersion:_snapshotVersion];
+    change = [FSTTargetChange changeWithSnapshotVersion:_snapshotVersion];
+    self.targetChanges[targetID] = change;
   }
   return change;
 }
