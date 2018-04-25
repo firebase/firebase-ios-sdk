@@ -237,6 +237,7 @@
   }
 }
 
+#if TARGET_OS_IOS || TARGET_OS_TV
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
   [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
                                messageCode:kFIRNetworkMessageCodeURLSession003
@@ -244,6 +245,7 @@
                                    context:session.configuration.identifier];
   [self callSystemCompletionHandler:session.configuration.identifier];
 }
+#endif
 
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
