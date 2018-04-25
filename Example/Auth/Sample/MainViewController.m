@@ -143,7 +143,7 @@ static NSString *const kSignInEmailPasswordButtonText = @"Sign in with Email/Pas
     @brief The text of the "Email/Password SignIn (AuthDataResult)" button.
  */
 static NSString *const kSignInEmailPasswordAuthDataResultButtonText =
-    @"Sign in with Email/Password (AuthDataReult)";
+    @"Sign in with Email/Password (Deprecated)";
 
 /** @var kSignInWithCustomTokenButtonText
     @brief The text of the "Sign In (BYOAuth)" button.
@@ -154,7 +154,7 @@ static NSString *const kSignInWithCustomTokenButtonText = @"Sign In (BYOAuth)";
     @brief The text of the "Sign In with Custom Token (Auth Result)" button.
  */
 static NSString *const kSignInWithCustomAuthResultTokenButtonText = @"Sign In with Custom Token"
-    " (Auth Result)";
+    " (Deprecated)";
 
 /** @var kSignInAnonymouslyButtonText
     @brief The text of the "Sign In Anonymously" button.
@@ -165,7 +165,7 @@ static NSString *const kSignInAnonymouslyButtonText = @"Sign In Anonymously";
     @brief The text of the "Sign In Anonymously (AuthDataResult)" button.
  */
 static NSString *const kSignInAnonymouslyWithAuthResultButtonText =
-    @"Sign In Anonymously (AuthDataResult)";
+    @"Sign In Anonymously (Deprecated)";
 
 /** @var kSignedInAlertTitle
     @brief The text of the "Sign In Succeeded" alert.
@@ -1226,11 +1226,13 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return;
   }
   [auth signOut:NULL];
-  [self signInAnonymouslyWithCallback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-    if (user) {
-      NSString *anonymousUID = user.uid;
-      [self signInAnonymouslyWithCallback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-        if (![user.uid isEqual:anonymousUID]) {
+  [self signInAnonymouslyWithCallback:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
+    if (result.user) {
+      NSString *anonymousUID = result.user.uid;
+      [self signInAnonymouslyWithCallback:^(FIRAuthDataResult *_Nullable user,
+                                            NSError *_Nullable error) {
+        if (![result.user.uid isEqual:anonymousUID]) {
           [self logFailedTest:@"Consecutive anonymous sign-ins should yeild the same User ID"];
           return;
         }
@@ -1244,13 +1246,13 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Performs anonymous sign in and then executes callback.
     @param callback The callback to be executed.
  */
-- (void)signInAnonymouslyWithCallback:(nullable FIRAuthResultCallback)callback {
+- (void)signInAnonymouslyWithCallback:(nullable FIRAuthDataResultCallback)callback {
   FIRAuth *auth = [AppManager auth];
   if (!auth) {
     [self logFailedTest:@"Could not obtain auth object."];
     return;
   }
-  [auth signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
+  [auth signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
                                           NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in anonymously failed" error:error];
@@ -1259,7 +1261,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }
     [self logSuccess:@"sign-in anonymously succeeded."];
     if (callback) {
-      callback(user, nil);
+      callback(result, nil);
     }
   }];
 }
@@ -1275,9 +1277,10 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     return;
   }
   [auth signOut:NULL];
-  [self signInAnonymouslyWithCallback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
-    if (user) {
-      NSString *anonymousUID = user.uid;
+  [self signInAnonymouslyWithCallback:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
+    if (result.user) {
+      NSString *anonymousUID = result.user.uid;
       [self showMessagePromptWithTitle:@"Sign In Instructions"
                                message:kUnlinkAccountMessagePrompt
                       showCancelButton:NO
@@ -1287,7 +1290,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                  callback:^(FIRAuthCredential *credential,
                                                             NSError *error) {
           if (credential) {
-            [user linkWithCredential:credential completion:^(FIRUser *user, NSError *error) {
+            [result.user linkWithCredential:credential completion:^(FIRUser *user,
+                                                             NSError *error) {
               if (error) {
                 [self logFailure:@"link auth provider failed" error:error];
                 [self logFailedTest:@"Account needs to be linked to complete the test."];
@@ -1346,7 +1350,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       }
       FIRAuth *auth = [AppManager auth];
       [auth signInWithCustomToken:customToken
-                       completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with custom token failed" error:error];
           [self logFailedTest:@"A fresh custom token should succeed in signing-in."];
@@ -1364,7 +1368,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           [self logSuccess:@"refresh token succeeded."];
           [auth signOut:NULL];
           [auth signInWithCustomToken:expiredCustomToken
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
             if (!error) {
               [self logSuccess:@"sign-in with custom token succeeded."];
               [self logFailedTest:@"sign-in with an expired custom token should NOT succeed."];
@@ -1372,7 +1377,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
             }
             [self logFailure:@"sign-in with custom token failed" error:error];
             [auth signInWithCustomToken:kInvalidCustomToken
-                             completion:^(FIRUser *_Nullable user,
+                             completion:^(FIRAuthDataResult *_Nullable result,
                                           NSError *_Nullable error) {
               if (!error) {
                 [self logSuccess:@"sign-in with custom token succeeded."];
@@ -1405,7 +1410,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         return;
       }
       [[AppManager auth] signInWithCustomToken:customToken
-                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                    completion:^(FIRAuthDataResult *_Nullable user,
+                                                 NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with custom token failed" error:error];
           [self logFailedTest:@"A fresh custom token should succeed in signing-in."];
@@ -1435,7 +1441,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         return;
       }
       [[AppManager auth] signInWithCustomToken:customToken
-                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                    completion:^(FIRAuthDataResult *_Nullable result,
+                                                 NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with custom token failed" error:error];
           [self logFailedTest:@"A fresh custom token should succeed in signing-in."];
@@ -1683,7 +1690,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Invoked when "Sign in with Google" row is pressed.
  */
 - (void)signInGoogle {
-  [self signinWithProvider:[AuthProviders google] retrieveData:NO];
+  [self signinWithProvider:[AuthProviders google] retrieveData:YES];
 }
 
 /** @fn signInGoogleAndRetrieveData
@@ -1697,7 +1704,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Invoked when "Sign in with Facebook" row is pressed.
  */
 - (void)signInFacebook {
-  [self signinWithProvider:[AuthProviders facebook] retrieveData:NO];
+  [self signinWithProvider:[AuthProviders facebook] retrieveData:YES];
 }
 
 /** @fn signInFacebookAndRetrieveData
@@ -3149,12 +3156,13 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     @brief Signs in as an anonymous user.
  */
 - (void)signInAnonymously {
-  [[AppManager auth] signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user,
+  [[AppManager auth] signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
                                                        NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in anonymously failed" error:error];
     } else {
       [self logSuccess:@"sign-in anonymously succeeded."];
+      [self log:[NSString stringWithFormat:@"User ID : %@", result.user.uid]];
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:kSignInAnonymouslyButtonText error:error];
   }];
@@ -3190,8 +3198,9 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     FIRAuthCredential *credential =
         [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
     if (credential) {
-        [[AppManager auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
-                                                                        NSError *_Nullable error) {
+        [[AppManager auth] signInWithCredential:credential
+                                     completion:^(FIRUser *_Nullable result,
+                                                  NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"sign-in with provider failed" error:error];
           } else {
@@ -3338,7 +3347,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 
 - (void)doSignInWithCustomToken:(NSString *_Nullable)userEnteredTokenText {
   [[AppManager auth] signInWithCustomToken:userEnteredTokenText
-                                completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                completion:^(FIRAuthDataResult *_Nullable result,
+                                             NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-in with custom token failed" error:error];
       [self showMessagePromptWithTitle:kSignInErrorAlertTitle
@@ -3349,7 +3359,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     }
     [self logSuccess:@"sign-in with custom token succeeded."];
     [self showMessagePromptWithTitle:kSignedInAlertTitle
-                             message:user.displayName
+                             message:result.user.displayName
                     showCancelButton:NO
                           completion:nil];
   }];
