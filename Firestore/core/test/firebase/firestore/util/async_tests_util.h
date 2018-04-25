@@ -38,7 +38,7 @@ constexpr auto kTimeout = std::chrono::seconds(5);
 
 // Waits for the future to become ready and returns whether it timed out.
 inline bool Await(const std::future<void>& future,
-                          const std::chrono::milliseconds timeout = kTimeout) {
+                  const std::chrono::milliseconds timeout = kTimeout) {
   return future.wait_for(timeout) == std::future_status::ready;
 }
 

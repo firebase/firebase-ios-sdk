@@ -58,7 +58,7 @@ void ExecutorStd::Execute(Operation&& operation) {
 }
 
 DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
-                                                TaggedOperation&& tagged) {
+                                       TaggedOperation&& tagged) {
   // While negative delay can be interpreted as a request for immediate
   // execution, supporting it would provide a hacky way to modify FIFO ordering
   // of immediate operations.

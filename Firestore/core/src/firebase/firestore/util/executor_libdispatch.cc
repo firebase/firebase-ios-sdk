@@ -172,8 +172,8 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
   DispatchSync(dispatch_queue(), std::move(operation));
 }
 
-DelayedOperation ExecutorLibdispatch::Schedule(
-    const Milliseconds delay, TaggedOperation&& operation) {
+DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
+                                               TaggedOperation&& operation) {
   namespace chr = std::chrono;
   const dispatch_time_t delay_ns = dispatch_time(
       DISPATCH_TIME_NOW, chr::duration_cast<chr::nanoseconds>(delay).count());
