@@ -19,12 +19,12 @@
 #include <map>
 #include <utility>
 
+#import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTLogger.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
@@ -262,7 +262,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)
 initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
           targetChanges:(NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges
-        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates;
+        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
+         limboDocuments:(FSTDocumentKeySet *)limboDocuments;
 
 @end
 
@@ -274,12 +275,14 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 - (instancetype)initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
                           targetChanges:
                               (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-                        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates {
+                        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
+                         limboDocuments:(FSTDocumentKeySet *)limboDocuments {
   self = [super init];
   if (self) {
     _snapshotVersion = std::move(snapshotVersion);
     _targetChanges = targetChanges;
     _documentUpdates = std::move(documentUpdates);
+    _limboDocumentChanges = limboDocuments;
   }
   return self;
 }
@@ -322,11 +325,12 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
     // explicit delete message and we could remove this special logic.
     _documentUpdates[key] = [FSTDeletedDocument documentWithKey:key version:_snapshotVersion];
+    _limboDocumentChanges = [_limboDocumentChanges setByAddingObject:key];
   }
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges {
-  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *>(_targetChanges);
+  return _targetChanges;
 }
 
 - (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
@@ -385,6 +389,8 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   NSMutableDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *_existenceFilters;
   /** Keeps track of document to update */
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
+
+  FSTDocumentKeySet *_limboDocuments;
   /** The snapshot version for every target change this creates. */
   SnapshotVersion _snapshotVersion;
 }
@@ -401,14 +407,14 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     _targetChanges = [NSMutableDictionary dictionary];
     _listenTargets = listenTargets;
     _pendingTargetResponses = [NSMutableDictionary dictionaryWithDictionary:pendingTargetResponses];
-
+    _limboDocuments = [FSTDocumentKeySet keySet];
     _existenceFilters = [NSMutableDictionary dictionary];
   }
   return self;
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *)existenceFilters {
-  return static_cast<NSDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *>(_existenceFilters);
+  return _existenceFilters;
 }
 
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {
@@ -440,20 +446,66 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   }
 }
 
+/**
+ * Updates limbo document tracking for a given target-document mapping change. If the target is a
+ * limbo target, and the change for the document has only seen limbo targets so far, and we are not
+ * already tracking a change for this document, then consider this document a limbo document update.
+ * Otherwise, ensure that we don't consider this document a limbo document. Returns true if the
+ * change still has only seen limbo resolution changes.
+ */
+- (BOOL)updateLimboDocumentsForKey:(const DocumentKey &)documentKey
+                         queryData:(FSTQueryData *)queryData
+                       isOnlyLimbo:(BOOL)isOnlyLimbo {
+  if (!isOnlyLimbo) {
+    // It wasn't a limbo doc before, so it definitely isn't now.
+    return NO;
+  }
+  if (_documentUpdates.find(documentKey) == _documentUpdates.end()) {
+    // We haven't seen a document update for this key yet.
+    if (queryData.purpose == FSTQueryPurposeLimboResolution) {
+      // We haven't seen this document before, and this target is a limbo target.
+      _limboDocuments = [_limboDocuments setByAddingObject:documentKey];
+      return YES;
+    } else {
+      // We haven't seen the document before, but this is a non-limbo target.
+      // Since we haven't seen it, we know it's not in our set of limbo docs. Return NO to ensure
+      // that this key is marked as non-limbo.
+      return NO;
+    }
+  } else if (queryData.purpose == FSTQueryPurposeLimboResolution) {
+    // We have only seen limbo targets so far for this document, and this is another limbo target.
+    return YES;
+  } else {
+    // We haven't marked this as non-limbo yet, but this target is not a limbo target.
+    // Mark the key as non-limbo and make sure it isn't in our set.
+    _limboDocuments = [_limboDocuments setByRemovingObject:documentKey];
+    return NO;
+  }
+}
+
 - (void)addDocumentChange:(FSTDocumentWatchChange *)docChange {
   BOOL relevant = NO;
+  BOOL isOnlyLimbo = YES;
 
   for (FSTBoxedTargetID *targetID in docChange.updatedTargetIDs) {
-    if ([self isActiveTarget:targetID]) {
+    FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
+    if (queryData) {
       FSTTargetChange *change = [self targetChangeForTargetID:targetID];
+      isOnlyLimbo = [self updateLimboDocumentsForKey:docChange.documentKey
+                                           queryData:queryData
+                                         isOnlyLimbo:isOnlyLimbo];
       [change.mapping addDocumentKey:docChange.documentKey];
       relevant = YES;
     }
   }
 
   for (FSTBoxedTargetID *targetID in docChange.removedTargetIDs) {
-    if ([self isActiveTarget:targetID]) {
+    FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
+    if (queryData) {
       FSTTargetChange *change = [self targetChangeForTargetID:targetID];
+      isOnlyLimbo = [self updateLimboDocumentsForKey:docChange.documentKey
+                                           queryData:queryData
+                                         isOnlyLimbo:isOnlyLimbo];
       [change.mapping removeDocumentKey:docChange.documentKey];
       relevant = YES;
     }
@@ -478,7 +530,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
         break;
       case FSTWatchTargetChangeStateAdded:
         [self recordResponseForTargetID:targetID];
-        if (![self.pendingTargetResponses objectForKey:targetID]) {
+        if (!self.pendingTargetResponses[targetID]) {
           // We have a freshly added target, so we need to reset any state that we had previously
           // This can happen e.g. when remove and add back a target for existence filter
           // mismatches.
@@ -519,12 +571,12 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
  * responses that we have.
  */
 - (void)recordResponseForTargetID:(FSTBoxedTargetID *)targetID {
-  NSNumber *count = [self.pendingTargetResponses objectForKey:targetID];
+  NSNumber *count = self.pendingTargetResponses[targetID];
   int newCount = count ? [count intValue] - 1 : -1;
   if (newCount == 0) {
     [self.pendingTargetResponses removeObjectForKey:targetID];
   } else {
-    [self.pendingTargetResponses setObject:[NSNumber numberWithInt:newCount] forKey:targetID];
+    self.pendingTargetResponses[targetID] = @(newCount);
   }
 }
 
@@ -537,8 +589,12 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
  * yet acknowledged the intended change in state.
  */
 - (BOOL)isActiveTarget:(FSTBoxedTargetID *)targetID {
-  return [self.listenTargets objectForKey:targetID] &&
-         ![self.pendingTargetResponses objectForKey:targetID];
+  return [self queryDataForActiveTarget:targetID] != nil;
+}
+
+- (FSTQueryData *_Nullable)queryDataForActiveTarget:(FSTBoxedTargetID *)targetID {
+  FSTQueryData *queryData = self.listenTargets[targetID];
+  return (queryData && !self.pendingTargetResponses[targetID]) ? queryData : nil;
 }
 
 - (void)addExistenceFilterChange:(FSTExistenceFilterWatchChange *)existenceFilterChange {
@@ -566,7 +622,8 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   self.frozen = YES;
   return [[FSTRemoteEvent alloc] initWithSnapshotVersion:_snapshotVersion
                                            targetChanges:targetChanges
-                                         documentUpdates:_documentUpdates];
+                                         documentUpdates:_documentUpdates
+                                          limboDocuments:_limboDocuments];
 }
 
 @end
