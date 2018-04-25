@@ -42,6 +42,16 @@ extern FIRLoggerService kFIRLoggerRemoteConfig;
 extern FIRLoggerService kFIRLoggerStorage;
 extern FIRLoggerService kFIRLoggerSwizzler;
 
+/**
+ * The key used to store the logger's error count.
+ */
+extern NSString *const kFIRLoggerErrorCountKey;
+
+/**
+ * The key used to store the logger's warning count.
+ */
+extern NSString *const kFIRLoggerWarningCountKey;
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
@@ -60,6 +70,21 @@ void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode);
  * (required) log level (one of the FIRLoggerLevel enum values).
  */
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
+
+/**
+ * Retrieve the number of errors that have been logged since the stat was last reset.
+ */
+NSInteger FIRNumberOfErrorsLogged(void);
+
+/**
+ * Retrieve the number of warnings that have been logged since the stat was last reset.
+ */
+NSInteger FIRNumberOfWarningsLogged(void);
+
+/**
+ * Reset number of errors and warnings that have been logged to 0.
+ */
+void FIRResetNumberOfIssuesLogged(void);
 
 /**
  * Checks if the specified logger level is loggable given the current settings.
