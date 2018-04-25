@@ -139,7 +139,7 @@ TEST_P(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
 
   EXPECT_TRUE(WaitForTestToFinish());
   queue.EnqueueBlocking([&] { EXPECT_FALSE(queue.IsScheduled(kTimerId1)); });
-  queue.EnqueueBlocking([&] { EXPECT_NO_THROW(delayed_operation.Cancel()); });
+  EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
 TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
