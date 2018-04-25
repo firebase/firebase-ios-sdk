@@ -28,6 +28,15 @@ absl::string_view StringViewFromDispatchLabel(const char* const label) {
   return label ? absl::string_view{label} : absl::string_view{""};
 }
 
+template <typename Work>
+void RunSynchronized(ExecutorLibdispatch* const executor, Work&& work) {
+  if (executor->IsCurrentExecutor()) {
+    work();
+  } else {
+    executor->ExecuteBlocking(std::forward<Work>(work));
+  }
+}
+
 }  // namespace
 
 // Represents a "busy" time slot on the schedule.
@@ -187,7 +196,7 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
   auto const time_slot = new TimeSlot{this, delay, std::move(operation)};
   dispatch_after_f(delay_ns, dispatch_queue(), time_slot,
                    TimeSlot::InvokedByLibdispatch);
-  schedule_.push_back(time_slot);
+  RunSynchronized(this, [this, time_slot] { schedule_.push_back(time_slot); });
   return DelayedOperation{[this, time_slot] {
     // `time_slot` might be destroyed by the time cancellation function runs.
     // Therefore, don't access any methods on `time_slot`, only use it as
@@ -197,15 +206,17 @@ DelayedOperation ExecutorLibdispatch::Schedule(const Milliseconds delay,
 }
 
 void ExecutorLibdispatch::RemoveFromSchedule(const TimeSlot* const to_remove) {
-  const auto found =
-      std::find_if(schedule_.begin(), schedule_.end(),
-                   [to_remove](const TimeSlot* op) { return op == to_remove; });
-  // It's possible for the operation to be missing if libdispatch gets to run
-  // it after it was force-run, for example.
-  if (found != schedule_.end()) {
-    (*found)->MarkDone();
-    schedule_.erase(found);
-  }
+  RunSynchronized(this, [this, to_remove] {
+    const auto found = std::find_if(
+        schedule_.begin(), schedule_.end(),
+        [to_remove](const TimeSlot* op) { return op == to_remove; });
+    // It's possible for the operation to be missing if libdispatch gets to run
+    // it after it was force-run, for example.
+    if (found != schedule_.end()) {
+      (*found)->MarkDone();
+      schedule_.erase(found);
+    }
+  });
 }
 
 // GetLabel functions are guaranteed to never return a "null" string_view
