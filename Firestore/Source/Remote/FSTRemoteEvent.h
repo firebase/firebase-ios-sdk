@@ -107,18 +107,18 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
 @interface FSTTargetChange : NSObject
 
 /**
+ * Creates a new target change with the given SnapshotVersion.
+ */
+- (instancetype)initWithSnapshotVersion:
+    (firebase::firestore::model::SnapshotVersion)snapshotVersion;
+
+/**
  * Creates a new target change with the given documents. Instances of FSTDocument are considered
  * added. Instance of FSTDeletedDocument are considered removed. This is intended primarily for
  * testing.
  */
 + (instancetype)changeWithDocuments:(NSArray<FSTMaybeDocument *> *)docs
                 currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate;
-
-/**
- * Creates a new target change with the given SnapshotVersion.
- */
-+ (instancetype)changeWithSnapshotVersion:
-    (firebase::firestore::model::SnapshotVersion)snapshotVersion;
 
 /**
  * The snapshot version representing the last state at which this target received a consistent
@@ -153,11 +153,11 @@ typedef NS_ENUM(NSUInteger, FSTCurrentStatusUpdate) {
  */
 @interface FSTRemoteEvent : NSObject
 
-+ (instancetype)
-eventWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-         documentUpdates:
-             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
+- (instancetype)
+initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
+          targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
+        documentUpdates:
+            (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates;
 
 /** The snapshot version this event brings us up to. */
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
