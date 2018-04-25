@@ -318,8 +318,9 @@ NS_ASSUME_NONNULL_BEGIN
       } else {
         FSTLog(
             @"FSTLocalStore Ignoring outdated watch update for %s. "
-             "Current version: %@  Watch version: %@",
-            key.ToString().c_str(), existingDoc.version, doc.version);
+             "Current version: %s  Watch version: %s",
+            key.ToString().c_str(), existingDoc.version.timestamp().ToString().c_str(),
+            doc.version.timestamp().ToString().c_str());
       }
 
       // The document might be garbage because it was unreferenced by everything.
