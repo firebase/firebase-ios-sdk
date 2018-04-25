@@ -432,7 +432,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthResultCallback)completion
-                      DEPRECATED_MSG_ATTRIBUTE("signInWithCredential: is deprecated. Please use
+                      DEPRECATED_MSG_ATTRIBUTE("signInWithCredential: is deprecated. Please use "
                           "signInAndRetrieveDataWithCredential:completion:` instead.");
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
