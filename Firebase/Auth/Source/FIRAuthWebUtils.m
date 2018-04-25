@@ -16,8 +16,6 @@
 
 #import "FIRAuthWebUtils.h"
 
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
-
 #import "FIRAuthBackend.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRGetProjectConfigRequest.h"
@@ -49,38 +47,6 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
         return YES;
       }
     }
-  }
-  return NO;
-}
-
-+ (BOOL)isExpectedCallbackURL:(NSURL *)URL
-                      eventID:(NSString *)eventID
-                     authType:(NSString *)authType
-               callbackScheme:(NSString *)callbackScheme {
- if (!URL) {
-    return NO;
-  }
-  NSURLComponents *actualURLComponents =
-      [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
-  actualURLComponents.query = nil;
-  actualURLComponents.fragment = nil;
-
-  NSURLComponents *expectedURLComponents = [NSURLComponents new];
-  expectedURLComponents.scheme = callbackScheme;
-  expectedURLComponents.host = @"firebaseauth";
-  expectedURLComponents.path = @"/link";
-
-  if (!([[expectedURLComponents URL] isEqual:[actualURLComponents URL]])) {
-    return NO;
-  }
-  NSDictionary<NSString *, NSString *> *URLQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:URL.query];
-  NSURL *deeplinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
-  NSDictionary<NSString *, NSString *> *deeplinkQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:deeplinkURL.query];
-  if ([deeplinkQueryItems[@"authType"] isEqualToString:authType] &&
-      [deeplinkQueryItems[@"eventId"] isEqualToString:eventID]) {
-    return YES;
   }
   return NO;
 }
