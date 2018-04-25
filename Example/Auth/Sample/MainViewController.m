@@ -1040,7 +1040,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [self logFailedTest:@"The test needs a valid credential to continue."];
       return;
     }
-    [[AppManager auth] signInWithCredential:credential completion:^(FIRAuthDataResult *_Nullable result,
+    [[AppManager auth] signInWithCredential:credential completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
       if (error) {
         [self logFailure:@"sign-in with provider failed" error:error];
@@ -1193,7 +1193,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     FIRAuthCredential *credential = [FIREmailAuthProvider credentialWithEmail:kFakeEmail
                                                                      password:kFakePassword];
     [auth signInWithCredential:credential
-                     completion:^(FIRAuthDataResult *_Nullable result,
+                     completion:^(FIRUser *_Nullable user,
                                   NSError *_Nullable error) {
       if (error) {
         [self logFailure:@"sign-in with Email/Password failed" error:error];
@@ -1483,7 +1483,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       FIRAuthCredential *credential =
         [FIREmailAuthProvider credentialWithEmail:kFakeEmail password:kFakePassword];
       [auth signInWithCredential:credential
-                       completion:^(FIRAuthDataResult *_Nullable user,
+                       completion:^(FIRUser *_Nullable user,
                                     NSError *_Nullable error) {
         if (error) {
           [self logFailure:@"sign-in with Email/Password failed" error:error];
@@ -1734,7 +1734,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                            password:password];
       [self showSpinner:^{
         [[AppManager auth] signInWithCredential:credential
-                                     completion:^(FIRAuthDataResult *_Nullable result,
+                                     completion:^(FIRUser *_Nullable user,
                                                   NSError *_Nullable error) {
           [self hideSpinner:^{
             if (error) {
@@ -2096,8 +2096,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         }
         [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
       };
-      FIRAuthDataResultCallback callback = ^(FIRAuthDataResult *_Nullable result,
-                                             NSError *_Nullable error) {
+      FIRAuthResultCallback callback = ^(FIRUser *_Nullable user,
+                                         NSError *_Nullable error) {
         completion(nil, error);
       };
       if (retrieveData) {
@@ -3103,7 +3103,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                           FIRPhoneAuthCredential *credential =
                               error.userInfo[FIRAuthUpdatedCredentialKey];
                           [[AppManager auth] signInWithCredential:credential
-                                                       completion:^(FIRAuthDataResult *_Nullable result,
+                                                       completion:^(FIRUser *_Nullable user,
                                                                     NSError *_Nullable error) {
                             [self hideSpinner:^{
                               if (error) {
@@ -3199,7 +3199,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
         [FIROAuthProvider credentialWithProviderID:FIRGitHubAuthProviderID accessToken:accessToken];
     if (credential) {
         [[AppManager auth] signInWithCredential:credential
-                                     completion:^(FIRAuthDataResult *_Nullable result,
+                                     completion:^(FIRUser *_Nullable result,
                                                   NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"sign-in with provider failed" error:error];

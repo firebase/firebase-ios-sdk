@@ -473,7 +473,7 @@ NS_SWIFT_NAME(Auth)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods
  */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
-                  completion:(nullable FIRAuthDataResultCallback)completion;
+                  completion:(nullable FIRAuthResultCallback)completion;
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Please use signInWithCredential:completion: instead.
@@ -514,8 +514,7 @@ NS_SWIFT_NAME(Auth)
     @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods
  */
 - (void)signInAndRetrieveDataWithCredential:(FIRAuthCredential *)credential
-                                 completion:(nullable FIRAuthDataResultCallback)completion
-                                     __attribute__((deprecated));
+                                 completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn signInAnonymouslyWithCompletion:
     @brief Asynchronously creates and becomes an anonymous user.

@@ -692,13 +692,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)signInWithCredential:(FIRAuthCredential *)credential
-                  completion:(FIRAuthDataResultCallback)completion {
+                  completion:(FIRAuthResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthDataResultCallback callback =
-        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
-    [self internalSignInAndRetrieveDataWithCredential:credential
-                                   isReauthentication:NO
-                                             callback:callback];
+    FIRAuthResultCallback callback =
+        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    [self internalSignInWithCredential:credential callback:callback];
   });
 }
 
