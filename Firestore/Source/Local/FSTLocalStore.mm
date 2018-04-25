@@ -331,8 +331,7 @@ NS_ASSUME_NONNULL_BEGIN
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
     const SnapshotVersion &lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
-    // TODO(zxu): convert to reference once SnapshotVersion is used in RemoteEvent.
-    const SnapshotVersion remoteVersion = remoteEvent.snapshotVersion;
+    const SnapshotVersion &remoteVersion = remoteEvent.snapshotVersion;
     if (remoteVersion != SnapshotVersion::None()) {
       FSTAssert(remoteVersion >= lastRemoteVersion,
                 @"Watch stream reverted to previous snapshot?? (%s < %s)",

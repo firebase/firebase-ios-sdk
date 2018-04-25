@@ -317,7 +317,7 @@ static const int kMaxPendingWrites = 10;
     // using a resume token).
     [self.accumulatedChanges addObject:change];
     if (snapshotVersion == SnapshotVersion::None() ||
-        snapshotVersion < SnapshotVersion{[self.localStore lastRemoteSnapshotVersion]}) {
+        snapshotVersion < [self.localStore lastRemoteSnapshotVersion]) {
       return;
     }
 
