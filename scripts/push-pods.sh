@@ -14,27 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Push all the io2018 pods
+# Push GitHub pods to cpdc-internal-spec.
 
 # When bootstrapping a repo, FirebaseCore must be pushed first, then
 # FirebaseInstanceID, then FirebaseAnalytics, then the rest
 # Most of the warnings are tvOS specific. The Firestore one needs
 # investigation.
 
-pod repo push io2018 FirebaseCore.podspec
-pod repo push io2018 FirebaseAuth.podspec --allow-warnings
-pod repo push io2018 FirebaseDatabase.podspec --allow-warnings
-pod repo push io2018 FirebaseFirestore.podspec --allow-warnings
-pod repo push io2018 FirebaseFunctions.podspec
-pod repo push io2018 FirebaseMessaging.podspec
-pod repo push io2018 FirebaseStorage.podspec
+pod cache clean FirebaseCore --all
+pod cache clean FirebaseAuth --all
+pod cache clean FirebaseDatabase --all
+pod cache clean FirebaseFirestore --all
+pod cache clean FirebaseFunctions --all
+pod cache clean FirebaseMessaging --all
+pod cache clean FirebaseStorage --all
 
-# FirebaseAuth warnings
-#    https://github.com/firebase/firebase-ios-sdk/pull/1159
-#    https://github.com/google/google-toolbox-for-mac/issues/162
-
-# FirebaseDatabase warnings
-#    https://github.com/firebase/firebase-ios-sdk/pull/1155
+pod repo push cpdc-internal-spec FirebaseCore.podspec
+pod repo push cpdc-internal-spec FirebaseAuth.podspec
+pod repo push cpdc-internal-spec FirebaseDatabase.podspec
+pod repo push cpdc-internal-spec FirebaseFirestore.podspec --allow-warnings
+pod repo push cpdc-internal-spec FirebaseFunctions.podspec
+pod repo push cpdc-internal-spec FirebaseMessaging.podspec
+pod repo push cpdc-internal-spec FirebaseStorage.podspec
 
 # FirebaseFirestore warning (no plan to fix)
 #    https://github.com/firebase/firebase-ios-sdk/issues/1143
