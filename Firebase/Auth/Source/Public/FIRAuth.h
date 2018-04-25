@@ -421,18 +421,13 @@ NS_SWIFT_NAME(Auth)
 - (void)signInAndRetrieveDataWithEmail:(NSString *)email
                               password:(NSString *)password
                             completion:(nullable FIRAuthDataResultCallback)completion
-                                __attribute__((deprecated));
+                                DEPRECATED_MSG_ATTRIBUTE(
+                                      "signInAndRetrieveDataWithEmail:password:completion: is "
+                                      "deprecated. Please use"
+                                      "signInWithEmail:password:completion: for Objective-C and"
+                                      " signIn(withEmail:password:completion:) for Swift instead.");
 
 /** @fn signInWithCredential:completion:
-    @brief Please use `signInAndRetrieveDataWithCredential:completion:` instead. This method
-        doesn't return additional identity provider data.
- */
-- (void)signInWithCredential:(FIRAuthCredential *)credential
-                  completion:(nullable FIRAuthResultCallback)completion
-                      DEPRECATED_MSG_ATTRIBUTE("signInWithCredential: is deprecated. Please use "
-                          "signInAndRetrieveDataWithCredential:completion:` instead.");
-
-/** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
         login Access Token, a Google ID Token/Access Token pair, etc.) and returns additional
         identity provider data.
@@ -534,7 +529,7 @@ NS_SWIFT_NAME(Auth)
 - (void)signInAnonymouslyWithCompletion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn signInAnonymouslyAndRetrieveDataWithCompletion:
-    @brief `Please use sign signInAnonymouslyWithCompletion: insteead.`
+    @brief `Please use sign signInAnonymouslyWithCompletion: instead.`
     @param completion Optionally; a block which is invoked when the sign in finishes, or is
         canceled. Invoked asynchronously on the main thread in the future.
 
@@ -554,7 +549,10 @@ NS_SWIFT_NAME(Auth)
         `FIRAuthDataResultCallback`.
  */
 - (void)signInAnonymouslyAndRetrieveDataWithCompletion:
-    (nullable FIRAuthDataResultCallback)completion __attribute__((deprecated));
+    (nullable FIRAuthDataResultCallback)completion
+        DEPRECATED_MSG_ATTRIBUTE("signInAnonymouslyAndRetrieveDataWithCompletion: is deprecated. "
+        "Please use signInAnonymouslyWithCompletion: for Objective-C and "
+        "signInAnonymously(Completion:) for swift instead.");
 
 /** @fn signInWithCustomToken:completion:
     @brief Asynchronously signs in to Firebase with the given Auth token.
@@ -602,8 +600,11 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInAndRetrieveDataWithCustomToken:(NSString *)token
                                   completion:(nullable FIRAuthDataResultCallback)completion
-                                      __attribute__((deprecated));
-
+                                      DEPRECATED_MSG_ATTRIBUTE(
+                                      "signInAndRetrieveDataWithCustomToken:completion: is"
+                                      " deprecated. Please use signInWithCustomToken:completion:"
+                                      "for Objective-C and signIn(withCustomToken:completion:) for"
+                                      " Swift instead.");
 
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.
