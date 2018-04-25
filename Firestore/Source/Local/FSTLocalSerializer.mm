@@ -31,8 +31,10 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 @interface FSTLocalSerializer ()
 
@@ -100,7 +102,7 @@ using firebase::firestore::model::DocumentKey;
 
   FSTObjectValue *data = [remoteSerializer decodedFields:document.fields];
   const DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
-  FSTSnapshotVersion *version = [remoteSerializer decodedVersion:document.updateTime];
+  const SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
   return [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 }
 
@@ -119,7 +121,7 @@ using firebase::firestore::model::DocumentKey;
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   const DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
-  FSTSnapshotVersion *version = [remoteSerializer decodedVersion:proto.readTime];
+  const SnapshotVersion version = [remoteSerializer decodedVersion:proto.readTime];
   return [FSTDeletedDocument documentWithKey:key version:version];
 }
 
@@ -181,7 +183,7 @@ using firebase::firestore::model::DocumentKey;
 
   FSTTargetID targetID = target.targetId;
   FSTListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
-  FSTSnapshotVersion *version = [remoteSerializer decodedVersion:target.snapshotVersion];
+  const SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 
   FSTQuery *query;
@@ -206,11 +208,11 @@ using firebase::firestore::model::DocumentKey;
                                  resumeToken:resumeToken];
 }
 
-- (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {
+- (GPBTimestamp *)encodedVersion:(const SnapshotVersion &)version {
   return [self.remoteSerializer encodedVersion:version];
 }
 
-- (FSTSnapshotVersion *)decodedVersion:(GPBTimestamp *)version {
+- (SnapshotVersion)decodedVersion:(GPBTimestamp *)version {
   return [self.remoteSerializer decodedVersion:version];
 }
 

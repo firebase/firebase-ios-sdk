@@ -17,7 +17,6 @@
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -28,9 +27,11 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMaybeDocument *maybeDoc = [self documentForKey:key];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
-      maybeDoc = [FSTDeletedDocument documentWithKey:key version:[FSTSnapshotVersion noVersion]];
+      maybeDoc = [FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()];
     }
     results = [results dictionaryBySettingObject:maybeDoc forKey:key];
   }
