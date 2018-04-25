@@ -26,7 +26,6 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
 
 namespace firebase {
 namespace firestore {
@@ -36,7 +35,6 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
-using firebase::firestore::util::StringPrintf;
 
 namespace {
 
@@ -321,7 +319,7 @@ void Writer::WriteVarint(uint64_t value) {
  * @return The decoded varint as a uint64_t.
  */
 uint64_t Reader::ReadVarint() {
-  if (!status_.ok()) return false;
+  if (!status_.ok()) return 0;
 
   uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
@@ -499,10 +497,10 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       // TODO(rsgowman): Remove the 'DEV' assert once we're confident we've
       // handled all the tags in the protos.
       FIREBASE_DEV_ASSERT_MESSAGE(
-          false, StringPrintf("Unhandled message field number (tag): %i. (Or "
-                              "possibly corrupt input bytes)",
-                              tag.field_number)
-                     .c_str());
+          false,
+          "Unhandled message field number (tag): %i. (Or possibly "
+          "corrupt input bytes)",
+          tag.field_number);
       reader->set_status(Status(
           FirestoreErrorCode::InvalidArgument,
           "Input proto bytes cannot be parsed (invalid field number (tag))"));
