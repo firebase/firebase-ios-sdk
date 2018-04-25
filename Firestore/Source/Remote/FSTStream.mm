@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -44,6 +45,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::SnapshotVersion;
 
 /**
  * Initial backoff time in seconds after an error.
@@ -691,7 +693,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.backoff reset];
 
   FSTWatchChange *change = [_serializer decodedWatchChange:proto];
-  FSTSnapshotVersion *snap = [_serializer versionFromListenResponse:proto];
+  SnapshotVersion snap = [_serializer versionFromListenResponse:proto];
   [self.delegate watchStreamDidChange:change snapshotVersion:snap];
 }
 
@@ -807,7 +809,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     // might be causing an error we want to back off from.
     [self.backoff reset];
 
-    FSTSnapshotVersion *commitVersion = [_serializer decodedVersion:response.commitTime];
+    SnapshotVersion commitVersion = [_serializer decodedVersion:response.commitTime];
     NSMutableArray<GCFSWriteResult *> *protos = response.writeResultsArray;
     NSMutableArray<FSTMutationResult *> *results = [NSMutableArray arrayWithCapacity:protos.count];
     for (GCFSWriteResult *proto in protos) {

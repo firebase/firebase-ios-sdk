@@ -20,11 +20,12 @@
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+
 @class FSTDocumentSet;
 @class FSTMaybeDocument;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * This is updated whenever our we get a TargetChange with a read_time and empty target_ids.
  */
-- (FSTSnapshotVersion *)lastRemoteSnapshotVersion;
+- (const firebase::firestore::model::SnapshotVersion &)lastRemoteSnapshotVersion;
 
 /**
  * Set the snapshot version representing the last consistent snapshot received from the backend.
@@ -69,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param snapshotVersion The new snapshot version.
  */
-- (void)setLastRemoteSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion;
+- (void)setLastRemoteSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion;
 
 /**
  * Adds an entry in the cache.

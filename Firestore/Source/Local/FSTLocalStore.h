@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
@@ -141,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the last consistent snapshot processed (used by the RemoteStore to determine whether to
  * buffer incoming snapshots from the backend).
  */
-- (FSTSnapshotVersion *)lastRemoteSnapshotVersion;
+- (const firebase::firestore::model::SnapshotVersion &)lastRemoteSnapshotVersion;
 
 /**
  * Updates the "ground-state" (remote) documents. We assume that the remote event reflects any

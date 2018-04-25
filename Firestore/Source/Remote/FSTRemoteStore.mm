@@ -19,7 +19,6 @@
 #include <cinttypes>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -37,11 +36,13 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -299,7 +300,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamDidChange:(FSTWatchChange *)change
-             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
+             snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   // Mark the connection as Online because we got a message from the server.
   [self.onlineStateTracker updateState:FSTOnlineStateOnline];
 
@@ -315,10 +316,8 @@ static const int kMaxPendingWrites = 10;
     // older than a previous snapshot we've processed (can happen after we resume a target
     // using a resume token).
     [self.accumulatedChanges addObject:change];
-    FSTAssert(snapshotVersion, @"snapshotVersion must not be nil.");
-    if ([snapshotVersion isEqual:[FSTSnapshotVersion noVersion]] ||
-        [snapshotVersion compare:[self.localStore lastRemoteSnapshotVersion]] ==
-            NSOrderedAscending) {
+    if (snapshotVersion == SnapshotVersion::None() ||
+        snapshotVersion < SnapshotVersion{[self.localStore lastRemoteSnapshotVersion]}) {
       return;
     }
 
@@ -354,7 +353,7 @@ static const int kMaxPendingWrites = 10;
  * on to the SyncEngine.
  */
 - (void)processBatchedWatchChanges:(NSArray<FSTWatchChange *> *)changes
-                   snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
+                   snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   FSTWatchChangeAggregator *aggregator =
       [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:snapshotVersion
                                                   listenTargets:self.listenTargets
@@ -566,7 +565,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 /** Handles a successful StreamingWriteResponse from the server that contains a mutation result. */
-- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+- (void)writeStreamDidReceiveResponseWithVersion:(const SnapshotVersion &)commitVersion
                                  mutationResults:(NSArray<FSTMutationResult *> *)results {
   // This is a response to a write containing mutations and should be correlated to the first
   // pending write.

@@ -21,7 +21,6 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
@@ -43,11 +42,12 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::firestore::auth::User;
-using firebase::firestore::model::DocumentKey;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -256,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
                        [&]() { [self.mutationQueue setLastStreamToken:streamToken]; });
 }
 
-- (FSTSnapshotVersion *)lastRemoteSnapshotVersion {
+- (const SnapshotVersion &)lastRemoteSnapshotVersion {
   return [self.queryCache lastRemoteSnapshotVersion];
 }
 
@@ -310,10 +310,10 @@ NS_ASSUME_NONNULL_BEGIN
       changedDocKeys = [changedDocKeys setByAddingObject:key];
       FSTMaybeDocument *existingDoc = [self.remoteDocumentCache entryForKey:key];
       // Make sure we don't apply an old document version to the remote cache, though we
-      // make an exception for [SnapshotVersion noVersion] which can happen for manufactured
+      // make an exception for SnapshotVersion::None() which can happen for manufactured
       // events (e.g. in the case of a limbo document resolution failing).
-      if (!existingDoc || [doc.version isEqual:[FSTSnapshotVersion noVersion]] ||
-          [doc.version compare:existingDoc.version] != NSOrderedAscending) {
+      if (!existingDoc || SnapshotVersion{doc.version} == SnapshotVersion::None() ||
+          SnapshotVersion{doc.version} >= SnapshotVersion{existingDoc.version}) {
         [self.remoteDocumentCache addEntry:doc];
       } else {
         FSTLog(
@@ -330,12 +330,14 @@ NS_ASSUME_NONNULL_BEGIN
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
-    FSTSnapshotVersion *lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
-    FSTSnapshotVersion *remoteVersion = remoteEvent.snapshotVersion;
-    if (![remoteVersion isEqual:[FSTSnapshotVersion noVersion]]) {
-      FSTAssert([remoteVersion compare:lastRemoteVersion] != NSOrderedAscending,
-                @"Watch stream reverted to previous snapshot?? (%@ < %@)", remoteVersion,
-                lastRemoteVersion);
+    const SnapshotVersion &lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
+    // TODO(zxu): convert to reference once SnapshotVersion is used in RemoteEvent.
+    const SnapshotVersion remoteVersion = remoteEvent.snapshotVersion;
+    if (remoteVersion != SnapshotVersion::None()) {
+      FSTAssert(remoteVersion >= lastRemoteVersion,
+                @"Watch stream reverted to previous snapshot?? (%s < %s)",
+                remoteVersion.timestamp().ToString().c_str(),
+                lastRemoteVersion.timestamp().ToString().c_str());
       [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
     }
 
@@ -466,13 +468,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (BOOL)isRemoteUpToVersion:(FSTSnapshotVersion *)version {
+- (BOOL)isRemoteUpToVersion:(const SnapshotVersion &)version {
   // If there are no watch targets, then we won't get remote snapshots, and are always "up-to-date."
-  return [version compare:self.queryCache.lastRemoteSnapshotVersion] != NSOrderedDescending ||
-         self.targetIDs.count == 0;
+  return version <= self.queryCache.lastRemoteSnapshotVersion || self.targetIDs.count == 0;
 }
 
-- (BOOL)shouldHoldBatchResultWithVersion:(FSTSnapshotVersion *)version {
+- (BOOL)shouldHoldBatchResultWithVersion:(const SnapshotVersion &)version {
   // Check if watcher isn't up to date or prior results are already held.
   return ![self isRemoteUpToVersion:version] || self.heldBatchResults.count > 0;
 }
@@ -514,9 +515,12 @@ NS_ASSUME_NONNULL_BEGIN
   [docKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
     FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:docKey];
     FSTMaybeDocument *_Nullable doc = remoteDoc;
-    FSTSnapshotVersion *ackVersion = batchResult.docVersions[docKey];
-    FSTAssert(ackVersion, @"docVersions should contain every doc in the write.");
-    if (!doc || [doc.version compare:ackVersion] == NSOrderedAscending) {
+    // TODO(zxu): Once ported to use C++ version of FSTMutationBatchResult, we should be able to
+    // check ackVersion instead, which will be an absl::optional type.
+    FSTAssert(batchResult.docVersions[docKey],
+              @"docVersions should contain every doc in the write.");
+    SnapshotVersion ackVersion = batchResult.docVersions[docKey];
+    if (!doc || SnapshotVersion{doc.version} < ackVersion) {
       doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
         FSTAssert(!remoteDoc, @"Mutation batch %@ applied to document %@ resulted in nil.", batch,
