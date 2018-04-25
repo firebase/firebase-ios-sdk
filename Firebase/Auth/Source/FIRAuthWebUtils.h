@@ -45,19 +45,6 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
  */
 + (BOOL)isCallbackSchemeRegisteredForCustomURLScheme:(NSString *)URLScheme;
 
-/** @fn isExpectedCallbackURL:eventID:authType
-    @brief Parses a URL into all available query items.
-    @param URL The actual callback URL.
-    @param eventID The expected event ID.
-    @param authType The expected auth type.
-    @param callbackScheme The expected callback custom scheme.
-    @return Whether or not the actual callback URL matches the expected callback URL.
- */
-+ (BOOL)isExpectedCallbackURL:(nullable NSURL *)URL
-                      eventID:(NSString *)eventID
-                     authType:(NSString *)authType
-               callbackScheme:(NSString *)callbackScheme;
-
 /** @fn fetchAuthDomainWithCompletion:completion:
     @brief Fetches the auth domain associated with the Firebase Project.
     @param completion The callback invoked after the auth domain has been constructed or an error
