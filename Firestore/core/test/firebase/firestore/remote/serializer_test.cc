@@ -283,7 +283,7 @@ TEST_F(SerializerTest, BadNullValue) {
       0x01,  // invalid null value. (0 is only valid null value)
   };
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadBoolValue) {
@@ -292,7 +292,7 @@ TEST_F(SerializerTest, BadBoolValue) {
       0x02,  // invalid value for a bool. (Valid values are 0,1)
   };
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadIntegerValue) {
@@ -307,7 +307,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
   };
   // clang-format on
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadStringValue) {
@@ -319,7 +319,7 @@ TEST_F(SerializerTest, BadStringValue) {
   };
   // clang-format on
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadStringValue2) {
@@ -334,7 +334,7 @@ TEST_F(SerializerTest, BadStringValue2) {
   bytes[2] = 5;
 
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadTag) {
@@ -351,14 +351,14 @@ TEST_F(SerializerTest, BadTag) {
   // clang-format on
 #if defined(NDEBUG)
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 #else
   // The behaviour is *temporarily* slightly different during debug mode; this
   // will cause a failed assertion rather than a failed status.
   // TODO(rsgowman): Remove this path once it's removed from serializer.cc.
   // (Hint: search for FIREBASE_DEV_ASSERT_MESSAGE)
   EXPECT_ANY_THROW(ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes));
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes));
 #endif
 }
 
@@ -370,7 +370,7 @@ TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
       0x01,  // true
   };
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
@@ -382,7 +382,7 @@ TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
   };
   // clang-format on
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
@@ -391,13 +391,13 @@ TEST_F(SerializerTest, IncompleteFieldValue) {
              // Note: Missing '0' for the value
   };
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes{};
   ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

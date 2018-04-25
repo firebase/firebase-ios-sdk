@@ -287,7 +287,7 @@ Tag Reader::ReadTag() {
   bool ok = pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof);
   if (!ok) {
     status_ =
-        Status(FirestoreErrorCode::InvalidArgument, PB_GET_ERROR(&stream_));
+        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     return tag;
   }
 
@@ -324,7 +324,7 @@ uint64_t Reader::ReadVarint() {
   uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
     status_ =
-        Status(FirestoreErrorCode::InvalidArgument, PB_GET_ERROR(&stream_));
+        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
   }
   return varint_value;
 }
@@ -338,7 +338,7 @@ void Reader::ReadNull() {
   if (!status_.ok()) return;
 
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    status_ = Status(FirestoreErrorCode::InvalidArgument,
+    status_ = Status(FirestoreErrorCode::DataLoss,
                      "Input proto bytes cannot be parsed (invalid null value)");
   }
 }
@@ -358,7 +358,7 @@ bool Reader::ReadBool() {
       return true;
     default:
       status_ =
-          Status(FirestoreErrorCode::InvalidArgument,
+          Status(FirestoreErrorCode::DataLoss,
                  "Input proto bytes cannot be parsed (invalid bool value)");
       return false;
   }
@@ -388,7 +388,7 @@ std::string Reader::ReadString() {
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
     status_ =
-        Status(FirestoreErrorCode::InvalidArgument, PB_GET_ERROR(&stream_));
+        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -397,7 +397,7 @@ std::string Reader::ReadString() {
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
     status_ =
-        Status(FirestoreErrorCode::InvalidArgument, PB_GET_ERROR(&stream_));
+        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -471,7 +471,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     case google_firestore_v1beta1_Value_integer_value_tag:
       if (tag.wire_type != PB_WT_VARINT) {
         reader->set_status(
-            Status(FirestoreErrorCode::InvalidArgument,
+            Status(FirestoreErrorCode::DataLoss,
                    "Input proto bytes cannot be parsed (mismatch between "
                    "the wiretype and the field number (tag))"));
       }
@@ -481,7 +481,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     case google_firestore_v1beta1_Value_map_value_tag:
       if (tag.wire_type != PB_WT_STRING) {
         reader->set_status(
-            Status(FirestoreErrorCode::InvalidArgument,
+            Status(FirestoreErrorCode::DataLoss,
                    "Input proto bytes cannot be parsed (mismatch between "
                    "the wiretype and the field number (tag))"));
       }
@@ -502,7 +502,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
           "corrupt input bytes)",
           tag.field_number);
       reader->set_status(Status(
-          FirestoreErrorCode::InvalidArgument,
+          FirestoreErrorCode::DataLoss,
           "Input proto bytes cannot be parsed (invalid field number (tag))"));
   }
 
@@ -596,7 +596,7 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
     status_ =
-        Status(FirestoreErrorCode::InvalidArgument, PB_GET_ERROR(&stream_));
+        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &raw_substream);
     return T();
   }
