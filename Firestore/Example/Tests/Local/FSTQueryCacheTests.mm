@@ -130,9 +130,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
     XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
-    XCTAssertNotEqualObjects(queryData2.snapshotVersion, queryData1.snapshotVersion);
+    XCTAssertNotEqual(queryData2.snapshotVersion, queryData1.snapshotVersion);
     XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
-    XCTAssertEqualObjects(result.snapshotVersion, queryData2.snapshotVersion);
+    XCTAssertEqual(result.snapshotVersion, queryData2.snapshotVersion);
   });
 }
 
@@ -390,14 +390,14 @@ NS_ASSUME_NONNULL_BEGIN
 
     // Can set the snapshot version.
     [self.queryCache setLastRemoteSnapshotVersion:testutil::Version(42)];
-    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
+    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
   });
 
   // Snapshot version persists restarts.
   self.queryCache = [self.persistence queryCache];
   self.persistence.run("testLastRemoteSnapshotVersion restart", [&]() {
     [self.queryCache start];
-    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
+    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
   });
 }
 
