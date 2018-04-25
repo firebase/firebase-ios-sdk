@@ -70,8 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param snapshotVersion The new snapshot version.
  */
-- (void)setLastRemoteSnapshotVersion:
-    (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
+- (void)setLastRemoteSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion;
 
 /**
  * Adds an entry in the cache.

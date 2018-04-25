@@ -44,7 +44,7 @@ class SnapshotVersion {
   static const SnapshotVersion& None();
 
 #if defined(__OBJC__)
-  SnapshotVersion() : timestamp_{} {
+  SnapshotVersion() {
   }
 
   SnapshotVersion(FSTSnapshotVersion* version)  // NOLINT(runtime/explicit)

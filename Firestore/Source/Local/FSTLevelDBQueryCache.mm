@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -141,9 +142,10 @@ using leveldb::Status;
   return _lastRemoteSnapshotVersion;
 }
 
-- (void)setLastRemoteSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  _lastRemoteSnapshotVersion = snapshotVersion;
-  self.metadata.lastRemoteSnapshotVersion = [self.serializer encodedVersion:snapshotVersion];
+- (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
+  _lastRemoteSnapshotVersion = std::move(snapshotVersion);
+  self.metadata.lastRemoteSnapshotVersion =
+      [self.serializer encodedVersion:_lastRemoteSnapshotVersion];
   _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 

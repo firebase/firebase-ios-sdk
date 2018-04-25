@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
@@ -75,8 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
   return _lastRemoteSnapshotVersion;
 }
 
-- (void)setLastRemoteSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  _lastRemoteSnapshotVersion = snapshotVersion;
+- (void)setLastRemoteSnapshotVersion:(SnapshotVersion)snapshotVersion {
+  _lastRemoteSnapshotVersion = std::move(snapshotVersion);
 }
 
 - (void)addQueryData:(FSTQueryData *)queryData {
