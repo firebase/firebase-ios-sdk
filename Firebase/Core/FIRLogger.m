@@ -242,20 +242,18 @@ void FIRLogBasic(FIRLoggerLevel level,
       stringWithFormat:@"%s - %@[%@] %@", FirebaseVersionString, service, messageCode, logMsg];
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
-
-    // Keep count of how many errors and warnings are triggered.
-    if (level == FIRLoggerLevelError) {
-      NSInteger errorCount =
-          [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerErrorCountKey];
-      [[NSUserDefaults standardUserDefaults] setInteger:errorCount + 1
-                                                 forKey:kFIRLoggerErrorCountKey];
-    } else if (level == FIRLoggerLevelWarning) {
-      NSInteger warningCount =
-          [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerWarningCountKey];
-      [[NSUserDefaults standardUserDefaults] setInteger:warningCount + 1
-                                                 forKey:kFIRLoggerWarningCountKey];
-    }
   });
+
+  // Keep count of how many errors and warnings are triggered.
+  if (level == FIRLoggerLevelError) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSInteger errorCount = [defaults integerForKey:kFIRLoggerErrorCountKey];
+    [defaults setInteger:errorCount + 1 forKey:kFIRLoggerErrorCountKey];
+  } else if (level == FIRLoggerLevelWarning) {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSInteger warningCount = [defaults integerForKey:kFIRLoggerWarningCountKey];
+    [defaults setInteger:warningCount + 1 forKey:kFIRLoggerWarningCountKey];
+  }
 }
 #pragma clang diagnostic pop
 
