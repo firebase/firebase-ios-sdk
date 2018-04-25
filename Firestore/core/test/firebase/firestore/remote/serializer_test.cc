@@ -322,6 +322,21 @@ TEST_F(SerializerTest, BadStringValue) {
       Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
 }
 
+TEST_F(SerializerTest, BadStringValue2) {
+  std::vector<uint8_t> bytes;
+  Status status =
+      serializer.EncodeFieldValue(FieldValue::StringValue("a"), &bytes);
+  EXPECT_TRUE(status.ok());
+
+  // Mutate that bytes: Claim that the string length is 5 instead of 1.
+  // (The first two bytes are used by the encoded tag.)
+  EXPECT_EQ(bytes[2], 1);
+  bytes[2] = 5;
+
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::InvalidArgument, "ignored"), bytes);
+}
+
 TEST_F(SerializerTest, BadTag) {
   // The google::firestore::v1beta1::Value value_type oneof currently has tags
   // up to 18. For this test, we'll pick a tag that's unlikely to be added in
