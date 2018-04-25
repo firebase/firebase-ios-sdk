@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthErrors.h"
@@ -426,11 +427,13 @@ NS_SWIFT_NAME(Auth)
                             completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn signInWithCredential:completion:
-    @brief Convenience method for `signInAndRetrieveDataWithCredential:completion:` This method
+    @brief Please use `signInAndRetrieveDataWithCredential:completion:` instead. This method
         doesn't return additional identity provider data.
  */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
-                  completion:(nullable FIRAuthResultCallback)completion;
+                  completion:(nullable FIRAuthResultCallback)completion
+                      DEPRECATED_MSG_ATTRIBUTE("signInWithCredential: is deprecated. Please use "
+                          "signInAndRetrieveDataWithCredential:completion:` instead.");
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
