@@ -69,6 +69,7 @@ else()
   )
 endif()
 
+
 ## secure_random
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
