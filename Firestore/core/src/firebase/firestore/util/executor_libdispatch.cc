@@ -97,9 +97,9 @@ class TimeSlot {
 
   // True if the operation has either been run or canceled.
   //
-  // Note on thread-safety: `done_` is only ever accessed from `Cancel` and
-  // `Execute` member functions, and both of them are only ever invoked by the
-  // dispatch queue, which provides synchronization.
+  // Note on thread-safety: because the precondition is that all member
+  // functions of this class are executed on the dispatch queue, no
+  // synchronization is required for `done_`.
   bool done_ = false;
 };
 
