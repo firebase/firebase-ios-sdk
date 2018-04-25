@@ -49,6 +49,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
+@property(nonatomic, strong) id userDefaultsMock;
+
 @end
 
 @implementation FIRLoggerTest
@@ -56,6 +58,15 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)setUp {
   [super setUp];
   FIRResetLogger();
+
+  // Stub NSUserDefaults for tracking the error and warning count.
+  _userDefaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+}
+
+- (void)tearDown {
+  [super tearDown];
+
+  [_userDefaultsMock stopMocking];
 }
 
 // Test some stable variables to make sure they weren't accidently changed.
@@ -120,9 +131,9 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 - (void)testInitializeASLForDebugModeWithUserDefaults {
   // Stub.
-  id userDefaultsMock = [OCMockObject partialMockForObject:[NSUserDefaults standardUserDefaults]];
   NSNumber *debugMode = @YES;
-  [[[userDefaultsMock stub] andReturnValue:debugMode] boolForKey:kFIRPersistedDebugModeKey];
+  OCMStub([self.userDefaultsMock boolForKey:kFIRPersistedDebugModeKey])
+      .andReturn(debugMode.boolValue);
 
   // Test.
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
@@ -131,9 +142,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   debugMode = [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
   XCTAssertTrue(getFIRLoggerDebugMode());
-
-  // Stop.
-  [userDefaultsMock stopMocking];
 }
 
 - (void)testMessageCodeFormat {
@@ -229,6 +237,33 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqual(FIRLoggerLevelNotice, ASL_LEVEL_NOTICE);
   XCTAssertEqual(FIRLoggerLevelInfo, ASL_LEVEL_INFO);
   XCTAssertEqual(FIRLoggerLevelDebug, ASL_LEVEL_DEBUG);
+}
+
+- (void)testErrorNumberIncrement {
+  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerErrorCountKey]).andReturn(10);
+  OCMExpect([self.userDefaultsMock setInteger:11 forKey:kFIRLoggerErrorCountKey]);
+  FIRLogError(kFIRLoggerCore, kMessageCode, @"Error.");
+
+  // Use a delay since the logging is async.
+  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
+}
+
+- (void)testWarningNumberIncrement {
+  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerWarningCountKey]).andReturn(1);
+  OCMExpect([self.userDefaultsMock setInteger:2 forKey:kFIRLoggerWarningCountKey]);
+  FIRLogWarning(kFIRLoggerCore, kMessageCode, @"Warning.");
+
+  // Use a delay since the logging is async.
+  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
+}
+
+- (void)testResetIssuesCount {
+  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerErrorCountKey]);
+  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerWarningCountKey]);
+  FIRResetNumberOfIssuesLogged();
+
+  // Use a delay since the logging is async.
+  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
 }
 
 // Helper functions.

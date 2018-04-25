@@ -217,7 +217,8 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       break;
 
     default:
-      errorMessage = [NSString stringWithFormat:@"Invalid directory type %zd", directory];
+      errorMessage = [NSString stringWithFormat:@"Invalid directory type %lu",
+                      (unsigned long)directory];
       FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreInvalidRmqDirectory,
                               @"%@",
                               errorMessage);

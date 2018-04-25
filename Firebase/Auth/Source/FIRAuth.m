@@ -551,15 +551,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
-             completion:(FIRAuthResultCallback)completion {
+             completion:(FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithEmail:email
                                         password:password
                                       completion:^(FIRAuthDataResult *_Nullable authResult,
                                                    NSError *_Nullable error) {
-      decoratedCallback(authResult.user, error);
+      decoratedCallback(authResult, error);
     }];
   });
 }
@@ -887,12 +887,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
-- (void)signInAnonymouslyWithCompletion:(FIRAuthResultCallback)completion {
+- (void)signInAnonymouslyWithCompletion:(FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     if (self->_currentUser.anonymous) {
-      decoratedCallback(self->_currentUser, nil);
+      FIRAuthDataResult *result =
+          [[FIRAuthDataResult alloc] initWithUser:self->_currentUser additionalUserInfo:nil];
+      decoratedCallback(result, nil);
       return;
     }
     [self internalSignInAnonymouslyWithCompletion:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -905,20 +907,30 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 accessTokenExpirationDate:response.approximateExpirationDate
                              refreshToken:response.refreshToken
                                 anonymous:YES
-                                 callback:decoratedCallback];
+                                 callback:^(FIRUser * _Nullable user, NSError * _Nullable error) {
+        FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:YES];
+        FIRAuthDataResult *authDataResult =
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
+      }];
     }];
   });
 }
 
 - (void)signInWithCustomToken:(NSString *)token
-                   completion:(nullable FIRAuthResultCallback)completion {
+                   completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithCustomToken:token
                                             completion:^(FIRAuthDataResult *_Nullable authResult,
                                                          NSError *_Nullable error) {
-      decoratedCallback(authResult.user, error);
+      decoratedCallback(authResult, error);
     }];
   });
 }
