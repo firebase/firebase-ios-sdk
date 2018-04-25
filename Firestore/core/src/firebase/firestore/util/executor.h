@@ -50,11 +50,11 @@ class DelayedOperation {
 
 namespace internal {
 
-// An interface to a platform-specific executor of asynchronous tasks
-// ("operations").
+// An interface to a platform-specific executor of asynchronous operations
+// (called tasks on other platforms).
 //
 // Operations may be scheduled for immediate or delayed execution. Operations
-// scheduled for the exact same time are FIFO ordered.
+// delayed until the exact same time are scheduled in FIFO order.
 //
 // The operations are executed sequentially; only a single operation is executed
 // at any given time.
@@ -66,9 +66,9 @@ class Executor {
   using Operation = std::function<void()>;
   using Milliseconds = std::chrono::milliseconds;
 
-  // Operations scheduled for future execution are tagged to allow retreiving
-  // the later. The tag is entirely opaque for the executor; in particular,
-  // uniqueness of tags is not enforced.
+  // Operations scheduled for future execution have an opaque tag. The value of
+  // the tag is ignored by the executor but can be used to find operations with
+  // a given tag after they are scheduled.
   struct TaggedOperation {
     TaggedOperation() {
     }
@@ -83,8 +83,7 @@ class Executor {
   }
 
   // Schedules the `operation` to be asynchronously executed as soon as
-  // possible. If called in quick succession, the operations will be
-  // FIFO-ordered.
+  // possible, in FIFO order.
   virtual void Execute(Operation&& operation) = 0;
   // Like `Execute`, but blocks until the `operation` finishes, consequently
   // draining immediate operations from the executor.
@@ -96,15 +95,15 @@ class Executor {
   //
   // `delay` must be non-negative; use `Execute` to schedule operations for
   // immediate execution.
-  virtual DelayedOperation ScheduleExecution(Milliseconds delay,
-                                             TaggedOperation&& operation) = 0;
+  virtual DelayedOperation Schedule(Milliseconds delay,
+                                    TaggedOperation&& operation) = 0;
 
   // Checks for the caller whether it is being invoked by this executor.
-  virtual bool IsAsyncCall() const = 0;
+  virtual bool IsCurrentExecutor() const = 0;
   // Returns some sort of an identifier for the current execution context. The
   // only guarantee is that it will return different values depending on whether
   // this function is invoked by this executor or not.
-  virtual std::string GetInvokerId() const = 0;
+  virtual std::string CurrentExecutorName() const = 0;
 
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.

@@ -38,7 +38,7 @@ DelayedOperation Schedule(Executor* const executor,
                           const Executor::Milliseconds delay,
                           Executor::Operation&& operation) {
   const Executor::Tag no_tag = -1;
-  return executor->ScheduleExecution(
+  return executor->Schedule(
       delay, Executor::TaggedOperation{no_tag, std::move(operation)});
 }
 

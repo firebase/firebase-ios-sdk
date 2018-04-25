@@ -31,7 +31,7 @@ namespace firestore {
 namespace util {
 
 namespace chr = std::chrono;
-using internal::Schedule;
+using async::Schedule;
 
 class ScheduleTest : public ::testing::Test {
  public:

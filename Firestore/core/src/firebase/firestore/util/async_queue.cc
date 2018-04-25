@@ -34,9 +34,9 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
 
 void AsyncQueue::VerifyIsAsyncCall() const {
   FIREBASE_ASSERT_MESSAGE(
-      executor_->IsAsyncCall(),
+      executor_->IsCurrentExecutor(),
       "Expected to be invoked asynchronously on the queue (invoker id: '%s')",
-      executor_->GetInvokerId().data());
+      executor_->CurrentExecutorName().data());
 }
 
 void AsyncQueue::VerifyCalledFromOperation() const {
@@ -44,7 +44,7 @@ void AsyncQueue::VerifyCalledFromOperation() const {
   FIREBASE_ASSERT_MESSAGE(is_operation_in_progress_,
                           "VerifyCalledFromOperation called when no "
                           "operation is executing (invoker id: '%s')",
-                          executor_->GetInvokerId().data());
+                          executor_->CurrentExecutorName().data());
 }
 
 void AsyncQueue::StartExecution(const Operation& operation) {
@@ -80,7 +80,7 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
       "Attempted to schedule multiple operations with id %d", timer_id);
 
   Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
-  return executor_->ScheduleExecution(delay, std::move(tagged));
+  return executor_->Schedule(delay, std::move(tagged));
 }
 
 AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
@@ -94,10 +94,10 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
 void AsyncQueue::VerifySequentialOrder() const {
   // This is the inverse of `VerifyCalledFromOperation`.
   FIREBASE_ASSERT_MESSAGE(
-      !is_operation_in_progress_ || !executor_->IsAsyncCall(),
+      !is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
       "Enforcing sequential order failed: currently executing operations "
       "cannot enqueue nested operations (invoker id: '%s')",
-      executor_->GetInvokerId().c_str());
+      executor_->CurrentExecutorName().c_str());
 }
 
 // Test-only functions
@@ -114,7 +114,7 @@ bool AsyncQueue::IsScheduled(const TimerId timer_id) const {
 
 void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
   FIREBASE_ASSERT_MESSAGE(
-      !executor_->IsAsyncCall(),
+      !executor_->IsCurrentExecutor(),
       "RunScheduledOperationsUntil must not be called on the queue");
 
   executor_->ExecuteBlocking([this, last_timer_id] {

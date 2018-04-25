@@ -80,13 +80,13 @@ class ExecutorLibdispatch : public Executor {
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
   ~ExecutorLibdispatch();
 
-  bool IsAsyncCall() const override;
-  std::string GetInvokerId() const override;
+  bool IsCurrentExecutor() const override;
+  std::string CurrentExecutorName() const override;
 
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
-  DelayedOperation ScheduleExecution(Milliseconds delay,
-                                     TaggedOperation&& operation) override;
+  DelayedOperation Schedule(Milliseconds delay,
+                            TaggedOperation&& operation) override;
 
   void RemoveFromSchedule(const TimeSlot* to_remove);
 

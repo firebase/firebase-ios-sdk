@@ -32,7 +32,8 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-namespace internal {
+
+namespace async {
 
 // A thread-safe class similar to a priority queue where the entries are
 // prioritized by the time for which they're scheduled. Entries scheduled for
@@ -204,6 +205,10 @@ class Schedule {
   Container scheduled_;
 };
 
+}  // namespace async
+
+namespace internal {
+
 // A serial queue that executes provided operations on a dedicated background
 // thread, using C++11 standard library functionality.
 class ExecutorStd : public Executor {
@@ -214,18 +219,18 @@ class ExecutorStd : public Executor {
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;
 
-  DelayedOperation ScheduleExecution(Milliseconds delay,
-                                     TaggedOperation&& tagged) override;
+  DelayedOperation Schedule(Milliseconds delay,
+                            TaggedOperation&& tagged) override;
 
-  bool IsAsyncCall() const override;
-  std::string GetInvokerId() const override;
+  bool IsCurrentExecutor() const override;
+  std::string CurrentExecutorName() const override;
 
   bool IsScheduled(Tag tag) const override;
   bool IsScheduleEmpty() const override;
   TaggedOperation PopFromSchedule() override;
 
  private:
-  using TimePoint = Schedule<Operation, Milliseconds>::TimePoint;
+  using TimePoint = async::Schedule<Operation, Milliseconds>::TimePoint;
   // To allow canceling operations, each scheduled operation is assigned
   // a monotonically increasing identifier.
   using Id = unsigned int;
@@ -269,7 +274,7 @@ class ExecutorStd : public Executor {
   };
   // Operations scheduled for immediate execution are also put on the schedule
   // (with due time set to `Immediate`).
-  Schedule<Entry, Milliseconds> schedule_;
+  async::Schedule<Entry, Milliseconds> schedule_;
 
   std::thread worker_thread_;
   // Used to stop the worker thread.

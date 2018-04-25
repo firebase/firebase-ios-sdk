@@ -158,10 +158,10 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   });
 }
 
-bool ExecutorLibdispatch::IsAsyncCall() const {
+bool ExecutorLibdispatch::IsCurrentExecutor() const {
   return GetCurrentQueueLabel().data() == GetTargetQueueLabel().data();
 }
-std::string ExecutorLibdispatch::GetInvokerId() const {
+std::string ExecutorLibdispatch::CurrentExecutorName() const {
   return GetCurrentQueueLabel().data();
 }
 
@@ -172,7 +172,7 @@ void ExecutorLibdispatch::ExecuteBlocking(Operation&& operation) {
   DispatchSync(dispatch_queue(), std::move(operation));
 }
 
-DelayedOperation ExecutorLibdispatch::ScheduleExecution(
+DelayedOperation ExecutorLibdispatch::Schedule(
     const Milliseconds delay, TaggedOperation&& operation) {
   namespace chr = std::chrono;
   const dispatch_time_t delay_ns = dispatch_time(

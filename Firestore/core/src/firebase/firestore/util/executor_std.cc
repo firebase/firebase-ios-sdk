@@ -57,13 +57,13 @@ void ExecutorStd::Execute(Operation&& operation) {
   DoExecute(std::move(operation), Immediate());
 }
 
-DelayedOperation ExecutorStd::ScheduleExecution(const Milliseconds delay,
+DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
                                                 TaggedOperation&& tagged) {
   // While negative delay can be interpreted as a request for immediate
   // execution, supporting it would provide a hacky way to modify FIFO ordering
   // of immediate operations.
   FIREBASE_ASSERT_MESSAGE(delay.count() >= 0,
-                          "ScheduleExecution: delay cannot be negative");
+                          "Schedule: delay cannot be negative");
 
   namespace chr = std::chrono;
   const auto now = chr::time_point_cast<Milliseconds>(chr::system_clock::now());
@@ -113,11 +113,11 @@ ExecutorStd::Id ExecutorStd::NextId() {
   return current_id_++;
 }
 
-bool ExecutorStd::IsAsyncCall() const {
-  return GetInvokerId() == PrintThreadId(worker_thread_.get_id());
+bool ExecutorStd::IsCurrentExecutor() const {
+  return CurrentExecutorName() == PrintThreadId(worker_thread_.get_id());
 }
 
-std::string ExecutorStd::GetInvokerId() const {
+std::string ExecutorStd::CurrentExecutorName() const {
   return PrintThreadId(std::this_thread::get_id());
 }
 
