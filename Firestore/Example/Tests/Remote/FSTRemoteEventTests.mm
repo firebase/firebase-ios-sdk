@@ -28,6 +28,9 @@
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -55,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
     listens[targetID] = dummyQueryData;
   }
   FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(3)
+      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:testutil::Version(3)
                                                   listenTargets:listens
                                          pendingTargetResponses:outstanding];
   [aggregator addWatchChanges:watchChanges];
@@ -81,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              changes:@[ change1, change2 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
@@ -143,7 +146,7 @@ NS_ASSUME_NONNULL_BEGIN
                       outstanding:pendingResponses
                           changes:@[ change1, change2, change3, change4 ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target, but doc2 is in the changes
   // because it become active.
   XCTAssertEqual(event.documentUpdates.size(), 1);
@@ -171,7 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self aggregatorWithTargets:@[] outstanding:pendingResponses changes:@[ change1, change2 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   // doc1 is ignored because it was part of an inactive target
   XCTAssertEqual(event.documentUpdates.size(), 0);
 
@@ -215,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
                           changes:@[ change1, change2, change3, change4, change5 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 3);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
@@ -239,7 +242,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self aggregatorWithTargets:@[ @1 ] outstanding:_noPendingResponses changes:@[ change ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
 
   XCTAssertEqual(event.targetChanges.count, 1);
@@ -267,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              changes:@[ change1, change2 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1b.key), doc1b);
 
@@ -291,7 +294,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self aggregatorWithTargets:@[ @1 ] outstanding:_noPendingResponses changes:@[ change ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
   XCTAssertEqual(event.targetChanges.count, 1);
   FSTTargetChange *targetChange = event.targetChanges[@1];
@@ -333,7 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
                           changes:@[ change1, change2, change3, change4, change5, change6 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
@@ -366,7 +369,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self aggregatorWithTargets:@[ @1 ] outstanding:_noPendingResponses changes:@[ change ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
   XCTAssertEqual(event.targetChanges.count, 1);
   XCTAssertEqualObjects(event.targetChanges[@1].mapping, [[FSTUpdateMapping alloc] init]);
@@ -388,7 +391,7 @@ NS_ASSUME_NONNULL_BEGIN
                           changes:@[ change1, change2, change3 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 0);
   XCTAssertEqual(event.targetChanges.count, 0);
   XCTAssertEqual(aggregator.existenceFilters.count, 2);
@@ -420,7 +423,7 @@ NS_ASSUME_NONNULL_BEGIN
                           changes:@[ change1, change2, change3 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
@@ -430,7 +433,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTUpdateMapping *mapping1 =
       [FSTUpdateMapping mappingWithAddedDocuments:@[ doc1, doc2 ] removedDocuments:@[]];
   XCTAssertEqualObjects(event.targetChanges[@1].mapping, mapping1);
-  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.targetChanges[@1].currentStatusUpdate, FSTCurrentStatusUpdateMarkCurrent);
   XCTAssertEqualObjects(event.targetChanges[@1].resumeToken, _resumeToken1);
 
@@ -439,7 +442,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Mapping is reset
   XCTAssertEqualObjects(event.targetChanges[@1].mapping, [[FSTResetMapping alloc] init]);
   // Reset the resume snapshot
-  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, FSTTestVersion(0));
+  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, testutil::Version(0));
   // Target needs to be set to not current
   XCTAssertEqual(event.targetChanges[@1].currentStatusUpdate, FSTCurrentStatusUpdateMarkNotCurrent);
   XCTAssertEqual(event.targetChanges[@1].resumeToken.length, 0);
@@ -448,7 +451,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDocumentUpdate {
   FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTDeletedDocument *deletedDoc1 =
-      [FSTDeletedDocument documentWithKey:doc1.key version:FSTTestVersion(3)];
+      [FSTDeletedDocument documentWithKey:doc1.key version:testutil::Version(3)];
   FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
 
@@ -467,7 +470,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              changes:@[ change1, change2 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
@@ -476,7 +479,7 @@ NS_ASSUME_NONNULL_BEGIN
   [event addDocumentUpdate:deletedDoc1];
   [event addDocumentUpdate:doc3];
 
-  XCTAssertEqualObjects(event.snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.documentUpdates.size(), 3);
   // doc1 is replaced
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), deletedDoc1);
@@ -511,12 +514,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTUpdateMapping *mapping1 =
       [FSTUpdateMapping mappingWithAddedDocuments:@[] removedDocuments:@[]];
   XCTAssertEqualObjects(event.targetChanges[@1].mapping, mapping1);
-  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.targetChanges[@1].currentStatusUpdate, FSTCurrentStatusUpdateMarkCurrent);
   XCTAssertEqualObjects(event.targetChanges[@1].resumeToken, _resumeToken1);
 
   XCTAssertEqualObjects(event.targetChanges[@2].mapping, mapping1);
-  XCTAssertEqualObjects(event.targetChanges[@2].snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.targetChanges[@2].snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.targetChanges[@2].currentStatusUpdate, FSTCurrentStatusUpdateMarkCurrent);
   XCTAssertEqualObjects(event.targetChanges[@2].resumeToken, resumeToken2);
 }
@@ -544,12 +547,12 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTResetMapping *mapping1 = [FSTResetMapping mappingWithDocuments:@[]];
   XCTAssertEqualObjects(event.targetChanges[@1].mapping, mapping1);
-  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.targetChanges[@1].snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.targetChanges[@1].currentStatusUpdate, FSTCurrentStatusUpdateMarkCurrent);
   XCTAssertEqualObjects(event.targetChanges[@1].resumeToken, resumeToken2);
 
   XCTAssertEqualObjects(event.targetChanges[@2].mapping, mapping1);
-  XCTAssertEqualObjects(event.targetChanges[@2].snapshotVersion, FSTTestVersion(3));
+  XCTAssertEqualObjects(event.targetChanges[@2].snapshotVersion, testutil::Version(3));
   XCTAssertEqual(event.targetChanges[@2].currentStatusUpdate, FSTCurrentStatusUpdateNone);
   XCTAssertEqualObjects(event.targetChanges[@2].resumeToken, resumeToken3);
 }
