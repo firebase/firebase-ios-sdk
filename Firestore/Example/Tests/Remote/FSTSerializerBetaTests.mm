@@ -58,6 +58,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
@@ -424,8 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
                              precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
-  proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:4000]];
+  proto.currentDocument.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }

@@ -30,9 +30,11 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
+using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 
@@ -130,7 +132,8 @@ using firebase::firestore::model::SnapshotVersion;
 
   FSTPBWriteBatch *proto = [FSTPBWriteBatch message];
   proto.batchId = batch.batchID;
-  proto.localWriteTime = [remoteSerializer encodedTimestamp:batch.localWriteTime];
+  proto.localWriteTime = [remoteSerializer
+      encodedTimestamp:Timestamp{batch.localWriteTime.seconds, batch.localWriteTime.nanoseconds}];
 
   NSMutableArray<GCFSWrite *> *writes = proto.writesArray;
   for (FSTMutation *mutation in batch.mutations) {
@@ -148,11 +151,13 @@ using firebase::firestore::model::SnapshotVersion;
     [mutations addObject:[remoteSerializer decodedMutation:write]];
   }
 
-  FIRTimestamp *localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
+  Timestamp localWriteTime = [remoteSerializer decodedTimestamp:batch.localWriteTime];
 
-  return [[FSTMutationBatch alloc] initWithBatchID:batchID
-                                    localWriteTime:localWriteTime
-                                         mutations:mutations];
+  return [[FSTMutationBatch alloc]
+      initWithBatchID:batchID
+       localWriteTime:[FIRTimestamp timestampWithSeconds:localWriteTime.seconds()
+                                             nanoseconds:localWriteTime.nanoseconds()]
+            mutations:mutations];
 }
 
 - (FSTPBTarget *)encodedQueryData:(FSTQueryData *)queryData {

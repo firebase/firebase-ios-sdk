@@ -33,9 +33,7 @@
 
 #import "FIRFirestoreErrors.h"
 #import "FIRGeoPoint.h"
-#import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
@@ -55,8 +53,10 @@
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
+#include "absl/types/optional.h"
 
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -86,25 +86,25 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-#pragma mark - FSTSnapshotVersion <=> GPBTimestamp
+#pragma mark - SnapshotVersion <=> GPBTimestamp
 
-- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp {
+- (GPBTimestamp *)encodedTimestamp:(const Timestamp &)timestamp {
   GPBTimestamp *result = [GPBTimestamp message];
-  result.seconds = timestamp.seconds;
-  result.nanos = timestamp.nanoseconds;
+  result.seconds = timestamp.seconds();
+  result.nanos = timestamp.nanoseconds();
   return result;
 }
 
-- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp {
-  return [[FIRTimestamp alloc] initWithSeconds:timestamp.seconds nanoseconds:timestamp.nanos];
+- (Timestamp)decodedTimestamp:(GPBTimestamp *)timestamp {
+  return Timestamp{timestamp.seconds, timestamp.nanos};
 }
 
-- (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version {
-  return [self encodedTimestamp:version.timestamp];
+- (GPBTimestamp *)encodedVersion:(const SnapshotVersion &)version {
+  return [self encodedTimestamp:version.timestamp()];
 }
 
-- (FSTSnapshotVersion *)decodedVersion:(GPBTimestamp *)version {
-  return [FSTSnapshotVersion versionWithTimestamp:[self decodedTimestamp:version]];
+- (SnapshotVersion)decodedVersion:(GPBTimestamp *)version {
+  return SnapshotVersion{[self decodedTimestamp:version]};
 }
 
 #pragma mark - FIRGeoPoint <=> GTPLatLng
@@ -206,8 +206,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [self encodedString:[fieldValue value]];
 
   } else if (fieldClass == [FSTTimestampValue class]) {
-    return [self encodedTimestampValue:[fieldValue value]];
-
+    FIRTimestamp *value = static_cast<FIRTimestamp *>([fieldValue value]);
+    return [self encodedTimestampValue:Timestamp{value.seconds, value.nanoseconds}];
   } else if (fieldClass == [FSTGeoPointValue class]) {
     return [self encodedGeoPointValue:[fieldValue value]];
 
@@ -250,8 +250,12 @@ NS_ASSUME_NONNULL_BEGIN
     case GCFSValue_ValueType_OneOfCase_StringValue:
       return [FSTStringValue stringValue:valueProto.stringValue];
 
-    case GCFSValue_ValueType_OneOfCase_TimestampValue:
-      return [FSTTimestampValue timestampValue:[self decodedTimestamp:valueProto.timestampValue]];
+    case GCFSValue_ValueType_OneOfCase_TimestampValue: {
+      Timestamp value = [self decodedTimestamp:valueProto.timestampValue];
+      return [FSTTimestampValue
+          timestampValue:[FIRTimestamp timestampWithSeconds:value.seconds()
+                                                nanoseconds:value.nanoseconds()]];
+    }
 
     case GCFSValue_ValueType_OneOfCase_GeoPointValue:
       return [FSTGeoPointValue geoPointValue:[self decodedGeoPoint:valueProto.geoPointValue]];
@@ -303,7 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (GCFSValue *)encodedTimestampValue:(FIRTimestamp *)value {
+- (GCFSValue *)encodedTimestampValue:(const Timestamp &)value {
   GCFSValue *result = [GCFSValue message];
   result.timestampValue = [self encodedTimestamp:value];
   return result;
@@ -429,8 +433,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert(!!response.found, @"Tried to deserialize a found document from a deleted document.");
   const DocumentKey key = [self decodedDocumentKey:response.found.name];
   FSTObjectValue *value = [self decodedFields:response.found.fields];
-  FSTSnapshotVersion *version = [self decodedVersion:response.found.updateTime];
-  FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
+  SnapshotVersion version = [self decodedVersion:response.found.updateTime];
+  FSTAssert(version != SnapshotVersion::None(),
             @"Got a document response with no snapshot version");
 
   return [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
@@ -439,8 +443,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDeletedDocument *)decodedDeletedDocument:(GCFSBatchGetDocumentsResponse *)response {
   FSTAssert(!!response.missing, @"Tried to deserialize a deleted document from a found document.");
   const DocumentKey key = [self decodedDocumentKey:response.missing];
-  FSTSnapshotVersion *version = [self decodedVersion:response.readTime];
-  FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
+  SnapshotVersion version = [self decodedVersion:response.readTime];
+  FSTAssert(version != SnapshotVersion::None(),
             @"Got a no document response with no snapshot version");
   return [FSTDeletedDocument documentWithKey:key version:version];
 }
@@ -668,8 +672,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation {
   // NOTE: Deletes don't have an updateTime.
-  FSTSnapshotVersion *_Nullable version =
-      mutation.updateTime ? [self decodedVersion:mutation.updateTime] : nil;
+  absl::optional<SnapshotVersion> version;
+  if (mutation.updateTime) {
+    version = [self decodedVersion:mutation.updateTime];
+  }
   NSMutableArray *_Nullable transformResults = nil;
   if (mutation.transformResultsArray.count > 0) {
     transformResults = [NSMutableArray array];
@@ -677,7 +683,8 @@ NS_ASSUME_NONNULL_BEGIN
       [transformResults addObject:[self decodedFieldValue:result]];
     }
   }
-  return [[FSTMutationResult alloc] initWithVersion:version transformResults:transformResults];
+  return [[FSTMutationResult alloc]
+      initWithVersion:(version ? version.value() : nil)transformResults:transformResults];
 }
 
 #pragma mark - FSTQueryData => GCFSTarget proto
@@ -1071,15 +1078,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (FSTSnapshotVersion *)versionFromListenResponse:(GCFSListenResponse *)watchChange {
+- (SnapshotVersion)versionFromListenResponse:(GCFSListenResponse *)watchChange {
   // We have only reached a consistent snapshot for the entire stream if there is a read_time set
   // and it applies to all targets (i.e. the list of targets is empty). The backend is guaranteed to
   // send such responses.
   if (watchChange.responseTypeOneOfCase != GCFSListenResponse_ResponseType_OneOfCase_TargetChange) {
-    return [FSTSnapshotVersion noVersion];
+    return SnapshotVersion::None();
   }
   if (watchChange.targetChange.targetIdsArray.count != 0) {
-    return [FSTSnapshotVersion noVersion];
+    return SnapshotVersion::None();
   }
   return [self decodedVersion:watchChange.targetChange.readTime];
 }
@@ -1135,9 +1142,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentWatchChange *)decodedDocumentChange:(GCFSDocumentChange *)change {
   FSTObjectValue *value = [self decodedFields:change.document.fields];
   const DocumentKey key = [self decodedDocumentKey:change.document.name];
-  FSTSnapshotVersion *version = [self decodedVersion:change.document.updateTime];
-  FSTAssert(![version isEqual:[FSTSnapshotVersion noVersion]],
-            @"Got a document change with no snapshot version");
+  SnapshotVersion version = [self decodedVersion:change.document.updateTime];
+  FSTAssert(version != SnapshotVersion::None(), @"Got a document change with no snapshot version");
   FSTMaybeDocument *document =
       [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
 
@@ -1152,8 +1158,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentWatchChange *)decodedDocumentDelete:(GCFSDocumentDelete *)change {
   const DocumentKey key = [self decodedDocumentKey:change.document];
-  // Note that version might be unset in which case we use [FSTSnapshotVersion noVersion]
-  FSTSnapshotVersion *version = [self decodedVersion:change.readTime];
+  // Note that version might be unset in which case we use SnapshotVersion::None()
+  SnapshotVersion version = [self decodedVersion:change.readTime];
   FSTMaybeDocument *document = [FSTDeletedDocument documentWithKey:key version:version];
 
   NSArray<NSNumber *> *removedTargetIds = [self decodedIntegerArray:change.removedTargetIdsArray];

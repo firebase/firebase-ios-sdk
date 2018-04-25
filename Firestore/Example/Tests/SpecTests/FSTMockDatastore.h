@@ -18,6 +18,8 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
+@class FSTSnapshotVersion;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMockDatastore : FSTDatastore

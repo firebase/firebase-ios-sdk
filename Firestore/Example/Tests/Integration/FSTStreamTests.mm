@@ -29,12 +29,14 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::SnapshotVersion;
 
 /** Exposes otherwise private methods for testing. */
 @interface FSTStream (Testing)
@@ -101,13 +103,13 @@ using firebase::firestore::model::DatabaseId;
 }
 
 - (void)watchStreamDidChange:(FSTWatchChange *)change
-             snapshotVersion:(FSTSnapshotVersion *)snapshotVersion {
+             snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   [_states addObject:@"watchStreamDidChange"];
   [_expectation fulfill];
   _expectation = nil;
 }
 
-- (void)writeStreamDidReceiveResponseWithVersion:(FSTSnapshotVersion *)commitVersion
+- (void)writeStreamDidReceiveResponseWithVersion:(const SnapshotVersion &)commitVersion
                                  mutationResults:(NSArray<FSTMutationResult *> *)results {
   [_states addObject:@"writeStreamDidReceiveResponseWithVersion"];
   [_expectation fulfill];

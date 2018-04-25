@@ -19,7 +19,6 @@
 #include <map>
 #include <utility>
 
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -181,11 +181,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTTargetChange ()
 @property(nonatomic, assign) FSTCurrentStatusUpdate currentStatusUpdate;
 @property(nonatomic, strong, nullable) FSTTargetMapping *mapping;
-@property(nonatomic, strong) FSTSnapshotVersion *snapshotVersion;
 @property(nonatomic, strong) NSData *resumeToken;
 @end
 
-@implementation FSTTargetChange
+@implementation FSTTargetChange {
+  SnapshotVersion _snapshotVersion;
+}
 
 - (instancetype)init {
   if (self = [super init]) {
@@ -193,6 +194,17 @@ NS_ASSUME_NONNULL_BEGIN
     _resumeToken = [NSData data];
   }
   return self;
+}
+
+- (instancetype)initWithSnapshotVersion:(SnapshotVersion)snapshotVersion {
+  if (self = [self init]) {
+    _snapshotVersion = std::move(snapshotVersion);
+  }
+  return self;
+}
+
+- (const SnapshotVersion &)snapshotVersion {
+  return _snapshotVersion;
 }
 
 + (instancetype)changeWithDocuments:(NSArray<FSTMaybeDocument *> *)docs
@@ -212,11 +224,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)changeWithMapping:(FSTTargetMapping *)mapping
-                  snapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+                  snapshotVersion:(SnapshotVersion)snapshotVersion
               currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate {
   FSTTargetChange *change = [[FSTTargetChange alloc] init];
   change.mapping = mapping;
-  change.snapshotVersion = snapshotVersion;
+  change->_snapshotVersion = std::move(snapshotVersion);
   change.currentStatusUpdate = currentStatusUpdate;
   return change;
 }
@@ -248,33 +260,24 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)
-initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
           targetChanges:(NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges
         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates;
-
-@property(nonatomic, strong) FSTSnapshotVersion *snapshotVersion;
 
 @end
 
 @implementation FSTRemoteEvent {
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
-}
-+ (instancetype)
-eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
-           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
-         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates {
-  return [[FSTRemoteEvent alloc] initWithSnapshotVersion:snapshotVersion
-                                           targetChanges:targetChanges
-                                         documentUpdates:std::move(documentUpdates)];
+  SnapshotVersion _snapshotVersion;
 }
 
-- (instancetype)initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+- (instancetype)initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
                           targetChanges:
                               (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
                         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates {
   self = [super init];
   if (self) {
-    _snapshotVersion = snapshotVersion;
+    _snapshotVersion = std::move(snapshotVersion);
     _targetChanges = targetChanges;
     _documentUpdates = std::move(documentUpdates);
   }
@@ -330,6 +333,10 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   return _documentUpdates;
 }
 
+- (const SnapshotVersion &)snapshotVersion {
+  return _snapshotVersion;
+}
+
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document {
   _documentUpdates[document.key] = document;
@@ -350,7 +357,7 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   // TODO(dimond): keep track of reset targets not to raise.
   FSTTargetChange *targetChange =
       [FSTTargetChange changeWithMapping:[[FSTResetMapping alloc] init]
-                         snapshotVersion:[FSTSnapshotVersion noVersion]
+                         snapshotVersion:SnapshotVersion::None()
                      currentStatusUpdate:FSTCurrentStatusUpdateMarkNotCurrent];
   _targetChanges[targetID] = targetChange;
 }
@@ -360,9 +367,6 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 #pragma mark - FSTWatchChangeAggregator
 
 @interface FSTWatchChangeAggregator ()
-
-/** The snapshot version for every target change this creates. */
-@property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
 
 /** Keeps track of the current target mappings */
 @property(nonatomic, strong, readonly)
@@ -381,15 +385,17 @@ eventWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
   NSMutableDictionary<FSTBoxedTargetID *, FSTExistenceFilter *> *_existenceFilters;
   /** Keeps track of document to update */
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
+  /** The snapshot version for every target change this creates. */
+  SnapshotVersion _snapshotVersion;
 }
 
 - (instancetype)
-initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
           listenTargets:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)listenTargets
  pendingTargetResponses:(NSDictionary<FSTBoxedTargetID *, NSNumber *> *)pendingTargetResponses {
   self = [super init];
   if (self) {
-    _snapshotVersion = snapshotVersion;
+    _snapshotVersion = std::move(snapshotVersion);
 
     _frozen = NO;
     _targetChanges = [NSMutableDictionary dictionary];
@@ -408,8 +414,7 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 - (FSTTargetChange *)targetChangeForTargetID:(FSTBoxedTargetID *)targetID {
   FSTTargetChange *change = self.targetChanges[targetID];
   if (!change) {
-    change = [[FSTTargetChange alloc] init];
-    change.snapshotVersion = self.snapshotVersion;
+    change = [[FSTTargetChange alloc] initWithSnapshotVersion:_snapshotVersion];
     self.targetChanges[targetID] = change;
   }
   return change;
@@ -559,9 +564,9 @@ initWithSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
 
   // Mark this aggregator as frozen so no further modifications are made.
   self.frozen = YES;
-  return [FSTRemoteEvent eventWithSnapshotVersion:self.snapshotVersion
-                                    targetChanges:targetChanges
-                                  documentUpdates:_documentUpdates];
+  return [[FSTRemoteEvent alloc] initWithSnapshotVersion:_snapshotVersion
+                                           targetChanges:targetChanges
+                                         documentUpdates:_documentUpdates];
 }
 
 @end
