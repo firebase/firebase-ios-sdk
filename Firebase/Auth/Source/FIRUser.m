@@ -776,13 +776,9 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
-  // |getTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
+  // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
   // global work queue here.
   [self getIDTokenForcingRefresh:NO completion:completion];
-}
-
-- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
-  [self getIDTokenWithCompletion:completion];
 }
 
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
@@ -896,11 +892,6 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
                                         claims:tokenPayloadDictionary];
   return result;
-}
-
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                    completion:(nullable FIRAuthTokenCallback)completion {
-  [self getIDTokenForcingRefresh:forceRefresh completion:completion];
 }
 
 /** @fn internalGetTokenForcingRefresh:callback:
