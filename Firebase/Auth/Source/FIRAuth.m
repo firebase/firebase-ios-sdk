@@ -946,10 +946,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
-                 completion:(nullable FIRAuthResultCallback)completion {
+                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalCreateUserWithEmail:email
                              password:password
                            completion:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -962,7 +962,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 accessTokenExpirationDate:response.approximateExpirationDate
                              refreshToken:response.refreshToken
                                 anonymous:NO
-                                 callback:decoratedCallback];
+                                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:YES];
+        FIRAuthDataResult *authDataResult =
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
+      }];
     }];
   });
 }
