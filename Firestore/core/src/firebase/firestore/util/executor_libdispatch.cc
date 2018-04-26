@@ -29,11 +29,11 @@ absl::string_view StringViewFromDispatchLabel(const char* const label) {
 }
 
 template <typename Work>
-void RunSynchronized(ExecutorLibdispatch* const executor, Work&& work) {
+void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
   if (executor->IsCurrentExecutor()) {
     work();
   } else {
-    executor->ExecuteBlocking(std::forward<Work>(work));
+    DispatchSync(executor->dispatch_queue(), std::forward<Work>(work));
   }
 }
 
@@ -236,10 +236,14 @@ absl::string_view ExecutorLibdispatch::GetTargetQueueLabel() const {
 // Test-only methods
 
 bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
-  return std::find_if(schedule_.begin(), schedule_.end(),
-                      [&tag](const TimeSlot* const operation) {
-                        return *operation == tag;
-                      }) != schedule_.end();
+  bool result = false;
+  RunSynchronized(this, [this, tag, &result] {
+    result = std::find_if(schedule_.begin(), schedule_.end(),
+                        [&tag](const TimeSlot* const operation) {
+                          return *operation == tag;
+                        }) != schedule_.end();
+  });
+  return result;
 }
 
 bool ExecutorLibdispatch::IsScheduleEmpty() const {
