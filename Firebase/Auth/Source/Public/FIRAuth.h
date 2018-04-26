@@ -639,10 +639,11 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
-                 completion:(nullable FIRAuthResultCallback)completion;
+                 completion:(nullable FIRAuthDataResultCallback)completion;
 
 /** @fn createUserAndRetrieveDataWithEmail:password:completion:
-    @brief Creates and, on success, signs in a user with the given email address and password.
+    @brief Please use `createUserAndRetrieveDataWithEmail:password:completion:` or
+        `createUser(withEmail:password:completion:)` for Swift instead.
 
     @param email The user's email address.
     @param password The user's desired password.
@@ -669,7 +670,13 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)createUserAndRetrieveDataWithEmail:(NSString *)email
                                   password:(NSString *)password
-                                completion:(nullable FIRAuthDataResultCallback)completion;
+                                completion:(nullable FIRAuthDataResultCallback)completion
+                                    DEPRECATED_MSG_ATTRIBUTE(
+                                      "createUserAndRetrieveDataWithEmail:password:completion: is"
+                                      " deprecated. Please use"
+                                      " createUserWithEmail:password:completion: for Objective-C or"
+                                      " createUser(withEmail:password:completion:) for Swift"
+                                      " instead.");
 
 /** @fn confirmPasswordResetWithCode:newPassword:completion:
     @brief Resets the password given a code sent to the user outside of the app and a new password

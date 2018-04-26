@@ -1592,9 +1592,9 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] createUserWithEmail:kEmail
                              password:kFakePassword
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                           completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    [self assertUser:user];
+    [self assertUser:result.user];
     XCTAssertNil(error);
     [expectation fulfill];
   }];
@@ -1614,9 +1614,10 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] createUserWithEmail:kEmail
                              password:kFakePassword
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
-    XCTAssertNil(user);
+    XCTAssertNil(result.user);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWeakPassword);
     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
     XCTAssertEqualObjects(error.userInfo[NSLocalizedFailureReasonErrorKey], reason);
@@ -1700,7 +1701,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] createUserWithEmail:kEmail
                              password:@""
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeWeakPassword);
     [expectation fulfill];
@@ -1719,7 +1721,8 @@ static const NSTimeInterval kWaitInterval = .5;
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] createUserWithEmail:@""
                              password:kFakePassword
-                           completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                           completion:^(FIRAuthDataResult *_Nullable result,
+                                        NSError *_Nullable error) {
     XCTAssertTrue([NSThread isMainThread]);
     XCTAssertEqual(error.code, FIRAuthErrorCodeMissingEmail);
     [expectation fulfill];
