@@ -49,6 +49,11 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
 
+#define ASSERT_OK(status) ASSERT_TRUE(StatusOk(status))
+#define ASSERT_NOT_OK(status) ASSERT_FALSE(StatusOk(status))
+#define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
+#define EXPECT_NOT_OK(status) EXPECT_FALSE(StatusOk(status))
+
 TEST(Serializer, CanLinkToNanopb) {
   // This test doesn't actually do anything interesting as far as actually using
   // nanopb is concerned but that it can run at all is proof that all the
@@ -79,6 +84,30 @@ class SerializerTest : public ::testing::Test {
   }
 
   /**
+   * Checks the status. Don't use directly; use one of the relevant macros
+   * instead. eg:
+   *
+   *   Status good_status = ...;
+   *   ASSERT_OK(good_status);
+   *
+   *   Status bad_status = ...;
+   *   EXPECT_NOT_OK(bad_status);
+   */
+  testing::AssertionResult StatusOk(const Status& status) {
+    if (!status.ok()) {
+      return testing::AssertionFailure()
+             << "Status should have been ok, but instead contained "
+             << status.ToString();
+    }
+    return testing::AssertionSuccess();
+  }
+
+  template <typename T>
+  testing::AssertionResult StatusOk(const StatusOr<T>& status) {
+    return StatusOk(status.status());
+  }
+
+  /**
    * Ensures that decoding fails with the given status.
    *
    * @param status the expected (failed) status. Only the code() is verified.
@@ -86,7 +115,7 @@ class SerializerTest : public ::testing::Test {
   void ExpectFailedStatusDuringDecode(Status status,
                                       const std::vector<uint8_t>& bytes) {
     StatusOr<FieldValue> bad_status = serializer.DecodeFieldValue(bytes);
-    EXPECT_FALSE(bad_status.ok());
+    ASSERT_NOT_OK(bad_status);
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
@@ -94,18 +123,33 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Status status =
         serializer.EncodeFieldValue(FieldValue::NullValue(), &bytes);
-    EXPECT_TRUE(status.ok());
+    EXPECT_OK(status);
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
   }
 
+  std::vector<uint8_t> ExpectSuccessfullyEncodedFieldValue(
+      Serializer& serializer, const FieldValue& fv) {
+    std::vector<uint8_t> bytes;
+    Status status = serializer.EncodeFieldValue(fv, &bytes);
+    EXPECT_OK(status);
+    return bytes;
+  }
+
+  void Mutate(uint8_t* byte,
+              uint8_t expected_initial_value,
+              uint8_t new_value) {
+    ASSERT_EQ(*byte, expected_initial_value);
+    *byte = new_value;
+  }
+
   google::firestore::v1beta1::Value ValueProto(bool b) {
     std::vector<uint8_t> bytes;
     Status status =
         serializer.EncodeFieldValue(FieldValue::BooleanValue(b), &bytes);
-    EXPECT_TRUE(status.ok());
+    EXPECT_OK(status);
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -116,7 +160,7 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Status status =
         serializer.EncodeFieldValue(FieldValue::IntegerValue(i), &bytes);
-    EXPECT_TRUE(status.ok());
+    EXPECT_OK(status);
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -131,7 +175,7 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Status status =
         serializer.EncodeFieldValue(FieldValue::StringValue(s), &bytes);
-    EXPECT_TRUE(status.ok());
+    EXPECT_OK(status);
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -146,7 +190,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> bytes;
     Status status = serializer.EncodeFieldValue(model, &bytes);
-    EXPECT_TRUE(status.ok());
+    EXPECT_OK(status);
     google::firestore::v1beta1::Value actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -163,7 +207,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_TRUE(status);
     StatusOr<FieldValue> actual_model_status =
         serializer.DecodeFieldValue(bytes);
-    EXPECT_TRUE(actual_model_status.ok());
+    EXPECT_OK(actual_model_status);
     FieldValue actual_model = actual_model_status.ValueOrDie();
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
@@ -326,12 +370,23 @@ TEST_F(SerializerTest, BadStringValue2) {
   std::vector<uint8_t> bytes;
   Status status =
       serializer.EncodeFieldValue(FieldValue::StringValue("a"), &bytes);
-  EXPECT_TRUE(status.ok());
+  ASSERT_OK(status);
 
-  // Mutate that bytes: Claim that the string length is 5 instead of 1.
-  // (The first two bytes are used by the encoded tag.)
-  EXPECT_EQ(bytes[2], 1);
-  bytes[2] = 5;
+  // Claim that the string length is 5 instead of 1. (The first two bytes are
+  // used by the encoded tag.)
+  Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
+
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadStringValue4) {
+  std::vector<uint8_t> bytes = ExpectSuccessfullyEncodedFieldValue(
+      serializer, FieldValue::StringValue("a"));
+
+  // Claim that the string length is 5 instead of 1. (The first two bytes are
+  // used by the encoded tag.)
+  Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
 
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
@@ -357,7 +412,7 @@ TEST_F(SerializerTest, BadTag) {
   // removed from serializer.cc.
   EXPECT_ANY_THROW(ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes));
-  //ExpectFailedStatusDuringDecode(
+  // ExpectFailedStatusDuringDecode(
   //    Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 

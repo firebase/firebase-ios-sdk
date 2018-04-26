@@ -285,8 +285,7 @@ Tag Reader::ReadTag() {
 
   bool eof;
   if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
-    status_ =
-        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     return tag;
   }
 
@@ -322,8 +321,7 @@ uint64_t Reader::ReadVarint() {
 
   uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
-    status_ =
-        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
   }
   return varint_value;
 }
@@ -386,8 +384,7 @@ std::string Reader::ReadString() {
 
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
-    status_ =
-        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -395,8 +392,7 @@ std::string Reader::ReadString() {
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    status_ =
-        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -594,8 +590,7 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
 
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
-    status_ =
-        Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &raw_substream);
     return T();
   }
