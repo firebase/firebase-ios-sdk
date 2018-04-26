@@ -1884,7 +1884,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
               callback:(nullable FIRAuthResultCallback)callback {
   [[AppManager auth] createUserWithEmail:email
                                 password:password
-                              completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                              completion:^(FIRAuthDataResult *_Nullable result,
+                                           NSError *_Nullable error) {
     if (error) {
       [self logFailure:@"sign-up with Email/Password failed" error:error];
       if (callback) {
@@ -1893,7 +1894,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
     } else {
       [self logSuccess:@"sign-up with Email/Password succeeded."];
       if (callback) {
-        callback(user, nil);
+        callback(result.user, nil);
       }
     }
     [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign-In" error:error];
@@ -2803,7 +2804,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [self showSpinner:^{
         [[AppManager auth] createUserWithEmail:email
                                       password:password
-                                    completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                                    completion:^(FIRAuthDataResult *_Nullable result,
+                                                 NSError *_Nullable error) {
           if (error) {
             [self logFailure:@"create user failed" error:error];
           } else {
