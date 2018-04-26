@@ -679,7 +679,7 @@ NS_ASSUME_NONNULL_BEGIN
                                listenSequenceNumber:1000
                                             purpose:FSTQueryPurposeLimboResolution];
   FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(3)
+      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:testutil::Version(3)
                                                   listenTargets:listens
                                          pendingTargetResponses:@{}];
 
