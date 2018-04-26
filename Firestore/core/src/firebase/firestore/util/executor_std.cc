@@ -132,7 +132,8 @@ void ExecutorStd::ExecuteBlocking(Operation&& operation) {
 }
 
 bool ExecutorStd::IsScheduled(const Tag tag) const {
-  return schedule_.Contains([&tag](const Entry& e) { return e.tagged.tag == tag; });
+  return schedule_.Contains(
+      [&tag](const Entry& e) { return e.tagged.tag == tag; });
 }
 
 absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
