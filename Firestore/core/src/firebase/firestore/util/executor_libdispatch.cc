@@ -164,7 +164,6 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
     for (auto slot : schedule_) {
       slot->MarkDone();
     }
-    schedule_.clear();
   });
 }
 
@@ -256,10 +255,7 @@ ExecutorLibdispatch::PopFromSchedule() {
       return;
     }
     // Sorting upon each call to `PopFromSchedule` is inefficient, which is
-    // consciously ignored. One alternative is to keep `schedule_` sorted, which
-    // would impose a performance penalty, however small, on the normal code
-    // paths in favor of test-only paths. The other is to expose yet another
-    // test-only method for sorting, unnecessarily bloating the interface.
+    // consciously ignored because this function is only ever called from tests.
     std::sort(
         schedule_.begin(), schedule_.end(),
         [](const TimeSlot* lhs, const TimeSlot* rhs) { return *lhs < *rhs; });

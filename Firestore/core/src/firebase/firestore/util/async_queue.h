@@ -112,14 +112,17 @@ class AsyncQueue {
 
   // Immediately executes the `operation` on the queue.
   //
-  // Precondition: the queue is idle at the moment of the call (no other
-  // operation is currently being executed).
+  // Precondition: no other operation is being executed on the queue at the
+  // moment of the call (i.e., calls to `StartExecution` cannot be nested).
   //
   // Precondition: `StartExecution` is being invoked asynchronously on the
   // queue.
   void StartExecution(const Operation& operation);
 
   // Test-only interface follows
+  // TODO(varconst): move the test-only interface into a helper object that is
+  // a friend of AsyncQueue and delegates its public methods to private methods
+  // on AsyncQueue.
 
   // Like `Enqueue`, but blocks until the `operation` is complete.
   void EnqueueBlocking(const Operation& operation);
