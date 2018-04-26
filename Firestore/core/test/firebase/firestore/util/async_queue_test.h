@@ -30,9 +30,8 @@ namespace util {
 
 using FactoryFunc = std::unique_ptr<internal::Executor> (*)();
 
-class AsyncQueueTest
-    : public TestWithTimeoutMixin,
-      public ::testing::TestWithParam<FactoryFunc> {
+class AsyncQueueTest : public TestWithTimeoutMixin,
+                       public ::testing::TestWithParam<FactoryFunc> {
  public:
   // `GetParam()` must return a factory function.
   AsyncQueueTest() : queue{GetParam()()} {

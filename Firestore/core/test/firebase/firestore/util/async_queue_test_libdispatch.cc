@@ -36,17 +36,15 @@ std::unique_ptr<internal::Executor> CreateExecutorFromQueue(
   return absl::make_unique<internal::ExecutorLibdispatch>(queue);
 }
 
-std::unique_ptr<internal::Executor> CreateExecutorLibdispatch(
-) {
+std::unique_ptr<internal::Executor> CreateExecutorLibdispatch() {
   return CreateExecutorFromQueue(CreateDispatchQueue());
 }
 
 }  // namespace
 
-INSTANTIATE_TEST_CASE_P(
-    AsyncQueueLibdispatch,
-    AsyncQueueTest,
-    ::testing::Values(CreateExecutorLibdispatch));
+INSTANTIATE_TEST_CASE_P(AsyncQueueLibdispatch,
+                        AsyncQueueTest,
+                        ::testing::Values(CreateExecutorLibdispatch));
 
 class AsyncQueueTestLibdispatchOnly : public TestWithTimeoutMixin,
                                       public ::testing::Test {
