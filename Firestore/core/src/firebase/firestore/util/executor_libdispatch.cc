@@ -160,10 +160,11 @@ ExecutorLibdispatch::~ExecutorLibdispatch() {
   // the queue is serial, by the time libdispatch gets to the newly-enqueued
   // work, the pending operations that might have been in progress would have
   // already finished.
-  ExecuteBlocking([this] {
-    while (!schedule_.empty()) {
-      RemoveFromSchedule(schedule_.back());
+  RunSynchronized(this, [this] {
+    for (auto slot : schedule_) {
+      slot->MarkDone();
     }
+    schedule_.clear();
   });
 }
 
