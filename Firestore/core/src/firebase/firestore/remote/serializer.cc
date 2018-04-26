@@ -284,8 +284,7 @@ Tag Reader::ReadTag() {
   if (!status_.ok()) return tag;
 
   bool eof;
-  bool ok = pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof);
-  if (!ok) {
+  if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
     status_ =
         Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     return tag;
@@ -491,12 +490,12 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       // We could get here for one of two reasons; either because the input
       // bytes are corrupt, or because we're attempting to parse a tag that we
       // haven't implemented yet. Long term, the latter reason should become
-      // less likely (especially in production), so we'll assume former. (But
-      // we'll also temporarily add a DEV assert to catch the latter when in dev
-      // mode.)
-      // TODO(rsgowman): Remove the 'DEV' assert once we're confident we've
-      // handled all the tags in the protos.
-      FIREBASE_DEV_ASSERT_MESSAGE(
+      // less likely (especially in production), so we'll assume former.
+
+      // TODO(rsgowman): While still in development, we'll contradict the above
+      // and assume the latter. Remove the following assertion when we're
+      // confident that we're handling all the tags in the protos.
+      FIREBASE_ASSERT_MESSAGE(
           false,
           "Unhandled message field number (tag): %i. (Or possibly "
           "corrupt input bytes)",
@@ -605,6 +604,8 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // If this fails, we *won't* return right away so that we can cleanup the
   // substream (although technically, that turns out not to matter; no resource
   // leaks occur if we don't do this.)
+  // TODO(rsgowman): Consider RAII here. (Watch out for Reader class which also
+  // wraps streams.)
   T message = read_message_fn(&substream);
   status_ = substream.status();
 
@@ -657,7 +658,7 @@ void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   Tag tag = reader->ReadTag();
-  if (!reader->status().ok()) return ObjectValue::Map::value_type();
+  if (!reader->status().ok()) return {};
 
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
@@ -667,7 +668,7 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   std::string key = reader->ReadString();
 
   tag = reader->ReadTag();
-  if (!reader->status().ok()) return ObjectValue::Map::value_type();
+  if (!reader->status().ok()) return {};
   FIREBASE_ASSERT(tag.field_number ==
                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
   FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);

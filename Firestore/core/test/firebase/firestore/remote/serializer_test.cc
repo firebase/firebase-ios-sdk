@@ -344,22 +344,21 @@ TEST_F(SerializerTest, BadTag) {
   // Specifically 31.
   // clang-format off
   std::vector<uint8_t> bytes{
-      0xF8, 0x01,  // represents field number 31 encoded as a varint
+      0xf8, 0x01,  // represents field number 31 encoded as a varint
                    // There's no payload here, which is also invalid, but we
                    // won't get that far.
   };
   // clang-format on
-#if defined(NDEBUG)
-  ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-#else
-  // The behaviour is *temporarily* slightly different during debug mode; this
-  // will cause a failed assertion rather than a failed status.
-  // TODO(rsgowman): Remove this path once it's removed from serializer.cc.
-  // (Hint: search for FIREBASE_DEV_ASSERT_MESSAGE)
+
+  // TODO(rsgowman): The behaviour is *temporarily* slightly different during
+  // development; this will cause a failed assertion rather than a failed
+  // status. Remove this EXPECT_ANY_THROW statement (and reenable the
+  // following commented out statement) once the corresponding assert has been
+  // removed from serializer.cc.
   EXPECT_ANY_THROW(ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes));
-#endif
+  //ExpectFailedStatusDuringDecode(
+  //    Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
@@ -395,7 +394,7 @@ TEST_F(SerializerTest, IncompleteFieldValue) {
 }
 
 TEST_F(SerializerTest, IncompleteTag) {
-  std::vector<uint8_t> bytes{};
+  std::vector<uint8_t> bytes;
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
