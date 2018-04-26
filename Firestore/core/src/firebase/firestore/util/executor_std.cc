@@ -93,8 +93,8 @@ ExecutorStd::Id ExecutorStd::DoExecute(Operation&& operation,
 void ExecutorStd::PollingThread() {
   while (!shutting_down_) {
     Entry entry = schedule_.PopBlocking();
-    if (entry.operation) {
-      entry.operation();
+    if (entry.tagged.operation) {
+      entry.tagged.operation();
     }
   }
 }
@@ -132,7 +132,7 @@ void ExecutorStd::ExecuteBlocking(Operation&& operation) {
 }
 
 bool ExecutorStd::IsScheduled(const Tag tag) const {
-  return schedule_.Contains([&tag](const Entry& e) { return e.tag == tag; });
+  return schedule_.Contains([&tag](const Entry& e) { return e.tagged.tag == tag; });
 }
 
 absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
@@ -141,8 +141,7 @@ absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
   if (!removed.has_value()) {
     return {};
   }
-  return TaggedOperation{removed.value().tag,
-                         std::move(removed.value().operation)};
+  return {std::move(removed.value().tagged)};
 }
 
 }  // namespace internal
