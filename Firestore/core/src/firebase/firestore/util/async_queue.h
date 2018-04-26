@@ -129,8 +129,6 @@ class AsyncQueue {
 
   // Checks whether an operation tagged with `timer_id` is currently scheduled
   // for execution in the future.
-  //
-  // Precondition: `IsScheduled` is being invoked asynchronously on the queue.
   bool IsScheduled(TimerId timer_id) const;
 
   // Force runs operations scheduled for future execution, in scheduled order,

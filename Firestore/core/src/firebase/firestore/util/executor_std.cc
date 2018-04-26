@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 
 #include <future>  // NOLINT(build/c++11)
+#include <sstream>
 
 namespace firebase {
 namespace firestore {
@@ -27,9 +28,10 @@ namespace {
 
 // The only guarantee is that different `thread_id`s will produce different
 // values.
-std::string PrintThreadId(const std::thread::id thread_id) {
-  const auto hashed = std::hash<std::thread::id>{}(thread_id);
-  return std::to_string(hashed);
+std::string ThreadIdToString(const std::thread::id thread_id) {
+  std::ostringstream stream;
+  stream << thread_id;
+  return stream.str();
 }
 
 }  // namespace
@@ -113,11 +115,11 @@ ExecutorStd::Id ExecutorStd::NextId() {
 }
 
 bool ExecutorStd::IsCurrentExecutor() const {
-  return CurrentExecutorName() == PrintThreadId(worker_thread_.get_id());
+  return std::this_thread::get_id() == worker_thread_.get_id();
 }
 
 std::string ExecutorStd::CurrentExecutorName() const {
-  return PrintThreadId(std::this_thread::get_id());
+  return ThreadIdToString(std::this_thread::get_id());
 }
 
 void ExecutorStd::ExecuteBlocking(Operation&& operation) {

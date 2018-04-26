@@ -18,15 +18,25 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 
+#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-INSTANTIATE_TEST_CASE_P(AsyncQueueStd,
-                        AsyncQueueTest,
-                        ::testing::Values(new internal::ExecutorStd{}));
+namespace {
+
+std::unique_ptr<internal::Executor> ExecutorFactory() {
+  return absl::make_unique<internal::ExecutorStd>();
+}
+
+}  // namespace
+
+INSTANTIATE_TEST_CASE_P(
+    AsyncQueueStd,
+    AsyncQueueTest,
+    ::testing::Values(ExecutorFactory));
 }
 }  // namespace firestore
 }  // namespace firebase

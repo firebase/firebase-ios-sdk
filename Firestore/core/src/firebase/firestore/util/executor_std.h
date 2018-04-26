@@ -68,9 +68,8 @@ class Schedule {
 
   // If the queue contains at least one entry for which the scheduled time is
   // due now (according to the system clock), removes the entry which is the
-  // most overdue from the queue, moves it into `out`, and returns true. If no
-  // entry is due, doesn't modify `out` and returns false. `out` may be
-  // `nullptr` (in which case the value will be simply discarded).
+  // most overdue from the queue and returns it. If no entry is due, returns an
+  // empty `optional`.
   absl::optional<T> PopIfDue() {
     std::lock_guard<std::mutex> lock{mutex_};
 
@@ -82,9 +81,8 @@ class Schedule {
 
   // Blocks until at least one entry is available for which the scheduled time
   // is due now (according to the system clock), removes the entry which is the
-  // most overdue from the queue and moves it into `out`. The function will
-  // attempt to minimize both the waiting time and busy waiting. `out` may be
-  // `nullptr` (in which case the value will be simply discarded).
+  // most overdue from the queue and returns it. The function will
+  // attempt to minimize both the waiting time and busy waiting.
   T PopBlocking() {
     std::unique_lock<std::mutex> lock{mutex_};
 
@@ -121,11 +119,9 @@ class Schedule {
     return scheduled_.size();
   }
 
-  // Removes the first entry satisfying predicate from the queue, moves it into
-  // `out`, and returns true. If no such entry exists, doesn't modify `out` and
-  // returns false. Predicate is applied to entries in order according to their
-  // scheduled time. `out` may be `nullptr` (in which case the value will be
-  // simply discarded).
+  // Removes the first entry satisfying predicate from the queue and returns it.
+  // If no such entry exists, returns an empty `optional`. Predicate is applied
+  // to entries in order according to their scheduled time.
   //
   // Note that this function doesn't take into account whether the removed entry
   // is past its due time.
@@ -256,18 +252,18 @@ class ExecutorStd : public Executor {
     }
     Entry(Operation&& operation,
           const ExecutorStd::Id id,
-          const ExecutorStd::Tag tag = NoTag)
+          const ExecutorStd::Tag tag = kNoTag)
         : operation{std::move(operation)}, id{id}, tag{tag} {
     }
 
     bool IsImmediate() const {
-      return tag == NoTag;
+      return tag == kNoTag;
     }
 
     Operation operation;
     Id id = 0;
-    static constexpr Tag NoTag = -1;
-    Tag tag = NoTag;
+    static constexpr Tag kNoTag = -1;
+    Tag tag = kNoTag;
   };
   // Operations scheduled for immediate execution are also put on the schedule
   // (with due time set to `Immediate`).

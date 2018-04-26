@@ -45,7 +45,7 @@ TEST_P(AsyncQueueTest, Enqueue) {
 TEST_P(AsyncQueueTest, EnqueueDisallowsNesting) {
   queue.Enqueue([&] {  // clang-format off
     // clang-format on
-    EXPECT_ANY_THROW(queue.Enqueue([] {}););
+    EXPECT_ANY_THROW(queue.Enqueue([] {}));
     signal_finished();
   });
 
@@ -102,7 +102,7 @@ TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   EXPECT_EQ(steps, "1234");
 }
 
-TEST_P(AsyncQueueTest, CanCancelDelayedCallbacks) {
+TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
   std::string steps;
 
   queue.Enqueue([&] {
@@ -126,10 +126,10 @@ TEST_P(AsyncQueueTest, CanCancelDelayedCallbacks) {
 
   EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "13");
-  queue.EnqueueBlocking([&] { EXPECT_FALSE(queue.IsScheduled(kTimerId1)); });
+  EXPECT_FALSE(queue.IsScheduled(kTimerId1));
 }
 
-TEST_P(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
+TEST_P(AsyncQueueTest, CanCallCancelOnDelayedOperationAfterTheOperationHasRun) {
   DelayedOperation delayed_operation;
   queue.Enqueue([&] {
     delayed_operation = queue.EnqueueAfterDelay(
@@ -138,11 +138,11 @@ TEST_P(AsyncQueueTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   });
 
   EXPECT_TRUE(WaitForTestToFinish());
-  queue.EnqueueBlocking([&] { EXPECT_FALSE(queue.IsScheduled(kTimerId1)); });
+  EXPECT_FALSE(queue.IsScheduled(kTimerId1));
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
-TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
+TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedOperationsForTesting) {
   std::string steps;
 
   queue.Enqueue([&] {
@@ -160,7 +160,7 @@ TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedCallbacksForTesting) {
   EXPECT_EQ(steps, "1234");
 }
 
-TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedCallbacksForTesting) {
+TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   std::string steps;
 
   queue.Enqueue([&] {

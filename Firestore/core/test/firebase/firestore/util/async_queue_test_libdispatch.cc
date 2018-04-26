@@ -31,8 +31,14 @@ dispatch_queue_t CreateDispatchQueue() {
   return dispatch_queue_create("AsyncQueueTests", DISPATCH_QUEUE_SERIAL);
 }
 
-internal::Executor* CreateExecutorLibdispatch(const dispatch_queue_t queue) {
-  return new internal::ExecutorLibdispatch{queue};
+std::unique_ptr<internal::Executor> CreateExecutorFromQueue(
+    const dispatch_queue_t queue) {
+  return absl::make_unique<internal::ExecutorLibdispatch>(queue);
+}
+
+std::unique_ptr<internal::Executor> CreateExecutorLibdispatch(
+) {
+  return CreateExecutorFromQueue(CreateDispatchQueue());
 }
 
 }  // namespace
@@ -40,15 +46,14 @@ internal::Executor* CreateExecutorLibdispatch(const dispatch_queue_t queue) {
 INSTANTIATE_TEST_CASE_P(
     AsyncQueueLibdispatch,
     AsyncQueueTest,
-    ::testing::Values(CreateExecutorLibdispatch(CreateDispatchQueue())));
+    ::testing::Values(CreateExecutorLibdispatch));
 
 class AsyncQueueTestLibdispatchOnly : public TestWithTimeoutMixin,
                                       public ::testing::Test {
  public:
   AsyncQueueTestLibdispatchOnly()
       : underlying_queue{CreateDispatchQueue()},
-        queue{std::unique_ptr<internal::Executor>(
-            CreateExecutorLibdispatch(underlying_queue))} {
+        queue{CreateExecutorFromQueue(underlying_queue)} {
   }
 
   dispatch_queue_t underlying_queue;

@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/test/firebase/firestore/util/async_tests_util.h"
+#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -90,9 +91,15 @@ TEST_F(ScheduleTest, PopBlocking) {
 TEST_F(ScheduleTest, RemoveIf) {
   schedule.Push(1, start_time);
   schedule.Push(2, now() + chr::minutes(1));
+
   auto maybe_removed = schedule.RemoveIf([](const int v) { return v == 1; });
   EXPECT_TRUE(maybe_removed.has_value());
   EXPECT_EQ(maybe_removed.value(), 1);
+
+  // Non-existent value.
+  maybe_removed = schedule.RemoveIf([](const int v) { return v == 1; });
+  EXPECT_FALSE(maybe_removed.has_value());
+
   maybe_removed = schedule.RemoveIf([](const int v) { return v == 2; });
   EXPECT_TRUE(maybe_removed.has_value());
   EXPECT_EQ(maybe_removed.value(), 2);
@@ -154,7 +161,7 @@ TEST_F(ScheduleTest, PopBlockingAdjustsWaitTimeOnNewSoonerEntries) {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 3);
     // Make sure schedule hasn't been waiting longer than necessary.
-    EXPECT_LE(now(), far_away);
+    EXPECT_LT(now(), far_away);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
@@ -170,7 +177,7 @@ TEST_F(ScheduleTest, PopBlockingCanReadjustTimeIfSeveralElementsAreAdded) {
   const auto future = std::async(std::launch::async, [&] {
     ASSERT_FALSE(schedule.PopIfDue().has_value());
     EXPECT_EQ(schedule.PopBlocking(), 1);
-    EXPECT_LE(now(), far_away);
+    EXPECT_LT(now(), far_away);
   });
 
   std::this_thread::sleep_for(chr::milliseconds(5));
@@ -216,12 +223,10 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
 
 // ExecutorStd tests
 
-using internal::Executor;
-
 namespace {
 
-inline std::unique_ptr<Executor> ExecutorFactory() {
-  return std::unique_ptr<Executor>(new internal::ExecutorStd());
+inline std::unique_ptr<internal::Executor> ExecutorFactory() {
+  return absl::make_unique<internal::ExecutorStd>();
 }
 
 }  // namespace

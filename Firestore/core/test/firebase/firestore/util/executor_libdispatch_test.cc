@@ -19,18 +19,17 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-using internal::Executor;
-
 namespace {
 
-inline std::unique_ptr<Executor> ExecutorFactory() {
-  return std::unique_ptr<Executor>(new internal::ExecutorLibdispatch());
+std::unique_ptr<internal::Executor> ExecutorFactory() {
+  return absl::make_unique<internal::ExecutorLibdispatch>();
 }
 
 }  // namespace

@@ -108,7 +108,6 @@ void AsyncQueue::EnqueueBlocking(const Operation& operation) {
 }
 
 bool AsyncQueue::IsScheduled(const TimerId timer_id) const {
-  VerifyIsAsyncCall();
   return executor_->IsScheduled(static_cast<int>(timer_id));
 }
 

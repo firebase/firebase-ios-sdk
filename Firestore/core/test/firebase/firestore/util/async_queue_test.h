@@ -28,10 +28,14 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-class AsyncQueueTest : public TestWithTimeoutMixin,
-                       public ::testing::TestWithParam<internal::Executor*> {
+using FactoryFunc = std::unique_ptr<internal::Executor> (*)();
+
+class AsyncQueueTest
+    : public TestWithTimeoutMixin,
+      public ::testing::TestWithParam<FactoryFunc> {
  public:
-  AsyncQueueTest() : queue{std::unique_ptr<internal::Executor>(GetParam())} {
+  // `GetParam()` must return a factory function.
+  AsyncQueueTest() : queue{GetParam()()} {
   }
 
   AsyncQueue queue;
