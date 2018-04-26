@@ -131,9 +131,9 @@ class SerializerTest : public ::testing::Test {
   }
 
   std::vector<uint8_t> ExpectSuccessfullyEncodedFieldValue(
-      Serializer& serializer, const FieldValue& fv) {
+      Serializer* serializer, const FieldValue& fv) {
     std::vector<uint8_t> bytes;
-    Status status = serializer.EncodeFieldValue(fv, &bytes);
+    Status status = serializer->EncodeFieldValue(fv, &bytes);
     EXPECT_OK(status);
     return bytes;
   }
@@ -382,7 +382,7 @@ TEST_F(SerializerTest, BadStringValue2) {
 
 TEST_F(SerializerTest, BadStringValue4) {
   std::vector<uint8_t> bytes = ExpectSuccessfullyEncodedFieldValue(
-      serializer, FieldValue::StringValue("a"));
+      &serializer, FieldValue::StringValue("a"));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
