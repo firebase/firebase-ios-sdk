@@ -122,16 +122,14 @@ void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
         last_timer_id == TimerId::All || IsScheduled(last_timer_id),
         "Attempted to run scheduled operations until missing timer id: %d",
         last_timer_id);
-    FIREBASE_ASSERT_MESSAGE(
-        !executor_->IsScheduleEmpty(),
-        "Attempted to run scheduled operations with an empty schedule");
 
-    Executor::TaggedOperation tagged;
-    do {
-      tagged = executor_->PopFromSchedule();
-      tagged.operation();
-    } while (!executor_->IsScheduleEmpty() &&
-             tagged.tag != static_cast<int>(last_timer_id));
+    for (auto next = executor_->PopFromSchedule(); next.has_value();
+         next = executor_->PopFromSchedule()) {
+      next->operation();
+      if (next->tag == static_cast<int>(last_timer_id)) {
+        break;
+      }
+    }
   });
 }
 

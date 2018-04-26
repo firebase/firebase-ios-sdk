@@ -120,6 +120,8 @@ cc_library(
     executor_std.h
     executor.h
   DEPENDS
+    absl_bad_optional_access
+    absl_optional
     ${FIREBASE_FIRESTORE_UTIL_LOG}
   EXCLUDE_FROM_ALL
 )
@@ -132,6 +134,8 @@ cc_library(
     executor_libdispatch.h
     executor.h
   DEPENDS
+    absl_bad_optional_access
+    absl_optional
     absl_strings
     ${FIREBASE_FIRESTORE_UTIL_LOG}
   EXCLUDE_FROM_ALL

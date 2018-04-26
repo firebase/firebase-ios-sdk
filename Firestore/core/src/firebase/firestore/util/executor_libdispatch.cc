@@ -239,28 +239,34 @@ bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
   bool result = false;
   RunSynchronized(this, [this, tag, &result] {
     result = std::find_if(schedule_.begin(), schedule_.end(),
-                        [&tag](const TimeSlot* const operation) {
-                          return *operation == tag;
-                        }) != schedule_.end();
+                          [&tag](const TimeSlot* const operation) {
+                            return *operation == tag;
+                          }) != schedule_.end();
   });
   return result;
 }
 
-bool ExecutorLibdispatch::IsScheduleEmpty() const {
-  return schedule_.empty();
-}
+absl::optional<Executor::TaggedOperation>
+ExecutorLibdispatch::PopFromSchedule() {
+  absl::optional<Executor::TaggedOperation> result;
 
-Executor::TaggedOperation ExecutorLibdispatch::PopFromSchedule() {
-  // Sorting upon each call to `PopFromSchedule` is inefficient, which is
-  // consciously ignored. One alternative is to keep `schedule_` sorted, which
-  // would impose a performance penalty, however small, on the normal code paths
-  // in favor of test-only paths. The other is to expose yet another test-only
-  // method for sorting, unnecessarily bloating the interface.
-  std::sort(
-      schedule_.begin(), schedule_.end(),
-      [](const TimeSlot* lhs, const TimeSlot* rhs) { return *lhs < *rhs; });
-  const auto nearest = schedule_.begin();
-  return (*nearest)->Unschedule();
+  RunSynchronized(this, [this, &result] {
+    if (schedule_.empty()) {
+      return;
+    }
+    // Sorting upon each call to `PopFromSchedule` is inefficient, which is
+    // consciously ignored. One alternative is to keep `schedule_` sorted, which
+    // would impose a performance penalty, however small, on the normal code
+    // paths in favor of test-only paths. The other is to expose yet another
+    // test-only method for sorting, unnecessarily bloating the interface.
+    std::sort(
+        schedule_.begin(), schedule_.end(),
+        [](const TimeSlot* lhs, const TimeSlot* rhs) { return *lhs < *rhs; });
+    const auto nearest = schedule_.begin();
+    result = (*nearest)->Unschedule();
+  });
+
+  return result;
 }
 
 }  // namespace internal

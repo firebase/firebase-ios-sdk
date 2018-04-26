@@ -28,6 +28,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -70,14 +71,13 @@ class Schedule {
   // most overdue from the queue, moves it into `out`, and returns true. If no
   // entry is due, doesn't modify `out` and returns false. `out` may be
   // `nullptr` (in which case the value will be simply discarded).
-  bool PopIfDue(T* const out) {
+  absl::optional<T> PopIfDue() {
     std::lock_guard<std::mutex> lock{mutex_};
 
     if (HasDue()) {
-      Extract(out, scheduled_.begin());
-      return true;
+      return Extract(scheduled_.begin());
     }
-    return false;
+    return {};
   }
 
   // Blocks until at least one entry is available for which the scheduled time
@@ -85,7 +85,7 @@ class Schedule {
   // most overdue from the queue and moves it into `out`. The function will
   // attempt to minimize both the waiting time and busy waiting. `out` may be
   // `nullptr` (in which case the value will be simply discarded).
-  void PopBlocking(T* const out) {
+  T PopBlocking() {
     std::unique_lock<std::mutex> lock{mutex_};
 
     while (true) {
@@ -106,8 +106,7 @@ class Schedule {
       //   reevaluated, similar to #2.
 
       if (HasDue()) {
-        Extract(out, scheduled_.begin());
-        return;
+        return Extract(scheduled_.begin());
       }
     }
   }
@@ -131,17 +130,16 @@ class Schedule {
   // Note that this function doesn't take into account whether the removed entry
   // is past its due time.
   template <typename Pred>
-  bool RemoveIf(T* const out, const Pred pred) {
+  absl::optional<T> RemoveIf(const Pred pred) {
     std::lock_guard<std::mutex> lock{mutex_};
 
     const auto found =
         std::find_if(scheduled_.begin(), scheduled_.end(),
                      [&pred](const Entry& s) { return pred(s.value); });
     if (found != scheduled_.end()) {
-      Extract(out, found);
-      return true;
+      return Extract(found);
     }
-    return false;
+    return {};
   }
 
   // Checks whether the queue contains an entry satisfying the given predicate.
@@ -189,15 +187,15 @@ class Schedule {
   }
 
   // This function expects the mutex to be already locked.
-  void Extract(T* const out, const Iterator where) {
+  T Extract(const Iterator where) {
     FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
                             "Trying to pop an entry from an empty queue.");
 
-    if (out) {
-      *out = std::move(where->value);
-    }
+    T result = std::move(where->value);
     scheduled_.erase(where);
     cv_.notify_one();
+
+    return result;
   }
 
   mutable std::mutex mutex_;
@@ -226,8 +224,7 @@ class ExecutorStd : public Executor {
   std::string CurrentExecutorName() const override;
 
   bool IsScheduled(Tag tag) const override;
-  bool IsScheduleEmpty() const override;
-  TaggedOperation PopFromSchedule() override;
+  absl::optional<TaggedOperation> PopFromSchedule() override;
 
  private:
   using TimePoint = async::Schedule<Operation, Milliseconds>::TimePoint;

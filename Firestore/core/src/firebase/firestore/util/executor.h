@@ -22,6 +22,8 @@
 #include <string>
 #include <utility>
 
+#include "absl/types/optional.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -108,15 +110,12 @@ class Executor {
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.
   virtual bool IsScheduled(Tag tag) const = 0;
-  // Checks whether there are any scheduled operations pending execution.
-  // Operations scheduled for immediate execution don't count, even if they
-  // haven't been run already.
-  virtual bool IsScheduleEmpty() const = 0;
   // Removes the nearest due scheduled operation from the schedule and returns
   // it to the caller. This function may be used to reschedule operations.
-  //
-  // Precondition: schedule must be non-empty.
-  virtual TaggedOperation PopFromSchedule() = 0;
+  // Immediate operations don't count; only operations scheduled for delayed
+  // execution may be removed. If no such operations are currently scheduled, an
+  // empty `optional` is returned.
+  virtual absl::optional<TaggedOperation> PopFromSchedule() = 0;
 };
 
 }  // namespace internal

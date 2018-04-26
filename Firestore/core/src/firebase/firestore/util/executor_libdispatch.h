@@ -91,8 +91,7 @@ class ExecutorLibdispatch : public Executor {
   void RemoveFromSchedule(const TimeSlot* to_remove);
 
   bool IsScheduled(Tag tag) const override;
-  bool IsScheduleEmpty() const override;
-  TaggedOperation PopFromSchedule() override;
+  absl::optional<TaggedOperation> PopFromSchedule() override;
 
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;

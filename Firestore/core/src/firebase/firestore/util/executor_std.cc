@@ -75,7 +75,7 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
 
 void ExecutorStd::TryCancel(const Id operation_id) {
   schedule_.RemoveIf(
-      nullptr, [operation_id](const Entry& e) { return e.id == operation_id; });
+      [operation_id](const Entry& e) { return e.id == operation_id; });
 }
 
 ExecutorStd::Id ExecutorStd::DoExecute(Operation&& operation,
@@ -90,8 +90,7 @@ ExecutorStd::Id ExecutorStd::DoExecute(Operation&& operation,
 
 void ExecutorStd::PollingThread() {
   while (!shutting_down_) {
-    Entry entry;
-    schedule_.PopBlocking(&entry);
+    Entry entry = schedule_.PopBlocking();
     if (entry.operation) {
       entry.operation();
     }
@@ -134,17 +133,14 @@ bool ExecutorStd::IsScheduled(const Tag tag) const {
   return schedule_.Contains([&tag](const Entry& e) { return e.tag == tag; });
 }
 
-bool ExecutorStd::IsScheduleEmpty() const {
-  return schedule_.empty();
-}
-
-Executor::TaggedOperation ExecutorStd::PopFromSchedule() {
-  Entry removed;
-  const bool success = schedule_.RemoveIf(
-      &removed, [](const Entry& e) { return !e.IsImmediate(); });
-  FIREBASE_ASSERT_MESSAGE(success,
-                          "PopFromSchedule called when the schedule is empty");
-  return TaggedOperation{removed.tag, std::move(removed.operation)};
+absl::optional<Executor::TaggedOperation> ExecutorStd::PopFromSchedule() {
+  auto removed =
+      schedule_.RemoveIf([](const Entry& e) { return !e.IsImmediate(); });
+  if (!removed.has_value()) {
+    return {};
+  }
+  return TaggedOperation{removed.value().tag,
+                         std::move(removed.value().operation)};
 }
 
 }  // namespace internal
