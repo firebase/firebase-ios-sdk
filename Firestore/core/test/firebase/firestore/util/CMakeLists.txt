@@ -90,7 +90,7 @@ endif()
 ## async queue
 
 cc_test(
-  firebase_firestore_util_async_queue_test
+  firebase_firestore_util_async_queue_std_test
   SOURCES
     async_queue_test.h
     async_queue_test.cc
@@ -103,7 +103,7 @@ cc_test(
 
 if(HAVE_LIBDISPATCH)
   cc_test(
-    firebase_firestore_util_async_queue_test_libdispatch
+    firebase_firestore_util_async_queue_libdispatch_test
     SOURCES
       async_queue_test.h
       async_queue_test.cc
