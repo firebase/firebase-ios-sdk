@@ -350,6 +350,13 @@ static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
 
+/** @var kMissingClientIdentifier
+    @brief This is the error message the server will respond with if Firebase could not verify the
+        app during a phone authentication flow when a real phone number is used and app verification
+        is disabled for testing.
+ */
+static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
+
 /** @var kCaptchaCheckFailedErrorMessage
     @brief This is the error message the server will respond with if the reCAPTCHA token provided is
         invalid.
@@ -1069,7 +1076,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils quotaExceededErrorWithMessage:serverErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
+  if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage] ||
+      [shortErrorMessage isEqualToString:kMissingClientIdentifier]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
   }
 

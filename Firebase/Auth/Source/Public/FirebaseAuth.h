@@ -39,4 +39,5 @@
 #import "FIRPhoneAuthCredential.h"
 #import "FIRPhoneAuthProvider.h"
 #import "FIRAuthAPNSTokenType.h"
+#import "FIRAuthSettings.h"
 #endif
