@@ -217,7 +217,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     [StaticContentTableViewSection sectionWithTitle:@"Auth Settings" cells:@[
       [StaticContentTableViewCell cellWithTitle:@"Disable App Verification (Phone)"
                                           value:[AppManager auth].settings.
-                                            isAppVerificationDisabledForTesting ? @"Yes" : @"No"
+                                              appVerificationDisabledForTesting ? @"Yes" : @"No"
                                          action:^{
         [weakSelf toggleDisableAppVerification];
         [weakSelf loadTableView];
@@ -231,7 +231,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
  */
 - (void)toggleDisableAppVerification {
   [AppManager auth].settings.appVerificationDisabledForTesting =
-      ![AppManager auth].settings.isAppVerificationDisabledForTesting;
+      ![AppManager auth].settings.appVerificationDisabledForTesting;
 }
 
 /** @fn toggleAPIHostWithRequestClassName:
