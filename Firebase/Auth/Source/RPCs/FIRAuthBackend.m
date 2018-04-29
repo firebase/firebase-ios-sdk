@@ -1076,9 +1076,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     return [FIRAuthErrorUtils quotaExceededErrorWithMessage:serverErrorMessage];
   }
 
-  if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage] ||
-      [shortErrorMessage isEqualToString:kMissingClientIdentifier]) {
+  if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingClientIdentifier]) {
+    return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:@"Missing app verification via"
+        " reCAPTCHA or APNS token. Please verify that appVerificationDisabledForTesting is not"
+        " enabled when testing with a phone number that is not marked as a test Phone number in the"
+        " app console."];
   }
 
   if ([shortErrorMessage isEqualToString:kCaptchaCheckFailedErrorMessage]) {

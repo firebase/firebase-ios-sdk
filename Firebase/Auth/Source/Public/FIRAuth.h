@@ -27,8 +27,8 @@
 @class FIRApp;
 @class FIRAuth;
 @class FIRAuthCredential;
-@class FIRAuthSettings;
 @class FIRAuthDataResult;
+@class FIRAuthSettings;
 @class FIRUser;
 @protocol FIRAuthStateListener;
 

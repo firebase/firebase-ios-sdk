@@ -371,7 +371,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
                                                      appCredential:nil
                                                     reCAPTCHAToken:nil
                                               requestConfiguration:
-                                                  self->_auth.requestConfiguration];
+                                                  _auth.requestConfiguration];
     [FIRAuthBackend sendVerificationCode:request
                                 callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                            NSError *_Nullable error) {
