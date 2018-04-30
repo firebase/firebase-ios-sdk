@@ -558,20 +558,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSynthesizeDeletes {
   FSTWatchChange *shouldSynthesize =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @1 ]];
-  FSTWatchChange *wrongState =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateNoChange targetIDs:@[ @2 ]];
-  FSTWatchChange *hasDocument =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @3 ]];
-  FSTDocument *doc = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
-  FSTWatchChange *docChange = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @3 ]
-                                                                      removedTargetIDs:@[]
-                                                                           documentKey:doc.key
-                                                                              document:doc];
 
-  FSTWatchChangeAggregator *aggregator =
-      [self aggregatorWithTargets:@[ @1, @2, @3 ]
-                      outstanding:_noPendingResponses
-                          changes:@[ shouldSynthesize, wrongState, hasDocument, docChange ]];
+  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargets:@[ @1 ]
+                                                         outstanding:_noPendingResponses
+                                                             changes:@[ shouldSynthesize ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
   DocumentKey synthesized = DocumentKey::FromPathString("docs/2");
@@ -583,12 +573,36 @@ NS_ASSUME_NONNULL_BEGIN
       [FSTDeletedDocument documentWithKey:synthesized version:event.snapshotVersion];
   XCTAssertEqualObjects(expected, event.documentUpdates.at(synthesized));
   XCTAssertTrue([event.limboDocumentChanges containsObject:synthesized]);
+}
+
+- (void)testDoesntSynthesizeDeletesForWrongState {
+  FSTWatchChange *wrongState =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateNoChange targetIDs:@[ @2 ]];
+
+  FSTWatchChangeAggregator *aggregator =
+      [self aggregatorWithTargets:@[ @2 ] outstanding:_noPendingResponses changes:@[ wrongState ]];
+
+  FSTRemoteEvent *event = [aggregator remoteEvent];
 
   DocumentKey notSynthesized = DocumentKey::FromPathString("docs/no1");
   [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@2] key:notSynthesized];
   XCTAssertEqual(event.documentUpdates.find(notSynthesized), event.documentUpdates.end());
   XCTAssertFalse([event.limboDocumentChanges containsObject:notSynthesized]);
+}
 
+- (void)testDoesntSynthesizeDeletesForExistingDoc {
+  FSTWatchChange *hasDocument =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent targetIDs:@[ @3 ]];
+  FSTDocument *doc = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
+  FSTWatchChange *docChange = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @3 ]
+                                                                      removedTargetIDs:@[]
+                                                                           documentKey:doc.key
+                                                                              document:doc];
+  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargets:@[ @3 ]
+                                                         outstanding:_noPendingResponses
+                                                             changes:@[ hasDocument, docChange ]];
+
+  FSTRemoteEvent *event = [aggregator remoteEvent];
   [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@3] key:doc.key];
   FSTMaybeDocument *docData = event.documentUpdates.at(doc.key);
   XCTAssertFalse([docData isKindOfClass:[FSTDeletedDocument class]]);
@@ -603,21 +617,16 @@ NS_ASSUME_NONNULL_BEGIN
                                                                               documentKey:newDoc.key
                                                                                  document:newDoc];
 
-  FSTWatchTargetChange *resetTargetChange =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
-                                  targetIDs:@[ @2 ]
-                                resumeToken:_resumeToken1];
-
   FSTWatchChange *existingDocChange =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2 ]
+      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                               removedTargetIDs:@[]
                                                    documentKey:existingDoc.key
                                                       document:existingDoc];
 
   FSTWatchChangeAggregator *aggregator =
-      [self aggregatorWithTargets:@[ @1, @2 ]
+      [self aggregatorWithTargets:@[ @1 ]
                       outstanding:_noPendingResponses
-                          changes:@[ newDocChange, resetTargetChange, existingDocChange ]];
+                          changes:@[ newDocChange, existingDocChange ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
   FSTDocumentKeySet *existingKeys = [[FSTDocumentKeySet keySet] setByAddingObject:existingDoc.key];
 
@@ -628,17 +637,37 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocumentKey *newDocKey = newDoc.key;
   XCTAssertTrue([update.addedDocuments containsObject:existingDocKey]);
 
-  [event filterUpdatesFromTargetChange:updateChange existingDocuments:existingKeys];
+  [update filterUpdatesUsingExistingKeys:existingKeys];
   // Now it's been filtered, since it already existed.
   XCTAssertFalse([update.addedDocuments containsObject:existingDocKey]);
   XCTAssertTrue([update.addedDocuments containsObject:newDocKey]);
+}
+
+- (void)testDoesntFilterResets {
+  FSTDocument *existingDoc = FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, NO);
+  FSTDocumentKey *existingDocKey = existingDoc.key;
+  FSTWatchTargetChange *resetTargetChange =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
+                                  targetIDs:@[ @2 ]
+                                resumeToken:_resumeToken1];
+  FSTWatchChange *existingDocChange =
+      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @2 ]
+                                              removedTargetIDs:@[]
+                                                   documentKey:existingDocKey
+                                                      document:existingDoc];
+  FSTWatchChangeAggregator *aggregator =
+      [self aggregatorWithTargets:@[ @2 ]
+                      outstanding:_noPendingResponses
+                          changes:@[ resetTargetChange, existingDocChange ]];
+  FSTRemoteEvent *event = [aggregator remoteEvent];
+  FSTDocumentKeySet *existingKeys = [[FSTDocumentKeySet keySet] setByAddingObject:existingDocKey];
 
   FSTTargetChange *resetChange = event.targetChanges[@2];
   XCTAssertTrue([resetChange.mapping isKindOfClass:[FSTResetMapping class]]);
   FSTResetMapping *resetMapping = (FSTResetMapping *)resetChange.mapping;
   XCTAssertTrue([resetMapping.documents containsObject:existingDocKey]);
 
-  [event filterUpdatesFromTargetChange:resetChange existingDocuments:existingKeys];
+  [resetMapping filterUpdatesUsingExistingKeys:existingKeys];
   // Document is still there, even though it already exists. Reset mappings don't get filtered.
   XCTAssertTrue([resetMapping.documents containsObject:existingDocKey]);
 }

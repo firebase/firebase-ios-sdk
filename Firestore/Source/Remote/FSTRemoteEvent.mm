@@ -104,6 +104,10 @@ NS_ASSUME_NONNULL_BEGIN
   self.documents = [self.documents setByRemovingObject:documentKey];
 }
 
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  // No-op. Resets are not filtered.
+}
+
 @end
 
 #pragma mark - FSTUpdateMapping
@@ -172,6 +176,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeDocumentKey:(const DocumentKey &)documentKey {
   self.addedDocuments = [self.addedDocuments setByRemovingObject:documentKey];
   self.removedDocuments = [self.removedDocuments setByAddingObject:documentKey];
+}
+
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  __block FSTDocumentKeySet *result = _addedDocuments;
+  [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
+    if ([existingKeys containsObject:docKey]) {
+      result = [result setByRemovingObject:docKey];
+    }
+  }];
+  _addedDocuments = result;
 }
 
 @end
@@ -285,21 +299,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     _limboDocumentChanges = limboDocuments;
   }
   return self;
-}
-
-- (void)filterUpdatesFromTargetChange:(FSTTargetChange *)targetChange
-                    existingDocuments:(FSTDocumentKeySet *)existingDocuments {
-  if ([targetChange.mapping isKindOfClass:[FSTUpdateMapping class]]) {
-    FSTUpdateMapping *update = (FSTUpdateMapping *)targetChange.mapping;
-    FSTDocumentKeySet *added = update.addedDocuments;
-    __block FSTDocumentKeySet *result = added;
-    [added enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
-      if ([existingDocuments containsObject:docKey]) {
-        result = [result setByRemovingObject:docKey];
-      }
-    }];
-    update.addedDocuments = result;
-  }
 }
 
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange

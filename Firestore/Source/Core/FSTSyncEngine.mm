@@ -303,8 +303,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     if (iter == self->_limboKeysByTarget.end()) {
       FSTQueryView *qv = self.queryViewsByTarget[targetID];
       FSTAssert(qv, @"Missing queryview for non-limbo query: %i", [targetID intValue]);
-      [remoteEvent filterUpdatesFromTargetChange:targetChange
-                               existingDocuments:qv.view.syncedDocuments];
+      [targetChange.mapping filterUpdatesUsingExistingKeys:qv.view.syncedDocuments];
     } else {
       [remoteEvent synthesizeDeleteForLimboTargetChange:targetChange key:iter->second];
     }
