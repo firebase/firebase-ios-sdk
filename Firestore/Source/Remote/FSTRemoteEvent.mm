@@ -319,7 +319,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // However, if the document doesn't exist and the current marker arrives, the document is
     // not present in the snapshot and our normal view handling would consider the document to
     // remain in limbo indefinitely because there are no updates to the document. To avoid this,
-    // we specially handle this just this case here: synthesizing a delete.
+    // we specially handle this case here: synthesizing a delete.
     //
     // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
     // explicit delete message and we could remove this special logic.
