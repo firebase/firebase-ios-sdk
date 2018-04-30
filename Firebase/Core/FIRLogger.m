@@ -231,7 +231,7 @@ NSString *FIRLoggerPathInCachesByAppending(NSString *pathToAppend) {
  * exist.
  */
 NSInteger FIRReadIntegerFromFile(NSString *filePath) {
-  if (filePath == nil) {
+  if (!filePath.length) {
     return kFIRLoggerCountFileNotFound;
   }
 
@@ -249,7 +249,7 @@ NSInteger FIRReadIntegerFromFile(NSString *filePath) {
  * Read an integer from the specific file, returning YES if the write was successful.
  */
 BOOL FIRWriteIntegerToFile(NSInteger value, NSString *filePath) {
-  if (filePath == nil) {
+  if (!filePath.length) {
     return NO;
   }
 
@@ -266,7 +266,7 @@ BOOL FIRWriteIntegerToFile(NSInteger value, NSString *filePath) {
 }
 
 /**
- * Return the number of errors logged since last being reset. Note: this synchronously reads a file
+ * Returns the number of errors logged since last being reset. Note: this synchronously reads a file
  * on the same queue that logging occurs.
  */
 NSInteger FIRNumberOfErrorsLogged(void) {
@@ -286,7 +286,7 @@ NSInteger FIRNumberOfErrorsLogged(void) {
 }
 
 /**
- * Return the number of warnings logged since last being reset. Note: this synchronously reads a
+ * Returns the number of warnings logged since last being reset. Note: this synchronously reads a
  * file on the same queue that logging occurs.
  */
 NSInteger FIRNumberOfWarningsLogged(void) {
@@ -306,7 +306,7 @@ NSInteger FIRNumberOfWarningsLogged(void) {
 }
 
 /**
- * Reset the number of issues logged (warnings and errors).
+ * Resets the number of issues logged (warnings and errors).
  */
 BOOL FIRResetNumberOfIssuesLogged(void) {
   NSString *errorCountPath = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
