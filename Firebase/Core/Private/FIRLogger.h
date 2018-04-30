@@ -43,14 +43,14 @@ extern FIRLoggerService kFIRLoggerStorage;
 extern FIRLoggerService kFIRLoggerSwizzler;
 
 /**
- * The key used to store the logger's error count.
+ * The file name used to store the logger's error count. This is appended from the Caches directory.
  */
-extern NSString *const kFIRLoggerErrorCountKey;
+extern NSString *const kFIRLoggerErrorCountFileName;
 
 /**
- * The key used to store the logger's warning count.
+ * The file name used to store the logger's warning count.
  */
-extern NSString *const kFIRLoggerWarningCountKey;
+extern NSString *const kFIRLoggerWarningCountFileName;
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,7 +84,7 @@ NSInteger FIRNumberOfWarningsLogged(void);
 /**
  * Reset number of errors and warnings that have been logged to 0.
  */
-void FIRResetNumberOfIssuesLogged(void);
+BOOL FIRResetNumberOfIssuesLogged(void);
 
 /**
  * Checks if the specified logger level is loggable given the current settings.

@@ -49,8 +49,6 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
-@property(nonatomic, strong) id userDefaultsMock;
-
 @end
 
 @implementation FIRLoggerTest
@@ -58,15 +56,10 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)setUp {
   [super setUp];
   FIRResetLogger();
-
-  // Stub NSUserDefaults for tracking the error and warning count.
-  _userDefaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
 }
 
 - (void)tearDown {
   [super tearDown];
-
-  [_userDefaultsMock stopMocking];
 }
 
 // Test some stable variables to make sure they weren't accidently changed.
@@ -132,8 +125,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testInitializeASLForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
-  OCMStub([self.userDefaultsMock boolForKey:kFIRPersistedDebugModeKey])
-      .andReturn(debugMode.boolValue);
+  id userDefaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+  OCMStub([userDefaultsMock boolForKey:kFIRPersistedDebugModeKey]).andReturn(debugMode.boolValue);
 
   // Test.
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
@@ -142,6 +135,8 @@ static NSString *const kMessageCode = @"I-COR000001";
   debugMode = [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
   XCTAssertTrue(getFIRLoggerDebugMode());
+
+  [userDefaultsMock stopMocking];
 }
 
 - (void)testMessageCodeFormat {
@@ -240,30 +235,55 @@ static NSString *const kMessageCode = @"I-COR000001";
 }
 
 - (void)testErrorNumberIncrement {
-  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerErrorCountKey]).andReturn(10);
-  OCMExpect([self.userDefaultsMock setInteger:11 forKey:kFIRLoggerErrorCountKey]);
+  XCTAssert(FIRNumberOfErrorsLogged() == 0);
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Error.");
 
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
+  // Delay a few hundred msec in order to account for the async call.
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Number of errors should equal 1."];
+  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_MSEC * 500);
+  dispatch_after(time, dispatch_get_main_queue(), ^{
+    XCTAssert(FIRNumberOfErrorsLogged() == 1);
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 - (void)testWarningNumberIncrement {
-  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerWarningCountKey]).andReturn(1);
-  OCMExpect([self.userDefaultsMock setInteger:2 forKey:kFIRLoggerWarningCountKey]);
+  XCTAssert(FIRNumberOfWarningsLogged() == 0);
   FIRLogWarning(kFIRLoggerCore, kMessageCode, @"Warning.");
 
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
+  // Delay a few hundred msec in order to account for the async call.
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Number of warnings should equal 1."];
+  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_MSEC * 500);
+  dispatch_after(time, dispatch_get_main_queue(), ^{
+    XCTAssert(FIRNumberOfWarningsLogged() == 1);
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 - (void)testResetIssuesCount {
-  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerErrorCountKey]);
-  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerWarningCountKey]);
-  FIRResetNumberOfIssuesLogged();
+  XCTAssert(FIRNumberOfErrorsLogged() == 0);
+  XCTAssert(FIRNumberOfWarningsLogged() == 0);
 
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
+  FIRLogError(kFIRLoggerCore, kMessageCode, @"Error.");
+  FIRLogWarning(kFIRLoggerCore, kMessageCode, @"Warning.");
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Warnings and errors should be reset."];
+  dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_MSEC * 500);
+  dispatch_after(time, dispatch_get_main_queue(), ^{
+    FIRResetNumberOfIssuesLogged();
+    XCTAssert(FIRNumberOfErrorsLogged() == 0);
+    XCTAssert(FIRNumberOfWarningsLogged() == 0);
+    [expectation fulfill];
+  });
+
+  [self waitForExpectations:@[ expectation ] timeout:1];
 }
 
 // Helper functions.

@@ -57,9 +57,10 @@ const char *kFIRLoggerASLClientFacilityName = "com.firebase.app.logger";
 const char *kFIRLoggerCustomASLMessageFormat =
     "$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
 
-/// Keys for the number of errors and warnings logged.
-NSString *const kFIRLoggerErrorCountKey = @"/google/firebase/count_of_errors_logged";
-NSString *const kFIRLoggerWarningCountKey = @"/google/firebase/count_of_warnings_logged";
+/// Constants for the number of errors and warnings logged.
+NSString *const kFIRLoggerErrorCountFileName = @"google-firebase-count-of-errors-logged.txt";
+NSString *const kFIRLoggerWarningCountFileName = @"google-firebase-count-of-warnings-logged.txt";
+const NSInteger kFIRLoggerCountFileNotFound = -1;
 
 static dispatch_once_t sFIRLoggerOnceToken;
 
@@ -213,6 +214,115 @@ BOOL getFIRLoggerDebugMode() {
 }
 #endif
 
+#pragma mark - Number of errors and warnings
+
+NSString *FIRLoggerPathInCachesByAppending(NSString *pathToAppend) {
+  NSArray *directories =
+      NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+  if (directories.count == 0) {
+    return nil;
+  }
+  NSString *cacheDir = directories[0];
+  return [cacheDir stringByAppendingPathComponent:pathToAppend];
+}
+
+/**
+ * Read an integer from the specific file, returning kFIRLoggerCountFileNotFound if the file doesn't
+ * exist.
+ */
+NSInteger FIRReadIntegerFromFile(NSString *filePath) {
+  if (filePath == nil) {
+    return kFIRLoggerCountFileNotFound;
+  }
+
+  NSError *error = nil;
+  NSString *fileContents =
+      [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
+  if (error) {
+    return kFIRLoggerCountFileNotFound;
+  }
+
+  return [fileContents integerValue];
+}
+
+/**
+ * Read an integer from the specific file, returning YES if the write was successful.
+ */
+BOOL FIRWriteIntegerToFile(NSInteger value, NSString *filePath) {
+  if (filePath == nil) {
+    return NO;
+  }
+
+  NSString *fileContents = [NSString stringWithFormat:@"%ld", (long)value];
+  NSError *error = nil;
+  BOOL success =
+      [fileContents writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
+  if (error) {
+    FIRLogDebug(kFIRLoggerCore, @"I-COR000029",
+                @"Attempted to write the a log counter to file but failed: %@", error);
+  }
+
+  return success;
+}
+
+/**
+ * Return the number of errors logged since last being reset. Note: this synchronously reads a file
+ * on the same queue that logging occurs.
+ */
+NSInteger FIRNumberOfErrorsLogged(void) {
+  NSString *fileName = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
+  __block NSString *fileContents = nil;
+  __block NSError *error = nil;
+  dispatch_sync(sFIRClientQueue, ^{
+    fileContents =
+        [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:&error];
+  });
+
+  if (error) {
+    return 0;
+  }
+
+  return [fileContents integerValue];
+}
+
+/**
+ * Return the number of warnings logged since last being reset. Note: this synchronously reads a
+ * file on the same queue that logging occurs.
+ */
+NSInteger FIRNumberOfWarningsLogged(void) {
+  NSString *fileName = FIRLoggerPathInCachesByAppending(kFIRLoggerWarningCountFileName);
+  __block NSString *fileContents = nil;
+  __block NSError *error = nil;
+  dispatch_sync(sFIRClientQueue, ^{
+    fileContents =
+        [NSString stringWithContentsOfFile:fileName encoding:NSUTF8StringEncoding error:&error];
+  });
+
+  if (error) {
+    return 0;
+  }
+
+  return [fileContents integerValue];
+}
+
+/**
+ * Reset the number of issues logged (warnings and errors).
+ */
+BOOL FIRResetNumberOfIssuesLogged(void) {
+  NSString *errorCountPath = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
+  NSString *warningCountPath = FIRLoggerPathInCachesByAppending(kFIRLoggerWarningCountFileName);
+  __block BOOL success = NO;
+  dispatch_sync(sFIRClientQueue, ^{
+    BOOL errorWriteSuccess = FIRWriteIntegerToFile(0, errorCountPath);
+    BOOL warningWriteSuccess = FIRWriteIntegerToFile(0, warningCountPath);
+    success = (errorWriteSuccess && warningWriteSuccess);
+  });
+
+  return success;
+}
+
+#pragma mark - Logging functions
+
 void FIRLogBasic(FIRLoggerLevel level,
                  FIRLoggerService service,
                  NSString *messageCode,
@@ -242,18 +352,26 @@ void FIRLogBasic(FIRLoggerLevel level,
       stringWithFormat:@"%s - %@[%@] %@", FirebaseVersionString, service, messageCode, logMsg];
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
-  });
 
-  // Keep count of how many errors and warnings are triggered.
-  if (level == FIRLoggerLevelError) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSInteger errorCount = [defaults integerForKey:kFIRLoggerErrorCountKey];
-    [defaults setInteger:errorCount + 1 forKey:kFIRLoggerErrorCountKey];
-  } else if (level == FIRLoggerLevelWarning) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSInteger warningCount = [defaults integerForKey:kFIRLoggerWarningCountKey];
-    [defaults setInteger:warningCount + 1 forKey:kFIRLoggerWarningCountKey];
-  }
+    // Keep count of how many errors and warnings are triggered.
+    if (level == FIRLoggerLevelError) {
+      NSString *path = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
+      NSInteger currentValue = FIRReadIntegerFromFile(path);
+      if (currentValue == kFIRLoggerCountFileNotFound) {
+        FIRWriteIntegerToFile(1, path);
+      } else {
+        FIRWriteIntegerToFile(currentValue + 1, path);
+      }
+    } else if (level == FIRLoggerLevelWarning) {
+      NSString *path = FIRLoggerPathInCachesByAppending(kFIRLoggerWarningCountFileName);
+      NSInteger currentValue = FIRReadIntegerFromFile(path);
+      if (currentValue == kFIRLoggerCountFileNotFound) {
+        FIRWriteIntegerToFile(1, path);
+      } else {
+        FIRWriteIntegerToFile(currentValue + 1, path);
+      }
+    }
+  });
 }
 #pragma clang diagnostic pop
 
@@ -280,21 +398,6 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
-
-#pragma mark - Number of errors and warnings
-
-NSInteger FIRNumberOfErrorsLogged(void) {
-  return [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerErrorCountKey];
-}
-
-NSInteger FIRNumberOfWarningsLogged(void) {
-  return [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerWarningCountKey];
-}
-
-void FIRResetNumberOfIssuesLogged(void) {
-  [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kFIRLoggerErrorCountKey];
-  [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kFIRLoggerWarningCountKey];
-}
 
 #pragma mark - FIRLoggerWrapper
 
