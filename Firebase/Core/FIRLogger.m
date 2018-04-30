@@ -133,16 +133,6 @@ void FIRLoggerInitializeASL() {
       sFIRLoggerDebugMode = NO;
     }
 
-#if TARGET_OS_SIMULATOR
-    // Need to call asl_add_output_file so that the logs can appear in Xcode's console view when
-    // running iOS 7. Set the ASL filter mask for this output file up to debug level so that all
-    // messages are viewable in the console.
-    if (majorOSVersion == 7) {
-      asl_add_output_file(sFIRLoggerClient, STDERR_FILENO, kFIRLoggerCustomASLMessageFormat,
-                          ASL_TIME_FMT_LCL, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG), ASL_ENCODE_SAFE);
-    }
-#endif  // TARGET_OS_SIMULATOR
-
     sFIRClientQueue = dispatch_queue_create("FIRLoggingClientQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(sFIRClientQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
