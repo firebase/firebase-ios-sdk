@@ -354,22 +354,18 @@ void FIRLogBasic(FIRLoggerLevel level,
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
 
     // Keep count of how many errors and warnings are triggered.
+    NSString *path;
     if (level == FIRLoggerLevelError) {
-      NSString *path = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
-      NSInteger currentValue = FIRReadIntegerFromFile(path);
-      if (currentValue == kFIRLoggerCountFileNotFound) {
-        FIRWriteIntegerToFile(1, path);
-      } else {
-        FIRWriteIntegerToFile(currentValue + 1, path);
-      }
+      path = FIRLoggerPathInCachesByAppending(kFIRLoggerErrorCountFileName);
     } else if (level == FIRLoggerLevelWarning) {
-      NSString *path = FIRLoggerPathInCachesByAppending(kFIRLoggerWarningCountFileName);
-      NSInteger currentValue = FIRReadIntegerFromFile(path);
-      if (currentValue == kFIRLoggerCountFileNotFound) {
-        FIRWriteIntegerToFile(1, path);
-      } else {
-        FIRWriteIntegerToFile(currentValue + 1, path);
-      }
+      path = FIRLoggerPathInCachesByAppending(kFIRLoggerWarningCountFileName);
+    }
+
+    NSInteger currentValue = FIRReadIntegerFromFile(path);
+    if (currentValue == kFIRLoggerCountFileNotFound) {
+      FIRWriteIntegerToFile(1, path);
+    } else {
+      FIRWriteIntegerToFile(currentValue + 1, path);
     }
   });
 }
