@@ -222,13 +222,13 @@ NSString *FIRLoggerPathInCachesByAppending(NSString *pathToAppend) {
   if (directories.count == 0) {
     return nil;
   }
-  NSString *cacheDir = directories[0];
+  NSString *cacheDir = directories.firstObject;
   return [cacheDir stringByAppendingPathComponent:pathToAppend];
 }
 
 /**
- * Read an integer from the specific file, returning kFIRLoggerCountFileNotFound if the file doesn't
- * exist.
+ * Reads an integer from the specific file, returning kFIRLoggerCountFileNotFound if the file
+ * doesn't exist.
  */
 NSInteger FIRReadIntegerFromFile(NSString *filePath) {
   if (!filePath.length) {
@@ -246,7 +246,7 @@ NSInteger FIRReadIntegerFromFile(NSString *filePath) {
 }
 
 /**
- * Read an integer from the specific file, returning YES if the write was successful.
+ * Reads an integer from the specific file, returning YES if the write was successful.
  */
 BOOL FIRWriteIntegerToFile(NSInteger value, NSString *filePath) {
   if (!filePath.length) {
