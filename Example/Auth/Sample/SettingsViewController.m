@@ -214,7 +214,24 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
         [weakSelf loadTableView];
       }],
     ]],
+    [StaticContentTableViewSection sectionWithTitle:@"Auth Settings" cells:@[
+      [StaticContentTableViewCell cellWithTitle:@"Disable App Verification (Phone)"
+                                          value:[AppManager auth].settings.
+                                              appVerificationDisabledForTesting ? @"Yes" : @"No"
+                                         action:^{
+        [weakSelf toggleDisableAppVerification];
+        [weakSelf loadTableView];
+      }],
+    ]],
   ]];
+}
+
+/** @fn toggleDisableAppVerification
+    @brief Toggles the appVerificationDisabledForTesting flag on the current Auth instance.
+ */
+- (void)toggleDisableAppVerification {
+  [AppManager auth].settings.appVerificationDisabledForTesting =
+      ![AppManager auth].settings.appVerificationDisabledForTesting;
 }
 
 /** @fn toggleAPIHostWithRequestClassName:
