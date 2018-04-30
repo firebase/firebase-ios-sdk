@@ -17,12 +17,14 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_SET_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_SET_H_
 
+#include <algorithm>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
@@ -119,6 +121,10 @@ class SortedSet {
   const util::range<const_iterator> values_in(const K& start_key,
                                               const K& end_key) const {
     return map_.keys_in(start_key, end_key);
+  }
+
+  friend bool operator==(const SortedSet& lhs, const SortedSet& rhs) {
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
   }
 
  private:

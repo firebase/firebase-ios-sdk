@@ -196,6 +196,13 @@ TEST(SortedSetTest, ValuesIn) {
   ASSERT_SEQ_EQ(Seq(8, 14), set.values_in(7, 13));   // in between to in between
 }
 
+TEST(SortedSetTest, HashesStdHashable) {
+  SortedSet<int> set;
+
+  size_t result = util::Hash(set);
+  (void)result;
+}
+
 }  // namespace immutable
 }  // namespace firestore
 }  // namespace firebase
