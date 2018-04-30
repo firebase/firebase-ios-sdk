@@ -17,6 +17,9 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
+
+namespace util = firebase::firestore::util;
 
 namespace firebase {
 
@@ -110,8 +113,7 @@ namespace std {
 size_t hash<firebase::Timestamp>::operator()(
     const firebase::Timestamp& timestamp) const {
   // Note: if sizeof(size_t) == 4, this discards high-order bits of seconds.
-  return 37 * static_cast<size_t>(timestamp.seconds()) +
-         static_cast<size_t>(timestamp.nanoseconds());
+  return util::Hash(timestamp.seconds(), timestamp.nanoseconds());
 }
 
 }  // namespace std
