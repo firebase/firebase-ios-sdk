@@ -49,7 +49,7 @@ namespace impl {
 /**
  * Combines a hash_value with whatever accumulated state there is so far.
  */
-size_t Combine(size_t state, size_t hash_value) {
+inline size_t Combine(size_t state, size_t hash_value) {
   return 31 * state + hash_value;
 }
 
@@ -122,7 +122,7 @@ size_t InvokeHash(const K& value) {
   return InvokeHashHelper(value, HashChoice<0>{});
 }
 
-size_t HashInternal(size_t state) {
+inline size_t HashInternal(size_t state) {
   return state;
 }
 
