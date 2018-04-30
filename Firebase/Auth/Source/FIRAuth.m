@@ -33,6 +33,7 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
 #import "FIRAuthOperationType.h"
+#import "FIRAuthSettings.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -434,6 +435,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+    _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
     UIApplication *application = [UIApplication sharedApplication];

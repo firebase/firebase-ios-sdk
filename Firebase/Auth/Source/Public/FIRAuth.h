@@ -28,6 +28,7 @@
 @class FIRAuth;
 @class FIRAuthCredential;
 @class FIRAuthDataResult;
+@class FIRAuthSettings;
 @class FIRUser;
 @protocol FIRAuthStateListener;
 
@@ -287,6 +288,11 @@ NS_SWIFT_NAME(Auth)
     @remarks The string used to set this property must be a language code that follows BCP 47.
  */
 @property (nonatomic, copy, nullable) NSString *languageCode;
+
+/** @property settings
+    @brief Contains settings related to the auth object.
+ */
+@property (nonatomic, copy, nullable) FIRAuthSettings *settings;
 
 #if TARGET_OS_IOS
 /** @property APNSToken

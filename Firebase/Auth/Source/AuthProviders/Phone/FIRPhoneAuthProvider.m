@@ -29,6 +29,7 @@
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthSettings.h"
 #import "FIRAuthWebUtils.h"
 #import "FirebaseAuthVersion.h"
 #import <FirebaseCore/FIROptions.h>
@@ -364,6 +365,20 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 - (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
                              retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
                                                 callback:(FIRVerificationResultCallback)callback {
+  if (_auth.settings.isAppVerificationDisabledForTesting) {
+    FIRSendVerificationCodeRequest *request =
+        [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
+                                                     appCredential:nil
+                                                    reCAPTCHAToken:nil
+                                              requestConfiguration:
+                                                  _auth.requestConfiguration];
+    [FIRAuthBackend sendVerificationCode:request
+                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+      callback(response.verificationID, error);
+    }];
+    return;
+  }
   [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
                                      NSError *_Nullable error) {
     if (error) {
