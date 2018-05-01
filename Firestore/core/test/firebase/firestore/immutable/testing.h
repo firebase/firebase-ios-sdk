@@ -61,6 +61,11 @@ testing::AssertionResult NotFound(const Container& map, const K& key) {
   }
 }
 
+/**
+ * Asserts that the given key is found in the given container and that it maps
+ * to the given value. This only works with map-type containers where value_type
+ * is `std::pair<K, V>`.
+ */
 template <typename Container, typename K, typename V>
 testing::AssertionResult Found(const Container& map,
                                const K& key,
@@ -80,6 +85,31 @@ testing::AssertionResult Found(const Container& map,
   } else {
     return testing::AssertionFailure() << "Found entry was (" << found->first
                                        << ", " << found->second << ")";
+  }
+}
+
+/**
+ * Asserts that the given key is found in the given container without
+ * necessarily checking that the key maps to any value. This also makes
+ * this compatible with non-mapped containers where K is the value_type.
+ */
+template <typename Container, typename K>
+testing::AssertionResult Found(const Container& container, const K& key) {
+  if (!container.contains(key)) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using contains()";
+  }
+
+  auto found = container.find(key);
+  if (found == container.end()) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using find()";
+  }
+  if (*found == key) {
+    return testing::AssertionSuccess();
+  } else {
+    return testing::AssertionFailure()
+           << "Found entry was " << Describe(*found);
   }
 }
 

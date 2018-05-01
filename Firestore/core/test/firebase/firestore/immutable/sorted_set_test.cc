@@ -28,26 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace immutable {
 
-template <typename Container, typename K>
-testing::AssertionResult Found(const Container& container, const K& key) {
-  if (!container.contains(key)) {
-    return testing::AssertionFailure()
-           << "Did not find key " << key << " using contains()";
-  }
-
-  auto found = container.find(key);
-  if (found == container.end()) {
-    return testing::AssertionFailure()
-           << "Did not find key " << key << " using find()";
-  }
-  if (*found == key) {
-    return testing::AssertionSuccess();
-  } else {
-    return testing::AssertionFailure()
-           << "Found entry was " << Describe(*found);
-  }
-}
-
 template <typename K>
 SortedSet<K> ToSet(const std::vector<K>& container) {
   SortedSet<K> result;
@@ -110,15 +90,9 @@ TEST(SortedSetSet, Find) {
 }
 
 TEST(SortedSetTest, IteratorsAreDefaultConstructible) {
-  ASSERT_TRUE(
-      std::is_default_constructible<SortedSet<int>::const_iterator>::value);
-
-  // If this compiles the test has succeeded
-  typename SortedSet<int>::const_iterator iter;
-  (void)iter;
-
-  std::vector<int> to_insert = Sequence(kLargeNumber);
-  SortedSet<int> set = ToSet(to_insert);
+  static_assert(
+      std::is_default_constructible<SortedSet<int>::const_iterator>::value,
+      "is default constructible");
 }
 
 TEST(SortedSetTest, CanBeConstructedFromSortedMap) {
