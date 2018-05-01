@@ -43,6 +43,14 @@ NS_ASSUME_NONNULL_BEGIN
  * base class.
  */
 @interface FSTTargetMapping : NSObject
+
+/**
+ * Strips out mapping changes that aren't actually changes. That is, if the document already
+ * existed in the target, and is being added in the target, and this is not a reset, we can
+ * skip doing the work to associate the document with the target because it has already been done.
+ */
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys;
+
 @end
 
 #pragma mark - FSTResetMapping
@@ -183,14 +191,6 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
 
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
                                          key:(const firebase::firestore::model::DocumentKey &)key;
-
-/**
- * Strips out mapping changes that aren't actually changes. That is, if the document already
- * existed in the target, and is being added in the target, and this is not a reset, we can
- * skip doing the work to associate the document with the target because it has already been done.
- */
-- (void)filterUpdatesFromTargetChange:(FSTTargetChange *)targetChange
-                    existingDocuments:(FSTDocumentKeySet *)existingDocuments;
 
 @end
 

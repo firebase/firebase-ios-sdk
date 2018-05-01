@@ -104,6 +104,10 @@ NS_ASSUME_NONNULL_BEGIN
   self.documents = [self.documents setByRemovingObject:documentKey];
 }
 
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  // No-op. Resets are not filtered.
+}
+
 @end
 
 #pragma mark - FSTUpdateMapping
@@ -172,6 +176,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeDocumentKey:(const DocumentKey &)documentKey {
   self.addedDocuments = [self.addedDocuments setByRemovingObject:documentKey];
   self.removedDocuments = [self.removedDocuments setByAddingObject:documentKey];
+}
+
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  __block FSTDocumentKeySet *result = _addedDocuments;
+  [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
+    if ([existingKeys containsObject:docKey]) {
+      result = [result setByRemovingObject:docKey];
+    }
+  }];
+  _addedDocuments = result;
 }
 
 @end
@@ -287,21 +301,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   return self;
 }
 
-- (void)filterUpdatesFromTargetChange:(FSTTargetChange *)targetChange
-                    existingDocuments:(FSTDocumentKeySet *)existingDocuments {
-  if ([targetChange.mapping isKindOfClass:[FSTUpdateMapping class]]) {
-    FSTUpdateMapping *update = (FSTUpdateMapping *)targetChange.mapping;
-    FSTDocumentKeySet *added = update.addedDocuments;
-    __block FSTDocumentKeySet *result = added;
-    [added enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
-      if ([existingDocuments containsObject:docKey]) {
-        result = [result setByRemovingObject:docKey];
-      }
-    }];
-    update.addedDocuments = result;
-  }
-}
-
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
                                          key:(const DocumentKey &)key {
   if (targetChange.currentStatusUpdate == FSTCurrentStatusUpdateMarkCurrent &&
@@ -320,7 +319,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // However, if the document doesn't exist and the current marker arrives, the document is
     // not present in the snapshot and our normal view handling would consider the document to
     // remain in limbo indefinitely because there are no updates to the document. To avoid this,
-    // we specially handle this just this case here: synthesizing a delete.
+    // we specially handle this case here: synthesizing a delete.
     //
     // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
     // explicit delete message and we could remove this special logic.
