@@ -239,33 +239,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqual(FIRLoggerLevelDebug, ASL_LEVEL_DEBUG);
 }
 
-- (void)testErrorNumberIncrement {
-  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerErrorCountKey]).andReturn(10);
-  OCMExpect([self.userDefaultsMock setInteger:11 forKey:kFIRLoggerErrorCountKey]);
-  FIRLogError(kFIRLoggerCore, kMessageCode, @"Error.");
-
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
-}
-
-- (void)testWarningNumberIncrement {
-  OCMStub([self.userDefaultsMock integerForKey:kFIRLoggerWarningCountKey]).andReturn(1);
-  OCMExpect([self.userDefaultsMock setInteger:2 forKey:kFIRLoggerWarningCountKey]);
-  FIRLogWarning(kFIRLoggerCore, kMessageCode, @"Warning.");
-
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
-}
-
-- (void)testResetIssuesCount {
-  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerErrorCountKey]);
-  OCMExpect([self.userDefaultsMock setInteger:0 forKey:kFIRLoggerWarningCountKey]);
-  FIRResetNumberOfIssuesLogged();
-
-  // Use a delay since the logging is async.
-  OCMVerifyAllWithDelay(self.userDefaultsMock, 1);
-}
-
 // Helper functions.
 - (BOOL)logExists {
   [self drainFIRClientQueue];
