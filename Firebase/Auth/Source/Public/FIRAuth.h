@@ -561,7 +561,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInAnonymouslyAndRetrieveDataWithCompletion:
     (nullable FIRAuthDataResultCallback)completion
-        DEPRECATED_MSG_ATTRIBUTE(" Please use signInAnonymouslyWithCompletion: for Objective-C or"
+        DEPRECATED_MSG_ATTRIBUTE("Please use signInAnonymouslyWithCompletion: for Objective-C or"
         " signInAnonymously(Completion:) for swift instead.");
 
 /** @fn signInWithCustomToken:completion:
