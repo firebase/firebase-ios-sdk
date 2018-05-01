@@ -357,7 +357,7 @@ static NSString *const kFIRAuthErrorMessageNotificationNotForwarded = @"If app d
  */
 static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not retrieve the "
     "silent push notification and therefore could not verify your app. Ensure that you configured "
-    "your app correctly to recieve push notifications.";
+    "your app correctly to receive push notifications.";
 
 /** @var kFIRAuthErrorMessageCaptchaCheckFailed
     @brief Message for @c FIRAuthErrorCodeCaptchaCheckFailed error code.
