@@ -57,6 +57,10 @@ const char *kFIRLoggerASLClientFacilityName = "com.firebase.app.logger";
 const char *kFIRLoggerCustomASLMessageFormat =
     "$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
 
+/// Keys for the number of errors and warnings logged.
+NSString *const kFIRLoggerErrorCountKey = @"/google/firebase/count_of_errors_logged";
+NSString *const kFIRLoggerWarningCountKey = @"/google/firebase/count_of_warnings_logged";
+
 static dispatch_once_t sFIRLoggerOnceToken;
 
 static aslclient sFIRLoggerClient;
@@ -128,16 +132,6 @@ void FIRLoggerInitializeASL() {
     if (sFIRLoggerDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
       sFIRLoggerDebugMode = NO;
     }
-
-#if TARGET_OS_SIMULATOR
-    // Need to call asl_add_output_file so that the logs can appear in Xcode's console view when
-    // running iOS 7. Set the ASL filter mask for this output file up to debug level so that all
-    // messages are viewable in the console.
-    if (majorOSVersion == 7) {
-      asl_add_output_file(sFIRLoggerClient, STDERR_FILENO, kFIRLoggerCustomASLMessageFormat,
-                          ASL_TIME_FMT_LCL, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG), ASL_ENCODE_SAFE);
-    }
-#endif  // TARGET_OS_SIMULATOR
 
     sFIRClientQueue = dispatch_queue_create("FIRLoggingClientQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(sFIRClientQueue,
@@ -264,6 +258,8 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
+
+#pragma mark - FIRLoggerWrapper
 
 @implementation FIRLoggerWrapper
 

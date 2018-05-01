@@ -24,10 +24,12 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/range.h"
 
 namespace firebase {
 namespace firestore {
@@ -47,13 +49,12 @@ namespace impl {
  * to a FixedArray.
  *
  * @tparam T The type of an element in the array.
- * @tparam fixed_size the fixed size to use in creating the FixedArray.
  */
-template <typename T, SortedMapBase::size_type fixed_size>
+template <typename T>
 class FixedArray {
  public:
   using size_type = SortedMapBase::size_type;
-  using array_type = std::array<T, fixed_size>;
+  using array_type = std::array<T, SortedMapBase::kFixedSize>;
   using iterator = typename array_type::iterator;
   using const_iterator = typename array_type::const_iterator;
 
@@ -73,7 +74,7 @@ class FixedArray {
   void append(SourceIterator src_begin, SourceIterator src_end) {
     auto appending = static_cast<size_type>(src_end - src_begin);
     auto new_size = size_ + appending;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -84,7 +85,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    FIREBASE_ASSERT(new_size <= fixed_size);
+    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     *end() = std::move(value);
     size_ = new_size;
@@ -132,8 +133,9 @@ class ArraySortedMap : public SortedMapBase {
   /**
    * The type of the fixed-size array containing entries of value_type.
    */
-  using array_type = FixedArray<value_type, kFixedSize>;
+  using array_type = FixedArray<value_type>;
   using const_iterator = typename array_type::const_iterator;
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   using array_pointer = std::shared_ptr<const array_type>;
 
@@ -153,6 +155,20 @@ class ArraySortedMap : public SortedMapBase {
         key_comparator_{comparator} {
   }
 
+  /** Returns true if the map contains no elements. */
+  bool empty() const {
+    return size() == 0;
+  }
+
+  /** Returns the number of items in this map. */
+  size_type size() const {
+    return array_->size();
+  }
+
+  const C& comparator() const {
+    return key_comparator_.comparator();
+  }
+
   /**
    * Creates a new map identical to this one, but with a key-value pair added or
    * updated.
@@ -163,12 +179,12 @@ class ArraySortedMap : public SortedMapBase {
    */
   ArraySortedMap insert(const K& key, const V& value) const {
     const_iterator current_end = end();
-    const_iterator pos = LowerBound(key);
+    const_iterator pos = lower_bound(key);
     bool replacing_entry = false;
 
     if (pos != current_end) {
-      // LowerBound found an entry where pos->first >= pair.first. Reversing the
-      // argument order here tests pair.first < pos->first.
+      // lower_bound found an entry where pos->first >= pair.first. Reversing
+      // the argument order here tests pair.first < pos->first.
       replacing_entry = !key_comparator_(key, *pos);
       if (replacing_entry && value == pos->second) {
         return *this;
@@ -213,6 +229,10 @@ class ArraySortedMap : public SortedMapBase {
     }
   }
 
+  bool contains(const K& key) const {
+    return find(key) != end();
+  }
+
   /**
    * Finds a value in the map.
    *
@@ -222,26 +242,48 @@ class ArraySortedMap : public SortedMapBase {
    */
   const_iterator find(const K& key) const {
     const_iterator not_found = end();
-    const_iterator lower_bound = LowerBound(key);
-    if (lower_bound != not_found && !key_comparator_(key, *lower_bound)) {
-      return lower_bound;
+    const_iterator bound = lower_bound(key);
+    if (bound != not_found && !key_comparator_(key, *bound)) {
+      return bound;
     } else {
       return not_found;
     }
   }
 
-  const key_comparator_type& comparator() const {
-    return key_comparator_;
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    auto found = find(key);
+    return found == end() ? npos : static_cast<size_type>(found - begin());
   }
 
-  /** Returns true if the map contains no elements. */
-  bool empty() const {
-    return size() == 0;
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    return std::lower_bound(begin(), end(), key, key_comparator_);
   }
 
-  /** Returns the number of items in this map. */
-  size_type size() const {
-    return array_->size();
+  const_iterator min() const {
+    return begin();
+  }
+
+  const_iterator max() const {
+    if (empty()) {
+      return end();
+    }
+
+    return end() - 1;
   }
 
   /**
@@ -259,6 +301,32 @@ class ArraySortedMap : public SortedMapBase {
     return array_->end();
   }
 
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return KeysView(*this);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given start_key and less
+   * than the given end_key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, comparator());
+  }
+
  private:
   static array_pointer EmptyArray() {
     static const array_pointer kEmptyArray =
@@ -273,10 +341,6 @@ class ArraySortedMap : public SortedMapBase {
 
   ArraySortedMap wrap(const array_pointer& array) const noexcept {
     return ArraySortedMap{array, key_comparator_};
-  }
-
-  const_iterator LowerBound(const K& key) const {
-    return std::lower_bound(begin(), end(), key, key_comparator_);
   }
 
   array_pointer array_;

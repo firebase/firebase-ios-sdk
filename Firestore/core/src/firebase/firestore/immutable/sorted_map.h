@@ -20,7 +20,9 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/immutable/array_sorted_map.h"
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_map_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/tree_sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
@@ -39,6 +41,13 @@ class SortedMap : public impl::SortedMapBase {
   using value_type = std::pair<K, V>;
   using array_type = impl::ArraySortedMap<K, V, C>;
   using tree_type = impl::TreeSortedMap<K, V, C>;
+
+  using const_iterator = impl::SortedMapIterator<
+      value_type,
+      typename impl::FixedArray<value_type>::const_iterator,
+      typename impl::LlrbNode<K, V>::const_iterator>;
+
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   /**
    * Creates an empty SortedMap.
@@ -71,7 +80,7 @@ class SortedMap : public impl::SortedMapBase {
     }
   }
 
-  SortedMap(SortedMap&& other) : tag_{other.tag_} {
+  SortedMap(SortedMap&& other) noexcept : tag_{other.tag_} {
     switch (tag_) {
       case Tag::Array:
         new (&array_) array_type{std::move(other.array_)};
@@ -110,7 +119,7 @@ class SortedMap : public impl::SortedMapBase {
     return *this;
   }
 
-  SortedMap& operator=(SortedMap&& other) {
+  SortedMap& operator=(SortedMap&& other) noexcept {
     if (tag_ == other.tag_) {
       switch (tag_) {
         case Tag::Array:
@@ -125,52 +134,6 @@ class SortedMap : public impl::SortedMapBase {
       new (this) SortedMap{std::move(other)};
     }
     return *this;
-  }
-
-  /**
-   * Creates a new map identical to this one, but with a key-value pair added or
-   * updated.
-   *
-   * @param key The key to insert/update.
-   * @param value The value to associate with the key.
-   * @return A new dictionary with the added/updated value.
-   */
-  SortedMap insert(const K& key, const V& value) const {
-    switch (tag_) {
-      case Tag::Array:
-        if (array_.size() >= kFixedSize) {
-          // Strictly speaking this conversion is more eager than it needs to
-          // be since we could be replacing an existing key. However, the
-          // benefit of using the array for small maps doesn't really depend on
-          // exactly where this cut-off happens and just unconditionally
-          // converting if the next insertion could overflow keeps things
-          // simpler.
-          const C& comparator = array_.comparator().comparator();
-          tree_type tree = tree_type::Create(array_, comparator);
-          return SortedMap{tree.insert(key, value)};
-        } else {
-          return SortedMap{array_.insert(key, value)};
-        }
-      case Tag::Tree:
-        return SortedMap{tree_.insert(key, value)};
-    }
-    FIREBASE_UNREACHABLE();
-  }
-
-  /**
-   * Creates a new map identical to this one, but with a key removed from it.
-   *
-   * @param key The key to remove.
-   * @return A new map without that value.
-   */
-  SortedMap erase(const K& key) const {
-    switch (tag_) {
-      case Tag::Array:
-        return SortedMap{array_.erase(key)};
-      case Tag::Tree:
-        return SortedMap{tree_.erase(key)};
-    }
-    FIREBASE_UNREACHABLE();
   }
 
   /** Returns true if the map contains no elements. */
@@ -195,6 +158,191 @@ class SortedMap : public impl::SortedMapBase {
     FIREBASE_UNREACHABLE();
   }
 
+  /**
+   * Creates a new map identical to this one, but with a key-value pair added or
+   * updated.
+   *
+   * @param key The key to insert/update.
+   * @param value The value to associate with the key.
+   * @return A new dictionary with the added/updated value.
+   */
+  SortedMap insert(const K& key, const V& value) const {
+    switch (tag_) {
+      case Tag::Array:
+        if (array_.size() >= kFixedSize) {
+          // Strictly speaking this conversion is more eager than it needs to
+          // be since we could be replacing an existing key. However, the
+          // benefit of using the array for small maps doesn't really depend on
+          // exactly where this cut-off happens and just unconditionally
+          // converting if the next insertion could overflow keeps things
+          // simpler.
+          tree_type tree = tree_type::Create(array_, comparator());
+          return SortedMap{tree.insert(key, value)};
+        } else {
+          return SortedMap{array_.insert(key, value)};
+        }
+      case Tag::Tree:
+        return SortedMap{tree_.insert(key, value)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Creates a new map identical to this one, but with a key removed from it.
+   *
+   * @param key The key to remove.
+   * @return A new map without that value.
+   */
+  SortedMap erase(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return SortedMap{array_.erase(key)};
+      case Tag::Tree:
+        tree_type result = tree_.erase(key);
+        if (result.empty()) {
+          // Flip back to the array representation for empty arrays.
+          return SortedMap{};
+        }
+        return SortedMap{std::move(result)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  bool contains(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.contains(key);
+      case Tag::Tree:
+        return tree_.contains(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.find(key));
+      case Tag::Tree:
+        return const_iterator{tree_.find(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.find_index(key);
+      case Tag::Tree:
+        return tree_.find_index(key);
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.lower_bound(key));
+      case Tag::Tree:
+        return const_iterator{tree_.lower_bound(key)};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  const_iterator min() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.min());
+      case Tag::Tree:
+        return const_iterator{tree_.min()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  const_iterator max() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator(array_.max());
+      case Tag::Tree:
+        return const_iterator{tree_.max()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing to the first entry in the map. If there are
+   * no entries in the map, begin() == end().
+   */
+  const_iterator begin() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.begin()};
+      case Tag::Tree:
+        return const_iterator{tree_.begin()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    switch (tag_) {
+      case Tag::Array:
+        return const_iterator{array_.end()};
+      case Tag::Tree:
+        return const_iterator{tree_.end()};
+    }
+    FIREBASE_UNREACHABLE();
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return impl::KeysView(*this);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return impl::KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given start_key and less
+   * than the given end_key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, comparator());
+  }
+
  private:
   explicit SortedMap(array_type&& array)
       : tag_{Tag::Array}, array_{std::move(array)} {
@@ -202,6 +350,16 @@ class SortedMap : public impl::SortedMapBase {
 
   explicit SortedMap(tree_type&& tree)
       : tag_{Tag::Tree}, tree_{std::move(tree)} {
+  }
+
+  const C& comparator() const {
+    switch (tag_) {
+      case Tag::Array:
+        return array_.comparator();
+      case Tag::Tree:
+        return tree_.comparator();
+    }
+    FIREBASE_UNREACHABLE();
   }
 
   enum class Tag {

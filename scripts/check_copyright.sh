@@ -22,7 +22,7 @@ options=(
 )
 
 git grep "${options[@]}" \
-    -- '*.'{c,cc,h,m,mm,sh,swift} \
+    -- '*.'{c,cc,h,js,m,mm,py,sh,swift} \
     ':(exclude)**/third_party/**'
 if [[ $? == 0 ]]; then
   echo "ERROR: Missing copyright notices in the files above. Please fix."

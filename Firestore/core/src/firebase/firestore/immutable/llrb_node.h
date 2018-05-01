@@ -20,6 +20,7 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/llrb_node_iterator.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 
 namespace firebase {
@@ -48,6 +49,7 @@ class LlrbNode : public SortedMapBase {
    * The type of the entries stored in the map.
    */
   using value_type = std::pair<K, V>;
+  using const_iterator = LlrbNodeIterator<LlrbNode<K, V>>;
 
   /**
    * Constructs an empty node.
@@ -55,14 +57,14 @@ class LlrbNode : public SortedMapBase {
   LlrbNode() : LlrbNode{EmptyRep()} {
   }
 
-  /** Returns the number of elements at this node or beneath it in the tree. */
-  size_type size() const {
-    return rep_->size_;
-  }
-
   /** Returns true if this is an empty node--a leaf node in the tree. */
   bool empty() const {
     return size() == 0;
+  }
+
+  /** Returns the number of elements at this node or beneath it in the tree. */
+  size_type size() const {
+    return rep_->size_;
   }
 
   /** Returns true if this node is red (as opposed to black). */
@@ -94,6 +96,25 @@ class LlrbNode : public SortedMapBase {
   LlrbNode insert(const K& key,
                   const V& value,
                   const Comparator& comparator) const;
+
+  template <typename Comparator>
+  LlrbNode erase(const K& key, const Comparator& comparator) const;
+
+  const LlrbNode& min() const {
+    const LlrbNode* node = this;
+    while (!node->left().empty()) {
+      node = &node->left();
+    }
+    return *node;
+  }
+
+  const LlrbNode& max() const {
+    const LlrbNode* node = this;
+    while (!node->right().empty()) {
+      node = &node->right();
+    }
+    return *node;
+  }
 
  private:
   struct Rep {
@@ -196,11 +217,19 @@ class LlrbNode : public SortedMapBase {
                        const V& value,
                        const Comparator& comparator) const;
 
+  template <typename Comparator>
+  LlrbNode InnerErase(const K& key, const Comparator& comparator) const;
+
   void FixUp();
+  void FixRootColor();
 
   void RotateLeft();
   void RotateRight();
   void FlipColor();
+
+  void RemoveMin();
+  void MoveRedLeft();
+  void MoveRedRight();
 
   size_type OppositeColor() const noexcept {
     return rep_->color_ == Color::Red ? Color::Black : Color::Red;
@@ -215,10 +244,7 @@ LlrbNode<K, V> LlrbNode<K, V>::insert(const K& key,
                                       const V& value,
                                       const Comparator& comparator) const {
   LlrbNode root = InnerInsert(key, value, comparator);
-  // The root must always be black
-  if (root.red()) {
-    root.rep_->color_ = Color::Black;
-  }
+  root.FixRootColor();
   return root;
 }
 
@@ -257,6 +283,64 @@ LlrbNode<K, V> LlrbNode<K, V>::InnerInsert(const K& key,
 }
 
 template <typename K, typename V>
+template <typename Comparator>
+LlrbNode<K, V> LlrbNode<K, V>::erase(const K& key,
+                                     const Comparator& comparator) const {
+  LlrbNode root = InnerErase(key, comparator);
+  root.FixRootColor();
+  return root;
+}
+
+template <typename K, typename V>
+template <typename Comparator>
+LlrbNode<K, V> LlrbNode<K, V>::InnerErase(const K& key,
+                                          const Comparator& comparator) const {
+  if (empty()) {
+    // Empty node already frozen
+    return LlrbNode{};
+  }
+
+  LlrbNode n = Clone();
+
+  bool descending = comparator(key, n.key());
+  if (descending) {
+    if (!n.left().empty() && !n.left().red() && !n.left().left().red()) {
+      n.MoveRedLeft();
+    }
+    n.set_left(n.left().InnerErase(key, comparator));
+
+  } else {
+    if (n.left().red()) {
+      n.RotateRight();
+    }
+
+    if (!n.right().empty() && !n.right().red() && !n.right().left().red()) {
+      n.MoveRedRight();
+    }
+
+    if (util::Compare(key, n.key(), comparator) ==
+        util::ComparisonResult::Same) {
+      if (n.right().empty()) {
+        return LlrbNode{};
+
+      } else {
+        // Move the minimum node from the right subtree in place of this node.
+        LlrbNode smallest = n.right().min();
+        LlrbNode new_right = n.right().Clone();
+        new_right.RemoveMin();
+
+        n.set_entry(smallest.entry());
+        n.set_right(std::move(new_right));
+      }
+    } else {
+      n.set_right(n.right().InnerErase(key, comparator));
+    }
+  }
+  n.FixUp();
+  return n;
+}
+
+template <typename K, typename V>
 void LlrbNode<K, V>::FixUp() {
   set_size(left().size() + 1 + right().size());
 
@@ -271,13 +355,70 @@ void LlrbNode<K, V>::FixUp() {
   }
 }
 
-// Rotates left:
-//
-//      X              R
-//    /   \          /   \
-//   L     R   =>   X    RR
-//        / \      / \
-//       RL RR     L RL
+/**
+ * Fixes the root node so its color is always black.
+ *
+ * This change is safe because a red `root` must be a new root:
+ *   * If the key is not found, InnerErase returns an existing root, but
+ *     existing roots will already be black (by the invariant).
+ *   * If the key is found, InnerErase returns a new root, which is safe to
+ *     modify.
+ */
+template <typename K, typename V>
+void LlrbNode<K, V>::FixRootColor() {
+  if (red()) {
+    rep_->color_ = Color::Black;
+  }
+}
+
+template <typename K, typename V>
+void LlrbNode<K, V>::RemoveMin() {
+  // If the left node is empty then the right node must be empty (because the
+  // tree is left-leaning) and this node must be the minimum.
+  if (left().empty()) {
+    *this = LlrbNode{};
+    return;
+  }
+
+  if (!left().red() && !left().left().red()) {
+    MoveRedLeft();
+  }
+
+  LlrbNode new_left = left().Clone();
+  new_left.RemoveMin();
+  set_left(std::move(new_left));
+  FixUp();
+}
+
+template <typename K, typename V>
+void LlrbNode<K, V>::MoveRedLeft() {
+  FlipColor();
+  if (right().left().red()) {
+    LlrbNode new_right = right().Clone();
+    new_right.RotateRight();
+    set_right(std::move(new_right));
+    RotateLeft();
+    FlipColor();
+  }
+}
+
+template <typename K, typename V>
+void LlrbNode<K, V>::MoveRedRight() {
+  FlipColor();
+  if (left().left().red()) {
+    RotateRight();
+    FlipColor();
+  }
+}
+
+/* Rotates left:
+ *
+ *      X              R
+ *    /   \          /   \
+ *   L     R   =>   X    RR
+ *        / \      / \
+ *       RL RR     L RL
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateLeft() {
   LlrbNode new_left{
@@ -289,13 +430,14 @@ void LlrbNode<K, V>::RotateLeft() {
   set_right(right().right());
 }
 
-// Rotates right:
-//
-//      X              L
-//    /   \          /   \
-//   L     R   =>   LL    X
-//  / \                  / \
-// LL LR                LR R
+/* Rotates right:
+ *
+ *      X              L
+ *    /   \          /   \
+ *   L     R   =>   LL    X
+ *  / \                  / \
+ * LL LR                LR R
+ */
 template <typename K, typename V>
 void LlrbNode<K, V>::RotateRight() {
   LlrbNode new_right{

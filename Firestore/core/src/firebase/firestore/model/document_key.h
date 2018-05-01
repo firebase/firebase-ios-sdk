@@ -26,6 +26,7 @@
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -61,7 +62,7 @@ class DocumentKey {
   }
 
   NSUInteger Hash() const {
-    return std::hash<std::string>{}(ToString());
+    return util::Hash(ToString());
   }
 #endif
 

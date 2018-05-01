@@ -25,13 +25,13 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;
 @class FSTMutationResult;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTSnapshotVersion;
 @class FSTViewSnapshot;
 @class FSTWatchChange;
 @protocol FSTGarbageCollector;
@@ -150,7 +150,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *      simulating the server having sent a complete snapshot.
  */
 - (void)receiveWatchChange:(FSTWatchChange *)change
-           snapshotVersion:(FSTSnapshotVersion *_Nullable)snapshot;
+           snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshot;
 
 /**
  * Delivers a watch stream error as if the Streaming Watch backend has generated some kind of error.
@@ -195,7 +195,8 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  *     the mutation. Snapshot versions must be monotonically increasing.
  * @param mutationResults The mutation results for the write that is being acked.
  */
-- (FSTOutstandingWrite *)receiveWriteAckWithVersion:(FSTSnapshotVersion *)commitVersion
+- (FSTOutstandingWrite *)receiveWriteAckWithVersion:
+                             (const firebase::firestore::model::SnapshotVersion &)commitVersion
                                     mutationResults:(NSArray<FSTMutationResult *> *)mutationResults;
 
 /**

@@ -212,28 +212,39 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref {
+  return [self readDocumentForRef:ref source:FIRFirestoreSourceDefault];
+}
+
+- (FIRDocumentSnapshot *)readDocumentForRef:(FIRDocumentReference *)ref
+                                     source:(FIRFirestoreSource)source {
   __block FIRDocumentSnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [ref getDocumentWithCompletion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
-    XCTAssertNil(error);
-    result = doc;
-    [expectation fulfill];
-  }];
+  [ref getDocumentWithSource:source
+                  completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                    XCTAssertNil(error);
+                    result = doc;
+                    [expectation fulfill];
+                  }];
   [self awaitExpectations];
 
   return result;
 }
 
 - (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query {
+  return [self readDocumentSetForRef:query source:FIRFirestoreSourceDefault];
+}
+
+- (FIRQuerySnapshot *)readDocumentSetForRef:(FIRQuery *)query source:(FIRFirestoreSource)source {
   __block FIRQuerySnapshot *result;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"getData"];
-  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *documentSet, NSError *error) {
-    XCTAssertNil(error);
-    result = documentSet;
-    [expectation fulfill];
-  }];
+  [query getDocumentsWithSource:source
+                     completion:^(FIRQuerySnapshot *documentSet, NSError *error) {
+                       XCTAssertNil(error);
+                       result = documentSet;
+                       [expectation fulfill];
+                     }];
   [self awaitExpectations];
 
   return result;
@@ -325,6 +336,18 @@ extern "C" NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs) {
   NSMutableArray<NSString *> *result = [NSMutableArray array];
   for (FIRDocumentSnapshot *doc in docs.documents) {
     [result addObject:doc.documentID];
+  }
+  return result;
+}
+
+extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs) {
+  NSMutableArray<NSMutableArray<id> *> *result = [NSMutableArray array];
+  for (FIRDocumentChange *docChange in docs.documentChanges) {
+    NSMutableArray<id> *docChangeData = [NSMutableArray array];
+    [docChangeData addObject:@(docChange.type)];
+    [docChangeData addObject:docChange.document.documentID];
+    [docChangeData addObject:docChange.document.data];
+    [result addObject:docChangeData];
   }
   return result;
 }

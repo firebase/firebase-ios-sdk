@@ -33,6 +33,7 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthKeychain.h"
 #import "FIRAuthOperationType.h"
+#import "FIRAuthSettings.h"
 #import "FIRUser_Internal.h"
 #import "FirebaseAuth.h"
 #import "FIRAuthBackend.h"
@@ -434,6 +435,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey];
+    _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
     UIApplication *application = [UIApplication sharedApplication];
@@ -551,15 +553,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)signInWithEmail:(NSString *)email
                password:(NSString *)password
-             completion:(FIRAuthResultCallback)completion {
+             completion:(FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithEmail:email
                                         password:password
                                       completion:^(FIRAuthDataResult *_Nullable authResult,
                                                    NSError *_Nullable error) {
-      decoratedCallback(authResult.user, error);
+      decoratedCallback(authResult, error);
     }];
   });
 }
@@ -887,12 +889,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
-- (void)signInAnonymouslyWithCompletion:(FIRAuthResultCallback)completion {
+- (void)signInAnonymouslyWithCompletion:(FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     if (self->_currentUser.anonymous) {
-      decoratedCallback(self->_currentUser, nil);
+      FIRAuthDataResult *result =
+          [[FIRAuthDataResult alloc] initWithUser:self->_currentUser additionalUserInfo:nil];
+      decoratedCallback(result, nil);
       return;
     }
     [self internalSignInAnonymouslyWithCompletion:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -905,20 +909,30 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 accessTokenExpirationDate:response.approximateExpirationDate
                              refreshToken:response.refreshToken
                                 anonymous:YES
-                                 callback:decoratedCallback];
+                                 callback:^(FIRUser * _Nullable user, NSError * _Nullable error) {
+        FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:YES];
+        FIRAuthDataResult *authDataResult =
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
+      }];
     }];
   });
 }
 
 - (void)signInWithCustomToken:(NSString *)token
-                   completion:(nullable FIRAuthResultCallback)completion {
+                   completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalSignInAndRetrieveDataWithCustomToken:token
                                             completion:^(FIRAuthDataResult *_Nullable authResult,
                                                          NSError *_Nullable error) {
-      decoratedCallback(authResult.user, error);
+      decoratedCallback(authResult, error);
     }];
   });
 }
@@ -934,10 +948,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
-                 completion:(nullable FIRAuthResultCallback)completion {
+                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    FIRAuthResultCallback decoratedCallback =
-        [self signInFlowAuthResultCallbackByDecoratingCallback:completion];
+    FIRAuthDataResultCallback decoratedCallback =
+        [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     [self internalCreateUserWithEmail:email
                              password:password
                            completion:^(FIRSignUpNewUserResponse *_Nullable response,
@@ -950,7 +964,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 accessTokenExpirationDate:response.approximateExpirationDate
                              refreshToken:response.refreshToken
                                 anonymous:NO
-                                 callback:decoratedCallback];
+                                 callback:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+        FIRAdditionalUserInfo *additionalUserInfo =
+          [[FIRAdditionalUserInfo alloc] initWithProviderID:FIREmailAuthProviderID
+                                                    profile:nil
+                                                   username:nil
+                                                  isNewUser:YES];
+        FIRAuthDataResult *authDataResult =
+            [[FIRAuthDataResult alloc] initWithUser:user
+                                 additionalUserInfo:additionalUserInfo];
+        decoratedCallback(authDataResult, nil);
+      }];
     }];
   });
 }

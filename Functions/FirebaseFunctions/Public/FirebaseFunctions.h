@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-/**
- * Checks whether the URL schemes declared for Google SignIn are valid.
- *
- * @param urlSchemes The URL schemes to validate.
- * @return YES if the schemes are valid; NO otherwise.
- */
-extern BOOL fir_areURLSchemesValidForGoogleSignIn(NSArray *urlSchemes);
+#import "FIRError.h"
+#import "FIRFunctions.h"
+#import "FIRHTTPSCallable.h"

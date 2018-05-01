@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -28,6 +27,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,20 +38,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testConstructor {
   DocumentKey key = testutil::Key("messages/first");
-  FSTSnapshotVersion *version = FSTTestVersion(1);
+  SnapshotVersion version = testutil::Version(1);
   FSTObjectValue *data = FSTTestObjectValue(@{ @"a" : @1 });
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 
   XCTAssertEqualObjects(doc.key, FSTTestDocKey(@"messages/first"));
-  XCTAssertEqualObjects(doc.version, version);
+  XCTAssertEqual(doc.version, version);
   XCTAssertEqualObjects(doc.data, data);
   XCTAssertEqual(doc.hasLocalMutations, NO);
 }
 
 - (void)testExtractsFields {
   DocumentKey key = testutil::Key("rooms/eros");
-  FSTSnapshotVersion *version = FSTTestVersion(1);
+  SnapshotVersion version = testutil::Version(1);
   FSTObjectValue *data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",
     @"owner" : @{@"name" : @"Jonny", @"title" : @"scallywag"}

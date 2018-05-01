@@ -31,7 +31,6 @@
 @class FSTMutationResult;
 @class FSTQueryData;
 @class FSTSerializerBeta;
-@class FSTSnapshotVersion;
 @class FSTWatchChange;
 @class FSTWatchStream;
 @class FSTWriteStream;

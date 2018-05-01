@@ -35,8 +35,8 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/rpc/Status.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
+#import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -57,10 +57,12 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -423,8 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
                              precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
-  proto.currentDocument.updateTime =
-      [self.serializer encodedTimestamp:[[FIRTimestamp alloc] initWithSeconds:0 nanoseconds:4000]];
+  proto.currentDocument.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
 
   [self assertRoundTripForMutation:mutation proto:proto];
 }
@@ -482,6 +483,18 @@ NS_ASSUME_NONNULL_BEGIN
   GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
   prop.field.fieldPath = @"item.part.top";
   prop.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
+  prop.value.stringValue = @"food";
+  XCTAssertEqualObjects(actual, expected);
+}
+
+- (void)testEncodesArrayContainsFilter {
+  FSTRelationFilter *input = FSTTestFilter("item.tags", @"array_contains", @"food");
+  GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
+
+  GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *prop = expected.fieldFilter;
+  prop.field.fieldPath = @"item.tags";
+  prop.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
   prop.value.stringValue = @"food";
   XCTAssertEqualObjects(actual, expected);
 }
@@ -555,9 +568,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesMultipleFiltersOnDeeperCollections {
-  FSTQuery *q = [[FSTTestQuery("rooms/1/messages/10/attachments")
+  FSTQuery *q = [[[FSTTestQuery("rooms/1/messages/10/attachments")
       queryByAddingFilter:FSTTestFilter("prop", @">=", @(42))]
-      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")];
+      queryByAddingFilter:FSTTestFilter("author", @"==", @"dimond")]
+      queryByAddingFilter:FSTTestFilter("tags", @"array_contains", @"pending")];
   FSTQueryData *model = [self queryDataForQuery:q];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -578,11 +592,18 @@ NS_ASSUME_NONNULL_BEGIN
   field2.op = GCFSStructuredQuery_FieldFilter_Operator_Equal;
   field2.value.stringValue = @"dimond";
 
+  GCFSStructuredQuery_Filter *filter3 = [GCFSStructuredQuery_Filter message];
+  GCFSStructuredQuery_FieldFilter *field3 = filter3.fieldFilter;
+  field3.field.fieldPath = @"tags";
+  field3.op = GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
+  field3.value.stringValue = @"pending";
+
   GCFSStructuredQuery_CompositeFilter *composite =
       expected.query.structuredQuery.where.compositeFilter;
   composite.op = GCFSStructuredQuery_CompositeFilter_Operator_And;
   [composite.filtersArray addObject:filter1];
   [composite.filtersArray addObject:filter2];
+  [composite.filtersArray addObject:filter3];
 
   [expected.query.structuredQuery.orderByArray
       addObject:[GCFSStructuredQuery_Order messageWithProperty:@"prop" ascending:YES]];
@@ -687,7 +708,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    targetID:1
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
-                                            snapshotVersion:[FSTSnapshotVersion noVersion]
+                                            snapshotVersion:SnapshotVersion::None()
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -708,7 +729,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     targetID:1
                         listenSequenceNumber:0
                                      purpose:FSTQueryPurposeListen
-                             snapshotVersion:[FSTSnapshotVersion noVersion]
+                             snapshotVersion:SnapshotVersion::None()
                                  resumeToken:[NSData data]];
 }
 

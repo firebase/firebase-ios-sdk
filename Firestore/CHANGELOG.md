@@ -1,8 +1,4 @@
 # Unreleased
-- [feature] Added FieldValue.arrayUnion() and FieldValue.arrayRemove() methods
-  which can be used inside setData() or updateData() calls to atomically add
-  or remove specific elements to an array field in a document without using a
-  transaction.
 - [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
   Instead of calling
   `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
@@ -24,8 +20,12 @@
   `FIRServerTimestampBehavior` on `DocumentSnapshot`. Instead of calling
   `data(SnapshotOptions.serverTimestampBehavior(.estimate))` call
   `data(serverTimestampBehavior: .estimate)`. Changed `get` similarly.
-- [feature] Added new `mergeFields:(NSArray<id>*)` overrides for `set()` 
-  which allow merging of a reduced subset of fields.
+- [changed] Added ability to control whether DocumentReference.getDocument() and
+  Query.getDocuments() should fetch from server only, cache only, or attempt
+  server and fall back to the cache (which was the only option previously, and
+  is now the default.)
+- [feature] Added new `mergeFields:(NSArray<id>*)` override for `set()` 
+  which allows merging of a reduced subset of fields.
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could

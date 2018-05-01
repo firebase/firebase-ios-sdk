@@ -776,13 +776,9 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 - (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
-  // |getTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
+  // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
   // global work queue here.
   [self getIDTokenForcingRefresh:NO completion:completion];
-}
-
-- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion {
-  [self getIDTokenWithCompletion:completion];
 }
 
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
@@ -845,8 +841,18 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
   *error = nil;
   NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
+
   // The token payload is always the second index of the array.
-  NSMutableString *tokenPayload = [[NSMutableString alloc] initWithString:tokenStringArray[1]];
+  NSString *idToken = tokenStringArray[1];
+
+  // Convert the base64URL encoded string to a base64 encoded string.
+  // Replace "_" with "/"
+  NSMutableString *tokenPayload =
+      [[idToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
+
+  // Replace "-" with "+"
+  tokenPayload =
+      [[tokenPayload stringByReplacingOccurrencesOfString:@"-" withString:@"+"] mutableCopy];
 
   // Pad the token payload with "=" signs if the payload's length is not a multiple of 4.
   while ((tokenPayload.length % 4) != 0) {
@@ -886,11 +892,6 @@ static void callInMainThreadWithAuthDataResultAndError(
                                 signInProvider:tokenPayloadDictionary[@"sign_in_provider"]
                                         claims:tokenPayloadDictionary];
   return result;
-}
-
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                    completion:(nullable FIRAuthTokenCallback)completion {
-  [self getIDTokenForcingRefresh:forceRefresh completion:completion];
 }
 
 /** @fn internalGetTokenForcingRefresh:callback:

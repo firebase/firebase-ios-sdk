@@ -22,7 +22,6 @@
 
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
-@class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 

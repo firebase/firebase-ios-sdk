@@ -14,18 +14,18 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE29E7F51F2174B000909613"
-               BuildableName = "AllTests"
-               BlueprintName = "AllTests"
+               BlueprintIdentifier = "6003F5AD195388D20070C39A"
+               BuildableName = "Firestore_Tests_iOS.xctest"
+               BlueprintName = "Firestore_Tests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "54C9EDF02040E16300A969CD"
@@ -40,26 +40,15 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE03B2941F2149D600A30B9C"
-               BuildableName = "Firestore_IntegrationTests.xctest"
-               BlueprintName = "Firestore_IntegrationTests"
-               ReferencedContainer = "container:Firestore.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "6003F5AD195388D20070C39A"
-               BuildableName = "Firestore_Tests.xctest"
-               BlueprintName = "Firestore_Tests"
+               BuildableName = "Firestore_Tests_iOS.xctest"
+               BlueprintName = "Firestore_Tests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -77,9 +66,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BlueprintIdentifier = "6003F5AD195388D20070C39A"
+            BuildableName = "Firestore_Tests_iOS.xctest"
+            BlueprintName = "Firestore_Tests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -90,7 +79,6 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      language = ""
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -100,9 +88,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BlueprintIdentifier = "6003F5AD195388D20070C39A"
+            BuildableName = "Firestore_Tests_iOS.xctest"
+            BlueprintName = "Firestore_Tests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -118,9 +106,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE29E7F51F2174B000909613"
-            BuildableName = "AllTests"
-            BlueprintName = "AllTests"
+            BlueprintIdentifier = "6003F5AD195388D20070C39A"
+            BuildableName = "Firestore_Tests_iOS.xctest"
+            BlueprintName = "Firestore_Tests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

@@ -232,9 +232,9 @@ final class ViewController: UIViewController, UITextFieldDelegate, AuthUIDelegat
         }
       case .createUser:
         Auth.auth().createUser(withEmail: emailField.text!, password: passwordField.text!) {
-            user, error in
+            result, error in
           self.ifNoError(error) {
-            self.showAlert(title: "Signed In With Credential", message: user?.textDescription)
+            self.showAlert(title: "Signed In With Credential", message: result?.user.textDescription)
           }
         }
       case .signOut:

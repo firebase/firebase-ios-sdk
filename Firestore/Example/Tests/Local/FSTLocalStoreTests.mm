@@ -41,8 +41,11 @@
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
                                                    FSTTestSnapshotVersion version) {
   FSTDocumentVersionDictionary *result = [FSTDocumentVersionDictionary documentVersionDictionary];
-  result = [result dictionaryBySettingObject:FSTTestVersion(version) forKey:mutation.key];
+  result = [result dictionaryBySettingObject:testutil::Version(version) forKey:mutation.key];
   return result;
 }
 
@@ -140,7 +143,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
   XCTAssertEqual(batch.mutations.count, 1, @"Acknowledging more than one mutation not supported.");
-  FSTSnapshotVersion *version = FSTTestVersion(documentVersion);
+  SnapshotVersion version = testutil::Version(documentVersion);
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch
@@ -818,7 +821,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   NSMutableDictionary<FSTBoxedTargetID *, NSNumber *> *pendingResponses =
       [NSMutableDictionary dictionary];
   FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:FSTTestVersion(1000)
+      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:testutil::Version(1000)
                                                   listenTargets:listens
                                          pendingTargetResponses:pendingResponses];
   [aggregator addWatchChanges:@[ watchChange ]];

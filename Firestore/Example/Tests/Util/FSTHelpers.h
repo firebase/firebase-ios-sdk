@@ -40,7 +40,6 @@
 @class FSTQuery;
 @class FSTRemoteEvent;
 @class FSTSetMutation;
-@class FSTSnapshotVersion;
 @class FSTSortOrder;
 @class FSTTargetChange;
 @class FIRTimestamp;
@@ -188,9 +187,6 @@ FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys);
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
 
-/** A convenience method for creating snapshot versions for tests. */
-FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion version);
-
 /** A convenience method for creating docs for tests. */
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
@@ -212,7 +208,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path);
 
 /**
  * A convenience method to create a FSTFilter using a string representation for both field
- * and operator (<, <=, ==, >=, >).
+ * and operator (<, <=, ==, >=, >, array_contains).
  */
 id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
 

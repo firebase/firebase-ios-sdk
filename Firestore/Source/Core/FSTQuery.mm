@@ -58,6 +58,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
       return @">=";
     case FSTRelationFilterOperatorGreaterThan:
       return @">";
+    case FSTRelationFilterOperatorArrayContains:
+      return @"array_contains";
     default:
       FSTCFail(@"Unknown FSTRelationFilterOperator %lu", (unsigned long)filterOperator);
   }
@@ -119,7 +121,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 #pragma mark - Public Methods
 
 - (BOOL)isInequality {
-  return self.filterOperator != FSTRelationFilterOperatorEqual;
+  return self.filterOperator != FSTRelationFilterOperatorEqual &&
+         self.filterOperator != FSTRelationFilterOperatorArrayContains;
 }
 
 - (const firebase::firestore::model::FieldPath &)field {
@@ -150,6 +153,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   if (_field.IsKeyFieldPath()) {
     FSTAssert([self.value isKindOfClass:[FSTReferenceValue class]],
               @"Comparing on key, but filter value not a FSTReferenceValue.");
+    FSTAssert(self.filterOperator != FSTRelationFilterOperatorArrayContains,
+              @"arrayContains queries don't make sense on document keys.");
     FSTReferenceValue *refValue = (FSTReferenceValue *)self.value;
     NSComparisonResult comparison = FSTDocumentKeyComparator(document.key, refValue.value);
     return [self matchesComparison:comparison];
@@ -180,9 +185,19 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 /** Returns YES if receiver is true with the given value as its LHS. */
 - (BOOL)matchesValue:(FSTFieldValue *)other {
-  // Only compare types with matching backend order (such as double and int).
-  return self.value.typeOrder == other.typeOrder &&
-         [self matchesComparison:[other compare:self.value]];
+  if (self.filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if ([other isMemberOfClass:[FSTArrayValue class]]) {
+      FSTArrayValue *arrayValue = (FSTArrayValue *)other;
+      return [arrayValue.internalValue containsObject:self.value];
+    } else {
+      return false;
+    }
+  } else {
+    // Only perform comparison queries on types with matching backend order (such as double and
+    // int).
+    return self.value.typeOrder == other.typeOrder &&
+           [self matchesComparison:[other compare:self.value]];
+  }
 }
 
 - (BOOL)matchesComparison:(NSComparisonResult)comparison {
@@ -701,7 +716,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 - (const FieldPath *)inequalityFilterField {
   for (id<FSTFilter> filter in self.filters) {
     if ([filter isKindOfClass:[FSTRelationFilter class]] &&
-        ((FSTRelationFilter *)filter).filterOperator != FSTRelationFilterOperatorEqual) {
+        ((FSTRelationFilter *)filter).isInequality) {
       return &filter.field;
     }
   }

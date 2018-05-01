@@ -157,7 +157,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   __block NSException *caught = nil;
   dispatch_sync(_underlyingQueue, ^{
     @try {
-      [_queue verifyIsCurrentQueue];
+      [self->_queue verifyIsCurrentQueue];
     } @catch (NSException *ex) {
       caught = ex;
     }
@@ -172,7 +172,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   __block NSException *caught = nil;
   [_queue dispatchSync:^{
     @try {
-      [_queue verifyIsCurrentQueue];
+      [self->_queue verifyIsCurrentQueue];
     } @catch (NSException *ex) {
       caught = ex;
     }
@@ -185,7 +185,7 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   __block NSString *problem = nil;
   [_queue dispatchSync:^{
     @try {
-      [_queue enterCheckedOperation:^{
+      [self->_queue enterCheckedOperation:^{
       }];
       problem = @"Should not have been able to enter nested enterCheckedOperation";
     } @catch (NSException *ex) {
@@ -229,14 +229,14 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   _expectedSteps = @[ @1, @3 ];
   // Queue everything from the queue to ensure nothing completes before we cancel.
   [_queue dispatchAsync:^{
-    [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:1]];
+    [self->_queue dispatchAsyncAllowingSameQueue:[self blockForStep:1]];
     FSTDelayedCallback *step2Timer =
-        [_queue dispatchAfterDelay:.001 timerID:timerID1 block:[self blockForStep:2]];
-    [_queue dispatchAfterDelay:.005 timerID:timerID2 block:[self blockForStep:3]];
+        [self->_queue dispatchAfterDelay:.001 timerID:timerID1 block:[self blockForStep:2]];
+    [self->_queue dispatchAfterDelay:.005 timerID:timerID2 block:[self blockForStep:3]];
 
-    XCTAssertTrue([_queue containsDelayedCallbackWithTimerID:timerID1]);
+    XCTAssertTrue([self->_queue containsDelayedCallbackWithTimerID:timerID1]);
     [step2Timer cancel];
-    XCTAssertFalse([_queue containsDelayedCallbackWithTimerID:timerID1]);
+    XCTAssertFalse([self->_queue containsDelayedCallbackWithTimerID:timerID1]);
   }];
 
   [self awaitExpectations];

@@ -18,8 +18,9 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+
 @class FSTQuery;
-@class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +43,7 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
                      targetID:(FSTTargetID)targetID
          listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
-              snapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+              snapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
                   resumeToken:(NSData *)resumeToken NS_DESIGNATED_INITIALIZER;
 
 /** Convenience initializer for use when creating an FSTQueryData for the first time. */
@@ -54,8 +55,12 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Creates a new query data instance with an updated snapshot version and resume token. */
-- (instancetype)queryDataByReplacingSnapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+- (instancetype)queryDataByReplacingSnapshotVersion:
+                    (firebase::firestore::model::SnapshotVersion)snapshotVersion
                                         resumeToken:(NSData *)resumeToken;
+
+/** The latest snapshot version seen for this target. */
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /** The query being listened to. */
 @property(nonatomic, strong, readonly) FSTQuery *query;
@@ -70,9 +75,6 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 
 /** The purpose of the query. */
 @property(nonatomic, assign, readonly) FSTQueryPurpose purpose;
-
-/** The latest snapshot version seen for this target. */
-@property(nonatomic, strong, readonly) FSTSnapshotVersion *snapshotVersion;
 
 /**
  * An opaque, server-assigned token that allows watching a query to be resumed after disconnecting

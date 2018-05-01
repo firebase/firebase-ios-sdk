@@ -16,11 +16,14 @@ cc_library(
   firebase_firestore_immutable
   SOURCES
     array_sorted_map.h
+    keys_view.h
     llrb_node.h
+    llrb_node_iterator.h
     map_entry.h
     sorted_map.h
     sorted_map_base.h
     sorted_map_base.cc
+    sorted_map_iterator.h
     tree_sorted_map.h
   DEPENDS
     firebase_firestore_util

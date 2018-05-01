@@ -45,6 +45,8 @@
   self = [super init];
   if (self) {
     _checkinService = [[FIRMessagingCheckinService alloc] init];
+    // TODO(chliangGoogle): Merge pubsubRegistrar with Registrar as it is hard to track how many
+    // checkinService instances by separating classes too often.
     _pubsubRegistrar = [[FIRMessagingPubSubRegistrar alloc] initWithCheckinService:_checkinService];
   }
   return self;
@@ -53,9 +55,7 @@
 #pragma mark - Checkin
 
 - (BOOL)tryToLoadValidCheckinInfo {
-  if (![self.checkinService hasValidCheckinInfo]) {
-    [self.checkinService tryToLoadPrefetchedCheckinPreferences];
-  }
+  [self.checkinService tryToLoadPrefetchedCheckinPreferences];
   return [self.checkinService hasValidCheckinInfo];
 }
 

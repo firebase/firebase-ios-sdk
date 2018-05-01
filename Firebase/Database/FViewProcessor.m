@@ -197,7 +197,8 @@
                                         serverCache:optCompleteCache
                                         accumulator:accumulator];
     } else {
-        [NSException raise:NSInternalInconsistencyException format:@"Unknown operation encountered %zd.", operation.type];
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"Unknown operation encountered %ld.", (long)operation.type];
         return nil;
     }
 
