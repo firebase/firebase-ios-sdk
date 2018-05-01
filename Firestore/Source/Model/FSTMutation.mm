@@ -23,7 +23,6 @@
 
 #import "FIRTimestamp.h"
 
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -36,6 +35,8 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
 
+#include "absl/types/optional.h"
+
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldMask;
@@ -43,21 +44,28 @@ using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutationResult
 
-@implementation FSTMutationResult
+@implementation FSTMutationResult {
+  absl::optional<SnapshotVersion> _version;
+}
 
-- (instancetype)initWithVersion:(nullable FSTSnapshotVersion *)version
+- (instancetype)initWithVersion:(absl::optional<SnapshotVersion>)version
                transformResults:(nullable NSArray<FSTFieldValue *> *)transformResults {
   if (self = [super init]) {
-    _version = version;
+    _version = std::move(version);
     _transformResults = transformResults;
   }
   return self;
+}
+
+- (const absl::optional<SnapshotVersion> &)version {
+  return _version;
 }
 
 @end
@@ -157,7 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
     // If the document didn't exist before, create it.
     return [FSTDocument documentWithData:self.value
                                      key:self.key
-                                 version:[FSTSnapshotVersion noVersion]
+                                 version:SnapshotVersion::None()
                        hasLocalMutations:hasLocalMutations];
   }
 
@@ -239,10 +247,10 @@ NS_ASSUME_NONNULL_BEGIN
   if (!maybeDoc || [maybeDoc isMemberOfClass:[FSTDeletedDocument class]]) {
     // Precondition applied, so create the document if necessary
     const DocumentKey &key = maybeDoc ? maybeDoc.key : self.key;
-    FSTSnapshotVersion *version = maybeDoc ? maybeDoc.version : [FSTSnapshotVersion noVersion];
+    SnapshotVersion version = maybeDoc ? maybeDoc.version : SnapshotVersion::None();
     maybeDoc = [FSTDocument documentWithData:[FSTObjectValue objectValue]
                                          key:key
-                                     version:version
+                                     version:std::move(version)
                            hasLocalMutations:hasLocalMutations];
   }
 
@@ -556,7 +564,7 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
     FSTAssert([maybeDoc.key isEqual:self.key], @"Can only delete a document with the same key");
   }
 
-  return [FSTDeletedDocument documentWithKey:self.key version:[FSTSnapshotVersion noVersion]];
+  return [FSTDeletedDocument documentWithKey:self.key version:SnapshotVersion::None()];
 }
 
 @end

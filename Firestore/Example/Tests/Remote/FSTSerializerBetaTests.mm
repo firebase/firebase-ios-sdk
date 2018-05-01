@@ -37,7 +37,6 @@
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -63,6 +62,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldTransform;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -708,7 +708,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                    targetID:1
                                        listenSequenceNumber:0
                                                     purpose:FSTQueryPurposeListen
-                                            snapshotVersion:[FSTSnapshotVersion noVersion]
+                                            snapshotVersion:SnapshotVersion::None()
                                                 resumeToken:FSTTestData(1, 2, 3, -1)];
 
   GCFSTarget *expected = [GCFSTarget message];
@@ -729,7 +729,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     targetID:1
                         listenSequenceNumber:0
                                      purpose:FSTQueryPurposeListen
-                             snapshotVersion:[FSTSnapshotVersion noVersion]
+                             snapshotVersion:SnapshotVersion::None()
                                  resumeToken:[NSData data]];
 }
 

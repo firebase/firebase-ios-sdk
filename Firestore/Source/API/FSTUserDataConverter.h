@@ -27,7 +27,6 @@
 @class FSTObjectValue;
 @class FSTFieldValue;
 @class FSTMutation;
-@class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 

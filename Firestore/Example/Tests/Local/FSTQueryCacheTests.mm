@@ -19,7 +19,6 @@
 #include <set>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -32,6 +31,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -130,9 +130,9 @@ NS_ASSUME_NONNULL_BEGIN
 
     FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
     XCTAssertNotEqualObjects(queryData2.resumeToken, queryData1.resumeToken);
-    XCTAssertNotEqualObjects(queryData2.snapshotVersion, queryData1.snapshotVersion);
+    XCTAssertNotEqual(queryData2.snapshotVersion, queryData1.snapshotVersion);
     XCTAssertEqualObjects(result.resumeToken, queryData2.resumeToken);
-    XCTAssertEqualObjects(result.snapshotVersion, queryData2.snapshotVersion);
+    XCTAssertEqual(result.snapshotVersion, queryData2.snapshotVersion);
   });
 }
 
@@ -386,19 +386,18 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testLastRemoteSnapshotVersion", [&]() {
-    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion],
-                          [FSTSnapshotVersion noVersion]);
+    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], SnapshotVersion::None());
 
     // Can set the snapshot version.
-    [self.queryCache setLastRemoteSnapshotVersion:FSTTestVersion(42)];
-    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+    [self.queryCache setLastRemoteSnapshotVersion:testutil::Version(42)];
+    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
   });
 
   // Snapshot version persists restarts.
   self.queryCache = [self.persistence queryCache];
   self.persistence.run("testLastRemoteSnapshotVersion restart", [&]() {
     [self.queryCache start];
-    XCTAssertEqualObjects([self.queryCache lastRemoteSnapshotVersion], FSTTestVersion(42));
+    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
   });
 }
 
@@ -424,7 +423,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     targetID:targetID
                         listenSequenceNumber:sequenceNumber
                                      purpose:FSTQueryPurposeListen
-                             snapshotVersion:FSTTestVersion(version)
+                             snapshotVersion:testutil::Version(version)
                                  resumeToken:resumeToken];
 }
 

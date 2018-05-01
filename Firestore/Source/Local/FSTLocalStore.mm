@@ -318,8 +318,9 @@ NS_ASSUME_NONNULL_BEGIN
       } else {
         FSTLog(
             @"FSTLocalStore Ignoring outdated watch update for %s. "
-             "Current version: %@  Watch version: %@",
-            key.ToString().c_str(), existingDoc.version, doc.version);
+             "Current version: %s  Watch version: %s",
+            key.ToString().c_str(), existingDoc.version.timestamp().ToString().c_str(),
+            doc.version.timestamp().ToString().c_str());
       }
 
       // The document might be garbage because it was unreferenced by everything.
@@ -331,8 +332,7 @@ NS_ASSUME_NONNULL_BEGIN
     // events when we get permission denied errors while trying to resolve the state of a locally
     // cached document that is in limbo.
     const SnapshotVersion &lastRemoteVersion = [self.queryCache lastRemoteSnapshotVersion];
-    // TODO(zxu): convert to reference once SnapshotVersion is used in RemoteEvent.
-    const SnapshotVersion remoteVersion = remoteEvent.snapshotVersion;
+    const SnapshotVersion &remoteVersion = remoteEvent.snapshotVersion;
     if (remoteVersion != SnapshotVersion::None()) {
       FSTAssert(remoteVersion >= lastRemoteVersion,
                 @"Watch stream reverted to previous snapshot?? (%s < %s)",

@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -46,11 +45,15 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
+namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -145,8 +148,8 @@ static NSString *const kNoIOSTag = @"no-ios";
   }
 }
 
-- (FSTSnapshotVersion *)parseVersion:(NSNumber *_Nullable)version {
-  return FSTTestVersion(version.longLongValue);
+- (SnapshotVersion)parseVersion:(NSNumber *_Nullable)version {
+  return testutil::Version(version.longLongValue);
 }
 
 - (FSTDocumentViewChange *)parseChange:(NSArray *)change ofType:(FSTDocumentViewChangeType)type {
@@ -254,9 +257,11 @@ static NSString *const kNoIOSTag = @"no-ios";
     NSArray *docSpec = watchEntity[@"doc"];
     FSTDocumentKey *key = FSTTestDocKey(docSpec[0]);
     FSTObjectValue *value = FSTTestObjectValue(docSpec[2]);
-    FSTSnapshotVersion *version = [self parseVersion:docSpec[1]];
-    FSTMaybeDocument *doc =
-        [FSTDocument documentWithData:value key:key version:version hasLocalMutations:NO];
+    SnapshotVersion version = [self parseVersion:docSpec[1]];
+    FSTMaybeDocument *doc = [FSTDocument documentWithData:value
+                                                      key:key
+                                                  version:std::move(version)
+                                        hasLocalMutations:NO];
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:watchEntity[@"targets"]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
@@ -309,7 +314,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doWriteAck:(NSDictionary *)spec {
-  FSTSnapshotVersion *version = [self parseVersion:spec[@"version"]];
+  SnapshotVersion version = [self parseVersion:spec[@"version"]];
   NSNumber *expectUserCallback = spec[@"expectUserCallback"];
 
   FSTMutationResult *mutationResult =
@@ -550,7 +555,7 @@ static NSString *const kNoIOSTag = @"no-ios";
                                        targetID:targetID
                            listenSequenceNumber:0
                                         purpose:FSTQueryPurposeListen
-                                snapshotVersion:[FSTSnapshotVersion noVersion]
+                                snapshotVersion:SnapshotVersion::None()
                                     resumeToken:resumeToken];
       }];
       self.driver.expectedActiveTargets = expectedActiveTargets;

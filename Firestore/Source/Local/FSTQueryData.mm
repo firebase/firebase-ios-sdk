@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *other = (FSTQueryData *)object;
   return [self.query isEqual:other.query] && self.targetID == other.targetID &&
-         self.purpose == other.purpose && [self.snapshotVersion isEqual:other.snapshotVersion] &&
+         self.purpose == other.purpose && self.snapshotVersion == other.snapshotVersion &&
          [self.resumeToken isEqual:other.resumeToken];
 }
 

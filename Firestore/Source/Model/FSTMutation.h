@@ -24,13 +24,15 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+
+#include "absl/types/optional.h"
 
 @class FSTDocument;
 @class FSTFieldValue;
 @class FSTMaybeDocument;
 @class FSTObjectValue;
-@class FSTSnapshotVersion;
 @class FIRTimestamp;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,12 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTMutationResult : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithVersion:(FSTSnapshotVersion *_Nullable)version
+- (instancetype)initWithVersion:(absl::optional<firebase::firestore::model::SnapshotVersion>)version
                transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults
     NS_DESIGNATED_INITIALIZER;
 
 /** The version at which the mutation was committed or null for a delete. */
-@property(nonatomic, strong, readonly, nullable) FSTSnapshotVersion *version;
+- (const absl::optional<firebase::firestore::model::SnapshotVersion> &)version;
 
 /**
  * The resulting fields returned from the backend after a FSTTransformMutation has been committed.

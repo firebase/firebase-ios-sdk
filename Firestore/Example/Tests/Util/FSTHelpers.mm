@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
@@ -72,9 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** A string sentinel that can be used with FSTTestPatchMutation() to mark a field for deletion. */
 static NSString *const kDeleteSentinel = @"<DELETE>";
-
-static const int kMicrosPerSec = 1000000;
-static const int kMillisPerSec = 1000;
 
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second) {
   NSDate *date = FSTTestDate(year, month, day, hour, minute, second);
@@ -158,14 +154,6 @@ FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys) {
   return result;
 }
 
-FSTSnapshotVersion *FSTTestVersion(FSTTestSnapshotVersion versionMicroseconds) {
-  int64_t seconds = versionMicroseconds / kMicrosPerSec;
-  int32_t nanos = (int32_t)(versionMicroseconds % kMicrosPerSec) * kMillisPerSec;
-
-  FIRTimestamp *timestamp = [[FIRTimestamp alloc] initWithSeconds:seconds nanoseconds:nanos];
-  return [FSTSnapshotVersion versionWithTimestamp:timestamp];
-}
-
 FSTDocument *FSTTestDoc(const absl::string_view path,
                         FSTTestSnapshotVersion version,
                         NSDictionary<NSString *, id> *data,
@@ -173,14 +161,14 @@ FSTDocument *FSTTestDoc(const absl::string_view path,
   DocumentKey key = testutil::Key(path);
   return [FSTDocument documentWithData:FSTTestObjectValue(data)
                                    key:key
-                               version:FSTTestVersion(version)
+                               version:testutil::Version(version)
                      hasLocalMutations:hasMutations];
 }
 
 FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
                                       FSTTestSnapshotVersion version) {
   DocumentKey key = testutil::Key(path);
-  return [FSTDeletedDocument documentWithKey:key version:FSTTestVersion(version)];
+  return [FSTDeletedDocument documentWithKey:key version:testutil::Version(version)];
 }
 
 FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,

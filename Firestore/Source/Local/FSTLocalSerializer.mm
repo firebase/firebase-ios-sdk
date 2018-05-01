@@ -103,8 +103,8 @@ using firebase::firestore::model::SnapshotVersion;
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTObjectValue *data = [remoteSerializer decodedFields:document.fields];
-  const DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
-  const SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
+  DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
+  SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
   return [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
 }
 
@@ -122,8 +122,8 @@ using firebase::firestore::model::SnapshotVersion;
 - (FSTDeletedDocument *)decodedDeletedDocument:(FSTPBNoDocument *)proto {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
-  const DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
-  const SnapshotVersion version = [remoteSerializer decodedVersion:proto.readTime];
+  DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
+  SnapshotVersion version = [remoteSerializer decodedVersion:proto.readTime];
   return [FSTDeletedDocument documentWithKey:key version:version];
 }
 
@@ -188,7 +188,7 @@ using firebase::firestore::model::SnapshotVersion;
 
   FSTTargetID targetID = target.targetId;
   FSTListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
-  const SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
+  SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 
   FSTQuery *query;
