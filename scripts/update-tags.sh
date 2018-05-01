@@ -27,6 +27,7 @@
 
 # Delete any existing tags at origin
 
+git push --delete origin '5.0.0'
 git push --delete origin 'Core-5.0.0'
 git push --delete origin 'Auth-5.0.0'
 git push --delete origin 'Database-5.0.0'
@@ -37,6 +38,7 @@ git push --delete origin 'Storage-3.0.0'
 
 # Delete local tags
 
+git tag --delete '5.0.0'
 git tag --delete 'Core-5.0.0'
 git tag --delete 'Auth-5.0.0'
 git tag --delete 'Database-5.0.0'
@@ -47,6 +49,7 @@ git tag --delete 'Storage-3.0.0'
 
 # Add and push the tags
 
+git tag '5.0.0'
 git tag 'Core-5.0.0'
 git tag 'Auth-5.0.0'
 git tag 'Database-5.0.0'
