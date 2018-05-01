@@ -429,27 +429,26 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   if (fieldMask) {
     __block std::vector<FieldPath> fieldMaskPaths{};
-    [fieldMask
-        enumerateObjectsUsingBlock:^(id _Nonnull fieldPath, NSUInteger idx, BOOL *_Nonnull stop) {
-          FieldPath path{};
+    [fieldMask enumerateObjectsUsingBlock:^(id fieldPath, NSUInteger idx, BOOL *stop) {
+      FieldPath path{};
 
-          if ([fieldPath isKindOfClass:[NSString class]]) {
-            path = [FIRFieldPath pathWithDotSeparatedString:fieldPath].internalValue;
-          } else if ([fieldPath isKindOfClass:[FIRFieldPath class]]) {
-            path = ((FIRFieldPath *)fieldPath).internalValue;
-          } else {
-            FSTThrowInvalidArgument(
-                @"All elements in mergeFields: must be NSStrings or FIRFieldPaths.");
-          }
+      if ([fieldPath isKindOfClass:[NSString class]]) {
+        path = [FIRFieldPath pathWithDotSeparatedString:fieldPath].internalValue;
+      } else if ([fieldPath isKindOfClass:[FIRFieldPath class]]) {
+        path = ((FIRFieldPath *)fieldPath).internalValue;
+      } else {
+        FSTThrowInvalidArgument(
+            @"All elements in mergeFields: must be NSStrings or FIRFieldPaths.");
+      }
 
-          if ([updateData valueForPath:path] == nil) {
-            FSTThrowInvalidArgument(
-                @"Field '%s' is specified in your field mask but missing from your input data.",
-                path.CanonicalString().c_str());
-          }
+      if ([updateData valueForPath:path] == nil) {
+        FSTThrowInvalidArgument(
+            @"Field '%s' is specified in your field mask but missing from your input data.",
+            path.CanonicalString().c_str());
+      }
 
-          fieldMaskPaths.push_back(path);
-        }];
+      fieldMaskPaths.push_back(path);
+    }];
     convertedFieldMask = FieldMask(fieldMaskPaths);
     std::copy_if(context.fieldTransforms->begin(), context.fieldTransforms->end(),
                  std::back_inserter(convertedFieldTransform),

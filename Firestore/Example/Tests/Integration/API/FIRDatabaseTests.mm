@@ -260,10 +260,7 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   XCTAssertThrowsSpecific(
-      {
-        [doc setData:@{} mergeFields:@[ @"foo" ]];
-      },
-      NSException,
+      { [doc setData:@{} mergeFields:@[ @"foo" ]]; }, NSException,
       @"Field 'foo' is specified in your field mask but missing from your input data.");
 }
 
@@ -271,10 +268,10 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
-      @{ @"des" : @"Description",
+      @{ @"desc" : @"Description",
          @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
 
-  NSDictionary<NSString *, id> *finalData = @{@"des" : @"Description", @"owner" : @"Sebastian"};
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
 
   [self writeDocumentRef:doc data:initialData];
 
@@ -298,10 +295,10 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
-      @{ @"des" : @"Description",
+      @{ @"desc" : @"Description",
          @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
 
-  NSDictionary<NSString *, id> *finalData = @{@"des" : @"Description", @"owner" : @"Sebastian"};
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
 
   [self writeDocumentRef:doc data:initialData];
 
@@ -325,10 +322,10 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
-      @{ @"des" : @"Description",
+      @{ @"desc" : @"Description",
          @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
 
-  NSDictionary<NSString *, id> *finalData = @{@"des" : @"Description", @"owner" : @"Sebastian"};
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
 
   [self writeDocumentRef:doc data:initialData];
 
@@ -352,7 +349,7 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
-      @{ @"des" : @"Description",
+      @{ @"desc" : @"Description",
          @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
 
   NSDictionary<NSString *, id> *finalData = initialData;
@@ -379,12 +376,13 @@
   FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
 
   NSDictionary<NSString *, id> *initialData =
-      @{ @"des" : @"Description",
+      @{ @"desc" : @"Description",
          @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
 
-  NSDictionary<NSString *, id> *finalData =
-      @{ @"des" : @"Description",
-         @"owner" : @{@"name" : @"Sebastian", @"email" : @"new@xyz.com"} };
+  NSDictionary<NSString *, id> *finalData = @{
+    @"desc" : @"Description",
+    @"owner" : @{@"name" : @"Sebastian", @"email" : @"new@xyz.com"}
+  };
 
   [self writeDocumentRef:doc data:initialData];
 
@@ -392,7 +390,7 @@
       [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
 
   [doc setData:@{
-    @"des" : @"NewDescription",
+    @"desc" : @"NewDescription",
     @"owner" : @{@"name" : @"Sebastian", @"email" : @"new@xyz.com"}
   }
       mergeFields:@[ @"owner.name", @"owner", @"owner" ]
