@@ -109,20 +109,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 }
 
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
-               completion:(nullable FIRVerificationResultCallback)completion {
-  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self internalVerifyPhoneNumber:phoneNumber completion:^(NSString *_Nullable verificationID,
-                                                             NSError *_Nullable error) {
-      if (completion) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completion(verificationID, error);
-        });
-      }
-    }];
-  });
-}
-
-- (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion {
   if (![self isCallbackSchemeRegistered]) {
