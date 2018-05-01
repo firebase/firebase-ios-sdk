@@ -429,10 +429,9 @@ NS_SWIFT_NAME(Auth)
                               password:(NSString *)password
                             completion:(nullable FIRAuthDataResultCallback)completion
                                 DEPRECATED_MSG_ATTRIBUTE(
-                                      "signInAndRetrieveDataWithEmail:password:completion: is "
-                                      "deprecated. Please use"
-                                      " signInWithEmail:password:completion: for Objective-C or"
-                                      " signIn(withEmail:password:completion:) for Swift instead.");
+                                      "Please use signInWithEmail:password:completion: for"
+                                      " Objective-C or signIn(withEmail:password:completion:) for"
+                                      " Swift instead.");
 
 /** @fn signInWithCredential:completion:
     @brief Please use `signInAndRetrieveDataWithCredential:completion:` for Objective-C or
@@ -475,11 +474,9 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInWithCredential:(FIRAuthCredential *)credential
                   completion:(nullable FIRAuthResultCallback)completion DEPRECATED_MSG_ATTRIBUTE(
-                                      "signInWithCredential:completion: is"
-                                      " deprecated. Please use"
-                                      " signInAndRetrieveDataWithCredential:completion: for"
-                                      " Objective-C or signInAndRetrieveData(with:completion:) for"
-                                      " Swift instead.");
+                                      "Please use signInAndRetrieveDataWithCredential:completion:"
+                                      " for Objective-C or signInAndRetrieveData(with:completion:)"
+                                      " for Swift instead.");
 
 /** @fn signInAndRetrieveDataWithCredential:completion:
     @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
@@ -564,8 +561,7 @@ NS_SWIFT_NAME(Auth)
  */
 - (void)signInAnonymouslyAndRetrieveDataWithCompletion:
     (nullable FIRAuthDataResultCallback)completion
-        DEPRECATED_MSG_ATTRIBUTE("signInAnonymouslyAndRetrieveDataWithCompletion: is deprecated."
-        " Please use signInAnonymouslyWithCompletion: for Objective-C or"
+        DEPRECATED_MSG_ATTRIBUTE("Please use signInAnonymouslyWithCompletion: for Objective-C or"
         " signInAnonymously(Completion:) for swift instead.");
 
 /** @fn signInWithCustomToken:completion:
@@ -616,8 +612,7 @@ NS_SWIFT_NAME(Auth)
 - (void)signInAndRetrieveDataWithCustomToken:(NSString *)token
                                   completion:(nullable FIRAuthDataResultCallback)completion
                                       DEPRECATED_MSG_ATTRIBUTE(
-                                      "signInAndRetrieveDataWithCustomToken:completion: is"
-                                      " deprecated. Please use signInWithCustomToken:completion:"
+                                      "Please use signInWithCustomToken:completion:"
                                       "for Objective-C or signIn(withCustomToken:completion:) for"
                                       " Swift instead.");
 
@@ -678,11 +673,9 @@ NS_SWIFT_NAME(Auth)
                                   password:(NSString *)password
                                 completion:(nullable FIRAuthDataResultCallback)completion
                                     DEPRECATED_MSG_ATTRIBUTE(
-                                      "createUserAndRetrieveDataWithEmail:password:completion: is"
-                                      " deprecated. Please use"
-                                      " createUserWithEmail:password:completion: for Objective-C or"
-                                      " createUser(withEmail:password:completion:) for Swift"
-                                      " instead.");
+                                      "Please use createUserWithEmail:password:completion: for"
+                                      " Objective-C or createUser(withEmail:password:completion:)"
+                                      " for Swift instead.");
 
 /** @fn confirmPasswordResetWithCode:newPassword:completion:
     @brief Resets the password given a code sent to the user outside of the app and a new password
