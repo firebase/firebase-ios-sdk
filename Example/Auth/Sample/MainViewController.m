@@ -574,14 +574,9 @@ NSString *const kCreateUserAccessibilityID = @"CreateUserAccessibilityID";
 static NSString *const kPhoneAuthSectionTitle = @"Phone Auth";
 
 /** @var kPhoneNumberSignInTitle
-    @brief The title for button to sign in with phone number.
- */
-static NSString *const kPhoneNumberSignInTitle = @"Sign in With Phone Number";
-
-/** @var kPhoneNumberSignInTitle
     @brief The title for button to sign in with phone number using reCAPTCHA.
  */
-static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number (reCAPTCHA)";
+static NSString *const kPhoneNumberSignInReCaptchaTitle = @"Sign in With Phone Number";
 
 /** @var kIsNewUserToggleTitle
     @brief The title for button to enable new or existing user toggle.
@@ -738,8 +733,6 @@ typedef enum {
       [StaticContentTableViewSection sectionWithTitle:kPhoneAuthSectionTitle cells:@[
         [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInReCaptchaTitle
                                            action:^{ [weakSelf signInWithPhoneNumberWithPrompt]; }],
-        [StaticContentTableViewCell cellWithTitle:kPhoneNumberSignInTitle
-                                           action:^{ [weakSelf signInWithPhoneNumber]; }],
         [StaticContentTableViewCell cellWithTitle:kUpdatePhoneNumber
                                            action:^{ [weakSelf updatePhoneNumberWithPrompt]; }],
         [StaticContentTableViewCell cellWithTitle:kLinkPhoneNumber
@@ -2850,37 +2843,6 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
           }
           [self hideSpinner:^{
             [self showTypicalUIForUserUpdateResultsWithTitle:kCreateUserTitle error:error];
-          }];
-        }];
-      }];
-    }];
-  }];
-}
-
-/** @fn signInWithPhoneNumber
-    @brief Allows sign in with phone number.
- */
-- (void)signInWithPhoneNumber {
-  [self commonPhoneNumberInputWithTitle:@"Phone #" Completion:^(NSString *_Nullable phone) {
-    [self showSpinner:^{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [[AppManager phoneAuthProvider] verifyPhoneNumber:phone
-                                             completion:^(NSString *_Nullable verificationID,
-                                                          NSError *_Nullable error) {
-#pragma clang diagnostic pop
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"failed to send verification code" error:error];
-            [self showMessagePrompt:error.localizedDescription];
-            return;
-          }
-          [self logSuccess:@"Code sent"];
-
-          [self commonPhoneNumberInputWithTitle:@"Code"
-                                     Completion:^(NSString *_Nullable verificationCode) {
-            [self commontPhoneVerificationWithVerificationID:verificationID
-                                            verificationCode:verificationCode];
           }];
         }];
       }];
