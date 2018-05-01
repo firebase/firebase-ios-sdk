@@ -58,7 +58,7 @@ TEST(HashingTest, SizeT) {
 }
 
 TEST(HashingTest, Array) {
-  int values[] = { 0, 1, 2 };
+  int values[] = {0, 1, 2};
 
   size_t expected = 0;
   expected = 31 * expected + 1;
