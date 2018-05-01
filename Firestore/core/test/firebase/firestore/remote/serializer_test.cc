@@ -120,18 +120,16 @@ class SerializerTest : public ::testing::Test {
   }
 
   google::firestore::v1beta1::Value ValueProto(nullptr_t) {
-    std::vector<uint8_t> bytes;
-    Status status =
-        serializer.EncodeFieldValue(FieldValue::NullValue(), &bytes);
-    EXPECT_OK(status);
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::NullValue());
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
   }
 
-  std::vector<uint8_t> ExpectSuccessfullyEncodedFieldValue(
-      Serializer* serializer, const FieldValue& fv) {
+  std::vector<uint8_t> EncodeFieldValue(Serializer* serializer,
+                                        const FieldValue& fv) {
     std::vector<uint8_t> bytes;
     Status status = serializer->EncodeFieldValue(fv, &bytes);
     EXPECT_OK(status);
@@ -146,10 +144,8 @@ class SerializerTest : public ::testing::Test {
   }
 
   google::firestore::v1beta1::Value ValueProto(bool b) {
-    std::vector<uint8_t> bytes;
-    Status status =
-        serializer.EncodeFieldValue(FieldValue::BooleanValue(b), &bytes);
-    EXPECT_OK(status);
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -157,10 +153,8 @@ class SerializerTest : public ::testing::Test {
   }
 
   google::firestore::v1beta1::Value ValueProto(int64_t i) {
-    std::vector<uint8_t> bytes;
-    Status status =
-        serializer.EncodeFieldValue(FieldValue::IntegerValue(i), &bytes);
-    EXPECT_OK(status);
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -172,10 +166,8 @@ class SerializerTest : public ::testing::Test {
   }
 
   google::firestore::v1beta1::Value ValueProto(const std::string& s) {
-    std::vector<uint8_t> bytes;
-    Status status =
-        serializer.EncodeFieldValue(FieldValue::StringValue(s), &bytes);
-    EXPECT_OK(status);
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::StringValue(s));
     google::firestore::v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -188,9 +180,7 @@ class SerializerTest : public ::testing::Test {
       const google::firestore::v1beta1::Value& proto,
       FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
-    std::vector<uint8_t> bytes;
-    Status status = serializer.EncodeFieldValue(model, &bytes);
-    EXPECT_OK(status);
+    std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, model);
     google::firestore::v1beta1::Value actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
@@ -322,67 +312,49 @@ TEST_F(SerializerTest, WritesNestedObjects) {
 }
 
 TEST_F(SerializerTest, BadNullValue) {
-  std::vector<uint8_t> bytes{
-      0x58,  // encoded null tag
-      0x01,  // invalid null value. (0 is only valid null value)
-  };
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::NullValue());
+
+  // Alter the null value from 0 to 1.
+  Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadBoolValue) {
-  std::vector<uint8_t> bytes{
-      0x08,  // encoded bool tag
-      0x02,  // invalid value for a bool. (Valid values are 0,1)
-  };
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+
+  // Alter the bool value from 1 to 2. (Value values are 0,1)
+  Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadIntegerValue) {
-  // clang-format off
-  std::vector<uint8_t> bytes{
-      0x10,  // encoded int tag
-      // These bytes represent a number too large to represent in a 64 bit
-      // value.  This should cause an overflow.
-      0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0x7f,
-  };
-  // clang-format on
+  // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
+  std::vector<uint8_t> bytes = EncodeFieldValue(
+      &serializer,
+      FieldValue::IntegerValue(std::numeric_limits<uint64_t>::max()));
+  ASSERT_EQ(11u, bytes.size());
+  for (size_t i = 1; i < bytes.size() - 1; i++) {
+    ASSERT_EQ(0xff, bytes[i]);
+  }
+
+  // make the number a bit bigger
+  Mutate(&bytes[10], /*expected_initial_value=*/1, /*new_value=*/0xff);
+  bytes.resize(12);
+  bytes[11] = 0x7f;
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, BadStringValue) {
-  // clang-format off
-  std::vector<uint8_t> bytes{
-      0x8a, 0x01,  // encoded string tag
-      0x05,        // length 5
-      'a',
-  };
-  // clang-format on
-  ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, BadStringValue2) {
-  std::vector<uint8_t> bytes;
-  Status status =
-      serializer.EncodeFieldValue(FieldValue::StringValue("a"), &bytes);
-  ASSERT_OK(status);
-
-  // Claim that the string length is 5 instead of 1. (The first two bytes are
-  // used by the encoded tag.)
-  Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
-
-  ExpectFailedStatusDuringDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-
-TEST_F(SerializerTest, BadStringValue4) {
-  std::vector<uint8_t> bytes = ExpectSuccessfullyEncodedFieldValue(
-      &serializer, FieldValue::StringValue("a"));
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::StringValue("a"));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -393,17 +365,14 @@ TEST_F(SerializerTest, BadStringValue4) {
 }
 
 TEST_F(SerializerTest, BadTag) {
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::NullValue());
+
   // The google::firestore::v1beta1::Value value_type oneof currently has tags
   // up to 18. For this test, we'll pick a tag that's unlikely to be added in
   // the near term but still fits within a uint8_t even when encoded.
-  // Specifically 31.
-  // clang-format off
-  std::vector<uint8_t> bytes{
-      0xf8, 0x01,  // represents field number 31 encoded as a varint
-                   // There's no payload here, which is also invalid, but we
-                   // won't get that far.
-  };
-  // clang-format on
+  // Specifically 31. 0xf8 represents field number 31 encoded as a varint.
+  Mutate(&bytes[0], /*expected_initial_value=*/0x58, /*new_value=*/0xf8);
 
   // TODO(rsgowman): The behaviour is *temporarily* slightly different during
   // development; this will cause a failed assertion rather than a failed
@@ -417,33 +386,38 @@ TEST_F(SerializerTest, BadTag) {
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
-  // specifically, the tag is boolean_value, but any tag that would be
-  // represented by a varint would do.
-  std::vector<uint8_t> bytes{
-      0x0a,  // represents a bool value encoded as a string
-      0x01,  // true
-  };
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+
+  // 0x0a represents a bool value encoded as a string. (We're using a
+  // boolean_value tag here, but any tag that would be represented by a varint
+  // would do.)
+  Mutate(&bytes[0], /*expected_initial_value=*/0x08, /*new_value=*/0x0a);
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
-  // clang-format off
-  std::vector<uint8_t> bytes{
-      0x88, 0x01,  // represents a string value field encoded as a varint.
-      0x01,        // string length 1
-      'a',
-  };
-  // clang-format on
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::StringValue("foo"));
+
+  // 0x88 represents a string value encoded as a varint.
+  Mutate(&bytes[0], /*expected_initial_value=*/0x8a, /*new_value=*/0x88);
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
-  std::vector<uint8_t> bytes{
-      0x58,  // encoded null tag
-             // Note: Missing '0' for the value
-  };
+  std::vector<uint8_t> bytes =
+      EncodeFieldValue(&serializer, FieldValue::NullValue());
+  ASSERT_EQ(2u, bytes.size());
+
+  // Remove the (null) payload
+  ASSERT_EQ(0x00, bytes[1]);
+  bytes.pop_back();
+
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
