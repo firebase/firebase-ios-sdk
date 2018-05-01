@@ -72,21 +72,6 @@ void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode);
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 
 /**
- * Retrieve the number of errors that have been logged since the stat was last reset.
- */
-NSInteger FIRNumberOfErrorsLogged(void);
-
-/**
- * Retrieve the number of warnings that have been logged since the stat was last reset.
- */
-NSInteger FIRNumberOfWarningsLogged(void);
-
-/**
- * Reset number of errors and warnings that have been logged to 0.
- */
-void FIRResetNumberOfIssuesLogged(void);
-
-/**
  * Checks if the specified logger level is loggable given the current settings.
  * (required) log level (one of the FIRLoggerLevel enum values).
  * (required) whether or not this function is called from the Analytics component.
