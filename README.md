@@ -11,20 +11,23 @@ monetize your app. More information about Firebase can be found at
 ## Installation
 
 See the three subsections for details about three different installation methods.
-1. [Officially supported binary pods](README.md#binary-pods-ios-only)
-1. [Community supported source pods](README.md#source-pods-ios-macos-tvos)
+1. [Standard pod install](README.md#standard-pod-install)
+1. [Installing from the GitHub repo](README.md#installing-from-github)
 1. [Experimental Carthage](README.md#carthage-ios-only)
 
-### Binary pods (iOS only)
+### Standard pod install
 
 Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
-### Source pods (iOS, macOS, tvOS)
+### Installing from GitHub
 
-While the official Firebase release remains a binary framework distribution,
-in the future, we plan to switch to a source CocoaPod distribution for the
-Firebase open source components.
+For releases starting with 5.0.0, the source for each release is also deployed
+to CocoaPods master and available via standard
+[CocoaPods Podfile syntax](https://guides.cocoapods.org/syntax/podfile.html#pod).
+
+These instructions can be used to access the Firebase repo at other branches,
+tags, or commits.
 
 #### Background
 
@@ -38,22 +41,22 @@ For iOS, copy a subset of the following lines to your Podfile:
 
 ```
 pod 'Firebase' # To enable Firebase module, with `@import Firebase` support
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseFunctions', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseMessaging', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseFunctions', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseMessaging', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
 ```
 
 For macOS and tvOS, copy a subset of the following:
 
 ```
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
 ```
 
 1. Make sure you have at least CocoaPods version 1.4.0 - `pod --version`.
