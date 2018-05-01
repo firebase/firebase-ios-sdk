@@ -57,6 +57,16 @@ TEST(HashingTest, SizeT) {
   ASSERT_EQ(42u, Hash(size_t{42u}));
 }
 
+TEST(HashingTest, Array) {
+  int values[] = { 0, 1, 2 };
+
+  size_t expected = 0;
+  expected = 31 * expected + 1;
+  expected = 31 * expected + 2;
+  expected = 31 * expected + 3;  // length of array
+  ASSERT_EQ(expected, Hash(values));
+}
+
 TEST(HashingTest, HasHashMember) {
   ASSERT_EQ(static_cast<size_t>(42), Hash(HasHashMember{}));
 }

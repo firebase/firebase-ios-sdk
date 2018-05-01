@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HASHING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HASHING_H_
 
+#include <iterator>
 #include <type_traits>
 
 namespace firebase {
@@ -29,18 +30,19 @@ namespace util {
 // where `operator==()` can be defined without defining a hash code.
 //
 // It's based on the recommendation in Effective Java, Item 9, wherein you
-// implement combosite hashes like so:
+// implement composite hashes like so:
 //
 //     size_t result = first_;
 //     result = 31 * result + second_;
 //     result = 31 * result + third_;
+//     // ...
 //     return result;
 //
 // This is the basis of this implementation because that's what the existing
 // Objective-C code mostly does by hand. Using this implementation gets the
 // same result by calling
 //
-//     return util::Hash(first_, second_, third_);
+//     return util::Hash(first_, second_, /* ..., */ third_);
 //
 // TODO(wilhuff): Replace this with whatever Abseil releases.
 
@@ -67,8 +69,11 @@ inline size_t Combine(size_t state, size_t hash_value) {
  * specialization is available, but the type is also a range for whose members
  * std::hash is also available, e.g. with std::string.
  *
- * HashChoice is a recursive type that makes each successive specialization more
- * specialized in the partial ordering among specializations.
+ * HashChoice is a recursive type, defined such that HashChoice<0> is the most
+ * specific type with HashChoice<1> and beyond being progressively less
+ * specific. This causes the compiler to prioritize the overloads with
+ * lower-numbered HashChoice types, allowing compilation to succeed even if
+ * multiple specializations match.
  */
 template <int I>
 struct HashChoice : HashChoice<I + 1> {};
@@ -85,7 +90,7 @@ size_t InvokeHash(const K& value);
  * @return The result of `value.Hash()`.
  */
 template <typename K>
-auto InvokeHashHelper(const K& value, HashChoice<0>) -> decltype(value.Hash()) {
+auto RankedInvokeHash(const K& value, HashChoice<0>) -> decltype(value.Hash()) {
   return value.Hash();
 }
 
@@ -95,7 +100,7 @@ auto InvokeHashHelper(const K& value, HashChoice<0>) -> decltype(value.Hash()) {
  * @return The result of `std::hash<K>{}(value)`
  */
 template <typename K>
-auto InvokeHashHelper(const K& value, HashChoice<1>)
+auto RankedInvokeHash(const K& value, HashChoice<1>)
     -> decltype(std::hash<K>{}(value)) {
   return std::hash<K>{}(value);
 }
@@ -105,21 +110,21 @@ auto InvokeHashHelper(const K& value, HashChoice<1>)
  * range can be hashed.
  */
 template <typename Range>
-auto InvokeHashHelper(const Range& range, HashChoice<2>)
-    -> decltype(impl::InvokeHash(*range.begin())) {
+auto RankedInvokeHash(const Range& range, HashChoice<2>)
+    -> decltype(impl::InvokeHash(*std::begin(range))) {
   size_t result = 0;
   size_t size = 0;
   for (auto&& element : range) {
-    size += 1;
-    result = Combine(result, impl::InvokeHash(element));
+    ++size;
+    result = Combine(result, InvokeHash(element));
   }
-  result = impl::Combine(result, size);
+  result = Combine(result, size);
   return result;
 }
 
 template <typename K>
 size_t InvokeHash(const K& value) {
-  return InvokeHashHelper(value, HashChoice<0>{});
+  return RankedInvokeHash(value, HashChoice<0>{});
 }
 
 inline size_t HashInternal(size_t state) {
