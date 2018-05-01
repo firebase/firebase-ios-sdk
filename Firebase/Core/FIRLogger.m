@@ -186,7 +186,6 @@ BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent) {
 #ifdef DEBUG
 void FIRResetLogger() {
   sFIRLoggerOnceToken = 0;
-  FIRResetNumberOfIssuesLogged();
   [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFIRPersistedDebugModeKey];
 }
 
@@ -233,17 +232,6 @@ void FIRLogBasic(FIRLoggerLevel level,
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
   });
-
-  // Keep count of how many errors and warnings are triggered.
-  if (level == FIRLoggerLevelError) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSInteger errorCount = [defaults integerForKey:kFIRLoggerErrorCountKey];
-    [defaults setInteger:errorCount + 1 forKey:kFIRLoggerErrorCountKey];
-  } else if (level == FIRLoggerLevelWarning) {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSInteger warningCount = [defaults integerForKey:kFIRLoggerWarningCountKey];
-    [defaults setInteger:warningCount + 1 forKey:kFIRLoggerWarningCountKey];
-  }
 }
 #pragma clang diagnostic pop
 
@@ -270,21 +258,6 @@ FIR_LOGGING_FUNCTION(Info)
 FIR_LOGGING_FUNCTION(Debug)
 
 #undef FIR_MAKE_LOGGER
-
-#pragma mark - Number of errors and warnings
-
-NSInteger FIRNumberOfErrorsLogged(void) {
-  return [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerErrorCountKey];
-}
-
-NSInteger FIRNumberOfWarningsLogged(void) {
-  return [[NSUserDefaults standardUserDefaults] integerForKey:kFIRLoggerWarningCountKey];
-}
-
-void FIRResetNumberOfIssuesLogged(void) {
-  [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kFIRLoggerErrorCountKey];
-  [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kFIRLoggerWarningCountKey];
-}
 
 #pragma mark - FIRLoggerWrapper
 
