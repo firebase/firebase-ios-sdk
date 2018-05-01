@@ -34,6 +34,7 @@ namespace remote {
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 
 namespace {
 
@@ -43,7 +44,7 @@ class Reader;
 
 void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
-ObjectValue DecodeObject(Reader* reader);
+ObjectValue::Map DecodeObject(Reader* reader);
 
 /**
  * Represents a nanopb tag.
@@ -196,6 +197,14 @@ class Reader {
     return stream_.bytes_left;
   }
 
+  Status status() const {
+    return status_;
+  }
+
+  void set_status(Status status) {
+    status_ = status;
+  }
+
  private:
   /**
    * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
@@ -219,6 +228,8 @@ class Reader {
    * @return The decoded varint as a uint64_t.
    */
   uint64_t ReadVarint();
+
+  Status status_ = Status::OK();
 
   pb_istream_t stream_;
 };
@@ -270,12 +281,17 @@ void Writer::WriteTag(Tag tag) {
 
 Tag Reader::ReadTag() {
   Tag tag;
+  if (!status_.ok()) return tag;
+
   bool eof;
-  bool ok = pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof);
-  if (!ok || eof) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+  if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    return tag;
   }
+
+  // nanopb code always returns a false status when setting eof.
+  FIREBASE_ASSERT_MESSAGE(!eof, "nanopb set both ok status and eof to true");
+
   return tag;
 }
 
@@ -301,10 +317,11 @@ void Writer::WriteVarint(uint64_t value) {
  * @return The decoded varint as a uint64_t.
  */
 uint64_t Reader::ReadVarint() {
-  uint64_t varint_value;
+  if (!status_.ok()) return 0;
+
+  uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
   }
   return varint_value;
 }
@@ -315,9 +332,11 @@ void Writer::WriteNull() {
 
 void Reader::ReadNull() {
   uint64_t varint = ReadVarint();
+  if (!status_.ok()) return;
+
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    status_ = Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (invalid null value)");
   }
 }
 
@@ -327,14 +346,18 @@ void Writer::WriteBool(bool bool_value) {
 
 bool Reader::ReadBool() {
   uint64_t varint = ReadVarint();
+  if (!status_.ok()) return false;
+
   switch (varint) {
     case 0:
       return false;
     case 1:
       return true;
     default:
-      // TODO(rsgowman): figure out error handling
-      abort();
+      status_ =
+          Status(FirestoreErrorCode::DataLoss,
+                 "Input proto bytes cannot be parsed (invalid bool value)");
+      return false;
   }
 }
 
@@ -357,17 +380,21 @@ void Writer::WriteString(const std::string& string_value) {
 }
 
 std::string Reader::ReadString() {
+  if (!status_.ok()) return "";
+
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    pb_close_string_substream(&stream_, &substream);
+    return "";
   }
 
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    pb_close_string_substream(&stream_, &substream);
+    return "";
   }
 
   // NB: future versions of nanopb read the remaining characters out of the
@@ -375,10 +402,9 @@ std::string Reader::ReadString() {
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  if (substream.bytes_left != 0) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+  FIREBASE_ASSERT_MESSAGE(
+      substream.bytes_left == 0,
+      "Bytes remaining in substream after supposedly reading all of them.");
 
   pb_close_string_substream(&stream_, &substream);
 
@@ -431,28 +457,51 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
   Tag tag = reader->ReadTag();
+  if (!reader->status().ok()) return FieldValue::NullValue();
 
   // Ensure the tag matches the wire type
-  // TODO(rsgowman): figure out error handling
   switch (tag.field_number) {
     case google_firestore_v1beta1_Value_null_value_tag:
     case google_firestore_v1beta1_Value_boolean_value_tag:
     case google_firestore_v1beta1_Value_integer_value_tag:
       if (tag.wire_type != PB_WT_VARINT) {
-        abort();
+        reader->set_status(
+            Status(FirestoreErrorCode::DataLoss,
+                   "Input proto bytes cannot be parsed (mismatch between "
+                   "the wiretype and the field number (tag))"));
       }
       break;
 
     case google_firestore_v1beta1_Value_string_value_tag:
     case google_firestore_v1beta1_Value_map_value_tag:
       if (tag.wire_type != PB_WT_STRING) {
-        abort();
+        reader->set_status(
+            Status(FirestoreErrorCode::DataLoss,
+                   "Input proto bytes cannot be parsed (mismatch between "
+                   "the wiretype and the field number (tag))"));
       }
       break;
 
     default:
-      abort();
+      // We could get here for one of two reasons; either because the input
+      // bytes are corrupt, or because we're attempting to parse a tag that we
+      // haven't implemented yet. Long term, the latter reason should become
+      // less likely (especially in production), so we'll assume former.
+
+      // TODO(rsgowman): While still in development, we'll contradict the above
+      // and assume the latter. Remove the following assertion when we're
+      // confident that we're handling all the tags in the protos.
+      FIREBASE_ASSERT_MESSAGE(
+          false,
+          "Unhandled message field number (tag): %i. (Or possibly "
+          "corrupt input bytes)",
+          tag.field_number);
+      reader->set_status(Status(
+          FirestoreErrorCode::DataLoss,
+          "Input proto bytes cannot be parsed (invalid field number (tag))"));
   }
+
+  if (!reader->status().ok()) return FieldValue::NullValue();
 
   switch (tag.field_number) {
     case google_firestore_v1beta1_Value_null_value_tag:
@@ -465,12 +514,15 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     case google_firestore_v1beta1_Value_string_value_tag:
       return FieldValue::StringValue(reader->ReadString());
     case google_firestore_v1beta1_Value_map_value_tag:
-      return FieldValue::ObjectValueFromMap(
-          DecodeObject(reader).internal_value);
+      return FieldValue::ObjectValueFromMap(DecodeObject(reader));
 
     default:
-      // TODO(rsgowman): figure out error handling
-      abort();
+      // This indicates an internal error as we've already ensured that this is
+      // a valid field_number.
+      FIREBASE_ASSERT_MESSAGE(
+          false,
+          "Somehow got an unexpected field number (tag) after verifying that "
+          "the field number was expected.");
   }
 }
 
@@ -533,24 +585,34 @@ template <typename T>
 T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
+
+  if (!status_.ok()) return T();
+
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
-    // TODO(rsgowman): figure out error handling
-    abort();
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    pb_close_string_substream(&stream_, &raw_substream);
+    return T();
   }
   Reader substream(raw_substream);
 
+  // If this fails, we *won't* return right away so that we can cleanup the
+  // substream (although technically, that turns out not to matter; no resource
+  // leaks occur if we don't do this.)
+  // TODO(rsgowman): Consider RAII here. (Watch out for Reader class which also
+  // wraps streams.)
   T message = read_message_fn(&substream);
+  status_ = substream.status();
 
   // NB: future versions of nanopb read the remaining characters out of the
   // substream (and return false if that fails) as an additional safety
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  if (substream.bytes_left() != 0) {
-    // TODO(rsgowman): figure out error handling
-    abort();
-  }
+  FIREBASE_ASSERT_MESSAGE(
+      substream.bytes_left() == 0,
+      "Bytes remaining in substream after supposedly reading all of them.");
+
   pb_close_string_substream(&stream_, &substream.stream_);
 
   return message;
@@ -591,6 +653,7 @@ void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   Tag tag = reader->ReadTag();
+  if (!reader->status().ok()) return {};
 
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
@@ -600,6 +663,7 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   std::string key = reader->ReadString();
 
   tag = reader->ReadTag();
+  if (!reader->status().ok()) return {};
   FIREBASE_ASSERT(tag.field_number ==
                   google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
   FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
@@ -607,7 +671,7 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   FieldValue value =
       reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
 
-  return {key, value};
+  return ObjectValue::Map::value_type{key, value};
 }
 
 void EncodeObject(Writer* writer, const ObjectValue& object_value) {
@@ -622,12 +686,17 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value) {
   });
 }
 
-ObjectValue DecodeObject(Reader* reader) {
-  ObjectValue::Map internal_value = reader->ReadNestedMessage<ObjectValue::Map>(
+ObjectValue::Map DecodeObject(Reader* reader) {
+  if (!reader->status().ok()) return ObjectValue::Map();
+
+  return reader->ReadNestedMessage<ObjectValue::Map>(
       [](Reader* reader) -> ObjectValue::Map {
         ObjectValue::Map result;
+        if (!reader->status().ok()) return result;
+
         while (reader->bytes_left()) {
           Tag tag = reader->ReadTag();
+          if (!reader->status().ok()) return result;
           FIREBASE_ASSERT(tag.field_number ==
                           google_firestore_v1beta1_MapValue_fields_tag);
           FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
@@ -640,6 +709,7 @@ ObjectValue DecodeObject(Reader* reader) {
           // map.
           // TODO(rsgowman): figure out error handling: We can do better than a
           // failed assertion.
+          if (!reader->status().ok()) return result;
           FIREBASE_ASSERT(result.find(fv.first) == result.end());
 
           // Add this key,fieldvalue to the results map.
@@ -647,7 +717,6 @@ ObjectValue DecodeObject(Reader* reader) {
         }
         return result;
       });
-  return ObjectValue{internal_value};
 }
 
 }  // namespace
@@ -659,9 +728,15 @@ Status Serializer::EncodeFieldValue(const FieldValue& field_value,
   return writer.status();
 }
 
-FieldValue Serializer::DecodeFieldValue(const uint8_t* bytes, size_t length) {
+StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
+                                                  size_t length) {
   Reader reader = Reader::Wrap(bytes, length);
-  return DecodeFieldValueImpl(&reader);
+  FieldValue fv = DecodeFieldValueImpl(&reader);
+  if (reader.status().ok()) {
+    return fv;
+  } else {
+    return reader.status();
+  }
 }
 
 }  // namespace remote
