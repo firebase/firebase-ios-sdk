@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesQueryData {
   FSTQuery *query = FSTTestQuery("room");
   FSTTargetID targetID = 42;
-  const SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion version = testutil::Version(1039);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query

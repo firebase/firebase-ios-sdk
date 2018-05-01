@@ -314,7 +314,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 }
 
 - (void)doWriteAck:(NSDictionary *)spec {
-  const SnapshotVersion version = [self parseVersion:spec[@"version"]];
+  SnapshotVersion version = [self parseVersion:spec[@"version"]];
   NSNumber *expectUserCallback = spec[@"expectUserCallback"];
 
   FSTMutationResult *mutationResult =

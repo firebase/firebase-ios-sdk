@@ -143,7 +143,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutationBatch *batch = [self.batches firstObject];
   [self.batches removeObjectAtIndex:0];
   XCTAssertEqual(batch.mutations.count, 1, @"Acknowledging more than one mutation not supported.");
-  const SnapshotVersion version = testutil::Version(documentVersion);
+  SnapshotVersion version = testutil::Version(documentVersion);
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
   FSTMutationBatchResult *result = [FSTMutationBatchResult resultWithBatch:batch

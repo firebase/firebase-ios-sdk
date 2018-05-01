@@ -26,7 +26,6 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "absl/types/optional.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;

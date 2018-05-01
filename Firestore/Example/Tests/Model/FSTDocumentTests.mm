@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testConstructor {
   DocumentKey key = testutil::Key("messages/first");
-  const SnapshotVersion version = testutil::Version(1);
+  SnapshotVersion version = testutil::Version(1);
   FSTObjectValue *data = FSTTestObjectValue(@{ @"a" : @1 });
   FSTDocument *doc =
       [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testExtractsFields {
   DocumentKey key = testutil::Key("rooms/eros");
-  const SnapshotVersion version = testutil::Version(1);
+  SnapshotVersion version = testutil::Version(1);
   FSTObjectValue *data = FSTTestObjectValue(@{
     @"desc" : @"Discuss all the project related stuff",
     @"owner" : @{@"name" : @"Jonny", @"title" : @"scallywag"}
