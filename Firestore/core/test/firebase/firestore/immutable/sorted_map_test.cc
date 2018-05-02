@@ -18,6 +18,7 @@
 
 #include <numeric>
 #include <random>
+#include <type_traits>
 #include <unordered_set>
 #include <utility>
 
@@ -297,6 +298,9 @@ TYPED_TEST(SortedMapTest, MinMax) {
 }
 
 TYPED_TEST(SortedMapTest, IteratorsAreDefaultConstructible) {
+  ASSERT_TRUE(
+      std::is_default_constructible<typename TypeParam::const_iterator>::value);
+
   // If this compiles the test has succeeded
   typename TypeParam::const_iterator iter;
   (void)iter;
