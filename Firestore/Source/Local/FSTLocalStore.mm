@@ -415,6 +415,8 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.garbageCollector.isEager) {
       [self.queryCache removeQueryData:queryData];
     }
+    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
+    [self.persistence.referenceDelegate removeTarget:queryData sequenceNumber:sequenceNumber];
     [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
     // If this was the last watch target, then we won't get any more watch snapshots, so we should
