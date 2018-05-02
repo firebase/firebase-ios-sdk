@@ -24,7 +24,7 @@
   Query.getDocuments() should fetch from server only, cache only, or attempt
   server and fall back to the cache (which was the only option previously, and
   is now the default.)
-- [feature] Added new `mergeFields:(NSArray<id>*)` override for `set()` 
+- [feature] Added new `mergeFields:(NSArray<id>*)` override for `set()`
   which allows merging of a reduced subset of fields.
 
 # v0.11.0
