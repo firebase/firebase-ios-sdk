@@ -170,8 +170,8 @@ NS_ASSUME_NONNULL_BEGIN
 
     DocumentKey key1 = testutil::Key("rooms/foo");
     DocumentKey key2 = testutil::Key("rooms/bar");
-    [self addMatchingKey:key1 forTargetID:rooms.targetID];
-    [self addMatchingKey:key2 forTargetID:rooms.targetID];
+    [self addMatchingKey:key1 forTargetID:rooms.targetID atSequenceNumber:1];
+    [self addMatchingKey:key2 forTargetID:rooms.targetID atSequenceNumber:1];
 
     XCTAssertTrue([self.queryCache containsKey:key1]);
     XCTAssertTrue([self.queryCache containsKey:key2]);
@@ -190,10 +190,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     XCTAssertFalse([self.queryCache containsKey:key]);
 
-    [self addMatchingKey:key forTargetID:1];
+    [self addMatchingKey:key forTargetID:1 atSequenceNumber:10];
     XCTAssertTrue([self.queryCache containsKey:key]);
 
-    [self addMatchingKey:key forTargetID:2];
+    [self addMatchingKey:key forTargetID:2 atSequenceNumber:11];
     XCTAssertTrue([self.queryCache containsKey:key]);
 
     [self removeMatchingKey:key forTargetID:1];
@@ -212,9 +212,9 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
 
-    [self addMatchingKey:key1 forTargetID:1];
-    [self addMatchingKey:key2 forTargetID:1];
-    [self addMatchingKey:key3 forTargetID:2];
+    [self addMatchingKey:key1 forTargetID:1 atSequenceNumber:10];
+    [self addMatchingKey:key2 forTargetID:1 atSequenceNumber:10];
+    [self addMatchingKey:key3 forTargetID:2 atSequenceNumber:11];
     XCTAssertTrue([self.queryCache containsKey:key1]);
     XCTAssertTrue([self.queryCache containsKey:key2]);
     XCTAssertTrue([self.queryCache containsKey:key3]);
@@ -243,15 +243,15 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKey room1 = testutil::Key("rooms/bar");
     DocumentKey room2 = testutil::Key("rooms/foo");
     [self.queryCache addQueryData:rooms];
-    [self addMatchingKey:room1 forTargetID:rooms.targetID];
-    [self addMatchingKey:room2 forTargetID:rooms.targetID];
+    [self addMatchingKey:room1 forTargetID:rooms.targetID atSequenceNumber:rooms.sequenceNumber];
+    [self addMatchingKey:room2 forTargetID:rooms.targetID atSequenceNumber:rooms.sequenceNumber];
 
     FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
     DocumentKey hall1 = testutil::Key("halls/bar");
     DocumentKey hall2 = testutil::Key("halls/foo");
     [self.queryCache addQueryData:halls];
-    [self addMatchingKey:hall1 forTargetID:halls.targetID];
-    [self addMatchingKey:hall2 forTargetID:halls.targetID];
+    [self addMatchingKey:hall1 forTargetID:halls.targetID atSequenceNumber:halls.sequenceNumber];
+    [self addMatchingKey:hall2 forTargetID:halls.targetID atSequenceNumber:halls.sequenceNumber];
 
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
@@ -274,14 +274,14 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKey key2 = testutil::Key("foo/baz");
     DocumentKey key3 = testutil::Key("foo/blah");
 
-    [self addMatchingKey:key1 forTargetID:1];
-    [self addMatchingKey:key2 forTargetID:1];
-    [self addMatchingKey:key3 forTargetID:2];
+    [self addMatchingKey:key1 forTargetID:1 atSequenceNumber:10];
+    [self addMatchingKey:key2 forTargetID:1 atSequenceNumber:10];
+    [self addMatchingKey:key3 forTargetID:2 atSequenceNumber:11];
 
     FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
     FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
 
-    [self addMatchingKey:key1 forTargetID:2];
+    [self addMatchingKey:key1 forTargetID:2 atSequenceNumber:12];
     FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
     FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
   });
@@ -343,8 +343,8 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKey key1 = testutil::Key("rooms/bar");
     DocumentKey key2 = testutil::Key("rooms/foo");
     [self.queryCache addQueryData:query1];
-    [self addMatchingKey:key1 forTargetID:1];
-    [self addMatchingKey:key2 forTargetID:1];
+    [self addMatchingKey:key1 forTargetID:1 atSequenceNumber:10];
+    [self addMatchingKey:key2 forTargetID:1 atSequenceNumber:10];
 
     FSTQueryData *query2 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("halls")
                                                       targetID:2
@@ -352,7 +352,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        purpose:FSTQueryPurposeListen];
     DocumentKey key3 = testutil::Key("halls/foo");
     [self.queryCache addQueryData:query2];
-    [self addMatchingKey:key3 forTargetID:2];
+    [self addMatchingKey:key3 forTargetID:2 atSequenceNumber:11];
     XCTAssertEqual([self.queryCache highestTargetID], 2);
 
     // TargetIDs never come down.
@@ -427,10 +427,12 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKey:(const DocumentKey &)key
+           forTargetID:(FSTTargetID)targetID
+      atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
-  [self.queryCache addMatchingKeys:keys forTargetID:targetID];
+  [self.queryCache addMatchingKeys:keys forTargetID:targetID atSequenceNumber:sequenceNumber];
 }
 
 - (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {

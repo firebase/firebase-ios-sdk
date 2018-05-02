@@ -294,12 +294,16 @@ NS_ASSUME_NONNULL_BEGIN
         if ([mapping isKindOfClass:[FSTResetMapping class]]) {
           FSTResetMapping *reset = (FSTResetMapping *)mapping;
           [queryCache removeMatchingKeysForTargetID:targetID];
-          [queryCache addMatchingKeys:reset.documents forTargetID:targetID];
+          [queryCache addMatchingKeys:reset.documents
+                          forTargetID:targetID
+                     atSequenceNumber:sequenceNumber];
 
         } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
           FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
           [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
-          [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
+          [queryCache addMatchingKeys:update.addedDocuments
+                          forTargetID:targetID
+                     atSequenceNumber:sequenceNumber];
 
         } else {
           FSTFail(@"Unknown mapping type: %@", mapping);

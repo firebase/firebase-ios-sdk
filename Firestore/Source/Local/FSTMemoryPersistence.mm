@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   if (self = [super init]) {
-    _queryCache = [[FSTMemoryQueryCache alloc] init];
+    _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
   }
   return self;
