@@ -204,22 +204,19 @@ class SerializerTest : public ::testing::Test {
   }
 };
 
-// TODO(rsgowman): whoops! A previous commit performed approx s/Encodes/Writes/,
-// but should not have done so here. Change it back in this file.
-
-TEST_F(SerializerTest, WritesNull) {
+TEST_F(SerializerTest, EncodesNull) {
   FieldValue model = FieldValue::NullValue();
   ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
 }
 
-TEST_F(SerializerTest, WritesBool) {
+TEST_F(SerializerTest, EncodesBool) {
   for (bool bool_value : {true, false}) {
     FieldValue model = FieldValue::BooleanValue(bool_value);
     ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
   }
 }
 
-TEST_F(SerializerTest, WritesIntegers) {
+TEST_F(SerializerTest, EncodesIntegers) {
   std::vector<int64_t> cases{0,
                              1,
                              -1,
@@ -234,7 +231,7 @@ TEST_F(SerializerTest, WritesIntegers) {
   }
 }
 
-TEST_F(SerializerTest, WritesString) {
+TEST_F(SerializerTest, EncodesString) {
   std::vector<std::string> cases{
       "",
       "a",
@@ -257,7 +254,7 @@ TEST_F(SerializerTest, WritesString) {
   }
 }
 
-TEST_F(SerializerTest, WritesEmptyMap) {
+TEST_F(SerializerTest, EncodesEmptyMap) {
   FieldValue model = FieldValue::ObjectValueFromMap({});
 
   google::firestore::v1beta1::Value proto;
@@ -266,7 +263,7 @@ TEST_F(SerializerTest, WritesEmptyMap) {
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
-TEST_F(SerializerTest, WritesNestedObjects) {
+TEST_F(SerializerTest, EncodesNestedObjects) {
   FieldValue model = FieldValue::ObjectValueFromMap({
       {"b", FieldValue::TrueValue()},
       // TODO(rsgowman): add doubles (once they're supported)
