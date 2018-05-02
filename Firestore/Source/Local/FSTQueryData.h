@@ -54,7 +54,8 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** Creates a new query data instance with an updated snapshot version, resume token, and sequence number. */
+/** Creates a new query data instance with an updated snapshot version, resume token, and sequence
+ * number. */
 - (instancetype)queryDataByReplacingSnapshotVersion:
                     (firebase::firestore::model::SnapshotVersion)snapshotVersion
                                         resumeToken:(NSData *)resumeToken
