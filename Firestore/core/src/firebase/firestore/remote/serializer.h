@@ -19,9 +19,11 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -94,6 +96,13 @@ class Serializer {
       const std::vector<uint8_t>& bytes) {
     return DecodeFieldValue(bytes.data(), bytes.size());
   }
+
+  /**
+   * Encodes the given document key as a fully qualified name. This includes the
+   * databaseId from the constructor and the key path.
+   */
+  std::string EncodeKey(
+      const firebase::firestore::model::DocumentKey& key) const;
 
  private:
   const firebase::firestore::model::DatabaseId& database_id_;

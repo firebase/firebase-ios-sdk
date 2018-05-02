@@ -34,6 +34,7 @@
 
 #include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -43,6 +44,7 @@
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
@@ -426,6 +428,14 @@ TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes;
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, EncodesKey) {
+  EXPECT_EQ("projects/p/databases/d/documents",
+            serializer.EncodeKey(DocumentKey()));
+  EXPECT_EQ(
+      "projects/p/databases/d/documents/one/two/three/four",
+      serializer.EncodeKey(DocumentKey::FromPathString("one/two/three/four")));
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

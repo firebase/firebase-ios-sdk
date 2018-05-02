@@ -25,14 +25,18 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
@@ -719,6 +723,27 @@ ObjectValue::Map DecodeObject(Reader* reader) {
       });
 }
 
+/**
+ * Creates the prefix for a fully qualified resource path, without a local path
+ * on the end.
+ */
+ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+  return ResourcePath{"projects", database_id.project_id(), "databases",
+                      database_id.database_id()};
+}
+
+/**
+ * Encodes a databaseId and resource path into the following form:
+ * /projects/$projectId/database/$databaseId/documents/$path
+ */
+std::string EncodeResourceName(const DatabaseId& database_id,
+                               const ResourcePath& path) {
+  return EncodeDatabaseId(database_id)
+      .Append("documents")
+      .Append(path)
+      .CanonicalString();
+}
+
 }  // namespace
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
@@ -737,6 +762,10 @@ StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
   } else {
     return reader.status();
   }
+}
+
+std::string Serializer::EncodeKey(const DocumentKey& key) const {
+  return EncodeResourceName(database_id_, key.path());
 }
 
 }  // namespace remote
