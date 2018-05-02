@@ -1872,8 +1872,6 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"c++\"",
-					"-framework",
-					"\"leveldb\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1911,8 +1909,6 @@
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"c++\"",
-					"-framework",
-					"\"leveldb\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
