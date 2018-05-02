@@ -282,7 +282,9 @@ using leveldb::Status;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
+            forTargetID:(FSTTargetID)targetID
+       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
@@ -295,6 +297,7 @@ using leveldb::Status;
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
         emptyBuffer);
+    [self->_db.referenceDelegate addReference:documentKey target:targetID sequenceNumber:sequenceNumber];
   }];
 }
 
