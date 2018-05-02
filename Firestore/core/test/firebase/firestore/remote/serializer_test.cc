@@ -438,5 +438,34 @@ TEST_F(SerializerTest, EncodesKey) {
       serializer.EncodeKey(DocumentKey::FromPathString("one/two/three/four")));
 }
 
+TEST_F(SerializerTest, DecodesKey) {
+  EXPECT_EQ(DocumentKey(),
+            serializer.DecodeKey("projects/p/databases/d/documents"));
+  EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
+            serializer.DecodeKey(
+                "projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
+            serializer.DecodeKey(
+                "/projects/p/databases/d/documents/one/two/three/four"));
+}
+
+TEST_F(SerializerTest, BadKey) {
+  std::vector<std::string> bad_cases{
+      "",                        // empty (and too short)
+      "projects/p",              // too short
+      "projects/p/databases/d",  // too short
+      "projects/p/databases/d/documents/odd_number_of_local_elements",
+      "projects_spelled_wrong/p/databases/d/documents",
+      "projects/p/databases_spelled_wrong/d/documents",
+      "projects/not_project_p/databases/d/documents",
+      "projects/p/databases/not_database_d/documents",
+      "projects/p/databases/d/not_documents",
+  };
+
+  for (const std::string& bad_key : bad_cases) {
+    EXPECT_ANY_THROW(serializer.DecodeKey(bad_key));
+  }
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.

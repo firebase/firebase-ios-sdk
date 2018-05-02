@@ -744,6 +744,40 @@ std::string EncodeResourceName(const DatabaseId& database_id,
       .CanonicalString();
 }
 
+/** Validates that a path has a prefix that looks like a valid encoded
+ * databaseId. */
+bool IsValidResourceName(const ResourcePath& path) {
+  // Resource names have at least 4 components (project ID, database ID)
+  // and commonly the (root) resource type, e.g. documents
+  return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
+}
+
+/**
+ * Decodes a fully qualified resource name into a resource path and validates
+ * that there is a project and database encoded in the path. There are no
+ * guarantees that a local path is also encoded in this resource name.
+ */
+ResourcePath DecodeResourceName(const std::string& encoded) {
+  ResourcePath resource = ResourcePath::FromString(encoded);
+  FIREBASE_ASSERT_MESSAGE(IsValidResourceName(resource),
+                          "Tried to deserialize invalid key %s",
+                          resource.CanonicalString().c_str());
+  return resource;
+}
+
+/**
+ * Decodes a fully qualified resource name into a resource path and validates
+ * that there is a project and database encoded in the path along with a local
+ * path.
+ */
+ResourcePath ExtractLocalPathFromResourceName(
+    const ResourcePath& resource_name) {
+  FIREBASE_ASSERT_MESSAGE(
+      resource_name.size() > 4 && resource_name[4] == "documents",
+      "Tried to deserialize invalid key %s", resource_name.CanonicalString());
+  return resource_name.PopFirst(5);
+}
+
 }  // namespace
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
@@ -766,6 +800,15 @@ StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
 
 std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
+}
+
+DocumentKey Serializer::DecodeKey(std::string name) const {
+  ResourcePath resource = DecodeResourceName(name);
+  FIREBASE_ASSERT_MESSAGE(resource[1] == database_id_.project_id(),
+                          "Tried to deserialize key from different project.");
+  FIREBASE_ASSERT_MESSAGE(resource[3] == database_id_.database_id(),
+                          "Tried to deserialize key from different database.");
+  return DocumentKey{ExtractLocalPathFromResourceName(resource)};
 }
 
 }  // namespace remote

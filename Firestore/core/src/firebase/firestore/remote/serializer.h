@@ -104,6 +104,11 @@ class Serializer {
   std::string EncodeKey(
       const firebase::firestore::model::DocumentKey& key) const;
 
+  /**
+   * Decodes the given document key from a fully qualified name.
+   */
+  firebase::firestore::model::DocumentKey DecodeKey(std::string name) const;
+
  private:
   const firebase::firestore::model::DatabaseId& database_id_;
 };
