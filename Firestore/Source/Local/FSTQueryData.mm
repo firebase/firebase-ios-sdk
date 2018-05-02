@@ -95,10 +95,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)queryDataByReplacingSnapshotVersion:(SnapshotVersion)snapshotVersion
-                                        resumeToken:(NSData *)resumeToken {
+                                        resumeToken:(NSData *)resumeToken
+                                     sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   return [[FSTQueryData alloc] initWithQuery:self.query
                                     targetID:self.targetID
-                        listenSequenceNumber:self.sequenceNumber
+                        listenSequenceNumber:sequenceNumber
                                      purpose:self.purpose
                              snapshotVersion:std::move(snapshotVersion)
                                  resumeToken:resumeToken];

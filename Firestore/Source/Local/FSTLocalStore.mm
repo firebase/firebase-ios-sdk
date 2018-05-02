@@ -262,6 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
+    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     id<FSTQueryCache> queryCache = self.queryCache;
 
     [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
@@ -272,6 +273,18 @@ NS_ASSUME_NONNULL_BEGIN
       FSTQueryData *queryData = self.targetIDs[targetIDNumber];
       if (!queryData) {
         return;
+      }
+
+      // Update the resume token if the change includes one. Don't clear any preexisting value.
+      // Bump the sequence number as well, so that documents being removed now are ordered later
+      // than documents that were previously removed from this target.
+      NSData *resumeToken = change.resumeToken;
+      if (resumeToken.length > 0) {
+        queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
+                                                       resumeToken:resumeToken
+                                                    sequenceNumber:sequenceNumber];
+        self.targetIDs[targetIDNumber] = queryData;
+        [self.queryCache updateQueryData:queryData];
       }
 
       FSTTargetMapping *mapping = change.mapping;
@@ -290,15 +303,6 @@ NS_ASSUME_NONNULL_BEGIN
         } else {
           FSTFail(@"Unknown mapping type: %@", mapping);
         }
-      }
-
-      // Update the resume token if the change includes one. Don't clear any preexisting value.
-      NSData *resumeToken = change.resumeToken;
-      if (resumeToken.length > 0) {
-        queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
-                                                       resumeToken:resumeToken];
-        self.targetIDs[targetIDNumber] = queryData;
-        [self.queryCache updateQueryData:queryData];
       }
     }];
 
