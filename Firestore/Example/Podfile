@@ -22,8 +22,6 @@ target 'Firestore_Example_iOS' do
 
   target 'Firestore_IntegrationTests_iOS' do
     inherit! :search_paths
-
-    pod 'OCMock'
   end
 
   target 'Firestore_SwiftTests_iOS' do
