@@ -78,6 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
+- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+  return nil;
+}
+
 - (const FSTTransactionRunner &)run {
   return _transactionRunner;
 }

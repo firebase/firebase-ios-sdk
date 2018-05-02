@@ -112,6 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
     _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
                                                            mutationQueue:_mutationQueue];
     _localViewReferences = [[FSTReferenceSet alloc] init];
+    [_persistence.referenceDelegate addInMemoryPins:_localViewReferences];
 
     _garbageCollector = garbageCollector;
     [_garbageCollector addGarbageSource:_queryCache];
