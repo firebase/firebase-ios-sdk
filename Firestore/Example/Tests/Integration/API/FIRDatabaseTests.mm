@@ -256,6 +256,155 @@
   XCTAssertEqualObjects(document.data, finalData);
 }
 
+- (void)testCannotSpecifyFieldMaskForMissingField {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  XCTAssertThrowsSpecific(
+      { [doc setData:@{} mergeFields:@[ @"foo" ]]; }, NSException,
+      @"Field 'foo' is specified in your field mask but missing from your input data.");
+}
+
+- (void)testCanSetASubsetOfFieldsUsingMask {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData =
+      @{ @"desc" : @"Description",
+         @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
+
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
+
+  [doc setData:@{@"desc" : @"NewDescription", @"owner" : @"Sebastian"}
+      mergeFields:@[ @"owner" ]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(document.data, finalData);
+}
+
+- (void)testDoesNotApplyFieldDeleteOutsideOfMask {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData =
+      @{ @"desc" : @"Description",
+         @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
+
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
+
+  [doc setData:@{@"desc" : [FIRFieldValue fieldValueForDelete], @"owner" : @"Sebastian"}
+      mergeFields:@[ @"owner" ]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(document.data, finalData);
+}
+
+- (void)testDoesNotApplyFieldTransformOutsideOfMask {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData =
+      @{ @"desc" : @"Description",
+         @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
+
+  NSDictionary<NSString *, id> *finalData = @{@"desc" : @"Description", @"owner" : @"Sebastian"};
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
+
+  [doc setData:@{@"desc" : [FIRFieldValue fieldValueForServerTimestamp], @"owner" : @"Sebastian"}
+      mergeFields:@[ @"owner" ]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(document.data, finalData);
+}
+
+- (void)testCanSetEmptyFieldMask {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData =
+      @{ @"desc" : @"Description",
+         @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
+
+  NSDictionary<NSString *, id> *finalData = initialData;
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
+
+  [doc setData:@{@"desc" : [FIRFieldValue fieldValueForServerTimestamp], @"owner" : @"Sebastian"}
+      mergeFields:@[]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(document.data, finalData);
+}
+
+- (void)testCanSpecifyFieldsMultipleTimesInFieldMask {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData =
+      @{ @"desc" : @"Description",
+         @"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"} };
+
+  NSDictionary<NSString *, id> *finalData = @{
+    @"desc" : @"Description",
+    @"owner" : @{@"name" : @"Sebastian", @"email" : @"new@xyz.com"}
+  };
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanSetASubsetOfFieldsUsingMask"];
+
+  [doc setData:@{
+    @"desc" : @"NewDescription",
+    @"owner" : @{@"name" : @"Sebastian", @"email" : @"new@xyz.com"}
+  }
+      mergeFields:@[ @"owner.name", @"owner", @"owner" ]
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [completed fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(document.data, finalData);
+}
+
 - (void)testAddingToACollectionYieldsTheCorrectDocumentReference {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FIRDocumentReference *ref = [coll addDocumentWithData:@{ @"foo" : @1 }];

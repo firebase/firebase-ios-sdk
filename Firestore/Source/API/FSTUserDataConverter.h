@@ -129,7 +129,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
 - (FSTParsedSetData *)parsedSetData:(id)input;
 
 /** Parse document data from a setData call with `merge:YES`. */
-- (FSTParsedSetData *)parsedMergeData:(id)input;
+- (FSTParsedSetData *)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask;
 
 /** Parse update data from an updateData call. */
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input;

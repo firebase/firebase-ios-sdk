@@ -70,8 +70,21 @@ NS_ASSUME_NONNULL_BEGIN
                      merge:(BOOL)merge {
   [self verifyNotCommitted];
   [self validateReference:document];
-  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:data]
-                                   : [self.firestore.dataConverter parsedSetData:data];
+  FSTParsedSetData *parsed = merge
+                                 ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
+                                 : [self.firestore.dataConverter parsedSetData:data];
+  [self.mutations
+      addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
+  return self;
+}
+
+- (FIRWriteBatch *)setData:(NSDictionary<NSString *, id> *)data
+               forDocument:(FIRDocumentReference *)document
+               mergeFields:(NSArray<id> *)mergeFields {
+  [self verifyNotCommitted];
+  [self validateReference:document];
+  FSTParsedSetData *parsed =
+      [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
   [self.mutations
       addObjectsFromArray:[parsed mutationsWithKey:document.key precondition:Precondition::None()]];
   return self;

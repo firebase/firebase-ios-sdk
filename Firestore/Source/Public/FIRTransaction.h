@@ -65,6 +65,30 @@ NS_SWIFT_NAME(Transaction)
 // clang-format on
 
 /**
+ * Writes to the document referred to by `document` and only replace the fields
+ * specified under `mergeFields`. Any field that is not specified in `mergeFields`
+ * is ignored and remains untouched. If the document doesn't yet exist,
+ * this method creates it and then sets the data.
+ *
+ * It is an error to include a field in `mergeFields` that does not have a corresponding
+ * value in the `data` dictionary.
+ *
+ * @param data An `NSDictionary` containing the fields that make up the document
+ * to be written.
+ * @param document A reference to the document whose data should be overwritten.
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ *     specifying which fields to merge. Fields can contain dots to reference nested fields within
+ *     the document.
+ * @return This `FIRTransaction` instance. Used for chaining method calls.
+ */
+// clang-format off
+- (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
+                forDocument:(FIRDocumentReference *)document
+                mergeFields:(NSArray<id> *)mergeFields
+    NS_SWIFT_NAME(setData(_:forDocument:mergeFields:));
+// clang-format on
+
+/**
  * Updates fields in the document referred to by `document`.
  * If the document does not exist, the transaction will fail.
  *

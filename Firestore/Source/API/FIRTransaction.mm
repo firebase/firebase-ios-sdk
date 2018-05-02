@@ -68,8 +68,19 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                       merge:(BOOL)merge {
   [self validateReference:document];
-  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:data]
-                                   : [self.firestore.dataConverter parsedSetData:data];
+  FSTParsedSetData *parsed = merge
+                                 ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
+                                 : [self.firestore.dataConverter parsedSetData:data];
+  [self.internalTransaction setData:parsed forDocument:document.key];
+  return self;
+}
+
+- (FIRTransaction *)setData:(NSDictionary<NSString *, id> *)data
+                forDocument:(FIRDocumentReference *)document
+                mergeFields:(NSArray<id> *)mergeFields {
+  [self validateReference:document];
+  FSTParsedSetData *parsed =
+      [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
   [self.internalTransaction setData:parsed forDocument:document.key];
   return self;
 }

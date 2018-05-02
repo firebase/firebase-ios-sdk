@@ -125,6 +125,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields {
+  return [self setData:documentData mergeFields:mergeFields completion:nil];
+}
+
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
   return [self setData:documentData merge:NO completion:completion];
 }
@@ -132,8 +137,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData]
-                                   : [self.firestore.dataConverter parsedSetData:documentData];
+  FSTParsedSetData *parsed =
+      merge ? [self.firestore.dataConverter parsedMergeData:documentData fieldMask:nil]
+            : [self.firestore.dataConverter parsedSetData:documentData];
+  return [self.firestore.client
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
+          completion:completion];
+}
+
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields
+     completion:(nullable void (^)(NSError *_Nullable error))completion {
+  FSTParsedSetData *parsed =
+      [self.firestore.dataConverter parsedMergeData:documentData fieldMask:mergeFields];
   return [self.firestore.client
       writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];

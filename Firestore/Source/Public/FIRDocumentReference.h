@@ -92,6 +92,23 @@ NS_SWIFT_NAME(DocumentReference)
 - (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge;
 
 /**
+ * Writes to the document referred to by `document` and only replace the fields
+ * specified under `mergeFields`. Any field that is not specified in `mergeFields`
+ * is ignored and remains untouched. If the document doesn't yet exist,
+ * this method creates it and then sets the data.
+ *
+ * It is an error to include a field in `mergeFields` that does not have a corresponding
+ * value in the `data` dictionary.
+ *
+ * @param documentData An `NSDictionary` containing the fields that make up the document
+ * to be written.
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ *     specifying which fields to merge. Fields can contain dots to reference nested fields within
+ *     the document.
+ */
+- (void)setData:(NSDictionary<NSString *, id> *)documentData mergeFields:(NSArray<id> *)mergeFields;
+
+/**
  * Overwrites the document referred to by this `FIRDocumentReference`. If no document exists, it
  * is created. If a document already exists, it is overwritten.
  *
@@ -118,6 +135,28 @@ NS_SWIFT_NAME(DocumentReference)
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
+     completion:(nullable void (^)(NSError *_Nullable error))completion;
+
+/**
+ * Writes to the document referred to by `document` and only replace the fields
+ * specified under `mergeFields`. Any field that is not specified in `mergeFields`
+ * is ignored and remains untouched. If the document doesn't yet exist,
+ * this method creates it and then sets the data.
+ *
+ * It is an error to include a field in `mergeFields` that does not have a corresponding
+ * value in the `data` dictionary.
+ *
+ * @param documentData An `NSDictionary` containing the fields that make up the document
+ * to be written.
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ *     specifying which fields to merge. Fields can contain dots to reference nested fields within
+ *     the document.
+ * @param completion A block to execute once the document has been successfully written to the
+ *     server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
+ */
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**
