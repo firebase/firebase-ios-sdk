@@ -42,6 +42,7 @@
 #include "gtest/gtest.h"
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
@@ -62,10 +63,12 @@ TEST(Serializer, CanLinkToNanopb) {
   pb_ostream_from_buffer(nullptr, 0);
 }
 
+const DatabaseId database_id{"p", "d"};
+
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(/*DatabaseId("p", "d")*/) {
+  SerializerTest() : serializer(database_id) {
   }
   Serializer serializer;
 
