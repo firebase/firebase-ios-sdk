@@ -216,32 +216,29 @@ FIRTimestamp *TimestampWithMicros(int64_t seconds, int32_t micros) {
 }
 
 - (void)testTimestampsCanBePassedToQueriesInWhereClause {
-  FIRTimestamp *currentTimestamp = [FIRTimestamp timestamp];
-  int64_t seconds = currentTimestamp.seconds;
-  int32_t micros = currentTimestamp.nanoseconds / 1000;
   FIRCollectionReference *testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
-      @"timestamp" : TimestampWithMicros(seconds, micros + 2),
+      @"timestamp" : TimestampWithMicros(100, 7),
     },
     @"b" : @{
-      @"timestamp" : TimestampWithMicros(seconds, micros - 1),
+      @"timestamp" : TimestampWithMicros(100, 4),
     },
     @"c" : @{
-      @"timestamp" : TimestampWithMicros(seconds, micros + 3),
+      @"timestamp" : TimestampWithMicros(100, 8),
     },
     @"d" : @{
-      @"timestamp" : TimestampWithMicros(seconds, micros),
+      @"timestamp" : TimestampWithMicros(100, 5),
     },
     @"e" : @{
-      @"timestamp" : TimestampWithMicros(seconds, micros + 1),
+      @"timestamp" : TimestampWithMicros(100, 6),
     }
   }];
 
-  FIRQuerySnapshot *querySnapshot = [self
-      readDocumentSetForRef:[[testCollection queryWhereField:@"timestamp"
-                                      isGreaterThanOrEqualTo:TimestampWithMicros(seconds, micros)]
-                                queryWhereField:@"timestamp"
-                                     isLessThan:TimestampWithMicros(seconds, micros + 3)]];
+  FIRQuerySnapshot *querySnapshot =
+      [self readDocumentSetForRef:[[testCollection queryWhereField:@"timestamp"
+                                            isGreaterThanOrEqualTo:TimestampWithMicros(100, 5)]
+                                      queryWhereField:@"timestamp"
+                                           isLessThan:TimestampWithMicros(100, 8)]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(querySnapshot), (@[ @"d", @"e", @"a" ]));
 }
 
