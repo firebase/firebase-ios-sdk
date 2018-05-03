@@ -81,8 +81,8 @@ void ExecutorStd::TryCancel(const Id operation_id) {
 }
 
 ExecutorStd::Id ExecutorStd::PushOnSchedule(Operation&& operation,
-                                       const TimePoint when,
-                                       const Tag tag) {
+                                            const TimePoint when,
+                                            const Tag tag) {
   // Note: operations scheduled for immediate execution don't actually need an
   // id. This could be tweaked to reuse the same id for all such operations.
   const auto id = NextId();

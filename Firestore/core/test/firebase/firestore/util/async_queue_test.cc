@@ -80,8 +80,7 @@ TEST_P(AsyncQueueTest, ExecuteBlockingDisallowsNesting) {
 }
 
 TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
-  queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
+  queue.EnqueueBlocking([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
