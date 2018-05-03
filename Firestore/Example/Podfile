@@ -11,6 +11,9 @@ pod 'FirebaseFirestore', :path => '../../'
 
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
+
+  # Test targets are below to avoid problems with duplicate symbols when
+  # building as a static library (see comments below).
 end
 
 target 'Firestore_Tests_iOS' do
