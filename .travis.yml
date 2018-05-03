@@ -67,6 +67,19 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    # Static libraries
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild VARIANT=static
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+
+        # Remove use_frameworks and remove swift-specific targets
+        - sed -i.bak '/^use_frameworks/ d; /^target.*Swift/,/end/ d' Firestore/Example/Podfile
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # Community-supported platforms
 
     - stage: test
