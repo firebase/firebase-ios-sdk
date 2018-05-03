@@ -128,8 +128,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+               forTargetID:(FSTTargetID)targetID
+            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references removeReferencesToKeys:keys forID:targetID];
+  for (FSTDocumentKey *key in [keys objectEnumerator]) {
+    [_persistence.referenceDelegate removeReference:key target:targetID sequenceNumber:sequenceNumber];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {

@@ -301,12 +301,15 @@ using leveldb::Status;
   }];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+               forTargetID:(FSTTargetID)targetID
+            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
+    [self->_db.referenceDelegate removeReference:key target:targetID sequenceNumber:sequenceNumber];
     [self.garbageCollector addPotentialGarbageKey:key];
   }];
 }

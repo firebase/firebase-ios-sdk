@@ -110,7 +110,9 @@ NS_ASSUME_NONNULL_BEGIN
        atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 /** Removes the given document keys from the cached query results of the given target ID. */
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID;
+- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+               forTargetID:(FSTTargetID)targetID
+            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID;

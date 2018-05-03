@@ -196,10 +196,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self addMatchingKey:key forTargetID:2 atSequenceNumber:11];
     XCTAssertTrue([self.queryCache containsKey:key]);
 
-    [self removeMatchingKey:key forTargetID:1];
+    [self removeMatchingKey:key forTargetID:1 sequenceNumber:12];
     XCTAssertTrue([self.queryCache containsKey:key]);
 
-    [self removeMatchingKey:key forTargetID:2];
+    [self removeMatchingKey:key forTargetID:2 sequenceNumber:13];
     XCTAssertFalse([self.queryCache containsKey:key]);
   });
 }
@@ -255,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
 
-    [self removeMatchingKey:room1 forTargetID:rooms.targetID];
+    [self removeMatchingKey:room1 forTargetID:rooms.targetID sequenceNumber:1000];
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
 
     [self.queryCache removeQueryData:rooms];
@@ -435,10 +435,12 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queryCache addMatchingKeys:keys forTargetID:targetID atSequenceNumber:sequenceNumber];
 }
 
-- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKey:(const DocumentKey &)key
+              forTargetID:(FSTTargetID)targetID
+           sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
   keys = [keys setByAddingObject:key];
-  [self.queryCache removeMatchingKeys:keys forTargetID:targetID];
+  [self.queryCache removeMatchingKeys:keys forTargetID:targetID sequenceNumber:sequenceNumber];
 }
 
 @end

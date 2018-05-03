@@ -300,7 +300,9 @@ NS_ASSUME_NONNULL_BEGIN
 
         } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
           FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-          [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
+          [queryCache removeMatchingKeys:update.removedDocuments
+                             forTargetID:targetID
+                          sequenceNumber:sequenceNumber];
           [queryCache addMatchingKeys:update.addedDocuments
                           forTargetID:targetID
                      atSequenceNumber:sequenceNumber];
