@@ -20,6 +20,7 @@
 
 #include <set>
 
+#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
@@ -39,7 +40,13 @@ using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FSTMutationQueueTests
+@implementation FSTMutationQueueTests {
+  FSTListenSequence *_listenSequence;
+}
+
+- (void)setUp {
+  _listenSequence = [[FSTListenSequence alloc] initStartingAfter:0];
+}
 
 - (void)tearDown {
   [self.persistence shutdown];
@@ -69,10 +76,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMutationBatch *batch2 = [self addMutationBatch];
     XCTAssertEqual(2, [self batchCount]);
 
-    [self.mutationQueue removeMutationBatches:@[ batch2 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch2 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual(1, [self batchCount]);
 
-    [self.mutationQueue removeMutationBatches:@[ batch1 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch1 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual(0, [self batchCount]);
     XCTAssertTrue([self.mutationQueue isEmpty]);
   });
@@ -99,14 +106,14 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
-    [self.mutationQueue removeMutationBatches:@[ batch1 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch1 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
-    [self.mutationQueue removeMutationBatches:@[ batch2 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch2 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
     // Batch 3 never acknowledged.
-    [self.mutationQueue removeMutationBatches:@[ batch3 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch3 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
   });
 }
@@ -118,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMutationBatch *batch1 = [self addMutationBatch];
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
-    [self.mutationQueue removeMutationBatches:@[ batch1 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch1 ] sequenceNumber:[_listenSequence next]];
 
     XCTAssertEqual([self batchCount], 0);
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch1.batchID);
@@ -140,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
-    [self.mutationQueue removeMutationBatches:@[ batch1, batch2 ]];
+    [self.mutationQueue removeMutationBatches:@[ batch1, batch2 ] sequenceNumber:[_listenSequence next]];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
   });
 
@@ -358,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.persistence.run("testRemoveMutationBatches", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0] ] sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:0];
 
     FSTMutationBatch *last = batches[batches.count - 1];
@@ -370,7 +377,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 9);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0], batches[1], batches[2] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0], batches[1], batches[2] ] sequenceNumber:[_listenSequence next]];
     [batches removeObjectsInRange:NSMakeRange(0, 3)];
     XCTAssertEqual([self batchCount], 6);
 
@@ -378,7 +385,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 6);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[batches.count - 1] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[batches.count - 1] ] sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:batches.count - 1];
     XCTAssertEqual([self batchCount], 5);
 
@@ -386,11 +393,11 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 5);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[3] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[3] ] sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:3];
     XCTAssertEqual([self batchCount], 4);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[1] ] sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:1];
     XCTAssertEqual([self batchCount], 3);
 
@@ -399,7 +406,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual(found.count, 3);
     XCTAssertFalse([self.mutationQueue isEmpty]);
 
-    [self.mutationQueue removeMutationBatches:batches];
+    [self.mutationQueue removeMutationBatches:batches sequenceNumber:[_listenSequence next]];
     found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
     XCTAssertEqualObjects(found, @[]);
     XCTAssertEqual(found.count, 0);
@@ -424,19 +431,19 @@ NS_ASSUME_NONNULL_BEGIN
       [self addMutationBatchWithKey:@"bar/baz"],
     ]];
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0] ] sequenceNumber:[_listenSequence next]];
     std::set<DocumentKey> garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[1] ] sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/ba")}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[5] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[5] ] sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("bar/baz")}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ] sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage,
                    std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
@@ -445,7 +452,7 @@ NS_ASSUME_NONNULL_BEGIN
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ]];
+    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ] sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/bar/suffix/baz")}));
   });
@@ -525,7 +532,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (NSUInteger i = 0; i < holes.count; i++) {
     NSUInteger index = holes[i].unsignedIntegerValue - i;
     FSTMutationBatch *batch = batches[index];
-    [self.mutationQueue removeMutationBatches:@[ batch ]];
+    [self.mutationQueue removeMutationBatches:@[ batch ] sequenceNumber:[_listenSequence next]];
 
     [batches removeObjectAtIndex:index];
     [removed addObject:batch];

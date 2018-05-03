@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
   id<FSTMutationQueue> queue = _mutationQueues[user];
   if (!queue) {
-    queue = [FSTMemoryMutationQueue mutationQueue];
+    queue = [[FSTMemoryMutationQueue alloc] initWithPersistence:self];
     _mutationQueues[user] = queue;
   }
   return queue;
