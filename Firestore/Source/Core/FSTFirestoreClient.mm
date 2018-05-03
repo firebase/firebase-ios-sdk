@@ -311,7 +311,6 @@ NS_ASSUME_NONNULL_BEGIN
                         completion:(void (^)(FIRQuerySnapshot *_Nullable query,
                                              NSError *_Nullable error))completion {
   [self.workerDispatchQueue dispatchAsync:^{
-
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
     FSTDocumentKeySet *remoteKeys = [FSTDocumentKeySet keySet];
 
