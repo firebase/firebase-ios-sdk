@@ -65,12 +65,12 @@ TEST(Serializer, CanLinkToNanopb) {
   pb_ostream_from_buffer(nullptr, 0);
 }
 
-const DatabaseId database_id{"p", "d"};
+const DatabaseId kDatbaseId{"p", "d"};
 
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(database_id) {
+  SerializerTest() : serializer(kDatbaseId) {
   }
   Serializer serializer;
 
@@ -444,6 +444,7 @@ TEST_F(SerializerTest, DecodesKey) {
   EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
             serializer.DecodeKey(
                 "projects/p/databases/d/documents/one/two/three/four"));
+  // Same, but with a leading slash
   EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
             serializer.DecodeKey(
                 "/projects/p/databases/d/documents/one/two/three/four"));

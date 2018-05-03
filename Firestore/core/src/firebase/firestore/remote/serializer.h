@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/base/attributes.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -99,7 +100,7 @@ class Serializer {
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
-   * databaseId from the constructor and the key path.
+   * databaseId associated with this Serializer and the key path.
    */
   std::string EncodeKey(
       const firebase::firestore::model::DocumentKey& key) const;
@@ -107,7 +108,7 @@ class Serializer {
   /**
    * Decodes the given document key from a fully qualified name.
    */
-  firebase::firestore::model::DocumentKey DecodeKey(std::string name) const;
+  firebase::firestore::model::DocumentKey DecodeKey(absl::string_view name) const;
 
  private:
   const firebase::firestore::model::DatabaseId& database_id_;

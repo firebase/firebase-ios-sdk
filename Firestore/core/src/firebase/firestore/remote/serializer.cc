@@ -744,8 +744,10 @@ std::string EncodeResourceName(const DatabaseId& database_id,
       .CanonicalString();
 }
 
-/** Validates that a path has a prefix that looks like a valid encoded
- * databaseId. */
+/**
+ * Validates that a path has a prefix that looks like a valid encoded
+ * databaseId.
+ */
 bool IsValidResourceName(const ResourcePath& path) {
   // Resource names have at least 4 components (project ID, database ID)
   // and commonly the (root) resource type, e.g. documents
@@ -757,7 +759,7 @@ bool IsValidResourceName(const ResourcePath& path) {
  * that there is a project and database encoded in the path. There are no
  * guarantees that a local path is also encoded in this resource name.
  */
-ResourcePath DecodeResourceName(const std::string& encoded) {
+ResourcePath DecodeResourceName(absl::string_view encoded) {
   ResourcePath resource = ResourcePath::FromString(encoded);
   FIREBASE_ASSERT_MESSAGE(IsValidResourceName(resource),
                           "Tried to deserialize invalid key %s",
@@ -774,7 +776,7 @@ ResourcePath ExtractLocalPathFromResourceName(
     const ResourcePath& resource_name) {
   FIREBASE_ASSERT_MESSAGE(
       resource_name.size() > 4 && resource_name[4] == "documents",
-      "Tried to deserialize invalid key %s", resource_name.CanonicalString());
+      "Tried to deserialize invalid key %s", resource_name.CanonicalString().c_str());
   return resource_name.PopFirst(5);
 }
 
@@ -802,7 +804,7 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
 }
 
-DocumentKey Serializer::DecodeKey(std::string name) const {
+DocumentKey Serializer::DecodeKey(absl::string_view name) const {
   ResourcePath resource = DecodeResourceName(name);
   FIREBASE_ASSERT_MESSAGE(resource[1] == database_id_.project_id(),
                           "Tried to deserialize key from different project.");
