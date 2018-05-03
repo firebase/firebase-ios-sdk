@@ -56,6 +56,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -312,7 +313,7 @@ NS_ASSUME_NONNULL_BEGIN
                                              NSError *_Nullable error))completion {
   [self.workerDispatchQueue dispatchAsync:^{
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
-    FSTDocumentKeySet *remoteKeys = [FSTDocumentKeySet keySet];
+    DocumentKeySet remoteKeys;
 
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:remoteKeys];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];

@@ -32,6 +32,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -428,14 +429,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys;
+  keys = keys.insert(key);
   [self.queryCache addMatchingKeys:keys forTargetID:targetID];
 }
 
 - (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys;
+  keys = keys.insert(key);
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID];
 }
 

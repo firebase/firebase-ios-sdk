@@ -66,6 +66,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -147,9 +148,9 @@ FSTDocumentKey *FSTTestDocKey(NSString *path) {
 }
 
 FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys) {
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
+  DocumentKeySet result;
   for (FSTDocumentKey *key in keys) {
-    result = [result setByAddingObject:key];
+    result = result.insert(key);
   }
   return result;
 }
@@ -343,15 +344,15 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
-  FSTDocumentKeySet *added = [FSTDocumentKeySet keySet];
+  DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    added = [added setByAddingObject:key];
+    added = added.insert(key);
   }
-  FSTDocumentKeySet *removed = [FSTDocumentKeySet keySet];
+  DocumentKeySet removed;
   for (NSString *keyPath in removedKeys) {
     FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    removed = [removed setByAddingObject:key];
+    removed = removed.insert(key);
   }
   return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];
 }

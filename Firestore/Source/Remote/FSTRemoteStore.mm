@@ -43,6 +43,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -393,7 +394,7 @@ static const int kMaxPendingWrites = 10;
 
     } else {
       // Not a document query.
-      FSTDocumentKeySet *trackedRemote = [self.localStore remoteDocumentKeysForTarget:targetID];
+      DocumentKeySet trackedRemote = [self.localStore remoteDocumentKeysForTarget:targetID];
       FSTTargetMapping *mapping = remoteEvent.targetChanges[target].mapping;
       if (mapping) {
         if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {

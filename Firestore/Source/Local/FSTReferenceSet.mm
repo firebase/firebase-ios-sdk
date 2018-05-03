@@ -21,6 +21,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,11 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addReferenceToKey:(const DocumentKey &)key forID:(int)ID {
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:ID];
-  self.referencesByKey = [self.referencesByKey setByAddingObject:reference];
-  self.referencesByID = [self.referencesByID setByAddingObject:reference];
+  self.referencesByKey = self.referencesByKey.insert(reference);
+  self.referencesByID = self.referencesByID.insert(reference);
 }
 
-- (void)addReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID {
+- (void)addReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     [self addReferenceToKey:key forID:ID];
   }];
@@ -78,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self removeReference:[[FSTDocumentReference alloc] initWithKey:key ID:ID]];
 }
 
-- (void)removeReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID {
+- (void)removeReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
   [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
     [self removeReferenceToKey:key forID:ID];
   }];
@@ -104,22 +105,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeReference:(FSTDocumentReference *)reference {
-  self.referencesByKey = [self.referencesByKey setByRemovingObject:reference];
-  self.referencesByID = [self.referencesByID setByRemovingObject:reference];
+  self.referencesByKey = self.referencesByKey.erase(reference);
+  self.referencesByID = self.referencesByID.erase(reference);
   [self.garbageCollector addPotentialGarbageKey:reference.key];
 }
 
-- (FSTDocumentKeySet *)referencedKeysForID:(int)ID {
+- (DocumentKeySet)referencedKeysForID:(int)ID {
   FSTDocumentReference *start =
       [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:ID];
   FSTDocumentReference *end =
       [[FSTDocumentReference alloc] initWithKey:DocumentKey::Empty() ID:(ID + 1)];
 
-  __block FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
+  __block DocumentKeySet keys;
   [self.referencesByID enumerateObjectsFrom:start
                                          to:end
                                  usingBlock:^(FSTDocumentReference *reference, BOOL *stop) {
-                                   keys = [keys setByAddingObject:reference.key];
+                                   keys = keys.insert(reference.key);
                                  }];
   return keys;
 }

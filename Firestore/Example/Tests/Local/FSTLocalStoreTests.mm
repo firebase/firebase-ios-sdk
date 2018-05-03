@@ -46,6 +46,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -230,7 +231,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ set1, set2 ]];
-  FSTDocumentKeySet *keys = [batch keys];
+  DocumentKeySet keys = [batch keys];
   XCTAssertEqual(keys.count, 2);
 }
 
@@ -856,7 +857,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  FSTDocumentKeySet *keys = [self.localStore remoteDocumentKeysForTarget:2];
+  DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
   FSTAssertEqualSets(keys, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz") ]));
 
   [self restartWithNoopGarbageCollector];

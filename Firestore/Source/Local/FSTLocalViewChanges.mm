@@ -19,28 +19,30 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
+using firebase::firestore::model::DocumentKeySet;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalViewChanges ()
 - (instancetype)initWithQuery:(FSTQuery *)query
-                    addedKeys:(FSTDocumentKeySet *)addedKeys
-                  removedKeys:(FSTDocumentKeySet *)removedKeys NS_DESIGNATED_INITIALIZER;
+                    addedKeys:(const DocumentKeySet &)addedKeys
+                  removedKeys:(const DocumentKeySet &)removedKeys NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTLocalViewChanges
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot {
-  FSTDocumentKeySet *addedKeys = [FSTDocumentKeySet keySet];
-  FSTDocumentKeySet *removedKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet addedKeys;
+  DocumentKeySet removedKeys;
 
   for (FSTDocumentViewChange *docChange in viewSnapshot.documentChanges) {
     switch (docChange.type) {
       case FSTDocumentViewChangeTypeAdded:
-        addedKeys = [addedKeys setByAddingObject:docChange.document.key];
+        addedKeys = addedKeys.insert(docChange.document.key);
         break;
 
       case FSTDocumentViewChangeTypeRemoved:
-        removedKeys = [removedKeys setByAddingObject:docChange.document.key];
+        removedKeys = removedKeys.insert(docChange.document.key);
         break;
 
       default:
@@ -53,15 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)changesForQuery:(FSTQuery *)query
-                      addedKeys:(FSTDocumentKeySet *)addedKeys
-                    removedKeys:(FSTDocumentKeySet *)removedKeys {
+                      addedKeys:(const DocumentKeySet &)addedKeys
+                    removedKeys:(const DocumentKeySet &)removedKeys {
   return
       [[FSTLocalViewChanges alloc] initWithQuery:query addedKeys:addedKeys removedKeys:removedKeys];
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                    addedKeys:(FSTDocumentKeySet *)addedKeys
-                  removedKeys:(FSTDocumentKeySet *)removedKeys {
+                    addedKeys:(const DocumentKeySet &)addedKeys
+                  removedKeys:(const DocumentKeySet &)removedKeys {
   self = [super init];
   if (self) {
     _query = query;

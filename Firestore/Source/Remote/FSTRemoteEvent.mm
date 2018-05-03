@@ -26,9 +26,12 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTLogger.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::util::Hash;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
-- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+- (void)filterUpdatesUsingExistingKeys:(const DocumentKeySet &)existingKeys {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -63,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTResetMapping
 
 @interface FSTResetMapping ()
-@property(nonatomic, strong) FSTDocumentKeySet *documents;
+@property(nonatomic, strong) DocumentKeySet documents;
 @end
 
 @implementation FSTResetMapping
@@ -71,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)mappingWithDocuments:(NSArray<FSTDocument *> *)documents {
   FSTResetMapping *mapping = [[FSTResetMapping alloc] init];
   for (FSTDocument *doc in documents) {
-    mapping.documents = [mapping.documents setByAddingObject:doc.key];
+    mapping->_documents = mapping.documents.insert(doc.key);
   }
   return mapping;
 }
@@ -79,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _documents = [FSTDocumentKeySet keySet];
+    _documents = DocumentKeySet{};
   }
   return self;
 }
@@ -93,22 +96,22 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTResetMapping *otherMapping = (FSTResetMapping *)other;
-  return [self.documents isEqual:otherMapping.documents];
+  return _documents == otherMapping.documents;
 }
 
 - (NSUInteger)hash {
-  return self.documents.hash;
+  return Hash(_documents);
 }
 
 - (void)addDocumentKey:(const DocumentKey &)documentKey {
-  self.documents = [self.documents setByAddingObject:documentKey];
+  _documents = _documents.insert(documentKey);
 }
 
 - (void)removeDocumentKey:(const DocumentKey &)documentKey {
-  self.documents = [self.documents setByRemovingObject:documentKey];
+  _documents = _documents.erase(documentKey);
 }
 
-- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+- (void)filterUpdatesUsingExistingKeys:(const DocumentKeySet &)existingKeys {
   // No-op. Resets are not filtered.
 }
 
@@ -117,8 +120,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTUpdateMapping
 
 @interface FSTUpdateMapping ()
-@property(nonatomic, strong) FSTDocumentKeySet *addedDocuments;
-@property(nonatomic, strong) FSTDocumentKeySet *removedDocuments;
+@property(nonatomic, strong) DocumentKeySet addedDocuments;
+@property(nonatomic, strong) DocumentKeySet removedDocuments;
 @end
 
 @implementation FSTUpdateMapping
@@ -127,10 +130,10 @@ NS_ASSUME_NONNULL_BEGIN
                                removedDocuments:(NSArray<FSTDocument *> *)removed {
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
   for (FSTDocument *doc in added) {
-    mapping.addedDocuments = [mapping.addedDocuments setByAddingObject:doc.key];
+    mapping->_addedDocuments = mapping.addedDocuments.insert(doc.key);
   }
   for (FSTDocument *doc in removed) {
-    mapping.removedDocuments = [mapping.removedDocuments setByAddingObject:doc.key];
+    mapping->_removedDocuments = mapping.removedDocuments.insert(doc.key);
   }
   return mapping;
 }
@@ -138,8 +141,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   self = [super init];
   if (self) {
-    _addedDocuments = [FSTDocumentKeySet keySet];
-    _removedDocuments = [FSTDocumentKeySet keySet];
+    _addedDocuments = DocumentKeySet{};
+    _removedDocuments = DocumentKeySet{};
   }
   return self;
 }
@@ -153,40 +156,40 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTUpdateMapping *otherMapping = (FSTUpdateMapping *)other;
-  return [self.addedDocuments isEqual:otherMapping.addedDocuments] &&
-         [self.removedDocuments isEqual:otherMapping.removedDocuments];
+  return _addedDocuments == otherMapping.addedDocuments &&
+         _removedDocuments == otherMapping.removedDocuments;
 }
 
 - (NSUInteger)hash {
-  return self.addedDocuments.hash * 31 + self.removedDocuments.hash;
+  return Hash(_addedDocuments) * 31 + Hash(_removedDocuments);
 }
 
-- (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys {
-  __block FSTDocumentKeySet *result = keys;
-  [self.addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    result = [result setByAddingObject:key];
+- (DocumentKeySet)applyTo:(const DocumentKeySet &)keys {
+  __block DocumentKeySet result = keys;
+  [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+    result = result.insert(key);
   }];
-  [self.removedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    result = [result setByRemovingObject:key];
+  [_removedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+    result = result.erase(key);
   }];
   return result;
 }
 
 - (void)addDocumentKey:(const DocumentKey &)documentKey {
-  self.addedDocuments = [self.addedDocuments setByAddingObject:documentKey];
-  self.removedDocuments = [self.removedDocuments setByRemovingObject:documentKey];
+  _addedDocuments = _addedDocuments.insert(documentKey);
+  _removedDocuments = _removedDocuments.erase(documentKey);
 }
 
 - (void)removeDocumentKey:(const DocumentKey &)documentKey {
-  self.addedDocuments = [self.addedDocuments setByRemovingObject:documentKey];
-  self.removedDocuments = [self.removedDocuments setByAddingObject:documentKey];
+  _addedDocuments = _addedDocuments.erase(documentKey);
+  _removedDocuments = _removedDocuments.insert(documentKey);
 }
 
-- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
-  __block FSTDocumentKeySet *result = _addedDocuments;
+- (void)filterUpdatesUsingExistingKeys:(const DocumentKeySet &)existingKeys {
+  __block DocumentKeySet result = _addedDocuments;
   [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
-    if ([existingKeys containsObject:docKey]) {
-      result = [result setByRemovingObject:docKey];
+    if (existingKeys.contains(docKey)) {
+      result = result.erase(docKey);
     }
   }];
   _addedDocuments = result;
@@ -230,9 +233,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
   for (FSTMaybeDocument *doc in docs) {
     if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
-      mapping.removedDocuments = [mapping.removedDocuments setByAddingObject:doc.key];
+      mapping->_removedDocuments = mapping.removedDocuments.insert(doc.key);
     } else {
-      mapping.addedDocuments = [mapping.addedDocuments setByAddingObject:doc.key];
+      mapping->_addedDocuments = mapping.addedDocuments.insert(doc.key);
     }
   }
   FSTTargetChange *change = [[FSTTargetChange alloc] init];
@@ -281,7 +284,7 @@ NS_ASSUME_NONNULL_BEGIN
 initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
           targetChanges:(NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges
         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
-         limboDocuments:(FSTDocumentKeySet *)limboDocuments;
+         limboDocuments:(const DocumentKeySet &)limboDocuments;
 
 @end
 
@@ -294,7 +297,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
                           targetChanges:
                               (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
                         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
-                         limboDocuments:(FSTDocumentKeySet *)limboDocuments {
+                         limboDocuments:(const DocumentKeySet &)limboDocuments {
   self = [super init];
   if (self) {
     _snapshotVersion = std::move(snapshotVersion);
@@ -328,7 +331,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
     // explicit delete message and we could remove this special logic.
     _documentUpdates[key] = [FSTDeletedDocument documentWithKey:key version:_snapshotVersion];
-    _limboDocumentChanges = [_limboDocumentChanges setByAddingObject:key];
+    _limboDocumentChanges = _limboDocumentChanges.insert(key);
   }
 }
 
@@ -393,7 +396,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   /** Keeps track of document to update */
   std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
 
-  FSTDocumentKeySet *_limboDocuments;
+  DocumentKeySet _limboDocuments;
   /** The snapshot version for every target change this creates. */
   SnapshotVersion _snapshotVersion;
 }
@@ -410,7 +413,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     _targetChanges = [NSMutableDictionary dictionary];
     _listenTargets = listenTargets;
     _pendingTargetResponses = [NSMutableDictionary dictionaryWithDictionary:pendingTargetResponses];
-    _limboDocuments = [FSTDocumentKeySet keySet];
+    _limboDocuments = DocumentKeySet{};
     _existenceFilters = [NSMutableDictionary dictionary];
   }
   return self;
@@ -467,7 +470,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // We haven't seen a document update for this key yet.
     if (queryData.purpose == FSTQueryPurposeLimboResolution) {
       // We haven't seen this document before, and this target is a limbo target.
-      _limboDocuments = [_limboDocuments setByAddingObject:documentKey];
+      _limboDocuments = _limboDocuments.insert(documentKey);
       return YES;
     } else {
       // We haven't seen the document before, but this is a non-limbo target.
@@ -481,7 +484,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   } else {
     // We haven't marked this as non-limbo yet, but this target is not a limbo target.
     // Mark the key as non-limbo and make sure it isn't in our set.
-    _limboDocuments = [_limboDocuments setByRemovingObject:documentKey];
+    _limboDocuments = _limboDocuments.erase(documentKey);
     return NO;
   }
 }
