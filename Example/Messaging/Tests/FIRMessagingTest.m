@@ -75,6 +75,46 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   XCTAssertTrue(_messaging.isAutoInitEnabled);
 }
 
+- (void)testAutoInitEnableFlagOverrideGlobalTrue {
+  OCMStub([self.mockMessaging isGlobalAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+
+  self.messaging.autoInitEnabled = NO;
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableFlagOverrideGlobalFalse {
+  OCMStub([self.mockMessaging isGlobalAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+
+  self.messaging.autoInitEnabled = NO;
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableGlobalDefaultTrue {
+  OCMStub([self.mockMessaging isGlobalAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableGlobalDefaultFalse {
+  OCMStub([self.mockMessaging isGlobalAutomaticDataCollectionEnabled]).andReturn(NO);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
 #pragma mark - Direct Channel Establishment Testing
 
 // Should connect with valid token and application in foreground

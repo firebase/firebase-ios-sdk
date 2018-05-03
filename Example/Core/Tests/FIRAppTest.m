@@ -42,6 +42,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version;
 + (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version;
 
++ (nullable NSNumber *)readDataCollectionSwitchFromPlist;
++ (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app;
+
 @end
 
 @interface FIRAppTest : FIRTestCase
@@ -550,6 +553,133 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
       [FIRApp validateAppIDFingerprint:@"1:1337:ios:ab:deadbeef" withVersion:kGoodVersionV1]);
   XCTAssertFalse(
       [FIRApp validateAppIDFingerprint:@"1:1337:ios:deadbeef:ab" withVersion:kGoodVersionV1]);
+}
+
+#pragma mark - Automatic Data Collection Tests
+
+- (void)testGlobalDataCollectionNoFlags {
+  // Test: No flags set.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(nil);
+
+  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionPlistSetEnabled {
+  // Test: Plist set to enabled, no override.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(nil);
+
+  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionPlistSetDisabled {
+  // Test: Plist set to disabled, no override.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(nil);
+
+  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionUserSpecifiedEnabled {
+  // Test: User specified as enabled, no plist value.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@YES);
+
+  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionUserSpecifiedDisabled {
+  // Test: User specified as disabled, no plist value.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(nil);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@NO);
+
+  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionUserOverriddenEnabled {
+  // Test: User specified as enabled, with plist set as disabled.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@NO);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@YES);
+
+  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionUserOverriddenDisabled {
+  // Test: User specified as disabled, with plist set as enabled.
+  [FIRApp configure];
+  OCMStub([self.appClassMock readDataCollectionSwitchFromPlist]).andReturn(@YES);
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@NO);
+
+  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionWriteToDefaults {
+  id defaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+  [FIRApp configure];
+
+  FIRApp *app = [FIRApp defaultApp];
+  app.automaticDataCollectionEnabled = YES;
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
+  OCMVerify([defaultsMock setObject:@YES forKey:key]);
+
+  [FIRApp defaultApp].automaticDataCollectionEnabled = NO;
+  OCMVerify([defaultsMock setObject:@NO forKey:key]);
+
+  [defaultsMock stopMocking];
+}
+
+- (void)testGlobalDataCollectionClearedAfterDelete {
+  // Configure and disable data collection for the default FIRApp.
+  [FIRApp configure];
+  FIRApp *app = [FIRApp defaultApp];
+  app.automaticDataCollectionEnabled = NO;
+  XCTAssertFalse(app.isAutomaticDataCollectionEnabled);
+
+  // Delete the app, and verify that the switch was reset.
+  XCTestExpectation *deleteFinished =
+      [self expectationWithDescription:@"The app should successfully delete."];
+  [app deleteApp:^(BOOL success) {
+    if (success) {
+      [deleteFinished fulfill];
+    }
+  }];
+
+  // Wait for the delete to complete.
+  [self waitForExpectations:@[ deleteFinished ] timeout:1];
+
+  // Set up the default app again, and check the data collection flag.
+  [FIRApp configure];
+  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+}
+
+- (void)testGlobalDataCollectionNoDiagnosticsSent {
+  [FIRApp configure];
+
+  // Stub out reading from user defaults since stubbing out the BOOL has issues. If the data
+  // collection switch is disabled, the `sendLogs` call should return immediately and not fire a
+  // notification.
+  OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
+      .andReturn(@NO);
+  OCMReject([self.notificationCenterMock postNotificationName:kFIRAppDiagnosticsNotification
+                                                       object:OCMOCK_ANY
+                                                     userInfo:OCMOCK_ANY]);
+  NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
+  [[FIRApp defaultApp] sendLogsWithServiceName:@"Service" version:@"Version" error:error];
 }
 
 #pragma mark - Internal Methods

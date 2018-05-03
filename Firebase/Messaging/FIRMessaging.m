@@ -75,7 +75,7 @@ NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
 
 NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token type key stored in user info.
 
-static NSString *const kFIRMessagingPlistAutoInitEnabled =
+NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
 @interface FIRMessagingMessageInfo ()
@@ -471,8 +471,9 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   if (isAutoInitEnabledObject) {
     return [isAutoInitEnabledObject boolValue];
   }
-  // If none of above exists, we default assume FCM auto init is enabled.
-  return YES;
+
+  // If none of above exists, we default to the global switch that comes from FIRApp.
+  return self.isGlobalAutomaticDataCollectionEnabled;
 }
 
 - (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
