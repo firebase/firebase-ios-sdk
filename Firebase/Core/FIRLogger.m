@@ -228,7 +228,7 @@ void FIRLogBasic(FIRLoggerLevel level,
 #endif
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
   logMsg = [NSString
-      stringWithFormat:@"%s - %@[%@] %@", FirebaseVersionString, service, messageCode, logMsg];
+      stringWithFormat:@"%s - %@[%@] %@", FIRVersionString, service, messageCode, logMsg];
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
   });

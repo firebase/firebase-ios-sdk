@@ -185,7 +185,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // version as a macro, so it would be hardcoded based on version we have at compile time of
   // the Firestore library, rather than the version available at runtime/at compile time by the
   // user of the library.
-  return [NSString stringWithFormat:@"gl-objc/ fire/%s grpc/", FirebaseFirestoreVersionString];
+  return [NSString stringWithFormat:@"gl-objc/ fire/%s grpc/", FIRFirestoreVersionString];
 }
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
