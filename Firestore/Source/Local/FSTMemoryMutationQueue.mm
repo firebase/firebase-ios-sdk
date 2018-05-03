@@ -77,10 +77,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   FSTMemoryPersistence *_persistence;
 }
 
-/*+ (instancetype)mutationQueue {
-  return [[FSTMemoryMutationQueue alloc] init];
-}*/
-
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
     _persistence = persistence;
