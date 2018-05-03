@@ -448,7 +448,8 @@ static const int kMaxPendingWrites = 10;
       if (queryData) {
         self->_listenTargets[target] =
             [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
-                                               resumeToken:resumeToken];
+                                               resumeToken:resumeToken
+                                            sequenceNumber:queryData.sequenceNumber];
       }
     }
   }];

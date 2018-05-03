@@ -808,6 +808,7 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
 
   FSTQuery *query = FSTTestQuery("foo/bar");
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
+  FSTListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
   FSTBoxedTargetID *targetID = @(queryData.targetID);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
@@ -834,6 +835,10 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   // Should come back with the same resume token
   FSTQueryData *queryData2 = [self.localStore allocateQuery:query];
   XCTAssertEqualObjects(queryData2.resumeToken, resumeToken);
+
+  // The sequence number should have been bumped when we saved the new resume token.
+  FSTListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;
+  XCTAssertGreaterThan(newSequenceNumber, initialSequenceNumber);
 }
 
 - (void)testRemoteDocumentKeysForTarget {
