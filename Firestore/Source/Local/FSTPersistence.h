@@ -151,7 +151,7 @@ struct FSTTransactionRunner;
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)documentUpdated:(FSTDocumentKey *)key sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 @end
 

@@ -318,6 +318,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // TODO(klimt): This could probably be an NSMutableDictionary.
     FSTDocumentKeySet *changedDocKeys = [FSTDocumentKeySet keySet];
+    FSTDocumentKeySet *limboDocuments = remoteEvent.limboDocumentChanges;
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;
@@ -340,6 +341,9 @@ NS_ASSUME_NONNULL_BEGIN
       // The document might be garbage because it was unreferenced by everything.
       // Make sure to mark it as garbage if it is...
       [self.garbageCollector addPotentialGarbageKey:key];
+      if ([limboDocuments containsObject:key]) {
+        [self.persistence.referenceDelegate limboDocumentUpdated:key sequenceNumber:sequenceNumber];
+      }
     }
 
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
