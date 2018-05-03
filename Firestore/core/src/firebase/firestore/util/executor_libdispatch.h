@@ -39,36 +39,10 @@ namespace internal {
 // Generic wrapper over `dispatch_async_f`, providing `dispatch_async`-like
 // interface: accepts an arbitrary invocable object in place of an Objective-C
 // block.
-template <typename Work>
-void DispatchAsync(const dispatch_queue_t queue, Work&& work) {
-  using Func = std::function<void()>;
-
-  // Wrap the passed invocable object into a std::function. It's dynamically
-  // allocated to make sure the object is valid by the time libdispatch gets to
-  // it.
-  const auto wrap = new Func(std::forward<Work>(work));
-
-  dispatch_async_f(queue, wrap, [](void* const raw_work) {
-    const auto unwrap = static_cast<Func*>(raw_work);
-    (*unwrap)();
-    delete unwrap;
-  });
-}
+void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work);
 
 // Similar to `DispatchAsync` but wraps `dispatch_sync_f`.
-template <typename Work>
-void DispatchSync(const dispatch_queue_t queue, Work&& work) {
-  using Func = std::function<void()>;
-
-  // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
-  // is done, so passing a pointer to a local variable is okay.
-  Func wrap{std::forward<Work>(work)};
-
-  dispatch_sync_f(queue, &wrap, [](void* const raw_work) {
-    const auto unwrap = static_cast<Func*>(raw_work);
-    (*unwrap)();
-  });
-}
+void DispatchSync(const dispatch_queue_t queue, std::function<void()> work);
 
 class TimeSlot;
 
@@ -82,6 +56,7 @@ class ExecutorLibdispatch : public Executor {
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
+  std::string Name() const override;
 
   void Execute(Operation&& operation) override;
   void ExecuteBlocking(Operation&& operation) override;

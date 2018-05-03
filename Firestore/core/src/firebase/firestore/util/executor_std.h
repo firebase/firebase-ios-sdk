@@ -47,16 +47,17 @@ namespace async {
 // The details of time management are completely concealed within the class.
 // Once an entry is scheduled, there is no way to reschedule or even retrieve
 // the time.
-template <typename T, typename Duration = std::chrono::system_clock::duration>
+template <typename T>
 class Schedule {
   // Internal invariants:
   // - entries are always in sorted order, leftmost entry is always the most
   //   due;
   // - each operation modifying the queue notifies the condition variable `cv_`.
  public:
+  using Duration = std::chrono::milliseconds;
+  using Clock = std::chrono::system_clock;
   // Entries are scheduled using absolute time.
-  using TimePoint =
-      std::chrono::time_point<std::chrono::system_clock, Duration>;
+  using TimePoint = std::chrono::time_point<Clock, Duration>;
 
   // Schedules an entry for the specified time due. `due` may be in the past.
   void Push(const T& value, const TimePoint due) {
@@ -73,8 +74,8 @@ class Schedule {
   absl::optional<T> PopIfDue() {
     std::lock_guard<std::mutex> lock{mutex_};
 
-    if (HasDue()) {
-      return Extract(scheduled_.begin());
+    if (HasDueLocked()) {
+      return ExtractLocked(scheduled_.begin());
     }
     return {};
   }
@@ -98,13 +99,14 @@ class Schedule {
       // - `wait_until` has timed out, in which case the current time is at
       //   least `until`, so there must be an overdue entry;
       // - a new entry has been added which comes before `until`. It must be
-      //   either overdue (in which case `HasDue` will break the cycle), or else
-      //   `until` must be reevaluated (on the next iteration of the loop);
+      //   either overdue (in which case `HasDueLocked` will break the cycle),
+      //   or else `until` must be reevaluated (on the next iteration of the
+      //   loop);
       // - `until` entry has been removed. This means `until` has to be
       //   reevaluated, similar to #2.
 
-      if (HasDue()) {
-        return Extract(scheduled_.begin());
+      if (HasDueLocked()) {
+        return ExtractLocked(scheduled_.begin());
       }
     }
   }
@@ -129,11 +131,11 @@ class Schedule {
   absl::optional<T> RemoveIf(const Pred pred) {
     std::lock_guard<std::mutex> lock{mutex_};
 
-    const auto found =
-        std::find_if(scheduled_.begin(), scheduled_.end(),
-                     [&pred](const Entry& s) { return pred(s.value); });
-    if (found != scheduled_.end()) {
-      return Extract(found);
+    for (auto iter = scheduled_.begin(), end = scheduled_.end(); iter != end;
+         ++iter) {
+      if (pred(iter->value)) {
+        return ExtractLocked(iter);
+      }
     }
     return {};
   }
@@ -142,13 +144,8 @@ class Schedule {
   template <typename Pred>
   bool Contains(const Pred pred) const {
     std::lock_guard<std::mutex> lock{mutex_};
-
-    // While this logically duplicates part of the implementation of `RemoveIf`,
-    // a helper function would need two overloads, const and non-const,
-    // eliminating any gains in brevity.
-    return std::find_if(scheduled_.begin(), scheduled_.end(),
-                        [&pred](const Entry& s) { return pred(s.value); }) !=
-           scheduled_.end();
+    return std::any_of(scheduled_.begin(), scheduled_.end(),
+                       [&pred](const Entry& s) { return pred(s.value); });
   }
 
  private:
@@ -176,14 +173,14 @@ class Schedule {
   }
 
   // This function expects the mutex to be already locked.
-  bool HasDue() const {
+  bool HasDueLocked() const {
     namespace chr = std::chrono;
-    const auto now = chr::time_point_cast<Duration>(chr::system_clock::now());
+    const auto now = chr::time_point_cast<Duration>(Clock::now());
     return !scheduled_.empty() && now >= scheduled_.front().due;
   }
 
   // This function expects the mutex to be already locked.
-  T Extract(const Iterator where) {
+  T ExtractLocked(const Iterator where) {
     FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
                             "Trying to pop an entry from an empty queue.");
 
@@ -218,12 +215,13 @@ class ExecutorStd : public Executor {
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
+  std::string Name() const override;
 
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
  private:
-  using TimePoint = async::Schedule<Operation, Milliseconds>::TimePoint;
+  using TimePoint = async::Schedule<Operation>::TimePoint;
   // To allow canceling operations, each scheduled operation is assigned
   // a monotonically increasing identifier.
   using Id = unsigned int;
@@ -232,7 +230,7 @@ class ExecutorStd : public Executor {
   // Otherwise, this function is a no-op.
   void TryCancel(Id operation_id);
 
-  Id DoExecute(Operation&& operation, TimePoint when, Tag tag = -1);
+  Id PushOnSchedule(Operation&& operation, TimePoint when, Tag tag = -1);
 
   void PollingThread();
   void UnblockQueue();
@@ -266,7 +264,7 @@ class ExecutorStd : public Executor {
   };
   // Operations scheduled for immediate execution are also put on the schedule
   // (with due time set to `Immediate`).
-  async::Schedule<Entry, Milliseconds> schedule_;
+  async::Schedule<Entry> schedule_;
 
   std::thread worker_thread_;
   // Used to stop the worker thread.

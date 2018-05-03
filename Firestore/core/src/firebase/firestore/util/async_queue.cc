@@ -32,25 +32,27 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
   is_operation_in_progress_ = false;
 }
 
-void AsyncQueue::VerifyIsAsyncCall() const {
+void AsyncQueue::VerifyIsCurrentExecutor() const {
+  FIREBASE_ASSERT_MESSAGE(executor_->IsCurrentExecutor(),
+                          "Expected to be invoked asynchronously on the queue "
+                          "(expected executor: '%s', actual executor: '%s')",
+                          executor_->CurrentExecutorName().c_str(),
+                          executor_->Name().c_str());
+}
+
+void AsyncQueue::VerifyIsCurrentQueue() const {
+  VerifyIsCurrentExecutor();
   FIREBASE_ASSERT_MESSAGE(
-      executor_->IsCurrentExecutor(),
-      "Expected to be invoked asynchronously on the queue (invoker id: '%s')",
-      executor_->CurrentExecutorName().data());
+      is_operation_in_progress_,
+      "VerifyIsCurrentQueue called when no operation is executing "
+      "(expected executor: '%s', actual executor: '%s')",
+      executor_->CurrentExecutorName().c_str(), executor_->Name().c_str());
 }
 
-void AsyncQueue::VerifyCalledFromOperation() const {
-  VerifyIsAsyncCall();
-  FIREBASE_ASSERT_MESSAGE(is_operation_in_progress_,
-                          "VerifyCalledFromOperation called when no "
-                          "operation is executing (invoker id: '%s')",
-                          executor_->CurrentExecutorName().data());
-}
-
-void AsyncQueue::StartExecution(const Operation& operation) {
-  VerifyIsAsyncCall();
+void AsyncQueue::ExecuteBlocking(const Operation& operation) {
+  VerifyIsCurrentExecutor();
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_,
-                          "StartExecution may not be called "
+                          "ExecuteBlocking may not be called "
                           "before the previous operation finishes");
 
   is_operation_in_progress_ = true;
@@ -60,17 +62,17 @@ void AsyncQueue::StartExecution(const Operation& operation) {
 
 void AsyncQueue::Enqueue(const Operation& operation) {
   VerifySequentialOrder();
-  EnqueueAllowingNesting(operation);
+  EnqueueRelaxed(operation);
 }
 
-void AsyncQueue::EnqueueAllowingNesting(const Operation& operation) {
+void AsyncQueue::EnqueueRelaxed(const Operation& operation) {
   executor_->Execute(Wrap(operation));
 }
 
 DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
                                                const TimerId timer_id,
                                                const Operation& operation) {
-  VerifyIsAsyncCall();
+  VerifyIsCurrentExecutor();
 
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject
@@ -84,20 +86,21 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
 }
 
 AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
-  // Decorator pattern: wrap `operation` into a call to `StartExecution` to
+  // Decorator pattern: wrap `operation` into a call to `ExecuteBlocking` to
   // ensure that it doesn't spawn any nested operations.
 
   // Note: can't move `operation` into lambda until C++14.
-  return [this, operation] { StartExecution(operation); };
+  return [this, operation] { ExecuteBlocking(operation); };
 }
 
 void AsyncQueue::VerifySequentialOrder() const {
-  // This is the inverse of `VerifyCalledFromOperation`.
+  // This is the inverse of `VerifyIsCurrentQueue`.
   FIREBASE_ASSERT_MESSAGE(
       !is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
       "Enforcing sequential order failed: currently executing operations "
-      "cannot enqueue nested operations (invoker id: '%s')",
-      executor_->CurrentExecutorName().c_str());
+      "cannot enqueue nested operations "
+      "(expected executor: '%s', actual executor: '%s')",
+      executor_->CurrentExecutorName().c_str(), executor_->Name().c_str());
 }
 
 // Test-only functions

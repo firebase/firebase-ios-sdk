@@ -56,7 +56,7 @@ ExecutorStd::~ExecutorStd() {
 }
 
 void ExecutorStd::Execute(Operation&& operation) {
-  DoExecute(std::move(operation), Immediate());
+  PushOnSchedule(std::move(operation), Immediate());
 }
 
 DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
@@ -70,7 +70,7 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
   namespace chr = std::chrono;
   const auto now = chr::time_point_cast<Milliseconds>(chr::system_clock::now());
   const auto id =
-      DoExecute(std::move(tagged.operation), now + delay, tagged.tag);
+      PushOnSchedule(std::move(tagged.operation), now + delay, tagged.tag);
 
   return DelayedOperation{[this, id] { TryCancel(id); }};
 }
@@ -80,7 +80,7 @@ void ExecutorStd::TryCancel(const Id operation_id) {
       [operation_id](const Entry& e) { return e.id == operation_id; });
 }
 
-ExecutorStd::Id ExecutorStd::DoExecute(Operation&& operation,
+ExecutorStd::Id ExecutorStd::PushOnSchedule(Operation&& operation,
                                        const TimePoint when,
                                        const Tag tag) {
   // Note: operations scheduled for immediate execution don't actually need an
@@ -120,6 +120,10 @@ bool ExecutorStd::IsCurrentExecutor() const {
 
 std::string ExecutorStd::CurrentExecutorName() const {
   return ThreadIdToString(std::this_thread::get_id());
+}
+
+std::string ExecutorStd::Name() const {
+  return ThreadIdToString(worker_thread_.get_id());
 }
 
 void ExecutorStd::ExecuteBlocking(Operation&& operation) {

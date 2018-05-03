@@ -62,8 +62,8 @@ enum class TimerId {
 //
 // `AsyncQueue` wraps a platform-specific executor, adding checks that enforce
 // sequential ordering of operations: an enqueued operation, while being run,
-// normally cannot enqueue other operations for immediate execution, called
-// "nesting" (but see `EnqueueAllowingNesting`).
+// normally cannot enqueue other operations for immediate execution (but see
+// `EnqueueRelaxed`).
 //
 // `AsyncQueue` methods have particular expectations about whether they must be
 // invoked on the queue or not; check "preconditions" section in comments on
@@ -80,7 +80,9 @@ class AsyncQueue {
 
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
-  void VerifyCalledFromOperation() const;
+  void VerifyIsCurrentQueue() const;
+
+  // Enqueue methods
 
   // Puts the `operation` on the queue to be executed as soon as possible, while
   // maintaining FIFO order.
@@ -91,8 +93,8 @@ class AsyncQueue {
   // destroyed may invoke `Enqueue`).
   void Enqueue(const Operation& operation);
 
-  // Like `Enqueue`, but allowing nesting.
-  void EnqueueAllowingNesting(const Operation& operation);
+  // Like `Enqueue`, but without applying any prerequisite checks.
+  void EnqueueRelaxed(const Operation& operation);
 
   // Puts the `operation` on the queue to be executed `delay` milliseconds from
   // now, and returns a handle that allows to cancel the operation (provided it
@@ -110,14 +112,20 @@ class AsyncQueue {
                                      TimerId timer_id,
                                      const Operation& operation);
 
+  // Direct execution
+
   // Immediately executes the `operation` on the queue.
   //
-  // Precondition: no other operation is being executed on the queue at the
-  // moment of the call (i.e., calls to `StartExecution` cannot be nested).
+  // This is largely a workaround to allow other classes (GRPC) to directly
+  // access the underlying dispatch queue without getting `AsyncQueue` into an
+  // inconsistent state.
   //
-  // Precondition: `StartExecution` is being invoked asynchronously on the
+  // Precondition: no other operation is being executed on the queue at the
+  // moment of the call (i.e., `ExecuteBlocking` cannot call `ExecuteBlocking`).
+  //
+  // Precondition: `ExecuteBlocking` is being invoked asynchronously on the
   // queue.
-  void StartExecution(const Operation& operation);
+  void ExecuteBlocking(const Operation& operation);
 
   // Test-only interface follows
   // TODO(varconst): move the test-only interface into a helper object that is
@@ -139,12 +147,10 @@ class AsyncQueue {
   void RunScheduledOperationsUntil(TimerId last_timer_id);
 
  private:
-  // TODO(varconst): dispatch_queue_t dispatch_queue() const;
-
   Operation Wrap(const Operation& operation);
 
   // Asserts that the current invocation happens asynchronously on the queue.
-  void VerifyIsAsyncCall() const;
+  void VerifyIsCurrentExecutor() const;
   void VerifySequentialOrder() const;
 
   std::atomic<bool> is_operation_in_progress_;

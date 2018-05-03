@@ -106,6 +106,9 @@ class Executor {
   // only guarantee is that it will return different values depending on whether
   // this function is invoked by this executor or not.
   virtual std::string CurrentExecutorName() const = 0;
+  // Like `CurrentExecutorName`, but returns an identifier for this executor,
+  // whether the caller code currently runs on this executor or not.
+  virtual std::string Name() const = 0;
 
   // Checks whether an operation tagged with the given `tag` is currently
   // scheduled for future execution.

@@ -52,9 +52,9 @@ TEST_P(AsyncQueueTest, EnqueueDisallowsNesting) {
   EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST_P(AsyncQueueTest, EnqueueAllowingNestingWorksFromWithinEnqueue) {
+TEST_P(AsyncQueueTest, EnqueueRelaxedWorksFromWithinEnqueue) {
   queue.Enqueue([&] {  // clang-format off
-    queue.EnqueueAllowingNesting([&] { signal_finished(); });
+    queue.EnqueueRelaxed([&] { signal_finished(); });
     // clang-format on
   });
 
@@ -74,14 +74,14 @@ TEST_P(AsyncQueueTest, EnqueueBlockingDisallowsNesting) {
   });
 }
 
-TEST_P(AsyncQueueTest, StartExecutionDisallowsNesting) {
+TEST_P(AsyncQueueTest, ExecuteBlockingDisallowsNesting) {
   queue.EnqueueBlocking(
-      [&] { EXPECT_ANY_THROW(queue.StartExecution([] {});); });
+      [&] { EXPECT_ANY_THROW(queue.ExecuteBlocking([] {});); });
 }
 
-TEST_P(AsyncQueueTest, VerifyCalledFromOperationWorksWithOperationInProgress) {
+TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(queue.VerifyCalledFromOperation()); });
+      [&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
@@ -95,7 +95,7 @@ TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
     });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId2,
                             [&steps] { steps += '3'; });
-    queue.EnqueueAllowingNesting([&steps] { steps += '2'; });
+    queue.EnqueueRelaxed([&steps] { steps += '2'; });
   });
 
   EXPECT_TRUE(WaitForTestToFinish());
@@ -109,7 +109,7 @@ TEST_P(AsyncQueueTest, CanCancelDelayedOperations) {
     // Queue everything from the queue to ensure nothing completes before we
     // cancel.
 
-    queue.EnqueueAllowingNesting([&steps] { steps += '1'; });
+    queue.EnqueueRelaxed([&steps] { steps += '1'; });
 
     DelayedOperation delayed_operation = queue.EnqueueAfterDelay(
         AsyncQueue::Milliseconds(1), kTimerId1, [&steps] { steps += '2'; });
@@ -146,12 +146,12 @@ TEST_P(AsyncQueueTest, CanManuallyDrainAllDelayedOperationsForTesting) {
   std::string steps;
 
   queue.Enqueue([&] {
-    queue.EnqueueAllowingNesting([&steps] { steps += '1'; });
+    queue.EnqueueRelaxed([&steps] { steps += '1'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                             [&] { steps += '4'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                             [&steps] { steps += '3'; });
-    queue.EnqueueAllowingNesting([&steps] { steps += '2'; });
+    queue.EnqueueRelaxed([&steps] { steps += '2'; });
     signal_finished();
   });
 
@@ -164,14 +164,14 @@ TEST_P(AsyncQueueTest, CanManuallyDrainSpecificDelayedOperationsForTesting) {
   std::string steps;
 
   queue.Enqueue([&] {
-    queue.EnqueueAllowingNesting([&] { steps += '1'; });
+    queue.EnqueueRelaxed([&] { steps += '1'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20000), kTimerId1,
                             [&steps] { steps += '5'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10000), kTimerId2,
                             [&steps] { steps += '3'; });
     queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(15000), kTimerId3,
                             [&steps] { steps += '4'; });
-    queue.EnqueueAllowingNesting([&] { steps += '2'; });
+    queue.EnqueueRelaxed([&] { steps += '2'; });
     signal_finished();
   });
 

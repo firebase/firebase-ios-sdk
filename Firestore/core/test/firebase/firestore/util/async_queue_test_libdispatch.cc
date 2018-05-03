@@ -69,16 +69,16 @@ TEST_F(AsyncQueueTestLibdispatchOnly, SameQueueIsAllowedForUnownedActions) {
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
-       VerifyCalledFromOperationRequiresOperationInProgress) {
+       VerifyIsCurrentQueueRequiresOperationInProgress) {
   internal::DispatchSync(underlying_queue, [this] {
-    EXPECT_ANY_THROW(queue.VerifyCalledFromOperation());
+    EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
   });
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
-       VerifyCalledFromOperationRequiresBeingCalledAsync) {
+       VerifyIsCurrentQueueRequiresBeingCalledAsync) {
   ASSERT_NE(underlying_queue, dispatch_get_main_queue());
-  EXPECT_ANY_THROW(queue.VerifyCalledFromOperation());
+  EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
 }
 
 }  // namespace util
