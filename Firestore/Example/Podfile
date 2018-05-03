@@ -12,25 +12,56 @@ pod 'FirebaseFirestore', :path => '../../'
 target 'Firestore_Example_iOS' do
   platform :ios, '8.0'
 
-  target 'Firestore_Tests_iOS' do
-    inherit! :search_paths
+  # Test targets are below to avoid problems with duplicate symbols when
+  # building as a static library (see comments below).
+end
 
-    pod 'leveldb-library'
-    pod 'OCMock'
-    pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
-  end
+target 'Firestore_Tests_iOS' do
+  platform :ios, '8.0'
 
-  target 'Firestore_IntegrationTests_iOS' do
-    inherit! :search_paths
+  pod 'leveldb-library'
+  pod 'OCMock'
+  pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
+end
 
-    pod 'OCMock'
-  end
+target 'Firestore_IntegrationTests_iOS' do
+  platform :ios, '8.0'
+end
 
-  target 'Firestore_SwiftTests_iOS' do
-    pod 'FirebaseFirestoreSwift', :path => '../../'
-  end
+target 'Firestore_SwiftTests_iOS' do
+  platform :ios, '8.0'
+  pod 'FirebaseFirestoreSwift', :path => '../../'
 end
 
 target 'SwiftBuildTest' do
   platform :ios, '8.0'
+end
+
+# Firestore includes both Objective-C and C++ code, and the Firestore tests
+# consist of both XCTest-based tests in Objective-C and GoogleTest-based tests
+# in C++. The C++ tests must resolve the classes under test at link time, so
+# CocoaPods usual strategy linking Frameworks to the app and then resolving
+# those classes through run-time loading does not work in all cases.
+#
+# If use_frameworks! is disabled above, the project will encounter a ton of
+# duplicate Objective-C class warnings during test runs. Some of the tests will
+# fail too because duplicate classes also get duplicate static data and this
+# violates the expectations of code we depend upon.
+#
+# The workaround is to strip duplicate dependencies out of the example app,
+# which does not need them since it doesn't do anything other than act as a
+# host to the tests. This is based on the workaround posted here:
+#
+#     https://github.com/CocoaPods/CocoaPods/issues/7155
+#
+# TODO(wilhuff): Reevaluate if this is needed once we require CocoaPods 1.5.1
+# which may address this.
+pre_install do |installer|
+  test_target = installer.aggregate_targets.find do |target|
+    target.name == 'Pods-Firestore_Tests_iOS'
+  end
+  app_target = installer.aggregate_targets.find do |target|
+    target.name == 'Pods-Firestore_Example_iOS'
+  end
+  app_target.pod_targets = app_target.pod_targets - test_target.pod_targets
 end
