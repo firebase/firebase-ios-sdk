@@ -54,6 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
 @end
 
 #pragma mark - FSTResetMapping

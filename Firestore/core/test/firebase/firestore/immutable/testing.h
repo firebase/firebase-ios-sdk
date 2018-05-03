@@ -18,15 +18,32 @@
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_IMMUTABLE_TESTING_H_
 
 #include <algorithm>
+#include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
+#include "absl/strings/str_cat.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace immutable {
+
+template <typename K, typename V>
+std::string Describe(const std::pair<K, V>& pair) {
+  return absl::StrCat("(", pair.first, ", ", pair.second, ")");
+}
+
+// Describes the given item by its std::to_string implementation (if
+// std::to_string is defined for V). The return type is not defined directly
+// in terms of std::string in order to allow specialization failure to select
+// a different overload.
+template <typename V>
+auto Describe(const V& item) -> decltype(std::to_string(item)) {
+  return std::to_string(item);
+}
 
 template <typename Container, typename K>
 testing::AssertionResult NotFound(const Container& map, const K& key) {
@@ -40,11 +57,15 @@ testing::AssertionResult NotFound(const Container& map, const K& key) {
     return testing::AssertionSuccess();
   } else {
     return testing::AssertionFailure()
-           << "Should not have found (" << found->first << ", " << found->second
-           << ")";
+           << "Should not have found " << Describe(*found);
   }
 }
 
+/**
+ * Asserts that the given key is found in the given container and that it maps
+ * to the given value. This only works with map-type containers where value_type
+ * is `std::pair<K, V>`.
+ */
 template <typename Container, typename K, typename V>
 testing::AssertionResult Found(const Container& map,
                                const K& key,
@@ -64,6 +85,31 @@ testing::AssertionResult Found(const Container& map,
   } else {
     return testing::AssertionFailure() << "Found entry was (" << found->first
                                        << ", " << found->second << ")";
+  }
+}
+
+/**
+ * Asserts that the given key is found in the given container without
+ * necessarily checking that the key maps to any value. This also makes
+ * this compatible with non-mapped containers where K is the value_type.
+ */
+template <typename Container, typename K>
+testing::AssertionResult Found(const Container& container, const K& key) {
+  if (!container.contains(key)) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using contains()";
+  }
+
+  auto found = container.find(key);
+  if (found == container.end()) {
+    return testing::AssertionFailure()
+           << "Did not find key " << key << " using find()";
+  }
+  if (*found == key) {
+    return testing::AssertionSuccess();
+  } else {
+    return testing::AssertionFailure()
+           << "Found entry was " << Describe(*found);
   }
 }
 
