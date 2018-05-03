@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
-  // No-op by default. Only update mappings can reasonably filter updates.
+  @throw FSTAbstractMethodException();  // NOLINT
 }
 
 @end
@@ -106,6 +106,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removeDocumentKey:(const DocumentKey &)documentKey {
   self.documents = [self.documents setByRemovingObject:documentKey];
+}
+
+- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys {
+  // No-op. Resets are not filtered.
 }
 
 @end
