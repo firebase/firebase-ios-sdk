@@ -366,11 +366,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
+    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     FSTReferenceSet *localViewReferences = self.localViewReferences;
     for (FSTLocalViewChanges *view in viewChanges) {
       FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
       FSTAssert(queryData, @"Local view changes contain unallocated query.");
       FSTTargetID targetID = queryData.targetID;
+      [view.removedKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+        [self->_persistence.referenceDelegate removeReference:key
+                                                       target:targetID
+                                               sequenceNumber:sequenceNumber];
+      }];
       [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
       [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
     }
