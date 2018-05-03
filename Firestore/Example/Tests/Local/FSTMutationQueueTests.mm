@@ -147,7 +147,8 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
-    [self.mutationQueue removeMutationBatches:@[ batch1, batch2 ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batch1, batch2 ]
+                               sequenceNumber:[_listenSequence next]];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
   });
 
@@ -365,7 +366,8 @@ NS_ASSUME_NONNULL_BEGIN
   self.persistence.run("testRemoveMutationBatches", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0] ]
+                               sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:0];
 
     FSTMutationBatch *last = batches[batches.count - 1];
@@ -377,7 +379,8 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 9);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0], batches[1], batches[2] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0], batches[1], batches[2] ]
+                               sequenceNumber:[_listenSequence next]];
     [batches removeObjectsInRange:NSMakeRange(0, 3)];
     XCTAssertEqual([self batchCount], 6);
 
@@ -385,7 +388,8 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 6);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[batches.count - 1] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[batches.count - 1] ]
+                               sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:batches.count - 1];
     XCTAssertEqual([self batchCount], 5);
 
@@ -393,11 +397,13 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 5);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[3] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[3] ]
+                               sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:3];
     XCTAssertEqual([self batchCount], 4);
 
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[1] ]
+                               sequenceNumber:[_listenSequence next]];
     [batches removeObjectAtIndex:1];
     XCTAssertEqual([self batchCount], 3);
 
@@ -431,19 +437,23 @@ NS_ASSUME_NONNULL_BEGIN
       [self addMutationBatchWithKey:@"bar/baz"],
     ]];
 
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[0] ]
+                               sequenceNumber:[_listenSequence next]];
     std::set<DocumentKey> garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[1] ]
+                               sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/ba")}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[5] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[5] ]
+                               sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("bar/baz")}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ]
+                               sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage,
                    std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
@@ -452,7 +462,8 @@ NS_ASSUME_NONNULL_BEGIN
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({}));
 
-    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ] sequenceNumber:[_listenSequence next]];
+    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ]
+                               sequenceNumber:[_listenSequence next]];
     garbage = [garbageCollector collectGarbage];
     XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/bar/suffix/baz")}));
   });

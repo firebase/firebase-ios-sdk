@@ -297,7 +297,9 @@ using leveldb::Status;
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
         emptyBuffer);
-    [self->_db.referenceDelegate addReference:documentKey target:targetID sequenceNumber:sequenceNumber];
+    [self->_db.referenceDelegate addReference:documentKey
+                                       target:targetID
+                               sequenceNumber:sequenceNumber];
   }];
 }
 

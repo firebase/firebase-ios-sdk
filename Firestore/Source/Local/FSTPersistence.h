@@ -109,24 +109,26 @@ struct FSTTransactionRunner;
 @end
 
 /**
- * An FSTReferenceDelegate instance handles all of the hooks into the document-reference lifecycle. This includes
- * being added to a target, being removed from a target, being subject to mutation, and being mutated by the user.
+ * An FSTReferenceDelegate instance handles all of the hooks into the document-reference lifecycle.
+ * This includes being added to a target, being removed from a target, being subject to mutation,
+ * and being mutated by the user.
  *
- * Different implementations may do different things with each of these events. Not every implementation needs to do
- * something with every lifecycle hook.
+ * Different implementations may do different things with each of these events. Not every
+ * implementation needs to do something with every lifecycle hook.
  */
 @protocol FSTReferenceDelegate
 
 /**
- * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible for removal during
- * garbage collection.
+ * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible
+ * for removal during garbage collection.
  */
 - (void)addInMemoryPins:(FSTReferenceSet *)set;
 
 /**
  * Notify the delegate that a target was removed.
  */
-- (void)removeTarget:(FSTQueryData *)queryData sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeTarget:(FSTQueryData *)queryData
+      sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 /**
  * Notify the delegate that the given document was added to the given target.
@@ -151,7 +153,8 @@ struct FSTTransactionRunner;
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key
+              sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 @end
 

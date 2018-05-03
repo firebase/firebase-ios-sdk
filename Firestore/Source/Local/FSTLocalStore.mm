@@ -150,7 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
       if (batches.count > 0) {
         // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
         // should be very small and this code should go away eventually.
-        [self.mutationQueue removeMutationBatches:batches sequenceNumber:[self.listenSequence next]];
+        [self.mutationQueue removeMutationBatches:batches
+                                   sequenceNumber:[self.listenSequence next]];
       }
     }
   });
@@ -242,8 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTBatchID lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
     FSTAssert(batchID > lastAcked, @"Acknowledged batches can't be rejected.");
 
-    FSTDocumentKeySet *affected = [self removeMutationBatch:toReject
-                                             sequenceNumber:sequenceNumber];
+    FSTDocumentKeySet *affected = [self removeMutationBatch:toReject sequenceNumber:sequenceNumber];
 
     [self.mutationQueue performConsistencyCheck];
 
@@ -359,7 +359,8 @@ NS_ASSUME_NONNULL_BEGIN
       [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
     }
 
-    FSTDocumentKeySet *releasedWriteKeys = [self releaseHeldBatchResultsAtSequenceNumber:sequenceNumber];
+    FSTDocumentKeySet *releasedWriteKeys =
+        [self releaseHeldBatchResultsAtSequenceNumber:sequenceNumber];
 
     // Union the two key sets.
     __block FSTDocumentKeySet *keysToRecalc = changedDocKeys;
@@ -477,7 +478,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the set of keys of docs that were modified by those writes.
  */
-- (FSTDocumentKeySet *)releaseHeldBatchResultsAtSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (FSTDocumentKeySet *)releaseHeldBatchResultsAtSequenceNumber:
+    (FSTListenSequenceNumber)sequenceNumber {
   NSMutableArray<FSTMutationBatchResult *> *toRelease = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in self.heldBatchResults) {
     if (![self isRemoteUpToVersion:batchResult.commitVersion]) {
