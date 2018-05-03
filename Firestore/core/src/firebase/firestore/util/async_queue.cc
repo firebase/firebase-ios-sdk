@@ -33,11 +33,11 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
 }
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
-  FIREBASE_ASSERT_MESSAGE(executor_->IsCurrentExecutor(),
-                          "Expected to be invoked asynchronously on the queue "
-                          "(expected executor: '%s', actual executor: '%s')",
-                          executor_->CurrentExecutorName().c_str(),
-                          executor_->Name().c_str());
+  FIREBASE_ASSERT_MESSAGE(
+      executor_->IsCurrentExecutor(),
+      "Expected to be called by the executor associated with this queue "
+      "(expected executor: '%s', actual executor: '%s')",
+      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
 }
 
 void AsyncQueue::VerifyIsCurrentQueue() const {
@@ -46,14 +46,14 @@ void AsyncQueue::VerifyIsCurrentQueue() const {
       is_operation_in_progress_,
       "VerifyIsCurrentQueue called when no operation is executing "
       "(expected executor: '%s', actual executor: '%s')",
-      executor_->CurrentExecutorName().c_str(), executor_->Name().c_str());
+      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
 }
 
 void AsyncQueue::ExecuteBlocking(const Operation& operation) {
   VerifyIsCurrentExecutor();
   FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_,
                           "ExecuteBlocking may not be called "
-                          "before the previous operation finishes");
+                          "before the previous operation finishes executing");
 
   is_operation_in_progress_ = true;
   operation();
@@ -98,9 +98,9 @@ void AsyncQueue::VerifySequentialOrder() const {
   FIREBASE_ASSERT_MESSAGE(
       !is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
       "Enforcing sequential order failed: currently executing operations "
-      "cannot enqueue nested operations "
-      "(expected executor: '%s', actual executor: '%s')",
-      executor_->CurrentExecutorName().c_str(), executor_->Name().c_str());
+      "cannot enqueue more operations "
+      "(this queue's executor: '%s', current executor: '%s')",
+      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
 }
 
 // Test-only functions
