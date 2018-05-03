@@ -776,7 +776,8 @@ ResourcePath ExtractLocalPathFromResourceName(
     const ResourcePath& resource_name) {
   FIREBASE_ASSERT_MESSAGE(
       resource_name.size() > 4 && resource_name[4] == "documents",
-      "Tried to deserialize invalid key %s", resource_name.CanonicalString().c_str());
+      "Tried to deserialize invalid key %s",
+      resource_name.CanonicalString().c_str());
   return resource_name.PopFirst(5);
 }
 

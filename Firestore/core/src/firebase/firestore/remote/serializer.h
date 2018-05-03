@@ -108,7 +108,8 @@ class Serializer {
   /**
    * Decodes the given document key from a fully qualified name.
    */
-  firebase::firestore::model::DocumentKey DecodeKey(absl::string_view name) const;
+  firebase::firestore::model::DocumentKey DecodeKey(
+      absl::string_view name) const;
 
  private:
   const firebase::firestore::model::DatabaseId& database_id_;
