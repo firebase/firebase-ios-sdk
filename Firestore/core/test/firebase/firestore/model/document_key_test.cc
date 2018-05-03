@@ -148,6 +148,12 @@ TEST(DocumentKey, Comparison) {
   EXPECT_TRUE(ab >= a);
 }
 
+TEST(DocumentKey, Comparator) {
+  const DocumentKey abcd({"a", "b", "c", "d"});
+  const DocumentKey xyzw({"x", "y", "z", "w"});
+  EXPECT_TRUE(util::Comparator<DocumentKey>{}(abcd, xyzw));
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

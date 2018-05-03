@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_H_
 
+#include <functional>
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -26,6 +27,7 @@
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/strings/string_view.h"
 
@@ -118,6 +120,13 @@ inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
 }
 
 }  // namespace model
+
+namespace util {
+
+template <>
+struct Comparator<model::DocumentKey> : public std::less<model::DocumentKey> {};
+
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
