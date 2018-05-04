@@ -70,6 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns the database ID, such as `projects/{project id}/databases/{database_id}`. */
 - (NSString *)encodedDatabaseID;
 
+/**
+ * Encodes the given document key as a fully qualified name. This includes the
+ * databaseId associated with this FSTSerializerBeta and the key path.
+ */
 - (NSString *)encodedDocumentKey:(const firebase::firestore::model::DocumentKey &)key;
 - (firebase::firestore::model::DocumentKey)decodedDocumentKey:(NSString *)key;
 

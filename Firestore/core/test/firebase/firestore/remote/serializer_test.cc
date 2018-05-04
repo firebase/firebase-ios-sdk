@@ -37,14 +37,17 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
+using firebase::firestore::testutil::Key;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
@@ -65,8 +68,10 @@ TEST(Serializer, CanLinkToNanopb) {
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(/*DatabaseId("p", "d")*/) {
+  SerializerTest() : serializer(kDatabaseId) {
   }
+
+  const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
@@ -423,6 +428,41 @@ TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes;
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, EncodesKey) {
+  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
+            serializer.EncodeKey(Key("one/two/three/four")));
+}
+
+TEST_F(SerializerTest, DecodesKey) {
+  EXPECT_EQ(Key(""), serializer.DecodeKey("projects/p/databases/d/documents"));
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                "projects/p/databases/d/documents/one/two/three/four"));
+  // Same, but with a leading slash
+  EXPECT_EQ(Key("one/two/three/four"),
+            serializer.DecodeKey(
+                "/projects/p/databases/d/documents/one/two/three/four"));
+}
+
+TEST_F(SerializerTest, BadKey) {
+  std::vector<std::string> bad_cases{
+      "",                        // empty (and too short)
+      "projects/p",              // too short
+      "projects/p/databases/d",  // too short
+      "projects/p/databases/d/documents/odd_number_of_local_elements",
+      "projects_spelled_wrong/p/databases/d/documents",
+      "projects/p/databases_spelled_wrong/d/documents",
+      "projects/not_project_p/databases/d/documents",
+      "projects/p/databases/not_database_d/documents",
+      "projects/p/databases/d/not_documents",
+  };
+
+  for (const std::string& bad_key : bad_cases) {
+    EXPECT_ANY_THROW(serializer.DecodeKey(bad_key));
+  }
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

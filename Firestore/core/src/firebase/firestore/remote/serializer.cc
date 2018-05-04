@@ -25,14 +25,18 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
@@ -719,6 +723,64 @@ ObjectValue::Map DecodeObject(Reader* reader) {
       });
 }
 
+/**
+ * Creates the prefix for a fully qualified resource path, without a local path
+ * on the end.
+ */
+ResourcePath EncodeDatabaseId(const DatabaseId& database_id) {
+  return ResourcePath{"projects", database_id.project_id(), "databases",
+                      database_id.database_id()};
+}
+
+/**
+ * Encodes a databaseId and resource path into the following form:
+ * /projects/$projectId/database/$databaseId/documents/$path
+ */
+std::string EncodeResourceName(const DatabaseId& database_id,
+                               const ResourcePath& path) {
+  return EncodeDatabaseId(database_id)
+      .Append("documents")
+      .Append(path)
+      .CanonicalString();
+}
+
+/**
+ * Validates that a path has a prefix that looks like a valid encoded
+ * databaseId.
+ */
+bool IsValidResourceName(const ResourcePath& path) {
+  // Resource names have at least 4 components (project ID, database ID)
+  // and commonly the (root) resource type, e.g. documents
+  return path.size() >= 4 && path[0] == "projects" && path[2] == "databases";
+}
+
+/**
+ * Decodes a fully qualified resource name into a resource path and validates
+ * that there is a project and database encoded in the path. There are no
+ * guarantees that a local path is also encoded in this resource name.
+ */
+ResourcePath DecodeResourceName(absl::string_view encoded) {
+  ResourcePath resource = ResourcePath::FromString(encoded);
+  FIREBASE_ASSERT_MESSAGE(IsValidResourceName(resource),
+                          "Tried to deserialize invalid key %s",
+                          resource.CanonicalString().c_str());
+  return resource;
+}
+
+/**
+ * Decodes a fully qualified resource name into a resource path and validates
+ * that there is a project and database encoded in the path along with a local
+ * path.
+ */
+ResourcePath ExtractLocalPathFromResourceName(
+    const ResourcePath& resource_name) {
+  FIREBASE_ASSERT_MESSAGE(
+      resource_name.size() > 4 && resource_name[4] == "documents",
+      "Tried to deserialize invalid key %s",
+      resource_name.CanonicalString().c_str());
+  return resource_name.PopFirst(5);
+}
+
 }  // namespace
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
@@ -737,6 +799,19 @@ StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
   } else {
     return reader.status();
   }
+}
+
+std::string Serializer::EncodeKey(const DocumentKey& key) const {
+  return EncodeResourceName(database_id_, key.path());
+}
+
+DocumentKey Serializer::DecodeKey(absl::string_view name) const {
+  ResourcePath resource = DecodeResourceName(name);
+  FIREBASE_ASSERT_MESSAGE(resource[1] == database_id_.project_id(),
+                          "Tried to deserialize key from different project.");
+  FIREBASE_ASSERT_MESSAGE(resource[3] == database_id_.database_id(),
+                          "Tried to deserialize key from different database.");
+  return DocumentKey{ExtractLocalPathFromResourceName(resource)};
 }
 
 }  // namespace remote
