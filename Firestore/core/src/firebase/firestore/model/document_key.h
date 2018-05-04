@@ -121,7 +121,7 @@ inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
 
 struct DocumentKeyHash {
   size_t operator()(const DocumentKey& key) const {
-    return util::Hash(key.ToString());
+    return util::Hash(key.path());
   }
 };
 
