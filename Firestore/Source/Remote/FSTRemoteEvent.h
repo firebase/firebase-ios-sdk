@@ -168,7 +168,7 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
         documentUpdates:
             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates
-         limboDocuments:(const firebase::firestore::model::DocumentKeySet &)limboDocuments;
+         limboDocuments:(firebase::firestore::model::DocumentKeySet)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
@@ -177,13 +177,13 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
 @property(nonatomic, strong, readonly)
     NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *targetChanges;
 
-- (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
-
 /**
  * A set of which documents have changed or been deleted, along with the doc's new values
  * (if not deleted).
  */
 - (const std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *> &)documentUpdates;
+
+- (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document;

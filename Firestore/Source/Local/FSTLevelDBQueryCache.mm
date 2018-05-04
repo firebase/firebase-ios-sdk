@@ -289,24 +289,22 @@ using firebase::firestore::model::DocumentKeySet;
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Put(
-        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
-        emptyBuffer);
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
-        emptyBuffer);
-  }];
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
+  }
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self.garbageCollector addPotentialGarbageKey:key];
-  }];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {

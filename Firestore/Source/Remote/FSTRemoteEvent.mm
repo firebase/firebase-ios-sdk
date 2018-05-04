@@ -65,26 +65,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTResetMapping
 
-@interface FSTResetMapping ()
-@property(nonatomic, strong) DocumentKeySet documents;
-@end
-
-@implementation FSTResetMapping
-
-+ (instancetype)mappingWithDocuments:(NSArray<FSTDocument *> *)documents {
-  FSTResetMapping *mapping = [[FSTResetMapping alloc] init];
-  for (FSTDocument *doc in documents) {
-    mapping->_documents = mapping.documents.insert(doc.key);
-  }
-  return mapping;
+@implementation FSTResetMapping {
+  DocumentKeySet _documents;
 }
 
-- (instancetype)init {
++ (instancetype)mappingWithDocuments:(NSArray<FSTDocument *> *)documents {
+  DocumentKeySet keys;
+  for (FSTDocument *doc in documents) {
+    keys = keys.insert(doc.key);
+  }
+  return [[FSTResetMapping alloc] initWithDocuments:std::move(keys)];
+}
+
+- (instancetype)initWithDocuments:(DocumentKeySet)documents {
   self = [super init];
   if (self) {
-    _documents = DocumentKeySet{};
+    _documents = std::move(documents);
   }
   return self;
+}
+
+- (const DocumentKeySet &)documents {
+  return _documents;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -119,32 +121,41 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTUpdateMapping
 
-@interface FSTUpdateMapping ()
-@property(nonatomic, strong) DocumentKeySet addedDocuments;
-@property(nonatomic, strong) DocumentKeySet removedDocuments;
-@end
-
-@implementation FSTUpdateMapping
+@implementation FSTUpdateMapping {
+  DocumentKeySet _addedDocuments;
+  DocumentKeySet _removedDocuments;
+}
 
 + (FSTUpdateMapping *)mappingWithAddedDocuments:(NSArray<FSTDocument *> *)added
                                removedDocuments:(NSArray<FSTDocument *> *)removed {
-  FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
+  DocumentKeySet addedDocuments;
+  DocumentKeySet removedDocuments;
   for (FSTDocument *doc in added) {
-    mapping->_addedDocuments = mapping.addedDocuments.insert(doc.key);
+    addedDocuments = addedDocuments.insert(doc.key);
   }
   for (FSTDocument *doc in removed) {
-    mapping->_removedDocuments = mapping.removedDocuments.insert(doc.key);
+    removedDocuments = removedDocuments.insert(doc.key);
   }
-  return mapping;
+  return [[FSTUpdateMapping alloc] initWithAddedDocuments:addedDocuments
+                                         removedDocuments:removedDocuments];
 }
 
-- (instancetype)init {
+- (instancetype)initWithAddedDocuments:(DocumentKeySet)addedDocuments
+                      removedDocuments:(DocumentKeySet)removedDocuments {
   self = [super init];
   if (self) {
-    _addedDocuments = DocumentKeySet{};
-    _removedDocuments = DocumentKeySet{};
+    _addedDocuments = std::move(addedDocuments);
+    _removedDocuments = std::move(removedDocuments);
   }
   return self;
+}
+
+- (const DocumentKeySet &)addedDocuments {
+  return _addedDocuments;
+}
+
+- (const DocumentKeySet &)removedDocuments {
+  return _removedDocuments;
 }
 
 - (BOOL)isEqual:(id)other {
@@ -161,17 +172,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return Hash(_addedDocuments) * 31 + Hash(_removedDocuments);
+  return Hash(_addedDocuments, _removedDocuments);
 }
 
 - (DocumentKeySet)applyTo:(const DocumentKeySet &)keys {
-  __block DocumentKeySet result = keys;
-  [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  DocumentKeySet result = keys;
+  for (const DocumentKey &key : _addedDocuments) {
     result = result.insert(key);
-  }];
-  [_removedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  }
+  for (const DocumentKey &key : _removedDocuments) {
     result = result.erase(key);
-  }];
+  }
   return result;
 }
 
@@ -186,12 +197,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)filterUpdatesUsingExistingKeys:(const DocumentKeySet &)existingKeys {
-  __block DocumentKeySet result = _addedDocuments;
-  [_addedDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
-    if (existingKeys.contains(docKey)) {
-      result = result.erase(docKey);
+  DocumentKeySet result = _addedDocuments;
+  for (const DocumentKey &key : _addedDocuments) {
+    if (existingKeys.contains(key)) {
+      result = result.erase(key);
     }
-  }];
+  }
   _addedDocuments = result;
 }
 
@@ -230,14 +241,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)changeWithDocuments:(NSArray<FSTMaybeDocument *> *)docs
                 currentStatusUpdate:(FSTCurrentStatusUpdate)currentStatusUpdate {
-  FSTUpdateMapping *mapping = [[FSTUpdateMapping alloc] init];
+  DocumentKeySet addedDocuments;
+  DocumentKeySet removedDocuments;
   for (FSTMaybeDocument *doc in docs) {
     if ([doc isKindOfClass:[FSTDeletedDocument class]]) {
-      mapping->_removedDocuments = mapping.removedDocuments.insert(doc.key);
+      removedDocuments = removedDocuments.insert(doc.key);
     } else {
-      mapping->_addedDocuments = mapping.addedDocuments.insert(doc.key);
+      addedDocuments = addedDocuments.insert(doc.key);
     }
   }
+  FSTUpdateMapping *mapping =
+      [[FSTUpdateMapping alloc] initWithAddedDocuments:std::move(addedDocuments)
+                                      removedDocuments:std::move(removedDocuments)];
+
   FSTTargetChange *change = [[FSTTargetChange alloc] init];
   change.mapping = mapping;
   change.currentStatusUpdate = currentStatusUpdate;
@@ -276,36 +292,42 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteEvent
 
-@interface FSTRemoteEvent () {
-  NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *_targetChanges;
-}
-
-- (instancetype)
-initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
-          targetChanges:(NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges
-        documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
-         limboDocuments:(const DocumentKeySet &)limboDocuments;
-
-@end
-
 @implementation FSTRemoteEvent {
-  std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
   SnapshotVersion _snapshotVersion;
+  NSMutableDictionary<FSTBoxedTargetID *, FSTTargetChange *> *_targetChanges;
+  std::map<DocumentKey, FSTMaybeDocument *> _documentUpdates;
+  DocumentKeySet _limboDocumentChanges;
 }
 
 - (instancetype)initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
                           targetChanges:
                               (NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
                         documentUpdates:(std::map<DocumentKey, FSTMaybeDocument *>)documentUpdates
-                         limboDocuments:(const DocumentKeySet &)limboDocuments {
+                         limboDocuments:(DocumentKeySet)limboDocuments {
   self = [super init];
   if (self) {
     _snapshotVersion = std::move(snapshotVersion);
     _targetChanges = targetChanges;
     _documentUpdates = std::move(documentUpdates);
-    _limboDocumentChanges = limboDocuments;
+    _limboDocumentChanges = std::move(limboDocuments);
   }
   return self;
+}
+
+- (NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges {
+  return _targetChanges;
+}
+
+- (const DocumentKeySet &)limboDocumentChanges {
+  return _limboDocumentChanges;
+}
+
+- (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
+  return _documentUpdates;
+}
+
+- (const SnapshotVersion &)snapshotVersion {
+  return _snapshotVersion;
 }
 
 - (void)synthesizeDeleteForLimboTargetChange:(FSTTargetChange *)targetChange
@@ -333,18 +355,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     _documentUpdates[key] = [FSTDeletedDocument documentWithKey:key version:_snapshotVersion];
     _limboDocumentChanges = _limboDocumentChanges.insert(key);
   }
-}
-
-- (NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *)targetChanges {
-  return _targetChanges;
-}
-
-- (const std::map<DocumentKey, FSTMaybeDocument *> &)documentUpdates {
-  return _documentUpdates;
-}
-
-- (const SnapshotVersion &)snapshotVersion {
-  return _snapshotVersion;
 }
 
 /** Adds a document update to this remote event */

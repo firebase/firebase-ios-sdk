@@ -632,7 +632,7 @@ NS_ASSUME_NONNULL_BEGIN
                       outstanding:_noPendingResponses
                           changes:@[ newDocChange, existingDocChange ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  DocumentKeySet existingKeys = DocumentKeySet{}.insert(existingDoc.key);
+  DocumentKeySet existingKeys = DocumentKeySet{existingDoc.key};
 
   FSTTargetChange *updateChange = event.targetChanges[@1];
   XCTAssertTrue([updateChange.mapping isKindOfClass:[FSTUpdateMapping class]]);
@@ -649,7 +649,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testDoesntFilterResets {
   FSTDocument *existingDoc = FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, NO);
-  FSTDocumentKey *existingDocKey = existingDoc.key;
+  const DocumentKey &existingDocKey = existingDoc.key;
   FSTWatchTargetChange *resetTargetChange =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
                                   targetIDs:@[ @2 ]
@@ -664,7 +664,7 @@ NS_ASSUME_NONNULL_BEGIN
                       outstanding:_noPendingResponses
                           changes:@[ resetTargetChange, existingDocChange ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  DocumentKeySet existingKeys = DocumentKeySet{}.insert(existingDocKey);
+  DocumentKeySet existingKeys = DocumentKeySet{existingDocKey};
 
   FSTTargetChange *resetChange = event.targetChanges[@2];
   XCTAssertTrue([resetChange.mapping isKindOfClass:[FSTResetMapping class]]);

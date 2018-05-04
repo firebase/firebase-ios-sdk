@@ -41,24 +41,30 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
                           changeSet:(FSTDocumentViewChangeSet *)changeSet
                         needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(const DocumentKeySet &)mutatedKeys NS_DESIGNATED_INITIALIZER;
+                        mutatedKeys:(DocumentKeySet)mutatedKeys NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FSTViewDocumentChanges
+@implementation FSTViewDocumentChanges {
+  DocumentKeySet _mutatedKeys;
+}
 
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
                           changeSet:(FSTDocumentViewChangeSet *)changeSet
                         needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(const DocumentKeySet &)mutatedKeys {
+                        mutatedKeys:(DocumentKeySet)mutatedKeys {
   self = [super init];
   if (self) {
     _documentSet = documentSet;
     _changeSet = changeSet;
     _needsRefill = needsRefill;
-    _mutatedKeys = mutatedKeys;
+    _mutatedKeys = std::move(mutatedKeys);
   }
   return self;
+}
+
+- (const DocumentKeySet &)mutatedKeys {
+  return _mutatedKeys;
 }
 
 @end
@@ -166,30 +172,31 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
 @property(nonatomic, strong) FSTDocumentSet *documentSet;
 
-/** Documents included in the remote target. */
-@property(nonatomic, strong) DocumentKeySet syncedDocuments;
-
-/** Documents in the view but not in the remote target */
-@property(nonatomic, strong) DocumentKeySet limboDocuments;
-
-/** Document Keys that have local changes. */
-@property(nonatomic, strong) DocumentKeySet mutatedKeys;
-
 @end
 
-@implementation FSTView
+@implementation FSTView {
+  /** Documents included in the remote target. */
+  DocumentKeySet _syncedDocuments;
 
-- (instancetype)initWithQuery:(FSTQuery *)query
-              remoteDocuments:(nonnull FSTDocumentKeySet *)remoteDocuments {
+  /** Documents in the view but not in the remote target */
+  DocumentKeySet _limboDocuments;
+
+  /** Document Keys that have local changes. */
+  DocumentKeySet _mutatedKeys;
+}
+
+- (instancetype)initWithQuery:(FSTQuery *)query remoteDocuments:(DocumentKeySet)remoteDocuments {
   self = [super init];
   if (self) {
     _query = query;
     _documentSet = [FSTDocumentSet documentSetWithComparator:query.comparator];
-    _syncedDocuments = remoteDocuments;
-    _limboDocuments = DocumentKeySet{};
-    _mutatedKeys = DocumentKeySet{};
+    _syncedDocuments = std::move(remoteDocuments);
   }
   return self;
+}
+
+- (const DocumentKeySet &)syncedDocuments {
+  return _syncedDocuments;
 }
 
 - (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges {
@@ -326,7 +333,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   }];
   [self applyTargetChange:targetChange];
   NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
-  BOOL synced = _limboDocuments.count == 0 && self.isCurrent;
+  BOOL synced = _limboDocuments.empty() && self.isCurrent;
   FSTSyncState newSyncState = synced ? FSTSyncStateSynced : FSTSyncStateLocal;
   BOOL syncStateChanged = newSyncState != self.syncState;
   self.syncState = newSyncState;
@@ -341,7 +348,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                                   oldDocuments:oldDocuments
                                documentChanges:changes
                                      fromCache:newSyncState == FSTSyncStateLocal
-                              hasPendingWrites:!docChanges.mutatedKeys.isEmpty
+                              hasPendingWrites:!docChanges.mutatedKeys.empty()
                               syncStateChanged:syncStateChanged];
 
     return [FSTViewChange changeWithSnapshot:snapshot limboChanges:limboChanges];
@@ -398,14 +405,12 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
       _syncedDocuments = ((FSTResetMapping *)targetMapping).documents;
     } else if ([targetMapping isKindOfClass:[FSTUpdateMapping class]]) {
-      [((FSTUpdateMapping *)targetMapping).addedDocuments
-          enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-            _syncedDocuments = _syncedDocuments.insert(key);
-          }];
-      [((FSTUpdateMapping *)targetMapping).removedDocuments
-          enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-            _syncedDocuments = _syncedDocuments.erase(key);
-          }];
+      for (const DocumentKey &key : ((FSTUpdateMapping *)targetMapping).addedDocuments) {
+        _syncedDocuments = _syncedDocuments.insert(key);
+      }
+      for (const DocumentKey &key : ((FSTUpdateMapping *)targetMapping).removedDocuments) {
+        _syncedDocuments = _syncedDocuments.erase(key);
+      }
     }
 
     switch (targetChange.currentStatusUpdate) {
@@ -439,19 +444,19 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
   // Diff the new limbo docs with the old limbo docs.
   NSMutableArray<FSTLimboDocumentChange *> *changes =
-      [NSMutableArray arrayWithCapacity:(oldLimboDocuments.count + _limboDocuments.count)];
-  [oldLimboDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+      [NSMutableArray arrayWithCapacity:(oldLimboDocuments.size() + _limboDocuments.size())];
+  for (const DocumentKey &key : oldLimboDocuments) {
     if (!_limboDocuments.contains(key)) {
       [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
                                                             key:key]];
     }
-  }];
-  [_limboDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  }
+  for (const DocumentKey &key : _limboDocuments) {
     if (!oldLimboDocuments.contains(key)) {
       [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
                                                             key:key]];
     }
-  }];
+  }
   return changes;
 }
 

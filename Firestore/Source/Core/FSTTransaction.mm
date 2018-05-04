@@ -225,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTMutation *mutation in self.mutations) {
     unwritten = unwritten.erase(mutation.key);
   }
-  if (unwritten.count) {
+  if (!unwritten.empty()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported on the backend.
     completion([NSError
         errorWithDomain:FIRFirestoreErrorDomain

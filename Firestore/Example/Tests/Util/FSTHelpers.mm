@@ -44,6 +44,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -145,14 +146,6 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
 
 FSTDocumentKey *FSTTestDocKey(NSString *path) {
   return [FSTDocumentKey keyWithPathString:path];
-}
-
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys) {
-  DocumentKeySet result;
-  for (FSTDocumentKey *key in keys) {
-    result = result.insert(key);
-  }
-  return result;
 }
 
 FSTDocument *FSTTestDoc(const absl::string_view path,
@@ -346,13 +339,11 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
-    FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    added = added.insert(key);
+    added = added.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
   DocumentKeySet removed;
   for (NSString *keyPath in removedKeys) {
-    FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    removed = removed.insert(key);
+    removed = removed.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
   return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];
 }

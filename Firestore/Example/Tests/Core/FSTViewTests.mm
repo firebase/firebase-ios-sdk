@@ -340,8 +340,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Unlike other cases, here the view is initialized with a set of previously synced documents
   // which happens when listening to a previously listened-to query.
-  FSTView *view = [[FSTView alloc] initWithQuery:query
-                                 remoteDocuments:FSTTestDocKeySet(@[ doc1.key, doc2.key ])];
+  FSTView *view =
+      [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{doc1.key, doc2.key}];
 
   FSTTargetChange *markCurrent =
       [FSTTargetChange changeWithDocuments:@[]
@@ -558,11 +558,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[]));
+  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, YES);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc3.key ]));
+  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{doc3.key});
 }
 
 - (void)testRemovesKeysFromMutatedKeysWhenNewDocHasNoLocalChanges {
@@ -575,12 +575,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc2Prime = FSTTestDoc("rooms/eros/messages/1", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2Prime ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[]));
+  XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
 }
 
 - (void)testRemembersLocalMutationsFromPreviousSnapshot {
@@ -593,12 +593,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ])];
   [view applyChangesToDocuments:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 }
 
 - (void)testRemembersLocalMutationsFromPreviousCallToComputeChangesWithDocuments {
@@ -610,11 +610,11 @@ NS_ASSUME_NONNULL_BEGIN
   // Start with a full view.
   FSTViewDocumentChanges *changes =
       [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1, doc2 ])];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
   FSTDocument *doc3 = FSTTestDoc("rooms/eros/messages/2", 0, @{}, NO);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc3 ]) previousChanges:changes];
-  XCTAssertEqualObjects(changes.mutatedKeys, FSTTestDocKeySet(@[ doc2.key ]));
+  XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 }
 
 @end

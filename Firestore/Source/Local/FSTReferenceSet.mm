@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
 #import "Firestore/Source/Local/FSTDocumentReference.h"
+#import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
@@ -65,14 +66,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addReferenceToKey:(const DocumentKey &)key forID:(int)ID {
   FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:ID];
-  self.referencesByKey = self.referencesByKey.insert(reference);
-  self.referencesByID = self.referencesByID.insert(reference);
+  self.referencesByKey = [self.referencesByKey setByAddingObject:reference];
+  self.referencesByID = [self.referencesByID setByAddingObject:reference];
 }
 
 - (void)addReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     [self addReferenceToKey:key forID:ID];
-  }];
+  }
 }
 
 - (void)removeReferenceToKey:(const DocumentKey &)key forID:(int)ID {
@@ -80,9 +81,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeReferencesToKeys:(const DocumentKeySet &)keys forID:(int)ID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     [self removeReferenceToKey:key forID:ID];
-  }];
+  }
 }
 
 - (void)removeReferencesForID:(int)ID {
@@ -105,8 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)removeReference:(FSTDocumentReference *)reference {
-  self.referencesByKey = self.referencesByKey.erase(reference);
-  self.referencesByID = self.referencesByID.erase(reference);
+  self.referencesByKey = [self.referencesByKey setByRemovingObject:reference];
+  self.referencesByID = [self.referencesByID setByRemovingObject:reference];
   [self.garbageCollector addPotentialGarbageKey:reference.key];
 }
 

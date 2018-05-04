@@ -348,7 +348,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
-    DocumentKeySet limboDocuments = DocumentKeySet{}.insert(doc.key);
+    DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
     FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
                                                               targetChanges:targetChanges
                                                             documentUpdates:{

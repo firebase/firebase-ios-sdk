@@ -279,12 +279,12 @@ NS_ASSUME_NONNULL_BEGIN
     [self addMatchingKey:key2 forTargetID:1];
     [self addMatchingKey:key3 forTargetID:2];
 
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], (DocumentKeySet{key1, key2}));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], (DocumentKeySet{key3}));
 
     [self addMatchingKey:key1 forTargetID:2];
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], (DocumentKeySet{key1, key2}));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], (DocumentKeySet{key1, key3}));
   });
 }
 
@@ -429,14 +429,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
-  DocumentKeySet keys;
-  keys = keys.insert(key);
+  DocumentKeySet keys{key};
   [self.queryCache addMatchingKeys:keys forTargetID:targetID];
 }
 
 - (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
-  DocumentKeySet keys;
-  keys = keys.insert(key);
+  DocumentKeySet keys{key};
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID];
 }
 

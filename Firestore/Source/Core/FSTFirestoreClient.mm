@@ -313,9 +313,8 @@ NS_ASSUME_NONNULL_BEGIN
                                              NSError *_Nullable error))completion {
   [self.workerDispatchQueue dispatchAsync:^{
     FSTDocumentDictionary *docs = [self.localStore executeQuery:query.query];
-    DocumentKeySet remoteKeys;
 
-    FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:remoteKeys];
+    FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
     FSTAssert(viewChange.limboChanges.count == 0,

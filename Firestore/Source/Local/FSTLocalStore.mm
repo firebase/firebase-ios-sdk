@@ -221,7 +221,6 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKeySet affected;
     if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
       [self.heldBatchResults addObject:batchResult];
-      affected = DocumentKeySet{};
     } else {
       affected = [self releaseBatchResults:@[ batchResult ]];
     }
@@ -349,10 +348,10 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKeySet releasedWriteKeys = [self releaseHeldBatchResults];
 
     // Union the two key sets.
-    __block DocumentKeySet keysToRecalc = changedDocKeys;
-    [releasedWriteKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+    DocumentKeySet keysToRecalc = changedDocKeys;
+    for (const DocumentKey &key : releasedWriteKeys) {
       keysToRecalc = keysToRecalc.insert(key);
-    }];
+    }
 
     return [self.localDocuments documentsForKeys:keysToRecalc];
   });
@@ -432,7 +431,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
-  return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> FSTDocumentKeySet * {
+  return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
     return [self.queryCache matchingKeysForTargetID:targetID];
   });
 }
@@ -499,9 +498,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Removes all the mutation batches named in the given array. */
 - (DocumentKeySet)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
-  // TODO(klimt): Could this be an NSMutableDictionary?
-  __block DocumentKeySet affectedDocs;
-
+  DocumentKeySet affectedDocs;
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
@@ -510,21 +507,20 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   [self.mutationQueue removeMutationBatches:batches];
-
   return affectedDocs;
 }
 
 - (void)applyBatchResult:(FSTMutationBatchResult *)batchResult {
   FSTMutationBatch *batch = batchResult.batch;
   DocumentKeySet docKeys = batch.keys;
-  [docKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *docKey, BOOL *stop) {
+  for (const DocumentKey &docKey : docKeys) {
     FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:docKey];
     FSTMaybeDocument *_Nullable doc = remoteDoc;
     // TODO(zxu): Once ported to use C++ version of FSTMutationBatchResult, we should be able to
     // check ackVersion instead, which will be an absl::optional type.
-    FSTAssert(batchResult.docVersions[docKey],
+    FSTAssert(batchResult.docVersions[static_cast<FSTDocumentKey *>(docKey)],
               @"docVersions should contain every doc in the write.");
-    SnapshotVersion ackVersion = batchResult.docVersions[docKey];
+    SnapshotVersion ackVersion = batchResult.docVersions[static_cast<FSTDocumentKey *>(docKey)];
     if (!doc || SnapshotVersion{doc.version} < ackVersion) {
       doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
@@ -534,7 +530,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self.remoteDocumentCache addEntry:doc];
       }
     }
-  }];
+  }
 }
 
 @end
