@@ -49,6 +49,7 @@ using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentVersionMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -513,15 +514,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)applyBatchResult:(FSTMutationBatchResult *)batchResult {
   FSTMutationBatch *batch = batchResult.batch;
   DocumentKeySet docKeys = batch.keys;
+  const DocumentVersionMap &versions = batchResult.docVersions;
   for (const DocumentKey &docKey : docKeys) {
     FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:docKey];
     FSTMaybeDocument *_Nullable doc = remoteDoc;
-    // TODO(zxu): Once ported to use C++ version of FSTMutationBatchResult, we should be able to
-    // check ackVersion instead, which will be an absl::optional type.
-    FSTAssert(batchResult.docVersions[static_cast<FSTDocumentKey *>(docKey)],
+
+    auto ackVersionIter = versions.find(docKey);
+    FSTAssert(ackVersionIter != versions.end(),
               @"docVersions should contain every doc in the write.");
-    SnapshotVersion ackVersion = batchResult.docVersions[static_cast<FSTDocumentKey *>(docKey)];
-    if (!doc || SnapshotVersion{doc.version} < ackVersion) {
+    const SnapshotVersion &ackVersion = ackVersionIter->second;
+    if (!doc || doc.version < ackVersion) {
       doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
         FSTAssert(!remoteDoc, @"Mutation batch %@ applied to document %@ resulted in nil.", batch,

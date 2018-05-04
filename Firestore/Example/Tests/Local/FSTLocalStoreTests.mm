@@ -50,14 +50,6 @@ using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** Creates a document version dictionary mapping the document in @a mutation to @a version. */
-FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
-                                                   FSTTestSnapshotVersion version) {
-  FSTDocumentVersionDictionary *result = [FSTDocumentVersionDictionary documentVersionDictionary];
-  result = [result dictionaryBySettingObject:testutil::Version(version) forKey:mutation.key];
-  return result;
-}
-
 @interface FSTLocalStoreTests ()
 
 @property(nonatomic, strong, readwrite) id<FSTPersistence> localStorePersistence;
