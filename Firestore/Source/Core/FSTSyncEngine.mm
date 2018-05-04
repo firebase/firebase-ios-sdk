@@ -21,6 +21,7 @@
 #include <map>
 #include <set>
 #include <unordered_map>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -188,7 +189,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
   DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:remoteKeys];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   FSTAssert(viewChange.limboChanges.count == 0,
@@ -349,12 +350,13 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
     DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
-    FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
-                                                              targetChanges:targetChanges
-                                                            documentUpdates:{
-                                                              { limboKey, doc }
-                                                            }
-                                                             limboDocuments:limboDocuments];
+    FSTRemoteEvent *event =
+        [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
+                                          targetChanges:targetChanges
+                                        documentUpdates:{
+                                          { limboKey, doc }
+                                        }
+                                         limboDocuments:std::move(limboDocuments)];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];

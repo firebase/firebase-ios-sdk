@@ -136,8 +136,8 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTDocument *doc in removed) {
     removedDocuments = removedDocuments.insert(doc.key);
   }
-  return [[FSTUpdateMapping alloc] initWithAddedDocuments:addedDocuments
-                                         removedDocuments:removedDocuments];
+  return [[FSTUpdateMapping alloc] initWithAddedDocuments:std::move(addedDocuments)
+                                         removedDocuments:std::move(removedDocuments)];
 }
 
 - (instancetype)initWithAddedDocuments:(DocumentKeySet)addedDocuments

@@ -345,7 +345,9 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
   for (NSString *keyPath in removedKeys) {
     removed = removed.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
-  return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];
+  return [FSTLocalViewChanges changesForQuery:query
+                                    addedKeys:std::move(added)
+                                  removedKeys:std::move(removed)];
 }
 
 NS_ASSUME_NONNULL_END
