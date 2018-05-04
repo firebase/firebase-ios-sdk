@@ -21,12 +21,12 @@
 #import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTMutation;
 @class FIRTimestamp;
 @class FSTMutationResult;
 @class FSTMutationBatchResult;
-@class FSTSnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -106,12 +106,13 @@ extern const FSTBatchID kFSTBatchIDUnknown;
  * (as docVersions).
  */
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
-                  commitVersion:(FSTSnapshotVersion *)commitVersion
+                  commitVersion:(firebase::firestore::model::SnapshotVersion)commitVersion
                 mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                     streamToken:(nullable NSData *)streamToken;
 
+- (const firebase::firestore::model::SnapshotVersion &)commitVersion;
+
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
-@property(nonatomic, strong, readonly) FSTSnapshotVersion *commitVersion;
 @property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
 @property(nonatomic, strong, readonly) FSTDocumentVersionDictionary *docVersions;

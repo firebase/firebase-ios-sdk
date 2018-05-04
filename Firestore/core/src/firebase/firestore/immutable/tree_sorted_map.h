@@ -23,12 +23,12 @@
 #include <memory>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/immutable/keys_view.h"
 #include "Firestore/core/src/firebase/firestore/immutable/llrb_node.h"
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparator_holder.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/iterator_adaptors.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,7 +40,7 @@ namespace impl {
  * methods to efficiently create new maps that are mutations of it.
  */
 template <typename K, typename V, typename C = util::Comparator<K>>
-class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
+class TreeSortedMap : public SortedMapBase, public util::ComparatorHolder<C> {
  public:
   /**
    * The type of the entries stored in the map.
@@ -51,39 +51,26 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
    * The type of the node containing entries of value_type.
    */
   using node_type = LlrbNode<K, V>;
+  using const_iterator = typename node_type::const_iterator;
+  using const_key_iterator = util::iterator_first<const_iterator>;
 
   /**
    * Creates an empty TreeSortedMap.
    */
   explicit TreeSortedMap(const C& comparator = {})
-      : util::ComparatorHolder<C>{comparator}, root_{node_type::Empty()} {
+      : util::ComparatorHolder<C>{comparator} {
   }
 
   /**
-   * Creates a new map identical to this one, but with a key-value pair added or
-   * updated.
-   *
-   * @param key The key to insert/update.
-   * @param value The value to associate with the key.
-   * @return A new dictionary with the added/updated value.
+   * Creates a TreeSortedMap from a range of pairs to insert.
    */
-  TreeSortedMap insert(const K& key, const V& value) const {
-    // TODO(wilhuff): Actually implement insert
-    (void)key;
-    (void)value;
-    return *this;
-  }
-
-  /**
-   * Creates a new map identical to this one, but with a key removed from it.
-   *
-   * @param key The key to remove.
-   * @return A new map without that value.
-   */
-  TreeSortedMap erase(const K& key) const {
-    // TODO(wilhuff): Actually implement erase
-    (void)key;
-    return *this;
+  template <typename Range>
+  static TreeSortedMap Create(const Range& range, const C& comparator) {
+    node_type node;
+    for (auto&& element : range) {
+      node = node.insert(element.first, element.second, comparator);
+    }
+    return TreeSortedMap{std::move(node), comparator};
   }
 
   /** Returns true if the map contains no elements. */
@@ -98,6 +85,162 @@ class TreeSortedMap : public SortedMapBase, private util::ComparatorHolder<C> {
 
   const node_type& root() const {
     return root_;
+  }
+
+  /**
+   * Creates a new map identical to this one, but with a key-value pair added or
+   * updated.
+   *
+   * @param key The key to insert/update.
+   * @param value The value to associate with the key.
+   * @return A new dictionary with the added/updated value.
+   */
+  TreeSortedMap insert(const K& key, const V& value) const {
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.insert(key, value, comparator), comparator};
+  }
+
+  /**
+   * Creates a new map identical to this one, but with a key removed from it.
+   *
+   * @param key The key to remove.
+   * @return A new map without that value.
+   */
+  TreeSortedMap erase(const K& key) const {
+    const C& comparator = this->comparator();
+    return TreeSortedMap{root_.erase(key, comparator), comparator};
+  }
+
+  bool contains(const K& key) const {
+    // Inline the tree traversal here to avoid building up the stack required
+    // to construct a full iterator.
+    const C& comparator = this->comparator();
+    const node_type* node = &root();
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return true;
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+      } else {
+        node = &node->right();
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Finds a value in the map.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key, or end() if
+   *     not found.
+   */
+  const_iterator find(const K& key) const {
+    const_iterator found = lower_bound(key);
+    if (!found.is_end() && !this->comparator()(key, found->first)) {
+      return found;
+    } else {
+      return end();
+    }
+  }
+
+  /**
+   * Finds the index of the given key in the map.
+   *
+   * @param key The key to look up.
+   * @return The index of the entry containing the key, or npos if not found.
+   */
+  size_type find_index(const K& key) const {
+    const C& comparator = this->comparator();
+
+    size_type pruned_nodes = 0;
+    const node_type* node = &root_;
+    while (!node->empty()) {
+      util::ComparisonResult cmp = util::Compare(key, node->key(), comparator);
+      if (cmp == util::ComparisonResult::Same) {
+        return pruned_nodes + node->left().size();
+
+      } else if (cmp == util::ComparisonResult::Ascending) {
+        node = &node->left();
+
+      } else if (cmp == util::ComparisonResult::Descending) {
+        pruned_nodes += node->left().size() + 1;
+        node = &node->right();
+      }
+    }
+    return npos;
+  }
+
+  /**
+   * Finds the first entry in the map containing a key greater than or equal
+   * to the given key.
+   *
+   * @param key The key to look up.
+   * @return An iterator pointing to the entry containing the key or the next
+   *     largest key. Can return end() if all keys in the map are less than the
+   *     requested key.
+   */
+  const_iterator lower_bound(const K& key) const {
+    return const_iterator::LowerBound(&root_, key, this->comparator());
+  }
+
+  const_iterator min() const {
+    return begin();
+  }
+
+  const_iterator max() const {
+    if (empty()) {
+      return end();
+    }
+
+    const node_type& max_node = root_.max();
+    typename const_iterator::stack_type stack;
+    stack.push(&max_node);
+    return const_iterator{std::move(stack)};
+  }
+
+  /**
+   * Returns a forward iterator pointing to the first entry in the map. If there
+   * are no entries in the map, begin() == end().
+   *
+   * See LlrbNodeIterator for details
+   */
+  const_iterator begin() const {
+    return const_iterator::Begin(&root_);
+  }
+
+  /**
+   * Returns an iterator pointing past the last entry in the map.
+   */
+  const_iterator end() const {
+    return const_iterator::End();
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted.
+   */
+  const util::range<const_key_iterator> keys() const {
+    return KeysView(*this);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given key.
+   */
+  const util::range<const_key_iterator> keys_from(const K& key) const {
+    return KeysViewFrom(*this, key);
+  }
+
+  /**
+   * Returns a view of this SortedMap containing just the keys that have been
+   * inserted that are greater than or equal to the given start_key and less
+   * than the given end_key.
+   */
+  const util::range<const_key_iterator> keys_in(const K& start_key,
+                                                const K& end_key) const {
+    return impl::KeysViewIn(*this, start_key, end_key, this->comparator());
   }
 
  private:

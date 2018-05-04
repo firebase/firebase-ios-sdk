@@ -18,6 +18,8 @@
 
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMockDatastore : FSTDatastore
@@ -41,11 +43,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Injects an Added WatchChange that marks the given targetIDs current. */
 - (void)writeWatchCurrentWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs
-                       snapshotVersion:(FSTSnapshotVersion *)snapshotVersion
+                       snapshotVersion:
+                           (const firebase::firestore::model::SnapshotVersion &)snapshotVersion
                            resumeToken:(NSData *)resumeToken;
 
 /** Injects a WatchChange as though it had come from the backend. */
-- (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(FSTSnapshotVersion *)snap;
+- (void)writeWatchChange:(FSTWatchChange *)change
+         snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snap;
 
 /** Injects a stream failure as though it had come from the backend. */
 - (void)failWatchStreamWithError:(NSError *)error;
@@ -67,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)writesSent;
 
 /** Injects a write ack as though it had come from the backend in response to a write. */
-- (void)ackWriteWithVersion:(FSTSnapshotVersion *)commitVersion
+- (void)ackWriteWithVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion
             mutationResults:(NSArray<FSTMutationResult *> *)results;
 
 /** Injects a stream failure as though it had come from the backend. */

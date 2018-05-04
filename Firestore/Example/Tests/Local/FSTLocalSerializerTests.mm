@@ -29,7 +29,6 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Write.pbobjc.h"
 #import "Firestore/Protos/objc/google/type/Latlng.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -50,6 +49,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -162,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesQueryData {
   FSTQuery *query = FSTTestQuery("room");
   FSTTargetID targetID = 42;
-  FSTSnapshotVersion *version = FSTTestVersion(1039);
+  SnapshotVersion version = testutil::Version(1039);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1039);
 
   FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query

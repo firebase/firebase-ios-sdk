@@ -16,8 +16,6 @@
 
 #import "FIRPhoneAuthProvider.h"
 
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
-
 #import <FirebaseCore/FIRLogger.h>
 #import "FIRPhoneAuthCredential_Internal.h"
 #import <FirebaseCore/FIRApp.h>
@@ -31,6 +29,8 @@
 #import "FIRAuthNotificationManager.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
+#import "FIRAuthSettings.h"
+#import "FIRAuthWebUtils.h"
 #import "FirebaseAuthVersion.h"
 #import <FirebaseCore/FIROptions.h>
 #import "FIRGetProjectConfigRequest.h"
@@ -78,7 +78,7 @@ static NSString *const kAuthTypeVerifyApp = @"verifyApp";
 /** @var kReCAPTCHAURLStringFormat
     @brief The format of the URL used to open the reCAPTCHA page during app verification.
  */
-NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
+NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 
 @implementation FIRPhoneAuthProvider {
 
@@ -106,20 +106,6 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
         reverseObjectEnumerator].allObjects componentsJoinedByString:@"."];
   }
   return self;
-}
-
-- (void)verifyPhoneNumber:(NSString *)phoneNumber
-               completion:(nullable FIRVerificationResultCallback)completion {
-  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    [self internalVerifyPhoneNumber:phoneNumber completion:^(NSString *_Nullable verificationID,
-                                                             NSError *_Nullable error) {
-      if (completion) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-          completion(verificationID, error);
-        });
-      }
-    }];
-  });
 }
 
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
@@ -244,15 +230,22 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
     @return The reCAPTCHA token if successful.
  */
 - (NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **)error {
-  NSDictionary<NSString *, NSString *> *URLQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:URL.query];
-  NSURL *deepLinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
-  URLQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:deepLinkURL.query];
-  if (URLQueryItems[@"recaptchaToken"]) {
-    return URLQueryItems[@"recaptchaToken"];
+  NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+  NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+  NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
+  NSData *errorData;
+  if (deepLinkURL) {
+    actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
+    queryItems = [actualURLComponents queryItems];
+    NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
+    if (recaptchaToken) {
+      return recaptchaToken;
+    }
+    NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
+    errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
+  } else {
+    errorData = nil;
   }
-  NSData *errorData = [URLQueryItems[@"firebaseError"] dataUsingEncoding:NSUTF8StringEncoding];
   NSError *jsonError;
   NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
                                                             options:0
@@ -298,13 +291,19 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
   if (!([[expectedURLComponents URL] isEqual:[actualURLComponents URL]])) {
     return NO;
   }
-  NSDictionary<NSString *, NSString *> *URLQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:URL.query];
-  NSURL *deeplinkURL = [NSURL URLWithString:URLQueryItems[@"deep_link_id"]];
-  NSDictionary<NSString *, NSString *> *deeplinkQueryItems =
-      [NSDictionary gtm_dictionaryWithHttpArgumentsString:deeplinkURL.query];
-  if ([deeplinkQueryItems[@"authType"] isEqualToString:kAuthTypeVerifyApp] &&
-      [deeplinkQueryItems[@"eventId"] isEqualToString:eventID]) {
+  actualURLComponents = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+  NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+  NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
+  if (deepLinkURL == nil) {
+    return NO;
+  }
+  NSURLComponents *deepLinkURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
+  NSArray<NSURLQueryItem *> *deepLinkQueryItems = [deepLinkURLComponents queryItems];
+
+  NSString *deepLinkAuthType = [FIRAuthWebUtils queryItemValue:@"authType" from:deepLinkQueryItems];
+  NSString *deepLinkEventID = [FIRAuthWebUtils queryItemValue:@"eventId" from:deepLinkQueryItems];
+  if ([deepLinkAuthType isEqualToString:kAuthTypeVerifyApp] &&
+      [deepLinkEventID isEqualToString:eventID]) {
     return YES;
   }
   return NO;
@@ -352,6 +351,20 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
 - (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
                              retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
                                                 callback:(FIRVerificationResultCallback)callback {
+  if (_auth.settings.isAppVerificationDisabledForTesting) {
+    FIRSendVerificationCodeRequest *request =
+        [[FIRSendVerificationCodeRequest alloc] initWithPhoneNumber:phoneNumber
+                                                     appCredential:nil
+                                                    reCAPTCHAToken:nil
+                                              requestConfiguration:
+                                                  _auth.requestConfiguration];
+    [FIRAuthBackend sendVerificationCode:request
+                                callback:^(FIRSendVerificationCodeResponse *_Nullable response,
+                                           NSError *_Nullable error) {
+      callback(response.verificationID, error);
+    }];
+    return;
+  }
   [self verifyClientWithCompletion:^(FIRAuthAppCredential *_Nullable appCredential,
                                      NSError *_Nullable error) {
     if (error) {
@@ -444,26 +457,28 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?%@";
       return;
     }
     NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
-    NSString *clienID = self->_auth.app.options.clientID;
+    NSString *clientID = self->_auth.app.options.clientID;
     NSString *apiKey = self->_auth.requestConfiguration.APIKey;
-    NSMutableDictionary *urlArguments = [[NSMutableDictionary alloc] initWithDictionary: @{
-      @"apiKey" : apiKey,
-      @"authType" : kAuthTypeVerifyApp,
-      @"ibi" : bundleID ?: @"",
-      @"clientId" : clienID,
-      @"v" : [FIRAuthBackend authUserAgent],
-      @"eventId" : eventID,
-    }];
+    NSMutableArray<NSURLQueryItem *> *queryItems = [@[
+      [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
+      [NSURLQueryItem queryItemWithName:@"authType" value:kAuthTypeVerifyApp],
+      [NSURLQueryItem queryItemWithName:@"ibi" value:bundleID ?: @""],
+      [NSURLQueryItem queryItemWithName:@"clientId" value:clientID],
+      [NSURLQueryItem queryItemWithName:@"v" value:[FIRAuthBackend authUserAgent]],
+      [NSURLQueryItem queryItemWithName:@"eventId" value:eventID]
+      ] mutableCopy
+    ];
+
     if (self->_auth.requestConfiguration.languageCode) {
-      urlArguments[@"hl"] = self->_auth.requestConfiguration.languageCode;
+      [queryItems addObject:[NSURLQueryItem queryItemWithName:@"hl"value:
+                             self->_auth.requestConfiguration.languageCode]];
     }
-    NSString *argumentsString = [urlArguments gtm_httpArgumentsString];
-    NSString *URLString =
-        [NSString stringWithFormat:kReCAPTCHAURLStringFormat, authDomain, argumentsString];
-    completion([NSURL URLWithString:URLString], nil);
+    NSURLComponents *components = [[NSURLComponents alloc] initWithString:
+      [NSString stringWithFormat:kReCAPTCHAURLStringFormat, authDomain]];
+    [components setQueryItems:queryItems];
+    completion([components URL], nil);
   }];
 }
-
 
 /** @fn fetchAuthDomainWithCompletion:completion:
     @brief Fetches the auth domain associated with the Firebase Project.

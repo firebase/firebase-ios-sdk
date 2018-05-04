@@ -64,5 +64,4 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
-  s.dependency 'GoogleToolboxForMac/NSDictionary+URLArguments', '~> 2.1'
 end

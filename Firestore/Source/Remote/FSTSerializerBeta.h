@@ -16,8 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTFieldValue;
 @class FSTMaybeDocument;
@@ -27,8 +29,6 @@
 @class FSTObjectValue;
 @class FSTQuery;
 @class FSTQueryData;
-@class FSTSnapshotVersion;
-@class FIRTimestamp;
 @class FSTWatchChange;
 
 @class GCFSBatchGetDocumentsResponse;
@@ -61,11 +61,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDatabaseID:(const firebase::firestore::model::DatabaseId *)databaseID
     NS_DESIGNATED_INITIALIZER;
 
-- (GPBTimestamp *)encodedTimestamp:(FIRTimestamp *)timestamp;
-- (FIRTimestamp *)decodedTimestamp:(GPBTimestamp *)timestamp;
+- (GPBTimestamp *)encodedTimestamp:(const firebase::Timestamp &)timestamp;
+- (firebase::Timestamp)decodedTimestamp:(GPBTimestamp *)timestamp;
 
-- (GPBTimestamp *)encodedVersion:(FSTSnapshotVersion *)version;
-- (FSTSnapshotVersion *)decodedVersion:(GPBTimestamp *)version;
+- (GPBTimestamp *)encodedVersion:(const firebase::firestore::model::SnapshotVersion &)version;
+- (firebase::firestore::model::SnapshotVersion)decodedVersion:(GPBTimestamp *)version;
 
 /** Returns the database ID, such as `projects/{project id}/databases/{database_id}`. */
 - (NSString *)encodedDatabaseID;
@@ -93,7 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTQuery *)decodedQueryFromQueryTarget:(GCFSTarget_QueryTarget *)target;
 
 - (FSTWatchChange *)decodedWatchChange:(GCFSListenResponse *)watchChange;
-- (FSTSnapshotVersion *)versionFromListenResponse:(GCFSListenResponse *)watchChange;
+- (firebase::firestore::model::SnapshotVersion)versionFromListenResponse:
+    (GCFSListenResponse *)watchChange;
 
 - (GCFSDocument *)encodedDocumentWithFields:(FSTObjectValue *)objectValue
                                         key:(const firebase::firestore::model::DocumentKey &)key;

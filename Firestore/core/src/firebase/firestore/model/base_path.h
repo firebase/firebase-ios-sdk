@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
@@ -162,13 +163,8 @@ class BasePath {
 #if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
-  NSUInteger Hash() const {
-    std::hash<std::string> hash_fn;
-    NSUInteger hash_result = 0;
-    for (const std::string& segment : segments_) {
-      hash_result = hash_result * 31u + hash_fn(segment);
-    }
-    return hash_result;
+  size_t Hash() const {
+    return util::Hash(segments_);
   }
 #endif  // defined(__OBJC__)
 

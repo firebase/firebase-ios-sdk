@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
 
 @class FIRCollectionReference;
@@ -91,6 +92,23 @@ NS_SWIFT_NAME(DocumentReference)
 - (void)setData:(NSDictionary<NSString *, id> *)documentData merge:(BOOL)merge;
 
 /**
+ * Writes to the document referred to by `document` and only replace the fields
+ * specified under `mergeFields`. Any field that is not specified in `mergeFields`
+ * is ignored and remains untouched. If the document doesn't yet exist,
+ * this method creates it and then sets the data.
+ *
+ * It is an error to include a field in `mergeFields` that does not have a corresponding
+ * value in the `data` dictionary.
+ *
+ * @param documentData An `NSDictionary` containing the fields that make up the document
+ * to be written.
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ *     specifying which fields to merge. Fields can contain dots to reference nested fields within
+ *     the document.
+ */
+- (void)setData:(NSDictionary<NSString *, id> *)documentData mergeFields:(NSArray<id> *)mergeFields;
+
+/**
  * Overwrites the document referred to by this `FIRDocumentReference`. If no document exists, it
  * is created. If a document already exists, it is overwritten.
  *
@@ -117,6 +135,28 @@ NS_SWIFT_NAME(DocumentReference)
  */
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
+     completion:(nullable void (^)(NSError *_Nullable error))completion;
+
+/**
+ * Writes to the document referred to by `document` and only replace the fields
+ * specified under `mergeFields`. Any field that is not specified in `mergeFields`
+ * is ignored and remains untouched. If the document doesn't yet exist,
+ * this method creates it and then sets the data.
+ *
+ * It is an error to include a field in `mergeFields` that does not have a corresponding
+ * value in the `data` dictionary.
+ *
+ * @param documentData An `NSDictionary` containing the fields that make up the document
+ * to be written.
+ * @param mergeFields An `NSArray` that contains a list of `NSString` or `FIRFieldPath` elements
+ *     specifying which fields to merge. Fields can contain dots to reference nested fields within
+ *     the document.
+ * @param completion A block to execute once the document has been successfully written to the
+ *     server. This block will not be called while the client is offline, though local
+ *     changes will be visible immediately.
+ */
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /**
@@ -166,10 +206,28 @@ NS_SWIFT_NAME(DocumentReference)
 /**
  * Reads the document referenced by this `FIRDocumentReference`.
  *
+ * This method attempts to provide up-to-date data when possible by waiting for
+ * data from the server, but it may return cached data or fail if you are
+ * offline and the server cannot be reached. See the
+ * `getDocument(source:completion:)` method to change this behavior.
+ *
  * @param completion a block to execute once the document has been successfully read.
  */
 - (void)getDocumentWithCompletion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(completion:));
+
+/**
+ * Reads the document referenced by this `FIRDocumentReference`.
+ *
+ * @param source indicates whether the results should be fetched from the cache
+ *     only (`Source.cache`), the server only (`Source.server`), or to attempt
+ *     the server and fall back to the cache (`Source.default`).
+ * @param completion a block to execute once the document has been successfully read.
+ */
+// clang-format off
+- (void)getDocumentWithSource:(FIRFirestoreSource)source completion:(FIRDocumentSnapshotBlock)completion
+    NS_SWIFT_NAME(getDocument(source:completion:));
+// clang-format on
 
 /**
  * Attaches a listener for DocumentSnapshot events.

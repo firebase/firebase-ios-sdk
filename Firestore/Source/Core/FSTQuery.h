@@ -34,6 +34,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
   FSTRelationFilterOperatorEqual,
   FSTRelationFilterOperatorGreaterThanOrEqual,
   FSTRelationFilterOperatorGreaterThan,
+  FSTRelationFilterOperatorArrayContains,
 };
 
 /** Interface used for all query filters. */

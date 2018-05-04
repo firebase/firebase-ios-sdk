@@ -35,6 +35,7 @@ class ComparatorHolder {
       : comparator_(comparator) {
   }
 
+ public:
   const C& comparator() const noexcept {
     return comparator_;
   }
@@ -50,6 +51,7 @@ class ComparatorHolder<C, true> : private C {
   explicit ComparatorHolder(const C& /* comparator */) noexcept {
   }
 
+ public:
   const C& comparator() const noexcept {
     return *this;
   }

@@ -451,53 +451,6 @@
     XCTAssertEqualObjects([engine serverCacheAtPath:PATH(@"foo/fails")], [FEmptyNode emptyNode]);
 }
 
-- (void)testExtremeDoublesAsTrackedQuery {
-#ifdef TARGET_OS_IOS
-    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
-        // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
-        return;
-    }
-#endif
-
-    FLevelDBStorageEngine *engine = [self cleanStorageEngine];
-    id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
-
-    FQueryParams *params = [[[FQueryParams defaultInstance] startAt:tinyDouble] endAt:tinyDouble];
-    FTrackedQuery *doesNotWork = [[FTrackedQuery alloc] initWithId:0
-                                                             query:[[FQuerySpec alloc] initWithPath:PATH(@"foo") params:params]
-                                                           lastUse:0
-                                                          isActive:NO];
-    FTrackedQuery *doesWork = [[FTrackedQuery alloc] initWithId:1
-                                                          query:[FQuerySpec defaultQueryAtPath:PATH(@"bar")]
-                                                        lastUse:0
-                                                       isActive:NO];
-    [engine saveTrackedQuery:doesNotWork];
-    [engine saveTrackedQuery:doesWork];
-    // One will be dropped, the other should still be there
-    XCTAssertEqualObjects([engine loadTrackedQueries], @[doesWork]);
-}
-
-- (void)testExtremeDoublesAsUserWrites {
-#ifdef TARGET_OS_IOS
-    if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion == 11) {
-        // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
-        return;
-    }
-#endif
-    FLevelDBStorageEngine *engine = [self cleanStorageEngine];
-    id<FNode> tinyDouble = NODE(@(2.225073858507201e-308));
-
-    [engine saveUserOverwrite:tinyDouble atPath:PATH(@"foo") writeId:1];
-    [engine saveUserMerge:[[FCompoundWrite emptyWrite] addWrite:tinyDouble atPath:PATH(@"bar")] atPath:PATH(@"foo") writeId:2];
-    [engine saveUserOverwrite:NODE(@"should-work") atPath:PATH(@"other") writeId:3];
-
-    // The other two should be dropped and only the valid should remain
-    XCTAssertEqualObjects([engine userWrites], @[[[FWriteRecord alloc] initWithPath:PATH(@"other")
-                                                                   overwrite:NODE(@"should-work")
-                                                                     writeId:3
-                                                                     visible:YES]]);
-}
-
 - (void)testLongValuesDontLosePrecision {
     id longValue = @1542405709418655810;
     id floatValue = @2.47;

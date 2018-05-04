@@ -44,6 +44,9 @@ class SnapshotVersion {
   static const SnapshotVersion& None();
 
 #if defined(__OBJC__)
+  SnapshotVersion() {
+  }
+
   SnapshotVersion(FSTSnapshotVersion* version)  // NOLINT(runtime/explicit)
       : timestamp_{version.timestamp.seconds, version.timestamp.nanoseconds} {
   }

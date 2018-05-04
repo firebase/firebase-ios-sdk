@@ -19,6 +19,7 @@
 #include <climits>
 #include <vector>
 
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -490,6 +491,93 @@ TEST(FieldValue, CompareWithOperator) {
 
   EXPECT_TRUE(small == small);
   EXPECT_FALSE(small == large);
+}
+
+TEST(FieldValue, Set) {
+  // Set a field in an object.
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+            })},
+  });
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(expected,
+            value.Set(testutil::Field("b.bb"), FieldValue::StringValue("BB")));
+}
+
+TEST(FieldValue, SetRecursive) {
+  // Set a field in a new object.
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+  });
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(expected,
+            value.Set(testutil::Field("b.bb"), FieldValue::StringValue("BB")));
+}
+
+TEST(FieldValue, Delete) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  const FieldValue expected = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+            })},
+  });
+  EXPECT_EQ(expected, value.Delete(testutil::Field("b.bb")));
+}
+
+TEST(FieldValue, DeleteNothing) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(value, value.Delete(testutil::Field("aa")));
+}
+
+TEST(FieldValue, Get) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(FieldValue::StringValue("A"), value.Get(testutil::Field("a")));
+  EXPECT_EQ(FieldValue::StringValue("BA"), value.Get(testutil::Field("b.ba")));
+  EXPECT_EQ(FieldValue::StringValue("BB"), value.Get(testutil::Field("b.bb")));
+}
+
+TEST(FieldValue, GetNothing) {
+  const FieldValue value = FieldValue::ObjectValueFromMap({
+      {"a", FieldValue::StringValue("A")},
+      {"b", FieldValue::ObjectValueFromMap({
+                {"ba", FieldValue::StringValue("BA")},
+                {"bb", FieldValue::StringValue("BB")},
+            })},
+  });
+  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("aa")));
+  EXPECT_EQ(absl::nullopt, value.Get(testutil::Field("a.a")));
 }
 
 }  //  namespace model

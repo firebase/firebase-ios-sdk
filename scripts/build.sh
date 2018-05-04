@@ -36,6 +36,13 @@ platform can be one of:
 method can be one of:
   xcodebuild (default)
   cmake
+
+Optionally, reads the environment variable SANITIZERS. If set, it is expected to
+be a string containing a space-separated list with some of the following
+elements:
+  asan
+  tsan
+  ubsan
 EOF
   exit 1
 fi
@@ -53,6 +60,9 @@ if [[ $# -gt 2 ]]; then
 fi
 
 echo "Building $product for $platform using $method"
+if [[ -n "${SANITIZERS:-}" ]]; then
+  echo "Using sanitizers: $SANITIZERS"
+fi
 
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
@@ -103,6 +113,51 @@ xcb_flags+=(
   CODE_SIGNING_REQUIRED=NO
 )
 
+# TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
+# Travis.
+cmake_options=(
+  -Wdeprecated
+  --warn-uninitialized
+)
+
+if [[ -n "${SANITIZERS:-}" ]]; then
+  for sanitizer in $SANITIZERS; do
+    case "$sanitizer" in
+      asan)
+        xcb_flags+=(
+          -enableAddressSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_ASAN=ON
+        )
+        ;;
+
+      tsan)
+        xcb_flags+=(
+          -enableThreadSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_TSAN=ON
+        )
+        ;;
+
+      ubsan)
+        xcb_flags+=(
+          -enableUndefinedBehaviorSanitizer YES
+        )
+        cmake_options+=(
+          -DWITH_UBSAN=ON
+        )
+        ;;
+
+      *)
+        echo "Unknown sanitizer '$sanitizer'" 1>&2
+        exit 1
+        ;;
+    esac
+  done
+fi
+
 case "$product-$method-$platform" in
   Firebase-xcodebuild-*)
     RunXcodebuild \
@@ -152,7 +207,7 @@ case "$product-$method-$platform" in
   Firestore-xcodebuild-iOS)
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme 'Firestore_Tests' \
+        -scheme "Firestore_Tests_$platform" \
         "${xcb_flags[@]}" \
         build \
         test
@@ -167,11 +222,11 @@ case "$product-$method-$platform" in
   Firestore-cmake-macOS)
     test -d build || mkdir build
     echo "Preparing cmake build ..."
-    (cd build; cmake ..)
+    (cd build; cmake "${cmake_options[@]}" ..)
 
     echo "Building cmake build ..."
     cpus=$(sysctl -n hw.ncpu)
-    (cd build; make -j $cpus all)
+    (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus all)
     ;;
 
   *)

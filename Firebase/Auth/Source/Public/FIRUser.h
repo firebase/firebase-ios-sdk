@@ -221,13 +221,18 @@ NS_SWIFT_NAME(User)
 - (void)reloadWithCompletion:(nullable FIRUserProfileChangeCallback)completion;
 
 /** @fn reauthenticateWithCredential:completion:
-    @brief Convenience method for `reauthenticateAndRetrieveDataWithCredential:completion:` This
-        method doesn't return additional identity provider data.
+    @brief Please use reauthenticateAndRetrieveDataWithCredential:completion: for Objective-C or
+        reauthenticateAndRetrieveData(WithCredential:completion:) for Swift instead.
  */
 - (void)reauthenticateWithCredential:(FIRAuthCredential *)credential
-                          completion:(nullable FIRUserProfileChangeCallback)completion;
+                          completion:(nullable FIRUserProfileChangeCallback)completion
+                              DEPRECATED_MSG_ATTRIBUTE( "Please use"
+                                      " reauthenticateAndRetrieveDataWithCredential:completion: for"
+                                      " Objective-C or"
+                                      " reauthenticateAndRetrieveData(WithCredential:completion:)"
+                                      " for Swift instead.");
 
-/** @fn reauthenticateWithCredential:completion:
+/** @fn reauthenticateAndRetrieveDataWithCredential:completion:
     @brief Renews the user's authentication tokens by validating a fresh set of credentials supplied
         by the user  and returns additional identity provider data.
 
@@ -305,17 +310,6 @@ NS_SWIFT_NAME(User)
 - (void)getIDTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
     NS_SWIFT_NAME(getIDToken(completion:));
 
-/** @fn getTokenWithCompletion:
-    @brief Please use `getIDTokenWithCompletion:` instead.
-
-    @param completion Optionally; the block invoked when the token is available. Invoked
-        asynchronously on the main thread in the future.
-
-    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
- */
-- (void)getTokenWithCompletion:(nullable FIRAuthTokenCallback)completion
-    NS_SWIFT_NAME(getToken(completion:)) __attribute__((deprecated));
-
 /** @fn getIDTokenForcingRefresh:completion:
     @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
@@ -332,29 +326,16 @@ NS_SWIFT_NAME(User)
 - (void)getIDTokenForcingRefresh:(BOOL)forceRefresh
                       completion:(nullable FIRAuthTokenCallback)completion;
 
-/** @fn getTokenForcingRefresh:completion:
-    @brief Please use getIDTokenForcingRefresh:completion instead.
-
-    @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-        other than an expiration.
-    @param completion Optionally; the block invoked when the token is available. Invoked
-        asynchronously on the main thread in the future.
-
-    @remarks The authentication token will be refreshed (by making a network request) if it has
-        expired, or if `forceRefresh` is YES.
-
-    @remarks See `FIRAuthErrors` for a list of error codes that are common to all API methods.
- */
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh
-                    completion:(nullable FIRAuthTokenCallback)completion
-                        __attribute__((deprecated));
-
 /** @fn linkWithCredential:completion:
-    @brief Convenience method for `linkAndRetrieveDataWithCredential:completion:` This method
-        doesn't return additional identity provider data.
+    @brief Please use linkAndRetrieveDataWithCredential:completion: for Objective-C or
+        linkAndRetrieveData(WithCredential:completion:) for Swift instead.
  */
 - (void)linkWithCredential:(FIRAuthCredential *)credential
-                completion:(nullable FIRAuthResultCallback)completion;
+                completion:(nullable FIRAuthResultCallback)completion DEPRECATED_MSG_ATTRIBUTE(
+                                      "Please use linkAndRetrieveDataWithCredential:completion: for"
+                                      " Objective-C or"
+                                      " linkAndRetrieveData(WithCredential:completion:) for"
+                                      " Swift instead.");
 
 /** @fn linkAndRetrieveDataWithCredential:completion:
     @brief Associates a user account from a third-party identity provider with this user and

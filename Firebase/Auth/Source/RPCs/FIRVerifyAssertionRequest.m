@@ -16,9 +16,6 @@
 
 #import "FIRVerifyAssertionRequest.h"
 
-#import <GoogleToolboxForMac/GTMNSData+zlib.h>
-#import <GoogleToolboxForMac/GTMNSDictionary+URLArguments.h>
-
 /** @var kVerifyAssertionEndpoint
     @brief The "verifyAssertion" endpoint.
  */
@@ -95,16 +92,19 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
-  NSMutableDictionary *postBody = [@{
-    kProviderIDKey : _providerID,
-  } mutableCopy];
+  NSURLComponents *components = [[NSURLComponents alloc] init];
+  NSMutableArray<NSURLQueryItem *> *queryItems = [@[[NSURLQueryItem queryItemWithName:kProviderIDKey
+                                                                                value:_providerID]]
+                                                  mutableCopy];
 
   if (_providerIDToken) {
-    postBody[kProviderIDTokenKey] = _providerIDToken;
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderIDTokenKey
+                                                      value:_providerIDToken]];
   }
 
   if (_providerAccessToken) {
-    postBody[kProviderAccessTokenKey] = _providerAccessToken;
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
+                                                      value:_providerAccessToken]];
   }
 
   if (!_providerIDToken && !_providerAccessToken) {
@@ -113,17 +113,19 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   }
 
   if (_providerOAuthTokenSecret) {
-    postBody[kProviderOAuthTokenSecretKey] = _providerOAuthTokenSecret;
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
+                                                      value:_providerOAuthTokenSecret]];
   }
 
   if (_inputEmail) {
-    postBody[kIdentifierKey] = _inputEmail;
+    [queryItems addObject:[NSURLQueryItem queryItemWithName:kIdentifierKey
+                                                      value:_inputEmail]];
   }
-
+  [components setQueryItems:queryItems];
   NSMutableDictionary *body = [@{
-    kRequestURIKey : @"http://localhost", // Unused by server, but required
-    kPostBodyKey : [postBody gtm_httpArgumentsString]
-  } mutableCopy];
+      kRequestURIKey : @"http://localhost", // Unused by server, but required
+      kPostBodyKey : [components query]
+      } mutableCopy];
 
   if (_pendingIDToken) {
     body[kPendingIDTokenKey] = _pendingIDToken;

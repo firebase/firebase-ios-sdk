@@ -42,6 +42,16 @@ extern FIRLoggerService kFIRLoggerRemoteConfig;
 extern FIRLoggerService kFIRLoggerStorage;
 extern FIRLoggerService kFIRLoggerSwizzler;
 
+/**
+ * The key used to store the logger's error count.
+ */
+extern NSString *const kFIRLoggerErrorCountKey;
+
+/**
+ * The key used to store the logger's warning count.
+ */
+extern NSString *const kFIRLoggerWarningCountKey;
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus

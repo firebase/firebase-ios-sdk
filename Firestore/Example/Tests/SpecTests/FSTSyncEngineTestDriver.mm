@@ -24,7 +24,6 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
@@ -49,6 +48,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -243,7 +243,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (FSTOutstandingWrite *)receiveWriteAckWithVersion:(FSTSnapshotVersion *)commitVersion
+- (FSTOutstandingWrite *)receiveWriteAckWithVersion:(const SnapshotVersion &)commitVersion
                                     mutationResults:
                                         (NSArray<FSTMutationResult *> *)mutationResults {
   FSTOutstandingWrite *write = [self currentOutstandingWrites].firstObject;
@@ -333,7 +333,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)receiveWatchChange:(FSTWatchChange *)change
-           snapshotVersion:(FSTSnapshotVersion *_Nullable)snapshot {
+           snapshotVersion:(const SnapshotVersion &)snapshot {
   [self.dispatchQueue dispatchSync:^{
     [self.datastore writeWatchChange:change snapshotVersion:snapshot];
   }];

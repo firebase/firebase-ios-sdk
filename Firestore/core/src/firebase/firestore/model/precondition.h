@@ -21,7 +21,6 @@
 
 #if defined(__OBJC__)
 #import "FIRTimestamp.h"
-#import "Firestore/Source/Core/FSTSnapshotVersion.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)

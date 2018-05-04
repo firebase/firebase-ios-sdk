@@ -22,6 +22,7 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
+#import "FIRFirestoreSource.h"
 #import "FIRSnapshotMetadata.h"
 #import "Firestore/Source/API/FIRCollectionReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -124,6 +125,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields {
+  return [self setData:documentData mergeFields:mergeFields completion:nil];
+}
+
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
      completion:(nullable void (^)(NSError *_Nullable error))completion {
   return [self setData:documentData merge:NO completion:completion];
 }
@@ -131,8 +137,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed = merge ? [self.firestore.dataConverter parsedMergeData:documentData]
-                                   : [self.firestore.dataConverter parsedSetData:documentData];
+  FSTParsedSetData *parsed =
+      merge ? [self.firestore.dataConverter parsedMergeData:documentData fieldMask:nil]
+            : [self.firestore.dataConverter parsedSetData:documentData];
+  return [self.firestore.client
+      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
+          completion:completion];
+}
+
+- (void)setData:(NSDictionary<NSString *, id> *)documentData
+    mergeFields:(NSArray<id> *)mergeFields
+     completion:(nullable void (^)(NSError *_Nullable error))completion {
+  FSTParsedSetData *parsed =
+      [self.firestore.dataConverter parsedMergeData:documentData fieldMask:mergeFields];
   return [self.firestore.client
       writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
           completion:completion];
@@ -162,6 +179,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)getDocumentWithCompletion:(void (^)(FIRDocumentSnapshot *_Nullable document,
                                             NSError *_Nullable error))completion {
+  return [self getDocumentWithSource:FIRFirestoreSourceDefault completion:completion];
+}
+
+- (void)getDocumentWithSource:(FIRFirestoreSource)source
+                   completion:(void (^)(FIRDocumentSnapshot *_Nullable document,
+                                        NSError *_Nullable error))completion {
+  if (source == FIRFirestoreSourceCache) {
+    [self.firestore.client getDocumentFromLocalCache:self completion:completion];
+    return;
+  }
+
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
                                                              includeDocumentMetadataChanges:YES
                                                                       waitForSyncWhenOnline:YES];
@@ -188,13 +216,24 @@ NS_ASSUME_NONNULL_BEGIN
       //    offline.
       // 2) Actually call the completion handler with an error if the document doesn't exist when
       //    you are offline.
-      // TODO(dimond): Use proper error domain
       completion(nil,
                  [NSError errorWithDomain:FIRFirestoreErrorDomain
                                      code:FIRFirestoreErrorCodeUnavailable
                                  userInfo:@{
                                    NSLocalizedDescriptionKey :
                                        @"Failed to get document because the client is offline.",
+                                 }]);
+    } else if (snapshot.exists && snapshot.metadata.fromCache &&
+               source == FIRFirestoreSourceServer) {
+      completion(nil,
+                 [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                     code:FIRFirestoreErrorCodeUnavailable
+                                 userInfo:@{
+                                   NSLocalizedDescriptionKey :
+                                       @"Failed to get document from server. (However, this "
+                                       @"document does exist in the local cache. Run again "
+                                       @"without setting source to FIRFirestoreSourceServer to "
+                                       @"retrieve the cached document.)"
                                  }]);
     } else {
       completion(snapshot, nil);
