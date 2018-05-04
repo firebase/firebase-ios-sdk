@@ -1,6 +1,6 @@
-#delete source lines before master merge
-source 'sso://cpdc-internal/spec'
-source 'https://github.com/CocoaPods/Specs.git'
+# Uncomment the next two lines for pre-release testing
+#source 'sso://cpdc-internal/spec'
+#source 'https://github.com/CocoaPods/Specs.git'
 
 # The next line is the forcing function for the Firebase pod. The Firebase
 # version's subspecs should depend on the component versions in their
