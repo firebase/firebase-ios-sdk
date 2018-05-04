@@ -34,20 +34,20 @@
 
 #include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
+using firebase::firestore::testutil::Key;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 using google::protobuf::util::MessageDifferencer;
@@ -65,13 +65,13 @@ TEST(Serializer, CanLinkToNanopb) {
   pb_ostream_from_buffer(nullptr, 0);
 }
 
-const DatabaseId kDatbaseId{"p", "d"};
-
 // Fixture for running serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
-  SerializerTest() : serializer(kDatbaseId) {
+  SerializerTest() : serializer(kDatabaseId) {
   }
+
+  const DatabaseId kDatabaseId{"p", "d"};
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
@@ -431,21 +431,18 @@ TEST_F(SerializerTest, IncompleteTag) {
 }
 
 TEST_F(SerializerTest, EncodesKey) {
-  EXPECT_EQ("projects/p/databases/d/documents",
-            serializer.EncodeKey(DocumentKey()));
-  EXPECT_EQ(
-      "projects/p/databases/d/documents/one/two/three/four",
-      serializer.EncodeKey(DocumentKey::FromPathString("one/two/three/four")));
+  EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
+  EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
+            serializer.EncodeKey(Key("one/two/three/four")));
 }
 
 TEST_F(SerializerTest, DecodesKey) {
-  EXPECT_EQ(DocumentKey(),
-            serializer.DecodeKey("projects/p/databases/d/documents"));
-  EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
+  EXPECT_EQ(Key(""), serializer.DecodeKey("projects/p/databases/d/documents"));
+  EXPECT_EQ(Key("one/two/three/four"),
             serializer.DecodeKey(
                 "projects/p/databases/d/documents/one/two/three/four"));
   // Same, but with a leading slash
-  EXPECT_EQ(DocumentKey::FromPathString("one/two/three/four"),
+  EXPECT_EQ(Key("one/two/three/four"),
             serializer.DecodeKey(
                 "/projects/p/databases/d/documents/one/two/three/four"));
 }
