@@ -28,6 +28,7 @@
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,10 +116,10 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 }
 
 // TODO(klimt): This could use NSMutableDictionary instead.
-- (FSTDocumentKeySet *)keys {
-  FSTDocumentKeySet *set = [FSTDocumentKeySet keySet];
+- (DocumentKeySet)keys {
+  DocumentKeySet set;
   for (FSTMutation *mutation in self.mutations) {
-    set = [set setByAddingObject:mutation.key];
+    set = set.insert(mutation.key);
   }
   return set;
 }

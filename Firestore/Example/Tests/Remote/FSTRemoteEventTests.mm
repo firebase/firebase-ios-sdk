@@ -33,6 +33,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -575,7 +576,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDeletedDocument *expected =
       [FSTDeletedDocument documentWithKey:synthesized version:event.snapshotVersion];
   XCTAssertEqualObjects(expected, event.documentUpdates.at(synthesized));
-  XCTAssertTrue([event.limboDocumentChanges containsObject:synthesized]);
+  XCTAssertTrue(event.limboDocumentChanges.contains(synthesized));
 }
 
 - (void)testDoesntSynthesizeDeletesForWrongState {
@@ -590,7 +591,7 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKey notSynthesized = DocumentKey::FromPathString("docs/no1");
   [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@2] key:notSynthesized];
   XCTAssertEqual(event.documentUpdates.find(notSynthesized), event.documentUpdates.end());
-  XCTAssertFalse([event.limboDocumentChanges containsObject:notSynthesized]);
+  XCTAssertFalse(event.limboDocumentChanges.contains(notSynthesized));
 }
 
 - (void)testDoesntSynthesizeDeletesForExistingDoc {
@@ -609,7 +610,7 @@ NS_ASSUME_NONNULL_BEGIN
   [event synthesizeDeleteForLimboTargetChange:event.targetChanges[@3] key:doc.key];
   FSTMaybeDocument *docData = event.documentUpdates.at(doc.key);
   XCTAssertFalse([docData isKindOfClass:[FSTDeletedDocument class]]);
-  XCTAssertFalse([event.limboDocumentChanges containsObject:doc.key]);
+  XCTAssertFalse(event.limboDocumentChanges.contains(doc.key));
 }
 
 - (void)testFilterUpdates {
@@ -631,24 +632,24 @@ NS_ASSUME_NONNULL_BEGIN
                       outstanding:_noPendingResponses
                           changes:@[ newDocChange, existingDocChange ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  FSTDocumentKeySet *existingKeys = [[FSTDocumentKeySet keySet] setByAddingObject:existingDoc.key];
+  DocumentKeySet existingKeys = DocumentKeySet{existingDoc.key};
 
   FSTTargetChange *updateChange = event.targetChanges[@1];
   XCTAssertTrue([updateChange.mapping isKindOfClass:[FSTUpdateMapping class]]);
   FSTUpdateMapping *update = (FSTUpdateMapping *)updateChange.mapping;
   FSTDocumentKey *existingDocKey = existingDoc.key;
   FSTDocumentKey *newDocKey = newDoc.key;
-  XCTAssertTrue([update.addedDocuments containsObject:existingDocKey]);
+  XCTAssertTrue(update.addedDocuments.contains(existingDocKey));
 
   [update filterUpdatesUsingExistingKeys:existingKeys];
   // Now it's been filtered, since it already existed.
-  XCTAssertFalse([update.addedDocuments containsObject:existingDocKey]);
-  XCTAssertTrue([update.addedDocuments containsObject:newDocKey]);
+  XCTAssertFalse(update.addedDocuments.contains(existingDocKey));
+  XCTAssertTrue(update.addedDocuments.contains(newDocKey));
 }
 
 - (void)testDoesntFilterResets {
   FSTDocument *existingDoc = FSTTestDoc("docs/existing", 1, @{@"some" : @"data"}, NO);
-  FSTDocumentKey *existingDocKey = existingDoc.key;
+  const DocumentKey &existingDocKey = existingDoc.key;
   FSTWatchTargetChange *resetTargetChange =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
                                   targetIDs:@[ @2 ]
@@ -663,16 +664,16 @@ NS_ASSUME_NONNULL_BEGIN
                       outstanding:_noPendingResponses
                           changes:@[ resetTargetChange, existingDocChange ]];
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  FSTDocumentKeySet *existingKeys = [[FSTDocumentKeySet keySet] setByAddingObject:existingDocKey];
+  DocumentKeySet existingKeys = DocumentKeySet{existingDocKey};
 
   FSTTargetChange *resetChange = event.targetChanges[@2];
   XCTAssertTrue([resetChange.mapping isKindOfClass:[FSTResetMapping class]]);
   FSTResetMapping *resetMapping = (FSTResetMapping *)resetChange.mapping;
-  XCTAssertTrue([resetMapping.documents containsObject:existingDocKey]);
+  XCTAssertTrue(resetMapping.documents.contains(existingDocKey));
 
   [resetMapping filterUpdatesUsingExistingKeys:existingKeys];
   // Document is still there, even though it already exists. Reset mappings don't get filtered.
-  XCTAssertTrue([resetMapping.documents containsObject:existingDocKey]);
+  XCTAssertTrue(resetMapping.documents.contains(existingDocKey));
 }
 
 - (void)testTracksLimboDocuments {
@@ -715,13 +716,13 @@ NS_ASSUME_NONNULL_BEGIN
   [aggregator addWatchChanges:@[ docChange1, docChange2, docChange3, targetsChange ]];
 
   FSTRemoteEvent *event = [aggregator remoteEvent];
-  FSTDocumentKeySet *limboDocChanges = event.limboDocumentChanges;
+  DocumentKeySet limboDocChanges = event.limboDocumentChanges;
   // Doc1 is in both limbo and non-limbo targets, therefore not tracked as limbo
-  XCTAssertFalse([limboDocChanges containsObject:doc1.key]);
+  XCTAssertFalse(limboDocChanges.contains(doc1.key));
   // Doc2 is only in the limbo target, so is tracked as a limbo document
-  XCTAssertTrue([limboDocChanges containsObject:doc2.key]);
+  XCTAssertTrue(limboDocChanges.contains(doc2.key));
   // Doc3 is only in the non-limbo target, therefore not tracked as limbo
-  XCTAssertFalse([limboDocChanges containsObject:doc3.key]);
+  XCTAssertFalse(limboDocChanges.contains(doc3.key));
 }
 
 @end

@@ -21,7 +21,6 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -180,9 +179,6 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 
 /** A convenience method for creating document keys for tests. */
 FSTDocumentKey *FSTTestDocKey(NSString *path);
-
-/** A convenience method for creating a document key set for tests. */
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys);
 
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
