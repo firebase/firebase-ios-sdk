@@ -21,7 +21,10 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "gtest/gtest.h"
+
+using firebase::firestore::testutil::Key;
 
 namespace firebase {
 namespace firestore {
@@ -112,16 +115,16 @@ TEST(DocumentKey, IsDocumentKey) {
 }
 
 TEST(DocumentKey, Comparison) {
-  const DocumentKey abcd({"a", "b", "c", "d"});
-  const DocumentKey abcd_too({"a", "b", "c", "d"});
-  const DocumentKey xyzw({"x", "y", "z", "w"});
+  DocumentKey abcd = Key("a/b/c/d");
+  DocumentKey abcd_too = Key("a/b/c/d");
+  DocumentKey xyzw = Key("x/y/z/w");
   EXPECT_EQ(abcd, abcd_too);
   EXPECT_NE(abcd, xyzw);
 
-  const DocumentKey empty;
-  const DocumentKey a({"a", "a"});
-  const DocumentKey b({"b", "b"});
-  const DocumentKey ab({"a", "a", "b", "b"});
+  DocumentKey empty;
+  DocumentKey a = Key("a/a");
+  DocumentKey b = Key("b/b");
+  DocumentKey ab = Key("a/a/b/b");
 
   EXPECT_FALSE(empty < empty);
   EXPECT_TRUE(empty <= empty);
@@ -149,8 +152,8 @@ TEST(DocumentKey, Comparison) {
 }
 
 TEST(DocumentKey, Comparator) {
-  const DocumentKey abcd({"a", "b", "c", "d"});
-  const DocumentKey xyzw({"x", "y", "z", "w"});
+  DocumentKey abcd = Key("a/b/c/d");
+  DocumentKey xyzw = Key("x/y/z/w");
   EXPECT_TRUE(util::Comparator<DocumentKey>{}(abcd, xyzw));
 }
 

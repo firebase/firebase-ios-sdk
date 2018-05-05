@@ -214,6 +214,12 @@ case "$product-$method-$platform" in
 
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_IntegrationTests_$platform" \
+        "${xcb_flags[@]}" \
+        build
+
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme 'SwiftBuildTest' \
         "${xcb_flags[@]}" \
         build

@@ -182,7 +182,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
       version = commitVersion;
     }
 
-    docVersions.emplace(mutations[i].key, version.value());
+    docVersions[mutations[i].key] = version.value();
   }
 
   return [[FSTMutationBatchResult alloc] initWithBatch:batch
