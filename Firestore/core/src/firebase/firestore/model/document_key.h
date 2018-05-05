@@ -59,14 +59,14 @@ class DocumentKey {
     return [FSTDocumentKey keyWithPath:path()];
   }
 
-  std::string ToString() const {
-    return path().CanonicalString();
-  }
-
   NSUInteger Hash() const {
     return util::Hash(ToString());
   }
 #endif
+
+  std::string ToString() const {
+    return path().CanonicalString();
+  }
 
   /**
    * Creates and returns a new document key using '/' to split the string into
@@ -118,6 +118,12 @@ inline bool operator>(const DocumentKey& lhs, const DocumentKey& rhs) {
 inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
   return lhs.path() >= rhs.path();
 }
+
+struct DocumentKeyHash {
+  size_t operator()(const DocumentKey& key) const {
+    return util::Hash(key.ToString());
+  }
+};
 
 }  // namespace model
 

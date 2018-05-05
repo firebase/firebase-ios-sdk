@@ -18,7 +18,6 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"

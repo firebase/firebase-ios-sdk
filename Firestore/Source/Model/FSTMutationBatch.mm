@@ -24,11 +24,11 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
-
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentVersionMap;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -133,30 +133,35 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
                 commitVersion:(SnapshotVersion)commitVersion
               mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                   streamToken:(nullable NSData *)streamToken
-                  docVersions:(FSTDocumentVersionDictionary *)docVersions NS_DESIGNATED_INITIALIZER;
+                  docVersions:(DocumentVersionMap)docVersions NS_DESIGNATED_INITIALIZER;
 @end
 
 @implementation FSTMutationBatchResult {
   SnapshotVersion _commitVersion;
+  DocumentVersionMap _docVersions;
 }
 
 - (instancetype)initWithBatch:(FSTMutationBatch *)batch
                 commitVersion:(SnapshotVersion)commitVersion
               mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                   streamToken:(nullable NSData *)streamToken
-                  docVersions:(FSTDocumentVersionDictionary *)docVersions {
+                  docVersions:(DocumentVersionMap)docVersions {
   if (self = [super init]) {
     _batch = batch;
     _commitVersion = std::move(commitVersion);
     _mutationResults = mutationResults;
     _streamToken = streamToken;
-    _docVersions = docVersions;
+    _docVersions = std::move(docVersions);
   }
   return self;
 }
 
 - (const SnapshotVersion &)commitVersion {
   return _commitVersion;
+}
+
+- (const DocumentVersionMap &)docVersions {
+  return _docVersions;
 }
 
 + (instancetype)resultWithBatch:(FSTMutationBatch *)batch
@@ -167,8 +172,7 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
             @"Mutations sent %lu must equal results received %lu",
             (unsigned long)batch.mutations.count, (unsigned long)mutationResults.count);
 
-  FSTDocumentVersionDictionary *docVersions =
-      [FSTDocumentVersionDictionary documentVersionDictionary];
+  DocumentVersionMap docVersions;
   NSArray<FSTMutation *> *mutations = batch.mutations;
   for (NSUInteger i = 0; i < mutations.count; i++) {
     absl::optional<SnapshotVersion> version = mutationResults[i].version;
@@ -178,14 +182,14 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
       version = commitVersion;
     }
 
-    docVersions = [docVersions dictionaryBySettingObject:version.value() forKey:mutations[i].key];
+    docVersions[mutations[i].key] = version.value();
   }
 
   return [[FSTMutationBatchResult alloc] initWithBatch:batch
                                          commitVersion:std::move(commitVersion)
                                        mutationResults:mutationResults
                                            streamToken:streamToken
-                                           docVersions:docVersions];
+                                           docVersions:std::move(docVersions)];
 }
 
 @end
