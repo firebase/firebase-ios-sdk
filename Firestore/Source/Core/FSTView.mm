@@ -434,7 +434,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   }
 
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
-  DocumentKeySet oldLimboDocuments = _limboDocuments;
+  DocumentKeySet oldLimboDocuments = std::move(_limboDocuments);
   _limboDocuments = DocumentKeySet{};
   for (FSTDocument *doc in self.documentSet.documentEnumerator) {
     if ([self shouldBeLimboDocumentKey:doc.key]) {
