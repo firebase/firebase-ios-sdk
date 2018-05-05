@@ -407,7 +407,7 @@ static const int kMaxPendingWrites = 10;
         }
       }
 
-      if (trackedRemote.size() != (size_t)filter.count) {
+      if (trackedRemote.size() != static_cast<size_t>(filter.count)) {
         FSTLog(@"Existence filter mismatch, resetting mapping");
 
         // Make sure the mismatch is exposed in the remote event

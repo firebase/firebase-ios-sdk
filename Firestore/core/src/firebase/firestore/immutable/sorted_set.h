@@ -131,13 +131,10 @@ class SortedSet {
   }
 
   friend bool operator==(const SortedSet& lhs, const SortedSet& rhs) {
-    // C++14 adds std::equal that takes a second end iterator so do it the
-    // hard way here.
-    if (rhs.size() > lhs.size()) {
-      return std::equal(rhs.begin(), rhs.end(), lhs.begin());
-    } else {
-      return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+    if (lhs.size() != rhs.size()) {
+      return false;
     }
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
   }
 
   friend bool operator!=(const SortedSet& lhs, const SortedSet& rhs) {
