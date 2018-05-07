@@ -58,6 +58,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 
+using firebase::firestore::util::internal::Executor;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTFirestoreClient () {
@@ -68,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                        userExecutor:(std::unique_ptr<Executor>)userExecutor
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
@@ -91,18 +93,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTFirestoreClient
+@implementation FSTFirestoreClient {
+  std::unique_ptr<Executor> _userExecutor;
+}
+
+- (Executor *)userExecutor {
+  return _userExecutor.get();
+}
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
-                     userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                          userExecutor:(std::unique_ptr<Executor>)userExecutor
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                            usePersistence:usePersistence
                                       credentialsProvider:credentialsProvider
-                                        userDispatchQueue:userDispatchQueue
+                                             userExecutor:std::move(userExecutor)
                                       workerDispatchQueue:workerDispatchQueue];
 }
 
@@ -110,12 +118,12 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                        userExecutor:(std::unique_ptr<Executor>)userExecutor
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
     _credentialsProvider = credentialsProvider;
-    _userDispatchQueue = userDispatchQueue;
+    _userExecutor = std::move(userExecutor);
     _workerDispatchQueue = workerDispatchQueue;
 
     auto userPromise = std::make_shared<std::promise<User>>();
@@ -230,9 +238,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore disableNetwork];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
+      auto block = ^{
         completion(nil);
-      }];
+      };
+      _userExecutor->Execute([block] { block(); });
     }
   }];
 }
@@ -241,9 +250,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore enableNetwork];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
+      auto block = ^{
         completion(nil);
-      }];
+      };
+      _userExecutor->Execute([block] { block(); });
     }
   }];
 }
@@ -255,9 +265,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
+      auto block = ^{
         completion(nil);
-      }];
+      };
+      _userExecutor->Execute([block] { block(); });
     }
   }];
 }
@@ -338,18 +349,20 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     if (mutations.count == 0) {
       if (completion) {
-        [self.userDispatchQueue dispatchAsync:^{
+        auto block = ^{
           completion(nil);
-        }];
+        };
+        _userExecutor->Execute([block] { block(); });
       }
     } else {
       [self.syncEngine writeMutations:mutations
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {
-                               [self.userDispatchQueue dispatchAsync:^{
+                               auto block = ^{
                                  completion(error);
-                               }];
+                               };
+                               _userExecutor->Execute([block] { block(); });
                              }
                            }];
     }
@@ -366,9 +379,10 @@ NS_ASSUME_NONNULL_BEGIN
                                  completion:^(id _Nullable result, NSError *_Nullable error) {
                                    // Dispatch the result back onto the user dispatch queue.
                                    if (completion) {
-                                     [self.userDispatchQueue dispatchAsync:^{
+                                     auto block = ^{
                                        completion(result, error);
-                                     }];
+                                     };
+                                     _userExecutor->Execute([block] { block(); });
                                    }
                                  }];
   }];
