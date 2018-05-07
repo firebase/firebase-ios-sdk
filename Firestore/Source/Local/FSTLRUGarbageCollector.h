@@ -10,6 +10,8 @@
 
 @class FSTLRUGarbageCollector;
 
+extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
+
 @protocol FSTLRUDelegate
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;

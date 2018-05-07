@@ -41,6 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
 + (FSTMemoryPersistence *)memoryPersistence;
+
++ (FSTMemoryPersistence *)lruMemoryPersistence;
 @end
 
 NS_ASSUME_NONNULL_END

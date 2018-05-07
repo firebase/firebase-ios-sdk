@@ -119,6 +119,30 @@ NS_ASSUME_NONNULL_BEGIN
   return self.queries[query];
 }
 
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
+  [self.queries
+          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+            block(queryData, stop);
+          }];
+}
+
+- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                                     liveQueries:
+                                             (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+  NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
+  [self.queries
+          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
+            if (queryData.sequenceNumber <= sequenceNumber) {
+              if (liveQueries[@(queryData.targetID)] == nil) {
+                [toRemove addObject:query];
+                [self.references removeReferencesForID:queryData.targetID];
+              }
+            }
+          }];
+  [self.queries removeObjectsForKeys:toRemove];
+  return [toRemove count];
+}
+
 #pragma mark Reference tracking
 
 - (void)addMatchingKeys:(const DocumentKeySet &)keys

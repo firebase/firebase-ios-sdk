@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -32,6 +33,9 @@ using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUs
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
+
+@property(nonatomic, readonly) MutationQueues& mutationQueues;
+
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @end
 
@@ -49,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
   /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
 
-  std::unordered_map<User, id<FSTMutationQueue>, HashUser> _mutationQueues;
+  //std::unordered_map<User, id<FSTMutationQueue>, HashUser> _mutationQueues;
 
   FSTTransactionRunner _transactionRunner;
 
