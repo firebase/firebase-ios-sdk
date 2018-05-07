@@ -60,7 +60,7 @@ objc_lint_options=(
 
 if [[ $# -gt 0 ]]; then
   # Interpret any command-line argument as a revision range
-  command=(git diff --name-only)
+  command=(git diff --name-only --diff-filter=ACMR)
   git_options+=("$@")
 
 else

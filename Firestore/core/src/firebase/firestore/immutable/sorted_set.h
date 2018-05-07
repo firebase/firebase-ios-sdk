@@ -61,6 +61,13 @@ class SortedSet {
   explicit SortedSet(M&& map) : map_{std::move(map)} {
   }
 
+  SortedSet(std::initializer_list<value_type> entries, const C& comparator = {})
+      : map_{comparator} {
+    for (auto&& value : entries) {
+      map_ = map_.insert(value, {});
+    }
+  }
+
   bool empty() const {
     return map_.empty();
   }
@@ -124,7 +131,14 @@ class SortedSet {
   }
 
   friend bool operator==(const SortedSet& lhs, const SortedSet& rhs) {
-    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  }
+
+  friend bool operator!=(const SortedSet& lhs, const SortedSet& rhs) {
+    return !(lhs == rhs);
   }
 
  private:

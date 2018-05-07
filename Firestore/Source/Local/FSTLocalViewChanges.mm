@@ -16,31 +16,38 @@
 
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 
+#include <utility>
+
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
+
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalViewChanges ()
 - (instancetype)initWithQuery:(FSTQuery *)query
-                    addedKeys:(FSTDocumentKeySet *)addedKeys
-                  removedKeys:(FSTDocumentKeySet *)removedKeys NS_DESIGNATED_INITIALIZER;
+                    addedKeys:(DocumentKeySet)addedKeys
+                  removedKeys:(DocumentKeySet)removedKeys NS_DESIGNATED_INITIALIZER;
 @end
 
-@implementation FSTLocalViewChanges
+@implementation FSTLocalViewChanges {
+  DocumentKeySet _addedKeys;
+  DocumentKeySet _removedKeys;
+}
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot {
-  FSTDocumentKeySet *addedKeys = [FSTDocumentKeySet keySet];
-  FSTDocumentKeySet *removedKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet addedKeys;
+  DocumentKeySet removedKeys;
 
   for (FSTDocumentViewChange *docChange in viewSnapshot.documentChanges) {
     switch (docChange.type) {
       case FSTDocumentViewChangeTypeAdded:
-        addedKeys = [addedKeys setByAddingObject:docChange.document.key];
+        addedKeys = addedKeys.insert(docChange.document.key);
         break;
 
       case FSTDocumentViewChangeTypeRemoved:
-        removedKeys = [removedKeys setByAddingObject:docChange.document.key];
+        removedKeys = removedKeys.insert(docChange.document.key);
         break;
 
       default:
@@ -49,26 +56,37 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  return [self changesForQuery:viewSnapshot.query addedKeys:addedKeys removedKeys:removedKeys];
+  return [self changesForQuery:viewSnapshot.query
+                     addedKeys:std::move(addedKeys)
+                   removedKeys:std::move(removedKeys)];
 }
 
 + (instancetype)changesForQuery:(FSTQuery *)query
-                      addedKeys:(FSTDocumentKeySet *)addedKeys
-                    removedKeys:(FSTDocumentKeySet *)removedKeys {
-  return
-      [[FSTLocalViewChanges alloc] initWithQuery:query addedKeys:addedKeys removedKeys:removedKeys];
+                      addedKeys:(DocumentKeySet)addedKeys
+                    removedKeys:(DocumentKeySet)removedKeys {
+  return [[FSTLocalViewChanges alloc] initWithQuery:query
+                                          addedKeys:std::move(addedKeys)
+                                        removedKeys:std::move(removedKeys)];
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                    addedKeys:(FSTDocumentKeySet *)addedKeys
-                  removedKeys:(FSTDocumentKeySet *)removedKeys {
+                    addedKeys:(DocumentKeySet)addedKeys
+                  removedKeys:(DocumentKeySet)removedKeys {
   self = [super init];
   if (self) {
     _query = query;
-    _addedKeys = addedKeys;
-    _removedKeys = removedKeys;
+    _addedKeys = std::move(addedKeys);
+    _removedKeys = std::move(removedKeys);
   }
   return self;
+}
+
+- (const DocumentKeySet &)addedKeys {
+  return _addedKeys;
+}
+
+- (const DocumentKeySet &)removedKeys {
+  return _removedKeys;
 }
 
 @end

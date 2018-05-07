@@ -32,6 +32,7 @@
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,9 +66,9 @@ NS_ASSUME_NONNULL_BEGIN
   return [self localDocument:remoteDoc key:key];
 }
 
-- (FSTMaybeDocumentDictionary *)documentsForKeys:(FSTDocumentKeySet *)keys {
+- (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
   FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  for (FSTDocumentKey *key in keys.objectEnumerator) {
+  for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
@@ -106,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Now use the mutation queue to discover any other documents that may match the query after
   // applying mutations.
-  FSTDocumentKeySet *matchingKeys = [FSTDocumentKeySet keySet];
+  DocumentKeySet matchingKeys;
   NSArray<FSTMutationBatch *> *matchingMutationBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
   for (FSTMutationBatch *batch in matchingMutationBatches) {
@@ -115,13 +116,13 @@ NS_ASSUME_NONNULL_BEGIN
 
       // If the key is already in the results, we can skip it.
       if (![results containsKey:mutation.key]) {
-        matchingKeys = [matchingKeys setByAddingObject:mutation.key];
+        matchingKeys = matchingKeys.insert(mutation.key);
       }
     }
   }
 
   // Now add in results for the matchingKeys.
-  for (FSTDocumentKey *key in matchingKeys.objectEnumerator) {
+  for (const DocumentKey &key : matchingKeys) {
     FSTMaybeDocument *doc = [self documentForKey:key];
     if ([doc isKindOfClass:[FSTDocument class]]) {
       results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];

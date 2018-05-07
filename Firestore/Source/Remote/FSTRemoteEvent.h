@@ -20,9 +20,9 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTDocument;
@@ -49,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
  * existed in the target, and is being added in the target, and this is not a reset, we can
  * skip doing the work to associate the document with the target because it has already been done.
  */
-- (void)filterUpdatesUsingExistingKeys:(FSTDocumentKeySet *)existingKeys;
+- (void)filterUpdatesUsingExistingKeys:
+    (const firebase::firestore::model::DocumentKeySet &)existingKeys;
 
 @end
 
@@ -65,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTResetMapping *)mappingWithDocuments:(NSArray<FSTDocument *> *)documents;
 
 /** The new set of documents for the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *documents;
+- (const firebase::firestore::model::DocumentKeySet &)documents;
 @end
 
 #pragma mark - FSTUpdateMapping
@@ -82,12 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTUpdateMapping *)mappingWithAddedDocuments:(NSArray<FSTDocument *> *)added
                                removedDocuments:(NSArray<FSTDocument *> *)removed;
 
-- (FSTDocumentKeySet *)applyTo:(FSTDocumentKeySet *)keys;
+- (firebase::firestore::model::DocumentKeySet)applyTo:
+    (const firebase::firestore::model::DocumentKeySet &)keys;
 
 /** The documents added to the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *addedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)addedDocuments;
 /** The documents removed from the target. */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *removedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)removedDocuments;
 @end
 
 #pragma mark - FSTTargetChange
@@ -166,7 +168,7 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
           targetChanges:(NSMutableDictionary<NSNumber *, FSTTargetChange *> *)targetChanges
         documentUpdates:
             (std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *>)documentUpdates
-         limboDocuments:(FSTDocumentKeySet *)limboDocuments;
+         limboDocuments:(firebase::firestore::model::DocumentKeySet)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
@@ -175,13 +177,13 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
 @property(nonatomic, strong, readonly)
     NSDictionary<FSTBoxedTargetID *, FSTTargetChange *> *targetChanges;
 
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *limboDocumentChanges;
-
 /**
  * A set of which documents have changed or been deleted, along with the doc's new values
  * (if not deleted).
  */
 - (const std::map<firebase::firestore::model::DocumentKey, FSTMaybeDocument *> &)documentUpdates;
+
+- (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** Adds a document update to this remote event */
 - (void)addDocumentUpdate:(FSTMaybeDocument *)document;

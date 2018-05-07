@@ -32,6 +32,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -278,12 +279,12 @@ NS_ASSUME_NONNULL_BEGIN
     [self addMatchingKey:key2 forTargetID:1 atSequenceNumber:10];
     [self addMatchingKey:key3 forTargetID:2 atSequenceNumber:11];
 
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], @[ key3 ]);
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], (DocumentKeySet{key1, key2}));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], (DocumentKeySet{key3}));
 
     [self addMatchingKey:key1 forTargetID:2 atSequenceNumber:12];
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:1], (@[ key1, key2 ]));
-    FSTAssertEqualSets([self.queryCache matchingKeysForTargetID:2], (@[ key1, key3 ]));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:1], (DocumentKeySet{key1, key2}));
+    XCTAssertEqual([self.queryCache matchingKeysForTargetID:2], (DocumentKeySet{key1, key3}));
   });
 }
 
@@ -430,16 +431,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addMatchingKey:(const DocumentKey &)key
            forTargetID:(FSTTargetID)targetID
       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys{key};
   [self.queryCache addMatchingKeys:keys forTargetID:targetID atSequenceNumber:sequenceNumber];
 }
 
 - (void)removeMatchingKey:(const DocumentKey &)key
               forTargetID:(FSTTargetID)targetID
            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  FSTDocumentKeySet *keys = [FSTDocumentKeySet keySet];
-  keys = [keys setByAddingObject:key];
+  DocumentKeySet keys{key};
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID sequenceNumber:sequenceNumber];
 }
 

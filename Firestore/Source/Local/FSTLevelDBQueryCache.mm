@@ -41,6 +41,7 @@ using firebase::firestore::model::SnapshotVersion;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
+using firebase::firestore::model::DocumentKeySet;
 
 @interface FSTLevelDBQueryCache ()
 
@@ -282,7 +283,7 @@ using leveldb::Status;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)addMatchingKeys:(const DocumentKeySet &)keys
             forTargetID:(FSTTargetID)targetID
        atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
@@ -290,30 +291,29 @@ using leveldb::Status;
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Put(
-        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
-        emptyBuffer);
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID],
         emptyBuffer);
-    [self->_db.referenceDelegate addReference:documentKey
+    [self->_db.referenceDelegate addReference:key
                                        target:targetID
                                sequenceNumber:sequenceNumber];
   }];
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys
                forTargetID:(FSTTargetID)targetID
             sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self->_db.referenceDelegate removeReference:key target:targetID sequenceNumber:sequenceNumber];
     [self.garbageCollector addPotentialGarbageKey:key];
-  }];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
@@ -339,12 +339,12 @@ using leveldb::Status;
   }
 }
 
-- (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
+  DocumentKeySet result;
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
     absl::string_view indexKey = indexIterator->key();
@@ -354,7 +354,7 @@ using leveldb::Status;
       break;
     }
 
-    result = [result setByAddingObject:rowKey.documentKey];
+    result = result.insert(rowKey.documentKey);
   }
 
   return result;

@@ -61,6 +61,60 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
+## executors
+
+cc_test(
+  firebase_firestore_util_executor_std_test
+  SOURCES
+    executor_test.h
+    executor_test.cc
+    executor_std_test.cc
+    async_tests_util.h
+  DEPENDS
+    firebase_firestore_util_executor_std
+)
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_executor_libdispatch_test
+    SOURCES
+      executor_test.h
+      executor_test.cc
+      executor_libdispatch_test.cc
+      async_tests_util.h
+    DEPENDS
+      firebase_firestore_util_executor_libdispatch
+  )
+endif()
+
+## async queue
+
+cc_test(
+  firebase_firestore_util_async_queue_std_test
+  SOURCES
+    async_queue_test.h
+    async_queue_test.cc
+    async_queue_test_std.cc
+    async_tests_util.h
+  DEPENDS
+    firebase_firestore_util_executor_std
+    firebase_firestore_util_async_queue
+)
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_async_queue_libdispatch_test
+    SOURCES
+      async_queue_test.h
+      async_queue_test.cc
+      async_queue_test_libdispatch.cc
+      async_tests_util.h
+    DEPENDS
+    firebase_firestore_util_executor_libdispatch
+    firebase_firestore_util_async_queue
+  )
+endif()
+
 ## main library
 
 cc_test(

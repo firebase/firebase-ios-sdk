@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_DOCUMENT_KEY_H_
 
+#include <functional>
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -26,6 +27,7 @@
 #endif  // defined(__OBJC__)
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "absl/strings/string_view.h"
 
@@ -57,14 +59,14 @@ class DocumentKey {
     return [FSTDocumentKey keyWithPath:path()];
   }
 
-  std::string ToString() const {
-    return path().CanonicalString();
-  }
-
   NSUInteger Hash() const {
     return util::Hash(ToString());
   }
 #endif
+
+  std::string ToString() const {
+    return path().CanonicalString();
+  }
 
   /**
    * Creates and returns a new document key using '/' to split the string into
@@ -117,7 +119,20 @@ inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
   return lhs.path() >= rhs.path();
 }
 
+struct DocumentKeyHash {
+  size_t operator()(const DocumentKey& key) const {
+    return util::Hash(key.path());
+  }
+};
+
 }  // namespace model
+
+namespace util {
+
+template <>
+struct Comparator<model::DocumentKey> : public std::less<model::DocumentKey> {};
+
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 

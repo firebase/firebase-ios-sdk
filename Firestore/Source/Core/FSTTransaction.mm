@@ -24,19 +24,20 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -216,15 +217,15 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Make a list of read documents that haven't been written.
-  FSTDocumentKeySet *unwritten = [FSTDocumentKeySet keySet];
+  DocumentKeySet unwritten;
   for (const auto &kv : _readVersions) {
-    unwritten = [unwritten setByAddingObject:kv.first];
+    unwritten = unwritten.insert(kv.first);
   };
   // For each mutation, note that the doc was written.
   for (FSTMutation *mutation in self.mutations) {
-    unwritten = [unwritten setByRemovingObject:mutation.key];
+    unwritten = unwritten.erase(mutation.key);
   }
-  if (unwritten.count) {
+  if (!unwritten.empty()) {
     // TODO(klimt): This is a temporary restriction, until "verify" is supported on the backend.
     completion([NSError
         errorWithDomain:FIRFirestoreErrorDomain

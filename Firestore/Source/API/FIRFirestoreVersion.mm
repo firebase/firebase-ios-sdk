@@ -27,5 +27,5 @@
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-extern "C" const unsigned char *const FirebaseFirestoreVersionString =
+extern "C" const unsigned char *const FIRFirestoreVersionString =
     (const unsigned char *const)STR(FIRFirestore_VERSION);

@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -119,7 +120,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)addMatchingKeys:(const DocumentKeySet &)keys
             forTargetID:(FSTTargetID)targetID
        atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references addReferencesToKeys:keys forID:targetID];
@@ -128,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys
                forTargetID:(FSTTargetID)targetID
             sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references removeReferencesToKeys:keys forID:targetID];
@@ -143,7 +144,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.references removeReferencesForID:targetID];
 }
 
-- (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   return [self.references referencedKeysForID:targetID];
 }
 

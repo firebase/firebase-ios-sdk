@@ -44,6 +44,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -66,6 +67,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -144,14 +146,6 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
 
 FSTDocumentKey *FSTTestDocKey(NSString *path) {
   return [FSTDocumentKey keyWithPathString:path];
-}
-
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys) {
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
-  for (FSTDocumentKey *key in keys) {
-    result = [result setByAddingObject:key];
-  }
-  return result;
 }
 
 FSTDocument *FSTTestDoc(const absl::string_view path,
@@ -343,17 +337,17 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
-  FSTDocumentKeySet *added = [FSTDocumentKeySet keySet];
+  DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
-    FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    added = [added setByAddingObject:key];
+    added = added.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
-  FSTDocumentKeySet *removed = [FSTDocumentKeySet keySet];
+  DocumentKeySet removed;
   for (NSString *keyPath in removedKeys) {
-    FSTDocumentKey *key = FSTTestDocKey(keyPath);
-    removed = [removed setByAddingObject:key];
+    removed = removed.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
-  return [FSTLocalViewChanges changesForQuery:query addedKeys:added removedKeys:removed];
+  return [FSTLocalViewChanges changesForQuery:query
+                                    addedKeys:std::move(added)
+                                  removedKeys:std::move(removed)];
 }
 
 NS_ASSUME_NONNULL_END

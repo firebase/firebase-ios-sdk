@@ -21,6 +21,7 @@
 #include <map>
 #include <set>
 #include <unordered_map>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -52,6 +53,7 @@ using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -185,9 +187,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
-  FSTDocumentKeySet *remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
+  DocumentKeySet remoteKeys = [self.localStore remoteDocumentKeysForTarget:queryData.targetID];
 
-  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:remoteKeys];
+  FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
   FSTAssert(viewChange.limboChanges.count == 0,
@@ -347,13 +349,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
-    FSTDocumentKeySet *limboDocuments = [[FSTDocumentKeySet keySet] setByAddingObject:doc.key];
-    FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
-                                                              targetChanges:targetChanges
-                                                            documentUpdates:{
-                                                              { limboKey, doc }
-                                                            }
-                                                             limboDocuments:limboDocuments];
+    DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
+    FSTRemoteEvent *event =
+        [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
+                                          targetChanges:targetChanges
+                                        documentUpdates:{
+                                          { limboKey, doc }
+                                        }
+                                         limboDocuments:std::move(limboDocuments)];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
