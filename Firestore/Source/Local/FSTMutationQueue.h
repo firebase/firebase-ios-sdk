@@ -143,8 +143,7 @@ NS_ASSUME_NONNULL_BEGIN
  * In both cases, the array of mutations to remove must be a contiguous range of batchIds. This is
  * most easily accomplished by loading mutations with @a -allMutationBatchesThroughBatchID:.
  */
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-               sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches;
 
 /** Performs a consistency check, examining the mutation queue for any leaks, if possible. */
 - (void)performConsistencyCheck;

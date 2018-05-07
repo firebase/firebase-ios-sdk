@@ -485,8 +485,7 @@ using leveldb::WriteOptions;
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-               sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSString *userID = self.userID;
   id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
 
@@ -512,7 +511,7 @@ using leveldb::WriteOptions;
                                              documentKey:mutation.key
                                                  batchID:batchID];
       _db.currentTransaction->Delete(key);
-      [_db.referenceDelegate removeMutationReference:mutation.key sequenceNumber:sequenceNumber];
+      [_db.referenceDelegate removeMutationReference:mutation.key];
       [garbageCollector addPotentialGarbageKey:mutation.key];
     }
   }

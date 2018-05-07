@@ -115,6 +115,8 @@ struct FSTTransactionRunner;
  *
  * Different implementations may do different things with each of these events. Not every
  * implementation needs to do something with every lifecycle hook.
+ *
+ * Implementations that care about sequence numbers are responsible for generating them and making them available.
  */
 @protocol FSTReferenceDelegate
 
@@ -127,34 +129,29 @@ struct FSTTransactionRunner;
 /**
  * Notify the delegate that a target was removed.
  */
-- (void)removeTarget:(FSTQueryData *)queryData
-      sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeTarget:(FSTQueryData *)queryData;
 
 /**
  * Notify the delegate that the given document was added to the given target.
  */
 - (void)addReference:(FSTDocumentKey *)key
-              target:(FSTTargetID)targetID
-      sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+              target:(FSTTargetID)targetID;
 
 /**
  * Notify the delegate that the given document was removed from the given target.
  */
 - (void)removeReference:(FSTDocumentKey *)key
-                 target:(FSTTargetID)targetID
-         sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+                 target:(FSTTargetID)targetID;
 
 /**
  * Notify the delegate that a document is no longer being mutated by the user.
  */
-- (void)removeMutationReference:(FSTDocumentKey *)key
-                 sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeMutationReference:(FSTDocumentKey *)key;
 
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key
-              sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key;
 
 @end
 

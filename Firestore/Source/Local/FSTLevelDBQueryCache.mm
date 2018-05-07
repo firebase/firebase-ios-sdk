@@ -283,9 +283,7 @@ using firebase::firestore::model::DocumentKeySet;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID
-       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
@@ -295,23 +293,18 @@ using firebase::firestore::model::DocumentKeySet;
     self->_db.currentTransaction->Put(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID],
-        emptyBuffer);
-    [self->_db.referenceDelegate addReference:key
-                                       target:targetID
-                               sequenceNumber:sequenceNumber];
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
+    [self->_db.referenceDelegate addReference:key target:targetID];
   };
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID
-            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
-    [self->_db.referenceDelegate removeReference:key target:targetID sequenceNumber:sequenceNumber];
+    [self->_db.referenceDelegate removeReference:key target:targetID];
     [self.garbageCollector addPotentialGarbageKey:key];
   }
 }

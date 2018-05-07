@@ -106,13 +106,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Adds the given document keys to cached query results of the given target ID. */
 - (void)addMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID
-       atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+            forTargetID:(FSTTargetID)targetID;
 
 /** Removes the given document keys from the cached query results of the given target ID. */
 - (void)removeMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID
-            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+               forTargetID:(FSTTargetID)targetID;
 
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID;

@@ -290,8 +290,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-               sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSUInteger batchCount = batches.count;
   FSTAssert(batchCount > 0, @"Should not remove mutations when none exist.");
 
@@ -349,7 +348,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
       [garbageCollector addPotentialGarbageKey:key];
-      [_persistence.referenceDelegate removeMutationReference:key sequenceNumber:sequenceNumber];
+      [_persistence.referenceDelegate removeMutationReference:key];
 
       FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
       references = [references setByRemovingObject:reference];
