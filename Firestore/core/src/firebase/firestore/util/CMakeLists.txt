@@ -109,6 +109,63 @@ else()
 
 endif()
 
+## async queue
+
+check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
+
+cc_library(
+  firebase_firestore_util_executor_std
+  SOURCES
+    executor_std.cc
+    executor_std.h
+    executor.h
+  DEPENDS
+    absl_bad_optional_access
+    absl_optional
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
+
+if(HAVE_LIBDISPATCH)
+cc_library(
+  firebase_firestore_util_executor_libdispatch
+  SOURCES
+    executor_libdispatch.cc
+    executor_libdispatch.h
+    executor.h
+  DEPENDS
+    absl_bad_optional_access
+    absl_optional
+    absl_strings
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
+endif()
+
+if(HAVE_LIBDISPATCH)
+  set(
+    FIREBASE_FIRESTORE_UTIL_EXECUTOR
+    firebase_firestore_util_executor_libdispatch
+  )
+
+else()
+  set(
+    FIREBASE_FIRESTORE_UTIL_EXECUTOR
+    firebase_firestore_util_executor_std
+  )
+
+endif()
+
+cc_library(
+  firebase_firestore_util_async_queue
+  SOURCES
+    async_queue.cc
+    async_queue.h
+  DEPENDS
+    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
+    ${FIREBASE_FIRESTORE_UTIL_LOG}
+  EXCLUDE_FROM_ALL
+)
 
 ## main library
 
@@ -144,6 +201,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_base
+    firebase_firestore_util_async_queue
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
