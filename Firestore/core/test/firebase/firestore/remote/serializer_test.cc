@@ -272,7 +272,7 @@ TEST_F(SerializerTest, EncodesString) {
 
 TEST_F(SerializerTest, EncodesTimestamps) {
   std::vector<Timestamp> cases{
-      Timestamp(),  // epoch
+      {},  // epoch
       {1234, 0},
       {1234, 999999999},
       {-1234, 0},

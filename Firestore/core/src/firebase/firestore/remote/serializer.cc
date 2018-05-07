@@ -101,7 +101,7 @@ class Writer {
   /**
    * Writes a nanopb message to the output stream.
    *
-   * This essentially wraps calls to nanopb's pb_encode() method. If we didn't
+   * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
    * use `oneof`s in our protos, this would be the primary way of encoding
    * messages.
    */
@@ -473,15 +473,15 @@ Timestamp DecodeTimestamp(Reader* reader) {
   // rather not abort in these situations.
   if (timestamp_proto.seconds <
       std::numeric_limits<Timestamp>::min().seconds()) {
-    reader->set_status(
-        Status(FirestoreErrorCode::DataLoss,
-               "Input proto bytes cannot be parsed (timestamp too small)"));
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Input proto bytes cannot be parsed (timestamp "
+                              "beyond the earliest supported date)"));
     return {};
   } else if (std::numeric_limits<Timestamp>::max().seconds() <
              timestamp_proto.seconds) {
-    reader->set_status(
-        Status(FirestoreErrorCode::DataLoss,
-               "Input proto bytes cannot be parsed (timestamp too large)"));
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Input proto bytes cannot be parsed (timestamp "
+                              "beyond the latest supported date)"));
     return {};
   } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
