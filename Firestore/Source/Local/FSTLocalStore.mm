@@ -311,7 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // TODO(klimt): This could probably be an NSMutableDictionary.
     DocumentKeySet changedDocKeys;
-    const DocumentKeySet& limboDocuments = remoteEvent.limboDocumentChanges;
+    const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;

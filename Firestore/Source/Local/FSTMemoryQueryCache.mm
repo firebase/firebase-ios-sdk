@@ -121,16 +121,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate addReference:key target:targetID];
   }
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate removeReference:key target:targetID];
