@@ -32,6 +32,10 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
   is_operation_in_progress_ = false;
 }
 
+void AsyncQueue::Clear() {
+  executor_->Clear();
+}
+
 void AsyncQueue::VerifyIsCurrentExecutor() const {
   FIREBASE_ASSERT_MESSAGE(
       executor_->IsCurrentExecutor(),

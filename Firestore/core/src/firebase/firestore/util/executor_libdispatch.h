@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 
+#include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
@@ -45,10 +46,10 @@ namespace internal {
 // Generic wrapper over `dispatch_async_f`, providing `dispatch_async`-like
 // interface: accepts an arbitrary invocable object in place of an Objective-C
 // block.
-void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work);
+void DispatchAsync(dispatch_queue_t queue, std::function<void()>&& work);
 
 // Similar to `DispatchAsync` but wraps `dispatch_sync_f`.
-void DispatchSync(const dispatch_queue_t queue, std::function<void()> work);
+void DispatchSync(dispatch_queue_t queue, std::function<void()> work);
 
 class TimeSlot;
 
@@ -58,7 +59,6 @@ class ExecutorLibdispatch : public Executor {
  public:
   ExecutorLibdispatch();
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
-  ~ExecutorLibdispatch();
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
@@ -73,6 +73,8 @@ class ExecutorLibdispatch : public Executor {
 
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
+
+  void Clear() override;
 
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;

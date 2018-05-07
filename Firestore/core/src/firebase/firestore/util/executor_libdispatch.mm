@@ -28,15 +28,6 @@ absl::string_view StringViewFromDispatchLabel(const char* const label) {
   return label ? absl::string_view{label} : absl::string_view{""};
 }
 
-void RunSynchronized(const ExecutorLibdispatch* const executor,
-                     std::function<void()>&& work) {
-  if (executor->IsCurrentExecutor()) {
-    work();
-  } else {
-    DispatchSync(executor->dispatch_queue(), std::move(work));
-  }
-}
-
 }  // namespace
 
 void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
@@ -51,14 +42,33 @@ void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
   });
 }
 
-void DispatchSync(const dispatch_queue_t queue, Executor::Operation work) {
+void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
+  FIREBASE_ASSERT_MESSAGE(
+      StringViewFromDispatchLabel(dispatch_queue_get_label(queue)) !=
+          StringViewFromDispatchLabel(
+              dispatch_queue_get_label(dispatch_get_main_queue())),
+      "Calling dispatch_sync on the main queue will lead to a deadlock.");
+
   // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
   // is done, so passing a reference to a local variable is okay.
   dispatch_sync_f(queue, &work, [](void* const raw_work) {
-    const auto unwrap = static_cast<const Executor::Operation*>(raw_work);
+    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
     (*unwrap)();
   });
 }
+
+namespace {
+
+template <typename Work>
+void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
+  if (executor->IsCurrentExecutor()) {
+    work();
+  } else {
+    DispatchSync(executor->dispatch_queue(), std::forward<Work>(work));
+  }
+}
+
+}  // namespace
 
 // Represents a "busy" time slot on the schedule.
 //
@@ -175,7 +185,7 @@ ExecutorLibdispatch::ExecutorLibdispatch()
                                                 DISPATCH_QUEUE_SERIAL)} {
 }
 
-ExecutorLibdispatch::~ExecutorLibdispatch() {
+void ExecutorLibdispatch::Clear() {
   // Turn any operations that might still be in the queue into no-ops, lest
   // they try to access `ExecutorLibdispatch` after it gets destroyed. Because
   // the queue is serial, by the time libdispatch gets to the newly-enqueued
@@ -262,10 +272,9 @@ absl::string_view ExecutorLibdispatch::GetTargetQueueLabel() const {
 bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
   bool result = false;
   RunSynchronized(this, [this, tag, &result] {
-    result = std::find_if(schedule_.begin(), schedule_.end(),
-                          [&tag](const TimeSlot* const operation) {
-                            return *operation == tag;
-                          }) != schedule_.end();
+    result = std::any_of(
+        schedule_.begin(), schedule_.end(),
+        [&tag](const TimeSlot* const operation) { return *operation == tag; });
   });
   return result;
 }
