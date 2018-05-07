@@ -122,6 +122,9 @@
 		54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */; };
 		54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A51F315EE100DD57A1 /* write_spec_test.json */; };
 		54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
+		5CC9650320A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */; };
+		5CC9650520A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */; };
+		5CC9650720A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -355,6 +358,10 @@
 		54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = array_sorted_map_test.cc; path = ../../immutable/array_sorted_map_test.cc; sourceTree = "<group>"; };
 		555ACD6970390DC825A8F141 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		5A3E3BE5F322D66EE3D6CB65 /* Pods-Firestore_Tests_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Tests_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		5CC9650120A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLRUGarbageCollectorTests.h; sourceTree = "<group>"; };
+		5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
+		5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMemoryLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
+		5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* Firestore_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -786,6 +793,10 @@
 		DE51B1621F0D48AC0013853F /* Local */ = {
 			isa = PBXGroup;
 			children = (
+				5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */,
+				5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */,
+				5CC9650120A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.h */,
+				5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */,
 				5492E0842021552A00B64F25 /* FSTEagerGarbageCollectorTests.mm */,
 				5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */,
 				5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */,
@@ -1447,7 +1458,9 @@
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
+				5CC9650520A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm in Sources */,
 				5492E063202154B900B64F25 /* FSTViewSnapshotTest.mm in Sources */,
+				5CC9650720A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */,
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
@@ -1493,6 +1506,7 @@
 				5492E0A22021552D00B64F25 /* FSTQueryCacheTests.mm in Sources */,
 				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
 				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
+				5CC9650320A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,

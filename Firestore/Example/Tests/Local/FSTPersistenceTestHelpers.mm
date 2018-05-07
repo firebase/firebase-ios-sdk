@@ -77,6 +77,18 @@ NS_ASSUME_NONNULL_BEGIN
   return persistence;
 }
 
++ (FSTMemoryPersistence *)lruMemoryPersistence {
+  NSError *error;
+  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithLRUGC];
+  BOOL success = [persistence start:&error];
+  if (!success) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Failed to start memory persistence: %@", error];
+  }
+
+  return persistence;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,7 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTMemoryPersistence : NSObject <FSTPersistence>
 
++ (instancetype)persistenceWithLRUGC;
+
 + (instancetype)persistence;
+
+@end
+
+@interface FSTMemoryLRUReferenceDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
+
+- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound document:(FSTDocumentKey *)key;
 
 @end
 
