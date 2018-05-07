@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 
-#include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
