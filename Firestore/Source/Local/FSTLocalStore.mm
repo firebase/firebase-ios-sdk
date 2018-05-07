@@ -319,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // TODO(klimt): This could probably be an NSMutableDictionary.
     DocumentKeySet changedDocKeys;
-    const DocumentKeySet& limboDocuments = remoteEvent.limboDocumentChanges
+    const DocumentKeySet& limboDocuments = remoteEvent.limboDocumentChanges;
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;
@@ -342,7 +342,7 @@ NS_ASSUME_NONNULL_BEGIN
       // The document might be garbage because it was unreferenced by everything.
       // Make sure to mark it as garbage if it is...
       [self.garbageCollector addPotentialGarbageKey:key];
-      if ([limboDocuments containsObject:key]) {
+      if (limboDocuments.contains(key)) {
         [self.persistence.referenceDelegate limboDocumentUpdated:key sequenceNumber:sequenceNumber];
       }
     }
@@ -381,11 +381,11 @@ NS_ASSUME_NONNULL_BEGIN
       FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
       FSTAssert(queryData, @"Local view changes contain unallocated query.");
       FSTTargetID targetID = queryData.targetID;
-      [view.removedKeys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+      for (const DocumentKey &key : view.removedKeys) {
         [self->_persistence.referenceDelegate removeReference:key
                                                        target:targetID
                                                sequenceNumber:sequenceNumber];
-      }];
+      };
       [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
       [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
     }

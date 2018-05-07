@@ -300,7 +300,7 @@ using firebase::firestore::model::DocumentKeySet;
     [self->_db.referenceDelegate addReference:key
                                        target:targetID
                                sequenceNumber:sequenceNumber];
-  }];
+  };
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys

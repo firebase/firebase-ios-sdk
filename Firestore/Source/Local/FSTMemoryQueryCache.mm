@@ -28,6 +28,7 @@
 
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -124,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
             forTargetID:(FSTTargetID)targetID
        atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references addReferencesToKeys:keys forID:targetID];
-  for (FSTDocumentKey *key in [keys objectEnumerator]) {
+  for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate addReference:key target:targetID sequenceNumber:sequenceNumber];
   }
 }
@@ -133,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
                forTargetID:(FSTTargetID)targetID
             sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references removeReferencesToKeys:keys forID:targetID];
-  for (FSTDocumentKey *key in [keys objectEnumerator]) {
+  for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate removeReference:key
                                              target:targetID
                                      sequenceNumber:sequenceNumber];
