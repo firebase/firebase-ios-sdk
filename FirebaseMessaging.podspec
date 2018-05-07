@@ -36,7 +36,6 @@ device, and it is completely free.
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       'FIRMessaging_LIB_VERSION=' + String(s.version)
   }
-  s.framework = 'AddressBook'
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 4.0'
   s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
