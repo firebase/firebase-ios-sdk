@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_EXECUTOR_LIBDISPATCH_H_
 
-#include <atomic>
 #include <chrono>  // NOLINT(build/c++11)
 #include <functional>
 #include <memory>
@@ -29,6 +28,13 @@
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/strings/string_view.h"
+
+#if !defined(__OBJC__)
+// `dispatch_queue_t` gets defined to different types when compiled in C++ or
+// Objective-C mode. Source files including this header should all be compiled
+// in the same mode to avoid linker errors.
+#error "This header only supports Objective-C++ (see comment for more info)."
+#endif  // !defined(__OBJC__)
 
 namespace firebase {
 namespace firestore {
@@ -78,7 +84,7 @@ class ExecutorLibdispatch : public Executor {
   absl::string_view GetCurrentQueueLabel() const;
   absl::string_view GetTargetQueueLabel() const;
 
-  std::atomic<dispatch_queue_t> dispatch_queue_;
+  dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.
   std::vector<TimeSlot*> schedule_;

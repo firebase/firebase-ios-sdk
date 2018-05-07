@@ -80,7 +80,7 @@ if(HAVE_LIBDISPATCH)
     SOURCES
       executor_test.h
       executor_test.cc
-      executor_libdispatch_test.cc
+      executor_libdispatch_test.mm
       async_tests_util.h
     DEPENDS
       firebase_firestore_util_executor_libdispatch
@@ -107,7 +107,7 @@ if(HAVE_LIBDISPATCH)
     SOURCES
       async_queue_test.h
       async_queue_test.cc
-      async_queue_test_libdispatch.cc
+      async_queue_test_libdispatch.mm
       async_tests_util.h
     DEPENDS
     firebase_firestore_util_executor_libdispatch
