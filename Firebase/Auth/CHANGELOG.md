@@ -1,3 +1,10 @@
+# v5.0.0
+- Adds APIs for phone Auth testing to bypass the verification flow (#1192).
+- Changes the callback block signature for sign in and create user methods
+  to provide an AuthDataResult that includes the user and user info (#1123, #1186).
+- Removes GoogleToolboxForMac dependency (#1175).
+- Removes misc. deprecated APIs (#1188, #1200)
+
 # v4.6.1
 - Fixes crash which occurred when certain Firebase IDTokens were being parsed (#1076).
 
