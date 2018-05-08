@@ -130,7 +130,7 @@ if(HAVE_LIBDISPATCH)
 cc_library(
   firebase_firestore_util_executor_libdispatch
   SOURCES
-    executor_libdispatch.cc
+    executor_libdispatch.mm
     executor_libdispatch.h
     executor.h
   DEPENDS
