@@ -36,6 +36,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -44,6 +45,7 @@
 #include "gtest/gtest.h"
 
 using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
@@ -277,8 +279,8 @@ TEST_F(SerializerTest, EncodesTimestamps) {
       {1234, 999999999},
       {-1234, 0},
       {-1234, 999999999},
-      std::numeric_limits<Timestamp>::max(),
-      std::numeric_limits<Timestamp>::min(),
+      TimestampInternal::Max(),
+      TimestampInternal::Min(),
   };
 
   for (const Timestamp& ts_value : cases) {
@@ -396,8 +398,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer,
-      FieldValue::TimestampValue(std::numeric_limits<Timestamp>::max()));
+      &serializer, FieldValue::TimestampValue(TimestampInternal::Max()));
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -408,8 +409,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer,
-      FieldValue::TimestampValue(std::numeric_limits<Timestamp>::min()));
+      &serializer, FieldValue::TimestampValue(TimestampInternal::Min()));
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);

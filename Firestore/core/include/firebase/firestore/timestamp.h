@@ -19,7 +19,6 @@
 
 #include <cstdint>
 #include <ctime>
-#include <limits>
 #include <string>
 
 #if !defined(_STLPORT_VERSION)
@@ -217,27 +216,6 @@ struct hash<firebase::Timestamp> {
   // implementation is subject to change.
   size_t operator()(const firebase::Timestamp& timestamp) const;
 };
-
-template <>
-class numeric_limits<firebase::Timestamp> {
- public:
-  /**
-   * Represents the maximum allowable time that the Timestamp class handles,
-   * specifically 9999-12-31T23:59:59.999999999Z.
-   */
-  static firebase::Timestamp max() {
-    return {253402300800L - 1, 999999999};
-  }
-
-  /**
-   * Represents the minimum allowable time that the Timestamp class handles,
-   * specifically 0001-01-01T00:00:00Z.
-   */
-  static firebase::Timestamp min() {
-    return {-62135596800L, 0};
-  }
-};
-
 }  // namespace std
 
 #endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_TIMESTAMP_H_

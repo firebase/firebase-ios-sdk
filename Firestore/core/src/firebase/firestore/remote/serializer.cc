@@ -20,7 +20,6 @@
 #include <pb_encode.h>
 
 #include <functional>
-#include <limits>
 #include <map>
 #include <string>
 #include <utility>
@@ -28,6 +27,7 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
@@ -35,6 +35,7 @@ namespace firestore {
 namespace remote {
 
 using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
@@ -471,14 +472,12 @@ Timestamp DecodeTimestamp(Reader* reader) {
   // range. However, since we're decoding, a single corrupt byte could cause
   // this to occur, so we'll verify the ranges before passing them in since we'd
   // rather not abort in these situations.
-  if (timestamp_proto.seconds <
-      std::numeric_limits<Timestamp>::min().seconds()) {
+  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Input proto bytes cannot be parsed (timestamp "
                               "beyond the earliest supported date)"));
     return {};
-  } else if (std::numeric_limits<Timestamp>::max().seconds() <
-             timestamp_proto.seconds) {
+  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Input proto bytes cannot be parsed (timestamp "
                               "beyond the latest supported date)"));
