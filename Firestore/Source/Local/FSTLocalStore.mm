@@ -373,7 +373,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTargetID targetID = queryData.targetID;
       for (const DocumentKey &key : view.removedKeys) {
         [self->_persistence.referenceDelegate removeReference:key target:targetID];
-      };
+      }
       [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
       [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
     }
