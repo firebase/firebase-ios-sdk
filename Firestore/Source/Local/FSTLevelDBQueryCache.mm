@@ -294,7 +294,8 @@ using firebase::firestore::model::DocumentKeySet;
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
-  }
+    [self->_db.referenceDelegate addReference:key target:targetID];
+  };
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
@@ -303,6 +304,7 @@ using firebase::firestore::model::DocumentKeySet;
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
+    [self->_db.referenceDelegate removeReference:key target:targetID];
     [self.garbageCollector addPotentialGarbageKey:key];
   }
 }

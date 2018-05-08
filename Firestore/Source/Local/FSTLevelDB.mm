@@ -243,6 +243,10 @@ using leveldb::WriteOptions;
   _ptr.reset();
 }
 
+- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+  return nil;
+}
+
 #pragma mark - Error and Status
 
 + (nullable NSError *)errorWithStatus:(Status)status description:(NSString *)description, ... {

@@ -18,6 +18,7 @@
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Util/FSTAssert.h"
@@ -73,14 +74,13 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 @end
 
-@implementation FSTMemoryMutationQueue
-
-+ (instancetype)mutationQueue {
-  return [[FSTMemoryMutationQueue alloc] init];
+@implementation FSTMemoryMutationQueue {
+  FSTMemoryPersistence *_persistence;
 }
 
-- (instancetype)init {
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
+    _persistence = persistence;
     _queue = [NSMutableArray array];
     _batchesByDocumentKey =
         [FSTImmutableSortedSet setWithComparator:FSTDocumentReferenceComparatorByKey];
@@ -348,6 +348,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
       [garbageCollector addPotentialGarbageKey:key];
+      [_persistence.referenceDelegate removeMutationReference:key];
 
       FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
       references = [references setByRemovingObject:reference];
