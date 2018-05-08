@@ -511,6 +511,7 @@ using leveldb::WriteOptions;
                                              documentKey:mutation.key
                                                  batchID:batchID];
       _db.currentTransaction->Delete(key);
+      [_db.referenceDelegate removeMutationReference:mutation.key];
       [garbageCollector addPotentialGarbageKey:mutation.key];
     }
   }

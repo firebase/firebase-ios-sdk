@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init {
   if (self = [super init]) {
-    _queryCache = [[FSTMemoryQueryCache alloc] init];
+    _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
   }
   return self;
@@ -78,6 +78,10 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
+- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+  return nil;
+}
+
 - (const FSTTransactionRunner &)run {
   return _transactionRunner;
 }
@@ -85,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
   id<FSTMutationQueue> queue = _mutationQueues[user];
   if (!queue) {
-    queue = [FSTMemoryMutationQueue mutationQueue];
+    queue = [[FSTMemoryMutationQueue alloc] initWithPersistence:self];
     _mutationQueues[user] = queue;
   }
   return queue;

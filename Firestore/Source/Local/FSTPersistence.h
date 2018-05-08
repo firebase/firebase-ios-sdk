@@ -16,12 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
+@class FSTDocumentKey;
 @protocol FSTMutationQueue;
 @protocol FSTQueryCache;
+@class FSTQueryData;
 @protocol FSTRemoteDocumentCache;
+@class FSTReferenceSet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
  * of its reads and writes in order to avoid relying on being able to read back uncommitted writes.
  */
 struct FSTTransactionRunner;
+@protocol FSTReferenceDelegate;
 @protocol FSTPersistence <NSObject>
 
 /**
@@ -87,6 +92,12 @@ struct FSTTransactionRunner;
 
 @property(nonatomic, readonly, assign) const FSTTransactionRunner &run;
 
+/**
+ * This property provides access to hooks around the document reference lifecycle. It is initially
+ * nullable while being implemented, but the goal is to eventually have it be non-nil.
+ */
+@property(nonatomic, readonly, strong) _Nullable id<FSTReferenceDelegate> referenceDelegate;
+
 @end
 
 @protocol FSTTransactional
@@ -94,6 +105,52 @@ struct FSTTransactionRunner;
 - (void)startTransaction:(absl::string_view)label;
 
 - (void)commitTransaction;
+
+@end
+
+/**
+ * An FSTReferenceDelegate instance handles all of the hooks into the document-reference lifecycle.
+ * This includes being added to a target, being removed from a target, being subject to mutation,
+ * and being mutated by the user.
+ *
+ * Different implementations may do different things with each of these events. Not every
+ * implementation needs to do something with every lifecycle hook.
+ *
+ * Implementations that care about sequence numbers are responsible for generating them and making
+ * them available.
+ */
+@protocol FSTReferenceDelegate
+
+/**
+ * Registers an FSTReferenceSet of documents that should be considered 'referenced' and not eligible
+ * for removal during garbage collection.
+ */
+- (void)addInMemoryPins:(FSTReferenceSet *)set;
+
+/**
+ * Notify the delegate that a target was removed.
+ */
+- (void)removeTarget:(FSTQueryData *)queryData;
+
+/**
+ * Notify the delegate that the given document was added to the given target.
+ */
+- (void)addReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
+
+/**
+ * Notify the delegate that the given document was removed from the given target.
+ */
+- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
+
+/**
+ * Notify the delegate that a document is no longer being mutated by the user.
+ */
+- (void)removeMutationReference:(FSTDocumentKey *)key;
+
+/**
+ * Notify the delegate that a limbo document was updated.
+ */
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key;
 
 @end
 
