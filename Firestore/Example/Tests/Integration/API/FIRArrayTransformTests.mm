@@ -66,20 +66,12 @@
 
 /** Waits for a snapshot with local writes. */
 - (FIRDocumentSnapshot *)waitForLocalEvent {
-  FIRDocumentSnapshot *snapshot;
-  do {
-    snapshot = [_accumulator awaitEventWithName:@"Local event."];
-  } while (!snapshot.metadata.hasPendingWrites);
-  return snapshot;
+  return [_accumulator awaitLocalEventWithName:@"Local event."];
 }
 
 /** Waits for a snapshot that has no pending writes */
 - (FIRDocumentSnapshot *)waitForRemoteEvent {
-  FIRDocumentSnapshot *snapshot;
-  do {
-    snapshot = [_accumulator awaitEventWithName:@"Remote event."];
-  } while (snapshot.metadata.hasPendingWrites);
-  return snapshot;
+  return [_accumulator awaitRemoteEventWithName:@"Remote event."];
 }
 
 /** Writes some initial data and consumes the events generated. */

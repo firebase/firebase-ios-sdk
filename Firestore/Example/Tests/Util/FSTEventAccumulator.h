@@ -35,6 +35,12 @@ typedef void (^FSTValueEventHandler)(id _Nullable, NSError *_Nullable error);
 
 - (NSArray<id> *)awaitEvents:(NSUInteger)events name:(NSString *)name;
 
+/** Waits for a latency compensated local snapshot. */
+- (id)awaitLocalEventWithName:(NSString *)name;
+
+/** Waits for a snapshot that has no pending writes */
+- (id)awaitRemoteEventWithName:(NSString *)name;
+
 @property(nonatomic, strong, readonly) FSTValueEventHandler valueEventHandler;
 
 @end
