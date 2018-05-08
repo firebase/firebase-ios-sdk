@@ -1,3 +1,7 @@
+# Uncomment the next two lines for pre-release testing
+#source 'sso://cpdc-internal/spec'
+#source 'https://github.com/CocoaPods/Specs.git'
+
 use_frameworks!
 
 pod 'FirebaseCore', :path => '../'
@@ -8,16 +12,11 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/Core', '4.13.0'
+  pod 'Firebase/Core', '5.0.0'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
     pod 'OCMock'
-  end
-
-  target 'Analytics_Tests_iOS' do
-    inherit! :search_paths
-    pod 'FirebaseAnalytics'
   end
 end
 
@@ -213,12 +212,4 @@ target 'Storage_Example_tvOS' do
 #    inherit! :search_paths
 #    pod 'OCMock'
 #  end
-end
-
-# This post_install workaround should be removed when FirebaseAnalytics
-# removes its module includes to FirebaseCore.
-
-post_install do | installer |
-  print "Fix up FirebaseAnalytics module ... \n"
-  system 'cp ../patch/FirebaseAnalytics.h Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/'
 end
