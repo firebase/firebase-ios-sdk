@@ -33,6 +33,7 @@ namespace firestore {
 template <typename T>
 class EventListener {
  public:
+  virtual ~EventListener() {}
   /**
    * @brief OnEvent will be called with the new value or the error if an error
    * occurred.
@@ -42,7 +43,7 @@ class EventListener {
    * @param value The value of the event. null if there was an error.
    * @param error The error if there was error. null otherwise.
    */
-  void OnEvent(const T* value, const Error* error);
+  virtual void OnEvent(const T* value, const Error* error) = 0;
 };
 
 }  // namespace firestore
