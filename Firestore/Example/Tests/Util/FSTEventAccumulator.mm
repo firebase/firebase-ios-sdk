@@ -71,18 +71,18 @@ NS_ASSUME_NONNULL_BEGIN
   return events[0];
 }
 
-- (id)awaitLocalEventWithName:(NSString *)name {
+- (id)awaitLocalEvent {
   id event;
   do {
-    event = [self awaitEventWithName:name];
+    event = [self awaitEventWithName:@"Local Event"];
   } while (![self hasPendingWrites:event]);
   return event;
 }
 
-- (id)awaitRemoteEventWithName:(NSString *)name {
+- (id)awaitRemoteEvent {
   id event;
   do {
-    event = [self awaitEventWithName:name];
+    event = [self awaitEventWithName:@"Remote Event"];
   } while ([self hasPendingWrites:event]);
   return event;
 }

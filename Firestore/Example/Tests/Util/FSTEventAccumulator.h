@@ -25,21 +25,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^FSTValueEventHandler)(id _Nullable, NSError *_Nullable error);
 
-@interface FSTEventAccumulator : NSObject
+@interface FSTEventAccumulator <EventType> : NSObject
 
 + (instancetype)accumulatorForTest:(XCTestCase *)testCase;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (id)awaitEventWithName:(NSString *)name;
+- (EventType)awaitEventWithName:(NSString *)name;
 
-- (NSArray<id> *)awaitEvents:(NSUInteger)events name:(NSString *)name;
+- (NSArray<EventType> *)awaitEvents:(NSUInteger)events name:(NSString *)name;
 
 /** Waits for a latency compensated local snapshot. */
-- (id)awaitLocalEventWithName:(NSString *)name;
+- (EventType)awaitLocalEvent;
 
 /** Waits for a snapshot that has no pending writes */
-- (id)awaitRemoteEventWithName:(NSString *)name;
+- (EventType)awaitRemoteEvent;
 
 @property(nonatomic, strong, readonly) FSTValueEventHandler valueEventHandler;
 
