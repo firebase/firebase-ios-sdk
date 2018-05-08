@@ -64,13 +64,13 @@ TEST_P(ExecutorTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
   executor->Execute([&steps] { steps += '1'; });
+  executor->Execute([&steps] { steps += '2'; });
+  Schedule(executor.get(), Executor::Milliseconds(1),
+           [&steps] { steps += '3'; });
   Schedule(executor.get(), Executor::Milliseconds(5), [&] {
     steps += '4';
     signal_finished();
   });
-  Schedule(executor.get(), Executor::Milliseconds(1),
-           [&steps] { steps += '3'; });
-  executor->Execute([&steps] { steps += '2'; });
 
   EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_EQ(steps, "1234");

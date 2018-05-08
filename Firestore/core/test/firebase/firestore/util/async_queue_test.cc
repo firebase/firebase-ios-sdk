@@ -87,14 +87,14 @@ TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
   queue.Enqueue([&steps] { steps += '1'; });
+  queue.Enqueue([&steps] { steps += '2'; });
   queue.Enqueue([&] {
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId1, [&] {
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId1,
+                            [&] { steps += '3'; });
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId2, [&steps] {
       steps += '4';
       signal_finished();
     });
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId2,
-                            [&steps] { steps += '3'; });
-    queue.EnqueueRelaxed([&steps] { steps += '2'; });
   });
 
   EXPECT_TRUE(WaitForTestToFinish());
