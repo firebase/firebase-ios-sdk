@@ -17,14 +17,16 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TRANSFORM_OPERATIONS_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++."
+#endif  // !defined(__OBJC__)
+
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/include/firebase/firestore/timestamp.h"
-
-#if defined(__OBJC__)
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#endif
+
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 
 namespace firebase {
 namespace firestore {
@@ -51,8 +53,6 @@ class TransformOperation {
   /** Returns the actual type. */
   virtual Type type() const = 0;
 
-// TODO(mikelehen): apply methods require FSTFieldValue which is Obj-C only.
-#if defined(__OBJC__)
   /**
    * Computes the local transform result against the provided `previousValue`,
    * optionally using the provided localWriteTime.
@@ -66,7 +66,6 @@ class TransformOperation {
    */
   virtual FSTFieldValue* ApplyToRemoteDocument(
       FSTFieldValue* previousValue, FSTFieldValue* transformResult) const = 0;
-#endif
 
   /** Returns whether the two are equal. */
   virtual bool operator==(const TransformOperation& other) const = 0;
@@ -76,11 +75,9 @@ class TransformOperation {
     return !operator==(other);
   }
 
-#if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   virtual NSUInteger Hash() const = 0;
-#endif  // defined(__OBJC__)
 };
 
 /** Transforms a value into a server-generated timestamp. */
@@ -93,8 +90,6 @@ class ServerTimestampTransform : public TransformOperation {
     return Type::ServerTimestamp;
   }
 
-// TODO(mikelehen): apply methods require FSTFieldValue which is Obj-C only.
-#if defined(__OBJC__)
   FSTFieldValue* ApplyToLocalView(FSTFieldValue* previousValue,
                                   FIRTimestamp* localWriteTime) const override {
     return [FSTServerTimestampValue
@@ -103,11 +98,10 @@ class ServerTimestampTransform : public TransformOperation {
   }
 
   FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* previousValue,
+      FSTFieldValue* /* previousValue */,
       FSTFieldValue* transformResult) const override {
     return transformResult;
   }
-#endif
 
   bool operator==(const TransformOperation& other) const override {
     // All ServerTimestampTransform objects are equal.
@@ -119,7 +113,6 @@ class ServerTimestampTransform : public TransformOperation {
     return shared_instance;
   }
 
-#if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   NSUInteger Hash() const override {
@@ -127,16 +120,11 @@ class ServerTimestampTransform : public TransformOperation {
     // instances are equal.
     return 37;
   }
-#endif  // defined(__OBJC__)
 
  private:
   ServerTimestampTransform() {
   }
 };
-
-// TODO(mikelehen): ArrayTransform can only be used from Obj-C until we switch
-// to using FieldValue instead of FSTFieldValue.
-#if defined(__OBJC__)
 
 /**
  * Transforms an array via a union or remove operation (for convenience, we use
@@ -155,14 +143,15 @@ class ArrayTransform : public TransformOperation {
     return type_;
   }
 
-  FSTFieldValue* ApplyToLocalView(FSTFieldValue* previousValue,
-                                  FIRTimestamp* localWriteTime) const override {
+  FSTFieldValue* ApplyToLocalView(
+      FSTFieldValue* previousValue,
+      FIRTimestamp* /* localWriteTime */) const override {
     return Apply(previousValue);
   }
 
   FSTFieldValue* ApplyToRemoteDocument(
       FSTFieldValue* previousValue,
-      FSTFieldValue* transformResult) const override {
+      FSTFieldValue* /* transformResult */) const override {
     // The server just sends null as the transform result for array operations,
     // so we have to calculate a result the same as we do for local
     // applications.
@@ -189,7 +178,6 @@ class ArrayTransform : public TransformOperation {
     return true;
   }
 
-#if defined(__OBJC__)
   // For Objective-C++ hash; to be removed after migration.
   // Do NOT use in C++ code.
   NSUInteger Hash() const override {
@@ -200,7 +188,6 @@ class ArrayTransform : public TransformOperation {
     }
     return result;
   }
-#endif  // defined(__OBJC__)
 
   static const std::vector<FSTFieldValue*>& Elements(
       const TransformOperation& op) {
@@ -245,7 +232,6 @@ class ArrayTransform : public TransformOperation {
     return [[FSTArrayValue alloc] initWithValueNoCopy:result];
   }
 };
-#endif
 
 }  // namespace model
 }  // namespace firestore

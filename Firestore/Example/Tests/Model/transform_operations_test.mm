@@ -30,9 +30,34 @@ class DummyOperation : public TransformOperation {
   Type type() const override {
     return Type::Test;
   }
+  /**
+   * Computes the local transform result against the provided `previousValue`,
+   * optionally using the provided localWriteTime.
+   */
+  FSTFieldValue* ApplyToLocalView(
+      FSTFieldValue* /* previousValue */,
+      FIRTimestamp* /* localWriteTime */) const override {
+    return nil;
+  }
+
+  /**
+   * Computes a final transform result after the transform has been acknowledged
+   * by the server, potentially using the server-provided transformResult.
+   */
+  FSTFieldValue* ApplyToRemoteDocument(
+      FSTFieldValue* /* previousValue */,
+      FSTFieldValue* /* transformResult */) const override {
+    return nil;
+  }
 
   bool operator==(const TransformOperation& other) const override {
     return this == &other;
+  }
+
+  NSUInteger Hash() const override {
+    // arbitrary number, the same as used in ObjC implementation, since all
+    // instances are equal.
+    return 37;
   }
 };
 
