@@ -49,6 +49,12 @@ TEST_P(ExecutorTest, Execute) {
   EXPECT_TRUE(WaitForTestToFinish());
 }
 
+TEST_P(ExecutorTest, ExecuteBlocking) {
+  bool finished = false;
+  executor->ExecuteBlocking([&] { finished = true; });
+  EXPECT_TRUE(finished);
+}
+
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   const auto future = std::async(std::launch::async, [&] {
     auto another_executor = GetParam()();
@@ -103,6 +109,66 @@ TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
 
   EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_NO_THROW(delayed_operation.Cancel());
+}
+
+TEST_P(ExecutorTest, IsCurrentExecutor) {
+  EXPECT_FALSE(executor->IsCurrentExecutor());
+  EXPECT_NE(executor->Name(), executor->CurrentExecutorName());
+
+  executor->ExecuteBlocking([&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+  });
+
+  executor->Execute([&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+  });
+
+  Schedule(executor.get(), Executor::Milliseconds(1), [&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+    signal_finished();
+  });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_P(ExecutorTest, ModifyingSchedule) {
+  const Executor::Tag tag_foo = 1;
+  const Executor::Tag tag_bar = 2;
+
+  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  EXPECT_FALSE(executor->PopFromSchedule().has_value());
+
+  executor->Schedule(chr::seconds(1), {tag_foo, [] {}});
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+
+  executor->Schedule(chr::seconds(2), {tag_bar, [] {}});
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  // Duplicate
+  executor->Schedule(chr::seconds(3), {tag_bar, [] {}});
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  auto maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_bar);
+  EXPECT_TRUE(executor->IsScheduled(tag_bar)); // There's still a duplicate
+
+  maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_bar);
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
 }
 
 }  // namespace util
