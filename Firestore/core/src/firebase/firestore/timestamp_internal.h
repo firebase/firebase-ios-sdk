@@ -23,13 +23,12 @@ namespace firebase {
 
 /**
  * Details about the Timestamp class which are useful internally, but we don't
- * want to expose publicly. Currently, just a collection of limits.
+ * want to expose publicly.
  */
 class TimestampInternal {
  public:
   /**
-   * Represents the maximum allowable time that the Timestamp class
-   * handles,
+   * Represents the maximum allowable time that the Timestamp class handles,
    * specifically 9999-12-31T23:59:59.999999999Z.
    */
   static firebase::Timestamp Max() {
