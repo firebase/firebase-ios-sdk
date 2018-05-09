@@ -63,6 +63,9 @@ TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
 TEST_P(ExecutorTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
+  // TODO(varconst): these tests used to check that operations are executed
+  // according to the time for which they're scheduled, not in the order they
+  // were added. Restore this check, probably by using a fake clock.
   executor->Execute([&steps] { steps += '1'; });
   executor->Execute([&steps] { steps += '2'; });
   Schedule(executor.get(), Executor::Milliseconds(1),

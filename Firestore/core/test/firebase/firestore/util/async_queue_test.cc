@@ -86,6 +86,9 @@ TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
+  // TODO(varconst): these tests used to check that operations are executed
+  // according to the time for which they're scheduled, not in the order they
+  // were added. Restore this check, probably by using a fake clock.
   queue.Enqueue([&steps] { steps += '1'; });
   queue.Enqueue([&steps] { steps += '2'; });
   queue.Enqueue([&] {
