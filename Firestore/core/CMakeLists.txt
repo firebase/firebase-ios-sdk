@@ -21,6 +21,7 @@ add_subdirectory(src/firebase/firestore/immutable)
 add_subdirectory(src/firebase/firestore/local)
 add_subdirectory(src/firebase/firestore/model)
 add_subdirectory(src/firebase/firestore/remote)
+add_subdirectory(src/firebase/firestore/remote/impl)
 add_subdirectory(src/firebase/firestore/util)
 
 add_subdirectory(test/firebase/firestore/testutil)

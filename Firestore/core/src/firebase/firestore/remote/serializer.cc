@@ -25,11 +25,13 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/remote/impl/reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
 
 namespace firebase {
 namespace firestore {
@@ -42,20 +44,18 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::remote::impl::Reader;
+using firebase::firestore::remote::impl::Tag;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
-using firebase::firestore::remote::impl::Tag;
 
 namespace {
 
 class Writer;
 
-class Reader;
-
 void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
 ObjectValue::Map DecodeObject(Reader* reader);
-
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
@@ -158,98 +158,6 @@ class Writer {
   pb_ostream_t stream_;
 };
 
-/**
- * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_istream_t.
- */
-class Reader {
- public:
-  /**
-   * Creates an input stream that reads from the specified bytes. Note that
-   * this reference must remain valid for the lifetime of this Reader.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_istream_from_buffer())
-   *
-   * @param bytes where the input should be deserialized from.
-   */
-  static Reader Wrap(const uint8_t* bytes, size_t length);
-
-  /**
-   * Reads a message type from the input stream.
-   *
-   * This essentially wraps calls to nanopb's pb_decode_tag() method.
-   */
-  Tag ReadTag();
-
-  /**
-   * Reads a nanopb message from the input stream.
-   *
-   * This essentially wraps calls to nanopb's pb_decode() method. If we didn't
-   * use `oneof`s in our protos, this would be the primary way of decoding
-   * messages.
-   */
-  void ReadNanopbMessage(const pb_field_t fields[], void* dest_struct);
-
-  void ReadNull();
-  bool ReadBool();
-  int64_t ReadInteger();
-
-  std::string ReadString();
-
-  /**
-   * Reads a message and its length.
-   *
-   * Analog to Writer::WriteNestedMessage(). See that methods docs for further
-   * details.
-   *
-   * Call this method when reading a nested message. Provide a function to read
-   * the message itself.
-   */
-  template <typename T>
-  T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
-
-  size_t bytes_left() const {
-    return stream_.bytes_left;
-  }
-
-  Status status() const {
-    return status_;
-  }
-
-  void set_status(Status status) {
-    status_ = status;
-  }
-
- private:
-  /**
-   * Creates a new Reader, based on the given nanopb pb_istream_t. Note that
-   * a shallow copy will be taken. (Non-null pointers within this struct must
-   * remain valid for the lifetime of this Reader.)
-   */
-  explicit Reader(pb_istream_t stream) : stream_(stream) {
-  }
-
-  /**
-   * Reads a "varint" from the input stream.
-   *
-   * This essentially wraps calls to nanopb's pb_decode_varint() method.
-   *
-   * Note that (despite the return type) this works for bool, enum, int32,
-   * int64, uint32 and uint64 proto field types.
-   *
-   * Note: This is not expected to be called direclty, but rather only via the
-   * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
-   *
-   * @return The decoded varint as a uint64_t.
-   */
-  uint64_t ReadVarint();
-
-  Status status_ = Status::OK();
-
-  pb_istream_t stream_;
-};
-
 Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   // TODO(rsgowman): find a better home for this constant.
   // A document is defined to have a max size of 1MiB - 4 bytes.
@@ -277,10 +185,6 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   return Writer(raw_stream);
 }
 
-Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
-  return Reader{pb_istream_from_buffer(bytes, length)};
-}
-
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
 // Reader methods. This should make it a bit easier to review. Refactor these to
@@ -295,36 +199,12 @@ void Writer::WriteTag(Tag tag) {
   }
 }
 
-Tag Reader::ReadTag() {
-  Tag tag;
-  if (!status_.ok()) return tag;
-
-  bool eof;
-  if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    return tag;
-  }
-
-  // nanopb code always returns a false status when setting eof.
-  FIREBASE_ASSERT_MESSAGE(!eof, "nanopb set both ok status and eof to true");
-
-  return tag;
-}
-
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
   if (!status_.ok()) return;
 
   if (!pb_encode(&stream_, fields, src_struct)) {
     FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-  }
-}
-
-void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
-  if (!status_.ok()) return;
-
-  if (!pb_decode(&stream_, fields, dest_struct)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
   }
 }
 
@@ -340,66 +220,16 @@ void Writer::WriteVarint(uint64_t value) {
   }
 }
 
-/**
- * Note that (despite the return type) this works for bool, enum, int32, int64,
- * uint32 and uint64 proto field types.
- *
- * Note: This is not expected to be called directly, but rather only via the
- * other Decode* methods (i.e. DecodeBool, DecodeLong, etc)
- *
- * @return The decoded varint as a uint64_t.
- */
-uint64_t Reader::ReadVarint() {
-  if (!status_.ok()) return 0;
-
-  uint64_t varint_value = 0;
-  if (!pb_decode_varint(&stream_, &varint_value)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-  }
-  return varint_value;
-}
-
 void Writer::WriteNull() {
   return WriteVarint(google_protobuf_NullValue_NULL_VALUE);
-}
-
-void Reader::ReadNull() {
-  uint64_t varint = ReadVarint();
-  if (!status_.ok()) return;
-
-  if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    status_ = Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (invalid null value)");
-  }
 }
 
 void Writer::WriteBool(bool bool_value) {
   return WriteVarint(bool_value);
 }
 
-bool Reader::ReadBool() {
-  uint64_t varint = ReadVarint();
-  if (!status_.ok()) return false;
-
-  switch (varint) {
-    case 0:
-      return false;
-    case 1:
-      return true;
-    default:
-      status_ =
-          Status(FirestoreErrorCode::DataLoss,
-                 "Input proto bytes cannot be parsed (invalid bool value)");
-      return false;
-  }
-}
-
 void Writer::WriteInteger(int64_t integer_value) {
   return WriteVarint(integer_value);
-}
-
-int64_t Reader::ReadInteger() {
-  return ReadVarint();
 }
 
 void Writer::WriteString(const std::string& string_value) {
@@ -410,38 +240,6 @@ void Writer::WriteString(const std::string& string_value) {
           string_value.length())) {
     FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
   }
-}
-
-std::string Reader::ReadString() {
-  if (!status_.ok()) return "";
-
-  pb_istream_t substream;
-  if (!pb_make_string_substream(&stream_, &substream)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &substream);
-    return "";
-  }
-
-  std::string result(substream.bytes_left, '\0');
-  if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
-               substream.bytes_left)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &substream);
-    return "";
-  }
-
-  // NB: future versions of nanopb read the remaining characters out of the
-  // substream (and return false if that fails) as an additional safety
-  // check within pb_close_string_substream. Unfortunately, that's not present
-  // in the current version (0.38).  We'll make a stronger assertion and check
-  // to make sure there *are* no remaining characters in the substream.
-  FIREBASE_ASSERT_MESSAGE(
-      substream.bytes_left == 0,
-      "Bytes remaining in substream after supposedly reading all of them.");
-
-  pb_close_string_substream(&stream_, &substream);
-
-  return result;
 }
 
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
@@ -661,43 +459,6 @@ void Writer::WriteNestedMessage(
     FIREBASE_ASSERT_MESSAGE(
         false, "Parsing the nested message twice yielded different sizes");
   }
-}
-
-template <typename T>
-T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
-  // Implementation note: This is roughly modeled on pb_decode_delimited,
-  // adjusted to account for the oneof in FieldValue.
-
-  if (!status_.ok()) return T();
-
-  pb_istream_t raw_substream;
-  if (!pb_make_string_substream(&stream_, &raw_substream)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &raw_substream);
-    return T();
-  }
-  Reader substream(raw_substream);
-
-  // If this fails, we *won't* return right away so that we can cleanup the
-  // substream (although technically, that turns out not to matter; no resource
-  // leaks occur if we don't do this.)
-  // TODO(rsgowman): Consider RAII here. (Watch out for Reader class which also
-  // wraps streams.)
-  T message = read_message_fn(&substream);
-  status_ = substream.status();
-
-  // NB: future versions of nanopb read the remaining characters out of the
-  // substream (and return false if that fails) as an additional safety
-  // check within pb_close_string_substream. Unfortunately, that's not present
-  // in the current version (0.38).  We'll make a stronger assertion and check
-  // to make sure there *are* no remaining characters in the substream.
-  FIREBASE_ASSERT_MESSAGE(
-      substream.bytes_left() == 0,
-      "Bytes remaining in substream after supposedly reading all of them.");
-
-  pb_close_string_substream(&stream_, &substream.stream_);
-
-  return message;
 }
 
 /**
