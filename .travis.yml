@@ -39,13 +39,11 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
         - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
-
-        # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
-        #  - bundle exec pod lib lint FirebaseAuth.podspec
-        #  - bundle exec pod lib lint FirebaseDatabase.podspec
-        #  - bundle exec pod lib lint FirebaseMessaging.podspec
-        #  - bundle exec pod lib lint FirebaseStorage.podspec
-        #  - bundle exec pod lib lint FirebaseFirestore.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec
 
     - stage: test
       env:
@@ -55,6 +53,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow_warnings
 
     # Alternative platforms
 
