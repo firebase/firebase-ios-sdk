@@ -20,9 +20,14 @@
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
 case "$PROJECT-$METHOD" in
-  *-xcodebuild|*-pod-lib-lint)
+  *-xcodebuild)
     bundle install
     gem install xcpretty
+    ;;
+
+  *-pod-lib-lint)
+    bundle install
+    bundle exec pod repo update
     ;;
 
   Firestore-cmake)
