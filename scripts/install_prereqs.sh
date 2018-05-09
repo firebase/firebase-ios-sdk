@@ -54,8 +54,9 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   *)
-    echo "Unknown project-method combo" 1>&2
+    echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
+    echo "  PLATFORM=$PLATFORM" 1>&2
     echo "  METHOD=$METHOD" 1>&2
     exit 1
     ;;
