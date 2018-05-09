@@ -41,6 +41,8 @@ Google's C++ test framework.
   # (e.g. gtest.h). We don't need them because they're effectively empty:
   # they're compile-time hooks for third-party customization that we don't use.
   s.public_header_files = [
+    'googlemock/include/gmock/*.h',
+    'googlemock/include/gmock/internal/*.h',
     'googletest/include/gtest/*.h',
     'googletest/include/gtest/internal/*.h'
   ]
@@ -54,6 +56,9 @@ Google's C++ test framework.
   ]
 
   s.source_files = [
+    'googlemock/src/*.cc',
+    'googlemock/include/gmock/*.h',
+    'googlemock/include/gmock/internal/*.h',
     'googletest/src/*.cc',
     'googletest/include/gtest/*.h',
     'googletest/include/gtest/internal/*.h'
@@ -61,8 +66,11 @@ Google's C++ test framework.
 
   s.exclude_files = [
     # A convenience wrapper for a simple command-line build. If included in
-    # this build, results in duplicate symbols
+    # this build, results in duplicate symbols.
+    'googlemock/src/gmock-all.cc',
     'googletest/src/gtest-all.cc',
+    # Both gmock and gtest define a main function but we only need one.
+    'googletest/src/gtest_main.cc',
   ]
 
   s.library = 'c++'
@@ -70,12 +78,17 @@ Google's C++ test framework.
   # When building this pod there are headers in googletest/src.
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' =>
-      '"${PODS_ROOT}/GoogleTest/googletest/include" "${PODS_ROOT}/GoogleTest/googletest"'
+      '"${PODS_ROOT}/GoogleTest/googlemock/include" ' +
+      '"${PODS_ROOT}/GoogleTest/googletest/include" ' +
+      '"${PODS_ROOT}/GoogleTest/googletest"'
   }
 
   s.prepare_command = <<-'CMD'
     # Remove includes of files in internal/custom
     sed -i.bak -e '/include.*internal\/custom/ d' \
+      googlemock/include/gmock/gmock-matchers.h \
+      googlemock/include/gmock/gmock-generated-actions.h \
+      googlemock/include/gmock/internal/gmock-port.h \
       googletest/include/gtest/gtest-printers.h \
       googletest/include/gtest/internal/gtest-port.h \
       googletest/src/gtest-death-test.cc \
