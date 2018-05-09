@@ -57,12 +57,6 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
 ObjectValue::Map DecodeObject(Reader* reader);
 
-// TODO(rsgowman): I've left the methods as near as possible to where they were
-// before, which implies that the Writer methods are interspersed with the
-// Reader methods. This should make it a bit easier to review. Refactor these to
-// group the related methods together (probably within their own file rather
-// than here).
-
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
