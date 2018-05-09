@@ -21,19 +21,19 @@
 
 bundle install
 
-case "$PROJECT-$METHOD" in
-  Firebase-xcodebuild-iOS)
+case "$PROJECT-$PLATFORM-$METHOD" in
+  Firebase-iOS-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Functions/Example
     ;;
 
-  Firebase-xcodebuild-*)
+  Firebase-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
     ;;
 
-  Firestore-xcodebuild-*)
+  Firestore-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
@@ -42,8 +42,7 @@ case "$PROJECT-$METHOD" in
     bundle exec pod repo update
     ;;
 
-  Firestore-cmake)
-    bundle install
+  Firestore-*-cmake)
     # xcpretty is helpful for the intermediate step which builds FirebaseCore
     # using xcodebuild.
     gem install xcpretty
