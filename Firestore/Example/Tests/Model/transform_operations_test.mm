@@ -30,23 +30,14 @@ class DummyOperation : public TransformOperation {
   Type type() const override {
     return Type::Test;
   }
-  /**
-   * Computes the local transform result against the provided `previousValue`,
-   * optionally using the provided localWriteTime.
-   */
-  FSTFieldValue* ApplyToLocalView(
-      FSTFieldValue* /* previousValue */,
-      FIRTimestamp* /* localWriteTime */) const override {
+
+  FSTFieldValue* ApplyToLocalView(FSTFieldValue* /* previousValue */,
+                                  FIRTimestamp* /* localWriteTime */) const override {
     return nil;
   }
 
-  /**
-   * Computes a final transform result after the transform has been acknowledged
-   * by the server, potentially using the server-provided transformResult.
-   */
-  FSTFieldValue* ApplyToRemoteDocument(
-      FSTFieldValue* /* previousValue */,
-      FSTFieldValue* /* transformResult */) const override {
+  FSTFieldValue* ApplyToRemoteDocument(FSTFieldValue* /* previousValue */,
+                                       FSTFieldValue* /* transformResult */) const override {
     return nil;
   }
 
