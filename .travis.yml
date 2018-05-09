@@ -27,6 +27,27 @@ jobs:
 
     # Primary platforms
 
+    # Run unit tests
+    - stage: test
+      env:
+        - PROJECT=Firebase PLATFORM=iOS
+      before_install:
+        - npm install ios-sim -g
+        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-7, 11.3"
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_changed.sh ./scripts/pod_install.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # pod lib lint to check build and warnings
     - stage: test
       env:
@@ -48,27 +69,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow_warnings
-
-    # Run unit tests
-    - stage: test
-      env:
-        - PROJECT=Firebase PLATFORM=iOS
-      before_install:
-        - npm install ios-sim -g
-        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-7, 11.3"
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-    - stage: test
-      env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
-      before_install:
-        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
-      script:
-        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Alternative platforms
 
