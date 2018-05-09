@@ -27,6 +27,29 @@ jobs:
 
     # Primary platforms
 
+    # pod lib lint to check build and warnings
+    - stage: test
+      env:
+        - PROJECT=Firebase PLATFORM=iOS
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow_warnings
+
+    # Run unit tests
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS
@@ -38,13 +61,6 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec
-
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
@@ -53,7 +69,6 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow_warnings
 
     # Alternative platforms
 
