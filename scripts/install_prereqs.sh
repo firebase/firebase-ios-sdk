@@ -19,14 +19,26 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
+bundle install
+
 case "$PROJECT-$METHOD" in
-  *-xcodebuild)
-    bundle install
+  Firebase-xcodebuild-iOS)
     gem install xcpretty
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Functions/Example
+    ;;
+
+  Firebase-xcodebuild-*)
+    gem install xcpretty
+    bundle exec pod install --project-directory=Example --repo-update
+    ;;
+
+  Firestore-xcodebuild-*)
+    gem install xcpretty
+    bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;
 
   *-pod-lib-lint)
-    bundle install
     bundle exec pod repo update
     ;;
 
@@ -37,6 +49,9 @@ case "$PROJECT-$METHOD" in
     gem install xcpretty
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Firestore/Example \
+        --no-repo-update
     ;;
 
   *)
