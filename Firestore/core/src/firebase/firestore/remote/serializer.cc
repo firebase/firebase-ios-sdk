@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/remote/impl/reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
+#include "Firestore/core/src/firebase/firestore/remote/impl/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
@@ -46,201 +47,21 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::remote::impl::Reader;
 using firebase::firestore::remote::impl::Tag;
+using firebase::firestore::remote::impl::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
 namespace {
 
-class Writer;
-
 void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
 ObjectValue::Map DecodeObject(Reader* reader);
-
-/**
- * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_ostream_t. Also doc how to check status.
- */
-class Writer {
- public:
-  /**
-   * Creates an output stream that writes to the specified vector. Note that
-   * this vector pointer must remain valid for the lifetime of this Writer.
-   *
-   * (This is roughly equivalent to the nanopb function
-   * pb_ostream_from_buffer())
-   *
-   * @param out_bytes where the output should be serialized to.
-   */
-  static Writer Wrap(std::vector<uint8_t>* out_bytes);
-
-  /**
-   * Creates a non-writing output stream used to calculate the size of
-   * the serialized output.
-   */
-  static Writer Sizing() {
-    return Writer(PB_OSTREAM_SIZING);
-  }
-
-  /**
-   * Writes a message type to the output stream.
-   *
-   * This essentially wraps calls to nanopb's pb_encode_tag() method.
-   */
-  void WriteTag(Tag tag);
-
-  /**
-   * Writes a nanopb message to the output stream.
-   *
-   * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
-   * use `oneof`s in our protos, this would be the primary way of encoding
-   * messages.
-   */
-  void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
-
-  void WriteSize(size_t size);
-  void WriteNull();
-  void WriteBool(bool bool_value);
-  void WriteInteger(int64_t integer_value);
-
-  void WriteString(const std::string& string_value);
-
-  /**
-   * Writes a message and its length.
-   *
-   * When writing a top level message, protobuf doesn't include the length
-   * (since you can get that already from the length of the binary output.) But
-   * when writing a sub/nested message, you must include the length in the
-   * serialization.
-   *
-   * Call this method when writing a nested message. Provide a function to
-   * write the message itself. This method will calculate the size of the
-   * written message (using the provided function with a non-writing sizing
-   * stream), write out the size (and perform sanity checks), and then serialize
-   * the message by calling the provided function a second time.
-   */
-  void WriteNestedMessage(const std::function<void(Writer*)>& write_message_fn);
-
-  size_t bytes_written() const {
-    return stream_.bytes_written;
-  }
-
-  Status status() const {
-    return status_;
-  }
-
- private:
-  Status status_ = Status::OK();
-
-  /**
-   * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
-   * a shallow copy will be taken. (Non-null pointers within this struct must
-   * remain valid for the lifetime of this Writer.)
-   */
-  explicit Writer(const pb_ostream_t& stream) : stream_(stream) {
-  }
-
-  /**
-   * Writes a "varint" to the output stream.
-   *
-   * This essentially wraps calls to nanopb's pb_encode_varint() method.
-   *
-   * Note that (despite the value parameter type) this works for bool, enum,
-   * int32, int64, uint32 and uint64 proto field types.
-   *
-   * Note: This is not expected to be called directly, but rather only
-   * via the other Write* methods (i.e. WriteBool, WriteLong, etc)
-   *
-   * @param value The value to write, represented as a uint64_t.
-   */
-  void WriteVarint(uint64_t value);
-
-  pb_ostream_t stream_;
-};
-
-Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): find a better home for this constant.
-  // A document is defined to have a max size of 1MiB - 4 bytes.
-  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
-
-  // Construct a nanopb output stream.
-  //
-  // Set the max_size to be the max document size (as an upper bound; one would
-  // expect individual FieldValue's to be smaller than this).
-  //
-  // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
-  // care about the underlying output vector, so where we are in the vector
-  // itself is irrelevant. i.e. don't use out_bytes->size())
-  pb_ostream_t raw_stream = {
-      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
-                      size_t count) -> bool {
-        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
-        out_bytes->insert(out_bytes->end(), buf, buf + count);
-        return true;
-      },
-      /*state=*/out_bytes,
-      /*max_size=*/kMaxDocumentSize,
-      /*bytes_written=*/0,
-      /*errmsg=*/nullptr};
-  return Writer(raw_stream);
-}
 
 // TODO(rsgowman): I've left the methods as near as possible to where they were
 // before, which implies that the Writer methods are interspersed with the
 // Reader methods. This should make it a bit easier to review. Refactor these to
 // group the related methods together (probably within their own file rather
 // than here).
-
-void Writer::WriteTag(Tag tag) {
-  if (!status_.ok()) return;
-
-  if (!pb_encode_tag(&stream_, tag.wire_type, tag.field_number)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-  }
-}
-
-void Writer::WriteNanopbMessage(const pb_field_t fields[],
-                                const void* src_struct) {
-  if (!status_.ok()) return;
-
-  if (!pb_encode(&stream_, fields, src_struct)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-  }
-}
-
-void Writer::WriteSize(size_t size) {
-  return WriteVarint(size);
-}
-
-void Writer::WriteVarint(uint64_t value) {
-  if (!status_.ok()) return;
-
-  if (!pb_encode_varint(&stream_, value)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-  }
-}
-
-void Writer::WriteNull() {
-  return WriteVarint(google_protobuf_NullValue_NULL_VALUE);
-}
-
-void Writer::WriteBool(bool bool_value) {
-  return WriteVarint(bool_value);
-}
-
-void Writer::WriteInteger(int64_t integer_value) {
-  return WriteVarint(integer_value);
-}
-
-void Writer::WriteString(const std::string& string_value) {
-  if (!status_.ok()) return;
-
-  if (!pb_encode_string(
-          &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
-          string_value.length())) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-  }
-}
 
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
   google_protobuf_Timestamp timestamp_proto =
@@ -403,61 +224,6 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
           false,
           "Somehow got an unexpected field number (tag) after verifying that "
           "the field number was expected.");
-  }
-}
-
-void Writer::WriteNestedMessage(
-    const std::function<void(Writer*)>& write_message_fn) {
-  if (!status_.ok()) return;
-
-  // First calculate the message size using a non-writing substream.
-  Writer sizer = Writer::Sizing();
-  write_message_fn(&sizer);
-  status_ = sizer.status();
-  if (!status_.ok()) return;
-  size_t size = sizer.bytes_written();
-
-  // Write out the size to the output writer.
-  WriteSize(size);
-  if (!status_.ok()) return;
-
-  // If this stream is itself a sizing stream, then we don't need to actually
-  // parse field_value a second time; just update the bytes_written via a call
-  // to pb_write. (If we try to write the contents into a sizing stream, it'll
-  // fail since sizing streams don't actually have any buffer space.)
-  if (stream_.callback == nullptr) {
-    if (!pb_write(&stream_, nullptr, size)) {
-      FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
-    }
-    return;
-  }
-
-  // Ensure the output stream has enough space
-  if (stream_.bytes_written + size > stream_.max_size) {
-    FIREBASE_ASSERT_MESSAGE(
-        false,
-        "Insufficient space in the output stream to write the given message");
-  }
-
-  // Use a substream to verify that a callback doesn't write more than what it
-  // did the first time. (Use an initializer rather than setting fields
-  // individually like nanopb does. This gives us a *chance* of noticing if
-  // nanopb adds new fields.)
-  Writer writer({stream_.callback, stream_.state,
-                 /*max_size=*/size, /*bytes_written=*/0,
-                 /*errmsg=*/nullptr});
-  write_message_fn(&writer);
-  status_ = writer.status();
-  if (!status_.ok()) return;
-
-  stream_.bytes_written += writer.stream_.bytes_written;
-  stream_.state = writer.stream_.state;
-  stream_.errmsg = writer.stream_.errmsg;
-
-  if (writer.bytes_written() != size) {
-    // submsg size changed
-    FIREBASE_ASSERT_MESSAGE(
-        false, "Parsing the nested message twice yielded different sizes");
   }
 }
 

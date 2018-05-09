@@ -18,6 +18,8 @@ cc_library(
     tag.h
     reader.h
     reader.cc
+    writer.h
+    writer.cc
   DEPENDS
     firebase_firestore_util
     firebase_firestore_protos_nanopb
