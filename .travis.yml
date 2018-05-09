@@ -30,7 +30,7 @@ jobs:
     # pod lib lint to check build and warnings
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
