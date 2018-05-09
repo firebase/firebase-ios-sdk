@@ -35,7 +35,7 @@ run=false
 
 # To force Travis to do a full run, change the "false" to "{PR number}" like
 # if [[ "$TRAVIS_PULL_REQUEST" == "904" ]]; then
-if [[ "$TRAVIS_PULL_REQUEST" == "1103" ]]; then
+if [[ "$TRAVIS_PULL_REQUEST" == "false" ]]; then
   # Full builds should run everything
   run=true
 
@@ -68,6 +68,7 @@ fi
 
 # Always rebuild if Travis configuration and/or build scripts changed.
 check_changes '^.travis.yml'
+check_changes '^Gemfile.lock'
 check_changes '^scripts/(build|if_changed).sh'
 
 if [[ "$run" == true ]]; then
