@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,6 +44,7 @@ using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
+using firebase::firestore::remote::impl::Tag;
 
 namespace {
 
@@ -54,18 +56,6 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value);
 
 ObjectValue::Map DecodeObject(Reader* reader);
 
-/**
- * Represents a nanopb tag.
- *
- * field_number is one of the field tags that nanopb generates based off of
- * the proto messages. They're typically named in the format:
- * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
- * google_firestore_v1beta1_Document_name_tag.
- */
-struct Tag {
-  pb_wire_type_t wire_type;
-  uint32_t field_number;
-};
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
