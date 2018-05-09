@@ -19,12 +19,17 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -59,7 +64,7 @@ class Serializer {
   }
 
   /**
-   * Converts the FieldValue model passed into bytes.
+   * @brief Converts the FieldValue model passed into bytes.
    *
    * @param field_value the model to convert.
    * @param[out] out_bytes A buffer to place the output. The bytes will be
@@ -111,7 +116,56 @@ class Serializer {
   firebase::firestore::model::DocumentKey DecodeKey(
       absl::string_view name) const;
 
+  /**
+   * @brief Converts the Document (i.e. key/value) into bytes.
+   *
+   * @param[out] out_bytes A buffer to place the output. The bytes will be
+   * appended to this vector.
+   * @return A Status, which if not ok(), indicates what went wrong. Note that
+   * errors during encoding generally indicate a serious/fatal error.
+   */
+  // TODO(rsgowman): Similar to above, if we never support any output except to
+  // a vector, it may make sense to have Serializer own the vector and provide
+  // an accessor rather than asking the user to create it first.
+  util::Status EncodeDocument(
+      const firebase::firestore::model::DocumentKey& key,
+      const firebase::firestore::model::ObjectValue& value,
+      std::vector<uint8_t>* out_bytes) const;
+
+  /**
+   * @brief Converts from bytes to the model Document format.
+   *
+   * @param bytes The bytes to convert. These bytes must represent a
+   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
+   * be used by this conversion.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
+   */
+  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+      const uint8_t* bytes, size_t length) const;
+
+  /**
+   * @brief Converts from bytes to the model Document format.
+   *
+   * @param bytes The bytes to convert. These bytes must represent a
+   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
+   * be used by this conversion.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
+   */
+  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+      const std::vector<uint8_t>& bytes) const {
+    return DecodeMaybeDocument(bytes.data(), bytes.size());
+  }
+
  private:
+  void EncodeDocument(nanopb::Writer* writer,
+                      const model::DocumentKey& key,
+                      const model::ObjectValue& object_value) const;
+  std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
+      nanopb::Reader* reader) const;
+  std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
+
   const firebase::firestore::model::DatabaseId& database_id_;
 };
 

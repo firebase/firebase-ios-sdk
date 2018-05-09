@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/Protos/cpp/google/firestore/v1beta1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -48,7 +49,11 @@ using firebase::Timestamp;
 using firebase::TimestampInternal;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::testutil::Key;
@@ -73,6 +78,7 @@ TEST(Serializer, CanLinkToNanopb) {
 class SerializerTest : public ::testing::Test {
  public:
   SerializerTest() : serializer(kDatabaseId) {
+    msg_diff.ReportDifferencesToString(&message_differences);
   }
 
   const DatabaseId kDatabaseId{"p", "d"};
@@ -90,6 +96,14 @@ class SerializerTest : public ::testing::Test {
     // bytes with our (nanopb based) deserializer and ensure the result is the
     // same as the expected model.
     ExpectDeserializationRoundTrip(model, proto, type);
+  }
+
+  void ExpectRoundTrip(
+      const DocumentKey& key,
+      const FieldValue& value,
+      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+    ExpectSerializationRoundTrip(key, value, proto);
+    ExpectDeserializationRoundTrip(key, value, proto);
   }
 
   /**
@@ -141,6 +155,16 @@ class SerializerTest : public ::testing::Test {
                                         const FieldValue& fv) {
     std::vector<uint8_t> bytes;
     Status status = serializer->EncodeFieldValue(fv, &bytes);
+    EXPECT_OK(status);
+    return bytes;
+  }
+
+  std::vector<uint8_t> EncodeDocument(Serializer* serializer,
+                                      const DocumentKey& key,
+                                      const FieldValue& value) {
+    std::vector<uint8_t> bytes;
+    Status status =
+        serializer->EncodeDocument(key, value.object_value(), &bytes);
     EXPECT_OK(status);
     return bytes;
   }
@@ -202,7 +226,7 @@ class SerializerTest : public ::testing::Test {
     google::firestore::v1beta1::Value actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
-    EXPECT_TRUE(MessageDifferencer::Equals(proto, actual_proto));
+    EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
   void ExpectDeserializationRoundTrip(
@@ -220,6 +244,48 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(type, actual_model.type());
     EXPECT_EQ(model, actual_model);
   }
+
+  void ExpectSerializationRoundTrip(
+      const DocumentKey& key,
+      const FieldValue& value,
+      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+    std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
+    google::firestore::v1beta1::Document actual_proto;
+    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+
+    // TODO(rsgowman): Right now, we only support Document (and don't support
+    // NoDocument). That should change in the next PR or so.
+    EXPECT_TRUE(proto.has_found());
+
+    EXPECT_TRUE(msg_diff.Compare(proto.found(), actual_proto))
+        << message_differences;
+  }
+
+  void ExpectDeserializationRoundTrip(
+      const DocumentKey& key,
+      const FieldValue& value,
+      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+    size_t size = proto.ByteSizeLong();
+    std::vector<uint8_t> bytes(size);
+    bool status = proto.SerializeToArray(bytes.data(), size);
+    EXPECT_TRUE(status);
+    StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
+        serializer.DecodeMaybeDocument(bytes);
+    EXPECT_OK(actual_model_status);
+    std::unique_ptr<MaybeDocument> actual_model =
+        std::move(actual_model_status).ValueOrDie();
+
+    // TODO(rsgowman): Right now, we only support Document (and don't support
+    // NoDocument). That should change in the next PR or so.
+    EXPECT_EQ(MaybeDocument::Type::Document, actual_model->type());
+    Document* actual_doc_model = dynamic_cast<Document*>(actual_model.get());
+    EXPECT_EQ(key, actual_model->key());
+    EXPECT_EQ(value, actual_doc_model->data());
+  }
+
+  std::string message_differences;
+  MessageDifferencer msg_diff;
 };
 
 TEST_F(SerializerTest, EncodesNull) {
@@ -515,6 +581,18 @@ TEST_F(SerializerTest, BadKey) {
   for (const std::string& bad_key : bad_cases) {
     EXPECT_ANY_THROW(serializer.DecodeKey(bad_key));
   }
+}
+
+TEST_F(SerializerTest, EncodesEmptyDocument) {
+  DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
+  FieldValue empty_value = FieldValue::ObjectValueFromMap({});
+
+  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
+  google::firestore::v1beta1::Document* doc_proto = proto.mutable_found();
+  doc_proto->set_name(serializer.EncodeKey(key));
+  doc_proto->mutable_fields();
+
+  ExpectRoundTrip(key, empty_value, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

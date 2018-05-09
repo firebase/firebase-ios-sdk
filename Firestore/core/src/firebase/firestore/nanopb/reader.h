@@ -80,9 +80,17 @@ class Reader {
    *
    * Call this method when reading a nested message. Provide a function to read
    * the message itself.
+   *
+   * @param invalid Value to return when an error occurs.
    */
   template <typename T>
-  T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
+  T ReadNestedMessage(T invalid,
+                      const std::function<T(Reader*)>& read_message_fn);
+
+  template <typename T>
+  T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
+    return ReadNestedMessage(T(), read_message_fn);
+  }
 
   size_t bytes_left() const {
     return stream_.bytes_left;
@@ -126,18 +134,19 @@ class Reader {
 };
 
 template <typename T>
-T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
+T Reader::ReadNestedMessage(T invalid,
+                            const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
 
-  if (!status_.ok()) return T();
+  if (!status_.ok()) return invalid;
 
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
     status_ =
         util::Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
     pb_close_string_substream(&stream_, &raw_substream);
-    return T();
+    return invalid;
   }
   Reader substream(raw_substream);
 
