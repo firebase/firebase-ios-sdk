@@ -109,7 +109,7 @@ class TimeSlot {
   void Execute();
   void RemoveFromSchedule();
 
-  using TimePoint = std::chrono::time_point<std::chrono::system_clock,
+  using TimePoint = std::chrono::time_point<std::chrono::steady_clock,
                                             Executor::Milliseconds>;
 
   ExecutorLibdispatch* const executor_;
@@ -129,7 +129,7 @@ TimeSlot::TimeSlot(ExecutorLibdispatch* const executor,
                    Executor::TaggedOperation&& operation)
     : executor_{executor},
       target_time_{std::chrono::time_point_cast<Executor::Milliseconds>(
-                       std::chrono::system_clock::now()) +
+                       std::chrono::steady_clock::now()) +
                    delay},
       tagged_{std::move(operation)} {
 }

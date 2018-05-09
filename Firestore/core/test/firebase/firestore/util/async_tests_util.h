@@ -27,11 +27,11 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-inline std::chrono::time_point<std::chrono::system_clock,
+inline std::chrono::time_point<std::chrono::steady_clock,
                                std::chrono::milliseconds>
 now() {
   return std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now());
+      std::chrono::steady_clock::now());
 }
 
 constexpr auto kTimeout = std::chrono::seconds(5);
