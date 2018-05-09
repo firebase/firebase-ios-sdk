@@ -116,6 +116,8 @@
 		549CCA5220A36DBC00BCEB75 /* sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4E20A36DBB00BCEB75 /* sorted_map_test.cc */; };
 		549CCA5720A36E1F00BCEB75 /* field_mask_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5320A36E1F00BCEB75 /* field_mask_test.cc */; };
 		549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5520A36E1F00BCEB75 /* precondition_test.cc */; };
+		54A0352620A3AED0003E0143 /* field_transform_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352320A3AEC3003E0143 /* field_transform_test.mm */; };
+		54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352220A3AEC3003E0143 /* transform_operations_test.mm */; };
 		54C2294F1FECABAE007D065B /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
 		54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129C1F315EE100DD57A1 /* collection_spec_test.json */; };
 		54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */; };
@@ -349,6 +351,8 @@
 		549CCA4F20A36DBC00BCEB75 /* testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testing.h; sourceTree = "<group>"; };
 		549CCA5320A36E1F00BCEB75 /* field_mask_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_mask_test.cc; sourceTree = "<group>"; };
 		549CCA5520A36E1F00BCEB75 /* precondition_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = precondition_test.cc; sourceTree = "<group>"; };
+		54A0352220A3AEC3003E0143 /* transform_operations_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = transform_operations_test.mm; sourceTree = "<group>"; };
+		54A0352320A3AEC3003E0143 /* field_transform_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = field_transform_test.mm; sourceTree = "<group>"; };
 		54C2294E1FECABAE007D065B /* log_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_test.cc; sourceTree = "<group>"; };
 		54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_SwiftTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		54C9EDF52040E16300A969CD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -843,11 +847,13 @@
 		DE51B17B1F0D48AC0013853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				54A0352320A3AEC3003E0143 /* field_transform_test.mm */,
 				5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */,
 				5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */,
 				5492E0B62021555100B64F25 /* FSTDocumentTests.mm */,
 				5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */,
 				5492E0B72021555100B64F25 /* FSTMutationTests.mm */,
+				54A0352220A3AEC3003E0143 /* transform_operations_test.mm */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1497,8 +1503,10 @@
 				5436F32420008FAD006E51E3 /* string_printf_test.cc in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
 				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
+				54A0352620A3AED0003E0143 /* field_transform_test.mm in Sources */,
 				5492E055202154AB00B64F25 /* FIRDocumentSnapshotTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
+				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
 				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
 				5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */,
 				5492E0AC2021552D00B64F25 /* FSTMutationQueueTests.mm in Sources */,
