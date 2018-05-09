@@ -30,7 +30,7 @@ jobs:
     # Run unit tests
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS
+        - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - npm install ios-sim -g
         - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-7, 11.3"

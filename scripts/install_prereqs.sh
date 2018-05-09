@@ -19,12 +19,8 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-if [[ -z "$METHOD" ]]; then
-  METHOD="xcodebuild"
-fi
-
 case "$PROJECT-$METHOD" in
-  *-xcodebuild)
+  *-xcodebuild|*-pod-lib-lint)
     bundle install
     gem install xcpretty
     ;;
