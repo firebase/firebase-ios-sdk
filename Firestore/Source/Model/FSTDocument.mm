@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -45,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithKey:(DocumentKey)key version:(SnapshotVersion)version {
-  FSTAssert(!!version, @"Version must not be nil.");
   self = [super init];
   if (self) {
     _key = std::move(key);
@@ -102,13 +102,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDocument *otherDoc = other;
-  return [self.key isEqual:otherDoc.key] && [self.version isEqual:otherDoc.version] &&
+  return [self.key isEqual:otherDoc.key] && self.version == otherDoc.version &&
          [self.data isEqual:otherDoc.data] && self.hasLocalMutations == otherDoc.hasLocalMutations;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = result * 31 + [self.version hash];
+  result = result * 31 + self.version.Hash();
   result = result * 31 + [self.data hash];
   result = result * 31 + (self.hasLocalMutations ? 1 : 0);
   return result;
@@ -142,12 +142,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDocument *otherDoc = other;
-  return [self.key isEqual:otherDoc.key] && [self.version isEqual:otherDoc.version];
+  return [self.key isEqual:otherDoc.key] && self.version == otherDoc.version;
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
-  result = result * 31 + [self.version hash];
+  result = result * 31 + self.version.Hash();
   return result;
 }
 
