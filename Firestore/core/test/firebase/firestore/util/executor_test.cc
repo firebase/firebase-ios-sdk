@@ -134,25 +134,38 @@ TEST_P(ExecutorTest, IsCurrentExecutor) {
   EXPECT_TRUE(WaitForTestToFinish());
 }
 
-TEST_P(ExecutorTest, ModifyingSchedule) {
+TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
   const Executor::Tag tag_foo = 1;
   const Executor::Tag tag_bar = 2;
 
+  // Make sure the schedule is empty.
   EXPECT_FALSE(executor->IsScheduled(tag_foo));
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
   EXPECT_FALSE(executor->PopFromSchedule().has_value());
 
-  executor->Schedule(chr::seconds(1), {tag_foo, [] {}});
+  // Add three operations to the schedule (two of them with the same tag to
+  // verify that duplicate tags are allowed).
+
+  // The exact delay doesn't matter as long as it's too far away to be executed
+  // during the test.
+  const auto far_away = chr::seconds(1);
+  executor->Schedule(far_away, {tag_foo, [] {}});
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  // Scheduled operations can be distinguished by their tag.
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
 
-  executor->Schedule(chr::seconds(2), {tag_bar, [] {}});
+  // This operation will be scheduled after the previous one (operations
+  // scheduled with the same delay are FIFO ordered).
+  executor->Schedule(far_away, {tag_bar, [] {}});
   EXPECT_TRUE(executor->IsScheduled(tag_foo));
   EXPECT_TRUE(executor->IsScheduled(tag_bar));
 
-  // Duplicate
-  executor->Schedule(chr::seconds(3), {tag_bar, [] {}});
+  // Add an operation with a duplicate tag.
+  executor->Schedule(far_away, {tag_bar, [] {}});
   EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  // Now pop the operations one by one without waiting for them to be executed,
+  // and check that it results in an empty schedule.
 
   auto maybe_operation = executor->PopFromSchedule();
   ASSERT_TRUE(maybe_operation.has_value());
@@ -163,12 +176,16 @@ TEST_P(ExecutorTest, ModifyingSchedule) {
   maybe_operation = executor->PopFromSchedule();
   ASSERT_TRUE(maybe_operation.has_value());
   EXPECT_EQ(maybe_operation->tag, tag_bar);
-  EXPECT_TRUE(executor->IsScheduled(tag_bar)); // There's still a duplicate
+  // There's still a duplicate in the schedule.
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
 
   maybe_operation = executor->PopFromSchedule();
   ASSERT_TRUE(maybe_operation.has_value());
   EXPECT_EQ(maybe_operation->tag, tag_bar);
   EXPECT_FALSE(executor->IsScheduled(tag_bar));
+
+  // Schedule should now be empty.
+  EXPECT_FALSE(executor->PopFromSchedule().has_value());
 }
 
 }  // namespace util
