@@ -27,34 +27,46 @@ jobs:
 
     # Primary platforms
 
+    # Run unit tests
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=iOS
+        - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - npm install ios-sim -g
         - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-7, 11.3"
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
-
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
-
-        # TODO - Uncomment subsequent lines once FirebaseCore source repo is in public Specs repo
-        #  - bundle exec pod lib lint FirebaseAuth.podspec
-        #  - bundle exec pod lib lint FirebaseDatabase.podspec
-        #  - bundle exec pod lib lint FirebaseMessaging.podspec
-        #  - bundle exec pod lib lint FirebaseStorage.podspec
-        #  - bundle exec pod lib lint FirebaseFirestore.podspec
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    # pod lib lint to check build and warnings
+    - stage: test
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec
+
+    - stage: test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings
 
     # Alternative platforms
 
@@ -63,7 +75,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -71,19 +82,17 @@ jobs:
 
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=macOS
+        - PROJECT=Firebase PLATFORM=macOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
     - stage: test
       env:
-        - PROJECT=Firebase PLATFORM=tvOS
+        - PROJECT=Firebase PLATFORM=tvOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
 
@@ -94,7 +103,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=asan
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -103,7 +111,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild SANITIZERS=tsan
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -116,7 +123,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
@@ -125,7 +131,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ./scripts/if_changed.sh ./scripts/pod_install.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
