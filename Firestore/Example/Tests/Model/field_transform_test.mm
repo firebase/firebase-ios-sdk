@@ -26,9 +26,8 @@ namespace firestore {
 namespace model {
 
 TEST(FieldTransform, Getter) {
-  FieldTransform transform(testutil::Field("foo"),
-                           absl::make_unique<ServerTimestampTransform>(
-                               ServerTimestampTransform::Get()));
+  FieldTransform transform{testutil::Field("foo"), absl::make_unique<ServerTimestampTransform>(
+                                                       ServerTimestampTransform::Get())};
 
   EXPECT_EQ(testutil::Field("foo"), transform.path());
   EXPECT_EQ(ServerTimestampTransform::Get(), transform.transformation());
