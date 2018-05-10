@@ -357,9 +357,9 @@ static NSMutableDictionary *sLibraryVersions;
   NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
   if (collectionEnabledPlistValue) {
     return [collectionEnabledPlistValue boolValue];
-  } else {
-    return YES;
   }
+
+  return YES;
 }
 
 #pragma mark - private
@@ -647,8 +647,8 @@ static NSMutableDictionary *sLibraryVersions;
 #pragma mark - Reading From Plist & User Defaults
 
 /**
- * A wrapper to clear the data collection switch from the standard NSUserDefaults for easier testing
- * and readability.
+ * Clears the data collection switch from the standard NSUserDefaults for easier testing and
+ * readability.
  */
 - (void)clearDataCollectionSwitchFromUserDefaults {
   NSString *key =
@@ -657,8 +657,8 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 /**
- * A wrapper to read the data collection switch from the standard NSUserDefaults for easier testing
- * and readability.
+ * Reads the data collection switch from the standard NSUserDefaults for easier testing and
+ * readability.
  */
 + (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app {
   // Read the object in user defaults, and only return if it's an NSNumber.
@@ -667,14 +667,14 @@ static NSMutableDictionary *sLibraryVersions;
   id collectionEnabledDefaultsObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
   if ([collectionEnabledDefaultsObject isKindOfClass:[NSNumber class]]) {
     return collectionEnabledDefaultsObject;
-  } else {
-    return nil;
   }
+
+  return nil;
 }
 
 /**
- * A wrapper to read the data collection switch from the Info.plist for easier testing and
- * readability. Will only read once from the plist and return the cached value.
+ * Reads the data collection switch from the Info.plist for easier testing and readability. Will
+ * only read once from the plist and return the cached value.
  */
 + (nullable NSNumber *)readDataCollectionSwitchFromPlist {
   static NSNumber *collectionEnabledPlistObject;
