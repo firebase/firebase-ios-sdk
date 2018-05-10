@@ -15,6 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -25,8 +26,6 @@
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
-
-#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "absl/memory/memory.h"

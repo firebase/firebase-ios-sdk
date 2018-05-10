@@ -18,6 +18,7 @@
 
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -45,8 +46,6 @@
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTLogger.h"
-
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
