@@ -26,6 +26,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "absl/memory/memory.h"
 
