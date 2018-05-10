@@ -78,9 +78,11 @@ def CheckProject(project_file, test_files):
     test_files: A list of all tests source files in the project.
 
   Returns:
-    A list of filenames that aren't referenced in the project_file.
+    A sorted list of filenames that aren't referenced in the project_file.
   """
-  basenames = MakeBasenames(test_files)
+
+  # An dict of basename to filename
+  basenames = {os.path.basename(f) : f for f in test_files}
 
   file_list_pattern = re.compile(r"/\* (\S+) in Sources \*/")
   with open(project_file, "r") as fd:
@@ -93,22 +95,6 @@ def CheckProject(project_file, test_files):
           del basenames[basename]
 
   return sorted(basenames.values())
-
-
-def MakeBasenames(filenames):
-  """Returns a dict of basename to filename from the given filename.
-
-  Args:
-    filenames: a list of filenames
-  Returns:
-    A dict of basename to filename
-  """
-  result = dict()
-  for filename in filenames:
-    basename = os.path.basename(filename)
-    result[basename] = filename
-
-  return result
 
 
 def Error(message, *args):
