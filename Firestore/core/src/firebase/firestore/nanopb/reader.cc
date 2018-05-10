@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/impl/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 
 namespace firebase {
 namespace firestore {
-namespace remote {
-namespace impl {
+namespace nanopb {
 
 using firebase::firestore::util::Status;
 using std::int64_t;
@@ -137,7 +136,6 @@ std::string Reader::ReadString() {
   return result;
 }
 
-}  // namespace impl
-}  // namespace remote
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

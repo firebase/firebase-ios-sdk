@@ -28,9 +28,9 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/remote/impl/reader.h"
-#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
-#include "Firestore/core/src/firebase/firestore/remote/impl/writer.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
@@ -45,9 +45,9 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
-using firebase::firestore::remote::impl::Reader;
-using firebase::firestore::remote::impl::Tag;
-using firebase::firestore::remote::impl::Writer;
+using firebase::firestore::nanopb::Reader;
+using firebase::firestore::nanopb::Tag;
+using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 

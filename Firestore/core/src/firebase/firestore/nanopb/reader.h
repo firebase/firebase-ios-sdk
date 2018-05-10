@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_READER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_READER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_READER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_READER_H_
 
 #include <pb.h>
 #include <pb_decode.h>
@@ -25,14 +25,13 @@
 #include <string>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
-namespace remote {
-namespace impl {
+namespace nanopb {
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
@@ -164,9 +163,8 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   return message;
 }
 
-}  // namespace impl
-}  // namespace remote
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_READER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_READER_H_

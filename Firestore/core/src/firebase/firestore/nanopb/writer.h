@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_WRITER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_WRITER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_WRITER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_WRITER_H_
 
 #include <pb.h>
 #include <pb_encode.h>
@@ -25,13 +25,12 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/remote/impl/tag.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
-namespace remote {
-namespace impl {
+namespace nanopb {
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
@@ -134,9 +133,8 @@ class Writer {
   pb_ostream_t stream_;
 };
 
-}  // namespace impl
-}  // namespace remote
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_WRITER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_WRITER_H_

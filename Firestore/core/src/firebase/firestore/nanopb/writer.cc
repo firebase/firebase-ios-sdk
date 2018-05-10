@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/impl/writer.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
 
 namespace firebase {
 namespace firestore {
-namespace remote {
-namespace impl {
+namespace nanopb {
 
 using firebase::firestore::util::Status;
 using std::int64_t;
@@ -161,7 +160,6 @@ void Writer::WriteNestedMessage(
   }
 }
 
-}  // namespace impl
-}  // namespace remote
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

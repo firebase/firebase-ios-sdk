@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_TAG_H__
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_TAG_H__
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H__
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H__
 
 #include <pb.h>
 
 namespace firebase {
 namespace firestore {
-namespace remote {
-namespace impl {
+namespace nanopb {
 
 /**
  * Represents a nanopb tag.
@@ -37,9 +36,8 @@ struct Tag {
   uint32_t field_number;
 };
 
-}  // namespace impl
-}  // namespace remote
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_IMPL_TAG_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H_

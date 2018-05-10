@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_remote_impl
+  firebase_firestore_nanopb
   SOURCES
     tag.h
     reader.h
