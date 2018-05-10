@@ -456,8 +456,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   if (fieldPath.IsKeyFieldPath()) {
     if (filterOperator == FSTRelationFilterOperatorArrayContains) {
       FSTThrowInvalidArgument(
-          @"Invalid query. You can't do arrayContains queries on document ID since document IDs "
-          @"are not arrays.");
+          @"Invalid query. You can't perform arrayContains queries on document ID since document "
+           "IDs are not arrays.");
     }
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;

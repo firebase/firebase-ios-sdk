@@ -68,7 +68,7 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
                           "Schedule: delay cannot be negative");
 
   namespace chr = std::chrono;
-  const auto now = chr::time_point_cast<Milliseconds>(chr::system_clock::now());
+  const auto now = chr::time_point_cast<Milliseconds>(chr::steady_clock::now());
   const auto id =
       PushOnSchedule(std::move(tagged.operation), now + delay, tagged.tag);
 

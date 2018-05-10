@@ -25,13 +25,17 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
@@ -94,6 +98,15 @@ class Writer {
    * This essentially wraps calls to nanopb's pb_encode_tag() method.
    */
   void WriteTag(Tag tag);
+
+  /**
+   * Writes a nanopb message to the output stream.
+   *
+   * This essentially wraps calls to nanopb's `pb_encode()` method. If we didn't
+   * use `oneof`s in our protos, this would be the primary way of encoding
+   * messages.
+   */
+  void WriteNanopbMessage(const pb_field_t fields[], const void* src_struct);
 
   void WriteSize(size_t size);
   void WriteNull();
@@ -178,6 +191,15 @@ class Reader {
    * This essentially wraps calls to nanopb's pb_decode_tag() method.
    */
   Tag ReadTag();
+
+  /**
+   * Reads a nanopb message from the input stream.
+   *
+   * This essentially wraps calls to nanopb's pb_decode() method. If we didn't
+   * use `oneof`s in our protos, this would be the primary way of decoding
+   * messages.
+   */
+  void ReadNanopbMessage(const pb_field_t fields[], void* dest_struct);
 
   void ReadNull();
   bool ReadBool();
@@ -299,6 +321,23 @@ Tag Reader::ReadTag() {
   return tag;
 }
 
+void Writer::WriteNanopbMessage(const pb_field_t fields[],
+                                const void* src_struct) {
+  if (!status_.ok()) return;
+
+  if (!pb_encode(&stream_, fields, src_struct)) {
+    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+  }
+}
+
+void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
+  if (!status_.ok()) return;
+
+  if (!pb_decode(&stream_, fields, dest_struct)) {
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+  }
+}
+
 void Writer::WriteSize(size_t size) {
   return WriteVarint(size);
 }
@@ -415,6 +454,43 @@ std::string Reader::ReadString() {
   return result;
 }
 
+void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
+  google_protobuf_Timestamp timestamp_proto =
+      google_protobuf_Timestamp_init_zero;
+  timestamp_proto.seconds = timestamp_value.seconds();
+  timestamp_proto.nanos = timestamp_value.nanoseconds();
+  writer->WriteNanopbMessage(google_protobuf_Timestamp_fields,
+                             &timestamp_proto);
+}
+
+Timestamp DecodeTimestamp(Reader* reader) {
+  google_protobuf_Timestamp timestamp_proto =
+      google_protobuf_Timestamp_init_zero;
+  reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
+
+  // The Timestamp ctor will assert if we provide values outside the valid
+  // range. However, since we're decoding, a single corrupt byte could cause
+  // this to occur, so we'll verify the ranges before passing them in since we'd
+  // rather not abort in these situations.
+  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp beyond the earliest supported date"));
+    return {};
+  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
+    reader->set_status(
+        Status(FirestoreErrorCode::DataLoss,
+               "Invalid message: timestamp behond the latest supported date"));
+    return {};
+  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp nanos must be between 0 and 999999999"));
+    return {};
+  }
+  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
+}
+
 // Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
 // TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
 // This will help with error handling, and should eliminate the issue of two
@@ -447,6 +523,14 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
       writer->WriteString(field_value.string_value());
       break;
 
+    case FieldValue::Type::Timestamp:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeTimestamp(writer, field_value.timestamp_value());
+      });
+      break;
+
     case FieldValue::Type::Object:
       writer->WriteTag(
           {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
@@ -477,6 +561,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       break;
 
     case google_firestore_v1beta1_Value_string_value_tag:
+    case google_firestore_v1beta1_Value_timestamp_value_tag:
     case google_firestore_v1beta1_Value_map_value_tag:
       if (tag.wire_type != PB_WT_STRING) {
         reader->set_status(
@@ -517,6 +602,9 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       return FieldValue::IntegerValue(reader->ReadInteger());
     case google_firestore_v1beta1_Value_string_value_tag:
       return FieldValue::StringValue(reader->ReadString());
+    case google_firestore_v1beta1_Value_timestamp_value_tag:
+      return FieldValue::TimestampValue(
+          reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
     case google_firestore_v1beta1_Value_map_value_tag:
       return FieldValue::ObjectValueFromMap(DecodeObject(reader));
 

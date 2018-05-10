@@ -114,6 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
     _localDocuments = [FSTLocalDocumentsView viewWithRemoteDocumentCache:_remoteDocumentCache
                                                            mutationQueue:_mutationQueue];
     _localViewReferences = [[FSTReferenceSet alloc] init];
+    [_persistence.referenceDelegate addInMemoryPins:_localViewReferences];
 
     _garbageCollector = garbageCollector;
     [_garbageCollector addGarbageSource:_queryCache];
@@ -263,6 +264,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
+    // TODO(gsoltis): move the sequence number into the reference delegate.
     FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     id<FSTQueryCache> queryCache = self.queryCache;
 
@@ -309,6 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     // TODO(klimt): This could probably be an NSMutableDictionary.
     DocumentKeySet changedDocKeys;
+    const DocumentKeySet &limboDocuments = remoteEvent.limboDocumentChanges;
     for (const auto &kv : remoteEvent.documentUpdates) {
       const DocumentKey &key = kv.first;
       FSTMaybeDocument *doc = kv.second;
@@ -331,6 +334,9 @@ NS_ASSUME_NONNULL_BEGIN
       // The document might be garbage because it was unreferenced by everything.
       // Make sure to mark it as garbage if it is...
       [self.garbageCollector addPotentialGarbageKey:key];
+      if (limboDocuments.contains(key)) {
+        [self.persistence.referenceDelegate limboDocumentUpdated:key];
+      }
     }
 
     // HACK: The only reason we allow omitting snapshot version is so we can synthesize remote
@@ -365,6 +371,9 @@ NS_ASSUME_NONNULL_BEGIN
       FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
       FSTAssert(queryData, @"Local view changes contain unallocated query.");
       FSTTargetID targetID = queryData.targetID;
+      for (const DocumentKey &key : view.removedKeys) {
+        [self->_persistence.referenceDelegate removeReference:key target:targetID];
+      }
       [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
       [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
     }
@@ -415,6 +424,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (self.garbageCollector.isEager) {
       [self.queryCache removeQueryData:queryData];
     }
+    [self.persistence.referenceDelegate removeTarget:queryData];
     [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
     // If this was the last watch target, then we won't get any more watch snapshots, so we should

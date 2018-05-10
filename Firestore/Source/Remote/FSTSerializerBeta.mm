@@ -683,8 +683,8 @@ NS_ASSUME_NONNULL_BEGIN
       [transformResults addObject:[self decodedFieldValue:result]];
     }
   }
-  return [[FSTMutationResult alloc]
-      initWithVersion:(version ? version.value() : nil)transformResults:transformResults];
+  return [[FSTMutationResult alloc] initWithVersion:std::move(version)
+                                   transformResults:transformResults];
 }
 
 #pragma mark - FSTQueryData => GCFSTarget proto
