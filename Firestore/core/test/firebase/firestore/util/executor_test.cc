@@ -49,6 +49,12 @@ TEST_P(ExecutorTest, Execute) {
   EXPECT_TRUE(WaitForTestToFinish());
 }
 
+TEST_P(ExecutorTest, ExecuteBlocking) {
+  bool finished = false;
+  executor->ExecuteBlocking([&] { finished = true; });
+  EXPECT_TRUE(finished);
+}
+
 TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   const auto future = std::async(std::launch::async, [&] {
     auto another_executor = GetParam()();
@@ -103,6 +109,104 @@ TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
 
   EXPECT_TRUE(WaitForTestToFinish());
   EXPECT_NO_THROW(delayed_operation.Cancel());
+}
+
+TEST_P(ExecutorTest, IsCurrentExecutor) {
+  EXPECT_FALSE(executor->IsCurrentExecutor());
+  EXPECT_NE(executor->Name(), executor->CurrentExecutorName());
+
+  executor->ExecuteBlocking([&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+  });
+
+  executor->Execute([&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+  });
+
+  Schedule(executor.get(), Executor::Milliseconds(1), [&] {
+    EXPECT_TRUE(executor->IsCurrentExecutor());
+    EXPECT_EQ(executor->Name(), executor->CurrentExecutorName());
+    signal_finished();
+  });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_P(ExecutorTest, OperationsCanBeRemovedFromScheduleBeforeTheyRun) {
+  const Executor::Tag tag_foo = 1;
+  const Executor::Tag tag_bar = 2;
+
+  // Make sure the schedule is empty.
+  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+  EXPECT_FALSE(executor->PopFromSchedule().has_value());
+
+  // Add two operations to the schedule with different tags.
+
+  // The exact delay doesn't matter as long as it's too far away to be executed
+  // during the test.
+  const auto far_away = chr::seconds(1);
+  executor->Schedule(far_away, {tag_foo, [] {}});
+  // Scheduled operations can be distinguished by their tag.
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+
+  // This operation will be scheduled after the previous one (operations
+  // scheduled with the same delay are FIFO ordered).
+  executor->Schedule(far_away, {tag_bar, [] {}});
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  // Now pop the operations one by one without waiting for them to be executed,
+  // check that operations are popped in the order they are scheduled and
+  // preserve tags. Schedule should become empty as a result.
+
+  auto maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+  EXPECT_TRUE(executor->IsScheduled(tag_bar));
+
+  maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_bar);
+  EXPECT_FALSE(executor->IsScheduled(tag_bar));
+
+  // Schedule should now be empty.
+  EXPECT_FALSE(executor->PopFromSchedule().has_value());
+}
+
+TEST_P(ExecutorTest, DuplicateTagsOnOperationsAreAllowed) {
+  const Executor::Tag tag_foo = 1;
+  std::string steps;
+
+  // Add two operations with the same tag to the schedule to verify that
+  // duplicate tags are allowed.
+
+  const auto far_away = chr::seconds(1);
+  executor->Schedule(far_away, {tag_foo, [&steps] { steps += '1'; }});
+  executor->Schedule(far_away, {tag_foo, [&steps] { steps += '2'; }});
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+
+  auto maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  // There's still another operation with the same tag in the schedule.
+  EXPECT_TRUE(executor->IsScheduled(tag_foo));
+
+  maybe_operation->operation();
+
+  maybe_operation = executor->PopFromSchedule();
+  ASSERT_TRUE(maybe_operation.has_value());
+  EXPECT_EQ(maybe_operation->tag, tag_foo);
+  EXPECT_FALSE(executor->IsScheduled(tag_foo));
+
+  maybe_operation->operation();
+  // Despite having the same tag, the operations should have been ordered
+  // according to their scheduled time and preserved their identity.
+  EXPECT_EQ(steps, "12");
 }
 
 }  // namespace util
