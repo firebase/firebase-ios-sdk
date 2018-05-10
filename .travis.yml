@@ -66,7 +66,7 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings
+        - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
     # Alternative platforms
 
