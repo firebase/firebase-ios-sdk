@@ -19,28 +19,44 @@
 #   - PROJECT - Firebase or Firestore
 #   - METHOD - xcodebuild or cmake; default is xcodebuild
 
-if [[ -z "$METHOD" ]]; then
-  METHOD="xcodebuild"
-fi
+bundle install
 
-case "$PROJECT-$METHOD" in
-  *-xcodebuild)
-    bundle install
+case "$PROJECT-$PLATFORM-$METHOD" in
+  Firebase-iOS-xcodebuild)
     gem install xcpretty
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Functions/Example
     ;;
 
-  Firestore-cmake)
-    bundle install
+  Firebase-*-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=Example --repo-update
+    ;;
+
+  Firestore-*-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=Firestore/Example --repo-update
+    ;;
+
+  *-pod-lib-lint)
+    bundle exec pod repo update
+    ;;
+
+  Firestore-*-cmake)
     # xcpretty is helpful for the intermediate step which builds FirebaseCore
     # using xcodebuild.
     gem install xcpretty
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
+    bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=Firestore/Example \
+        --no-repo-update
     ;;
 
   *)
-    echo "Unknown project-method combo" 1>&2
+    echo "Unknown project-platform-method combo" 1>&2
     echo "  PROJECT=$PROJECT" 1>&2
+    echo "  PLATFORM=$PLATFORM" 1>&2
     echo "  METHOD=$METHOD" 1>&2
     exit 1
     ;;

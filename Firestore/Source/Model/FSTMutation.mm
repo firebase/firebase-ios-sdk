@@ -400,7 +400,7 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
     }
 
     [transformResults
-        addObject:transform.applyToRemoteDocument(previousValue, serverTransformResults[i])];
+        addObject:transform.ApplyToRemoteDocument(previousValue, serverTransformResults[i])];
   }
   return transformResults;
 }
@@ -426,7 +426,7 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
       previousValue = [((FSTDocument *)baseDocument) fieldForPath:fieldTransform.path()];
     }
 
-    [transformResults addObject:transform.applyToLocalView(previousValue, localWriteTime)];
+    [transformResults addObject:transform.ApplyToLocalView(previousValue, localWriteTime)];
   }
   return transformResults;
 }

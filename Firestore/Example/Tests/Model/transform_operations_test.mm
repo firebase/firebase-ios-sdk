@@ -31,8 +31,24 @@ class DummyOperation : public TransformOperation {
     return Type::Test;
   }
 
+  FSTFieldValue* ApplyToLocalView(FSTFieldValue* /* previousValue */,
+                                  FIRTimestamp* /* localWriteTime */) const override {
+    return nil;
+  }
+
+  FSTFieldValue* ApplyToRemoteDocument(FSTFieldValue* /* previousValue */,
+                                       FSTFieldValue* /* transformResult */) const override {
+    return nil;
+  }
+
   bool operator==(const TransformOperation& other) const override {
     return this == &other;
+  }
+
+  NSUInteger Hash() const override {
+    // arbitrary number, the same as used in ObjC implementation, since all
+    // instances are equal.
+    return 37;
   }
 };
 
