@@ -71,29 +71,29 @@ jobs:
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings --no-subspecs
 
-    # pod lib lint to check build and warnings for static library build
+    # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec --use-libraries
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseStorage.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFunctions.podspec --use-libraries
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
       before_install:
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
         # Eliminate one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - [ "$TRAVIS_EVENT_TYPE" != "cron" ] && travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     # Alternative platforms
 
