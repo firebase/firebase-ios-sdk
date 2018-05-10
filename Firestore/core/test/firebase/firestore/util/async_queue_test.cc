@@ -83,6 +83,10 @@ TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   queue.EnqueueBlocking([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
+// TODO(varconst): this test is inherently flaky because it can't be guaranteed
+// that the enqueued asynchronous operation didn't finish before the code has
+// a chance to even enqueue the next operation. Delays are chosen so that the
+// test is unlikely to fail in practice. Need to revisit this.
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
