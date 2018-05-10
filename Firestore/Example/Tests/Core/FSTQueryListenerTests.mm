@@ -42,6 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)setUp {
+  // TODO(varconst): moving this test to C++, it should be possible to store Executor as a value,
+  // not a pointer, and initialize it in the constructor.
   _executor = absl::make_unique<ExecutorLibdispatch>(
       dispatch_queue_create("FSTQueryListenerTests Queue", DISPATCH_QUEUE_SERIAL));
 }
@@ -152,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Drain queue
   XCTestExpectation *expectation = [self expectationWithDescription:@"Queue drained"];
-  _executor->Execute([expectation] { [expectation fulfill]; });
+  _executor->Execute([=] { [expectation fulfill]; });
 
   [self waitForExpectationsWithTimeout:4.0
                                handler:^(NSError *_Nullable expectationError) {
