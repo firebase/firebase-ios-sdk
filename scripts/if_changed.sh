@@ -49,7 +49,7 @@ else
       check_changes '^(Firebase|Functions|Example)'
       ;;
 
-    Firestore-xcodebuild)
+    Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^Firestore'
       ;;
 
