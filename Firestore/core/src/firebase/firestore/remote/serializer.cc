@@ -537,12 +537,12 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       case google_firestore_v1beta1_Document_create_time_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
-        // TODO(rsgowman)
-        abort();
+        reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
+        break;
       case google_firestore_v1beta1_Document_update_time_tag:
-        // TODO(rsgowman): We're going to pretend versions don't exist just yet.
-        // (Followup in the next PR or so will support this.)
-        abort();
+        version = SnapshotVersion{
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+        break;
       default:
         // TODO(rsgowman): Error handling. (Invalid tags should fail to decode,
         // but shouldn't cause a crash.)

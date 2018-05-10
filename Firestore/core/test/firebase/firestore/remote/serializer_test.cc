@@ -37,6 +37,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -55,6 +56,7 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::Status;
@@ -101,9 +103,10 @@ class SerializerTest : public ::testing::Test {
   void ExpectRoundTrip(
       const DocumentKey& key,
       const FieldValue& value,
+      const SnapshotVersion& update_time,
       const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
-    ExpectSerializationRoundTrip(key, value, proto);
-    ExpectDeserializationRoundTrip(key, value, proto);
+    ExpectSerializationRoundTrip(key, value, update_time, proto);
+    ExpectDeserializationRoundTrip(key, value, update_time, proto);
   }
 
   /**
@@ -248,6 +251,7 @@ class SerializerTest : public ::testing::Test {
   void ExpectSerializationRoundTrip(
       const DocumentKey& key,
       const FieldValue& value,
+      const SnapshotVersion& update_time,
       const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
     google::firestore::v1beta1::Document actual_proto;
@@ -258,13 +262,28 @@ class SerializerTest : public ::testing::Test {
     // NoDocument). That should change in the next PR or so.
     EXPECT_TRUE(proto.has_found());
 
-    EXPECT_TRUE(msg_diff.Compare(proto.found(), actual_proto))
+    // Slight weirdness: When we *encode* a document for sending it to the
+    // backend, we don't encode the update_time (or create_time). But when we
+    // *decode* a document, we *do* decode the update_time (though we still
+    // ignore the create_time). Therefore, we'll verify the update_time
+    // independently, and then strip it out before comparing the rest.
+    EXPECT_FALSE(actual_proto.has_create_time());
+    EXPECT_EQ(update_time.timestamp().seconds(),
+              proto.found().update_time().seconds());
+    EXPECT_EQ(update_time.timestamp().nanoseconds(),
+              proto.found().update_time().nanos());
+    google::firestore::v1beta1::BatchGetDocumentsResponse proto_copy{proto};
+    proto_copy.mutable_found()->clear_update_time();
+    proto_copy.mutable_found()->clear_create_time();
+
+    EXPECT_TRUE(msg_diff.Compare(proto_copy.found(), actual_proto))
         << message_differences;
   }
 
   void ExpectDeserializationRoundTrip(
       const DocumentKey& key,
       const FieldValue& value,
+      const SnapshotVersion& update_time,
       const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
@@ -282,6 +301,7 @@ class SerializerTest : public ::testing::Test {
     Document* actual_doc_model = dynamic_cast<Document*>(actual_model.get());
     EXPECT_EQ(key, actual_model->key());
     EXPECT_EQ(value, actual_doc_model->data());
+    EXPECT_EQ(update_time, actual_model->version());
   }
 
   std::string message_differences;
@@ -586,13 +606,28 @@ TEST_F(SerializerTest, BadKey) {
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
   FieldValue empty_value = FieldValue::ObjectValueFromMap({});
+  SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   google::firestore::v1beta1::BatchGetDocumentsResponse proto;
   google::firestore::v1beta1::Document* doc_proto = proto.mutable_found();
   doc_proto->set_name(serializer.EncodeKey(key));
   doc_proto->mutable_fields();
 
-  ExpectRoundTrip(key, empty_value, proto);
+  google::protobuf::Timestamp* update_time_proto =
+      doc_proto->mutable_update_time();
+  update_time_proto->set_seconds(1234);
+  update_time_proto->set_nanos(5678);
+
+  // Note that we ignore create time in our serializer. We never set it, and
+  // never read it (other than to throw it away). But the server could (and
+  // probably does) set it, so we need to be able to discard it properly. The
+  // ExpectRoundTrip deals with this asymmetry.
+  google::protobuf::Timestamp* create_time_proto =
+      doc_proto->mutable_create_time();
+  create_time_proto->set_seconds(8765);
+  create_time_proto->set_nanos(4321);
+
+  ExpectRoundTrip(key, empty_value, update_time, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
