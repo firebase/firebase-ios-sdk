@@ -66,15 +66,19 @@ TEST_P(ExecutorTest, DestructorDoesNotBlockIfThereArePendingTasks) {
   ABORT_ON_TIMEOUT(future);
 }
 
+// TODO(varconst): this test is inherently flaky because it can't be guaranteed
+// that the enqueued asynchronous operation didn't finish before the code has
+// a chance to even enqueue the next operation. Delays are chosen so that the
+// test is unlikely to fail in practice. Need to revisit this.
 TEST_P(ExecutorTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
   executor->Execute([&steps] { steps += '1'; });
-  Schedule(executor.get(), Executor::Milliseconds(5), [&] {
+  Schedule(executor.get(), Executor::Milliseconds(20), [&] {
     steps += '4';
     signal_finished();
   });
-  Schedule(executor.get(), Executor::Milliseconds(1),
+  Schedule(executor.get(), Executor::Milliseconds(10),
            [&steps] { steps += '3'; });
   executor->Execute([&steps] { steps += '2'; });
 

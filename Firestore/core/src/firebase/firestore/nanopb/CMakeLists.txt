@@ -13,17 +13,15 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_remote
+  firebase_firestore_nanopb
   SOURCES
-    datastore.h
-    datastore.cc
-    serializer.h
-    serializer.cc
+    tag.h
+    reader.h
+    reader.cc
+    writer.h
+    writer.cc
   DEPENDS
-    firebase_firestore_model
-    firebase_firestore_nanopb
-    firebase_firestore_protos_nanopb
     firebase_firestore_util
-    grpc::grpc
+    firebase_firestore_protos_nanopb
     nanopb
 )
