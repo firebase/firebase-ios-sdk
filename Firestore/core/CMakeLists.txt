@@ -20,6 +20,7 @@ add_subdirectory(src/firebase/firestore/core)
 add_subdirectory(src/firebase/firestore/immutable)
 add_subdirectory(src/firebase/firestore/local)
 add_subdirectory(src/firebase/firestore/model)
+add_subdirectory(src/firebase/firestore/nanopb)
 add_subdirectory(src/firebase/firestore/remote)
 add_subdirectory(src/firebase/firestore/util)
 
