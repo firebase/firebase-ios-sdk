@@ -87,6 +87,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqualObjects(kFIRLoggerInstanceID, @"[Firebase/InstanceID]");
   XCTAssertEqualObjects(kFIRLoggerInvites, @"[Firebase/Invites]");
   XCTAssertEqualObjects(kFIRLoggerMessaging, @"[Firebase/Messaging]");
+  XCTAssertEqualObjects(kFIRLoggerMLKit, @"[Firebase/MLKit]");
   XCTAssertEqualObjects(kFIRLoggerRemoteConfig, @"[Firebase/RemoteConfig]");
   XCTAssertEqualObjects(kFIRLoggerStorage, @"[Firebase/Storage]");
 }

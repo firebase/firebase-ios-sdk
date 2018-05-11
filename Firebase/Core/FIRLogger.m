@@ -37,6 +37,7 @@ FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
 FIRLoggerService kFIRLoggerInstanceID = @"[Firebase/InstanceID]";
 FIRLoggerService kFIRLoggerInvites = @"[Firebase/Invites]";
 FIRLoggerService kFIRLoggerMessaging = @"[Firebase/Messaging]";
+FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
 FIRLoggerService kFIRLoggerStorage = @"[Firebase/Storage]";
