@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -23,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
@@ -50,14 +52,15 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates and returns a FSTFirestoreClient with the given parameters.
  *
- * All callbacks and events will be triggered on the provided userDispatchQueue.
+ * All callbacks and events will be triggered on the provided userExecutor.
  */
-+ (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                        usePersistence:(BOOL)usePersistence
-                   credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
-                                           credentialsProvider  // no passing ownership
-                     userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
-                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
++ (instancetype)
+clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
+        usePersistence:(BOOL)usePersistence
+   credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
+                           credentialsProvider  // no passing ownership
+          userExecutor:(std::unique_ptr<firebase::firestore::util::internal::Executor>)userExecutor
+   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
@@ -111,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Dispatch queue for user callbacks / events. This will often be the "Main Dispatch Queue" of the
  * app but the developer can configure it to a different queue if they so choose.
  */
-@property(nonatomic, strong, readonly) FSTDispatchQueue *userDispatchQueue;
+- (firebase::firestore::util::internal::Executor *)userExecutor;
 
 @end
 

@@ -18,16 +18,18 @@
 
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+using firebase::firestore::util::internal::Executor;
+
 @implementation FSTAsyncQueryListener {
   volatile BOOL _muted;
   FSTViewSnapshotHandler _snapshotHandler;
-  FSTDispatchQueue *_dispatchQueue;
+  Executor *_executor;
 }
 
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
-                      snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler {
+- (instancetype)initWithExecutor:(Executor *)executor
+                 snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler {
   if (self = [super init]) {
-    _dispatchQueue = dispatchQueue;
+    _executor = executor;
     _snapshotHandler = snapshotHandler;
   }
   return self;
@@ -40,11 +42,11 @@
   // users just want to turn on notifications "forever" and don't want to have
   // to keep track of our handle to keep them going.
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    [self->_dispatchQueue dispatchAsync:^{
+    _executor->Execute([self, snapshot, error] {
       if (!self->_muted) {
         self->_snapshotHandler(snapshot, error);
       }
-    }];
+    });
   };
 }
 

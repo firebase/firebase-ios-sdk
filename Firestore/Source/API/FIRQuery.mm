@@ -183,8 +183,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   };
 
   FSTAsyncQueryListener *asyncListener =
-      [[FSTAsyncQueryListener alloc] initWithDispatchQueue:self.firestore.client.userDispatchQueue
-                                           snapshotHandler:snapshotHandler];
+      [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
+                                      snapshotHandler:snapshotHandler];
 
   FSTQueryListener *internalListener =
       [firestore.client listenToQuery:query
