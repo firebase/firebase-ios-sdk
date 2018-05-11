@@ -36,6 +36,7 @@ FIRLoggerService kFIRLoggerDynamicLinks = @"[Firebase/DynamicLinks]";
 FIRLoggerService kFIRLoggerFirestore = @"[Firebase/Firestore]";
 FIRLoggerService kFIRLoggerInstanceID = @"[Firebase/InstanceID]";
 FIRLoggerService kFIRLoggerInvites = @"[Firebase/Invites]";
+FIRLoggerService kFIRLoggerMLKit = @"[Firebase/MLKit]";
 FIRLoggerService kFIRLoggerMessaging = @"[Firebase/Messaging]";
 FIRLoggerService kFIRLoggerPerf = @"[Firebase/Performance]";
 FIRLoggerService kFIRLoggerRemoteConfig = @"[Firebase/RemoteConfig]";
