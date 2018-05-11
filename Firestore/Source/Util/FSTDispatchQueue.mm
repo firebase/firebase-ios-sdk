@@ -82,10 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTDispatchQueue alloc] initWithQueue:dispatchQueue];
 }
 
-- (void)clear {
-  _impl->Clear();
-}
-
 - (instancetype)initWithQueue:(dispatch_queue_t)queue {
   if (self = [super init]) {
     _queue = queue;

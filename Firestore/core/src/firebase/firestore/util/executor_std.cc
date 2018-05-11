@@ -55,10 +55,6 @@ ExecutorStd::~ExecutorStd() {
   worker_thread_.join();
 }
 
-void ExecutorStd::Clear() {
-  schedule_.Clear();
-}
-
 void ExecutorStd::Execute(Operation&& operation) {
   PushOnSchedule(std::move(operation), Immediate());
 }

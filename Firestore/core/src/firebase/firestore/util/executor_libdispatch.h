@@ -56,7 +56,6 @@ class TimeSlot;
 // a dedicated serial dispatch queue.
 class ExecutorLibdispatch : public Executor {
  public:
-  ExecutorLibdispatch();
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
 
   bool IsCurrentExecutor() const override;
@@ -73,18 +72,11 @@ class ExecutorLibdispatch : public Executor {
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
-  void Clear() override;
-
   dispatch_queue_t dispatch_queue() const {
     return dispatch_queue_;
   }
 
  private:
-  // GetLabel functions are guaranteed to never return a "null" string_view
-  // (i.e. data() != nullptr).
-  absl::string_view GetCurrentQueueLabel() const;
-  absl::string_view GetTargetQueueLabel() const;
-
   dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.

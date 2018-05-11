@@ -32,9 +32,7 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
   is_operation_in_progress_ = false;
 }
 
-void AsyncQueue::Clear() {
-  executor_->Clear();
-}
+// TODO(varconst): assert in destructor that the queue is empty.
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
   FIREBASE_ASSERT_MESSAGE(

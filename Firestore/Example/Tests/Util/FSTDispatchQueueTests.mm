@@ -216,12 +216,12 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
 - (void)testCanScheduleCallbacksInTheFuture {
   _expectation = [self expectationWithDescription:@"Expected steps"];
   _expectedSteps = @[ @1, @2, @3, @4 ];
+  [_queue dispatchAsync:[self blockForStep:1]];
   [_queue dispatchAsync:^{
-    [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:1]];
     [_queue dispatchAfterDelay:0.005 timerID:timerID1 block:[self blockForStep:4]];
     [_queue dispatchAfterDelay:0.001 timerID:timerID2 block:[self blockForStep:3]];
-    [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:2]];
   }];
+  [_queue dispatchAsync:[self blockForStep:2]];
 
   [self awaitExpectations];
 }
@@ -253,24 +253,20 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   [_queue dispatchAsync:[self blockForStep:2]];
 
   [_queue runDelayedCallbacksUntil:FSTTimerIDAll];
-  [_queue dispatchSync:^{
-    XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
-  }];
+  XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
 }
 
 - (void)testCanManuallyDrainSpecificDelayedCallbacksForTesting {
-  [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:1]];
+  [_queue dispatchAsync:[self blockForStep:1]];
   [_queue dispatchAsync:^{
     [_queue dispatchAfterDelay:20 timerID:timerID1 block:[self blockForStep:5]];
     [_queue dispatchAfterDelay:10 timerID:timerID2 block:[self blockForStep:3]];
     [_queue dispatchAfterDelay:15 timerID:timerID3 block:[self blockForStep:4]];
   }];
-  [_queue dispatchAsyncAllowingSameQueue:[self blockForStep:2]];
+  [_queue dispatchAsync:[self blockForStep:2]];
 
   [_queue runDelayedCallbacksUntil:timerID3];
-  [_queue dispatchSync:^{
-    XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
-  }];
+  XCTAssertEqualObjects(_completedSteps, (@[ @1, @2, @3, @4 ]));
 }
 
 @end

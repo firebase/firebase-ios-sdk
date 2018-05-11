@@ -78,8 +78,6 @@ class AsyncQueue {
 
   explicit AsyncQueue(std::unique_ptr<internal::Executor> executor);
 
-  void Clear();
-
   // Asserts for the caller that it is being invoked as part of an operation on
   // the `AsyncQueue`.
   void VerifyIsCurrentQueue() const;

@@ -29,7 +29,8 @@ namespace util {
 namespace {
 
 std::unique_ptr<internal::Executor> ExecutorFactory() {
-  return absl::make_unique<internal::ExecutorLibdispatch>();
+  return absl::make_unique<internal::ExecutorLibdispatch>(
+      dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
 }
 
 }  // namespace
@@ -38,6 +39,36 @@ INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
                         ExecutorTest,
                         ::testing::Values(ExecutorFactory));
 
+namespace internal {
+class ExecutorLibdispatchOnlyTests : public TestWithTimeoutMixin,
+                                     public ::testing::Test {
+ public:
+  ExecutorLibdispatchOnlyTests() : executor{ExecutorFactory()} {
+  }
+
+  std::unique_ptr<Executor> executor;
+};
+
+TEST_F(ExecutorLibdispatchOnlyTests, NameReturnsLabelOfTheQueue) {
+  EXPECT_EQ(executor->Name(), "ExecutorLibdispatchTests");
+  executor->Execute([&] {
+    EXPECT_EQ(executor->CurrentExecutorName(), "ExecutorLibdispatchTests");
+    signal_finished();
+  });
+  EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_F(ExecutorLibdispatchOnlyTests,
+       ExecuteBlockingOnTheCurrentQueueIsNotAllowed) {
+  EXPECT_NO_THROW(executor->ExecuteBlocking([] {}));
+  executor->Execute([&] {
+    EXPECT_ANY_THROW(executor->ExecuteBlocking([] {}));
+    signal_finished();
+  });
+  EXPECT_TRUE(WaitForTestToFinish());
+}
+
+}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

@@ -132,14 +132,6 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 - (BOOL)containsDelayedCallbackWithTimerID:(FSTTimerID)timerID;
 
 /**
- * Drains the queue so that by the time this method returns, there is no more work on the queue.
- * Work dispatched using dispatchAfterDelay will be canceled (unless it's already in progress, in
- * which case it will run). Work dispatched using dispatchAsync will run; this method will block
- * until all such work finishes.
- */
-- (void)clear;
-
-/**
  * For Tests: Runs delayed callbacks early, blocking until completion.
  *
  * @param lastTimerID Only delayed callbacks up to and including one that was scheduled using this
