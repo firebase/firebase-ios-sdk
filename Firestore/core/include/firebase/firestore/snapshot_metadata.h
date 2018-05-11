@@ -21,8 +21,20 @@ namespace firebase {
 namespace firestore {
 
 /** Metadata about a snapshot, describing the state of the snapshot. */
-// TODO(zxu123): add more methods to complete the class and make it useful.
-class SnapshotMetadata {};
+class SnapshotMetadata {
+ public:
+  SnapshotMetadata(bool has_pending_writes, bool is_from_cache)
+      : has_pending_writes_(has_pending_writes),
+        is_from_cache_(is_from_cache) {}
+
+  bool has_pending_writes() const { return has_pending_writes_; }
+
+  bool is_from_cache() const { return is_from_cache_; }
+
+ private:
+  const bool has_pending_writes_;
+  const bool is_from_cache_;
+};
 
 }  // namespace firestore
 }  // namespace firebase
