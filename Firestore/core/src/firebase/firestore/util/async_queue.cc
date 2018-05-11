@@ -99,8 +99,8 @@ void AsyncQueue::VerifySequentialOrder() const {
   // This is the inverse of `VerifyIsCurrentQueue`.
   FIREBASE_ASSERT_MESSAGE(
       !is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
-      "Enforcing sequential order failed: currently executing operations "
-      "cannot enqueue more operations "
+      "Enqueue methods cannot be called when we are already running on "
+      "target executor"
       "(this queue's executor: '%s', current executor: '%s')",
       executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
 }

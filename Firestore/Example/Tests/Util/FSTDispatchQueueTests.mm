@@ -66,8 +66,10 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   XCTAssertNotNil(caught);
 
   XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
-  XCTAssertTrue([caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
-                                         @"Enforcing sequential order failed"]);
+  XCTAssertTrue([caught.reason
+      hasPrefix:
+          @"FIRESTORE INTERNAL ASSERTION FAILED: "
+          @"Enqueue methods cannot be called when we are already running on target executor"]);
 }
 
 - (void)testDispatchAsyncAllowingSameQueueActuallyAllowsSameQueue {
@@ -132,8 +134,10 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   XCTAssertNotNil(caught);
 
   XCTAssertEqualObjects(caught.name, NSInternalInconsistencyException);
-  XCTAssertTrue([caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
-                                         @"Enforcing sequential order failed"]);
+  XCTAssertTrue([caught.reason
+      hasPrefix:
+          @"FIRESTORE INTERNAL ASSERTION FAILED: "
+          @"Enqueue methods cannot be called when we are already running on target executor"]);
 }
 
 - (void)testVerifyIsCurrentQueueActuallyRequiresCurrentQueue {

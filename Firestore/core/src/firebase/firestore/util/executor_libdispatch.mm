@@ -57,7 +57,7 @@ void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
 void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
   FIREBASE_ASSERT_MESSAGE(
       GetCurrentQueueLabel() != GetQueueLabel(queue),
-      "Calling dispatch_sync on the current queue will lead to a deadlock.");
+      "Calling DispatchSync on the current queue will lead to a deadlock.");
 
   // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
   // is done, so passing a reference to a local variable is okay.
