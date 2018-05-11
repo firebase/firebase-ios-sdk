@@ -45,34 +45,30 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 
 else
   case "$PROJECT-$METHOD" in
-    *-pod-lib-lint)
-      run=true
-      ;;
-
     Firebase-*)
       check_changes '^(Firebase|Functions|Example)'
-      run=false
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^Firestore'
-      run=false
       ;;
 
     Firestore-cmake)
       check_changes '^Firestore/(core|third_party)'
-      run=false #don't commit
       ;;
 
     *)
-      run=false #don't commit
+      echo "Unknown project-method combo" 1>&2
+      echo "  PROJECT=$PROJECT" 1>&2
+      echo "  METHOD=$METHOD" 1>&2
+      exit 1
       ;;
   esac
 fi
 
 # Always rebuild if Travis configuration and/or build scripts changed.
-#check_changes '^.travis.yml'
-#check_changes '^scripts/(build|if_changed).sh'
+check_changes '^.travis.yml'
+check_changes '^scripts/(build|if_changed).sh'
 
 if [[ "$run" == true ]]; then
   "$@"
