@@ -298,7 +298,7 @@ class SerializerTest : public ::testing::Test {
     // TODO(rsgowman): Right now, we only support Document (and don't support
     // NoDocument). That should change in the next PR or so.
     EXPECT_EQ(MaybeDocument::Type::Document, actual_model->type());
-    Document* actual_doc_model = dynamic_cast<Document*>(actual_model.get());
+    Document* actual_doc_model = static_cast<Document*>(actual_model.get());
     EXPECT_EQ(key, actual_model->key());
     EXPECT_EQ(value, actual_doc_model->data());
     EXPECT_EQ(update_time, actual_model->version());

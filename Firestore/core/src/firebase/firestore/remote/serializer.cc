@@ -389,17 +389,6 @@ ResourcePath ExtractLocalPathFromResourceName(
   return resource_name.PopFirst(5);
 }
 
-std::unique_ptr<MaybeDocument> InvalidMaybeDocument() {
-  return absl::make_unique<MaybeDocument>(DocumentKey::Empty(),
-                                          SnapshotVersion::None());
-}
-
-std::unique_ptr<Document> InvalidDocument() {
-  return absl::make_unique<Document>(
-      FieldValue::ObjectValueFromMap({}), DocumentKey::Empty(),
-      SnapshotVersion::None(), /*has_local_modifications=*/false);
-}
-
 }  // namespace
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
@@ -455,8 +444,8 @@ void Serializer::EncodeDocument(Writer* writer,
     EncodeObject(writer, object_value);
   }
 
-  // Skip Document.create_time and Document.update_time, since they're output
-  // only fields.
+  // Skip Document.create_time and Document.update_time, since they're
+  // output-only fields.
 }
 
 util::StatusOr<std::unique_ptr<model::MaybeDocument>>
@@ -475,7 +464,7 @@ Serializer::DecodeMaybeDocument(const uint8_t* bytes, size_t length) const {
 std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     Reader* reader) const {
   Tag tag = reader->ReadTag();
-  if (!reader->status().ok()) return InvalidMaybeDocument();
+  if (!reader->status().ok()) return nullptr;
 
   // Ensure the tag matches the wire type
   switch (tag.field_number) {
@@ -495,13 +484,12 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
           "Input proto bytes cannot be parsed (invalid field number (tag))"));
   }
 
-  if (!reader->status().ok()) return InvalidMaybeDocument();
+  if (!reader->status().ok()) return nullptr;
 
   switch (tag.field_number) {
     case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
       return reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
-          InvalidMaybeDocument(),
-          [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
+          nullptr, [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
             return DecodeDocument(reader);
           });
     case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
@@ -519,19 +507,21 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 }
 
 std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
-  std::string name = "";
+  std::string name;
   FieldValue fields = FieldValue::ObjectValueFromMap({});
   SnapshotVersion version = SnapshotVersion::None();
 
   while (reader->bytes_left()) {
     Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return InvalidDocument();
+    if (!reader->status().ok()) return nullptr;
     FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
     switch (tag.field_number) {
       case google_firestore_v1beta1_Document_name_tag:
         name = reader->ReadString();
         break;
       case google_firestore_v1beta1_Document_fields_tag:
+        // TODO(rsgowman): Rather than overwriting, we should instead merge with
+        // the existing FieldValue (if any).
         fields = DecodeFieldValueImpl(reader);
         break;
       case google_firestore_v1beta1_Document_create_time_tag:
@@ -540,6 +530,10 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
       case google_firestore_v1beta1_Document_update_time_tag:
+        // TODO(rsgowman): Rather than overwriting, we should instead merge with
+        // the existing SnapshotVersion (if any). Less relevant here, since it's
+        // just two numbers which are both expected to be present, but if the
+        // proto evolves that might change.
         version = SnapshotVersion{
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;
