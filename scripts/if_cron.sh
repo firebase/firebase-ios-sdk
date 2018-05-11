@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Within Travis, runs the given command if the current project has changes
-# worth building.
+# Within Travis, check if running in a cron job.
 #
 # Examines the following Travis-supplied environment variables:
 #   - TRAVIS_EVENT_TYPE - to check if this is a cron job

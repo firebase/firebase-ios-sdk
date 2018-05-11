@@ -91,7 +91,7 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        # Eliminate one warning from BoringSSL when CocoaPods 1.6.0 is available.
+        # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
         - travis_wait ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
