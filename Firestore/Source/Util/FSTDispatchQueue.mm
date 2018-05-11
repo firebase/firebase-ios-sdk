@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<AsyncQueue> _impl;
 }
 
-+ (TimerId) convertTimerId:(FSTTimerID)objcTimerID {
++ (TimerId)convertTimerId:(FSTTimerID)objcTimerID {
   const TimerId converted = static_cast<TimerId>(objcTimerID);
   switch (converted) {
     case TimerId::All:
@@ -72,9 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
     case TimerId::WriteStreamIdle:
     case TimerId::WriteStreamConnectionBackoff:
     case TimerId::OnlineStateTimeout:
-    return converted;
+      return converted;
     default:
-    FSTAssert(false, @"Unknown value of enum FSTTimerID.");
+      FSTAssert(false, @"Unknown value of enum FSTTimerID.");
   }
 }
 
