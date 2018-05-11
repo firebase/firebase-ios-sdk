@@ -282,7 +282,7 @@ void EncodeObject(Writer* writer, const ObjectValue& object_value) {
     // Write each FieldsEntry (i.e. key-value pair.)
     for (const auto& kv : object_value.internal_value) {
       writer->WriteTag({PB_WT_STRING,
-                        google_firestore_v1beta1_MapValue_FieldsEntry_key_tag});
+                        google_firestore_v1beta1_MapValue_fields_tag});
       writer->WriteNestedMessage(
           [&kv](Writer* writer) { return EncodeFieldsEntry(writer, kv); });
     }
