@@ -18,6 +18,7 @@
 
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -243,10 +244,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore disableNetwork];
     if (completion) {
-      auto block = ^{
-        completion(nil);
-      };
-      _userExecutor->Execute([block] { block(); });
+      _userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -255,10 +253,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore enableNetwork];
     if (completion) {
-      auto block = ^{
-        completion(nil);
-      };
-      _userExecutor->Execute([block] { block(); });
+      _userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -270,10 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {
-      auto block = ^{
-        completion(nil);
-      };
-      _userExecutor->Execute([block] { block(); });
+      _userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -354,20 +346,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     if (mutations.count == 0) {
       if (completion) {
-        auto block = ^{
-          completion(nil);
-        };
-        _userExecutor->Execute([block] { block(); });
+        _userExecutor->Execute([=] { completion(nil); });
       }
     } else {
       [self.syncEngine writeMutations:mutations
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {
-                               auto block = ^{
-                                 completion(error);
-                               };
-                               _userExecutor->Execute([block] { block(); });
+                               _userExecutor->Execute([=] { completion(error); });
                              }
                            }];
     }
@@ -384,10 +370,7 @@ NS_ASSUME_NONNULL_BEGIN
                                  completion:^(id _Nullable result, NSError *_Nullable error) {
                                    // Dispatch the result back onto the user dispatch queue.
                                    if (completion) {
-                                     auto block = ^{
-                                       completion(result, error);
-                                     };
-                                     _userExecutor->Execute([block] { block(); });
+                                     _userExecutor->Execute([=] { completion(result, error); });
                                    }
                                  }];
   }];

@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/model/field_transform.h"
-#include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
-#include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H__
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H__
 
-#include "absl/memory/memory.h"
-#include "gtest/gtest.h"
+#include <pb.h>
 
 namespace firebase {
 namespace firestore {
-namespace model {
+namespace nanopb {
 
-TEST(FieldTransform, Getter) {
-  FieldTransform transform(testutil::Field("foo"),
-                           absl::make_unique<ServerTimestampTransform>(
-                               ServerTimestampTransform::Get()));
+/**
+ * Represents a nanopb tag.
+ *
+ * field_number is one of the field tags that nanopb generates based off of
+ * the proto messages. They're typically named in the format:
+ * <parentNameSpace>_<childNameSpace>_<message>_<field>_tag, e.g.
+ * google_firestore_v1beta1_Document_name_tag.
+ */
+struct Tag {
+  pb_wire_type_t wire_type;
+  uint32_t field_number;
+};
 
-  EXPECT_EQ(testutil::Field("foo"), transform.path());
-  EXPECT_EQ(ServerTimestampTransform::Get(), transform.transformation());
-}
-
-}  // namespace model
+}  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_NANOPB_TAG_H_

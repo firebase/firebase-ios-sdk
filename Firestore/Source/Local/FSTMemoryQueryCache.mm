@@ -19,6 +19,7 @@
 #include <utility>
 
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
@@ -27,6 +28,7 @@
 
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,12 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMemoryQueryCache {
+  FSTMemoryPersistence *_persistence;
   /** The last received snapshot version. */
   SnapshotVersion _lastRemoteSnapshotVersion;
 }
 
-- (instancetype)init {
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
+    _persistence = persistence;
     _queries = [NSMutableDictionary dictionary];
     _references = [[FSTReferenceSet alloc] init];
     _lastRemoteSnapshotVersion = SnapshotVersion::None();
@@ -119,10 +123,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
+  for (const DocumentKey &key : keys) {
+    [_persistence.referenceDelegate addReference:key target:targetID];
+  }
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
+  for (const DocumentKey &key : keys) {
+    [_persistence.referenceDelegate removeReference:key target:targetID];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {

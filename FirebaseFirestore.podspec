@@ -1,14 +1,6 @@
-#
-# Be sure to run `pod lib lint FirebaseFirestore.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.11.0'
+  s.version          = '0.12.0'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -19,10 +11,12 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  s.source           = { :git => 'https://github.com/TBD/Firestore.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => 'Firestore-' + s.version.to_s
+  }
 
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '8.0'
 
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
@@ -53,8 +47,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
-  s.ios.dependency 'FirebaseAnalytics', '~> 4.0'
-  s.dependency 'FirebaseCore', '~> 4.0'
+  s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'gRPC-ProtoRPC', '~> 1.0'
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'Protobuf', '~> 3.1'

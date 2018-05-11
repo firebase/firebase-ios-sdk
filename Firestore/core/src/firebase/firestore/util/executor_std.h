@@ -55,7 +55,7 @@ class Schedule {
   // - each operation modifying the queue notifies the condition variable `cv_`.
  public:
   using Duration = std::chrono::milliseconds;
-  using Clock = std::chrono::system_clock;
+  using Clock = std::chrono::steady_clock;
   // Entries are scheduled using absolute time.
   using TimePoint = std::chrono::time_point<Clock, Duration>;
 

@@ -507,8 +507,8 @@
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
 
   reason =
-      @"Invalid query. You can't do arrayContains queries on document ID since document IDs are "
-      @"not arrays.";
+      @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "
+       "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
                   reason);
 }

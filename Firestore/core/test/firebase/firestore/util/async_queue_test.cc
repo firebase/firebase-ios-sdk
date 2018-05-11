@@ -83,16 +83,20 @@ TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   queue.EnqueueBlocking([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }
 
+// TODO(varconst): this test is inherently flaky because it can't be guaranteed
+// that the enqueued asynchronous operation didn't finish before the code has
+// a chance to even enqueue the next operation. Delays are chosen so that the
+// test is unlikely to fail in practice. Need to revisit this.
 TEST_P(AsyncQueueTest, CanScheduleOperationsInTheFuture) {
   std::string steps;
 
   queue.Enqueue([&steps] { steps += '1'; });
   queue.Enqueue([&] {
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(5), kTimerId1, [&] {
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(20), kTimerId1, [&] {
       steps += '4';
       signal_finished();
     });
-    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(1), kTimerId2,
+    queue.EnqueueAfterDelay(AsyncQueue::Milliseconds(10), kTimerId2,
                             [&steps] { steps += '3'; });
     queue.EnqueueRelaxed([&steps] { steps += '2'; });
   });

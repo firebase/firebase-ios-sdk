@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Public types to be used both internally and externally.
 cc_library(
-  firebase_firestore_types
+  firebase_firestore_nanopb
   SOURCES
-    geo_point.cc
-    timestamp.cc
-    timestamp_internal.h
+    tag.h
+    reader.h
+    reader.cc
+    writer.h
+    writer.cc
   DEPENDS
     firebase_firestore_util
-)
-
-# Include the folder with public headers.
-target_include_directories(
-  firebase_firestore_types
-  PUBLIC
-  ${PROJECT_SOURCE_DIR}/core/include
+    firebase_firestore_protos_nanopb
+    nanopb
 )

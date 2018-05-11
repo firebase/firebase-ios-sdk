@@ -34,7 +34,9 @@
 
 #include "Firestore/Protos/cpp/google/firestore/v1beta1/document.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -42,6 +44,8 @@
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
+using firebase::Timestamp;
+using firebase::TimestampInternal;
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::FieldValue;
@@ -179,6 +183,15 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  google::firestore::v1beta1::Value ValueProto(const Timestamp& ts) {
+    std::vector<uint8_t> bytes =
+        EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
+    google::firestore::v1beta1::Value proto;
+    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    EXPECT_TRUE(ok);
+    return proto;
+  }
+
  private:
   void ExpectSerializationRoundTrip(
       const FieldValue& model,
@@ -256,6 +269,23 @@ TEST_F(SerializerTest, EncodesString) {
   for (const std::string& string_value : cases) {
     FieldValue model = FieldValue::StringValue(string_value);
     ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
+  }
+}
+
+TEST_F(SerializerTest, EncodesTimestamps) {
+  std::vector<Timestamp> cases{
+      {},  // epoch
+      {1234, 0},
+      {1234, 999999999},
+      {-1234, 0},
+      {-1234, 999999999},
+      TimestampInternal::Max(),
+      TimestampInternal::Min(),
+  };
+
+  for (const Timestamp& ts_value : cases) {
+    FieldValue model = FieldValue::TimestampValue(ts_value);
+    ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
   }
 }
 
@@ -361,6 +391,28 @@ TEST_F(SerializerTest, BadStringValue) {
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
   Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
+
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
+  std::vector<uint8_t> bytes = EncodeFieldValue(
+      &serializer, FieldValue::TimestampValue(TimestampInternal::Max()));
+
+  // Add some time, which should push us above the maximum allowed timestamp.
+  Mutate(&bytes[4], 0x82, 0x83);
+
+  ExpectFailedStatusDuringDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
+  std::vector<uint8_t> bytes = EncodeFieldValue(
+      &serializer, FieldValue::TimestampValue(TimestampInternal::Min()));
+
+  // Remove some time, which should push us below the minimum allowed timestamp.
+  Mutate(&bytes[4], 0x92, 0x91);
 
   ExpectFailedStatusDuringDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);

@@ -1,14 +1,6 @@
-#
-# Be sure to run `pod lib lint FirebaseFunctions.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html
-#
-
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '1.0.0'
+  s.version          = '2.0.0'
   s.summary          = 'Cloud Functions for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -16,8 +8,12 @@ iOS SDK for Cloud Functions for Firebase.
                        DESC
 
   s.homepage         = 'https://developers.google.com/'
+  s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
-  s.source           = { :git => 'https://github.com/TBD/FirebaseFunctions.git', :tag => s.version.to_s }
+  s.source           = {
+    :git => 'https://github.com/firebase/firebase-ios-sdk.git',
+    :tag => 'Functions-' + s.version.to_s
+  }
 
   s.ios.deployment_target = '8.0'
 
@@ -28,6 +24,6 @@ iOS SDK for Cloud Functions for Firebase.
   s.source_files = 'Functions/FirebaseFunctions/**/*'
   s.public_header_files = 'Functions/FirebaseFunctions/Public/*.h'
 
-  s.dependency 'FirebaseCore', '~> 4.0'
+  s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 end

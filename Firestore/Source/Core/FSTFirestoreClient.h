@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"

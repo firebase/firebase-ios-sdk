@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 
 @protocol FSTGarbageCollector;
@@ -24,7 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryMutationQueue : NSObject <FSTMutationQueue>
 
-+ (instancetype)mutationQueue;
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /** The garbage collector to notify about potential garbage keys. */
 @property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
