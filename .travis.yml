@@ -44,9 +44,6 @@ jobs:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
-        - ls -l /Users/travis/Library/Developer/Xcode/DerivedData
-        - ls -l /Users/travis/Library/Developer/Xcode/DerivedData/*/Build/Products
-        - ls -l /Users/travis/Library/Developer/Xcode/DerivedData/*/Build/Products/Debug-iphonesimulator
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
