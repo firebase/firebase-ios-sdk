@@ -45,10 +45,10 @@ namespace internal {
 // Generic wrapper over `dispatch_async_f`, providing `dispatch_async`-like
 // interface: accepts an arbitrary invocable object in place of an Objective-C
 // block.
-void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work);
+void DispatchAsync(dispatch_queue_t queue, std::function<void()>&& work);
 
 // Similar to `DispatchAsync` but wraps `dispatch_sync_f`.
-void DispatchSync(const dispatch_queue_t queue, std::function<void()> work);
+void DispatchSync(dispatch_queue_t queue, std::function<void()> work);
 
 class TimeSlot;
 
@@ -56,9 +56,7 @@ class TimeSlot;
 // a dedicated serial dispatch queue.
 class ExecutorLibdispatch : public Executor {
  public:
-  ExecutorLibdispatch();
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
-  ~ExecutorLibdispatch();
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;
@@ -79,11 +77,6 @@ class ExecutorLibdispatch : public Executor {
   }
 
  private:
-  // GetLabel functions are guaranteed to never return a "null" string_view
-  // (i.e. data() != nullptr).
-  absl::string_view GetCurrentQueueLabel() const;
-  absl::string_view GetTargetQueueLabel() const;
-
   dispatch_queue_t dispatch_queue_;
   // Stores non-owned pointers to `TimeSlot`s.
   // Invariant: if a `TimeSlot` is in `schedule_`, it's a valid pointer.

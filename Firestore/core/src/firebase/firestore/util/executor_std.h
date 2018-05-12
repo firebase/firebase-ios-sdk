@@ -220,7 +220,6 @@ class ExecutorStd : public Executor {
   bool IsScheduled(Tag tag) const override;
   absl::optional<TaggedOperation> PopFromSchedule() override;
 
- private:
   using TimePoint = async::Schedule<Operation>::TimePoint;
   // To allow canceling operations, each scheduled operation is assigned
   // a monotonically increasing identifier.

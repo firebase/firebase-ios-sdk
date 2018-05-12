@@ -28,13 +28,16 @@ absl::string_view StringViewFromDispatchLabel(const char* const label) {
   return label ? absl::string_view{label} : absl::string_view{""};
 }
 
-void RunSynchronized(const ExecutorLibdispatch* const executor,
-                     std::function<void()>&& work) {
-  if (executor->IsCurrentExecutor()) {
-    work();
-  } else {
-    DispatchSync(executor->dispatch_queue(), std::move(work));
-  }
+// GetLabel functions are guaranteed to never return a "null" string_view
+// (i.e. data() != nullptr).
+absl::string_view GetQueueLabel(const dispatch_queue_t queue) {
+  return StringViewFromDispatchLabel(dispatch_queue_get_label(queue));
+}
+absl::string_view GetCurrentQueueLabel() {
+  // Note: dispatch_queue_get_label may return nullptr if the queue wasn't
+  // initialized with a label.
+  return StringViewFromDispatchLabel(
+      dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
 }
 
 }  // namespace
@@ -51,14 +54,31 @@ void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
   });
 }
 
-void DispatchSync(const dispatch_queue_t queue, Executor::Operation work) {
+void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
+  FIREBASE_ASSERT_MESSAGE(
+      GetCurrentQueueLabel() != GetQueueLabel(queue),
+      "Calling DispatchSync on the current queue will lead to a deadlock.");
+
   // Unlike dispatch_async_f, dispatch_sync_f blocks until the work passed to it
   // is done, so passing a reference to a local variable is okay.
   dispatch_sync_f(queue, &work, [](void* const raw_work) {
-    const auto unwrap = static_cast<const Executor::Operation*>(raw_work);
+    const auto unwrap = static_cast<std::function<void()>*>(raw_work);
     (*unwrap)();
   });
 }
+
+namespace {
+
+template <typename Work>
+void RunSynchronized(const ExecutorLibdispatch* const executor, Work&& work) {
+  if (executor->IsCurrentExecutor()) {
+    work();
+  } else {
+    DispatchSync(executor->dispatch_queue(), std::forward<Work>(work));
+  }
+}
+
+}  // namespace
 
 // Represents a "busy" time slot on the schedule.
 //
@@ -170,32 +190,15 @@ void TimeSlot::RemoveFromSchedule() {
 ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
     : dispatch_queue_{dispatch_queue} {
 }
-ExecutorLibdispatch::ExecutorLibdispatch()
-    : ExecutorLibdispatch{dispatch_queue_create("com.google.firebase.firestore",
-                                                DISPATCH_QUEUE_SERIAL)} {
-}
-
-ExecutorLibdispatch::~ExecutorLibdispatch() {
-  // Turn any operations that might still be in the queue into no-ops, lest
-  // they try to access `ExecutorLibdispatch` after it gets destroyed. Because
-  // the queue is serial, by the time libdispatch gets to the newly-enqueued
-  // work, the pending operations that might have been in progress would have
-  // already finished.
-  RunSynchronized(this, [this] {
-    for (auto slot : schedule_) {
-      slot->MarkDone();
-    }
-  });
-}
 
 bool ExecutorLibdispatch::IsCurrentExecutor() const {
-  return GetCurrentQueueLabel().data() == GetTargetQueueLabel().data();
+  return GetCurrentQueueLabel() == GetQueueLabel(dispatch_queue());
 }
 std::string ExecutorLibdispatch::CurrentExecutorName() const {
   return GetCurrentQueueLabel().data();
 }
 std::string ExecutorLibdispatch::Name() const {
-  return GetTargetQueueLabel().data();
+  return GetQueueLabel(dispatch_queue()).data();
 }
 
 void ExecutorLibdispatch::Execute(Operation&& operation) {
@@ -243,29 +246,14 @@ void ExecutorLibdispatch::RemoveFromSchedule(const TimeSlot* const to_remove) {
   });
 }
 
-// GetLabel functions are guaranteed to never return a "null" string_view
-// (i.e. data() != nullptr).
-absl::string_view ExecutorLibdispatch::GetCurrentQueueLabel() const {
-  // Note: dispatch_queue_get_label may return nullptr if the queue wasn't
-  // initialized with a label.
-  return StringViewFromDispatchLabel(
-      dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
-}
-
-absl::string_view ExecutorLibdispatch::GetTargetQueueLabel() const {
-  return StringViewFromDispatchLabel(
-      dispatch_queue_get_label(dispatch_queue()));
-}
-
 // Test-only methods
 
 bool ExecutorLibdispatch::IsScheduled(const Tag tag) const {
   bool result = false;
   RunSynchronized(this, [this, tag, &result] {
-    result = std::find_if(schedule_.begin(), schedule_.end(),
-                          [&tag](const TimeSlot* const operation) {
-                            return *operation == tag;
-                          }) != schedule_.end();
+    result = std::any_of(
+        schedule_.begin(), schedule_.end(),
+        [&tag](const TimeSlot* const operation) { return *operation == tag; });
   });
   return result;
 }

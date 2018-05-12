@@ -77,7 +77,7 @@ TEST_F(AsyncQueueTestLibdispatchOnly,
 }
 
 TEST_F(AsyncQueueTestLibdispatchOnly,
-       VerifyIsCurrentQueueRequiresBeingCalledAsync) {
+       VerifyIsCurrentQueueRequiresBeingCalledOnTheQueue) {
   ASSERT_NE(underlying_queue, dispatch_get_main_queue());
   EXPECT_ANY_THROW(queue.VerifyIsCurrentQueue());
 }
