@@ -82,7 +82,8 @@ jobs:
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries
+        # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseStorage.podspec --use-libraries
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFunctions.podspec --use-libraries
 
