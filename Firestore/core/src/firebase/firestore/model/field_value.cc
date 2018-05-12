@@ -107,7 +107,7 @@ FieldValue& FieldValue::operator=(const FieldValue& value) {
       break;
     case Type::Blob: {
       // copy-and-swap
-      std::vector<uint8_t> tmp = value.blob_value_;
+      Blob tmp = value.blob_value_;
       std::swap(blob_value_, tmp);
       break;
     }
@@ -322,7 +322,7 @@ FieldValue FieldValue::StringValue(std::string&& value) {
 FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
-  std::vector<uint8_t> copy(source, source + size);
+  Blob copy(source, source + size);
   std::swap(result.blob_value_, copy);
   return result;
 }
@@ -488,7 +488,7 @@ void FieldValue::SwitchTo(const Type type) {
       break;
     case Type::Blob:
       // Do not even bother to allocate a new array of size 0.
-      new (&blob_value_) std::vector<uint8_t>();
+      new (&blob_value_) Blob();
       break;
     case Type::Reference:
       // Qualified name to avoid conflict with the member function of same name.
