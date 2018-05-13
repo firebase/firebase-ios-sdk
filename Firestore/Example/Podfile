@@ -18,7 +18,7 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseFirestore', :path => '../../'
 
   target 'Firestore_Tests_iOS' do
-    platform :ios, '8.0'
+    inherit! :search_paths
 
     pod 'leveldb-library'
     pod 'OCMock'
@@ -26,11 +26,12 @@ target 'Firestore_Example_iOS' do
   end
 
   target 'Firestore_IntegrationTests_iOS' do
-    platform :ios, '8.0'
+    inherit! :search_paths
+
+    pod 'OCMock'
   end
 
   target 'Firestore_SwiftTests_iOS' do
-    platform :ios, '8.0'
     pod 'FirebaseFirestoreSwift', :path => '../../'
   end
 
