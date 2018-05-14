@@ -34,7 +34,7 @@ jobs:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - npm install ios-sim -g
-        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-7, 11.3"
+        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-8-Plus, 11.3"
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
