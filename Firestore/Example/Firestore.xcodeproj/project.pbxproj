@@ -149,6 +149,7 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
+		6D8F90D34C6F13EA20E6F20C /* Pods_Firestore_Example_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DEB62CB82685969B9B53314 /* Pods_Firestore_Example_macOS.framework */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
@@ -257,6 +258,7 @@
 		12F4357299652983A615F886 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBTransactionTests.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3607F5A3B6BC065D187A963A /* Pods-Firestore_Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		379B34A1536045869826D82A /* Pods_Firestore_Example_iOS_SwiftBuildTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS_SwiftBuildTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -389,6 +391,7 @@
 		54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "XCTestCase+Await.h"; sourceTree = "<group>"; };
 		54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = array_sorted_map_test.cc; sourceTree = "<group>"; };
 		5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DEB62CB82685969B9B53314 /* Pods_Firestore_Example_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58A195388D20070C39A /* Firestore_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -411,6 +414,7 @@
 		7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDispatchQueueTests.mm; sourceTree = "<group>"; };
 		73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRArrayTransformTests.mm; sourceTree = "<group>"; };
 		74ACEC3603BE58B57A7E8D4C /* Pods-Firestore_Example_iOS-SwiftBuildTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-SwiftBuildTest.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-SwiftBuildTest/Pods-Firestore_Example_iOS-SwiftBuildTest.release.xcconfig"; sourceTree = "<group>"; };
+		866CDC25ECC6D56D6E26EF06 /* Pods-Firestore_Example_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_macOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8E002F4AD5D9B6197C940847 /* Firestore.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Firestore.podspec; path = ../Firestore.podspec; sourceTree = "<group>"; };
 		AB356EF6200EA5EB0089B766 /* field_value_test.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = field_value_test.cc; sourceTree = "<group>"; };
@@ -473,6 +477,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D8F90D34C6F13EA20E6F20C /* Pods_Firestore_Example_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,6 +698,7 @@
 				5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */,
 				BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */,
 				379B34A1536045869826D82A /* Pods_Firestore_Example_iOS_SwiftBuildTest.framework */,
+				5DEB62CB82685969B9B53314 /* Pods_Firestore_Example_macOS.framework */,
 				ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */,
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
@@ -771,6 +777,8 @@
 				74ACEC3603BE58B57A7E8D4C /* Pods-Firestore_Example_iOS-SwiftBuildTest.release.xcconfig */,
 				3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */,
 				3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */,
+				3607F5A3B6BC065D187A963A /* Pods-Firestore_Example_macOS.debug.xcconfig */,
+				866CDC25ECC6D56D6E26EF06 /* Pods-Firestore_Example_macOS.release.xcconfig */,
 				1277F98C20D2DF0867496976 /* Pods-Firestore_IntegrationTests_iOS.debug.xcconfig */,
 				F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */,
 				E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */,
@@ -1022,9 +1030,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 549EC2C920A947EF00C9514D /* Build configuration list for PBXNativeTarget "Firestore_Example_macOS" */;
 			buildPhases = (
+				DC85512DC9361845104DC0DD /* [CP] Check Pods Manifest.lock */,
 				549EC2B520A947EE00C9514D /* Sources */,
 				549EC2B620A947EE00C9514D /* Frameworks */,
 				549EC2B720A947EE00C9514D /* Resources */,
+				516BB9611780113BEE8450EC /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1268,16 +1278,16 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-SwiftBuildTest/Pods-Firestore_Example_iOS-SwiftBuildTest-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC/ProtoRPC.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary/RxLibrary.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-iOS/openssl.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-iOS/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-iOS/GRPCClient.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC-iOS/ProtoRPC.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary-iOS/RxLibrary.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1304,16 +1314,16 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC/ProtoRPC.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary/RxLibrary.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-iOS/openssl.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-iOS/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-iOS/GRPCClient.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC-iOS/ProtoRPC.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary-iOS/RxLibrary.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1340,7 +1350,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
 			);
@@ -1353,6 +1363,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		516BB9611780113BEE8450EC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-macOS/openssl.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-macOS/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-macOS/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-macOS/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-macOS/GRPCClient.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-macOS/grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC-macOS/ProtoRPC.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary-macOS/RxLibrary.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-macOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-macOS/nanopb.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRPCClient.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtoRPC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxLibrary.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_macOS/Pods-Firestore_Example_macOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		5504F81EEBBEF943CA61D32C /* [CP] Check Pods Manifest.lock */ = {
@@ -1463,6 +1509,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		DC85512DC9361845104DC0DD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Firestore_Example_macOS-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		EA424838F4A5DD7B337F57AB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1470,16 +1534,16 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
-				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC/ProtoRPC.framework",
-				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary/RxLibrary.framework",
-				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+				"${BUILT_PRODUCTS_DIR}/BoringSSL-iOS/openssl.framework",
+				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher-iOS/GTMSessionFetcher.framework",
+				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac-iOS/GoogleToolboxForMac.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-iOS/GRPCClient.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-Core-iOS/grpc.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-ProtoRPC-iOS/ProtoRPC.framework",
+				"${BUILT_PRODUCTS_DIR}/gRPC-RxLibrary-iOS/RxLibrary.framework",
+				"${BUILT_PRODUCTS_DIR}/leveldb-library-iOS/leveldb.framework",
+				"${BUILT_PRODUCTS_DIR}/nanopb-iOS/nanopb.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1760,6 +1824,7 @@
 /* Begin XCBuildConfiguration section */
 		549EC2C720A947EF00C9514D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3607F5A3B6BC065D187A963A /* Pods-Firestore_Example_macOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1801,6 +1866,7 @@
 		};
 		549EC2C820A947EF00C9514D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 866CDC25ECC6D56D6E26EF06 /* Pods-Firestore_Example_macOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
