@@ -509,6 +509,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		543B4F0520A91E4B001F506D /* App */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		5467FB05203E652F009C9584 /* testutil */ = {
 			isa = PBXGroup;
 			children = (
@@ -618,6 +625,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* Example for Firestore */,
 				6003F5B5195388D20070C39A /* Tests */,
