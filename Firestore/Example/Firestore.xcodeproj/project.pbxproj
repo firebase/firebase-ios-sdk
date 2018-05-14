@@ -2033,7 +2033,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -2061,7 +2061,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
