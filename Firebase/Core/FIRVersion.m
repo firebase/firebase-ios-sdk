@@ -29,8 +29,5 @@
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-const unsigned char *const FirebaseVersionString =
-    (const unsigned char *const)STR(Firebase_VERSION);
-
-const unsigned char *const FirebaseCoreVersionString =
-    (const unsigned char *const)STR(FIRCore_VERSION);
+const unsigned char *const FIRVersionString = (const unsigned char *const)STR(Firebase_VERSION);
+const unsigned char *const FIRCoreVersionString = (const unsigned char *const)STR(FIRCore_VERSION);

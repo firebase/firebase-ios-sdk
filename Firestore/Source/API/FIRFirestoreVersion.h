@@ -19,4 +19,4 @@
 #import <Foundation/Foundation.h>
 
 /** Version string for the Firebase Firestore SDK. */
-FOUNDATION_EXPORT const unsigned char *const FirebaseFirestoreVersionString;
+FOUNDATION_EXPORT const unsigned char *const FIRFirestoreVersionString;
