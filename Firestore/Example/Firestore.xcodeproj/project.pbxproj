@@ -512,6 +512,7 @@
 		543B4F0520A91E4B001F506D /* App */ = {
 			isa = PBXGroup;
 			children = (
+				6003F593195388D20070C39A /* Example for Firestore */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -627,7 +628,6 @@
 			children = (
 				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
-				6003F593195388D20070C39A /* Example for Firestore */,
 				6003F5B5195388D20070C39A /* Tests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
 				DE0761E51F2FE611003233AF /* SwiftBuildTest */,
