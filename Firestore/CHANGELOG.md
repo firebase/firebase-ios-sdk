@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where `FirestoreSettings` would accept a concurrent
+  dispatch queue, but this configuration would trigger an assertion failure.
+  Passing a concurrent dispatch queue should now work correctly (#988).
 
 # v0.12.0
 - [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
@@ -28,9 +31,6 @@
   is now the default.)
 - [feature] Added new `mergeFields:(NSArray<id>*)` override for `set()`
   which allows merging of a reduced subset of fields.
-- [fixed] Fixed an issue where `FirestoreSettings` would accept a concurrent
-  dispatch queue, but this configuration would trigger an assertion failure.
-  Passing a concurrent dispatch queue should now work correctly (#988).
 
 # v0.11.0
 - [fixed] Fixed a regression in the Firebase iOS SDK release 4.11.0 that could
