@@ -38,3 +38,11 @@ target 'Firestore_Example_iOS' do
     platform :ios, '8.0'
   end
 end
+
+target 'Firestore_Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseFirestore', :path => '../../'
+end
