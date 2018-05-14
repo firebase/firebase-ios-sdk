@@ -509,6 +509,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		543B4F0520A91E4B001F506D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				6003F593195388D20070C39A /* iOS */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		5467FB05203E652F009C9584 /* testutil */ = {
 			isa = PBXGroup;
 			children = (
@@ -618,8 +626,8 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
-				6003F593195388D20070C39A /* Example for Firestore */,
 				6003F5B5195388D20070C39A /* Tests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
 				DE0761E51F2FE611003233AF /* SwiftBuildTest */,
@@ -657,7 +665,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6003F593195388D20070C39A /* Example for Firestore */ = {
+		6003F593195388D20070C39A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
 				6003F59C195388D20070C39A /* FIRAppDelegate.h */,
@@ -669,8 +677,7 @@
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
-			name = "Example for Firestore";
-			path = Firestore;
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		6003F594195388D20070C39A /* Supporting Files */ = {
@@ -1833,7 +1840,7 @@
 					"\"${PODS_ROOT}/Firebase/Firebase/Firebase\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				MODULE_NAME = ExampleApp;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1857,7 +1864,7 @@
 					"\"${PODS_ROOT}/Firebase/Firebase/Firebase\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
 				);
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				MODULE_NAME = ExampleApp;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2026,7 +2033,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -2054,7 +2061,7 @@
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = "Firestore/Firestore-Info.plist";
+				INFOPLIST_FILE = "App/iOS/Firestore-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
