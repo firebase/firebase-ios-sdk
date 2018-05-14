@@ -60,6 +60,22 @@ extern NSString *const kFIRAppIsDefaultAppKey;
 extern NSString *const kFIRAppNameKey;
 extern NSString *const kFIRGoogleAppIDKey;
 
+/**
+ * The format string for the User Defaults key used for storing the data collection enabled flag.
+ * This includes formatting to append the Firebase App's name.
+ */
+extern NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat;
+
+/**
+ * The plist key used for storing the data collection enabled flag.
+ */
+extern NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey;
+
+/**
+ * A notification fired containing diagnostic information when SDK errors occur.
+ */
+extern NSString *const kFIRAppDiagnosticsNotification;
+
 /** @var FIRAuthStateDidChangeInternalNotification
  @brief The name of the @c NSNotificationCenter notification which is posted when the auth state
  changes (e.g. a new token has been produced, a user logs in or out). The object parameter of
@@ -180,6 +196,18 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * Expose the UID of the current user for Firestore.
  */
 - (nullable NSString *)getUID;
+
+/**
+ * WARNING: THIS SETTING DOES NOT WORK YET. IT WILL BE MOVED TO THE PUBLIC HEADER ONCE ALL SDKS
+ *          CONFORM TO THIS PREFERENCE. DO NOT RELY ON IT.
+ *
+ * Gets or sets whether automatic data collection is enabled for all products. Defaults to `YES`
+ * unless `FirebaseAutomaticDataCollectionEnabled` is set to `NO` in your app's Info.plist. This
+ * value is persisted across runs of the app so that it can be set once when users have consented to
+ * collection.
+ */
+@property(nonatomic, readwrite, getter=isAutomaticDataCollectionEnabled)
+    BOOL automaticDataCollectionEnabled;
 
 @end
 

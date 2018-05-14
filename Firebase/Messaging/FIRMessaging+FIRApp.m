@@ -72,6 +72,7 @@
   }
 
   self.fcmSenderID = [options.GCMSenderID copy];
+  self.globalAutomaticDataCollectionEnabled = [app isAutomaticDataCollectionEnabled];
 
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
