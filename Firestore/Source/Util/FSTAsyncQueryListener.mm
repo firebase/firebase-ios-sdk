@@ -42,7 +42,7 @@ using firebase::firestore::util::internal::Executor;
   // users just want to turn on notifications "forever" and don't want to have
   // to keep track of our handle to keep them going.
   return ^(FSTViewSnapshot *_Nullable snapshot, NSError *_Nullable error) {
-    _executor->Execute([self, snapshot, error] {
+    self->_executor->Execute([self, snapshot, error] {
       if (!self->_muted) {
         self->_snapshotHandler(snapshot, error);
       }
