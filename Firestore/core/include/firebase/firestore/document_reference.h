@@ -61,10 +61,6 @@ using MapFieldValue = std::tr1::unordered_map<std::string, FieldValue>;
 using MapFieldValue = std::unordered_map<std::string, FieldValue>;
 #endif
 
-// TODO(zxu123): Revisit the file structure. Right now put here to make client code
-// consistent since FIRDocumentListenOptions is in FIRDocumentReference.h.
-class DocumentListenOptions {};
-
 /**
  * A DocumentReference refers to a document location in a Firestore database and
  * can be used to write, read, or listen to the location. There may or may not
@@ -81,6 +77,11 @@ class DocumentListenOptions {};
  */
 class DocumentReference {
  public:
+  enum class MetadataChanges {
+    kExclude,
+    kInclude,
+  };
+
   /**
    * @brief Default constructor. This creates an invalid DocumentReference.
    * Attempting to perform any operations on this reference will fail (and cause
@@ -264,28 +265,13 @@ class DocumentReference {
    * this DocumentReference. (Ownership is not transferred; you are responsible
    * for making sure that listener is valid as long as this DocumentReference is
    * valid and the listener is registered.)
+   * @param[in] option The option whether to listen metadata-changes or not.
    *
    * @return A registration object that can be used to remove the listener.
    */
   virtual ListenerRegistration AddSnapshotListener(
-      EventListener<DocumentSnapshot>* listener);
-
-  /**
-   * @brief Starts listening to the document referenced by this
-   * DocumentReference.
-   *
-   * @param[in] options The options to use for this listen.
-   * @param[in] listener The event listener that will be called with the
-   * snapshots, which must remain in memory until you remove the listener from
-   * this DocumentReference. (Ownership is not transferred; you are responsible
-   * for making sure that listener is valid as long as this DocumentReference is
-   * valid and the listener is registered.)
-   *
-   * @return A registration object that can be used to remove the listener.
-   */
-  virtual ListenerRegistration AddSnapshotListener(
-      const DocumentListenOptions& options,
-      EventListener<DocumentSnapshot>* listener);
+      EventListener<DocumentSnapshot>* listener,
+      MetadataChanges option = MetadataChanges::kExclude);
 
 #if defined(FIREBASE_USE_STD_FUNCTION) || defined(DOXYGEN)
   /**
@@ -294,6 +280,7 @@ class DocumentReference {
    *
    * @param[in] callback function or lambda to call. When this function is
    * called, exactly one of the parameters will be non-null.
+   * @param[in] option The option whether to listen metadata-changes or not.
    *
    * @return A registration object that can be used to remove the listener.
    *
@@ -301,24 +288,8 @@ class DocumentReference {
    * std::function is not supported on STLPort.
    */
   virtual ListenerRegistration AddSnapshotListener(
-      std::function<void(const DocumentSnapshot*, const Error*)> callback);
-
-  /**
-   * @brief Starts listening to the document referenced by this
-   * DocumentReference.
-   *
-   * @param[in] options The options to use for this listen.
-   * @param[in] callback function or lambda to call. When this function is
-   * called, exactly one of the parameters will be non-null.
-   *
-   * @return A registration object that can be used to remove the listener.
-   *
-   * @note This method is not available when using STLPort on Android, as
-   * std::function is not supported on STLPort.
-   */
-  virtual ListenerRegistration AddSnapshotListener(
-      const DocumentListenOptions& options,
-      std::function<void(const DocumentSnapshot*, const Error*)> callback);
+      std::function<void(const DocumentSnapshot*, const Error*)> callback,
+      MetadataChanges option = MetadataChanges::kExclude);
 #endif  // defined(FIREBASE_USE_STD_FUNCTION) || defined(DOXYGEN)
 
  protected:
