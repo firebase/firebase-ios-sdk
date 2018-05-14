@@ -239,7 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore disableNetwork];
     if (completion) {
-      _userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -248,7 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore enableNetwork];
     if (completion) {
-      _userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -260,7 +260,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {
-      _userExecutor->Execute([=] { completion(nil); });
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -341,14 +341,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     if (mutations.count == 0) {
       if (completion) {
-        _userExecutor->Execute([=] { completion(nil); });
+        self->_userExecutor->Execute([=] { completion(nil); });
       }
     } else {
       [self.syncEngine writeMutations:mutations
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {
-                               _userExecutor->Execute([=] { completion(error); });
+                               self->_userExecutor->Execute([=] { completion(error); });
                              }
                            }];
     }
@@ -359,15 +359,16 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    [self.syncEngine transactionWithRetries:retries
-                        workerDispatchQueue:self.workerDispatchQueue
-                                updateBlock:updateBlock
-                                 completion:^(id _Nullable result, NSError *_Nullable error) {
-                                   // Dispatch the result back onto the user dispatch queue.
-                                   if (completion) {
-                                     _userExecutor->Execute([=] { completion(result, error); });
-                                   }
-                                 }];
+    [self.syncEngine
+        transactionWithRetries:retries
+           workerDispatchQueue:self.workerDispatchQueue
+                   updateBlock:updateBlock
+                    completion:^(id _Nullable result, NSError *_Nullable error) {
+                      // Dispatch the result back onto the user dispatch queue.
+                      if (completion) {
+                        self->_userExecutor->Execute([=] { completion(result, error); });
+                      }
+                    }];
   }];
 }
 
