@@ -359,15 +359,16 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    [self.syncEngine transactionWithRetries:retries
-                        workerDispatchQueue:self.workerDispatchQueue
-                                updateBlock:updateBlock
-                                 completion:^(id _Nullable result, NSError *_Nullable error) {
-                                   // Dispatch the result back onto the user dispatch queue.
-                                   if (completion) {
-                                     self->_userExecutor->Execute([=] { completion(result, error); });
-                                   }
-                                 }];
+    [self.syncEngine
+        transactionWithRetries:retries
+           workerDispatchQueue:self.workerDispatchQueue
+                   updateBlock:updateBlock
+                    completion:^(id _Nullable result, NSError *_Nullable error) {
+                      // Dispatch the result back onto the user dispatch queue.
+                      if (completion) {
+                        self->_userExecutor->Execute([=] { completion(result, error); });
+                      }
+                    }];
   }];
 }
 
