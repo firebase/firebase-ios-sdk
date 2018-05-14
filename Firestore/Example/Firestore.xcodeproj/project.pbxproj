@@ -360,9 +360,9 @@
 		549EC2BC20A947EE00C9514D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		549EC2BE20A947EF00C9514D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		549EC2C120A947EF00C9514D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		549EC2C320A947EF00C9514D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		549EC2C320A947EF00C9514D /* Firestore-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Firestore-Info.plist"; sourceTree = "<group>"; };
 		549EC2C420A947EF00C9514D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		549EC2C620A947EF00C9514D /* Firestore_Example_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Firestore_Example_macOS.entitlements; sourceTree = "<group>"; };
+		549EC2C620A947EF00C9514D /* Firestore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Firestore.entitlements; sourceTree = "<group>"; };
 		54A0352220A3AEC3003E0143 /* transform_operations_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = transform_operations_test.mm; sourceTree = "<group>"; };
 		54A0352320A3AEC3003E0143 /* field_transform_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = field_transform_test.mm; sourceTree = "<group>"; };
 		54A0352820A3B3BD003E0143 /* testutil.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testutil.cc; sourceTree = "<group>"; };
@@ -532,6 +532,7 @@
 			isa = PBXGroup;
 			children = (
 				6003F593195388D20070C39A /* iOS */,
+				549EC2BA20A947EE00C9514D /* macOS */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -620,18 +621,18 @@
 			path = local;
 			sourceTree = "<group>";
 		};
-		549EC2BA20A947EE00C9514D /* Firestore_Example_macOS */ = {
+		549EC2BA20A947EE00C9514D /* macOS */ = {
 			isa = PBXGroup;
 			children = (
 				549EC2BB20A947EE00C9514D /* AppDelegate.h */,
 				549EC2BC20A947EE00C9514D /* AppDelegate.m */,
 				549EC2BE20A947EF00C9514D /* Assets.xcassets */,
-				549EC2C620A947EF00C9514D /* Firestore_Example_macOS.entitlements */,
-				549EC2C320A947EF00C9514D /* Info.plist */,
+				549EC2C320A947EF00C9514D /* Firestore-Info.plist */,
+				549EC2C620A947EF00C9514D /* Firestore.entitlements */,
 				549EC2C020A947EF00C9514D /* MainMenu.xib */,
 				549EC2C420A947EF00C9514D /* main.m */,
 			);
-			path = Firestore_Example_macOS;
+			path = macOS;
 			sourceTree = "<group>";
 		};
 		54C9EDF22040E16300A969CD /* SwiftTests */ = {
@@ -665,7 +666,6 @@
 				54764FAC1FAA0C390085E60A /* CoreTests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
 				DE0761E51F2FE611003233AF /* SwiftBuildTest */,
-				549EC2BA20A947EE00C9514D /* Firestore_Example_macOS */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				AAEA2A72CFD1FA5AD34462F7 /* Pods */,
@@ -1779,7 +1779,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Firestore_Example_macOS/Firestore_Example_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/macOS/Firestore.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1787,7 +1787,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Firestore_Example_macOS/Info.plist;
+				INFOPLIST_FILE = "App/macOS/Firestore-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1818,7 +1818,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Firestore_Example_macOS/Firestore_Example_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = App/macOS/Firestore.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1827,7 +1827,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
-				INFOPLIST_FILE = Firestore_Example_macOS/Info.plist;
+				INFOPLIST_FILE = "App/macOS/Firestore-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
