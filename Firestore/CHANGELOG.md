@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.12.0
 - [changed] Replaced the `DocumentListenOptions` object with a simple boolean.
   Instead of calling
   `addSnapshotListener(options: DocumentListenOptions.includeMetadataChanges(true))`
