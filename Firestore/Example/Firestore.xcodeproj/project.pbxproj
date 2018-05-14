@@ -512,7 +512,7 @@
 		543B4F0520A91E4B001F506D /* App */ = {
 			isa = PBXGroup;
 			children = (
-				6003F593195388D20070C39A /* Example for Firestore */,
+				6003F593195388D20070C39A /* iOS */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -665,7 +665,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6003F593195388D20070C39A /* Example for Firestore */ = {
+		6003F593195388D20070C39A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
 				6003F59C195388D20070C39A /* FIRAppDelegate.h */,
@@ -677,8 +677,7 @@
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
-			name = "Example for Firestore";
-			path = Firestore;
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		6003F594195388D20070C39A /* Supporting Files */ = {
