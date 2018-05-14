@@ -17,6 +17,8 @@
 #import "FIndexedNode.h"
 #import "FTypedefs_Private.h"
 
+@class FIRDatabaseReference;
+
 @interface FIRDataSnapshot ()
 
 // in _Private for testing purposes
