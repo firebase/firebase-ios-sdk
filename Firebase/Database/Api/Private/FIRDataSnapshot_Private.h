@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRDataSnapshot.h"
 #import "FIndexedNode.h"
 #import "FTypedefs_Private.h"
 
