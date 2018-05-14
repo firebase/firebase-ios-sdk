@@ -6,7 +6,7 @@
 # version's subspecs should depend on the component versions in their
 # corresponding podspec's.
 
-pod 'Firebase/Core', '5.0.0'
+pod 'Firebase/Core', '5.0.1'
 
 use_frameworks!
 
