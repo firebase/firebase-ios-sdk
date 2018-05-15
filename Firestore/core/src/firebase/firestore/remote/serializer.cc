@@ -25,14 +25,19 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.pb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -41,10 +46,14 @@ namespace remote {
 using firebase::Timestamp;
 using firebase::TimestampInternal;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::FieldValue;
+using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Tag;
 using firebase::firestore::nanopb::Writer;
@@ -67,6 +76,8 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
 }
 
 Timestamp DecodeTimestamp(Reader* reader) {
+  if (!reader->status().ok()) return {};
+
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
   reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
@@ -147,6 +158,8 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 }
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
+  if (!reader->status().ok()) return FieldValue::NullValue();
+
   Tag tag = reader->ReadTag();
   if (!reader->status().ok()) return FieldValue::NullValue();
 
@@ -255,6 +268,8 @@ void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
 }
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
+  if (!reader->status().ok()) return {};
+
   Tag tag = reader->ReadTag();
   if (!reader->status().ok()) return {};
 
@@ -411,6 +426,135 @@ DocumentKey Serializer::DecodeKey(absl::string_view name) const {
   FIREBASE_ASSERT_MESSAGE(resource[3] == database_id_.database_id(),
                           "Tried to deserialize key from different database.");
   return DocumentKey{ExtractLocalPathFromResourceName(resource)};
+}
+
+util::Status Serializer::EncodeDocument(const DocumentKey& key,
+                                        const ObjectValue& value,
+                                        std::vector<uint8_t>* out_bytes) const {
+  Writer writer = Writer::Wrap(out_bytes);
+  EncodeDocument(&writer, key, value);
+  return writer.status();
+}
+
+void Serializer::EncodeDocument(Writer* writer,
+                                const DocumentKey& key,
+                                const ObjectValue& object_value) const {
+  // Encode Document.name
+  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
+  writer->WriteString(EncodeKey(key));
+
+  // Encode Document.fields (unless it's empty)
+  if (!object_value.internal_value.empty()) {
+    writer->WriteTag(
+        {PB_WT_STRING, google_firestore_v1beta1_Document_fields_tag});
+    EncodeObject(writer, object_value);
+  }
+
+  // Skip Document.create_time and Document.update_time, since they're
+  // output-only fields.
+}
+
+util::StatusOr<std::unique_ptr<model::MaybeDocument>>
+Serializer::DecodeMaybeDocument(const uint8_t* bytes, size_t length) const {
+  Reader reader = Reader::Wrap(bytes, length);
+  std::unique_ptr<MaybeDocument> maybeDoc =
+      DecodeBatchGetDocumentsResponse(&reader);
+
+  if (reader.status().ok()) {
+    return maybeDoc;
+  } else {
+    return reader.status();
+  }
+}
+
+std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
+    Reader* reader) const {
+  Tag tag = reader->ReadTag();
+  if (!reader->status().ok()) return nullptr;
+
+  // Ensure the tag matches the wire type
+  switch (tag.field_number) {
+    case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+    case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+      if (tag.wire_type != PB_WT_STRING) {
+        reader->set_status(
+            Status(FirestoreErrorCode::DataLoss,
+                   "Input proto bytes cannot be parsed (mismatch between "
+                   "the wiretype and the field number (tag))"));
+      }
+      break;
+
+    default:
+      reader->set_status(Status(
+          FirestoreErrorCode::DataLoss,
+          "Input proto bytes cannot be parsed (invalid field number (tag))"));
+  }
+
+  if (!reader->status().ok()) return nullptr;
+
+  switch (tag.field_number) {
+    case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+      return reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
+          [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
+            return DecodeDocument(reader);
+          });
+    case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+      // TODO(rsgowman): Right now, we only support Document (and don't support
+      // NoDocument). That should change in the next PR or so.
+      abort();
+    default:
+      // This indicates an internal error as we've already ensured that this is
+      // a valid field_number.
+      FIREBASE_ASSERT_MESSAGE(
+          false,
+          "Somehow got an unexpected field number (tag) after verifying that "
+          "the field number was expected.");
+  }
+}
+
+std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
+  if (!reader->status().ok()) return nullptr;
+
+  std::string name;
+  FieldValue fields = FieldValue::ObjectValueFromMap({});
+  SnapshotVersion version = SnapshotVersion::None();
+
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return nullptr;
+    FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Document_name_tag:
+        name = reader->ReadString();
+        break;
+      case google_firestore_v1beta1_Document_fields_tag:
+        // TODO(rsgowman): Rather than overwriting, we should instead merge with
+        // the existing FieldValue (if any).
+        fields = DecodeFieldValueImpl(reader);
+        break;
+      case google_firestore_v1beta1_Document_create_time_tag:
+        // This field is ignored by the client sdk, but we still need to extract
+        // it.
+        reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
+        break;
+      case google_firestore_v1beta1_Document_update_time_tag:
+        // TODO(rsgowman): Rather than overwriting, we should instead merge with
+        // the existing SnapshotVersion (if any). Less relevant here, since it's
+        // just two numbers which are both expected to be present, but if the
+        // proto evolves that might change.
+        version = SnapshotVersion{
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+        break;
+      default:
+        // TODO(rsgowman): Error handling. (Invalid tags should fail to decode,
+        // but shouldn't cause a crash.)
+        abort();
+    }
+  }
+
+  return absl::make_unique<Document>(std::move(fields), DecodeKey(name),
+                                     version,
+                                     /*has_local_modifications=*/false);
 }
 
 }  // namespace remote
