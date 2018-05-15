@@ -76,6 +76,8 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
 }
 
 Timestamp DecodeTimestamp(Reader* reader) {
+  if (!reader->status().ok()) return {};
+
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
   reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
@@ -156,6 +158,8 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 }
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
+  if (!reader->status().ok()) return FieldValue::NullValue();
+
   Tag tag = reader->ReadTag();
   if (!reader->status().ok()) return FieldValue::NullValue();
 
@@ -264,6 +268,8 @@ void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
 }
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
+  if (!reader->status().ok()) return {};
+
   Tag tag = reader->ReadTag();
   if (!reader->status().ok()) return {};
 
@@ -489,7 +495,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   switch (tag.field_number) {
     case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
       return reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
-          nullptr, [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
+          [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
             return DecodeDocument(reader);
           });
     case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
@@ -507,6 +513,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 }
 
 std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
+  if (!reader->status().ok()) return nullptr;
+
   std::string name;
   FieldValue fields = FieldValue::ObjectValueFromMap({});
   SnapshotVersion version = SnapshotVersion::None();
