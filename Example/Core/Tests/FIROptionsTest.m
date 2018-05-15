@@ -17,6 +17,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRBundleUtil.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseCore/FIRVersion.h>
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;
@@ -435,6 +436,15 @@ extern NSString *const kFIRLibraryVersionID;
                                             options:0
                                               range:NSMakeRange(0, kFIRLibraryVersionID.length)];
   XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
+}
+
+- (void)testVersionConsistency {
+  const char *versionString = [kFIRLibraryVersionID UTF8String];
+  int major = versionString[0] - '0';
+  int minor = (versionString[1] - '0') * 10 + versionString[2] - '0';
+  int patch = (versionString[3] - '0') * 10 + versionString[4] - '0';
+  NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
+  XCTAssertEqualObjects(str, [NSString stringWithUTF8String:(const char *)FIRCoreVersionString]);
 }
 
 @end
