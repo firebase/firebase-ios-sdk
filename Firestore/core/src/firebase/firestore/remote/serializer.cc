@@ -355,7 +355,7 @@ ObjectValue::Map DecodeMapValue(Reader* reader) {
     if (!reader->status().ok()) return result;
 
     // Assumption: If we parse two entries for the map that have the same key,
-    // then the later should overwrite the former. This does not appear to be
+    // then the latter should overwrite the former. This does not appear to be
     // explicitly called out by the docs, but seems to be in the spirit of how
     // things work. (i.e. non-repeated fields explicitly follow this behaviour.)
     // In any case, well behaved proto emitters shouldn't create encodings like
@@ -567,15 +567,8 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
         if (!reader->status().ok()) return nullptr;
 
-        // Assumption: If we parse two entries for the map that have the same
-        // key, then the later should overwrite the former. This does not
-        // appear to be explicitly called out by the docs, but seems to be in
-        // the spirit of how things work. (i.e. non-repeated fields explicitly
-        // follow this behaviour.) In any case, well behaved proto emitters
-        // shouldn't create encodings like this, but well behaved parsers are
-        // expected to handle these cases.
-        //
-        // https://developers.google.com/protocol-buffers/docs/encoding#optional
+        // Assumption: For duplicates, the latter overrides the former, see
+        // comment on writing object map for details (DecodeMapValue).
 
         // Add fieldvalue to the results map.
         fields_internal[fv.first] = fv.second;
