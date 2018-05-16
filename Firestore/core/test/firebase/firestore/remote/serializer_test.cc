@@ -153,6 +153,14 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
+  void ExpectFailedStatusDuringMaybeDocumentDecode(
+      Status status, const std::vector<uint8_t>& bytes) {
+    StatusOr<std::unique_ptr<MaybeDocument>> bad_status =
+        serializer.DecodeMaybeDocument(bytes);
+    ASSERT_NOT_OK(bad_status);
+    EXPECT_EQ(status.code(), bad_status.status().code());
+  }
+
   v1beta1::Value ValueProto(nullptr_t) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::NullValue());
@@ -712,6 +720,21 @@ TEST_F(SerializerTest, DecodesNoDocument) {
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
 
   ExpectNoDocumentDeserializationRoundTrip(key, read_time, proto);
+}
+
+TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
+  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
+  google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
+  read_time_proto->set_seconds(1234);
+  read_time_proto->set_nanos(5678);
+
+  size_t size = proto.ByteSizeLong();
+  std::vector<uint8_t> bytes(size);
+  bool status = proto.SerializeToArray(bytes.data(), size);
+  EXPECT_TRUE(status);
+
+  ExpectFailedStatusDuringMaybeDocumentDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
