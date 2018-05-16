@@ -17,7 +17,7 @@
 #import "FIRMessagingRmqManager.h"
 
 #import "Protos/GtalkCore.pbobjc.h"
-#import "sqlite3.h"
+#import <sqlite3.h>
 
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"

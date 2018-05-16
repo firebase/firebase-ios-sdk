@@ -16,7 +16,7 @@
 
 #import "FIRMessagingRmq2PersistentStore.h"
 
-#import "sqlite3.h"
+#import <sqlite3.h>
 
 #import "Protos/GtalkCore.pbobjc.h"
 
