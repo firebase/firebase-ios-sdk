@@ -62,9 +62,14 @@ using firebase::firestore::util::StatusOr;
 
 namespace {
 
-void EncodeObject(Writer* writer, const ObjectValue& object_value);
+void EncodeMapValue(Writer* writer, const ObjectValue& object_value);
+void EncodeObjectMap(Writer* writer,
+                     const ObjectValue::Map& object_value_map,
+                     uint32_t map_tag,
+                     uint32_t key_tag,
+                     uint32_t value_tag);
 
-ObjectValue::Map DecodeObject(Reader* reader);
+ObjectValue::Map DecodeMapValue(Reader* reader);
 
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
   google_protobuf_Timestamp timestamp_proto =
@@ -148,7 +153,9 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
     case FieldValue::Type::Object:
       writer->WriteTag(
           {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
-      EncodeObject(writer, field_value.object_value());
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeMapValue(writer, field_value.object_value());
+      });
       break;
 
     default:
@@ -222,7 +229,8 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       return FieldValue::TimestampValue(
           reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
     case google_firestore_v1beta1_Value_map_value_tag:
-      return FieldValue::ObjectValueFromMap(DecodeObject(reader));
+      return FieldValue::ObjectValueFromMap(
+          reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
 
     default:
       // This indicates an internal error as we've already ensured that this is
@@ -254,20 +262,23 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
  *
  * @param kv The individual key/value pair to write.
  */
-void EncodeFieldsEntry(Writer* writer, const ObjectValue::Map::value_type& kv) {
+void EncodeFieldsEntry(Writer* writer,
+                       const ObjectValue::Map::value_type& kv,
+                       uint32_t key_tag,
+                       uint32_t value_tag) {
   // Write the key (string)
-  writer->WriteTag(
-      {PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag});
+  writer->WriteTag({PB_WT_STRING, key_tag});
   writer->WriteString(kv.first);
 
   // Write the value (FieldValue)
-  writer->WriteTag(
-      {PB_WT_STRING, google_firestore_v1beta1_MapValue_FieldsEntry_value_tag});
+  writer->WriteTag({PB_WT_STRING, value_tag});
   writer->WriteNestedMessage(
       [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
 }
 
-ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
+ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
+                                               uint32_t key_tag,
+                                               uint32_t value_tag) {
   if (!reader->status().ok()) return {};
 
   Tag tag = reader->ReadTag();
@@ -275,15 +286,13 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
 
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
-  FIREBASE_ASSERT(tag.field_number ==
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag);
+  FIREBASE_ASSERT(tag.field_number == key_tag);
   FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
   std::string key = reader->ReadString();
 
   tag = reader->ReadTag();
   if (!reader->status().ok()) return {};
-  FIREBASE_ASSERT(tag.field_number ==
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+  FIREBASE_ASSERT(tag.field_number == value_tag);
   FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
 
   FieldValue value =
@@ -292,49 +301,62 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader) {
   return ObjectValue::Map::value_type{key, value};
 }
 
-void EncodeObject(Writer* writer, const ObjectValue& object_value) {
-  return writer->WriteNestedMessage([&object_value](Writer* writer) {
-    // Write each FieldsEntry (i.e. key-value pair.)
-    for (const auto& kv : object_value.internal_value) {
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_MapValue_fields_tag});
-      writer->WriteNestedMessage(
-          [&kv](Writer* writer) { return EncodeFieldsEntry(writer, kv); });
-    }
-  });
+ObjectValue::Map::value_type DecodeMapValueFieldsEntry(Reader* reader) {
+  return DecodeFieldsEntry(
+      reader, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+      google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
-ObjectValue::Map DecodeObject(Reader* reader) {
-  if (!reader->status().ok()) return ObjectValue::Map();
+void EncodeObjectMap(Writer* writer,
+                     const ObjectValue::Map& object_value_map,
+                     uint32_t map_tag,
+                     uint32_t key_tag,
+                     uint32_t value_tag) {
+  // Write each FieldsEntry (i.e. key-value pair.)
+  for (const auto& kv : object_value_map) {
+    writer->WriteTag({PB_WT_STRING, map_tag});
+    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
+      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
+    });
+  }
+}
 
-  return reader->ReadNestedMessage<ObjectValue::Map>(
-      [](Reader* reader) -> ObjectValue::Map {
-        ObjectValue::Map result;
-        if (!reader->status().ok()) return result;
+void EncodeMapValue(Writer* writer, const ObjectValue& object_value) {
+  EncodeObjectMap(writer, object_value.internal_value,
+                  google_firestore_v1beta1_MapValue_fields_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+}
 
-        while (reader->bytes_left()) {
-          Tag tag = reader->ReadTag();
-          if (!reader->status().ok()) return result;
-          FIREBASE_ASSERT(tag.field_number ==
-                          google_firestore_v1beta1_MapValue_fields_tag);
-          FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+ObjectValue::Map DecodeMapValue(Reader* reader) {
+  ObjectValue::Map result;
+  if (!reader->status().ok()) return result;
 
-          ObjectValue::Map::value_type fv =
-              reader->ReadNestedMessage<ObjectValue::Map::value_type>(
-                  DecodeFieldsEntry);
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return result;
+    // The MapValue message only has a single valid tag.
+    // TODO(rsgowman): figure out error handling: We can do better than a
+    // failed assertion.
+    FIREBASE_ASSERT(tag.field_number ==
+                    google_firestore_v1beta1_MapValue_fields_tag);
+    FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
 
-          // Sanity check: ensure that this key doesn't already exist in the
-          // map.
-          // TODO(rsgowman): figure out error handling: We can do better than a
-          // failed assertion.
-          if (!reader->status().ok()) return result;
-          FIREBASE_ASSERT(result.find(fv.first) == result.end());
+    ObjectValue::Map::value_type fv =
+        reader->ReadNestedMessage<ObjectValue::Map::value_type>(
+            DecodeMapValueFieldsEntry);
 
-          // Add this key,fieldvalue to the results map.
-          result.emplace(std::move(fv));
-        }
-        return result;
-      });
+    // Sanity check: ensure that this key doesn't already exist in the
+    // map.
+    // TODO(rsgowman): figure out error handling: We can do better than a
+    // failed assertion.
+    if (!reader->status().ok()) return result;
+    FIREBASE_ASSERT(result.find(fv.first) == result.end());
+
+    // Add this key,fieldvalue to the results map.
+    result.emplace(std::move(fv));
+  }
+  return result;
 }
 
 /**
@@ -445,9 +467,11 @@ void Serializer::EncodeDocument(Writer* writer,
 
   // Encode Document.fields (unless it's empty)
   if (!object_value.internal_value.empty()) {
+    // TODO(rsgowman): add support for documents with contents. (This
+    // implementation is wrong, but will be corrected in the next PR.)
     writer->WriteTag(
         {PB_WT_STRING, google_firestore_v1beta1_Document_fields_tag});
-    EncodeObject(writer, object_value);
+    EncodeMapValue(writer, object_value);
   }
 
   // Skip Document.create_time and Document.update_time, since they're
