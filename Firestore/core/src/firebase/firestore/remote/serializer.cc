@@ -602,8 +602,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   }
 
   return absl::make_unique<Document>(
-      FieldValue::ObjectValueFromMap(fields_internal),
-      DecodeKey(name), version,
+      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name), version,
       /*has_local_modifications=*/false);
 }
 
