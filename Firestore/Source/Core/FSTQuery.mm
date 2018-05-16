@@ -724,6 +724,16 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   return nullptr;
 }
 
+- (BOOL)hasArrayContainsFilter {
+  for (id<FSTFilter> filter in self.filters) {
+    if ([filter isKindOfClass:[FSTRelationFilter class]] &&
+        ((FSTRelationFilter *)filter).filterOperator == FSTRelationFilterOperatorArrayContains) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
 - (const FieldPath *)firstSortOrderField {
   if (self.explicitSortOrders.count > 0) {
     return &self.explicitSortOrders.firstObject.field;
