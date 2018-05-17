@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
@@ -103,7 +103,7 @@ std::string Status::ToString() const {
         result = "Data loss";
         break;
       default:
-        result = StringPrintf("Unknown code(%d)", static_cast<int>(code()));
+        result = StringFormat("Unknown code(%s)", code());
         break;
     }
     result += ": ";
