@@ -38,6 +38,8 @@ cc_library(
   SOURCES
     firebase_assert.h
     assert_stdio.cc
+    hard_assert_stdio.cc
+    hard_assert.h
     log.h
     log_stdio.cc
   DEPENDS
@@ -51,12 +53,15 @@ cc_library(
   SOURCES
     firebase_assert.h
     assert_apple.mm
+    hard_assert.h
+    hard_assert_apple.mm
     log.h
     log_apple.mm
     string_apple.h
   DEPENDS
     FirebaseCore
     absl_strings
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
