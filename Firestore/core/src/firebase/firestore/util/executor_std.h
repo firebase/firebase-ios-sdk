@@ -41,7 +41,7 @@ namespace async {
 // the exact same time are prioritized in FIFO order.
 //
 // The main function of `Schedule` is `PopBlocking`, which sleeps until an entry
-// becomes available. It correctly handles entries being asynchonously added or
+// becomes available. It correctly handles entries being asynchronously added or
 // removed from the schedule.
 //
 // The details of time management are completely concealed within the class.
