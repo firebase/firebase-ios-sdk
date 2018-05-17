@@ -527,6 +527,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     if (firstOrderByField) {
       [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
     }
+  } else if (filter.filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if ([self.query hasArrayContainsFilter]) {
+      FSTThrowInvalidUsage(@"InvalidQueryException",
+                           @"Invalid Query. Queries only support a single arrayContains filter.");
+    }
   }
 }
 

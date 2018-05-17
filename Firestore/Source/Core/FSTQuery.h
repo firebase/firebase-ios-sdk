@@ -245,6 +245,9 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  */
 - (const firebase::firestore::model::FieldPath *)inequalityFilterField;
 
+/** Returns YES if the query has an arrayContains filter already. */
+- (BOOL)hasArrayContainsFilter;
+
 /** Returns the first field in an order-by constraint, or nullptr if none. */
 - (const firebase::firestore::model::FieldPath *)firstSortOrderField;
 
