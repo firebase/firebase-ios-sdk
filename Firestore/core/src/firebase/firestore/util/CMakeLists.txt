@@ -36,8 +36,6 @@ cc_library(
 cc_library(
   firebase_firestore_util_log_stdio
   SOURCES
-    firebase_assert.h
-    assert_stdio.cc
     hard_assert_stdio.cc
     hard_assert.h
     log.h
@@ -51,8 +49,6 @@ cc_library(
 cc_library(
   firebase_firestore_util_log_apple
   SOURCES
-    firebase_assert.h
-    assert_apple.mm
     hard_assert.h
     hard_assert_apple.mm
     log.h
