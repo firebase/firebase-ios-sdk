@@ -189,5 +189,5 @@ class SortedMapIterator {
 }  // namespace firestore
 }  // namespace firebase
 
-// NOLINTNEXTLINE
+// NOLINTNEXTLINE(whitespace/line_length)
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_IMMUTABLE_SORTED_MAP_ITERATOR_H_
