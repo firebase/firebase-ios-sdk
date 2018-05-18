@@ -14,6 +14,7 @@
 
 #import "FIRTestCase.h"
 
+#import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
@@ -680,6 +681,43 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                      userInfo:OCMOCK_ANY]);
   NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
   [[FIRApp defaultApp] sendLogsWithServiceName:@"Service" version:@"Version" error:error];
+}
+
+#pragma mark - Analytics Flag Tests
+
+- (void)testAnalyticsSetByGlobalDataCollectionSwitch {
+  // Test that the global data collection switch triggers setting Analytics when no explicit flag is
+  // set.
+  [FIRApp configure];
+
+  id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
+  OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
+  OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
+  OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
+
+  // Ensure Analytics is set after the global flag is set.
+  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:YES];
+  OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
+
+  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:NO];
+  OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
+}
+
+- (void)testAnalyticsNotSetByGlobalDataCollectionSwitch {
+  // Test that the global data collection switch doesn't override an explicitly set Analytics flag.
+  [FIRApp configure];
+
+  id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
+  OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
+  OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
+  OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(YES);
+
+  // Reject any changes to Analytics when the data collection changes.
+  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:YES];
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
+
+  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:NO];
+  OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 }
 
 #pragma mark - Internal Methods
