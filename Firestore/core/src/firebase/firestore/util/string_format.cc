@@ -30,16 +30,44 @@ std::string StringFormatPieces(
 
   const char* format_iter = format;
   const char* format_end = format + strlen(format);
+
   auto pieces_iter = pieces.begin();
   auto pieces_end = pieces.end();
+  auto append_next_piece = [&](std::string* dest) {
+    if (pieces_iter == pieces_end) {
+      dest->append(kMissing);
+    } else {
+      // Pass a piece through
+      dest->append(pieces_iter->data(), pieces_iter->size());
+      ++pieces_iter;
+    }
+  };
 
+  auto append_specifier = [&](char spec) {
+    switch (spec) {
+      case '%':
+        // Pass through literal %.
+        result.push_back('%');
+        break;
+
+      case 's': {
+        append_next_piece(&result);
+        break;
+      }
+
+      default:
+        result.append(kInvalid);
+        break;
+    }
+  };
+
+  // Iterate through the format string, advancing `format_iter` as we go.
   while (true) {
     const char* percent_ptr = std::find(format_iter, format_end, '%');
 
     // percent either points to the next format specifier or the end of the
     // format string. Either is safe to append here:
-    result.append(format_iter, percent_ptr - format_iter);
-
+    result.append(format_iter, percent_ptr);
     if (percent_ptr == format_end) {
       // No further pieces to format
       break;
@@ -49,31 +77,10 @@ std::string StringFormatPieces(
     const char* spec_ptr = percent_ptr + 1;
     if (spec_ptr == format_end) {
       // Incomplete specifier, treat as a literal "%" and be done.
-      result.append("%", 1);
+      append_specifier('%');
       break;
     }
-
-    char spec = *spec_ptr;
-    switch (spec) {
-      case '%':
-        // Pass through literal %.
-        result.append(spec_ptr, 1);
-        break;
-
-      case 's':
-        if (pieces_iter == pieces_end) {
-          result.append(kMissing);
-        } else {
-          // Pass a piece through
-          result.append(pieces_iter->data(), pieces_iter->size());
-          ++pieces_iter;
-        }
-        break;
-
-      default:
-        result.append(kInvalid);
-        break;
-    }
+    append_specifier(*spec_ptr);
 
     format_iter = spec_ptr + 1;
   }

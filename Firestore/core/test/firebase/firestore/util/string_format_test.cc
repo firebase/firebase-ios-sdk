@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
+#include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -28,9 +29,32 @@ TEST(StringFormatTest, Empty) {
   EXPECT_EQ("", StringFormat("%s", ""));
 }
 
+TEST(StringFormatTest, CString) {
+  EXPECT_EQ("Hello World", StringFormat("Hello %s", "World"));
+  EXPECT_EQ("Hello World", StringFormat("%s World", "Hello"));
+  EXPECT_EQ("Hello World", StringFormat("Hello%sWorld", " "));
+
+  const char* value = "World";
+  EXPECT_EQ("Hello World", StringFormat("Hello %s", value));
+
+  value = nullptr;
+  EXPECT_EQ("Hello null", StringFormat("Hello %s", value));
+}
+
 TEST(StringFormatTest, String) {
-  std::string value = StringFormat("Hello %s", "World");
-  EXPECT_EQ("Hello World", value);
+  EXPECT_EQ("Hello World", StringFormat("Hello %s", std::string{"World"}));
+
+  std::string value{"World"};
+  EXPECT_EQ("Hello World", StringFormat("Hello %s", value));
+}
+
+TEST(StringFormatTest, StringView) {
+  EXPECT_EQ("Hello World",
+            StringFormat("Hello %s", absl::string_view{"World"}));
+  EXPECT_EQ("Hello World",
+            StringFormat("%s World", absl::string_view{"Hello"}));
+  EXPECT_EQ("Hello World",
+            StringFormat("Hello%sWorld", absl::string_view{" "}));
 }
 
 TEST(StringFormatTest, Int) {
@@ -53,23 +77,20 @@ TEST(StringFormatTest, Pointer) {
   // this API.
   int value = 4;
   EXPECT_NE("Hello true", StringFormat("Hello %s", &value));
-}
-
-TEST(StringFormatTest, ToString) {
-  struct Foo {
-    std::string ToString() const {
-      return "Foo";
-    }
-  };
-
-  Foo foo;
-  EXPECT_EQ("Hello Foo", StringFormat("Hello %s", foo.ToString()));
+  EXPECT_EQ("Hello null", StringFormat("Hello %s", nullptr));
 }
 
 TEST(StringFormatTest, Mixed) {
   EXPECT_EQ("string=World, bool=true, int=42, float=1.5",
             StringFormat("string=%s, bool=%s, int=%s, float=%s", "World", true,
                          42, 1.5));
+  EXPECT_EQ("World%true%42%1.5",
+            StringFormat("%s%%%s%%%s%%%s", "World", true, 42, 1.5));
+}
+
+TEST(StringFormatTest, Literal) {
+  EXPECT_EQ("Hello %", StringFormat("Hello %%"));
+  EXPECT_EQ("% World", StringFormat("%% World"));
 }
 
 TEST(StringFormatTest, Invalid) {
@@ -78,6 +99,10 @@ TEST(StringFormatTest, Invalid) {
 
 TEST(StringFormatTest, Missing) {
   EXPECT_EQ("Hello <missing>", StringFormat("Hello %s"));
+}
+
+TEST(StringFormatTest, Excess) {
+  EXPECT_EQ("Hello World", StringFormat("Hello %s", "World", 42));
 }
 
 }  //  namespace util

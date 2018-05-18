@@ -42,7 +42,7 @@ template <int I>
 struct FormatChoice : FormatChoice<I + 1> {};
 
 template <>
-struct FormatChoice<3> {};
+struct FormatChoice<4> {};
 
 }  // namespace internal
 
@@ -53,7 +53,8 @@ struct FormatChoice<3> {};
  *   * If the value is exactly of `bool` type (without implicit conversions)
  *     the text will the "true" or "false".
  *   * If the value is of type `const char*`, the text will be the value
- *     interpreted as a C string.
+ *     interpreted as a C string. To show the address of a single char or to
+ *     show the `const char*` as an address, cast to `void*`.
  *   * If the value is any other pointer type, the text will be the hexidecimal
  *     formatting of the value as an unsigned integer.
  *   * Otherwise the value is interpreted as anything absl::AlphaNum accepts.
@@ -84,8 +85,16 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(const char* string_value, internal::FormatChoice<1>)
-      : AlphaNum{string_value} {
+  FormatArg(std::nullptr_t, internal::FormatChoice<1>) : AlphaNum{"null"} {
+  }
+
+  /**
+   * Creates a FormatArg from a character string literal. This is
+   * handled specially to avoid ambiguity with generic pointers, which are
+   * handled differently.
+   */
+  FormatArg(const char* string_value, internal::FormatChoice<2>)
+      : AlphaNum{string_value == nullptr ? "null" : string_value} {
   }
 
   /**
@@ -93,7 +102,7 @@ class FormatArg : public absl::AlphaNum {
    * hexidecimal integer literal.
    */
   template <typename T>
-  FormatArg(T* pointer_value, internal::FormatChoice<2>)
+  FormatArg(T* pointer_value, internal::FormatChoice<3>)
       : AlphaNum{absl::Hex{reinterpret_cast<uintptr_t>(pointer_value)}} {
   }
 
@@ -102,7 +111,7 @@ class FormatArg : public absl::AlphaNum {
    * absl::AlphaNum accepts.
    */
   template <typename T>
-  FormatArg(T&& value, internal::FormatChoice<3>)
+  FormatArg(T&& value, internal::FormatChoice<4>)
       : AlphaNum{std::forward<T>(value)} {
   }
 };
@@ -114,6 +123,14 @@ class FormatArg : public absl::AlphaNum {
  * The following format specifiers are recognized:
  *   * "%%" - A literal "%"
  *   * "%s" - The next parameter is copied through
+ *
+ * Note:
+ *   * If you pass fewer arguments than the format requires, StringFormat will
+ *     insert "<missing>".
+ *   * If you pass more arguments than the format requires, any excess arguments
+ *     are ignored.
+ *   * If you use an invalid format specifier, StringFormat will insert
+ *     <invalid>.
  */
 template <typename... FA>
 std::string StringFormat(const char* format, const FA&... args) {
