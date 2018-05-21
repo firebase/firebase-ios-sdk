@@ -22,10 +22,13 @@ include(CheckIncludeFiles)
 cc_library(
   firebase_firestore_util_base
   SOURCES
+    string_format.cc
+    string_format.h
     string_printf.cc
     string_printf.h
   DEPENDS
     absl_base
+    absl_strings
 )
 
 ## assert and log

@@ -129,6 +129,7 @@ cc_test(
     status_test.cc
     status_test_util.h
     statusor_test.cc
+    string_format_test.cc
     string_printf_test.cc
     string_util_test.cc
   DEPENDS
