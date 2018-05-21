@@ -149,6 +149,10 @@ class Syncer
   def test_groups=(groups)
     @test_groups = []
     groups.each do |group|
+      project_group = @project[group]
+      if project_group.nil?
+        raise "Project does not contain group #{group}"
+      end
       @test_groups.push(@project[group])
     end
   end
