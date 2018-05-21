@@ -41,7 +41,7 @@ Tag Reader::ReadTag() {
   }
 
   // nanopb code always returns a false status when setting eof.
-  FIREBASE_ASSERT_MESSAGE(!eof, "nanopb set both ok status and eof to true");
+  HARD_ASSERT(!eof, "nanopb set both ok status and eof to true");
 
   return tag;
 }
@@ -127,7 +127,7 @@ std::string Reader::ReadString() {
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       substream.bytes_left == 0,
       "Bytes remaining in substream after supposedly reading all of them.");
 

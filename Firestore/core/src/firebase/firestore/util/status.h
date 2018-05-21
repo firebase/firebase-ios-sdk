@@ -23,7 +23,7 @@
 #include <string>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
 
@@ -124,15 +124,8 @@ typedef std::function<void(const Status&)> StatusCallback;
 extern std::string StatusCheckOpHelperOutOfLine(const Status& v,
                                                 const char* msg);
 
-#define STATUS_CHECK_OK(val)               \
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION( \
-      val.ok(), val.ok(), StatusCheckOpHelperOutOfLine(val, #val).c_str())
-
-// DEBUG only version of STATUS_CHECK_OK.  Compiler still parses 'val' even in
-// opt mode.
-#define STATUS_DCHECK_OK(val)                  \
-  FIREBASE_DEV_ASSERT_MESSAGE_WITH_EXPRESSION( \
-      val.ok(), val.ok(), StatusCheckOpHelperOutOfLine(val, #val).c_str())
+#define STATUS_CHECK_OK(val) \
+  HARD_ASSERT(val.ok(), "%s", StatusCheckOpHelperOutOfLine(val, #val))
 
 }  // namespace util
 }  // namespace firestore

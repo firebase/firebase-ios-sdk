@@ -50,7 +50,7 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     case FIRServerTimestampBehaviorPrevious:
       return FSTServerTimestampBehaviorPrevious;
     default:
-      FIREBASE_ASSERT_MESSAGE(false, "Unexpected server timestamp option: %ld", (long)behavior);
+      HARD_FAIL("Unexpected server timestamp option: %s", behavior);
   }
 }
 

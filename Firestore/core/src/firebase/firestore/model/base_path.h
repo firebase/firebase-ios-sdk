@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
@@ -57,19 +57,18 @@ class BasePath {
 
   /** Returns i-th segment of the path. */
   const std::string& operator[](const size_t i) const {
-    FIREBASE_ASSERT_MESSAGE(i < segments_.size(), "index %u out of range", i);
+    HARD_ASSERT(i < segments_.size(), "index %s out of range", i);
     return segments_[i];
   }
 
   /** Returns the first segment of the path. */
   const std::string& first_segment() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(),
-                            "Cannot call first_segment on empty path");
+    HARD_ASSERT(!empty(), "Cannot call first_segment on empty path");
     return segments_[0];
   }
   /** Returns the last segment of the path. */
   const std::string& last_segment() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call last_segment on empty path");
+    HARD_ASSERT(!empty(), "Cannot call last_segment on empty path");
     return segments_[size() - 1];
   }
 
@@ -117,9 +116,8 @@ class BasePath {
    * this path.
    */
   T PopFirst(const size_t n = 1) const {
-    FIREBASE_ASSERT_MESSAGE(n <= size(),
-                            "Cannot call PopFirst(%u) on path of length %u", n,
-                            size());
+    HARD_ASSERT(n <= size(), "Cannot call PopFirst(%s) on path of length %s", n,
+                size());
     return T{begin() + n, end()};
   }
 
@@ -128,7 +126,7 @@ class BasePath {
    * this path.
    */
   T PopLast() const {
-    FIREBASE_ASSERT_MESSAGE(!empty(), "Cannot call PopLast() on empty path");
+    HARD_ASSERT(!empty(), "Cannot call PopLast() on empty path");
     return T{begin(), end() - 1};
   }
 
