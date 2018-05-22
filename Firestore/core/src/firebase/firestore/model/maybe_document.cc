@@ -18,8 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
 namespace firebase {
 namespace firestore {
 namespace model {

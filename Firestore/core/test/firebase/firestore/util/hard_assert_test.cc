@@ -16,7 +16,7 @@
 
 #include <exception>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -25,37 +25,26 @@ namespace util {
 
 namespace {
 
-void AssertWithExpression(bool condition) {
-  FIREBASE_ASSERT_WITH_EXPRESSION(condition, 1 + 2 + 3);
-}
-
 void Assert(bool condition) {
-  FIREBASE_ASSERT(condition == true);
+  HARD_ASSERT(condition == true);
 }
 
-void AssertMessageWithExpression(bool condition) {
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(condition, 1 + 2 + 3, "connection %s",
-                                          condition ? "succeeded" : "failed");
+void AssertWithMessage(bool condition) {
+  HARD_ASSERT(condition, "condition %s", condition ? "succeeded" : "failed");
 }
 
 }  // namespace
 
-TEST(Assert, WithExpression) {
-  AssertWithExpression(true);
-
-  EXPECT_ANY_THROW(AssertWithExpression(false));
-}
-
-TEST(Assert, Vanilla) {
+TEST(HardAssertTest, Vanilla) {
   Assert(true);
 
   EXPECT_ANY_THROW(Assert(false));
 }
 
-TEST(Assert, WithMessageAndExpression) {
-  AssertMessageWithExpression(true);
+TEST(HardAssertTest, WithMessage) {
+  AssertWithMessage(true);
 
-  EXPECT_ANY_THROW(AssertMessageWithExpression(false));
+  EXPECT_ANY_THROW(AssertWithMessage(false));
 }
 
 }  //  namespace util

@@ -23,7 +23,7 @@ if(APPLE)
   cc_test(
     firebase_firestore_util_log_apple_test
     SOURCES
-      assert_test.cc
+      hard_assert_test.cc
       log_test.cc
     DEPENDS
       firebase_firestore_util_log_apple
@@ -33,7 +33,7 @@ endif(APPLE)
 cc_test(
   firebase_firestore_util_log_stdio_test
   SOURCES
-    assert_test.cc
+    hard_assert_test.cc
     log_test.cc
   DEPENDS
     firebase_firestore_util_log_stdio
@@ -130,7 +130,6 @@ cc_test(
     status_test_util.h
     statusor_test.cc
     string_format_test.cc
-    string_printf_test.cc
     string_util_test.cc
   DEPENDS
     absl_base

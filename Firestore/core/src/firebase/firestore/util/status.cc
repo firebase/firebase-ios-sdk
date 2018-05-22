@@ -23,7 +23,7 @@ namespace firestore {
 namespace util {
 
 Status::Status(FirestoreErrorCode code, absl::string_view msg) {
-  FIREBASE_ASSERT(code != FirestoreErrorCode::Ok);
+  HARD_ASSERT(code != FirestoreErrorCode::Ok);
   state_ = std::unique_ptr<State>(new State);
   state_->code = code;
   state_->msg = static_cast<std::string>(msg);
@@ -117,7 +117,7 @@ void Status::IgnoreError() const {
 }
 
 std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
-  FIREBASE_ASSERT(!v.ok());
+  HARD_ASSERT(!v.ok());
   std::string r("Non-OK-status: ");
   r += msg;
   r += " status: ";

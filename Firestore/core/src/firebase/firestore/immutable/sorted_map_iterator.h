@@ -123,7 +123,7 @@ class SortedMapIterator {
       case Tag::Tree:
         return tree_iter_.get();
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   reference operator*() const {
@@ -164,7 +164,7 @@ class SortedMapIterator {
       case Tag::Tree:
         return a.tree_iter_ == b.tree_iter_;
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   bool operator!=(const SortedMapIterator& b) const {

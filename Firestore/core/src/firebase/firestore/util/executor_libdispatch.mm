@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -55,7 +57,7 @@ void DispatchAsync(const dispatch_queue_t queue, std::function<void()>&& work) {
 }
 
 void DispatchSync(const dispatch_queue_t queue, std::function<void()> work) {
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       GetCurrentQueueLabel() != GetQueueLabel(queue),
       "Calling DispatchSync on the current queue will lead to a deadlock.");
 
@@ -176,8 +178,8 @@ void TimeSlot::Execute() {
 
   RemoveFromSchedule();
 
-  FIREBASE_ASSERT_MESSAGE(tagged_.operation,
-                          "TimeSlot contains an invalid function object");
+  HARD_ASSERT(tagged_.operation,
+              "TimeSlot contains an invalid function object");
   tagged_.operation();
 }
 

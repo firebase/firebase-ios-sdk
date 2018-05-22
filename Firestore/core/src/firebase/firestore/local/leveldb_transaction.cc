@@ -17,7 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
 #include "leveldb/write_batch.h"
@@ -71,26 +71,24 @@ void LevelDbTransaction::Iterator::UpdateCurrent() {
 
 void LevelDbTransaction::Iterator::Seek(const std::string& key) {
   db_iter_->Seek(key);
-  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
-                          "leveldb iterator reported an error: %s",
-                          db_iter_->status().ToString().c_str());
+  HARD_ASSERT(db_iter_->status().ok(), "leveldb iterator reported an error: %s",
+              db_iter_->status().ToString());
   for (; db_iter_->Valid() && IsDeleted(db_iter_->key()); db_iter_->Next()) {
   }
-  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
-                          "leveldb iterator reported an error: %s",
-                          db_iter_->status().ToString().c_str());
+  HARD_ASSERT(db_iter_->status().ok(), "leveldb iterator reported an error: %s",
+              db_iter_->status().ToString());
   mutations_iter_ = txn_->mutations_.lower_bound(key);
   UpdateCurrent();
   last_version_ = txn_->version_;
 }
 
 absl::string_view LevelDbTransaction::Iterator::key() {
-  FIREBASE_ASSERT_MESSAGE(Valid(), "key() called on invalid iterator");
+  HARD_ASSERT(Valid(), "key() called on invalid iterator");
   return current_.first;
 }
 
 absl::string_view LevelDbTransaction::Iterator::value() {
-  FIREBASE_ASSERT_MESSAGE(Valid(), "value() called on invalid iterator");
+  HARD_ASSERT(Valid(), "value() called on invalid iterator");
   return current_.second;
 }
 
@@ -115,13 +113,12 @@ void LevelDbTransaction::Iterator::AdvanceLDB() {
   do {
     db_iter_->Next();
   } while (db_iter_->Valid() && IsDeleted(db_iter_->key()));
-  FIREBASE_ASSERT_MESSAGE(db_iter_->status().ok(),
-                          "leveldb iterator reported an error: %s",
-                          db_iter_->status().ToString().c_str());
+  HARD_ASSERT(db_iter_->status().ok(), "leveldb iterator reported an error: %s",
+              db_iter_->status().ToString());
 }
 
 void LevelDbTransaction::Iterator::Next() {
-  FIREBASE_ASSERT_MESSAGE(Valid(), "Next() called on invalid iterator");
+  HARD_ASSERT(Valid(), "Next() called on invalid iterator");
   bool advanced = SyncToTransaction();
   if (!advanced && is_valid_) {
     if (is_mutation_) {
@@ -220,9 +217,8 @@ void LevelDbTransaction::Commit() {
   }
 
   Status status = db_->Write(write_options_, &batch);
-  FIREBASE_ASSERT_MESSAGE(status.ok(),
-                          "Failed to commit transaction:\n%s\n Failed: %s",
-                          ToString().c_str(), status.ToString().c_str());
+  HARD_ASSERT(status.ok(), "Failed to commit transaction:\n%s\n Failed: %s",
+              ToString(), status.ToString());
 }
 
 std::string LevelDbTransaction::ToString() {

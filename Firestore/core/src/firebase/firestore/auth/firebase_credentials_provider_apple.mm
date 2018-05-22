@@ -20,7 +20,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 // NB: This is also defined in Firestore/Source/Public/FIRFirestoreErrors.h
@@ -80,8 +80,8 @@ FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
 
 void FirebaseCredentialsProvider::GetToken(bool force_refresh,
                                            TokenListener completion) {
-  FIREBASE_ASSERT_MESSAGE(auth_listener_handle_,
-                          "GetToken cannot be called after listener removed.");
+  HARD_ASSERT(auth_listener_handle_,
+              "GetToken cannot be called after listener removed.");
 
   // Take note of the current value of the userCounter so that this method can
   // fail if there is a user change while the request is outstanding.
@@ -129,15 +129,13 @@ void FirebaseCredentialsProvider::SetUserChangeListener(
     UserChangeListener listener) {
   std::unique_lock<std::mutex> lock(contents_->mutex);
   if (listener) {
-    FIREBASE_ASSERT_MESSAGE(!user_change_listener_,
-                            "set user_change_listener twice!");
+    HARD_ASSERT(!user_change_listener_, "set user_change_listener twice!");
     // Fire initial event.
     listener(contents_->current_user);
   } else {
-    FIREBASE_ASSERT_MESSAGE(auth_listener_handle_,
-                            "removed user_change_listener twice!");
-    FIREBASE_ASSERT_MESSAGE(user_change_listener_,
-                            "user_change_listener removed without being set!");
+    HARD_ASSERT(auth_listener_handle_, "removed user_change_listener twice!");
+    HARD_ASSERT(user_change_listener_,
+                "user_change_listener removed without being set!");
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
     auth_listener_handle_ = nil;
   }
