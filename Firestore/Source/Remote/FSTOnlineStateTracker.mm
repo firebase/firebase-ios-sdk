@@ -84,10 +84,9 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
                        FSTAssert(
                            self.state == FSTOnlineStateUnknown,
                            @"Timer should be canceled if we transitioned to a different state.");
-                       FSTLog(
-                           @"Watch stream didn't reach Online or Offline within %f seconds. "
-                           @"Considering "
-                            "client offline.",
+                       LOG_DEBUG(
+                           "Watch stream didn't reach Online or Offline within %s seconds. "
+                           "Considering client offline.",
                            kOnlineStateTimeout);
                        [self logClientOfflineWarningIfNecessary];
                        [self setAndBroadcastState:FSTOnlineStateOffline];

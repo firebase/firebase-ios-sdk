@@ -29,7 +29,6 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
@@ -38,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -258,7 +258,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     return;
   }
 
-  FSTLog(@"%@ %p start", NSStringFromClass([self class]), (__bridge void *)self);
+  LOG_DEBUG("%s %s start", NSStringFromClass([self class]), (__bridge void *)self);
   FSTAssert(self.state == FSTStreamStateInitial, @"Already started");
 
   self.state = FSTStreamStateAuth;
@@ -311,7 +311,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 /** Backs off after an error. */
 - (void)performBackoffWithDelegate:(id)delegate {
-  FSTLog(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void *)self);
+  LOG_DEBUG("%s %s backoff", NSStringFromClass([self class]), (__bridge void *)self);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   FSTAssert(self.state == FSTStreamStateError, @"Should only perform backoff in an error case");
@@ -381,13 +381,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     // If this is an intentional close ensure we don't delay our next connection attempt.
     [self.backoff reset];
   } else if (error != nil && error.code == FIRFirestoreErrorCodeResourceExhausted) {
-    FSTLog(@"%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
-           (__bridge void *)self);
+    LOG_DEBUG("%s %s Using maximum backoff delay to prevent overloading the backend.", [self class],
+              (__bridge void *)self);
     [self.backoff resetToMax];
   }
 
   if (finalState != FSTStreamStateError) {
-    FSTLog(@"%@ %p Performing stream teardown", [self class], (__bridge void *)self);
+    LOG_DEBUG("%s %s Performing stream teardown", [self class], (__bridge void *)self);
     [self tearDown];
   }
 
@@ -395,7 +395,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     // Clean up the underlying RPC. If this close: is in response to an error, don't attempt to
     // call half-close to avoid secondary failures.
     if (finalState != FSTStreamStateError) {
-      FSTLog(@"%@ %p Closing stream client-side", [self class], (__bridge void *)self);
+      LOG_DEBUG("%s %s Closing stream client-side", [self class], (__bridge void *)self);
       @synchronized(self.requestsWriter) {
         [self.requestsWriter finishWithError:nil];
       }
@@ -426,7 +426,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)stop {
-  FSTLog(@"%@ %p stop", NSStringFromClass([self class]), (__bridge void *)self);
+  LOG_DEBUG("%s %s stop", NSStringFromClass([self class]), (__bridge void *)self);
   if ([self isStarted]) {
     [self closeWithFinalState:FSTStreamStateStopped error:nil];
   }
@@ -550,7 +550,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * Called by the stream when the underlying RPC has been closed for whatever reason.
  */
 - (void)handleStreamClose:(nullable NSError *)error {
-  FSTLog(@"%@ %p close: %@", NSStringFromClass([self class]), (__bridge void *)self, error);
+  LOG_DEBUG("%s %s close: %s", NSStringFromClass([self class]), (__bridge void *)self, error);
   FSTAssert([self isStarted], @"handleStreamClose: called for non-started stream.");
 
   // In theory the stream could close cleanly, however, in our current model we never expect this
@@ -577,9 +577,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     if (!self.messageReceived) {
       self.messageReceived = YES;
       if ([FIRFirestore isLoggingEnabled]) {
-        FSTLog(@"%@ %p headers (whitelisted): %@", NSStringFromClass([self class]),
-               (__bridge void *)self,
-               [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
+        LOG_DEBUG("%s %s headers (whitelisted): %s", NSStringFromClass([self class]),
+                  (__bridge void *)self,
+                  [FSTDatastore extractWhiteListedHeaders:self.rpc.responseHeaders]);
       }
     }
     NSError *error;
@@ -665,7 +665,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   request.addTarget = [_serializer encodedTarget:query];
   request.labels = [_serializer encodedListenRequestLabelsForQueryData:query];
 
-  FSTLog(@"FSTWatchStream %p watch: %@", (__bridge void *)self, request);
+  LOG_DEBUG("FSTWatchStream %s watch: %s", (__bridge void *)self, request);
   [self writeRequest:request];
 }
 
@@ -677,7 +677,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   request.database = [_serializer encodedDatabaseID];
   request.removeTarget = targetID;
 
-  FSTLog(@"FSTWatchStream %p unwatch: %@", (__bridge void *)self, request);
+  LOG_DEBUG("FSTWatchStream %s unwatch: %s", (__bridge void *)self, request);
   [self writeRequest:request];
 }
 
@@ -686,7 +686,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * watchStreamDidChange:snapshotVersion: callback.
  */
 - (void)handleStreamMessage:(GCFSListenResponse *)proto {
-  FSTLog(@"FSTWatchStream %p response: %@", (__bridge void *)self, proto);
+  LOG_DEBUG("FSTWatchStream %s response: %s", (__bridge void *)self, proto);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   // A successful response means the stream is healthy.
@@ -765,7 +765,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   // TODO(dimond): Support stream resumption. We intentionally do not set the stream token on the
   // handshake, ignoring any stream token we might have.
 
-  FSTLog(@"FSTWriteStream %p initial request: %@", (__bridge void *)self, request);
+  LOG_DEBUG("FSTWriteStream %s initial request: %s", (__bridge void *)self, request);
   [self writeRequest:request];
 }
 
@@ -783,7 +783,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   request.writesArray = protos;
   request.streamToken = self.lastStreamToken;
 
-  FSTLog(@"FSTWriteStream %p mutation request: %@", (__bridge void *)self, request);
+  LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self, request);
   [self writeRequest:request];
 }
 
@@ -792,7 +792,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * that on to the mutationResultsHandler.
  */
 - (void)handleStreamMessage:(GCFSWriteResponse *)response {
-  FSTLog(@"FSTWriteStream %p response: %@", (__bridge void *)self, response);
+  LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self, response);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   // Always capture the last stream token.

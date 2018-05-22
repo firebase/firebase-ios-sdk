@@ -31,7 +31,6 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
@@ -41,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::auth::HashUser;
@@ -202,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssert([actualWrite isEqual:expectedWrite],
             @"Mock datastore received write %@ but first outstanding mutation was %@", actualWrite,
             expectedWrite);
-  FSTLog(@"A write was sent: %@", actualWrite);
+  LOG_DEBUG("A write was sent: %s", actualWrite);
 }
 
 - (int)sentWritesCount {
@@ -271,7 +271,7 @@ NS_ASSUME_NONNULL_BEGIN
     [[self currentOutstandingWrites] removeObjectAtIndex:0];
   }
 
-  FSTLog(@"Failing a write.");
+  LOG_DEBUG("Failing a write.");
   [self.dispatchQueue dispatchSync:^{
     [self.datastore failWriteWithError:error];
   }];
@@ -321,11 +321,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTOutstandingWrite *write = [[FSTOutstandingWrite alloc] init];
   write.write = mutation;
   [[self currentOutstandingWrites] addObject:write];
-  FSTLog(@"sending a user write.");
+  LOG_DEBUG("sending a user write.");
   [self.dispatchQueue dispatchSync:^{
     [self.syncEngine writeMutations:@[ mutation ]
                          completion:^(NSError *_Nullable error) {
-                           FSTLog(@"A callback was called with error: %@", error);
+                           LOG_DEBUG("A callback was called with error: %s", error);
                            write.done = YES;
                            write.error = error;
                          }];

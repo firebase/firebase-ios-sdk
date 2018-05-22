@@ -40,12 +40,12 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -470,7 +470,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         break;
 
       case FSTLimboDocumentChangeTypeRemoved:
-        FSTLog(@"Document no longer in limbo: %s", limboChange.key.ToString().c_str());
+        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
         [self.limboDocumentRefs removeReferenceToKey:limboChange.key forID:targetID];
         break;
 
@@ -485,7 +485,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   DocumentKey key{limboChange.key};
 
   if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
-    FSTLog(@"New document in limbo: %s", key.ToString().c_str());
+    LOG_DEBUG("New document in limbo: %s", key.ToString());
     TargetId limboTargetID = _targetIdGenerator.NextId();
     FSTQuery *query = [FSTQuery queryWithPath:key.path()];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
