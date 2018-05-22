@@ -250,7 +250,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   BOOL merge = !updateMask.empty();
 
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
-  __block std::vector<FieldPath> fieldMaskPaths{};
+  __block std::vector<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
     const FieldPath path = testutil::Field(util::MakeStringView(key));
     fieldMaskPaths.push_back(path);

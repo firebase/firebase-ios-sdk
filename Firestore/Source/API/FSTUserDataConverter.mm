@@ -268,7 +268,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (instancetype)contextForField:(NSString *)fieldName {
-  std::unique_ptr<FieldPath> path{};
+  std::unique_ptr<FieldPath> path;
   if (_path) {
     path = absl::make_unique<FieldPath>(_path->Append(util::MakeString(fieldName)));
   }
@@ -282,7 +282,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (instancetype)contextForFieldPath:(const FieldPath &)fieldPath {
-  std::unique_ptr<FieldPath> path{};
+  std::unique_ptr<FieldPath> path;
   if (_path) {
     path = absl::make_unique<FieldPath>(_path->Append(fieldPath));
   }
@@ -428,9 +428,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   std::vector<FieldTransform> convertedFieldTransform;
 
   if (fieldMask) {
-    __block std::vector<FieldPath> fieldMaskPaths{};
+    __block std::vector<FieldPath> fieldMaskPaths;
     [fieldMask enumerateObjectsUsingBlock:^(id fieldPath, NSUInteger idx, BOOL *stop) {
-      FieldPath path{};
+      FieldPath path;
 
       if ([fieldPath isKindOfClass:[NSString class]]) {
         path = [FIRFieldPath pathWithDotSeparatedString:fieldPath].internalValue;
@@ -490,14 +490,14 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   NSDictionary *dict = input;
 
-  __block std::vector<FieldPath> fieldMaskPaths{};
+  __block std::vector<FieldPath> fieldMaskPaths;
   __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
 
   FSTParseContext *context =
       [FSTParseContext contextWithSource:FSTUserDataSourceUpdate
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-    FieldPath path{};
+    FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
       path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
