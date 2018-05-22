@@ -373,9 +373,46 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   }
   NSNumber *value = self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled];
   if (value == nil) {
-    return YES;  // Enable Measurement by default when the key is not in the dictionary.
+    // TODO: This could probably be cleaned up since FIROptions shouldn't know about FIRApp or have
+    //       to check if it's the default app. The FIROptions instance can't be modified after
+    //       `+configure` is called, so it's not a good place to copy it either in case the flag is
+    //       changed at runtime.
+
+    // If no values are set for Analytics, fall back to the global collection switch in FIRApp.
+    // Analytics only supports the default FIRApp, so check that first.
+    if (![FIRApp isDefaultAppConfigured]) {
+      return NO;
+    }
+
+    // Fall back to the default app's collection switch when the key is not in the dictionary.
+    return [FIRApp defaultApp].automaticDataCollectionEnabled;
   }
   return [value boolValue];
+}
+
+- (BOOL)isAnalyticsCollectionExpicitlySet {
+  // If it's de-activated, it classifies as explicity set. If not, it's not a good enough indication
+  // that the developer wants FirebaseAnalytics enabled so continue checking.
+  if (self.isAnalyticsCollectionDeactivated) {
+    return YES;
+  }
+
+  // Check if the current Analytics flag is set.
+  id collectionEnabledObject = self.analyticsOptionsDictionary[kFIRIsAnalyticsCollectionEnabled];
+  if (collectionEnabledObject && [collectionEnabledObject isKindOfClass:[NSNumber class]]) {
+    // It doesn't matter what the value is, it's explicitly set.
+    return YES;
+  }
+
+  // Check if the old measurement flag is set.
+  id measurementEnabledObject = self.analyticsOptionsDictionary[kFIRIsMeasurementEnabled];
+  if (measurementEnabledObject && [measurementEnabledObject isKindOfClass:[NSNumber class]]) {
+    // It doesn't matter what the value is, it's explicitly set.
+    return YES;
+  }
+
+  // No flags are set to explicitly enable or disable FirebaseAnalytics.
+  return NO;
 }
 
 - (BOOL)isAnalyticsCollectionEnabled {
