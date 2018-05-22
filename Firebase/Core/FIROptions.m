@@ -109,7 +109,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 #pragma mark - Private class methods
 
-+ (void)load {
++ (void)initialize {
   // Report FirebaseCore version for useragent string
   NSRange major = NSMakeRange(0, 1);
   NSRange minor = NSMakeRange(1, 2);
