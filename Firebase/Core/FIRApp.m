@@ -16,6 +16,7 @@
 
 #import "FIRApp.h"
 #import "FIRConfiguration.h"
+#import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRLogger.h"
@@ -342,6 +343,23 @@ static NSMutableDictionary *sLibraryVersions;
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
   [[NSUserDefaults standardUserDefaults] setBool:automaticDataCollectionEnabled forKey:key];
+
+  // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
+  // within FIROptions and change the Analytics value if necessary. Analytics only works with the
+  // default app, so return if this isn't the default app.
+  if (self != sDefaultApp) {
+    return;
+  }
+
+  // Check if the Analytics flag is explicitly set. If so, no further actions are necessary.
+  if ([self.options isAnalyticsCollectionExpicitlySet]) {
+    return;
+  }
+
+  // The Analytics flag has not been explicitly set, so update with the value being set.
+  [[FIRAnalyticsConfiguration sharedInstance]
+      setAnalyticsCollectionEnabled:automaticDataCollectionEnabled
+                     persistSetting:NO];
 }
 
 - (BOOL)isAutomaticDataCollectionEnabled {
