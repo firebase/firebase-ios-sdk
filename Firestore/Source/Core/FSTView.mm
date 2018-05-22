@@ -476,7 +476,7 @@ static inline int DocumentViewChangeTypePosition(FSTDocumentViewChangeType chang
       // equivalently.
       return 2;
     default:
-      FSTCFail(@"Unknown FSTDocumentViewChangeType %lu", (unsigned long)changeType);
+      HARD_FAIL("Unknown FSTDocumentViewChangeType %s", changeType);
   }
 }
 

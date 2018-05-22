@@ -741,7 +741,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
       default:
         // All documented codes should be handled above, so this shouldn't happen.
-        FSTCFail(@"Unknown NSNumber objCType %s on %@", cType, input);
+        HARD_FAIL("Unknown NSNumber objCType %s on %s", cType, input);
     }
 
   } else if ([input isKindOfClass:[NSString class]]) {

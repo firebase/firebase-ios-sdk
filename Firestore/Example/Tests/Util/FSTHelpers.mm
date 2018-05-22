@@ -195,7 +195,7 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
   } else if ([opString isEqualToString:@"array_contains"]) {
     op = FSTRelationFilterOperatorArrayContains;
   } else {
-    FSTCFail(@"Unsupported operator type: %@", opString);
+    HARD_FAIL("Unsupported operator type: %s", opString);
   }
 
   FSTFieldValue *data = FSTTestFieldValue(value);
@@ -218,7 +218,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
   } else if ([direction isEqualToString:@"desc"]) {
     ascending = NO;
   } else {
-    FSTCFail(@"Unsupported direction: %@", direction);
+    HARD_FAIL("Unsupported direction: %s", direction);
   }
   return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
 }

@@ -62,7 +62,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     case FSTRelationFilterOperatorArrayContains:
       return @"array_contains";
     default:
-      FSTCFail(@"Unknown FSTRelationFilterOperator %lu", (unsigned long)filterOperator);
+      HARD_FAIL("Unknown FSTRelationFilterOperator %s", filterOperator);
   }
 }
 
