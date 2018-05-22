@@ -70,8 +70,7 @@ using firebase::firestore::model::DocumentKeySet;
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -80,7 +79,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
@@ -93,8 +92,7 @@ using firebase::firestore::model::DocumentKeySet;
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -103,7 +101,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
@@ -224,7 +222,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTarget failed to parse: %@", error);
+    HARD_FAIL("FSTPBTarget failed to parse: %s", error);
   }
 
   return [self.serializer decodedQueryData:proto];
@@ -263,9 +261,9 @@ using firebase::firestore::model::DocumentKeySet;
       if (targetIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:targetIterator->key()];
       }
-      FSTFail(
-          @"Dangling query-target reference found: "
-          @"%@ points to %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling query-target reference found: "
+          "%s points to %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:indexItererator->key()],
           [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
     }

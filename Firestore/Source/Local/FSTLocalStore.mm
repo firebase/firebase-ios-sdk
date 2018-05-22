@@ -304,7 +304,7 @@ NS_ASSUME_NONNULL_BEGIN
           [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
 
         } else {
-          FSTFail(@"Unknown mapping type: %@", mapping);
+          HARD_FAIL("Unknown mapping type: %s", mapping);
         }
       }
     }];

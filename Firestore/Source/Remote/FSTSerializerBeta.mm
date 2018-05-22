@@ -229,7 +229,7 @@ NS_ASSUME_NONNULL_BEGIN
     return result;
 
   } else {
-    FSTFail(@"Unhandled type %@ on %@", NSStringFromClass([fieldValue class]), fieldValue);
+    HARD_FAIL("Unhandled type %s on %s", NSStringFromClass([fieldValue class]), fieldValue);
   }
 }
 
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
       return [self decodedMapValue:valueProto.mapValue];
 
     default:
-      FSTFail(@"Unhandled type %d on %@", valueProto.valueTypeOneOfCase, valueProto);
+      HARD_FAIL("Unhandled type %s on %s", valueProto.valueTypeOneOfCase, valueProto);
   }
 }
 
@@ -425,7 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
     case GCFSBatchGetDocumentsResponse_Result_OneOfCase_Missing:
       return [self decodedDeletedDocument:response];
     default:
-      FSTFail(@"Unknown document type: %@", response);
+      HARD_FAIL("Unknown document type: %s", response);
   }
 }
 
@@ -480,7 +480,7 @@ NS_ASSUME_NONNULL_BEGIN
     proto.delete_p = [self encodedDocumentKey:deleteMutation.key];
 
   } else {
-    FSTFail(@"Unknown mutation type %@", NSStringFromClass(mutationClass));
+    HARD_FAIL("Unknown mutation type %s", NSStringFromClass(mutationClass));
   }
 
   if (!mutation.precondition.IsNone()) {
@@ -523,7 +523,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     default:
       // Note that insert is intentionally unhandled, since we don't ever deal in them.
-      FSTFail(@"Unknown mutation operation: %d", mutation.operationOneOfCase);
+      HARD_FAIL("Unknown mutation operation: %s", mutation.operationOneOfCase);
   }
 }
 
@@ -535,7 +535,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (precondition.type() == Precondition::Type::Exists) {
     message.exists = precondition == Precondition::Exists(true);
   } else {
-    FSTFail(@"Unknown precondition: %@", precondition.description());
+    HARD_FAIL("Unknown precondition: %s", precondition.description());
   }
   return message;
 }
@@ -552,7 +552,7 @@ NS_ASSUME_NONNULL_BEGIN
       return Precondition::UpdateTime([self decodedVersion:precondition.updateTime]);
 
     default:
-      FSTFail(@"Unrecognized Precondition one-of case %@", precondition);
+      HARD_FAIL("Unrecognized Precondition one-of case %s", precondition);
   }
 }
 
@@ -599,7 +599,7 @@ NS_ASSUME_NONNULL_BEGIN
         encodedArrayTransformElements:ArrayTransform::Elements(fieldTransform.transformation())];
 
   } else {
-    FSTFail(@"Unknown transform: %d type", fieldTransform.transformation().type());
+    HARD_FAIL("Unknown transform: %s type", fieldTransform.transformation().type());
   }
   return proto;
 }
@@ -653,7 +653,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       default:
-        FSTFail(@"Unknown transform: %@", proto);
+        HARD_FAIL("Unknown transform: %s", proto);
     }
   }
 
@@ -711,7 +711,7 @@ NS_ASSUME_NONNULL_BEGIN
     case FSTQueryPurposeLimboResolution:
       return @"limbo-document";
     default:
-      FSTFail(@"Unrecognized query purpose: %lu", (unsigned long)purpose);
+      HARD_FAIL("Unrecognized query purpose: %s", purpose);
   }
 }
 
@@ -880,7 +880,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (GCFSStructuredQuery_Filter *filter in filters) {
     switch (filter.filterTypeOneOfCase) {
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_CompositeFilter:
-        FSTFail(@"Nested composite filters are not supported");
+        HARD_FAIL("Nested composite filters are not supported");
 
       case GCFSStructuredQuery_Filter_FilterType_OneOfCase_FieldFilter:
         [result addObject:[self decodedRelationFilter:filter.fieldFilter]];
@@ -891,7 +891,7 @@ NS_ASSUME_NONNULL_BEGIN
         break;
 
       default:
-        FSTFail(@"Unrecognized Filter.filterType %d", filter.filterTypeOneOfCase);
+        HARD_FAIL("Unrecognized Filter.filterType %s", filter.filterTypeOneOfCase);
     }
   }
   return result;
@@ -921,7 +921,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
   } else {
-    FSTFail(@"Unrecognized filter: %@", filter);
+    HARD_FAIL("Unrecognized filter: %s", static_cast<id>(filter));
   }
   return proto;
 }
@@ -936,7 +936,7 @@ NS_ASSUME_NONNULL_BEGIN
       return [[FSTNullFilter alloc] initWithField:field];
 
     default:
-      FSTFail(@"Unrecognized UnaryFilter.operator %d", proto.op);
+      HARD_FAIL("Unrecognized UnaryFilter.operator %s", proto.op);
   }
 }
 
@@ -962,7 +962,7 @@ NS_ASSUME_NONNULL_BEGIN
     case FSTRelationFilterOperatorArrayContains:
       return GCFSStructuredQuery_FieldFilter_Operator_ArrayContains;
     default:
-      FSTFail(@"Unhandled FSTRelationFilterOperator: %ld", (long)filterOperator);
+      HARD_FAIL("Unhandled FSTRelationFilterOperator: %s", filterOperator);
   }
 }
 
@@ -982,7 +982,7 @@ NS_ASSUME_NONNULL_BEGIN
     case GCFSStructuredQuery_FieldFilter_Operator_ArrayContains:
       return FSTRelationFilterOperatorArrayContains;
     default:
-      FSTFail(@"Unhandled FieldFilter.operator: %d", filterOperator);
+      HARD_FAIL("Unhandled FieldFilter.operator: %s", filterOperator);
   }
 }
 
@@ -1026,7 +1026,7 @@ NS_ASSUME_NONNULL_BEGIN
       ascending = NO;
       break;
     default:
-      FSTFail(@"Unrecognized GCFSStructuredQuery_Direction %d", proto.direction);
+      HARD_FAIL("Unrecognized GCFSStructuredQuery_Direction %s", proto.direction);
   }
   return [FSTSortOrder sortOrderWithFieldPath:fieldPath ascending:ascending];
 }
@@ -1074,7 +1074,7 @@ NS_ASSUME_NONNULL_BEGIN
       return [self decodedExistenceFilterWatchChange:watchChange.filter];
 
     default:
-      FSTFail(@"Unknown WatchChange.changeType %" PRId32, watchChange.responseTypeOneOfCase);
+      HARD_FAIL("Unknown WatchChange.changeType %s", watchChange.responseTypeOneOfCase);
   }
 }
 
@@ -1127,7 +1127,7 @@ NS_ASSUME_NONNULL_BEGIN
     case GCFSTargetChange_TargetChangeType_Reset:
       return FSTWatchTargetChangeStateReset;
     default:
-      FSTFail(@"Unexpected TargetChange.state: %" PRId32, state);
+      HARD_FAIL("Unexpected TargetChange.state: %s", state);
   }
 }
 

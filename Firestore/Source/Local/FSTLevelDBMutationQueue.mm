@@ -184,7 +184,7 @@ using leveldb::WriteOptions;
     // In all the cases above there was at least one row for the current user and each case has
     // set things up such that iterator points to it.
     if (![rowKey decodeKey:it->key()]) {
-      FSTFail(@"There should have been a key previous to %s", userEnd.c_str());
+      HARD_FAIL("There should have been a key previous to %s", userEnd);
     }
 
     if (rowKey.batchID > maxBatchID) {
@@ -248,8 +248,7 @@ using leveldb::WriteOptions;
   } else if (status.IsNotFound()) {
     return nil;
   } else {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 }
 
@@ -290,8 +289,8 @@ using leveldb::WriteOptions;
     if (status.IsNotFound()) {
       return nil;
     }
-    FSTFail(@"Lookup mutation batch (%@, %d) failed with status: %s", self.userID, batchID,
-            status.ToString().c_str());
+    HARD_FAIL("Lookup mutation batch (%s, %s) failed with status: %s", self.userID, batchID,
+              status.ToString());
   }
 
   return [self decodedMutationBatch:value];
@@ -385,9 +384,9 @@ using leveldb::WriteOptions;
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(
-          @"Dangling document-mutation reference found: "
-          @"%@ points to %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling document-mutation reference found: "
+          "%s points to %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:indexIterator->key()],
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
@@ -460,9 +459,9 @@ using leveldb::WriteOptions;
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(
-          @"Dangling document-mutation reference found: "
-          @"Missing batch %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling document-mutation reference found: "
+          "Missing batch %@; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
@@ -560,7 +559,7 @@ using leveldb::WriteOptions;
   NSError *error;
   FSTPBMutationQueue *proto = [FSTPBMutationQueue parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMutationQueue failed to parse: %@", error);
+    HARD_FAIL("FSTPBMutationQueue failed to parse: %s", error);
   }
 
   return proto;
@@ -574,7 +573,7 @@ using leveldb::WriteOptions;
   NSError *error;
   FSTPBWriteBatch *proto = [FSTPBWriteBatch parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMutationBatch failed to parse: %@", error);
+    HARD_FAIL("FSTPBMutationBatch failed to parse: %s", error);
   }
 
   return [self.serializer decodedMutationBatch:proto];

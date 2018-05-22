@@ -662,7 +662,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                transformOperation:std::move(array_remove)];
 
   } else {
-    FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([fieldValue class]));
+    HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));
   }
 }
 
@@ -808,7 +808,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // Return nil so this value is omitted from the parsed result.
       return nil;
     } else {
-      FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([input class]));
+      HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([input class]));
     }
 
   } else {

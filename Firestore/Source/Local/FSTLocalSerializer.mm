@@ -64,7 +64,7 @@ using firebase::firestore::model::SnapshotVersion;
   } else if ([document isKindOfClass:[FSTDocument class]]) {
     proto.document = [self encodedDocument:(FSTDocument *)document];
   } else {
-    FSTFail(@"Unknown document type %@", NSStringFromClass([document class]));
+    HARD_FAIL("Unknown document type %s", NSStringFromClass([document class]));
   }
 
   return proto;
@@ -79,7 +79,7 @@ using firebase::firestore::model::SnapshotVersion;
       return [self decodedDeletedDocument:proto.noDocument];
 
     default:
-      FSTFail(@"Unknown MaybeDocument %@", proto);
+      HARD_FAIL("Unknown MaybeDocument %s", proto);
   }
 }
 
@@ -203,7 +203,7 @@ using firebase::firestore::model::SnapshotVersion;
       break;
 
     default:
-      FSTFail(@"Unknown Target.targetType %" PRId32, target.targetTypeOneOfCase);
+      HARD_FAIL("Unknown Target.targetType %s", target.targetTypeOneOfCase);
   }
 
   return [[FSTQueryData alloc] initWithQuery:query

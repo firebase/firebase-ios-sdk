@@ -2,8 +2,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Util/FSTAssert.h"
-
 @interface FSTArraySortedDictionary (Test)
 // Override methods to return subtype.
 - (FSTArraySortedDictionary *)dictionaryBySettingObject:(id)aValue forKey:(id)aKey;
@@ -17,7 +15,7 @@
 
 - (NSComparator)defaultComparator {
   return ^(id obj1, id obj2) {
-    FSTAssert([obj1 respondsToSelector:@selector(compare:)] &&
+    NSAssert([obj1 respondsToSelector:@selector(compare:)] &&
                   [obj2 respondsToSelector:@selector(compare:)],
               @"Objects must support compare: %@ %@", obj1, obj2);
     return [obj1 compare:obj2];

@@ -459,7 +459,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   } else if ([watchChange isKindOfClass:[FSTExistenceFilterWatchChange class]]) {
     [self addExistenceFilterChange:(FSTExistenceFilterWatchChange *)watchChange];
   } else {
-    FSTFail(@"Unknown watch change: %@", watchChange);
+    HARD_FAIL("Unknown watch change: %s", watchChange);
   }
 }
 

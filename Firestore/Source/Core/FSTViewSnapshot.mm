@@ -154,8 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Removed -> Modified
     // Metadata -> Added
     // Removed -> Metadata
-    FSTFail(@"Unsupported combination of changes: %ld after %ld", (long)change.type,
-            (long)oldChange.type);
+    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type, oldChange.type);
   }
 }
 

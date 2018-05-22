@@ -34,7 +34,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTExistenceFilter.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
@@ -45,6 +44,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -233,7 +233,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (void)doWatchEntity:(NSDictionary *)watchEntity snapshot:(NSNumber *_Nullable)watchSnapshot {
   if (watchEntity[@"docs"]) {
-    FSTAssert(!watchEntity[@"doc"], @"Exactly one of |doc| or |docs| needs to be set.");
+    HARD_ASSERT(!watchEntity[@"doc"], "Exactly one of |doc| or |docs| needs to be set.");
     int count = 0;
     NSArray *docs = watchEntity[@"docs"];
     for (NSDictionary *doc in docs) {
@@ -277,13 +277,13 @@ static NSString *const kNoIOSTag = @"no-ios";
                                                         document:nil];
     [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
   } else {
-    FSTFail(@"Either key, doc or docs must be set.");
+    HARD_FAIL("Either key, doc or docs must be set.");
   }
 }
 
 - (void)doWatchFilter:(NSArray *)watchFilter snapshot:(NSNumber *_Nullable)watchSnapshot {
   NSArray<NSNumber *> *targets = watchFilter[0];
-  FSTAssert(targets.count == 1, @"ExistenceFilters currently support exactly one target only.");
+  HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
   int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
 
@@ -308,7 +308,7 @@ static NSString *const kNoIOSTag = @"no-ios";
 
   NSNumber *runBackoffTimer = closeSpec[@"runBackoffTimer"];
   // TODO(b/72313632): Incorporate backoff in iOS Spec Tests.
-  FSTAssert(runBackoffTimer.boolValue, @"iOS Spec Tests don't support backoff.");
+  HARD_ASSERT(runBackoffTimer.boolValue, "iOS Spec Tests don't support backoff.");
 
   [self.driver receiveWatchStreamError:code userInfo:errorSpec];
 }
@@ -323,8 +323,8 @@ static NSString *const kNoIOSTag = @"no-ios";
       [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
 
   if (expectUserCallback.boolValue) {
-    FSTAssert(write.done, @"Write should be done");
-    FSTAssert(!write.error, @"Ack should not fail");
+    HARD_ASSERT(write.done, "Write should be done");
+    HARD_ASSERT(!write.error, "Ack should not fail");
   }
 }
 
@@ -336,7 +336,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   FSTOutstandingWrite *write = [self.driver receiveWriteError:code userInfo:errorSpec];
 
   if (expectUserCallback.boolValue) {
-    FSTAssert(write.done, @"Write should be done");
+    HARD_ASSERT(write.done, "Write should be done");
     XCTAssertNotNil(write.error, @"Write should have failed");
     XCTAssertEqualObjects(write.error.domain, FIRFirestoreErrorDomain);
     XCTAssertEqual(write.error.code, code);
@@ -358,7 +358,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   } else if ([timer isEqualToString:@"online_state_timeout"]) {
     timerID = FSTTimerIDOnlineStateTimeout;
   } else {
-    FSTFail(@"runTimer spec step specified unknown timer: %@", timer);
+    HARD_FAIL("runTimer spec step specified unknown timer: %s", timer);
   }
 
   [self.driver runTimer:timerID];
@@ -427,7 +427,7 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self doWatchStreamClose:step[@"watchStreamClose"]];
   } else if (step[@"watchProto"]) {
     // watchProto isn't yet used, and it's unclear how to create arbitrary protos from JSON.
-    FSTFail(@"watchProto is not yet supported.");
+    HARD_FAIL("watchProto is not yet supported.");
   } else if (step[@"writeAck"]) {
     [self doWriteAck:step[@"writeAck"]];
   } else if (step[@"failWrite"]) {

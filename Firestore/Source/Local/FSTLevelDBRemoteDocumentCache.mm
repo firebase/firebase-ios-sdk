@@ -77,8 +77,8 @@ using leveldb::Status;
   } else if (status.ok()) {
     return [self decodeMaybeDocument:value withKey:documentKey];
   } else {
-    FSTFail(@"Fetch document for key (%s) failed with status: %s", documentKey.ToString().c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("Fetch document for key (%s) failed with status: %s", documentKey.ToString(),
+              status.ToString());
   }
 }
 
@@ -118,7 +118,7 @@ using leveldb::Status;
   NSError *error;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMaybeDocument failed to parse: %@", error);
+    HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];

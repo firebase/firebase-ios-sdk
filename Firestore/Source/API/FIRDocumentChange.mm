@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (change.type == FSTDocumentViewChangeTypeRemoved) {
     return FIRDocumentChangeTypeRemoved;
   } else {
-    FSTFail(@"Unknown FSTDocumentViewChange: %ld", (long)change.type);
+    HARD_FAIL("Unknown FSTDocumentViewChange: %s", change.type);
   }
 }
 

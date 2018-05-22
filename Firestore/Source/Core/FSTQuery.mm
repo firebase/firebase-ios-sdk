@@ -214,7 +214,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     case FSTRelationFilterOperatorGreaterThan:
       return comparison == NSOrderedDescending;
     default:
-      FSTFail(@"Unknown operator: %ld", (long)self.filterOperator);
+      HARD_FAIL("Unknown operator: %s", self.filterOperator);
   }
 }
 

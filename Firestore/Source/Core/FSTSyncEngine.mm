@@ -475,7 +475,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         break;
 
       default:
-        FSTFail(@"Unknown limbo change type: %ld", (long)limboChange.type);
+        HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
     }
   }
   [self garbageCollectLimboDocuments];

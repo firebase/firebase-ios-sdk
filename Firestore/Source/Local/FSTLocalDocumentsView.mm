@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
       result = [result dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
     } else {
-      FSTFail(@"Unknown document: %@", mutatedDoc);
+      HARD_FAIL("Unknown document: %s", mutatedDoc);
     }
   }];
   return result;

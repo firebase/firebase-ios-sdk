@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init {
-  FSTFail(@"FSTListenOptions init not supported");
+  HARD_FAIL("FSTListenOptions init not supported");
   return nil;
 }
 

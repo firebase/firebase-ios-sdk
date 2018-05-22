@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Override the designated initializer from the super class.
 - (instancetype)initWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore {
-  FSTFail(@"Use FIRCollectionReference initWithPath: initializer.");
+  HARD_FAIL("Use FIRCollectionReference initWithPath: initializer.");
 }
 
 // NSObject Methods

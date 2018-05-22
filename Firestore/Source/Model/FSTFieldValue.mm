@@ -499,7 +499,7 @@ struct Comparator<NSString *> {
     case FSTServerTimestampBehaviorPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
-      FSTFail(@"Unexpected server timestamp option: %ld", (long)options.serverTimestampBehavior);
+      HARD_FAIL("Unexpected server timestamp option: %s", options.serverTimestampBehavior);
   }
 }
 
