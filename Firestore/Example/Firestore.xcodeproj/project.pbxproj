@@ -267,7 +267,7 @@
 		546854A820A36867004BDBD5 /* datastore_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = datastore_test.cc; sourceTree = "<group>"; };
 		54740A521FC913E500713A1A /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autoid_test.cc; sourceTree = "<group>"; };
 		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = secure_random_test.cc; sourceTree = "<group>"; };
-		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FSTGoogleTestTests.mm; path = ../../../../Example/Tests/GoogleTest/FSTGoogleTestTests.mm; sourceTree = "<group>"; };
+		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTGoogleTestTests.mm; sourceTree = "<group>"; };
 		548DB926200D590300E00ABC /* assert_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = assert_test.cc; sourceTree = "<group>"; };
 		548DB928200D59F600E00ABC /* comparison_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comparison_test.cc; sourceTree = "<group>"; };
 		5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTIntegrationTestCase.mm; sourceTree = "<group>"; };
@@ -569,7 +569,7 @@
 			path = util;
 			sourceTree = "<group>";
 		};
-		54764FAC1FAA0C390085E60A /* GoogleTests */ = {
+		54764FAC1FAA0C390085E60A /* CoreTests */ = {
 			isa = PBXGroup;
 			children = (
 				AB38D9312023962A000A432D /* auth */,
@@ -584,8 +584,8 @@
 				AB7BAB332012B519001E0872 /* geo_point_test.cc */,
 				ABF6506B201131F8005F2C74 /* timestamp_test.cc */,
 			);
-			name = GoogleTests;
-			path = ../../core/test/firebase/firestore;
+			name = CoreTests;
+			path = ../core/test/firebase/firestore;
 			sourceTree = "<group>";
 		};
 		5495EB012040E90200EBA509 /* Codable */ = {
@@ -632,6 +632,7 @@
 				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F5B5195388D20070C39A /* Tests */,
+				54764FAC1FAA0C390085E60A /* CoreTests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
 				DE0761E51F2FE611003233AF /* SwiftBuildTest */,
 				6003F58C195388D20070C39A /* Frameworks */,
@@ -698,7 +699,6 @@
 			children = (
 				DE51B1831F0D48AC0013853F /* API */,
 				DE51B1A81F0D48AC0013853F /* Core */,
-				54764FAC1FAA0C390085E60A /* GoogleTests */,
 				DE2EF06E1F3D07D7003D0CDC /* Immutable */,
 				DE51B1BB1F0D48AC0013853F /* Integration */,
 				DE51B1621F0D48AC0013853F /* Local */,
