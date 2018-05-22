@@ -701,13 +701,14 @@ TEST_F(SerializerTest, DecodesNoDocument) {
   // test will only verify the ability to decode a NoDocument.
 
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  SnapshotVersion read_time = SnapshotVersion{{1234, 5678}};
+  SnapshotVersion read_time =
+      SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
 
   v1beta1::BatchGetDocumentsResponse proto;
   proto.set_missing(serializer.EncodeKey(key));
   google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
-  read_time_proto->set_seconds(1234);
-  read_time_proto->set_nanos(5678);
+  read_time_proto->set_seconds(read_time.timestamp().seconds());
+  read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
 
   ExpectNoDocumentDeserializationRoundTrip(key, read_time, proto);
 }

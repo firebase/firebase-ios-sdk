@@ -505,7 +505,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   if (!reader->status().ok()) return nullptr;
 
   // Initialize BatchGetDocumentsResponse fields to their default values
-  std::unique_ptr<MaybeDocument> found = nullptr;
+  std::unique_ptr<MaybeDocument> found;
   std::string missing;
   // TODO(rsgowman): transaction
   SnapshotVersion read_time = SnapshotVersion::None();
@@ -566,10 +566,6 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         abort();
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
-        // TODO(rsgowman): Rather than overwriting, we should instead merge with
-        // the existing SnapshotVersion (if any). Less relevant here, since it's
-        // just two numbers which are both expected to be present, but if the
-        // proto evolves that might change.
         read_time = SnapshotVersion{
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;
