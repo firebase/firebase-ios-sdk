@@ -212,9 +212,7 @@ void LevelDbTransaction::Commit() {
     batch.Put(it->first, it->second);
   }
 
-  if (util::LogGetLevel() <= util::kLogLevelDebug) {
-    util::LogDebug("Committing transaction: %s", ToString().c_str());
-  }
+  LOG_DEBUG("Committing transaction: %s", ToString());
 
   Status status = db_->Write(write_options_, &batch);
   HARD_ASSERT(status.ok(), "Failed to commit transaction:\n%s\n Failed: %s",
