@@ -359,6 +359,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (grpc::ClientContext) createGrpcClientContextWithDatabaseID: (const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
   grpc::ClientContext context;
+
+  if (token.data()) {
+    context.set_credentials(grpc::AccessTokenCredentials(token));
+  }
+
   context.AddMetadata[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   context.AddMetadata[kGoogleCloudResourcePrefix] =

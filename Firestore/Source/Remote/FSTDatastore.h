@@ -18,6 +18,8 @@
 
 #include <vector>
 
+#include <grpcpp/client_context.h>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -86,6 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+                       token:(const absl::string_view)token;
+
++ (grpc::ClientContext) createGrpcClientContextWithDatabaseID: (const firebase::firestore::model::DatabaseId *)databaseID
                        token:(const absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
