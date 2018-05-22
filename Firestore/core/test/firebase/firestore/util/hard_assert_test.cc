@@ -30,7 +30,7 @@ void Assert(bool condition) {
 }
 
 void AssertWithMessage(bool condition) {
-  HARD_ASSERT(condition, "connection %s", condition ? "succeeded" : "failed");
+  HARD_ASSERT(condition, "condition %s", condition ? "succeeded" : "failed");
 }
 
 }  // namespace

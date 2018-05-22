@@ -104,7 +104,7 @@ class Precondition {
       case Type::None:
         return true;
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   // For Objective-C++ hash; to be removed after migration.
@@ -131,8 +131,7 @@ class Precondition {
             stringWithFormat:@"<Precondition update_time=%s>",
                              update_time_.timestamp().ToString().c_str()];
     }
-    HARD_FAIL("precondition invalid");
-    return @"<Precondition invalid>";
+    UNREACHABLE();
   }
 #endif  // defined(__OBJC__)
 

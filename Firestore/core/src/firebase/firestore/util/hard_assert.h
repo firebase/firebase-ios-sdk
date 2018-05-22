@@ -61,7 +61,7 @@
  * undefined behaviour or other similar badness). The only reasonable thing to
  * do in these cases is to immediately abort.
  */
-#define FIREBASE_UNREACHABLE() abort()
+#define UNREACHABLE() abort()
 
 namespace firebase {
 namespace firestore {

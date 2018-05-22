@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {

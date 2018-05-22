@@ -59,7 +59,7 @@ bool Precondition::IsValidFor(const MaybeDocument& maybe_doc) const {
     case Type::None:
       return true;
   }
-  FIREBASE_UNREACHABLE();
+  UNREACHABLE();
 }
 
 }  // namespace model

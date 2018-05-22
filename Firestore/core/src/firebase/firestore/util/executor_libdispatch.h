@@ -26,7 +26,6 @@
 #include "dispatch/dispatch.h"
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/string_view.h"
 
 #if !defined(__OBJC__)
