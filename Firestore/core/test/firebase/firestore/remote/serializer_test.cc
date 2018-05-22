@@ -46,6 +46,7 @@
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
 
+namespace v1beta1 = google::firestore::v1beta1;
 using firebase::Timestamp;
 using firebase::TimestampInternal;
 using firebase::firestore::FirestoreErrorCode;
@@ -87,7 +88,7 @@ class SerializerTest : public ::testing::Test {
   Serializer serializer;
 
   void ExpectRoundTrip(const FieldValue& model,
-                       const google::firestore::v1beta1::Value& proto,
+                       const v1beta1::Value& proto,
                        FieldValue::Type type) {
     // First, serialize model with our (nanopb based) serializer, then
     // deserialize the resulting bytes with libprotobuf and ensure the result is
@@ -100,11 +101,10 @@ class SerializerTest : public ::testing::Test {
     ExpectDeserializationRoundTrip(model, proto, type);
   }
 
-  void ExpectRoundTrip(
-      const DocumentKey& key,
-      const FieldValue& value,
-      const SnapshotVersion& update_time,
-      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+  void ExpectRoundTrip(const DocumentKey& key,
+                       const FieldValue& value,
+                       const SnapshotVersion& update_time,
+                       const v1beta1::BatchGetDocumentsResponse& proto) {
     ExpectSerializationRoundTrip(key, value, update_time, proto);
     ExpectDeserializationRoundTrip(key, value, update_time, proto);
   }
@@ -145,10 +145,10 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
-  google::firestore::v1beta1::Value ValueProto(nullptr_t) {
+  v1beta1::Value ValueProto(nullptr_t) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::NullValue());
-    google::firestore::v1beta1::Value proto;
+    v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
@@ -179,41 +179,41 @@ class SerializerTest : public ::testing::Test {
     *byte = new_value;
   }
 
-  google::firestore::v1beta1::Value ValueProto(bool b) {
+  v1beta1::Value ValueProto(bool b) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
-    google::firestore::v1beta1::Value proto;
+    v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
   }
 
-  google::firestore::v1beta1::Value ValueProto(int64_t i) {
+  v1beta1::Value ValueProto(int64_t i) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
-    google::firestore::v1beta1::Value proto;
+    v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
   }
 
-  google::firestore::v1beta1::Value ValueProto(const char* s) {
+  v1beta1::Value ValueProto(const char* s) {
     return ValueProto(std::string(s));
   }
 
-  google::firestore::v1beta1::Value ValueProto(const std::string& s) {
+  v1beta1::Value ValueProto(const std::string& s) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::StringValue(s));
-    google::firestore::v1beta1::Value proto;
+    v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
   }
 
-  google::firestore::v1beta1::Value ValueProto(const Timestamp& ts) {
+  v1beta1::Value ValueProto(const Timestamp& ts) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
-    google::firestore::v1beta1::Value proto;
+    v1beta1::Value proto;
     bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     return proto;
@@ -230,11 +230,11 @@ class SerializerTest : public ::testing::Test {
    * This method adds these ignored fields to the proto.
    */
   void TouchIgnoredBatchGetDocumentsResponseFields(
-      google::firestore::v1beta1::BatchGetDocumentsResponse* proto) {
+      v1beta1::BatchGetDocumentsResponse* proto) {
     // TODO(rsgowman): This method currently assumes that this is a 'found'
     // document. We (probably) will need to adjust this to work with NoDocuments
     // too.
-    google::firestore::v1beta1::Document* doc_proto = proto->mutable_found();
+    v1beta1::Document* doc_proto = proto->mutable_found();
 
     google::protobuf::Timestamp* create_time_proto =
         doc_proto->mutable_create_time();
@@ -243,22 +243,20 @@ class SerializerTest : public ::testing::Test {
   }
 
  private:
-  void ExpectSerializationRoundTrip(
-      const FieldValue& model,
-      const google::firestore::v1beta1::Value& proto,
-      FieldValue::Type type) {
+  void ExpectSerializationRoundTrip(const FieldValue& model,
+                                    const v1beta1::Value& proto,
+                                    FieldValue::Type type) {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, model);
-    google::firestore::v1beta1::Value actual_proto;
+    v1beta1::Value actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
 
-  void ExpectDeserializationRoundTrip(
-      const FieldValue& model,
-      const google::firestore::v1beta1::Value& proto,
-      FieldValue::Type type) {
+  void ExpectDeserializationRoundTrip(const FieldValue& model,
+                                      const v1beta1::Value& proto,
+                                      FieldValue::Type type) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), size);
@@ -275,9 +273,9 @@ class SerializerTest : public ::testing::Test {
       const DocumentKey& key,
       const FieldValue& value,
       const SnapshotVersion& update_time,
-      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+      const v1beta1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
-    google::firestore::v1beta1::Document actual_proto;
+    v1beta1::Document actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
 
@@ -295,7 +293,7 @@ class SerializerTest : public ::testing::Test {
               proto.found().update_time().seconds());
     EXPECT_EQ(update_time.timestamp().nanoseconds(),
               proto.found().update_time().nanos());
-    google::firestore::v1beta1::BatchGetDocumentsResponse proto_copy{proto};
+    v1beta1::BatchGetDocumentsResponse proto_copy{proto};
     proto_copy.mutable_found()->clear_update_time();
     proto_copy.mutable_found()->clear_create_time();
 
@@ -307,7 +305,7 @@ class SerializerTest : public ::testing::Test {
       const DocumentKey& key,
       const FieldValue& value,
       const SnapshotVersion& update_time,
-      const google::firestore::v1beta1::BatchGetDocumentsResponse& proto) {
+      const v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), size);
@@ -401,7 +399,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 TEST_F(SerializerTest, EncodesEmptyMap) {
   FieldValue model = FieldValue::ObjectValueFromMap({});
 
-  google::firestore::v1beta1::Value proto;
+  v1beta1::Value proto;
   proto.mutable_map_value();
 
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
@@ -429,20 +427,20 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
             })},
   });
 
-  google::firestore::v1beta1::Value inner_proto;
-  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
-      inner_fields = inner_proto.mutable_map_value()->mutable_fields();
+  v1beta1::Value inner_proto;
+  google::protobuf::Map<std::string, v1beta1::Value>* inner_fields =
+      inner_proto.mutable_map_value()->mutable_fields();
   (*inner_fields)["e"] = ValueProto(std::numeric_limits<int64_t>::max());
 
-  google::firestore::v1beta1::Value middle_proto;
-  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
-      middle_fields = middle_proto.mutable_map_value()->mutable_fields();
+  v1beta1::Value middle_proto;
+  google::protobuf::Map<std::string, v1beta1::Value>* middle_fields =
+      middle_proto.mutable_map_value()->mutable_fields();
   (*middle_fields)["d"] = ValueProto(int64_t{100});
   (*middle_fields)["nested"] = inner_proto;
 
-  google::firestore::v1beta1::Value proto;
-  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>*
-      fields = proto.mutable_map_value()->mutable_fields();
+  v1beta1::Value proto;
+  google::protobuf::Map<std::string, v1beta1::Value>* fields =
+      proto.mutable_map_value()->mutable_fields();
   (*fields)["b"] = ValueProto(true);
   (*fields)["i"] = ValueProto(int64_t{1});
   (*fields)["n"] = ValueProto(nullptr);
@@ -531,7 +529,7 @@ TEST_F(SerializerTest, BadTag) {
   std::vector<uint8_t> bytes =
       EncodeFieldValue(&serializer, FieldValue::NullValue());
 
-  // The google::firestore::v1beta1::Value value_type oneof currently has tags
+  // The v1beta1::Value value_type oneof currently has tags
   // up to 18. For this test, we'll pick a tag that's unlikely to be added in
   // the near term but still fits within a uint8_t even when encoded.
   // Specifically 31. 0xf8 represents field number 31 encoded as a varint.
@@ -631,8 +629,8 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
   FieldValue empty_value = FieldValue::ObjectValueFromMap({});
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
-  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
-  google::firestore::v1beta1::Document* doc_proto = proto.mutable_found();
+  v1beta1::BatchGetDocumentsResponse proto;
+  v1beta1::Document* doc_proto = proto.mutable_found();
   doc_proto->set_name(serializer.EncodeKey(key));
   doc_proto->mutable_fields();
 
@@ -657,15 +655,15 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
-  google::firestore::v1beta1::Value inner_proto;
-  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>&
-      inner_fields = *inner_proto.mutable_map_value()->mutable_fields();
+  v1beta1::Value inner_proto;
+  google::protobuf::Map<std::string, v1beta1::Value>& inner_fields =
+      *inner_proto.mutable_map_value()->mutable_fields();
   inner_fields["fourty-two"] = ValueProto(int64_t{42});
 
-  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
-  google::firestore::v1beta1::Document* doc_proto = proto.mutable_found();
+  v1beta1::BatchGetDocumentsResponse proto;
+  v1beta1::Document* doc_proto = proto.mutable_found();
   doc_proto->set_name(serializer.EncodeKey(key));
-  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>& m =
+  google::protobuf::Map<std::string, v1beta1::Value>& m =
       *doc_proto->mutable_fields();
   m["foo"] = ValueProto("bar");
   m["two"] = ValueProto(int64_t{2});
