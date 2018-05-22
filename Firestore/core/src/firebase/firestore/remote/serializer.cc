@@ -36,7 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -203,9 +203,8 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
       // TODO(rsgowman): While still in development, we'll contradict the above
       // and assume the latter. Remove the following assertion when we're
       // confident that we're handling all the tags in the protos.
-      FIREBASE_ASSERT_MESSAGE(
-          false,
-          "Unhandled message field number (tag): %i. (Or possibly "
+      HARD_FAIL(
+          "Unhandled message field number (tag): %s. (Or possibly "
           "corrupt input bytes)",
           tag.field_number);
       reader->set_status(Status(
@@ -235,8 +234,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     default:
       // This indicates an internal error as we've already ensured that this is
       // a valid field_number.
-      FIREBASE_ASSERT_MESSAGE(
-          false,
+      HARD_FAIL(
           "Somehow got an unexpected field number (tag) after verifying that "
           "the field number was expected.");
   }
@@ -286,14 +284,14 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
 
   // TODO(rsgowman): figure out error handling: We can do better than a failed
   // assertion.
-  FIREBASE_ASSERT(tag.field_number == key_tag);
-  FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+  HARD_ASSERT(tag.field_number == key_tag);
+  HARD_ASSERT(tag.wire_type == PB_WT_STRING);
   std::string key = reader->ReadString();
 
   tag = reader->ReadTag();
   if (!reader->status().ok()) return {};
-  FIREBASE_ASSERT(tag.field_number == value_tag);
-  FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+  HARD_ASSERT(tag.field_number == value_tag);
+  HARD_ASSERT(tag.wire_type == PB_WT_STRING);
 
   FieldValue value =
       reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
@@ -344,9 +342,9 @@ ObjectValue::Map DecodeMapValue(Reader* reader) {
     // The MapValue message only has a single valid tag.
     // TODO(rsgowman): figure out error handling: We can do better than a
     // failed assertion.
-    FIREBASE_ASSERT(tag.field_number ==
-                    google_firestore_v1beta1_MapValue_fields_tag);
-    FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+    HARD_ASSERT(tag.field_number ==
+                google_firestore_v1beta1_MapValue_fields_tag);
+    HARD_ASSERT(tag.wire_type == PB_WT_STRING);
 
     ObjectValue::Map::value_type fv =
         reader->ReadNestedMessage<ObjectValue::Map::value_type>(
@@ -407,9 +405,9 @@ bool IsValidResourceName(const ResourcePath& path) {
  */
 ResourcePath DecodeResourceName(absl::string_view encoded) {
   ResourcePath resource = ResourcePath::FromString(encoded);
-  FIREBASE_ASSERT_MESSAGE(IsValidResourceName(resource),
-                          "Tried to deserialize invalid key %s",
-                          resource.CanonicalString().c_str());
+  HARD_ASSERT(IsValidResourceName(resource),
+              "Tried to deserialize invalid key %s",
+              resource.CanonicalString());
   return resource;
 }
 
@@ -420,10 +418,9 @@ ResourcePath DecodeResourceName(absl::string_view encoded) {
  */
 ResourcePath ExtractLocalPathFromResourceName(
     const ResourcePath& resource_name) {
-  FIREBASE_ASSERT_MESSAGE(
-      resource_name.size() > 4 && resource_name[4] == "documents",
-      "Tried to deserialize invalid key %s",
-      resource_name.CanonicalString().c_str());
+  HARD_ASSERT(resource_name.size() > 4 && resource_name[4] == "documents",
+              "Tried to deserialize invalid key %s",
+              resource_name.CanonicalString());
   return resource_name.PopFirst(5);
 }
 
@@ -453,10 +450,10 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
 
 DocumentKey Serializer::DecodeKey(absl::string_view name) const {
   ResourcePath resource = DecodeResourceName(name);
-  FIREBASE_ASSERT_MESSAGE(resource[1] == database_id_.project_id(),
-                          "Tried to deserialize key from different project.");
-  FIREBASE_ASSERT_MESSAGE(resource[3] == database_id_.database_id(),
-                          "Tried to deserialize key from different database.");
+  HARD_ASSERT(resource[1] == database_id_.project_id(),
+              "Tried to deserialize key from different project.");
+  HARD_ASSERT(resource[3] == database_id_.database_id(),
+              "Tried to deserialize key from different database.");
   return DocumentKey{ExtractLocalPathFromResourceName(resource)};
 }
 
@@ -538,8 +535,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     default:
       // This indicates an internal error as we've already ensured that this is
       // a valid field_number.
-      FIREBASE_ASSERT_MESSAGE(
-          false,
+      HARD_FAIL(
           "Somehow got an unexpected field number (tag) after verifying that "
           "the field number was expected.");
   }
@@ -555,7 +551,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   while (reader->bytes_left()) {
     Tag tag = reader->ReadTag();
     if (!reader->status().ok()) return nullptr;
-    FIREBASE_ASSERT(tag.wire_type == PB_WT_STRING);
+    HARD_ASSERT(tag.wire_type == PB_WT_STRING);
     switch (tag.field_number) {
       case google_firestore_v1beta1_Document_name_tag:
         name = reader->ReadString();

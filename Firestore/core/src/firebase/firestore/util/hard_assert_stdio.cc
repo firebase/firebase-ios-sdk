@@ -14,40 +14,51 @@
  * limitations under the License.
  */
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 #include <cstdarg>
 #include <stdexcept>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/base/config.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
+namespace internal {
 
-void FailAssert(const char* file,
-                const char* func,
-                const int line,
-                const char* format,
-                ...) {
-  std::string message;
-  StringAppendF(&message, "ASSERT: %s(%d) %s: ", file, line, func);
-
-  va_list args;
-  va_start(args, format);
-  StringAppendV(&message, format, args);
-  va_end(args);
+void Fail(const char* file,
+          const char* func,
+          const int line,
+          const std::string& message) {
+  std::string failure =
+      StringFormat("ASSERT: %s(%s) %s: %s", file, line, func, message);
 
 #if ABSL_HAVE_EXCEPTIONS
-  throw std::logic_error(message);
+  throw std::logic_error(failure);
 
 #else
-  fprintf(stderr, "%s\n", message.c_str());
+  fprintf(stderr, "%s\n", failure.c_str());
   std::terminate();
 #endif
 }
 
+void Fail(const char* file,
+          const char* func,
+          const int line,
+          const std::string& message,
+          const char* condition) {
+  std::string failure;
+  if (message.empty()) {
+    failure = condition;
+  } else {
+    failure = StringFormat("%s (expected %s)", message, condition);
+  }
+  Fail(file, func, line, failure);
+}
+
+}  // namespace internal
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

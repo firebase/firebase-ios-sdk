@@ -58,7 +58,7 @@ void Writer::WriteTag(Tag tag) {
   if (!status_.ok()) return;
 
   if (!pb_encode_tag(&stream_, tag.wire_type, tag.field_number)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+    HARD_FAIL(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -67,7 +67,7 @@ void Writer::WriteNanopbMessage(const pb_field_t fields[],
   if (!status_.ok()) return;
 
   if (!pb_encode(&stream_, fields, src_struct)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+    HARD_FAIL(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -79,7 +79,7 @@ void Writer::WriteVarint(uint64_t value) {
   if (!status_.ok()) return;
 
   if (!pb_encode_varint(&stream_, value)) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+    HARD_FAIL(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -101,7 +101,7 @@ void Writer::WriteString(const std::string& string_value) {
   if (!pb_encode_string(
           &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
           string_value.length())) {
-    FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+    HARD_FAIL(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -126,15 +126,14 @@ void Writer::WriteNestedMessage(
   // fail since sizing streams don't actually have any buffer space.)
   if (stream_.callback == nullptr) {
     if (!pb_write(&stream_, nullptr, size)) {
-      FIREBASE_ASSERT_MESSAGE(false, PB_GET_ERROR(&stream_));
+      HARD_FAIL(PB_GET_ERROR(&stream_));
     }
     return;
   }
 
   // Ensure the output stream has enough space
   if (stream_.bytes_written + size > stream_.max_size) {
-    FIREBASE_ASSERT_MESSAGE(
-        false,
+    HARD_FAIL(
         "Insufficient space in the output stream to write the given message");
   }
 
@@ -155,8 +154,7 @@ void Writer::WriteNestedMessage(
 
   if (writer.bytes_written() != size) {
     // submsg size changed
-    FIREBASE_ASSERT_MESSAGE(
-        false, "Parsing the nested message twice yielded different sizes");
+    HARD_FAIL("Parsing the nested message twice yielded different sizes");
   }
 }
 

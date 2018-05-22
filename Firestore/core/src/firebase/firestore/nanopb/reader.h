@@ -26,7 +26,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -159,7 +159,7 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       substream.bytes_left() == 0,
       "Bytes remaining in substream after supposedly reading all of them.");
 
