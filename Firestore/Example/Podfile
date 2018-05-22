@@ -21,7 +21,7 @@ target 'Firestore_Example_iOS' do
 
     pod 'leveldb-library'
     pod 'OCMock'
-    pod 'GoogleTest', :podspec => 'Tests/GoogleTest/GoogleTest.podspec'
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
   end
 
   target 'Firestore_IntegrationTests_iOS' do

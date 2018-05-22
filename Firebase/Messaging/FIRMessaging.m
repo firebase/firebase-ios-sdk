@@ -411,13 +411,18 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
                      openURL:url
            sourceApplication:FIRMessagingAppIdentifier()
                   annotation:@{}];
-
+#pragma clang diagnostic pop
   } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application handleOpenURL:url];
+#pragma clang diagnostic pop
   }
 }
 

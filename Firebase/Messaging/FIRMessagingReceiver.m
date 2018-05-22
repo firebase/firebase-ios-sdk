@@ -120,9 +120,11 @@ static int downstreamMessageID = 0;
 
     } else if ([appDelegate respondsToSelector:oldNotificationSelector]) {
       // Try the old remote notification callback
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
       [appDelegate application:
        [UIApplication sharedApplication] didReceiveRemoteNotification:message];
-
+#pragma clang diagnostic pop
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeReceiver005,
                               @"None of the remote notification callbacks implemented by "
