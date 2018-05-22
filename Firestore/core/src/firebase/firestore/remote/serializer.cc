@@ -307,6 +307,12 @@ ObjectValue::Map::value_type DecodeMapValueFieldsEntry(Reader* reader) {
       google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
+ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
+  return DecodeFieldsEntry(
+      reader, google_firestore_v1beta1_Document_FieldsEntry_key_tag,
+      google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+}
+
 void EncodeObjectMap(Writer* writer,
                      const ObjectValue::Map& object_value_map,
                      uint32_t map_tag,
@@ -346,15 +352,19 @@ ObjectValue::Map DecodeMapValue(Reader* reader) {
         reader->ReadNestedMessage<ObjectValue::Map::value_type>(
             DecodeMapValueFieldsEntry);
 
-    // Sanity check: ensure that this key doesn't already exist in the
-    // map.
-    // TODO(rsgowman): figure out error handling: We can do better than a
-    // failed assertion.
     if (!reader->status().ok()) return result;
-    FIREBASE_ASSERT(result.find(fv.first) == result.end());
+
+    // Assumption: If we parse two entries for the map that have the same key,
+    // then the latter should overwrite the former. This does not appear to be
+    // explicitly called out by the docs, but seems to be in the spirit of how
+    // things work. (i.e. non-repeated fields explicitly follow this behaviour.)
+    // In any case, well behaved proto emitters shouldn't create encodings like
+    // this, but well behaved parsers are expected to handle these cases.
+    //
+    // https://developers.google.com/protocol-buffers/docs/encoding#optional
 
     // Add this key,fieldvalue to the results map.
-    result.emplace(std::move(fv));
+    result[fv.first] = fv.second;
   }
   return result;
 }
@@ -467,11 +477,10 @@ void Serializer::EncodeDocument(Writer* writer,
 
   // Encode Document.fields (unless it's empty)
   if (!object_value.internal_value.empty()) {
-    // TODO(rsgowman): add support for documents with contents. (This
-    // implementation is wrong, but will be corrected in the next PR.)
-    writer->WriteTag(
-        {PB_WT_STRING, google_firestore_v1beta1_Document_fields_tag});
-    EncodeMapValue(writer, object_value);
+    EncodeObjectMap(writer, object_value.internal_value,
+                    google_firestore_v1beta1_Document_fields_tag,
+                    google_firestore_v1beta1_Document_FieldsEntry_key_tag,
+                    google_firestore_v1beta1_Document_FieldsEntry_value_tag);
   }
 
   // Skip Document.create_time and Document.update_time, since they're
@@ -540,7 +549,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
 
   std::string name;
-  FieldValue fields = FieldValue::ObjectValueFromMap({});
+  ObjectValue::Map fields_internal;
   SnapshotVersion version = SnapshotVersion::None();
 
   while (reader->bytes_left()) {
@@ -551,11 +560,20 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       case google_firestore_v1beta1_Document_name_tag:
         name = reader->ReadString();
         break;
-      case google_firestore_v1beta1_Document_fields_tag:
-        // TODO(rsgowman): Rather than overwriting, we should instead merge with
-        // the existing FieldValue (if any).
-        fields = DecodeFieldValueImpl(reader);
+      case google_firestore_v1beta1_Document_fields_tag: {
+        ObjectValue::Map::value_type fv =
+            reader->ReadNestedMessage<ObjectValue::Map::value_type>(
+                DecodeDocumentFieldsEntry);
+
+        if (!reader->status().ok()) return nullptr;
+
+        // Assumption: For duplicates, the latter overrides the former, see
+        // comment on writing object map for details (DecodeMapValue).
+
+        // Add fieldvalue to the results map.
+        fields_internal[fv.first] = fv.second;
         break;
+      }
       case google_firestore_v1beta1_Document_create_time_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
@@ -576,9 +594,9 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
     }
   }
 
-  return absl::make_unique<Document>(std::move(fields), DecodeKey(name),
-                                     version,
-                                     /*has_local_modifications=*/false);
+  return absl::make_unique<Document>(
+      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name), version,
+      /*has_local_modifications=*/false);
 }
 
 }  // namespace remote

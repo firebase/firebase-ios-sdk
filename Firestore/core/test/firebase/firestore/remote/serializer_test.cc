@@ -219,6 +219,29 @@ class SerializerTest : public ::testing::Test {
     return proto;
   }
 
+  /**
+   * Creates entries in the proto that we don't care about.
+   *
+   * We ignore create time in our serializer. We never set it, and never read it
+   * (other than to throw it away). But the server could (and probably does) set
+   * it, so we need to be able to discard it properly. The ExpectRoundTrip deals
+   * with this asymmetry.
+   *
+   * This method adds these ignored fields to the proto.
+   */
+  void TouchIgnoredBatchGetDocumentsResponseFields(
+      google::firestore::v1beta1::BatchGetDocumentsResponse* proto) {
+    // TODO(rsgowman): This method currently assumes that this is a 'found'
+    // document. We (probably) will need to adjust this to work with NoDocuments
+    // too.
+    google::firestore::v1beta1::Document* doc_proto = proto->mutable_found();
+
+    google::protobuf::Timestamp* create_time_proto =
+        doc_proto->mutable_create_time();
+    create_time_proto->set_seconds(8765);
+    create_time_proto->set_nanos(4321);
+  }
+
  private:
   void ExpectSerializationRoundTrip(
       const FieldValue& model,
@@ -618,16 +641,44 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
   update_time_proto->set_seconds(1234);
   update_time_proto->set_nanos(5678);
 
-  // Note that we ignore create time in our serializer. We never set it, and
-  // never read it (other than to throw it away). But the server could (and
-  // probably does) set it, so we need to be able to discard it properly. The
-  // ExpectRoundTrip deals with this asymmetry.
-  google::protobuf::Timestamp* create_time_proto =
-      doc_proto->mutable_create_time();
-  create_time_proto->set_seconds(8765);
-  create_time_proto->set_nanos(4321);
+  TouchIgnoredBatchGetDocumentsResponseFields(&proto);
 
   ExpectRoundTrip(key, empty_value, update_time, proto);
+}
+
+TEST_F(SerializerTest, EncodesNonEmptyDocument) {
+  DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
+  FieldValue fields = FieldValue::ObjectValueFromMap({
+      {"foo", FieldValue::StringValue("bar")},
+      {"two", FieldValue::IntegerValue(2)},
+      {"nested", FieldValue::ObjectValueFromMap({
+                     {"fourty-two", FieldValue::IntegerValue(42)},
+                 })},
+  });
+  SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
+
+  google::firestore::v1beta1::Value inner_proto;
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>&
+      inner_fields = *inner_proto.mutable_map_value()->mutable_fields();
+  inner_fields["fourty-two"] = ValueProto(int64_t{42});
+
+  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
+  google::firestore::v1beta1::Document* doc_proto = proto.mutable_found();
+  doc_proto->set_name(serializer.EncodeKey(key));
+  google::protobuf::Map<std::string, google::firestore::v1beta1::Value>& m =
+      *doc_proto->mutable_fields();
+  m["foo"] = ValueProto("bar");
+  m["two"] = ValueProto(int64_t{2});
+  m["nested"] = inner_proto;
+
+  google::protobuf::Timestamp* update_time_proto =
+      doc_proto->mutable_update_time();
+  update_time_proto->set_seconds(1234);
+  update_time_proto->set_nanos(5678);
+
+  TouchIgnoredBatchGetDocumentsResponseFields(&proto);
+
+  ExpectRoundTrip(key, fields, update_time, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
