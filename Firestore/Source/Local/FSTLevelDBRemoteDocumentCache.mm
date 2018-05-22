@@ -26,10 +26,10 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 
@@ -122,9 +122,9 @@ using leveldb::Status;
   }
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
-  FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%s) instead of expected key (%s).",
-            maybeDocument.key.ToString().c_str(), documentKey.ToString().c_str());
+  HARD_ASSERT([maybeDocument.key isEqualToKey:documentKey],
+              "Read document has key (%s) instead of expected key (%s).",
+              maybeDocument.key.ToString(), documentKey.ToString());
   return maybeDocument;
 }
 

@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"

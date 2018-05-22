@@ -21,8 +21,8 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 #include "leveldb/write_batch.h"
 

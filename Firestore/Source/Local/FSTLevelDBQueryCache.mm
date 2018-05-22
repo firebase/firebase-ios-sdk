@@ -26,10 +26,10 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -109,7 +109,7 @@ using firebase::firestore::model::DocumentKeySet;
 
 - (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    FSTAssert(db, @"db must not be NULL");
+    HARD_ASSERT(db, "db must not be NULL");
     _db = db;
     _serializer = serializer;
   }
@@ -119,9 +119,9 @@ using firebase::firestore::model::DocumentKeySet;
 - (void)start {
   // TODO(gsoltis): switch this usage of ptr to currentTransaction
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.ptr];
-  FSTAssert(
+  HARD_ASSERT(
       metadata != nil,
-      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
+      "Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;

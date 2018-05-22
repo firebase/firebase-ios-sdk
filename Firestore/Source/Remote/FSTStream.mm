@@ -26,7 +26,6 @@
 #import "Firestore/Source/Remote/FSTExponentialBackoff.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
@@ -37,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -259,10 +259,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   }
 
   LOG_DEBUG("%s %s start", NSStringFromClass([self class]), (__bridge void *)self);
-  FSTAssert(self.state == FSTStreamStateInitial, @"Already started");
+  HARD_ASSERT(self.state == FSTStreamStateInitial, "Already started");
 
   self.state = FSTStreamStateAuth;
-  FSTAssert(_delegate == nil, @"Delegate must be nil");
+  HARD_ASSERT(_delegate == nil, "Delegate must be nil");
   _delegate = delegate;
 
   _credentials->GetToken(
@@ -281,8 +281,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     // Streams can be stopped while waiting for authorization.
     return;
   }
-  FSTAssert(self.state == FSTStreamStateAuth, @"State should still be auth (was %ld)",
-            (long)self.state);
+  HARD_ASSERT(self.state == FSTStreamStateAuth, "State should still be auth (was %s)", self.state);
 
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
@@ -301,7 +300,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
       prepareHeadersForRPC:_rpc
                 databaseID:&self.databaseInfo->database_id()
                      token:(token.user().is_authenticated() ? token.token() : absl::string_view())];
-  FSTAssert(_callbackFilter == nil, @"GRX Filter must be nil");
+  HARD_ASSERT(_callbackFilter == nil, "GRX Filter must be nil");
   _callbackFilter = [[FSTCallbackFilter alloc] initWithStream:self];
   [_rpc startWithWriteable:_callbackFilter];
 
@@ -314,7 +313,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   LOG_DEBUG("%s %s backoff", NSStringFromClass([self class]), (__bridge void *)self);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTAssert(self.state == FSTStreamStateError, @"Should only perform backoff in an error case");
+  HARD_ASSERT(self.state == FSTStreamStateError, "Should only perform backoff in an error case");
   self.state = FSTStreamStateBackoff;
 
   FSTWeakify(self);
@@ -334,13 +333,13 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   // In order to have performed a backoff the stream must have been in an error state just prior
   // to entering the backoff state. If we weren't stopped we must be in the backoff state.
-  FSTAssert(self.state == FSTStreamStateBackoff, @"State should still be backoff (was %ld)",
-            (long)self.state);
+  HARD_ASSERT(self.state == FSTStreamStateBackoff, "State should still be backoff (was %s)",
+              self.state);
 
   // Momentarily set state to FSTStreamStateInitial as `start` expects it.
   self.state = FSTStreamStateInitial;
   [self startWithDelegate:delegate];
-  FSTAssert([self isStarted], @"Stream should have started.");
+  HARD_ASSERT([self isStarted], "Stream should have started.");
 }
 
 /**
@@ -365,8 +364,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * @param error the NSError the connection was closed with.
  */
 - (void)closeWithFinalState:(FSTStreamState)finalState error:(nullable NSError *)error {
-  FSTAssert(finalState == FSTStreamStateError || error == nil,
-            @"Can't provide an error when not in an error state.");
+  HARD_ASSERT(finalState == FSTStreamStateError || error == nil,
+              "Can't provide an error when not in an error state.");
 
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
@@ -433,8 +432,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)inhibitBackoff {
-  FSTAssert(![self isStarted], @"Can only inhibit backoff after an error (was %ld)",
-            (long)self.state);
+  HARD_ASSERT(![self isStarted], "Can only inhibit backoff after an error (was %s)", self.state);
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   // Clear the error condition.
@@ -551,7 +549,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)handleStreamClose:(nullable NSError *)error {
   LOG_DEBUG("%s %s close: %s", NSStringFromClass([self class]), (__bridge void *)self, error);
-  FSTAssert([self isStarted], @"handleStreamClose: called for non-started stream.");
+  HARD_ASSERT([self isStarted], "handleStreamClose: called for non-started stream.");
 
   // In theory the stream could close cleanly, however, in our current model we never expect this
   // to happen because if we stop a stream ourselves, this callback will never be called. To
@@ -572,7 +570,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  */
 - (void)writeValue:(id)value {
   [self.workerDispatchQueue enterCheckedOperation:^{
-    FSTAssert([self isStarted], @"writeValue: called for stopped stream.");
+    HARD_ASSERT([self isStarted], "writeValue: called for stopped stream.");
 
     if (!self.messageReceived) {
       self.messageReceived = YES;
@@ -606,7 +604,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 - (void)writesFinishedWithError:(nullable NSError *)error __used {
   error = [FSTDatastore firestoreErrorForError:error];
   [self.workerDispatchQueue enterCheckedOperation:^{
-    FSTAssert([self isStarted], @"writesFinishedWithError: called for stopped stream.");
+    HARD_ASSERT([self isStarted], "writesFinishedWithError: called for stopped stream.");
 
     [self handleStreamClose:error];
   }];
@@ -657,7 +655,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
-  FSTAssert([self isOpen], @"Not yet open");
+  HARD_ASSERT([self isOpen], "Not yet open");
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   GCFSListenRequest *request = [GCFSListenRequest message];
@@ -670,7 +668,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)unwatchTargetID:(FSTTargetID)targetID {
-  FSTAssert([self isOpen], @"Not yet open");
+  HARD_ASSERT([self isOpen], "Not yet open");
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   GCFSListenRequest *request = [GCFSListenRequest message];
@@ -756,8 +754,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 - (void)writeHandshake {
   // The initial request cannot contain mutations, but must contain a projectID.
-  FSTAssert([self isOpen], @"Not yet open");
-  FSTAssert(!self.handshakeComplete, @"Handshake sent out of turn");
+  HARD_ASSERT([self isOpen], "Not yet open");
+  HARD_ASSERT(!self.handshakeComplete, "Handshake sent out of turn");
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   GCFSWriteRequest *request = [GCFSWriteRequest message];
@@ -770,8 +768,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
-  FSTAssert([self isOpen], @"Not yet open");
-  FSTAssert(self.handshakeComplete, @"Mutations sent out of turn");
+  HARD_ASSERT([self isOpen], "Not yet open");
+  HARD_ASSERT(self.handshakeComplete, "Mutations sent out of turn");
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   NSMutableArray<GCFSWrite *> *protos = [NSMutableArray arrayWithCapacity:mutations.count];

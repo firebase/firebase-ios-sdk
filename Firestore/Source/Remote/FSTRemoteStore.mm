@@ -31,11 +31,11 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -154,8 +154,8 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (BOOL)isNetworkEnabled {
-  FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
-            @"WatchStream and WriteStream should both be null or non-null");
+  HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
+              "WatchStream and WriteStream should both be null or non-null");
   return self.watchStream != nil;
 }
 
@@ -227,16 +227,16 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Watch Stream
 
 - (void)startWatchStream {
-  FSTAssert([self shouldStartWatchStream],
-            @"startWatchStream: called when shouldStartWatchStream: is false.");
+  HARD_ASSERT([self shouldStartWatchStream],
+              "startWatchStream: called when shouldStartWatchStream: is false.");
   [self.watchStream startWithDelegate:self];
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
   NSNumber *targetKey = @(queryData.targetID);
-  FSTAssert(!self.listenTargets[targetKey], @"listenToQuery called with duplicate target id: %@",
-            targetKey);
+  HARD_ASSERT(!self.listenTargets[targetKey], "listenToQuery called with duplicate target id: %s",
+              targetKey);
 
   self.listenTargets[targetKey] = queryData;
 
@@ -255,7 +255,7 @@ static const int kMaxPendingWrites = 10;
 - (void)stopListeningToTargetID:(FSTTargetID)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
-  FSTAssert(queryData, @"unlistenToTarget: target not currently watched: %@", targetKey);
+  HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
   if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
@@ -331,9 +331,9 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  FSTAssert([self isNetworkEnabled],
-            @"watchStreamWasInterruptedWithError: should only be called when the network is "
-             "enabled");
+  HARD_ASSERT([self isNetworkEnabled],
+              "watchStreamWasInterruptedWithError: should only be called when the network is "
+              "enabled");
 
   [self cleanUpWatchStreamState];
   [self.onlineStateTracker handleWatchStreamFailure];
@@ -388,8 +388,8 @@ static const int kMaxPendingWrites = 10;
             [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
         [remoteEvent addDocumentUpdate:deletedDoc];
       } else {
-        FSTAssert(filter.count == 1, @"Single document existence filter with count: %" PRId32,
-                  filter.count);
+        HARD_ASSERT(filter.count == 1, "Single document existence filter with count: %s",
+                    filter.count);
       }
 
     } else {
@@ -401,8 +401,8 @@ static const int kMaxPendingWrites = 10;
           FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
           trackedRemote = [update applyTo:trackedRemote];
         } else {
-          FSTAssert([mapping isKindOfClass:[FSTResetMapping class]],
-                    @"Expected either reset or update mapping but got something else %@", mapping);
+          HARD_ASSERT([mapping isKindOfClass:[FSTResetMapping class]],
+                      "Expected either reset or update mapping but got something else %s", mapping);
           trackedRemote = ((FSTResetMapping *)mapping).documents;
         }
       }
@@ -461,7 +461,7 @@ static const int kMaxPendingWrites = 10;
 
 /** Process a target error and passes the error along to SyncEngine. */
 - (void)processTargetErrorForWatchChange:(FSTWatchTargetChange *)change {
-  FSTAssert(change.cause, @"Handling target error without a cause");
+  HARD_ASSERT(change.cause, "Handling target error without a cause");
   // Ignore targets that have been removed already.
   for (FSTBoxedTargetID *targetID in change.targetIDs) {
     if (self.listenTargets[targetID]) {
@@ -482,8 +482,8 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)startWriteStream {
-  FSTAssert([self shouldStartWriteStream],
-            @"startWriteStream: called when shouldStartWriteStream: is false.");
+  HARD_ASSERT([self shouldStartWriteStream],
+              "startWriteStream: called when shouldStartWriteStream: is false.");
 
   [self.writeStream startWithDelegate:self];
 }
@@ -526,7 +526,7 @@ static const int kMaxPendingWrites = 10;
 
 /** Given mutations to commit, actually commits them to the backend. */
 - (void)commitBatch:(FSTMutationBatch *)batch {
-  FSTAssert([self canWriteMutations], @"commitBatch called when mutations can't be written");
+  HARD_ASSERT([self canWriteMutations], "commitBatch called when mutations can't be written");
   self.lastBatchSeen = batch.batchID;
 
   [self.pendingWrites addObject:batch];
@@ -590,8 +590,8 @@ static const int kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  FSTAssert([self isNetworkEnabled],
-            @"writeStreamDidClose: should only be called when the network is enabled");
+  HARD_ASSERT([self isNetworkEnabled],
+              "writeStreamDidClose: should only be called when the network is enabled");
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.

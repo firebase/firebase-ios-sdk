@@ -42,13 +42,13 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -320,8 +320,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-    FSTAssert(viewChange.limboChanges.count == 0,
-              @"View returned limbo documents during local-only query execution.");
+    HARD_ASSERT(viewChange.limboChanges.count == 0,
+                "View returned limbo documents during local-only query execution.");
 
     FSTViewSnapshot *snapshot = viewChange.snapshot;
     FIRSnapshotMetadata *metadata =

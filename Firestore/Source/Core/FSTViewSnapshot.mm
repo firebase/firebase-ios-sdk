@@ -19,10 +19,10 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 
