@@ -485,7 +485,7 @@ Serializer::DecodeMaybeDocument(const uint8_t* bytes, size_t length) const {
       DecodeBatchGetDocumentsResponse(&reader);
 
   if (reader.status().ok()) {
-    return maybeDoc;
+    return std::move(maybeDoc);
   } else {
     return reader.status();
   }
