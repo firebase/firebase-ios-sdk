@@ -18,7 +18,8 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -138,7 +139,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 
 - (void)logClientOfflineWarningIfNecessary {
   if (self.shouldWarnClientIsOffline) {
-    FSTWarn(@"Could not reach Firestore backend.");
+    LOG_WARN("Could not reach Firestore backend.");
     self.shouldWarnClientIsOffline = NO;
   }
 }
