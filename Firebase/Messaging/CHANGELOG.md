@@ -1,5 +1,5 @@
 # 2018-05-29 -- v3.0.1
-- Clean up a few deprecated warning and internal clean up code base.
+- Clean up a few deprecated warning.
 
 # 2018-05-08 -- v3.0.0
 - Remove deprecated delegate property `remoteMessageDelegate`, please use `delegate` instead.
