@@ -140,7 +140,7 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
 
 FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   FSTFieldValue *wrapped = FSTTestFieldValue(data);
-  FSTCAssert([wrapped isKindOfClass:[FSTObjectValue class]], @"Unsupported value: %@", data);
+  HARD_ASSERT([wrapped isKindOfClass:[FSTObjectValue class]], "Unsupported value: %s", data);
   return (FSTObjectValue *)wrapped;
 }
 
@@ -200,10 +200,10 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
 
   FSTFieldValue *data = FSTTestFieldValue(value);
   if ([data isEqual:[FSTDoubleValue nanValue]]) {
-    FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with NAN.");
+    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with NAN.");
     return [[FSTNanFilter alloc] initWithField:path];
   } else if ([data isEqual:[FSTNullValue nullValue]]) {
-    FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with Null.");
+    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with Null.");
     return [[FSTNullFilter alloc] initWithField:path];
   } else {
     return [FSTRelationFilter filterWithField:path filterOperator:op value:data];
@@ -272,8 +272,8 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   FSTParsedUpdateData *result = [converter parsedUpdateData:data];
-  FSTCAssert(result.data.value.count == 0,
-             @"FSTTestTransformMutation() only expects transforms; no other data");
+  HARD_ASSERT(result.data.value.count == 0,
+              "FSTTestTransformMutation() only expects transforms; no other data");
   return [[FSTTransformMutation alloc] initWithKey:key
                                    fieldTransforms:std::move(result.fieldTransforms)];
 }

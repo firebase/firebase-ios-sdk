@@ -80,8 +80,8 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 
   FSTPBTargetGlobal *targetGlobal =
       [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
-  FSTCAssert(targetGlobal != nil,
-             @"We should have a metadata row as it was added in an earlier migration");
+  HARD_ASSERT(targetGlobal != nil,
+              "We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
   transaction->Put([FSTLevelDBTargetGlobalKey key], targetGlobal);
 }
