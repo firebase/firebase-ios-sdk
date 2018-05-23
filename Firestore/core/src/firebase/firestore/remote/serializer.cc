@@ -558,6 +558,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
+        // TODO(rsgowman) switch this to reader->SkipField() (or whatever we end
+        // up calling it) once that exists. Possibly group this with other
+        // ignored and/or unknown fields
         reader->ReadString();
         break;
 
