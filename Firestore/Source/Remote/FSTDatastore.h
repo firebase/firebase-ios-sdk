@@ -19,6 +19,7 @@
 #include <vector>
 
 #include <grpcpp/client_context.h>
+#include <memory>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
@@ -90,8 +91,8 @@ NS_ASSUME_NONNULL_BEGIN
                   databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
                        token:(const absl::string_view)token;
 
-+ (grpc::ClientContext) createGrpcClientContextWithDatabaseID: (const firebase::firestore::model::DatabaseId *)databaseID
-                       token:(const absl::string_view)token;
++ (std::unique_ptr<grpc::ClientContext>) createGrpcClientContextWithDatabaseID: (const firebase::firestore::model::DatabaseId *)databaseID
+                       token:(absl::string_view)token;
 
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys

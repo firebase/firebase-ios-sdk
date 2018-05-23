@@ -18,6 +18,8 @@
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/security/credentials.h>
 
 #include <map>
 #include <memory>
@@ -44,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
@@ -356,18 +359,21 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
       [FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID];
 }
 
-+ (grpc::ClientContext) createGrpcClientContextWithDatabaseID: (const DatabaseId *)databaseID
-                       token:(const absl::string_view)token {
-  grpc::ClientContext context;
++ (std::unique_ptr<grpc::ClientContext>)
+createGrpcClientContextWithDatabaseID:(const DatabaseId *)databaseID
+                                token:(const absl::string_view)token {
+  auto context = absl::make_unique<grpc::ClientContext>();
 
   if (token.data()) {
-    context.set_credentials(grpc::AccessTokenCredentials(token));
+    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
   }
 
-  context.AddMetadata[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
+  context->AddMetadata(util::MakeString(kXGoogAPIClientHeader),
+                      util::MakeString([FSTDatastore googAPIClientHeaderValue]));
   // This header is used to improve routing and project isolation by the backend.
-  context.AddMetadata[kGoogleCloudResourcePrefix] =
-      [FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID];
+  context->AddMetadata(
+      util::MakeString(kGoogleCloudResourcePrefix),
+      util::MakeString([FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID]));
   return context;
 }
 

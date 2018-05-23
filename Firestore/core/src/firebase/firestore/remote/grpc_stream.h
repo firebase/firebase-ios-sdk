@@ -19,10 +19,16 @@
 
 #include <grpc/grpc.h>
 #include <grpcpp/client_context.h>
-#include <grpcpp/create_channel.h>
+#include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/security/credentials.h>
+#include <grpcpp/support/byte_buffer.h>
+#include <grpcpp/completion_queue.h>
 
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 
@@ -31,12 +37,6 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::auth::Token;
-using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::model::DatabaseId;
-// using firebase::firestore::model::SnapshotVersion;
 
 /*
 message ListenRequest {
@@ -61,7 +61,11 @@ oneof response_type {
 }
  */
 
+// compile protos
+// proto to slices vector
+// write
 // queue
+// read
 //
 // error
 // close
@@ -72,54 +76,11 @@ oneof response_type {
 
 class WatchStream {
  public:
-  WatchStream(const DatabaseInfo& database_info,
-              CredentialsProvider* const credentials_provider)
-      : database_info_{database_info_},
-        credentials_provider_{credentials_provider},
-        stub_{CreateStub()} {
-    Start();
-  }
+  WatchStream(std::unique_ptr<util::internal::Executor> executor,
+              const core::DatabaseInfo& database_info,
+              auth::CredentialsProvider* credentials_provider);
 
-  void Start() {
-    // TODO: on error state
-    // TODO: state transition details
-
-    state_ = State::Auth;
-    // TODO: delegate?
-
-    const bool do_force_refresh = false;
-    credentials_provider_->GetToken(do_force_refresh,
-                                    [this](util::StatusOr<Token> maybe_token) {
-                                      Authenticate(maybe_token);
-                                    });
-  }
-
-  // Call may be closed due to:
-  // - error;
-  // - idleness;
-  // - network disable/reenable
-  void Authenticate(const util::StatusOr<Token>& maybe_token) {
-    if (state_ == State::Stopped) {
-      // Streams can be stopped while waiting for authorization.
-      return;
-    }
-    // TODO: state transition details
-    if (!maybe_token.ok()) {
-      // TODO: error handling
-      return;
-    }
-
-    const auto context = [FSTDatastore
-        createGrpcClientContextWithDatabaseID:token:maybe_token.ValueOrDie()];
-    call_ = stub_.PrepareCall(
-        context, "/google.firestore.v1beta1.Firestore/Listen" /*,queue*/);
-    // TODO: if !call_
-    // callback filter
-
-    state_ = State::Open;
-    // notifystreamopen
-  }
-
+  void Start();
   // TODO: Close
 
  private:
@@ -132,17 +93,19 @@ class WatchStream {
     Stopped
   };
 
-  grpc::GenericStub CreateStub() const {
-    return grpc::GenericStub{grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()))};
-  }
+  void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
+  grpc::GenericStub CreateStub() const;
 
   State state_{State::Initial};
-  DatabaseInfo* database_info_;
-  CredentialsProvider* credentials_provider_;
-  std::shared_ptr<grpc::GenericStub> stub_;
-  std::unique_ptr<grpc::ClientAsyncReaderWriter> call_;
+
+  std::unique_ptr<util::internal::Executor> executor_;
+  const core::DatabaseInfo* database_info_;
+  auth::CredentialsProvider* credentials_provider_;
+
+  std::shared_ptr<grpc::ClientContext> context_;
+  grpc::GenericStub stub_;
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+  grpc::CompletionQueue queue_;
 };
 
 }  // namespace remote
