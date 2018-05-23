@@ -37,12 +37,12 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
@@ -324,11 +324,11 @@ NS_ASSUME_NONNULL_BEGIN
           SnapshotVersion{doc.version} >= SnapshotVersion{existingDoc.version}) {
         [self.remoteDocumentCache addEntry:doc];
       } else {
-        FSTLog(
-            @"FSTLocalStore Ignoring outdated watch update for %s. "
-             "Current version: %s  Watch version: %s",
-            key.ToString().c_str(), existingDoc.version.timestamp().ToString().c_str(),
-            doc.version.timestamp().ToString().c_str());
+        LOG_DEBUG(
+            "FSTLocalStore Ignoring outdated watch update for %s. "
+            "Current version: %s  Watch version: %s",
+            key.ToString(), existingDoc.version.timestamp().ToString(),
+            doc.version.timestamp().ToString());
       }
 
       // The document might be garbage because it was unreferenced by everything.

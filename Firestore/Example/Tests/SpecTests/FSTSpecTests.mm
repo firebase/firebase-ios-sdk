@@ -37,7 +37,6 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
@@ -46,6 +45,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
@@ -620,7 +620,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   @try {
     [self setUpForSpecWithConfig:config];
     for (NSDictionary *step in steps) {
-      FSTLog(@"Doing step %@", step);
+      LOG_DEBUG("Doing step %s", step);
       [self doStep:step];
       [self validateStepExpectations:step[@"expect"]];
       [self validateStateExpectations:step[@"stateExpect"]];

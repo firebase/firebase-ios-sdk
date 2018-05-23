@@ -45,11 +45,11 @@
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -226,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %s", user.uid().c_str());
+  LOG_DEBUG("User Changed: %s", user.uid());
   [self.syncEngine userDidChange:user];
 }
 

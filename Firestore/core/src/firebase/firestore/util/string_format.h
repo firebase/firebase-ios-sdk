@@ -21,6 +21,7 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
@@ -65,6 +66,12 @@ class FormatArg : public absl::AlphaNum {
   FormatArg(T&& value)  // NOLINT(runtime/explicit)
       : FormatArg{std::forward<T>(value), internal::FormatChoice<0>{}} {
   }
+
+#if __OBJC__
+  FormatArg(NSObject* object)  // NOLINT(runtime/explicit)
+      : AlphaNum{MakeStringView([object description])} {
+  }
+#endif
 
  private:
   /**

@@ -24,9 +24,10 @@
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
@@ -577,7 +578,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
         }
         break;
       default:
-        FSTWarn(@"Unknown target watch change type: %ld", (long)targetChange.state);
+        LOG_WARN("Unknown target watch change type: %s", targetChange.state);
     }
   }
 }

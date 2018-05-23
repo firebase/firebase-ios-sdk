@@ -21,7 +21,6 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 using firebase::firestore::auth::CredentialsProvider;
@@ -117,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
-  FSTLog(@"watchQuery: %d: %@", query.targetID, query.query);
+  LOG_DEBUG("watchQuery: %s: %s", query.targetID, query.query);
   self.datastore.watchStreamRequestCount += 1;
   // Snapshot version is ignored on the wire
   FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
@@ -127,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)unwatchTargetID:(FSTTargetID)targetID {
-  FSTLog(@"unwatchTargetID: %d", targetID);
+  LOG_DEBUG("unwatchTargetID: %s", targetID);
   [self.activeTargets removeObjectForKey:@(targetID)];
 }
 

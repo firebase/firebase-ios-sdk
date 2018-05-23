@@ -25,7 +25,6 @@
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"

@@ -33,7 +33,6 @@
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
@@ -43,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -217,8 +217,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 /** Logs the (whitelisted) headers returned for an GRPCProtoCall RPC. */
 + (void)logHeadersForRPC:(GRPCProtoCall *)rpc RPCName:(NSString *)rpcName {
   if ([FIRFirestore isLoggingEnabled]) {
-    FSTLog(@"RPC %@ returned headers (whitelisted): %@", rpcName,
-           [FSTDatastore extractWhiteListedHeaders:rpc.responseHeaders]);
+    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpcName,
+              [FSTDatastore extractWhiteListedHeaders:rpc.responseHeaders]);
   }
 }
 
@@ -239,7 +239,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                        handler:^(GCFSCommitResponse *response, NSError *_Nullable error) {
                          error = [FSTDatastore firestoreErrorForError:error];
                          [self.workerDispatchQueue dispatchAsync:^{
-                           FSTLog(@"RPC CommitRequest completed. Error: %@", error);
+                           LOG_DEBUG("RPC CommitRequest completed. Error: %s", error);
                            [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
                            completion(error);
                          }];
@@ -272,7 +272,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                error = [FSTDatastore firestoreErrorForError:error];
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
-                                   FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
+                                   LOG_DEBUG("RPC BatchGetDocuments completed. Error: %s", error);
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
                                    return;
@@ -285,7 +285,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    closure->results.insert({doc.key, doc});
                                  } else {
                                    // Streaming response is done, call completion
-                                   FSTLog(@"RPC BatchGetDocuments completed successfully.");
+                                   LOG_DEBUG("RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    FSTAssert(!response, @"Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =

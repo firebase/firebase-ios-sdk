@@ -32,11 +32,11 @@
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 #import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -205,7 +205,7 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Shutdown
 
 - (void)shutdown {
-  FSTLog(@"FSTRemoteStore %p shutting down", (__bridge void *)self);
+  LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
   [self disableNetworkInternal];
   // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
@@ -213,7 +213,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)userDidChange:(const User &)user {
-  FSTLog(@"FSTRemoteStore %p changing users: %s", (__bridge void *)self, user.uid().c_str());
+  LOG_DEBUG("FSTRemoteStore %s changing users: %s", (__bridge void *)self, user.uid());
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
@@ -408,7 +408,7 @@ static const int kMaxPendingWrites = 10;
       }
 
       if (trackedRemote.size() != static_cast<size_t>(filter.count)) {
-        FSTLog(@"Existence filter mismatch, resetting mapping");
+        LOG_DEBUG("Existence filter mismatch, resetting mapping");
 
         // Make sure the mismatch is exposed in the remote event
         [remoteEvent handleExistenceFilterMismatchForTargetID:target];
@@ -490,8 +490,7 @@ static const int kMaxPendingWrites = 10;
 
 - (void)cleanUpWriteStreamState {
   self.lastBatchSeen = kFSTBatchIDUnknown;
-  FSTLog(@"Stopping write stream with %lu pending writes",
-         (unsigned long)[self.pendingWrites count]);
+  LOG_DEBUG("Stopping write stream with %s pending writes", [self.pendingWrites count]);
   [self.pendingWrites removeAllObjects];
 }
 
@@ -618,8 +617,8 @@ static const int kMaxPendingWrites = 10;
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
     NSString *token = [self.writeStream.lastStreamToken base64EncodedStringWithOptions:0];
-    FSTLog(@"FSTRemoteStore %p error before completed handshake; resetting stream token %@: %@",
-           (__bridge void *)self, token, error);
+    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
+              (__bridge void *)self, token, error);
     self.writeStream.lastStreamToken = nil;
     [self.localStore setLastStreamToken:nil];
   }
