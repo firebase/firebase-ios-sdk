@@ -148,6 +148,7 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
+		73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		8C82D4D3F9AB63E79CC52DC8 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */; };
 		AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB356EF6200EA5EB0089B766 /* field_value_test.cc */; };
@@ -256,6 +257,7 @@
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		54511E8D209805F8005BD28F /* hashing_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hashing_test.cc; sourceTree = "<group>"; };
 		5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreTests.mm; sourceTree = "<group>"; };
@@ -468,9 +470,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
-				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
 				C8D3CE2343E53223E6487F2C /* Pods_Firestore_Example_iOS.framework in Frameworks */,
+				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -478,10 +480,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
-				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
 				5D405BE298CE4692CB00790A /* Pods_Firestore_Tests_iOS.framework in Frameworks */,
+				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
+				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -489,10 +491,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */,
-				DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */,
 				DE03B2D61F2149D600A30B9C /* Foundation.framework in Frameworks */,
 				8C82D4D3F9AB63E79CC52DC8 /* Pods_Firestore_IntegrationTests_iOS.framework in Frameworks */,
+				DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */,
+				DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,14 +551,14 @@
 				B6FB4687208F9B9100554BA2 /* executor_std_test.cc */,
 				B6FB4688208F9B9100554BA2 /* executor_test.cc */,
 				B6FB468A208F9B9100554BA2 /* executor_test.h */,
-				54131E9820AE076C001DF3FF /* hard_assert_test.cc */,
+				444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */,
 				54511E8D209805F8005BD28F /* hashing_test.cc */,
 				54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */,
 				54C2294E1FECABAE007D065B /* log_test.cc */,
 				AB380D03201BC6E400D97691 /* ordered_code_test.cc */,
 				54740A531FC913E500713A1A /* secure_random_test.cc */,
-				54A0352B20A3B3D7003E0143 /* status_test_util.h */,
 				54A0352C20A3B3D7003E0143 /* status_test.cc */,
+				54A0352B20A3B3D7003E0143 /* status_test_util.h */,
 				54A0352D20A3B3D7003E0143 /* statusor_test.cc */,
 				54131E9620ADE678001DF3FF /* string_format_test.cc */,
 				AB380CFC201A2EE200D97691 /* string_util_test.cc */,
@@ -640,10 +642,10 @@
 			isa = PBXGroup;
 			children = (
 				6003F58A195388D20070C39A /* Firestore_Example_iOS.app */,
-				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
 				DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests_iOS.xctest */,
-				DE0761E41F2FE611003233AF /* SwiftBuildTest.app */,
 				54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */,
+				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
+				DE0761E41F2FE611003233AF /* SwiftBuildTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -651,15 +653,15 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6003F58D195388D20070C39A /* Foundation.framework */,
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
-				6003F591195388D20070C39A /* UIKit.framework */,
-				6003F5AF195388D20070C39A /* XCTest.framework */,
+				6003F58D195388D20070C39A /* Foundation.framework */,
 				5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */,
 				BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */,
 				379B34A1536045869826D82A /* Pods_Firestore_Example_iOS_SwiftBuildTest.framework */,
 				ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */,
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
+				6003F591195388D20070C39A /* UIKit.framework */,
+				6003F5AF195388D20070C39A /* XCTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -667,14 +669,14 @@
 		6003F593195388D20070C39A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				6003F594195388D20070C39A /* Supporting Files */,
 				6003F59C195388D20070C39A /* FIRAppDelegate.h */,
 				6003F59D195388D20070C39A /* FIRAppDelegate.m */,
-				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
 				6003F5A5195388D20070C39A /* FIRViewController.h */,
 				6003F5A6195388D20070C39A /* FIRViewController.m */,
-				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
-				6003F594195388D20070C39A /* Supporting Files */,
+				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
+				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
 			);
 			path = iOS;
 			sourceTree = "<group>";
@@ -700,8 +702,8 @@
 				DE51B17B1F0D48AC0013853F /* Model */,
 				DE51B1B21F0D48AC0013853F /* Remote */,
 				DE51B1931F0D48AC0013853F /* SpecTests */,
-				DE51B1851F0D48AC0013853F /* Util */,
 				6003F5B6195388D20070C39A /* Supporting Files */,
+				DE51B1851F0D48AC0013853F /* Util */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -709,8 +711,8 @@
 		6003F5B6195388D20070C39A /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				6003F5B7195388D20070C39A /* Tests-Info.plist */,
 				6003F5B8195388D20070C39A /* InfoPlist.strings */,
+				6003F5B7195388D20070C39A /* Tests-Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -719,8 +721,8 @@
 			isa = PBXGroup;
 			children = (
 				8E002F4AD5D9B6197C940847 /* Firestore.podspec */,
-				D3CC3DC5338DCAF43A211155 /* README.md */,
 				12F4357299652983A615F886 /* LICENSE */,
+				D3CC3DC5338DCAF43A211155 /* README.md */,
 			);
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
@@ -728,12 +730,12 @@
 		AAEA2A72CFD1FA5AD34462F7 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */,
-				3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */,
 				69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */,
 				11984BA0A99D7A7ABA5B0D90 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig */,
 				05C3D82261C3BE976889FF09 /* Pods-Firestore_Example_iOS-SwiftBuildTest.debug.xcconfig */,
 				74ACEC3603BE58B57A7E8D4C /* Pods-Firestore_Example_iOS-SwiftBuildTest.release.xcconfig */,
+				3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */,
+				3F0992A4B83C60841C52E960 /* Pods-Firestore_Example_iOS.release.xcconfig */,
 				1277F98C20D2DF0867496976 /* Pods-Firestore_IntegrationTests_iOS.debug.xcconfig */,
 				F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */,
 				E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */,
@@ -813,6 +815,7 @@
 				5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */,
 				5492E0982021552C00B64F25 /* FSTLevelDBQueryCacheTests.mm */,
 				5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */,
+				132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */,
 				5492E08A2021552A00B64F25 /* FSTLocalSerializerTests.mm */,
 				5492E0912021552B00B64F25 /* FSTLocalStoreTests.h */,
 				5492E0832021552A00B64F25 /* FSTLocalStoreTests.mm */,
@@ -830,7 +833,6 @@
 				5492E0852021552A00B64F25 /* FSTRemoteDocumentCacheTests.h */,
 				5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */,
 				5492E0932021552B00B64F25 /* StringViewTests.mm */,
-				132E36BB104830BD806351AC /* FSTLevelDBTransactionTests.mm */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -838,12 +840,12 @@
 		DE51B17B1F0D48AC0013853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				54A0352320A3AEC3003E0143 /* field_transform_test.mm */,
 				5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */,
 				5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */,
 				5492E0B62021555100B64F25 /* FSTDocumentTests.mm */,
 				5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */,
 				5492E0B72021555100B64F25 /* FSTMutationTests.mm */,
+				54A0352320A3AEC3003E0143 /* field_transform_test.mm */,
 				54A0352220A3AEC3003E0143 /* transform_operations_test.mm */,
 			);
 			path = Model;
@@ -873,6 +875,7 @@
 			isa = PBXGroup;
 			children = (
 				5492E0382021401E00B64F25 /* FSTAssertTests.mm */,
+				7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */,
 				54E9281C1F33950B00C1953E /* FSTEventAccumulator.h */,
 				5492E0392021401F00B64F25 /* FSTEventAccumulator.mm */,
 				DE51B1881F0D48AC0013853F /* FSTHelpers.h */,
@@ -881,7 +884,6 @@
 				5491BC711FB44593008B3588 /* FSTIntegrationTestCase.mm */,
 				54E9282A1F339CAD00C1953E /* XCTestCase+Await.h */,
 				5492E0372021401E00B64F25 /* XCTestCase+Await.mm */,
-				7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -889,6 +891,7 @@
 		DE51B1931F0D48AC0013853F /* SpecTests */ = {
 			isa = PBXGroup;
 			children = (
+				DE51B19C1F0D48AC0013853F /* json */,
 				5492E02C20213FFB00B64F25 /* FSTLevelDBSpecTests.mm */,
 				5492E02F20213FFC00B64F25 /* FSTMemorySpecTests.mm */,
 				DE51B1961F0D48AC0013853F /* FSTMockDatastore.h */,
@@ -897,7 +900,6 @@
 				5492E03020213FFC00B64F25 /* FSTSpecTests.mm */,
 				DE51B19A1F0D48AC0013853F /* FSTSyncEngineTestDriver.h */,
 				5492E02E20213FFC00B64F25 /* FSTSyncEngineTestDriver.mm */,
-				DE51B19C1F0D48AC0013853F /* json */,
 			);
 			path = SpecTests;
 			sourceTree = "<group>";
@@ -905,7 +907,7 @@
 		DE51B19C1F0D48AC0013853F /* json */ = {
 			isa = PBXGroup;
 			children = (
-				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
+				DE51B1A71F0D48AC0013853F /* README.md */,
 				54DA129C1F315EE100DD57A1 /* collection_spec_test.json */,
 				54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */,
 				54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */,
@@ -914,9 +916,9 @@
 				54DA12A11F315EE100DD57A1 /* offline_spec_test.json */,
 				54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */,
 				54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */,
+				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
 				54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */,
 				54DA12A51F315EE100DD57A1 /* write_spec_test.json */,
-				DE51B1A71F0D48AC0013853F /* README.md */,
 			);
 			path = json;
 			sourceTree = "<group>";
@@ -964,10 +966,10 @@
 			isa = PBXGroup;
 			children = (
 				73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */,
-				6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */,
 				5492E070202154D600B64F25 /* FIRCursorTests.mm */,
 				5492E06C202154D500B64F25 /* FIRDatabaseTests.mm */,
 				5492E06A202154D500B64F25 /* FIRFieldsTests.mm */,
+				6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */,
 				5492E06B202154D500B64F25 /* FIRListenerRegistrationTests.mm */,
 				5492E069202154D500B64F25 /* FIRQueryTests.mm */,
 				5492E06E202154D600B64F25 /* FIRServerTimestampTests.mm */,
@@ -1148,9 +1150,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */,
-				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1159,18 +1161,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
-				54DA12A81F315EE100DD57A1 /* limbo_spec_test.json in Resources */,
-				54DA12AA1F315EE100DD57A1 /* listen_spec_test.json in Resources */,
-				54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */,
-				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
 				6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */,
-				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
-				54DA12AD1F315EE100DD57A1 /* persistence_spec_test.json in Resources */,
-				54DA12AB1F315EE100DD57A1 /* offline_spec_test.json in Resources */,
+				54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */,
 				54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */,
-				54DA12AC1F315EE100DD57A1 /* orderby_spec_test.json in Resources */,
+				54DA12A81F315EE100DD57A1 /* limbo_spec_test.json in Resources */,
 				54DA12A91F315EE100DD57A1 /* limit_spec_test.json in Resources */,
+				54DA12AA1F315EE100DD57A1 /* listen_spec_test.json in Resources */,
+				54DA12AB1F315EE100DD57A1 /* offline_spec_test.json in Resources */,
+				54DA12AC1F315EE100DD57A1 /* orderby_spec_test.json in Resources */,
+				54DA12AD1F315EE100DD57A1 /* persistence_spec_test.json in Resources */,
+				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
+				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
+				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1178,8 +1180,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE03B2DD1F2149D600A30B9C /* InfoPlist.strings in Resources */,
 				DE03B3631F215E1A00A30B9C /* CAcert.pem in Resources */,
+				DE03B2DD1F2149D600A30B9C /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1456,118 +1458,118 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */,
-				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
-				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
-				5492E0AF2021552D00B64F25 /* FSTReferenceSetTests.mm in Sources */,
-				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
-				5492E09E2021552D00B64F25 /* FSTEagerGarbageCollectorTests.mm in Sources */,
-				5492E0C62021557E00B64F25 /* FSTWatchChange+Testing.mm in Sources */,
-				5492E064202154B900B64F25 /* FSTQueryListenerTests.mm in Sources */,
-				B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */,
-				5492E03320213FFC00B64F25 /* FSTSyncEngineTestDriver.mm in Sources */,
-				AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */,
-				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
-				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
-				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
-				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
-				5492E063202154B900B64F25 /* FSTViewSnapshotTest.mm in Sources */,
-				54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */,
-				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
-				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
-				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
-				549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */,
-				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
-				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
-				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
-				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
-				B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */,
-				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,
-				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
-				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
-				5492E0B12021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm in Sources */,
-				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
-				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
-				5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */,
-				B6FB468E208F9BAB00554BA2 /* executor_libdispatch_test.mm in Sources */,
-				5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */,
-				B6FB4684208EA0EC00554BA2 /* async_queue_libdispatch_test.mm in Sources */,
-				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
-				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
-				54A0353020A3B3D8003E0143 /* statusor_test.cc in Sources */,
-				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
-				54A0352620A3AED0003E0143 /* field_transform_test.mm in Sources */,
-				5492E055202154AB00B64F25 /* FIRDocumentSnapshotTests.mm in Sources */,
-				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
-				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
-				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
-				5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */,
-				5492E0AC2021552D00B64F25 /* FSTMutationQueueTests.mm in Sources */,
-				5492E056202154AB00B64F25 /* FIRFieldPathTests.mm in Sources */,
-				5492E03220213FFC00B64F25 /* FSTMockDatastore.mm in Sources */,
-				ABC1D7E12023A40C00BA84F0 /* token_test.cc in Sources */,
-				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
-				AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */,
-				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
-				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
-				5492E051202154AA00B64F25 /* FIRQueryTests.mm in Sources */,
-				5492E054202154AB00B64F25 /* FIRFieldValueTests.mm in Sources */,
-				AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */,
-				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
-				546854AA20A36867004BDBD5 /* datastore_test.cc in Sources */,
-				5492E053202154AB00B64F25 /* FIRDocumentReferenceTests.mm in Sources */,
-				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
-				5492E0A32021552D00B64F25 /* FSTLocalSerializerTests.mm in Sources */,
-				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
-				B6FB4685208EA0F000554BA2 /* async_queue_std_test.cc in Sources */,
-				5492E0A22021552D00B64F25 /* FSTQueryCacheTests.mm in Sources */,
-				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
-				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
-				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
-				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
-				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
-				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
-				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
-				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
-				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
-				54A0352F20A3B3D8003E0143 /* status_test.cc in Sources */,
-				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
-				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
-				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,
-				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
-				AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */,
-				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
-				549CCA5220A36DBC00BCEB75 /* sorted_map_test.cc in Sources */,
-				5492E068202154B900B64F25 /* FSTQueryTests.mm in Sources */,
-				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
-				5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */,
-				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
-				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
-				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
-				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
-				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
-				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
-				5492E059202154AB00B64F25 /* FIRQuerySnapshotTests.mm in Sources */,
 				5492E050202154AA00B64F25 /* FIRCollectionReferenceTests.mm in Sources */,
-				ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */,
+				5492E053202154AB00B64F25 /* FIRDocumentReferenceTests.mm in Sources */,
+				5492E055202154AB00B64F25 /* FIRDocumentSnapshotTests.mm in Sources */,
+				5492E056202154AB00B64F25 /* FIRFieldPathTests.mm in Sources */,
+				5492E054202154AB00B64F25 /* FIRFieldValueTests.mm in Sources */,
+				5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */,
+				5492E052202154AB00B64F25 /* FIRGeoPointTests.mm in Sources */,
+				5492E059202154AB00B64F25 /* FIRQuerySnapshotTests.mm in Sources */,
+				5492E051202154AA00B64F25 /* FIRQueryTests.mm in Sources */,
+				5492E057202154AB00B64F25 /* FIRSnapshotMetadataTests.mm in Sources */,
+				B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */,
+				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
+				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
+				5492E03D2021401F00B64F25 /* FSTAssertTests.mm in Sources */,
+				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
+				7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */,
+				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
+				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
+				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
+				5492E09E2021552D00B64F25 /* FSTEagerGarbageCollectorTests.mm in Sources */,
+				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
+				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
+				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
+				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
+				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
+				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
+				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
+				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
+				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
+				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
+				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
-				54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */,
-				54131E9920AE076D001DF3FF /* hard_assert_test.cc in Sources */,
+				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
+				5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */,
+				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
+				132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */,
+				5492E0A32021552D00B64F25 /* FSTLocalSerializerTests.mm in Sources */,
+				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
+				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
+				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
+				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
+				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
 				5492E03420213FFC00B64F25 /* FSTMemorySpecTests.mm in Sources */,
+				5492E03220213FFC00B64F25 /* FSTMockDatastore.mm in Sources */,
+				5492E0AC2021552D00B64F25 /* FSTMutationQueueTests.mm in Sources */,
+				5492E0BE2021555100B64F25 /* FSTMutationTests.mm in Sources */,
+				5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */,
+				5492E0A22021552D00B64F25 /* FSTQueryCacheTests.mm in Sources */,
+				5492E064202154B900B64F25 /* FSTQueryListenerTests.mm in Sources */,
+				5492E068202154B900B64F25 /* FSTQueryTests.mm in Sources */,
+				5492E0AF2021552D00B64F25 /* FSTReferenceSetTests.mm in Sources */,
+				5492E0B12021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm in Sources */,
+				5492E0C92021557E00B64F25 /* FSTRemoteEventTests.mm in Sources */,
+				5492E0C72021557E00B64F25 /* FSTSerializerBetaTests.mm in Sources */,
+				5492E03520213FFC00B64F25 /* FSTSpecTests.mm in Sources */,
+				5492E03320213FFC00B64F25 /* FSTSyncEngineTestDriver.mm in Sources */,
+				DE2EF0881F3D0B6E003D0CDC /* FSTTreeSortedDictionaryTests.m in Sources */,
+				5492E063202154B900B64F25 /* FSTViewSnapshotTest.mm in Sources */,
+				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
+				5492E0C62021557E00B64F25 /* FSTWatchChange+Testing.mm in Sources */,
+				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
+				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
+				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
+				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,
+				54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */,
+				B6FB4684208EA0EC00554BA2 /* async_queue_libdispatch_test.mm in Sources */,
+				B6FB4685208EA0F000554BA2 /* async_queue_std_test.cc in Sources */,
+				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
+				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
 				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
-				549CCA5720A36E1F00BCEB75 /* field_mask_test.cc in Sources */,
-				5492E03D2021401F00B64F25 /* FSTAssertTests.mm in Sources */,
+				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
+				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				AB38D93020236E21000A432D /* database_info_test.cc in Sources */,
-				5492E052202154AB00B64F25 /* FIRGeoPointTests.mm in Sources */,
-				5492E0C72021557E00B64F25 /* FSTSerializerBetaTests.mm in Sources */,
+				546854AA20A36867004BDBD5 /* datastore_test.cc in Sources */,
+				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
+				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
+				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
+				B6FB468E208F9BAB00554BA2 /* executor_libdispatch_test.mm in Sources */,
+				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
 				B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */,
-				5492E03520213FFC00B64F25 /* FSTSpecTests.mm in Sources */,
-				5492E057202154AB00B64F25 /* FIRSnapshotMetadataTests.mm in Sources */,
+				549CCA5720A36E1F00BCEB75 /* field_mask_test.cc in Sources */,
+				B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */,
+				54A0352620A3AED0003E0143 /* field_transform_test.mm in Sources */,
+				AB356EF7200EA5EB0089B766 /* field_value_test.cc in Sources */,
+				ABC1D7E42024AFDE00BA84F0 /* firebase_credentials_provider_test.mm in Sources */,
+				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
+				73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */,
+				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
+				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
+				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
+				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
+				AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */,
+				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
+				AB380D04201BC6E400D97691 /* ordered_code_test.cc in Sources */,
+				549CCA5920A36E1F00BCEB75 /* precondition_test.cc in Sources */,
+				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
+				ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */,
+				549CCA5220A36DBC00BCEB75 /* sorted_map_test.cc in Sources */,
 				549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */,
-				5492E0BE2021555100B64F25 /* FSTMutationTests.mm in Sources */,
-				132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */,
+				54A0352F20A3B3D8003E0143 /* status_test.cc in Sources */,
+				54A0353020A3B3D8003E0143 /* statusor_test.cc in Sources */,
+				54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */,
+				AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */,
+				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
+				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,
+				ABF6506C201131F8005F2C74 /* timestamp_test.cc in Sources */,
+				ABC1D7E12023A40C00BA84F0 /* token_test.cc in Sources */,
+				54A0352720A3AED0003E0143 /* transform_operations_test.mm in Sources */,
+				549CCA5120A36DBC00BCEB75 /* tree_sorted_map_test.cc in Sources */,
+				ABC1D7DE2023A05300BA84F0 /* user_test.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1576,24 +1578,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
-				6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */,
-				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
-				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
-				5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
-				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
-				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
-				5492E0422021440500B64F25 /* FSTHelpers.mm in Sources */,
-				5492E041202143E700B64F25 /* FSTEventAccumulator.mm in Sources */,
-				5492E080202154EC00B64F25 /* FSTSmokeTests.mm in Sources */,
-				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
-				5492E081202154EC00B64F25 /* FSTStreamTests.mm in Sources */,
-				5492E074202154D600B64F25 /* FIRListenerRegistrationTests.mm in Sources */,
-				5492E082202154EC00B64F25 /* FSTDatastoreTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
-				5492E073202154D600B64F25 /* FIRFieldsTests.mm in Sources */,
-				5492E07F202154EC00B64F25 /* FSTTransactionTests.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,
+				5492E073202154D600B64F25 /* FIRFieldsTests.mm in Sources */,
+				6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */,
+				5492E074202154D600B64F25 /* FIRListenerRegistrationTests.mm in Sources */,
+				5492E072202154D600B64F25 /* FIRQueryTests.mm in Sources */,
+				5492E077202154D600B64F25 /* FIRServerTimestampTests.mm in Sources */,
+				5492E07A202154D600B64F25 /* FIRTypeTests.mm in Sources */,
+				5492E076202154D600B64F25 /* FIRValidationTests.mm in Sources */,
 				5492E078202154D600B64F25 /* FIRWriteBatchTests.mm in Sources */,
+				5492E082202154EC00B64F25 /* FSTDatastoreTests.mm in Sources */,
+				5492E041202143E700B64F25 /* FSTEventAccumulator.mm in Sources */,
+				5492E0422021440500B64F25 /* FSTHelpers.mm in Sources */,
+				5491BC731FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
+				5492E080202154EC00B64F25 /* FSTSmokeTests.mm in Sources */,
+				5492E081202154EC00B64F25 /* FSTStreamTests.mm in Sources */,
+				5492E07F202154EC00B64F25 /* FSTTransactionTests.mm in Sources */,
+				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
