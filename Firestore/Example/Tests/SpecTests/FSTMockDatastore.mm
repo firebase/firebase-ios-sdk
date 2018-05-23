@@ -16,6 +16,7 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"

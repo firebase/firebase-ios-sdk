@@ -67,12 +67,6 @@ class FormatArg : public absl::AlphaNum {
       : FormatArg{std::forward<T>(value), internal::FormatChoice<0>{}} {
   }
 
-#if __OBJC__
-  FormatArg(NSObject* object)  // NOLINT(runtime/explicit)
-      : AlphaNum{MakeStringView([object description])} {
-  }
-#endif
-
  private:
   /**
    * Creates a FormatArg from a boolean value, representing the string
@@ -86,6 +80,37 @@ class FormatArg : public absl::AlphaNum {
   FormatArg(T bool_value, internal::FormatChoice<0>)
       : AlphaNum{bool_value ? "true" : "false"} {
   }
+
+#if __OBJC__
+  /**
+   * Creates a FormatArg from any pointer to an object derived from NSObject.
+   */
+  template <
+      typename T,
+      typename = typename std::enable_if<std::is_base_of<NSObject, T>{}>::type>
+  FormatArg(T* object, internal::FormatChoice<0>)
+      : AlphaNum{MakeStringView([object description])} {
+  }
+
+  /**
+   * Creates a FormatArg from any Objective-C Class type. Objective-C Class
+   * types are a special struct that aren't of a type derived from NSObject.
+   */
+  FormatArg(Class object, internal::FormatChoice<0>)
+      : AlphaNum{MakeStringView(NSStringFromClass(object))} {
+  }
+
+  /**
+   * Creates a FormatArg from any id pointer. Note that instances of `id<Foo>`
+   * (which means "pointer conforming to the protocol Foo") do not match this
+   * without first casting to type `id`. There's no way to express a template of
+   * `id<T>` since `id<Foo>` isn't actually a C++ template and `id` isn't a
+   * parameterized C++ class.
+   */
+  FormatArg(id object, internal::FormatChoice<0>)
+      : AlphaNum{MakeStringView([object description])} {
+  }
+#endif
 
   /**
    * Creates a FormatArg from a character string literal. This is
