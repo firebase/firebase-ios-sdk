@@ -42,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
@@ -107,6 +108,13 @@ class SerializerTest : public ::testing::Test {
                        const v1beta1::BatchGetDocumentsResponse& proto) {
     ExpectSerializationRoundTrip(key, value, update_time, proto);
     ExpectDeserializationRoundTrip(key, value, update_time, proto);
+  }
+
+  void ExpectNoDocumentDeserializationRoundTrip(
+      const DocumentKey& key,
+      const SnapshotVersion& read_time,
+      const v1beta1::BatchGetDocumentsResponse& proto) {
+    ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
   }
 
   /**
@@ -279,8 +287,8 @@ class SerializerTest : public ::testing::Test {
     bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
     EXPECT_TRUE(ok);
 
-    // TODO(rsgowman): Right now, we only support Document (and don't support
-    // NoDocument). That should change in the next PR or so.
+    // Note that the client can only serialize Documents (and cannot serialize
+    // NoDocuments)
     EXPECT_TRUE(proto.has_found());
 
     // Slight weirdness: When we *encode* a document for sending it to the
@@ -303,8 +311,8 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const DocumentKey& key,
-      const FieldValue& value,
-      const SnapshotVersion& update_time,
+      const absl::optional<FieldValue> value,
+      const SnapshotVersion& version,  // either update_time or read_time
       const v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
@@ -316,13 +324,20 @@ class SerializerTest : public ::testing::Test {
     std::unique_ptr<MaybeDocument> actual_model =
         std::move(actual_model_status).ValueOrDie();
 
-    // TODO(rsgowman): Right now, we only support Document (and don't support
-    // NoDocument). That should change in the next PR or so.
-    EXPECT_EQ(MaybeDocument::Type::Document, actual_model->type());
-    Document* actual_doc_model = static_cast<Document*>(actual_model.get());
     EXPECT_EQ(key, actual_model->key());
-    EXPECT_EQ(value, actual_doc_model->data());
-    EXPECT_EQ(update_time, actual_model->version());
+    EXPECT_EQ(version, actual_model->version());
+    switch (actual_model->type()) {
+      case MaybeDocument::Type::Document: {
+        Document* actual_doc_model = static_cast<Document*>(actual_model.get());
+        EXPECT_EQ(value, actual_doc_model->data());
+        break;
+      }
+      case MaybeDocument::Type::NoDocument:
+        EXPECT_FALSE(value.has_value());
+        break;
+      case MaybeDocument::Type::Unknown:
+        FAIL() << "We somehow created an invalid model object";
+    }
   }
 
   std::string message_differences;
@@ -677,6 +692,25 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   TouchIgnoredBatchGetDocumentsResponseFields(&proto);
 
   ExpectRoundTrip(key, fields, update_time, proto);
+}
+
+TEST_F(SerializerTest, DecodesNoDocument) {
+  // We can't actually *encode* a NoDocument; the method exposed by the
+  // serializer requires both the document key and contents (as an ObjectValue,
+  // i.e. map.) The contents can be empty, but not missing.  As a result, this
+  // test will only verify the ability to decode a NoDocument.
+
+  DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
+  SnapshotVersion read_time =
+      SnapshotVersion{{/*seconds=*/1234, /*nanoseconds=*/5678}};
+
+  v1beta1::BatchGetDocumentsResponse proto;
+  proto.set_missing(serializer.EncodeKey(key));
+  google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
+  read_time_proto->set_seconds(read_time.timestamp().seconds());
+  read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
+
+  ExpectNoDocumentDeserializationRoundTrip(key, read_time, proto);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output

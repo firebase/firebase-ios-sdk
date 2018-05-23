@@ -499,45 +499,91 @@ Serializer::DecodeMaybeDocument(const uint8_t* bytes, size_t length) const {
 
 std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     Reader* reader) const {
-  Tag tag = reader->ReadTag();
   if (!reader->status().ok()) return nullptr;
 
-  // Ensure the tag matches the wire type
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
-    case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
-      if (tag.wire_type != PB_WT_STRING) {
-        reader->set_status(
-            Status(FirestoreErrorCode::DataLoss,
-                   "Input proto bytes cannot be parsed (mismatch between "
-                   "the wiretype and the field number (tag))"));
-      }
-      break;
+  // Initialize BatchGetDocumentsResponse fields to their default values
+  std::unique_ptr<MaybeDocument> found;
+  std::string missing;
+  // TODO(rsgowman): transaction
+  SnapshotVersion read_time = SnapshotVersion::None();
 
-    default:
-      reader->set_status(Status(
-          FirestoreErrorCode::DataLoss,
-          "Input proto bytes cannot be parsed (invalid field number (tag))"));
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return nullptr;
+
+    // Ensure the tag matches the wire type
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
+        if (tag.wire_type != PB_WT_STRING) {
+          reader->set_status(
+              Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (mismatch between "
+                     "the wiretype and the field number (tag))"));
+        }
+        break;
+
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
+        // TODO(rsgowman)
+        abort();
+
+      default:
+        reader->set_status(Status(
+            FirestoreErrorCode::DataLoss,
+            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+    }
+
+    if (!reader->status().ok()) return nullptr;
+
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+        // 'found' and 'missing' are part of a oneof. The proto docs claim that
+        // if both are set on the wire, the last one wins.
+        missing = "";
+
+        // TODO(rsgowman): If multiple 'found' values are found, we should merge
+        // them (rather than using the last one.)
+        found = reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
+            [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
+              return DecodeDocument(reader);
+            });
+        break;
+
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+        // 'found' and 'missing' are part of a oneof. The proto docs claim that
+        // if both are set on the wire, the last one wins.
+        found = nullptr;
+
+        missing = reader->ReadString();
+        break;
+
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
+        // TODO(rsgowman)
+        abort();
+
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
+        read_time = SnapshotVersion{
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+        break;
+
+      default:
+        // This indicates an internal error as we've already ensured that this
+        // is a valid field_number.
+        HARD_FAIL(
+            "Somehow got an unexpected field number (tag) after verifying that "
+            "the field number was expected.");
+    }
   }
 
-  if (!reader->status().ok()) return nullptr;
-
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
-      return reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
-          [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
-            return DecodeDocument(reader);
-          });
-    case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
-      // TODO(rsgowman): Right now, we only support Document (and don't support
-      // NoDocument). That should change in the next PR or so.
-      abort();
-    default:
-      // This indicates an internal error as we've already ensured that this is
-      // a valid field_number.
-      HARD_FAIL(
-          "Somehow got an unexpected field number (tag) after verifying that "
-          "the field number was expected.");
+  if (found != nullptr) {
+    return found;
+  } else if (!missing.empty()) {
+    return absl::make_unique<NoDocument>(DecodeKey(missing), read_time);
+  } else {
+    // Neither 'found' nor 'missing' fields were set.
+    // TODO(rsgowman): Handle the error case.
+    abort();
   }
 }
 
