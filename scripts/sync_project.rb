@@ -14,16 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Syncs Xcode project folder and target structure with the filesystem.
+# Syncs Xcode project folder and target structure with the filesystem. This
+# script finds all files on the filesystem that match the patterns supplied
+# below and changes the project to match what it found.
+#
+# Run this script after adding/removing tests to keep the project in sync.
 
 require 'pathname'
 
-# Note that xcodeproj-1.5.8 appears to be broken
+# Note that xcodeproj 1.5.8 appears to be broken
 # https://github.com/CocoaPods/Xcodeproj/issues/572
+gem 'xcodeproj', '!= 1.5.8'
 require 'xcodeproj'
 
 
 def main()
+  # Make all filenames relative to the project root.
+  Dir.chdir(File.join(File.dirname(__FILE__), '..'))
+
   sync_firestore()
 end
 
@@ -162,7 +170,7 @@ class Syncer
     t = TargetDef.new(name)
     @targets.push(t)
 
-    yield t
+    block.call(t)
   end
 
   # Synchronizes the filesystem with the project.
@@ -183,8 +191,8 @@ class Syncer
   #  2. Sync the global list of files with the targets.
   def sync()
     group_differ = GroupDiffer.new(@finder)
-    group_entries = group_differ.diff(@test_groups)
-    sync_groups(group_entries)
+    group_diffs = group_differ.diff(@test_groups)
+    sync_groups(group_diffs)
 
     @targets.each do |target_def|
       sync_target(target_def)
@@ -192,8 +200,8 @@ class Syncer
   end
 
   private
-  def sync_groups(entries)
-    entries.each do |entry|
+  def sync_groups(diff_entries)
+    diff_entries.each do |entry|
       if !entry.in_source && entry.in_target
         remove_from_project(entry.ref)
       end
@@ -401,16 +409,17 @@ class DiffEntry
 end
 
 
-# Diffs folder groups against the filesystem referenced by those folder groups.
+# Diffs folder groups against the filesystem directories referenced by those
+# folder groups.
 #
-# This performs the diff of only the files referred to by the project and acts
-# on the absolute paths of the entries either on the filesystem or in the
-# project. This avoids problems with seemingly arbitary additional groupings in
-# project structure, e.g. "Supporting Files" or "en.lproj" which either act as
-# aliases for the parent or have folders that are omitted from the project
-# view. Processing the diff this way allows these warts to be tolerated, even
-# if they won't necessarily be recreated if an artifact is added to the
-# filesystem.
+# This performs the diff starting from the directories referenced by the test
+# groups in the project, finding files contained within them. When comparing
+# the files it finds against the project this acts on absolute paths to avoid
+# problems with arbitary additional groupings in project structure that are
+# standard, e.g. "Supporting Files" or "en.lproj" which either act as aliases
+# for the parent or are folders that are omitted from the project view.
+# Processing the diff this way allows these warts to be tolerated, even if they
+# won't necessarily be recreated if an artifact is added to the filesystem.
 class GroupDiffer
   def initialize(dir_lister)
     @dir_lister = dir_lister
@@ -430,12 +439,9 @@ class GroupDiffer
   # Returns:
   # A list of DiffEntry objects, one for each test found. If the test exists on
   # the filesystem, :in_source will be true. If the test exists in the project
-  # :in_target will be true. If the file is in the project, :ref will be set to
-  # the PBXFileReference naming the file.
-  def diff(groups)
-    groups.each do |group|
-      diff_project_files(group)
-    end
+  # :in_target will be true and :ref will be set to the PBXFileReference naming
+  # the file.
+  def diff(groups) groups.each do |group| diff_project_files(group) end
 
     return @entries.values.sort { |a, b| a.path.basename <=> b.path.basename }
   end
