@@ -840,12 +840,12 @@
 		DE51B17B1F0D48AC0013853F /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				54A0352320A3AEC3003E0143 /* field_transform_test.mm */,
 				5492E0B22021555000B64F25 /* FSTDocumentKeyTests.mm */,
 				5492E0B32021555100B64F25 /* FSTDocumentSetTests.mm */,
 				5492E0B62021555100B64F25 /* FSTDocumentTests.mm */,
 				5492E0B82021555100B64F25 /* FSTFieldValueTests.mm */,
 				5492E0B72021555100B64F25 /* FSTMutationTests.mm */,
+				54A0352320A3AEC3003E0143 /* field_transform_test.mm */,
 				54A0352220A3AEC3003E0143 /* transform_operations_test.mm */,
 			);
 			path = Model;
@@ -907,6 +907,7 @@
 		DE51B19C1F0D48AC0013853F /* json */ = {
 			isa = PBXGroup;
 			children = (
+				DE51B1A71F0D48AC0013853F /* README.md */,
 				54DA129C1F315EE100DD57A1 /* collection_spec_test.json */,
 				54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */,
 				54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */,
@@ -915,7 +916,6 @@
 				54DA12A11F315EE100DD57A1 /* offline_spec_test.json */,
 				54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */,
 				54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */,
-				DE51B1A71F0D48AC0013853F /* README.md */,
 				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
 				54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */,
 				54DA12A51F315EE100DD57A1 /* write_spec_test.json */,

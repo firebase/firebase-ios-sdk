@@ -390,7 +390,18 @@ def sort_group(group)
     sort_group(child)
   end
 
-  group.sort(:groups_position => :above)
+  group.children.sort! do |a, b|
+    # Sort groups first
+    if a.isa == 'PBXGroup' && b.isa != 'PBXGroup'
+      -1
+    elsif a.isa != 'PBXGroup' && b.isa == 'PBXGroup'
+      1
+    elsif a.display_name && b.display_name
+      File.basename(a.display_name) <=> File.basename(b.display_name)
+    else
+      0
+    end
+  end
 end
 
 
