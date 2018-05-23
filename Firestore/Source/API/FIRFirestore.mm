@@ -292,6 +292,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
+  if ([collectionPath containsString:@"//"]) {
+    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.",
+                            collectionPath);
+  }
+
   [self ensureClientConfigured];
   const ResourcePath path = ResourcePath::FromString(util::MakeStringView(collectionPath));
   return [FIRCollectionReference referenceWithPath:path firestore:self];
@@ -301,6 +306,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   if (!documentPath) {
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
+  if ([documentPath containsString:@"//"]) {
+    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.", documentPath);
+  }
+
   [self ensureClientConfigured];
   const ResourcePath path = ResourcePath::FromString(util::MakeStringView(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];
