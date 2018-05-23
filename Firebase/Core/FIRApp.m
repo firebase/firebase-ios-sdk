@@ -30,6 +30,7 @@ NSString *const kFIRServiceCrash = @"Crash";
 NSString *const kFIRServiceDatabase = @"Database";
 NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
 NSString *const kFIRServiceFirestore = @"Firestore";
+NSString *const kFIRServiceFunctions = @"Functions";
 NSString *const kFIRServiceInstanceID = @"InstanceID";
 NSString *const kFIRServiceInvites = @"Invites";
 NSString *const kFIRServiceMessaging = @"Messaging";
