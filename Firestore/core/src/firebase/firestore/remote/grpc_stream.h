@@ -34,6 +34,9 @@
 
 #include <memory>
 
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -74,14 +77,47 @@ oneof response_type {
 //
 // write stream
 
+namespace internal {
+
+// Contains operations that are still delegated to Objective-C, notably proto
+// parsing.
+class ObjcBridge {
+ public:
+  explicit ObjcBridge(FSTSerializerBeta* serializer) : serializer_{serializer} {
+  }
+
+  std::unique_ptr<grpc::ClientContext> CreateContext(const model::DatabaseId& database_id,
+                                    const absl::string_view token) const;
+
+  grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
+
+  // TODO(StatusOr)
+  template <typename Proto>
+  Proto ToProto(const grpc::ByteBuffer& buffer) {
+    NSError* error;
+    return [Proto parseFromData:ToNsData(buffer) error:&error];
+  }
+
+ private:
+  grpc::ByteBuffer ToByteBuffer(NSData* data) const;
+  NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
+
+  FSTSerializerBeta* serializer_;
+};
+
+} // internal
+
 class WatchStream {
  public:
   WatchStream(std::unique_ptr<util::internal::Executor> executor,
               const core::DatabaseInfo& database_info,
-              auth::CredentialsProvider* credentials_provider);
+              auth::CredentialsProvider* credentials_provider,
+                      FSTSerializerBeta* serializer);
 
   void Start();
   // TODO: Close
+
+  void WatchQuery(FSTQueryData * query);
 
  private:
   enum class State {
@@ -101,8 +137,9 @@ class WatchStream {
   std::unique_ptr<util::internal::Executor> executor_;
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
+  internal::ObjcBridge objc_bridge_;
 
-  std::shared_ptr<grpc::ClientContext> context_;
+  std::unique_ptr<grpc::ClientContext> context_;
   grpc::GenericStub stub_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   grpc::CompletionQueue queue_;
