@@ -27,8 +27,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeMessaging003 = 2003,  // I-FCM002003
   kFIRMessagingMessageCodeMessaging004 = 2004,  // I-FCM002004
   kFIRMessagingMessageCodeMessaging005 = 2005,  // I-FCM002005
-  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006 - no longer used
-  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007 - no longer used
+  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006
+  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007
   kFIRMessagingMessageCodeMessaging008 = 2008,  // I-FCM002008 - no longer used
   kFIRMessagingMessageCodeMessaging009 = 2009,  // I-FCM002009
   kFIRMessagingMessageCodeMessaging010 = 2010,  // I-FCM002010

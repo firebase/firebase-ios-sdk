@@ -693,6 +693,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
               completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
+    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging006,
+                             @"Format '%@' is deprecated. Only '%@' should be used in "
+                             @"subscribeToTopic.", topic, normalizeTopic);
+    }
     if (normalizeTopic.length) {
       [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
     } else {
@@ -714,6 +719,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging007,
+                             @"Format '%@' is deprecated. Only '%@' should be used in "
+                             @"unsubscribeFromTopic.", topic, normalizeTopic);
+    }
     if (normalizeTopic.length) {
       [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
     } else {
