@@ -20,9 +20,69 @@
 namespace firebase {
 namespace firestore {
 
+class ListenerRegistrationInternal;
+
 /** Represents a listener that can be removed by calling remove. */
-// TODO(zxu123): add more methods to complete the class and make it useful.
-class ListenerRegistration {};
+class ListenerRegistration {
+ public:
+  /**
+   * @brief Default constructor. This creates a no-op instance.
+   */
+  ListenerRegistration();
+
+  /**
+   * @brief Copy constructor. It's totally okay to copy ListenerRegistration
+   * instances.
+   *
+   * @param[in] registration ListenerRegistration to copy from.
+   */
+  ListenerRegistration(const ListenerRegistration& registration);
+
+  /**
+   * @brief Move constructor. Moving is an efficient operation for
+   * ListenerRegistration instances.
+   *
+   * @param[in] registration ListenerRegistration to move data from.
+   */
+  ListenerRegistration(ListenerRegistration&& registration);
+
+  ~ListenerRegistration();
+
+  /**
+   * @brief Copy assignment operator. It's totally okay to copy
+   * ListenerRegistration instances.
+   *
+   * @param[in] registration ListenerRegistration to copy from.
+   *
+   * @returns Reference to the destination ListenerRegistration.
+   */
+  ListenerRegistration& operator=(const ListenerRegistration& registration);
+
+  /**
+   * @brief Move assignment operator. Moving is an efficient operation for
+   * ListenerRegistration instances.
+   *
+   * @param[in] registration ListenerRegistration to move data from.
+   *
+   * @returns Reference to the destination ListenerRegistration.
+   */
+  ListenerRegistration& operator=(ListenerRegistration&& registration);
+
+  /**
+   * Removes the listener being tracked by this ListenerRegistration. After the
+   * initial call, subsequent calls have no effect.
+   */
+  void Remove();
+
+ private:
+  friend class DocumentReferenceInternal;
+  friend class ListenerRegistrationInternal;
+  friend class FirestoreInternal;
+
+  explicit ListenerRegistration(ListenerRegistrationInternal* internal);
+
+  ListenerRegistrationInternal* internal_ = nullptr;
+};
 
 }  // namespace firestore
 }  // namespace firebase
