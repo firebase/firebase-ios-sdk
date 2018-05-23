@@ -230,10 +230,10 @@ class SerializerTest : public ::testing::Test {
   /**
    * Creates entries in the proto that we don't care about.
    *
-   * We ignore transaction and create time in our serializer. We never set them,
-   * and never read them (other than to throw them away). But the server could
-   * (and probably does) set them, so we need to be able to discard them
-   * properly. The ExpectRoundTrip deals with this asymmetry.
+   * We ignore certain fields in our serializer. We never set them, and never
+   * read them (other than to throw them away). But the server could (and
+   * probably does) set them, so we need to be able to discard them properly.
+   * The ExpectRoundTrip deals with this asymmetry.
    *
    * This method adds these ignored fields to the proto.
    */
