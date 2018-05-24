@@ -19,10 +19,10 @@
 
 #include <grpc/grpc.h>
 #include <grpcpp/client_context.h>
+#include <grpcpp/completion_queue.h>
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/support/byte_buffer.h>
-#include <grpcpp/completion_queue.h>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
@@ -34,8 +34,8 @@
 
 #include <memory>
 
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 namespace firebase {
 namespace firestore {
@@ -86,8 +86,9 @@ class ObjcBridge {
   explicit ObjcBridge(FSTSerializerBeta* serializer) : serializer_{serializer} {
   }
 
-  std::unique_ptr<grpc::ClientContext> CreateContext(const model::DatabaseId& database_id,
-                                    const absl::string_view token) const;
+  std::unique_ptr<grpc::ClientContext> CreateContext(
+      const model::DatabaseId& database_id,
+      const absl::string_view token) const;
 
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
 
@@ -105,19 +106,49 @@ class ObjcBridge {
   FSTSerializerBeta* serializer_;
 };
 
-} // internal
+class BufferedWriter {
+ public:
+  // explicit BufferedWriter(grpc::GenericClientAsyncReaderWriter* const call) : call_{call} {
+  // }
+  void SetCall(grpc::GenericClientAsyncReaderWriter* const call) { call_ = call; }
+  void Write(grpc::ByteBuffer&& bytes);
+
+ private:
+  using FuncT = std::function<void()>;
+
+  void TryWrite();
+  FuncT* CreateContinuation();
+
+  grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
+  std::vector<grpc::ByteBuffer> buffer_;
+  bool has_pending_write_ = false;
+};
+
+class GrpcQueue {
+ public:
+  GrpcQueue(grpc::CompletionQueue* grpc_queue,
+            std::unique_ptr<util::internal::Executor> own_executor,
+            util::internal::Executor* callback_executor);
+
+ private:
+  grpc::CompletionQueue* grpc_queue_;
+  std::unique_ptr<util::internal::Executor> own_executor_;
+  util::internal::Executor* callback_executor_;
+};
+
+}  // namespace internal
 
 class WatchStream {
  public:
   WatchStream(std::unique_ptr<util::internal::Executor> executor,
               const core::DatabaseInfo& database_info,
               auth::CredentialsProvider* credentials_provider,
-                      FSTSerializerBeta* serializer);
+              FSTSerializerBeta* serializer);
 
   void Start();
   // TODO: Close
 
-  void WatchQuery(FSTQueryData * query);
+  void WatchQuery(FSTQueryData* query);
 
  private:
   enum class State {
@@ -137,12 +168,15 @@ class WatchStream {
   std::unique_ptr<util::internal::Executor> executor_;
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
-  internal::ObjcBridge objc_bridge_;
 
   std::unique_ptr<grpc::ClientContext> context_;
   grpc::GenericStub stub_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   grpc::CompletionQueue queue_;
+
+  internal::ObjcBridge objc_bridge_;
+  internal::BufferedWriter buffered_writer_;
+  internal::GrpcQueue polling_queue_;
 };
 
 }  // namespace remote
