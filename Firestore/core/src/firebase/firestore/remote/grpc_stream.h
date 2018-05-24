@@ -162,6 +162,7 @@ class WatchStream {
 
   void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
   grpc::GenericStub CreateStub() const;
+  std::unique_ptr<util::internal::Executor> CreateExecutor() const;
 
   State state_{State::Initial};
 

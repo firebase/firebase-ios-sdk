@@ -19,7 +19,9 @@
 #include <grpcpp/create_channel.h>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/Source/Remote/FSTDatastore.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -96,7 +98,6 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
       own_executor_{std::move(own_executor)},
       callback_executor_{callback_executor} {
   own_executor_->Execute([this] {
-    // std::function<void()>* func = nullptr;
     void* tag = nullptr;
     bool ok = false;
     while (grpc_queue_->Next(&tag, &ok)) {
@@ -109,7 +110,7 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
   });
 }
 
-}
+}  // namespace internal
 
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
@@ -126,8 +127,14 @@ WatchStream::WatchStream(std::unique_ptr<util::internal::Executor> executor,
       credentials_provider_{credentials_provider},
       stub_{CreateStub()},
       objc_bridge_{serializer},
-      polling_queue_{&queue_, nullptr, executor.get()} {
+      polling_queue_{&queue_, CreateExecutor(), executor.get()} {
   Start();
+}
+
+std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() const {
+  const auto queue = dispatch_queue_create(
+      "com.google.firebase.firestore.watchstream", DISPATCH_QUEUE_SERIAL);
+  return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
 }
 
 void WatchStream::Start() {
