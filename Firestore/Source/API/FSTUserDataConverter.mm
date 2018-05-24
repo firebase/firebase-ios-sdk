@@ -29,7 +29,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -39,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -532,8 +532,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
-  FSTAssert(parsed, @"Parsed data should not be nil.");
-  FSTAssert(context.fieldTransforms->empty(), @"Field transforms should have been disallowed.");
+  HARD_ASSERT(parsed, "Parsed data should not be nil.");
+  HARD_ASSERT(context.fieldTransforms->empty(), "Field transforms should have been disallowed.");
   return parsed;
 }
 
@@ -626,8 +626,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // deleted.
       [context appendToFieldMaskWithFieldPath:*context.path];
     } else if (context.dataSource == FSTUserDataSourceUpdate) {
-      FSTAssert(context.path->size() > 0,
-                @"FieldValue.delete() at the top level should have already been handled.");
+      HARD_ASSERT(context.path->size() > 0,
+                  "FieldValue.delete() at the top level should have already been handled.");
       FSTThrowInvalidArgument(
           @"FieldValue.delete() can only appear at the top level of your "
            "update data%@",
@@ -662,7 +662,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                transformOperation:std::move(array_remove)];
 
   } else {
-    FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([fieldValue class]));
+    HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));
   }
 }
 
@@ -741,7 +741,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
       default:
         // All documented codes should be handled above, so this shouldn't happen.
-        FSTCFail(@"Unknown NSNumber objCType %s on %@", cType, input);
+        HARD_FAIL("Unknown NSNumber objCType %s on %s", cType, input);
     }
 
   } else if ([input isKindOfClass:[NSString class]]) {
@@ -780,8 +780,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       if (context.dataSource == FSTUserDataSourceMergeSet) {
         return nil;
       } else if (context.dataSource == FSTUserDataSourceUpdate) {
-        FSTAssert(context.path->size() > 0,
-                  @"FieldValue.delete() at the top level should have already been handled.");
+        HARD_ASSERT(context.path->size() > 0,
+                    "FieldValue.delete() at the top level should have already been handled.");
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only appear at the top level of your update data%@",
             [context fieldDescription]);
@@ -808,7 +808,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // Return nil so this value is omitted from the parsed result.
       return nil;
     } else {
-      FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([input class]));
+      HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([input class]));
     }
 
   } else {
@@ -828,8 +828,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                       path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
     FSTFieldValue *parsedElement =
         [self parseData:element context:[context contextForArrayIndex:i]];
-    FSTAssert(parsedElement && context.fieldTransforms->size() == 0,
-              @"Failed to properly parse array transform element: %@", element);
+    HARD_ASSERT(parsedElement && context.fieldTransforms->size() == 0,
+                "Failed to properly parse array transform element: %s", element);
     results.push_back(parsedElement);
   }
   return results;

@@ -22,10 +22,10 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
@@ -444,14 +444,14 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 }
 
 - (void)addWatchChanges:(NSArray<FSTWatchChange *> *)watchChanges {
-  FSTAssert(!self.frozen, @"Trying to modify frozen FSTWatchChangeAggregator");
+  HARD_ASSERT(!self.frozen, "Trying to modify frozen FSTWatchChangeAggregator");
   for (FSTWatchChange *watchChange in watchChanges) {
     [self addWatchChange:watchChange];
   }
 }
 
 - (void)addWatchChange:(FSTWatchChange *)watchChange {
-  FSTAssert(!self.frozen, @"Trying to modify frozen FSTWatchChangeAggregator");
+  HARD_ASSERT(!self.frozen, "Trying to modify frozen FSTWatchChangeAggregator");
   if ([watchChange isKindOfClass:[FSTDocumentWatchChange class]]) {
     [self addDocumentChange:(FSTDocumentWatchChange *)watchChange];
   } else if ([watchChange isKindOfClass:[FSTWatchTargetChange class]]) {
@@ -459,7 +459,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   } else if ([watchChange isKindOfClass:[FSTExistenceFilterWatchChange class]]) {
     [self addExistenceFilterChange:(FSTExistenceFilterWatchChange *)watchChange];
   } else {
-    FSTFail(@"Unknown watch change: %@", watchChange);
+    HARD_FAIL("Unknown watch change: %s", watchChange);
   }
 }
 
@@ -561,7 +561,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
         // We need to keep track of removed targets to we can post-filter and remove any target
         // changes.
         [self recordResponseForTargetID:targetID];
-        FSTAssert(!targetChange.cause, @"WatchChangeAggregator does not handle errored targets.");
+        HARD_ASSERT(!targetChange.cause, "WatchChangeAggregator does not handle errored targets.");
         break;
       case FSTWatchTargetChangeStateCurrent:
         if ([self isActiveTarget:targetID]) {

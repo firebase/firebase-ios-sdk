@@ -30,7 +30,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #import "Firestore/Example/Tests/Core/FSTSyncEngine+Testing.h"
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
@@ -40,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -183,9 +183,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)validateUsage {
   // We could relax this if we found a reason to.
-  FSTAssert(self.events.count == 0,
-            @"You must clear all pending events by calling"
-             " capturedEventsSinceLastCall before calling shutdown.");
+  HARD_ASSERT(self.events.count == 0,
+              "You must clear all pending events by calling"
+              " capturedEventsSinceLastCall before calling shutdown.");
 }
 
 - (void)shutdown {
@@ -197,11 +197,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)validateNextWriteSent:(FSTMutation *)expectedWrite {
   NSArray<FSTMutation *> *request = [self.datastore nextSentWrite];
   // Make sure the write went through the pipe like we expected it to.
-  FSTAssert(request.count == 1, @"Only single mutation requests are supported at the moment");
+  HARD_ASSERT(request.count == 1, "Only single mutation requests are supported at the moment");
   FSTMutation *actualWrite = request[0];
-  FSTAssert([actualWrite isEqual:expectedWrite],
-            @"Mock datastore received write %@ but first outstanding mutation was %@", actualWrite,
-            expectedWrite);
+  HARD_ASSERT([actualWrite isEqual:expectedWrite],
+              "Mock datastore received write %s but first outstanding mutation was %s", actualWrite,
+              expectedWrite);
   LOG_DEBUG("A write was sent: %s", actualWrite);
 }
 
@@ -347,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.datastore failWatchStreamWithError:error];
     // Unlike web, stream should re-open synchronously (if we have any listeners)
     if (self.queryListeners.count > 0) {
-      FSTAssert(self.datastore.isWatchStreamOpen, @"Watch stream is open");
+      HARD_ASSERT(self.datastore.isWatchStreamOpen, "Watch stream is open");
     }
   }];
 }

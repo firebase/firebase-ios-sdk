@@ -24,12 +24,12 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -121,7 +121,7 @@ using firebase::firestore::model::SnapshotVersion;
  * to be called.
  */
 - (void)awaitNotificationFromBlock:(void (^)(void))block {
-  FSTAssert(_expectation == nil, @"Previous expectation still active");
+  HARD_ASSERT(_expectation == nil, "Previous expectation still active");
   XCTestExpectation *expectation =
       [self.testCase expectationWithDescription:@"awaitCallbackInBlock"];
   _expectation = expectation;

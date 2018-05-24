@@ -22,8 +22,9 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Model/FSTDocument.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -111,8 +112,8 @@ NS_ASSUME_NONNULL_BEGIN
                       completion(nil, error);
                       return;
                     }
-                    FSTAssert(documents.count == 1,
-                              @"Mismatch in docs returned from document lookup.");
+                    HARD_ASSERT(documents.count == 1,
+                                "Mismatch in docs returned from document lookup.");
                     FSTMaybeDocument *internalDoc = documents.firstObject;
                     if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
                       completion(nil, nil);

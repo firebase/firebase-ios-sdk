@@ -40,7 +40,6 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -140,7 +139,7 @@ FSTFieldValue *FSTTestFieldValue(id _Nullable value) {
 
 FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data) {
   FSTFieldValue *wrapped = FSTTestFieldValue(data);
-  FSTCAssert([wrapped isKindOfClass:[FSTObjectValue class]], @"Unsupported value: %@", data);
+  HARD_ASSERT([wrapped isKindOfClass:[FSTObjectValue class]], "Unsupported value: %s", data);
   return (FSTObjectValue *)wrapped;
 }
 
@@ -195,15 +194,15 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
   } else if ([opString isEqualToString:@"array_contains"]) {
     op = FSTRelationFilterOperatorArrayContains;
   } else {
-    FSTCFail(@"Unsupported operator type: %@", opString);
+    HARD_FAIL("Unsupported operator type: %s", opString);
   }
 
   FSTFieldValue *data = FSTTestFieldValue(value);
   if ([data isEqual:[FSTDoubleValue nanValue]]) {
-    FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with NAN.");
+    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with NAN.");
     return [[FSTNanFilter alloc] initWithField:path];
   } else if ([data isEqual:[FSTNullValue nullValue]]) {
-    FSTCAssert(op == FSTRelationFilterOperatorEqual, @"Must use == with Null.");
+    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with Null.");
     return [[FSTNullFilter alloc] initWithField:path];
   } else {
     return [FSTRelationFilter filterWithField:path filterOperator:op value:data];
@@ -218,7 +217,7 @@ FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction)
   } else if ([direction isEqualToString:@"desc"]) {
     ascending = NO;
   } else {
-    FSTCFail(@"Unsupported direction: %@", direction);
+    HARD_FAIL("Unsupported direction: %s", direction);
   }
   return [FSTSortOrder sortOrderWithFieldPath:path ascending:ascending];
 }
@@ -272,8 +271,8 @@ FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSSt
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   FSTParsedUpdateData *result = [converter parsedUpdateData:data];
-  FSTCAssert(result.data.value.count == 0,
-             @"FSTTestTransformMutation() only expects transforms; no other data");
+  HARD_ASSERT(result.data.value.count == 0,
+              "FSTTestTransformMutation() only expects transforms; no other data");
   return [[FSTTransformMutation alloc] initWithKey:key
                                    fieldTransforms:std::move(result.fieldTransforms)];
 }

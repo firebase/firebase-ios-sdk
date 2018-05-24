@@ -30,7 +30,7 @@ NSException *FSTInvalidUsage(NSString *exceptionName, NSString *format, ...);
  * invalid method arguments.
  *
  * For recoverable runtime errors, use NSError**.
- * For internal programming errors, use FSTFail().
+ * For internal programming errors, use HARD_FAIL().
  */
 #define FSTThrowInvalidUsage(exceptionName, format, ...)          \
   do {                                                            \

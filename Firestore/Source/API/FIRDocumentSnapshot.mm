@@ -26,11 +26,11 @@
 #import "Firestore/Source/API/FIRSnapshotMetadata+Internal.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -275,7 +275,7 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
 
 - (NSDictionary<NSString *, id> *)data {
   NSDictionary<NSString *, id> *data = [super data];
-  FSTAssert(data, @"Document in a QueryDocumentSnapshot should exist");
+  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
   return data;
 }
 
@@ -283,7 +283,7 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
     (FIRServerTimestampBehavior)serverTimestampBehavior {
   NSDictionary<NSString *, id> *data =
       [super dataWithServerTimestampBehavior:serverTimestampBehavior];
-  FSTAssert(data, @"Document in a QueryDocumentSnapshot should exist");
+  HARD_ASSERT(data, "Document in a QueryDocumentSnapshot should exist");
   return data;
 }
 

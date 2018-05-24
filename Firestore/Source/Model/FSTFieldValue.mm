@@ -21,12 +21,12 @@
 
 #import "Firestore/Source/API/FIRGeoPoint+Internal.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -99,8 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
   if (self.typeOrder > other.typeOrder) {
     return NSOrderedDescending;
   } else {
-    FSTAssert(self.typeOrder < other.typeOrder,
-              @"defaultCompare should not be used for values of same type.");
+    HARD_ASSERT(self.typeOrder < other.typeOrder,
+                "defaultCompare should not be used for values of same type.");
     return NSOrderedAscending;
   }
 }
@@ -231,8 +231,8 @@ NS_ASSUME_NONNULL_BEGIN
       if ([other isKindOfClass:[FSTDoubleValue class]]) {
         return WrapCompare(thisDouble, ((FSTDoubleValue *)other).internalValue);
       } else {
-        FSTAssert([other isKindOfClass:[FSTIntegerValue class]], @"Unknown number value: %@",
-                  other);
+        HARD_ASSERT([other isKindOfClass:[FSTIntegerValue class]], "Unknown number value: %s",
+                    other);
         auto result = CompareMixedNumber(thisDouble, ((FSTIntegerValue *)other).internalValue);
         return static_cast<NSComparisonResult>(result);
       }
@@ -241,7 +241,8 @@ NS_ASSUME_NONNULL_BEGIN
       if ([other isKindOfClass:[FSTIntegerValue class]]) {
         return WrapCompare(thisInt, ((FSTIntegerValue *)other).internalValue);
       } else {
-        FSTAssert([other isKindOfClass:[FSTDoubleValue class]], @"Unknown number value: %@", other);
+        HARD_ASSERT([other isKindOfClass:[FSTDoubleValue class]], "Unknown number value: %s",
+                    other);
         double otherDouble = ((FSTDoubleValue *)other).internalValue;
         auto result = ReverseOrder(CompareMixedNumber(otherDouble, thisInt));
         return static_cast<NSComparisonResult>(result);
@@ -499,7 +500,7 @@ struct Comparator<NSString *> {
     case FSTServerTimestampBehaviorPrevious:
       return self.previousValue ? [self.previousValue valueWithOptions:options] : [NSNull null];
     default:
-      FSTFail(@"Unexpected server timestamp option: %ld", (long)options.serverTimestampBehavior);
+      HARD_FAIL("Unexpected server timestamp option: %s", options.serverTimestampBehavior);
   }
 }
 
@@ -825,7 +826,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 
 - (FSTObjectValue *)objectBySettingValue:(FSTFieldValue *)value
                                  forPath:(const FieldPath &)fieldPath {
-  FSTAssert(fieldPath.size() > 0, @"Cannot set value with an empty path");
+  HARD_ASSERT(fieldPath.size() > 0, "Cannot set value with an empty path");
 
   NSString *childName = util::WrapNSString(fieldPath.first_segment());
   if (fieldPath.size() == 1) {
@@ -849,7 +850,7 @@ static const NSComparator StringComparator = ^NSComparisonResult(NSString *left,
 }
 
 - (FSTObjectValue *)objectByDeletingPath:(const FieldPath &)fieldPath {
-  FSTAssert(fieldPath.size() > 0, @"Cannot delete an empty path");
+  HARD_ASSERT(fieldPath.size() > 0, "Cannot delete an empty path");
   NSString *childName = util::WrapNSString(fieldPath.first_segment());
   if (fieldPath.size() == 1) {
     return [[FSTObjectValue alloc]

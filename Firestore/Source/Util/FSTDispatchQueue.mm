@@ -19,11 +19,11 @@
 #include <memory>
 #include <utility>
 
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 using firebase::firestore::util::AsyncQueue;
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
     case TimerId::OnlineStateTimeout:
       return converted;
     default:
-      FSTAssert(false, @"Unknown value of enum FSTTimerID.");
+      HARD_FAIL("Unknown value of enum FSTTimerID.");
   }
 }
 

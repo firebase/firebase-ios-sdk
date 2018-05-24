@@ -32,7 +32,6 @@
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
@@ -41,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
@@ -158,7 +158,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
     FIRFirestore *firestore = instances[key];
     if (!firestore) {
       NSString *projectID = app.options.projectID;
-      FSTAssert(projectID, @"FirebaseOptions.projectID cannot be nil.");
+      HARD_ASSERT(projectID, "FirebaseOptions.projectID cannot be nil.");
 
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
@@ -242,8 +242,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   @synchronized(self) {
     if (!_client) {
       // These values are validated elsewhere; this is just double-checking:
-      FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
-      FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
+      HARD_ASSERT(_settings.host, "FirestoreSettings.host cannot be nil.");
+      HARD_ASSERT(_settings.dispatchQueue, "FirestoreSettings.dispatchQueue cannot be nil.");
 
       if (!_settings.timestampsInSnapshotsEnabled) {
         LOG_WARN(

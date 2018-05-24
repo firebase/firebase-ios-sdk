@@ -38,13 +38,13 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::HashUser;
@@ -183,7 +183,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (FSTTargetID)listenToQuery:(FSTQuery *)query {
   [self assertDelegateExistsForSelector:_cmd];
-  FSTAssert(self.queryViewsByQuery[query] == nil, @"We already listen to query: %@", query);
+  HARD_ASSERT(self.queryViewsByQuery[query] == nil, "We already listen to query: %s", query);
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
@@ -192,8 +192,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-  FSTAssert(viewChange.limboChanges.count == 0,
-            @"View returned limbo docs before target ack from the server.");
+  HARD_ASSERT(viewChange.limboChanges.count == 0,
+              "View returned limbo docs before target ack from the server.");
 
   FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:query
                                                        targetID:queryData.targetID
@@ -211,7 +211,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self assertDelegateExistsForSelector:_cmd];
 
   FSTQueryView *queryView = self.queryViewsByQuery[query];
-  FSTAssert(queryView, @"Trying to stop listening to a query not found");
+  HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
 
   [self.localStore releaseQuery:query];
   [self.remoteStore stopListeningToTargetID:queryView.targetID];
@@ -257,7 +257,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
   [workerDispatchQueue verifyIsCurrentQueue];
-  FSTAssert(retries >= 0, @"Got negative number of retries for transaction");
+  HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
   FSTTransaction *transaction = [self.remoteStore transaction];
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     [workerDispatchQueue dispatchAsync:^{
@@ -303,7 +303,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
     if (iter == self->_limboKeysByTarget.end()) {
       FSTQueryView *qv = self.queryViewsByTarget[targetID];
-      FSTAssert(qv, @"Missing queryview for non-limbo query: %i", [targetID intValue]);
+      HARD_ASSERT(qv, "Missing queryview for non-limbo query: %s", [targetID intValue]);
       [targetChange.mapping filterUpdatesUsingExistingKeys:qv.view.syncedDocuments];
     } else {
       [remoteEvent synthesizeDeleteForLimboTargetChange:targetChange key:iter->second];
@@ -319,8 +319,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-        FSTAssert(viewChange.limboChanges.count == 0,
-                  @"OnlineState should not affect limbo documents.");
+        HARD_ASSERT(viewChange.limboChanges.count == 0,
+                    "OnlineState should not affect limbo documents.");
         if (viewChange.snapshot) {
           [newViewSnapshots addObject:viewChange.snapshot];
         }
@@ -360,7 +360,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
-    FSTAssert(queryView, @"Unknown targetId: %d", targetID);
+    HARD_ASSERT(queryView, "Unknown targetId: %s", targetID);
     [self.localStore releaseQuery:queryView.query];
     [self removeAndCleanupQuery:queryView];
     [self.delegate handleError:error forQuery:queryView.query];
@@ -408,8 +408,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 }
 
 - (void)assertDelegateExistsForSelector:(SEL)methodSelector {
-  FSTAssert(self.delegate, @"Tried to call '%@' before delegate was registered.",
-            NSStringFromSelector(methodSelector));
+  HARD_ASSERT(self.delegate, "Tried to call '%s' before delegate was registered.",
+              NSStringFromSelector(methodSelector));
 }
 
 - (void)removeAndCleanupQuery:(FSTQueryView *)queryView {
@@ -475,7 +475,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         break;
 
       default:
-        FSTFail(@"Unknown limbo change type: %ld", (long)limboChange.type);
+        HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
     }
   }
   [self garbageCollectLimboDocuments];
