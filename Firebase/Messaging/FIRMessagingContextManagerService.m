@@ -172,8 +172,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   if (userInfo.count) {
     notification.userInfo = userInfo;
   }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[UIApplication sharedApplication] scheduleLocalNotification:notification];
+#pragma clang diagnostic pop
 }
 
 + (NSDictionary *)parseDataFromMessage:(NSDictionary *)message {

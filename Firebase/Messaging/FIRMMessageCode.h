@@ -27,8 +27,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeMessaging003 = 2003,  // I-FCM002003
   kFIRMessagingMessageCodeMessaging004 = 2004,  // I-FCM002004
   kFIRMessagingMessageCodeMessaging005 = 2005,  // I-FCM002005
-  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006
-  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007
+  kFIRMessagingMessageCodeMessaging006 = 2006,  // I-FCM002006 - no longer used
+  kFIRMessagingMessageCodeMessaging007 = 2007,  // I-FCM002007 - no longer used
   kFIRMessagingMessageCodeMessaging008 = 2008,  // I-FCM002008 - no longer used
   kFIRMessagingMessageCodeMessaging009 = 2009,  // I-FCM002009
   kFIRMessagingMessageCodeMessaging010 = 2010,  // I-FCM002010
@@ -45,6 +45,7 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeSenderIDNotSuppliedForTokenDelete = 2021, // I-FCM002021
   kFIRMessagingMessageCodeAPNSTokenNotAvailableDuringTokenFetch = 2022, // I-FCM002022
   kFIRMessagingMessageCodeTokenDelegateMethodsNotImplemented = 2023, // I-FCM002023
+  kFIRMessagingMessageCodeTopicFormatIsDeprecated = 2024,
   // FIRMessagingClient.m
   kFIRMessagingMessageCodeClient000 = 4000,  // I-FCM004000
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004001
