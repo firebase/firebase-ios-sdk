@@ -93,7 +93,7 @@ BufferedWriter::FuncT* BufferedWriter::CreateContinuation() {
 
 GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
                      std::unique_ptr<util::internal::Executor> own_executor,
-                     util::internal::Executor* callback_executor)
+                    util::AsyncQueue* callback_executor)
     : grpc_queue_{grpc_queue},
       own_executor_{std::move(own_executor)},
       callback_executor_{callback_executor} {
@@ -101,7 +101,7 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
     void* tag = nullptr;
     bool ok = false;
     while (grpc_queue_->Next(&tag, &ok)) {
-      callback_executor_->Execute([tag] {
+      callback_executor_->Enqueue([tag] {
         auto func = static_cast<std::function<void()>*>(tag);
         (*func)();
         delete func;
@@ -118,16 +118,17 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 // using firebase::firestore::model::SnapshotVersion;
 
-WatchStream::WatchStream(std::unique_ptr<util::internal::Executor> executor,
+WatchStream::WatchStream(util::AsyncQueue* async_queue,
                          const DatabaseInfo& database_info,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer)
-    : executor_{std::move(executor)},
+    // : executor_{std::move(executor)},
+       :
       database_info_{&database_info},
       credentials_provider_{credentials_provider},
       stub_{CreateStub()},
       objc_bridge_{serializer},
-      polling_queue_{&queue_, CreateExecutor(), executor.get()} {
+      polling_queue_{&queue_, CreateExecutor(), async_queue} {
   Start();
 }
 
@@ -174,11 +175,21 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   call_ = stub_.PrepareCall(
       context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &queue_);
   buffered_writer_.SetCall(call_.get());
+  call_->StartCall(new std::function<void()>{[this] {
+      call_->Read(&last_read_message_, CreateContinuation());
+  }});
   // TODO: if !call_
   // callback filter
 
   state_ = State::Open;
   // notifystreamopen
+}
+
+std::function<void()>* WatchStream::CreateContinuation() {
+  // TODO: something with last_read_message_
+  return new std::function<void()>{[this] {
+    call_->Read(&last_read_message_, CreateContinuation());
+  }};
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {

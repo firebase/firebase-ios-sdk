@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 
@@ -64,18 +65,17 @@ oneof response_type {
 }
  */
 
-// compile protos
-// proto to slices vector
-// write
-// queue
 // read
 //
 // error
 // close
 // backoff
 // idle
+// enable/disable
+// state machine
+// notify caller
 //
-// write stream
+// WRITE STREAM
 
 namespace internal {
 
@@ -128,19 +128,19 @@ class GrpcQueue {
  public:
   GrpcQueue(grpc::CompletionQueue* grpc_queue,
             std::unique_ptr<util::internal::Executor> own_executor,
-            util::internal::Executor* callback_executor);
+            util::AsyncQueue* callback_executor);
 
  private:
   grpc::CompletionQueue* grpc_queue_;
   std::unique_ptr<util::internal::Executor> own_executor_;
-  util::internal::Executor* callback_executor_;
+  util::AsyncQueue* callback_executor_;
 };
 
 }  // namespace internal
 
 class WatchStream {
  public:
-  WatchStream(std::unique_ptr<util::internal::Executor> executor,
+  WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer);
@@ -164,9 +164,11 @@ class WatchStream {
   grpc::GenericStub CreateStub() const;
   std::unique_ptr<util::internal::Executor> CreateExecutor() const;
 
+  std::function<void()>* CreateContinuation();
+
   State state_{State::Initial};
 
-  std::unique_ptr<util::internal::Executor> executor_;
+  // std::unique_ptr<util::internal::Executor> executor_;
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
 
@@ -178,6 +180,7 @@ class WatchStream {
   internal::ObjcBridge objc_bridge_;
   internal::BufferedWriter buffered_writer_;
   internal::GrpcQueue polling_queue_;
+  grpc::ByteBuffer last_read_message_;
 };
 
 }  // namespace remote
