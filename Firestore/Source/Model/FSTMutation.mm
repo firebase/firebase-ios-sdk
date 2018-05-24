@@ -351,7 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // We only support transforms with precondition exists, so we can only apply it to an existing
   // document
-  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %",
+  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
               [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 

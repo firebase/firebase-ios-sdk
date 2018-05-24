@@ -461,7 +461,7 @@ using leveldb::WriteOptions;
       }
       HARD_FAIL(
           "Dangling document-mutation reference found: "
-          "Missing batch %@; seeking there found %s",
+          "Missing batch %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
