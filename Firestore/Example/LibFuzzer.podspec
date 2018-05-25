@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,39 +17,32 @@
 # linked when the pod is being created, but it will be available in
 # the fuzzing application. Hence, users of this Pod are required to
 # provide their main function similar to 'FuzzerMain.cpp'.
+# See the build script of libFuzzer for more details:
+# https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer/build.sh
 
 Pod::Spec.new do |s|
-  s.name             = 'LibFuzzer'
-  s.version          = '1.0'
-  s.summary          = 'libFuzzer for fuzz testing'
-  s.description      = <<-DESC
-Google's packaging of libFuzzer.
-                       DESC
-  s.homepage         = 'https://llvm.org/docs/LibFuzzer.html'
-  s.license          = { :type => 'BSD' }
-  s.authors          = 'Google, Inc.'
+  s.name           = 'LibFuzzer'
+  s.version        = '1.0'
+  s.summary        = 'libFuzzer for fuzz testing'
+  s.homepage       = 'https://llvm.org/docs/LibFuzzer.html'
+  s.license        = { :type => 'Apache' }
+  s.authors        = 'Google, Inc.'
 
   # Check out only libFuzzer folder.
-  s.source           = {
+  s.source         = {
     :svn => 'https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer'
   }
 
   # Add all source files, except for the FuzzerMain.cpp.
-  s.source_files = '*.{h,cpp,def}'
-  s.exclude_files = 'FuzzerMain.cpp'
+  s.source_files   = '*.{h,cpp,def}'
+  s.exclude_files  = 'FuzzerMain.cpp'
 
-  s.library = 'c++'
+  s.library        = 'c++'
 
   # Set the compiler flags to:
-  #   -c    Compile only, since linking requires 'LLVMFuzzerTestOneInput'
-  #   -g    Generate source-level debug information
-  #   -O2   For optimization
-  #   -std=c++11 Set the language standard to c++11
+  #   -c  Compile only, since linking requires 'LLVMFuzzerTestOneInput'
+  #   -g  Generate source-level debug information
   s.compiler_flags = '-c -g -O2 -std=c++11'
-
-  # Minimum deployment targets.
-  s.ios.deployment_target = '8.0'
-  s.osx.deployment_target  = '10.13'
 
   s.framework      = 'SystemConfiguration'
 end
