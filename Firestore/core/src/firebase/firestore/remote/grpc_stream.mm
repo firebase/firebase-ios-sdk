@@ -21,11 +21,14 @@
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/Source/Remote/FSTDatastore.h"
+#include "Firestore/Source/Remote/FSTStream.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+using firebase::firestore::model::SnapshotVersion;
 
 namespace internal {
 
@@ -44,9 +47,25 @@ grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTQueryData* query) const {
   return ToByteBuffer([request data]);
 }
 
+grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTTargetID target_id) const {
+  GCFSListenRequest* request = [GCFSListenRequest message];
+  request.database = [serializer_ encodedDatabaseID];
+  request.removeTarget = target_id;
+
+  return ToByteBuffer([request data]);
+}
+
 grpc::ByteBuffer ObjcBridge::ToByteBuffer(NSData* data) const {
   const grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
+}
+
+FSTWatchChange* ObjcBridge::GetWatchChange(GCFSListenResponse* proto) {
+  return [serializer_ decodedWatchChange:proto];
+}
+
+SnapshotVersion ObjcBridge::GetSnapshotVersion(GCFSListenResponse* proto) {
+  return [serializer_ versionFromListenResponse:proto];
 }
 
 NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
@@ -93,7 +112,8 @@ BufferedWriter::FuncT* BufferedWriter::CreateContinuation() {
 
 GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
                      std::unique_ptr<util::internal::Executor> own_executor,
-                    util::AsyncQueue* callback_executor)
+                    // util::AsyncQueue* callback_executor)
+                    FSTDispatchQueue* callback_executor)
     : grpc_queue_{grpc_queue},
       own_executor_{std::move(own_executor)},
       callback_executor_{callback_executor} {
@@ -101,11 +121,12 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
     void* tag = nullptr;
     bool ok = false;
     while (grpc_queue_->Next(&tag, &ok)) {
-      callback_executor_->Enqueue([tag] {
+      const auto operation = [tag] {
         auto func = static_cast<std::function<void()>*>(tag);
         (*func)();
         delete func;
-      });
+      };
+      [callback_executor_ dispatchAsync:^() { operation(); }];
     }
   });
 }
@@ -118,7 +139,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 // using firebase::firestore::model::SnapshotVersion;
 
-WatchStream::WatchStream(util::AsyncQueue* async_queue,
+WatchStream::WatchStream(/*util::AsyncQueue* async_queue,*/
+    FSTDispatchQueue* async_queue,
                          const DatabaseInfo& database_info,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer)
@@ -129,7 +151,6 @@ WatchStream::WatchStream(util::AsyncQueue* async_queue,
       stub_{CreateStub()},
       objc_bridge_{serializer},
       polling_queue_{&queue_, CreateExecutor(), async_queue} {
-  Start();
 }
 
 std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() const {
@@ -138,7 +159,8 @@ std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() const {
   return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
 }
 
-void WatchStream::Start() {
+void WatchStream::Start(id delegate) {
+  delegate_ = delegate;
   // TODO: on error state
   // TODO: state transition details
 
@@ -176,7 +198,9 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
       context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &queue_);
   buffered_writer_.SetCall(call_.get());
   call_->StartCall(new std::function<void()>{[this] {
-      call_->Read(&last_read_message_, CreateContinuation());
+      id<FSTWatchStreamDelegate> delegate = delegate_;
+      [delegate watchStreamDidOpen];
+      call_->Read(&last_read_message_, OnRead());
   }});
   // TODO: if !call_
   // callback filter
@@ -185,23 +209,28 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   // notifystreamopen
 }
 
-std::function<void()>* WatchStream::CreateContinuation() {
-  // TODO: something with last_read_message_
+std::function<void()>* WatchStream::OnRead() {
+  auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
+
   return new std::function<void()>{[this] {
-    call_->Read(&last_read_message_, CreateContinuation());
+    call_->Read(&last_read_message_, OnRead());
   }};
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
   // [self cancelIdleCheck];
-
-  // FSTBufferedWriter* requestsWriter = self.requestsWriter;
-  // @synchronized(requestsWriter) {
-  //   [requestsWriter writeValue:data];
-  // }
-
   buffered_writer_.Write(objc_bridge_.ToByteBuffer(query));
 }
+
+void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
+  // [self cancelIdleCheck];
+  buffered_writer_.Write(objc_bridge_.ToByteBuffer(target_id));
+}
+
+// void WatchStream::Close() {
+// }
 
 // Private
 
@@ -214,3 +243,16 @@ grpc::GenericStub WatchStream::CreateStub() const {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+// - (BOOL)isStarted;
+// - (BOOL)isOpen;
+// - (void)startWithDelegate:(id)delegate;
+// - (void)stop;
+
+// - (void)watchQuery:(FSTQueryData *)query;
+// - (void)unwatchTargetID:(FSTTargetID)targetID;
+
+// - (void)watchStreamDidOpen;
+// - (void)watchStreamDidChange:(FSTWatchChange *)change
+//              snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
+// - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;

@@ -37,6 +37,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -614,91 +615,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 @end
 
-#pragma mark - FSTWatchStream
-
-@interface FSTWatchStream ()
-
-@property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
-
-@end
-
-@implementation FSTWatchStream
-
-- (instancetype)initWithDatabase:(const DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(CredentialsProvider *)credentials
-                      serializer:(FSTSerializerBeta *)serializer {
-  self = [super initWithDatabase:database
-             workerDispatchQueue:workerDispatchQueue
-               connectionTimerID:FSTTimerIDListenStreamConnectionBackoff
-                     idleTimerID:FSTTimerIDListenStreamIdle
-                     credentials:credentials
-            responseMessageClass:[GCFSListenResponse class]];
-  if (self) {
-    _serializer = serializer;
-  }
-  return self;
-}
-
-- (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
-  return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
-                                   path:@"/google.firestore.v1beta1.Firestore/Listen"
-                         requestsWriter:requestsWriter];
-}
-
-- (void)notifyStreamOpen {
-  [self.delegate watchStreamDidOpen];
-}
-
-- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
-  id<FSTWatchStreamDelegate> delegate = self.delegate;
-  self.delegate = nil;
-  [delegate watchStreamWasInterruptedWithError:error];
-}
-
-- (void)watchQuery:(FSTQueryData *)query {
-  FSTAssert([self isOpen], @"Not yet open");
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-
-  GCFSListenRequest *request = [GCFSListenRequest message];
-  request.database = [_serializer encodedDatabaseID];
-  request.addTarget = [_serializer encodedTarget:query];
-  request.labels = [_serializer encodedListenRequestLabelsForQueryData:query];
-
-  FSTLog(@"FSTWatchStream %p watch: %@", (__bridge void *)self, request);
-  [self writeRequest:request];
-}
-
-- (void)unwatchTargetID:(FSTTargetID)targetID {
-  FSTAssert([self isOpen], @"Not yet open");
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-
-  GCFSListenRequest *request = [GCFSListenRequest message];
-  request.database = [_serializer encodedDatabaseID];
-  request.removeTarget = targetID;
-
-  FSTLog(@"FSTWatchStream %p unwatch: %@", (__bridge void *)self, request);
-  [self writeRequest:request];
-}
-
-/**
- * Receives an inbound message from GRPC, deserializes, and then passes that on to the delegate's
- * watchStreamDidChange:snapshotVersion: callback.
- */
-- (void)handleStreamMessage:(GCFSListenResponse *)proto {
-  FSTLog(@"FSTWatchStream %p response: %@", (__bridge void *)self, proto);
-  [self.workerDispatchQueue verifyIsCurrentQueue];
-
-  // A successful response means the stream is healthy.
-  [self.backoff reset];
-
-  FSTWatchChange *change = [_serializer decodedWatchChange:proto];
-  SnapshotVersion snap = [_serializer versionFromListenResponse:proto];
-  [self.delegate watchStreamDidChange:change snapshotVersion:snap];
-}
-
-@end
-
 #pragma mark - FSTWriteStream
 
 @interface FSTWriteStream ()
@@ -818,6 +734,119 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
     [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
   }
+}
+
+@end
+
+#pragma mark - FSTWatchStream
+
+// @interface FSTWatchStream ()
+
+// @property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
+
+// @end
+
+// @implementation FSTWatchStream
+
+// - (instancetype)initWithDatabase:(const DatabaseInfo *)database
+//              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+//                      credentials:(CredentialsProvider *)credentials
+//                       serializer:(FSTSerializerBeta *)serializer {
+//   self = [super initWithDatabase:database
+//              workerDispatchQueue:workerDispatchQueue
+//                connectionTimerID:FSTTimerIDListenStreamConnectionBackoff
+//                      idleTimerID:FSTTimerIDListenStreamIdle
+//                      credentials:credentials
+//             responseMessageClass:[GCFSListenResponse class]];
+//   if (self) {
+//     _serializer = serializer;
+//   }
+//   return self;
+// }
+
+// - (GRPCCall *)createRPCWithRequestsWriter:(GRXWriter *)requestsWriter {
+//   return [[GRPCCall alloc] initWithHost:util::WrapNSString(self.databaseInfo->host())
+//                                    path:@"/google.firestore.v1beta1.Firestore/Listen"
+//                          requestsWriter:requestsWriter];
+// }
+
+// - (void)notifyStreamOpen {
+//   [self.delegate watchStreamDidOpen];
+// }
+
+// - (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+//   id<FSTWatchStreamDelegate> delegate = self.delegate;
+//   self.delegate = nil;
+//   [delegate watchStreamWasInterruptedWithError:error];
+// }
+
+// - (void)watchQuery:(FSTQueryData *)query {
+//   FSTAssert([self isOpen], @"Not yet open");
+//   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+//   GCFSListenRequest *request = [GCFSListenRequest message];
+//   request.database = [_serializer encodedDatabaseID];
+//   request.addTarget = [_serializer encodedTarget:query];
+//   request.labels = [_serializer encodedListenRequestLabelsForQueryData:query];
+
+//   FSTLog(@"FSTWatchStream %p watch: %@", (__bridge void *)self, request);
+//   [self writeRequest:request];
+// }
+
+// - (void)unwatchTargetID:(FSTTargetID)targetID {
+//   FSTAssert([self isOpen], @"Not yet open");
+//   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+//   GCFSListenRequest *request = [GCFSListenRequest message];
+//   request.database = [_serializer encodedDatabaseID];
+//   request.removeTarget = targetID;
+
+//   FSTLog(@"FSTWatchStream %p unwatch: %@", (__bridge void *)self, request);
+//   [self writeRequest:request];
+// }
+
+// /**
+//  * Receives an inbound message from GRPC, deserializes, and then passes that on to the delegate's
+//  * watchStreamDidChange:snapshotVersion: callback.
+//  */
+// - (void)handleStreamMessage:(GCFSListenResponse *)proto {
+//   FSTLog(@"FSTWatchStream %p response: %@", (__bridge void *)self, proto);
+//   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+//   // A successful response means the stream is healthy.
+//   [self.backoff reset];
+
+//   FSTWatchChange *change = [_serializer decodedWatchChange:proto];
+//   SnapshotVersion snap = [_serializer versionFromListenResponse:proto];
+//   [self.delegate watchStreamDidChange:change snapshotVersion:snap];
+// }
+
+// @end
+
+using firebase::firestore::remote::WatchStream;
+
+@implementation FSTWatchStream {
+  std::unique_ptr<WatchStream> impl_;
+}
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+                      serializer:(FSTSerializerBeta *)serializer {
+  impl_ = absl::make_unique<WatchStream>(workerDispatchQueue, *database, credentials, serializer);
+  return self;
+}
+
+- (void)watchQuery:(FSTQueryData *)query {
+  impl_->WatchQuery(query);
+}
+
+- (void)unwatchTargetID:(FSTTargetID)targetID {
+  impl_->UnwatchTargetId(targetID);
+}
+
+- (void)startWithDelegate:(id)delegate {
+  impl_->Start(delegate);
 }
 
 @end

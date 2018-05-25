@@ -36,7 +36,9 @@
 #include <memory>
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 namespace firebase {
 namespace firestore {
@@ -91,10 +93,14 @@ class ObjcBridge {
       const absl::string_view token) const;
 
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
+  grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
+
+  FSTWatchChange* GetWatchChange(GCFSListenResponse* proto);
+  model::SnapshotVersion GetSnapshotVersion(GCFSListenResponse* proto);
 
   // TODO(StatusOr)
   template <typename Proto>
-  Proto ToProto(const grpc::ByteBuffer& buffer) {
+  Proto* ToProto(const grpc::ByteBuffer& buffer) {
     NSError* error;
     return [Proto parseFromData:ToNsData(buffer) error:&error];
   }
@@ -128,27 +134,31 @@ class GrpcQueue {
  public:
   GrpcQueue(grpc::CompletionQueue* grpc_queue,
             std::unique_ptr<util::internal::Executor> own_executor,
-            util::AsyncQueue* callback_executor);
+            // util::AsyncQueue* callback_executor);
+            FSTDispatchQueue* callback_executor);
 
  private:
   grpc::CompletionQueue* grpc_queue_;
   std::unique_ptr<util::internal::Executor> own_executor_;
-  util::AsyncQueue* callback_executor_;
+  // util::AsyncQueue* callback_executor_;
+  FSTDispatchQueue* callback_executor_;
 };
 
 }  // namespace internal
 
 class WatchStream {
  public:
-  WatchStream(util::AsyncQueue* async_queue,
+  // WatchStream(util::AsyncQueue* async_queue,
+  WatchStream(FSTDispatchQueue* async_queue,
               const core::DatabaseInfo& database_info,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer);
 
-  void Start();
+  void Start(id delegate);
   // TODO: Close
 
   void WatchQuery(FSTQueryData* query);
+  void UnwatchTargetId(FSTTargetID target_id);
 
  private:
   enum class State {
@@ -164,7 +174,7 @@ class WatchStream {
   grpc::GenericStub CreateStub() const;
   std::unique_ptr<util::internal::Executor> CreateExecutor() const;
 
-  std::function<void()>* CreateContinuation();
+  std::function<void()>* OnRead();
 
   State state_{State::Initial};
 
@@ -181,6 +191,9 @@ class WatchStream {
   internal::BufferedWriter buffered_writer_;
   internal::GrpcQueue polling_queue_;
   grpc::ByteBuffer last_read_message_;
+
+  // FIXME
+  id delegate_;
 };
 
 }  // namespace remote
