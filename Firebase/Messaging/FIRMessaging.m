@@ -176,7 +176,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
     // TODO: Remove this once the race condition with FIRApp configuring and InstanceID
     //       is fixed. This must be fixed before Core's flag becomes public.
-    _isGlobalAutomaticDataCollectionEnabled = YES;
+    _globalAutomaticDataCollectionEnabled = YES;
   }
   return self;
 }
