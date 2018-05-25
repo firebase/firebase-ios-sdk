@@ -14,8 +14,8 @@
 
 # A podspec for libFuzzer. Excludes the 'FuzzerMain.cpp' because the pod
 # installation would require the 'LLVMFuzzerTestOneInput' function to be
-# linked when the pod is being created, but it will be available in 
-# the fuzzing application. Hence, users of this Pod are required to 
+# linked when the pod is being created, but it will be available in
+# the fuzzing application. Hence, users of this Pod are required to
 # provide their main function similar to 'FuzzerMain.cpp'.
 
 Pod::Spec.new do |s|
@@ -37,7 +37,7 @@ Google's packaging of libFuzzer.
   # Add all source files, except for the FuzzerMain.cpp.
   s.source_files = '*.{h,cpp,def}'
   s.exclude_files = 'FuzzerMain.cpp'
- 
+
   s.library = 'c++'
 
   # Set the compiler flags to:
@@ -46,7 +46,7 @@ Google's packaging of libFuzzer.
   #   -O2   For optimization
   #   -std=c++11 Set the language standard to c++11
   s.compiler_flags = '-c -g -O2 -std=c++11'
-  
+
   # Minimum deployment targets.
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target  = '10.13'
