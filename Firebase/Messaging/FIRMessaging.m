@@ -173,6 +173,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     _loggedMessageIDs = [NSMutableSet set];
     _instanceID = instanceID;
     _messagingUserDefaults = defaults;
+
+    // TODO: Remove this once the race condition with FIRApp configuring and InstanceID
+    //       is fixed. This must be fixed before Core's flag becomes public.
+    _globalAutomaticDataCollectionEnabled = YES;
   }
   return self;
 }
