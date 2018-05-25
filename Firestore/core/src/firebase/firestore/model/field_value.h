@@ -25,6 +25,7 @@
 
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/model/blob.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -207,7 +208,7 @@ class FieldValue {
     Timestamp timestamp_value_;
     ServerTimestamp server_timestamp_value_;
     std::string string_value_;
-    std::vector<uint8_t> blob_value_;
+    Blob blob_value_;
     // Qualified name to avoid conflict with the member function of same name.
     firebase::firestore::model::ReferenceValue reference_value_;
     GeoPoint geo_point_value_;
