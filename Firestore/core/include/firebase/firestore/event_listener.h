@@ -22,12 +22,10 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_EVENT_LISTENER_H_
 
+#include "firebase/firestore/firestore_errors.h"
+
 namespace firebase {
 namespace firestore {
-
-// TODO(rsgowman): replace these forward decl's with appropriate includes (once
-// they exist)
-class Error;
 
 /**
  * @brief An interface for event listeners.
@@ -35,6 +33,8 @@ class Error;
 template <typename T>
 class EventListener {
  public:
+  virtual ~EventListener() {
+  }
   /**
    * @brief OnEvent will be called with the new value or the error if an error
    * occurred.
@@ -44,7 +44,7 @@ class EventListener {
    * @param value The value of the event. null if there was an error.
    * @param error The error if there was error. null otherwise.
    */
-  void OnEvent(const T* value, const Error* error);
+  virtual void OnEvent(const T* value, const Error* error) = 0;
 };
 
 }  // namespace firestore
