@@ -154,9 +154,10 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (BOOL)isNetworkEnabled {
-  FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
-            @"WatchStream and WriteStream should both be null or non-null");
-  return self.watchStream != nil;
+  // FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
+  //           @"WatchStream and WriteStream should both be null or non-null");
+  // return self.watchStream != nil;
+  return self.watchStream.isStarted;
 }
 
 - (void)enableNetwork {
@@ -165,7 +166,9 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Create new streams (but note they're not started yet).
-  self.watchStream = [self.datastore createWatchStream];
+  if (self.watchStream == nil) {
+    self.watchStream = [self.datastore createWatchStream];
+  }
   self.writeStream = [self.datastore createWriteStream];
 
   // Load any saved stream token from persistent storage
@@ -198,7 +201,7 @@ static const int kMaxPendingWrites = 10;
     [self cleanUpWriteStreamState];
 
     self.writeStream = nil;
-    self.watchStream = nil;
+    //self.watchStream = nil;
   }
 }
 
@@ -282,7 +285,8 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  // return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && ![self.watchStream isOpen] && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {

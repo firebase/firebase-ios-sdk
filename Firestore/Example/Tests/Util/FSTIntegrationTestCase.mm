@@ -38,6 +38,8 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -127,6 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
            "has been run.");
     }
     [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
+    firebase::firestore::remote::WatchStream::pemRootCertsPath = [certsPath cStringUsingEncoding:NSASCIIStringEncoding];
   }
   settings.host = host;
   settings.persistenceEnabled = YES;

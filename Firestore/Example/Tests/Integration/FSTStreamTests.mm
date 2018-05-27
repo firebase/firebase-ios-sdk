@@ -207,7 +207,7 @@ using firebase::firestore::model::SnapshotVersion;
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    [watchStream.callbackFilter writesFinishedWithError:nil];
+    //[watchStream.callbackFilter writesFinishedWithError:nil];
   }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen" ]];

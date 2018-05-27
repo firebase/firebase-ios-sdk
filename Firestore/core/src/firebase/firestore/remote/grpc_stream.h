@@ -67,10 +67,9 @@ oneof response_type {
 }
  */
 
-// read
+// close
 //
 // error
-// close
 // backoff
 // idle
 // enable/disable
@@ -117,10 +116,12 @@ class BufferedWriter {
   // explicit BufferedWriter(grpc::GenericClientAsyncReaderWriter* const call) : call_{call} {
   // }
   void SetCall(grpc::GenericClientAsyncReaderWriter* const call) { call_ = call; }
-  void Write(grpc::ByteBuffer&& bytes);
+  void Start() { is_started_ = true; TryWrite(); }
+  void Stop() { is_started_ = false; }
+  void Enqueue(grpc::ByteBuffer&& bytes);
 
  private:
-  using FuncT = std::function<void()>;
+  using FuncT = std::function<void(bool)>;
 
   void TryWrite();
   FuncT* CreateContinuation();
@@ -128,6 +129,7 @@ class BufferedWriter {
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
   std::vector<grpc::ByteBuffer> buffer_;
   bool has_pending_write_ = false;
+  bool is_started_ = false;
 };
 
 class GrpcQueue {
@@ -136,6 +138,7 @@ class GrpcQueue {
             std::unique_ptr<util::internal::Executor> own_executor,
             // util::AsyncQueue* callback_executor);
             FSTDispatchQueue* callback_executor);
+  ~GrpcQueue();
 
  private:
   grpc::CompletionQueue* grpc_queue_;
@@ -155,10 +158,15 @@ class WatchStream {
               FSTSerializerBeta* serializer);
 
   void Start(id delegate);
+  void Stop();
+  bool IsOpen() const;
+  bool IsStarted() const;
   // TODO: Close
 
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
+
+  static const char* pemRootCertsPath;
 
  private:
   enum class State {
@@ -174,7 +182,7 @@ class WatchStream {
   grpc::GenericStub CreateStub() const;
   std::unique_ptr<util::internal::Executor> CreateExecutor() const;
 
-  std::function<void()>* OnRead();
+  std::function<void(bool)>* OnRead();
 
   State state_{State::Initial};
 

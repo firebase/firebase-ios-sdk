@@ -24,6 +24,9 @@
 #include "Firestore/Source/Remote/FSTStream.h"
 #include "absl/memory/memory.h"
 
+#include <fstream>
+#include <sstream>
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -81,12 +84,15 @@ NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
   }
 }
 
-void BufferedWriter::Write(grpc::ByteBuffer&& bytes) {
+void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
   buffer_.push_back(std::move(bytes));
   TryWrite();
 }
 
 void BufferedWriter::TryWrite() {
+  if (!is_started_) {
+    return;
+  }
   if (buffer_.empty()) {
     return;
   }
@@ -104,9 +110,11 @@ void BufferedWriter::TryWrite() {
 }
 
 BufferedWriter::FuncT* BufferedWriter::CreateContinuation() {
-  return new FuncT{[this] {
+  return new FuncT{[this] (const bool ok) {
     has_pending_write_ = false;
-    TryWrite();
+    if (ok) {
+      TryWrite();
+    }
   }};
 }
 
@@ -121,14 +129,20 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
     void* tag = nullptr;
     bool ok = false;
     while (grpc_queue_->Next(&tag, &ok)) {
-      const auto operation = [tag] {
-        auto func = static_cast<std::function<void()>*>(tag);
-        (*func)();
+      // if (!ok) continue;
+      const auto operation = [tag, ok] {
+        auto func = static_cast<std::function<void(bool)>*>(tag);
+        (*func)(ok);
         delete func;
       };
       [callback_executor_ dispatchAsync:^() { operation(); }];
     }
   });
+}
+
+GrpcQueue::~GrpcQueue() {
+  grpc_queue_->Shutdown();
+  own_executor_->ExecuteBlocking([]{});
 }
 
 }  // namespace internal
@@ -197,36 +211,68 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   call_ = stub_.PrepareCall(
       context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &queue_);
   buffered_writer_.SetCall(call_.get());
-  call_->StartCall(new std::function<void()>{[this] {
+  call_->StartCall(new std::function<void(bool)>{[this] (const bool ok) {
+      if (!ok) {
+        return;
+      }
+
+      state_ = State::Open;
+      buffered_writer_.Start();
+      call_->Read(&last_read_message_, OnRead()); // ?
+
       id<FSTWatchStreamDelegate> delegate = delegate_;
       [delegate watchStreamDidOpen];
-      call_->Read(&last_read_message_, OnRead());
   }});
   // TODO: if !call_
   // callback filter
 
-  state_ = State::Open;
   // notifystreamopen
 }
 
-std::function<void()>* WatchStream::OnRead() {
-  auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
+std::function<void(bool)>* WatchStream::OnRead() {
+  return new std::function<void(bool)>{[this] (const bool ok) {
+    if (!ok) {
+      return;
+    }
+    auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
+    id<FSTWatchStreamDelegate> delegate = delegate_;
+    [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
 
-  return new std::function<void()>{[this] {
     call_->Read(&last_read_message_, OnRead());
   }};
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
   // [self cancelIdleCheck];
-  buffered_writer_.Write(objc_bridge_.ToByteBuffer(query));
+  buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   // [self cancelIdleCheck];
-  buffered_writer_.Write(objc_bridge_.ToByteBuffer(target_id));
+  buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(target_id));
+}
+
+void WatchStream::Stop() {
+  if (!IsOpen()) {
+    return;
+  }
+  state_ = State::Stopped;
+  buffered_writer_.Stop();
+
+  grpc::Status status;
+  call_->Finish(&status, new std::function<void(bool)>{[] (const bool ok) {
+      int i = 0;
+      ++i;
+  }});
+}
+
+bool WatchStream::IsOpen() const {
+  return state_ == State::Open;
+}
+
+bool WatchStream::IsStarted() const {
+  // return state_ == State::Auth || state_ == State::Open;
+  return state_ == State::Initial || state_ == State::Auth || state_ == State::Open;
 }
 
 // void WatchStream::Close() {
@@ -234,7 +280,23 @@ void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
 
 // Private
 
+
+const char* WatchStream::pemRootCertsPath = nullptr;
+
 grpc::GenericStub WatchStream::CreateStub() const {
+  if (pemRootCertsPath) {
+    grpc::SslCredentialsOptions options;
+    std::fstream file{pemRootCertsPath};
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const std::string cert = buffer.str();
+    options.pem_root_certs = cert;
+
+    grpc::ChannelArguments args;
+    args.SetSslTargetNameOverride("test_cert_2");
+    return grpc::GenericStub{
+        grpc::CreateCustomChannel(database_info_->host(), grpc::SslCredentials(options), args)};
+  }
   return grpc::GenericStub{
       grpc::CreateChannel(database_info_->host(),
                           grpc::SslCredentials(grpc::SslCredentialsOptions()))};

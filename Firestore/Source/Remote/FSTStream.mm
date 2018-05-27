@@ -849,4 +849,19 @@ using firebase::firestore::remote::WatchStream;
   impl_->Start(delegate);
 }
 
+- (void)stop {
+  impl_->Stop();
+}
+
+- (BOOL)isOpen {
+  return impl_->IsOpen();
+}
+
+- (BOOL)isStarted {
+  return impl_->IsStarted();
+}
+
+- (void)markIdle {
+}
+
 @end
