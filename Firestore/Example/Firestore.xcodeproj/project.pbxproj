@@ -144,6 +144,19 @@
 		6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F5BA195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F5B8195388D20070C39A /* InfoPlist.strings */; };
 		6161B5032047140C00A99DBB /* FIRFirestoreSourceTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */; };
+		618BBEA620B89AAC00B5BCE7 /* target.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7D20B89AAC00B5BCE7 /* target.pb.cc */; };
+		618BBEA720B89AAC00B5BCE7 /* maybe_document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */; };
+		618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */; };
+		618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8820B89AAC00B5BCE7 /* common.pb.cc */; };
+		618BBEAA20B89AAC00B5BCE7 /* firestore.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */; };
+		618BBEAB20B89AAC00B5BCE7 /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */; };
+		618BBEAC20B89AAC00B5BCE7 /* document.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */; };
+		618BBEAD20B89AAC00B5BCE7 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */; };
+		618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */; };
+		618BBEAF20B89AAC00B5BCE7 /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
+		618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9720B89AAC00B5BCE7 /* http.pb.cc */; };
+		618BBEB120B89AAC00B5BCE7 /* status.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9920B89AAC00B5BCE7 /* status.pb.cc */; };
+		61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 61F72C5520BC48FD001A68CB /* serializer_test.cc */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */; };
 		73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */; };
@@ -392,6 +405,36 @@
 		6003F5B7195388D20070C39A /* Tests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		6003F5B9195388D20070C39A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		6161B5012047140400A99DBB /* FIRFirestoreSourceTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreSourceTests.mm; sourceTree = "<group>"; };
+		618BBE7D20B89AAC00B5BCE7 /* target.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = target.pb.cc; sourceTree = "<group>"; };
+		618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = maybe_document.pb.cc; sourceTree = "<group>"; };
+		618BBE7F20B89AAC00B5BCE7 /* target.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = target.pb.h; sourceTree = "<group>"; };
+		618BBE8020B89AAC00B5BCE7 /* maybe_document.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maybe_document.pb.h; sourceTree = "<group>"; };
+		618BBE8120B89AAC00B5BCE7 /* mutation.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mutation.pb.h; sourceTree = "<group>"; };
+		618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mutation.pb.cc; sourceTree = "<group>"; };
+		618BBE8620B89AAC00B5BCE7 /* query.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = query.pb.h; sourceTree = "<group>"; };
+		618BBE8720B89AAC00B5BCE7 /* common.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.pb.h; sourceTree = "<group>"; };
+		618BBE8820B89AAC00B5BCE7 /* common.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = common.pb.cc; sourceTree = "<group>"; };
+		618BBE8920B89AAC00B5BCE7 /* firestore.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = firestore.pb.h; sourceTree = "<group>"; };
+		618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = firestore.pb.cc; sourceTree = "<group>"; };
+		618BBE8B20B89AAC00B5BCE7 /* write.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = write.pb.h; sourceTree = "<group>"; };
+		618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = query.pb.cc; sourceTree = "<group>"; };
+		618BBE8D20B89AAC00B5BCE7 /* document.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.pb.h; sourceTree = "<group>"; };
+		618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document.pb.cc; sourceTree = "<group>"; };
+		618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = write.pb.cc; sourceTree = "<group>"; };
+		618BBE9120B89AAC00B5BCE7 /* latlng.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = latlng.pb.h; sourceTree = "<group>"; };
+		618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = latlng.pb.cc; sourceTree = "<group>"; };
+		618BBE9420B89AAC00B5BCE7 /* http.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = http.pb.h; sourceTree = "<group>"; };
+		618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = annotations.pb.cc; sourceTree = "<group>"; };
+		618BBE9620B89AAC00B5BCE7 /* annotations.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = annotations.pb.h; sourceTree = "<group>"; };
+		618BBE9720B89AAC00B5BCE7 /* http.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = http.pb.cc; sourceTree = "<group>"; };
+		618BBE9920B89AAC00B5BCE7 /* status.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = status.pb.cc; sourceTree = "<group>"; };
+		618BBE9A20B89AAC00B5BCE7 /* status.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = status.pb.h; sourceTree = "<group>"; };
+		618BBE9D20B89AAC00B5BCE7 /* struct.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = struct.pb.h; sourceTree = "<group>"; };
+		618BBE9E20B89AAC00B5BCE7 /* empty.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = empty.pb.h; sourceTree = "<group>"; };
+		618BBEA020B89AAC00B5BCE7 /* wrappers.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wrappers.pb.h; sourceTree = "<group>"; };
+		618BBEA320B89AAC00B5BCE7 /* timestamp.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.pb.h; sourceTree = "<group>"; };
+		618BBEA420B89AAC00B5BCE7 /* any.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = any.pb.h; sourceTree = "<group>"; };
+		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDispatchQueueTests.mm; sourceTree = "<group>"; };
@@ -529,6 +572,7 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
+				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
 				546854A820A36867004BDBD5 /* datastore_test.cc */,
 			);
 			path = remote;
@@ -624,6 +668,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				618BBE7A20B89AAC00B5BCE7 /* cpp */,
 				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F5B5195388D20070C39A /* Tests */,
@@ -723,6 +768,115 @@
 				D3CC3DC5338DCAF43A211155 /* README.md */,
 			);
 			name = "Podspec Metadata";
+			sourceTree = "<group>";
+		};
+		618BBE7A20B89AAC00B5BCE7 /* cpp */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE7B20B89AAC00B5BCE7 /* firestore */,
+				618BBE8320B89AAC00B5BCE7 /* google */,
+			);
+			name = cpp;
+			path = ../Protos/cpp;
+			sourceTree = "<group>";
+		};
+		618BBE7B20B89AAC00B5BCE7 /* firestore */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE7C20B89AAC00B5BCE7 /* local */,
+			);
+			path = firestore;
+			sourceTree = "<group>";
+		};
+		618BBE7C20B89AAC00B5BCE7 /* local */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE7D20B89AAC00B5BCE7 /* target.pb.cc */,
+				618BBE7E20B89AAC00B5BCE7 /* maybe_document.pb.cc */,
+				618BBE7F20B89AAC00B5BCE7 /* target.pb.h */,
+				618BBE8020B89AAC00B5BCE7 /* maybe_document.pb.h */,
+				618BBE8120B89AAC00B5BCE7 /* mutation.pb.h */,
+				618BBE8220B89AAC00B5BCE7 /* mutation.pb.cc */,
+			);
+			path = local;
+			sourceTree = "<group>";
+		};
+		618BBE8320B89AAC00B5BCE7 /* google */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE8420B89AAC00B5BCE7 /* firestore */,
+				618BBE9020B89AAC00B5BCE7 /* type */,
+				618BBE9320B89AAC00B5BCE7 /* api */,
+				618BBE9820B89AAC00B5BCE7 /* rpc */,
+				618BBE9B20B89AAC00B5BCE7 /* protobuf */,
+			);
+			path = google;
+			sourceTree = "<group>";
+		};
+		618BBE8420B89AAC00B5BCE7 /* firestore */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE8520B89AAC00B5BCE7 /* v1beta1 */,
+			);
+			path = firestore;
+			sourceTree = "<group>";
+		};
+		618BBE8520B89AAC00B5BCE7 /* v1beta1 */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE8620B89AAC00B5BCE7 /* query.pb.h */,
+				618BBE8720B89AAC00B5BCE7 /* common.pb.h */,
+				618BBE8820B89AAC00B5BCE7 /* common.pb.cc */,
+				618BBE8920B89AAC00B5BCE7 /* firestore.pb.h */,
+				618BBE8A20B89AAC00B5BCE7 /* firestore.pb.cc */,
+				618BBE8B20B89AAC00B5BCE7 /* write.pb.h */,
+				618BBE8C20B89AAC00B5BCE7 /* query.pb.cc */,
+				618BBE8D20B89AAC00B5BCE7 /* document.pb.h */,
+				618BBE8E20B89AAC00B5BCE7 /* document.pb.cc */,
+				618BBE8F20B89AAC00B5BCE7 /* write.pb.cc */,
+			);
+			path = v1beta1;
+			sourceTree = "<group>";
+		};
+		618BBE9020B89AAC00B5BCE7 /* type */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE9120B89AAC00B5BCE7 /* latlng.pb.h */,
+				618BBE9220B89AAC00B5BCE7 /* latlng.pb.cc */,
+			);
+			path = type;
+			sourceTree = "<group>";
+		};
+		618BBE9320B89AAC00B5BCE7 /* api */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE9420B89AAC00B5BCE7 /* http.pb.h */,
+				618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */,
+				618BBE9620B89AAC00B5BCE7 /* annotations.pb.h */,
+				618BBE9720B89AAC00B5BCE7 /* http.pb.cc */,
+			);
+			path = api;
+			sourceTree = "<group>";
+		};
+		618BBE9820B89AAC00B5BCE7 /* rpc */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE9920B89AAC00B5BCE7 /* status.pb.cc */,
+				618BBE9A20B89AAC00B5BCE7 /* status.pb.h */,
+			);
+			path = rpc;
+			sourceTree = "<group>";
+		};
+		618BBE9B20B89AAC00B5BCE7 /* protobuf */ = {
+			isa = PBXGroup;
+			children = (
+				618BBE9D20B89AAC00B5BCE7 /* struct.pb.h */,
+				618BBE9E20B89AAC00B5BCE7 /* empty.pb.h */,
+				618BBEA020B89AAC00B5BCE7 /* wrappers.pb.h */,
+				618BBEA320B89AAC00B5BCE7 /* timestamp.pb.h */,
+				618BBEA420B89AAC00B5BCE7 /* any.pb.h */,
+			);
+			path = protobuf;
 			sourceTree = "<group>";
 		};
 		AAEA2A72CFD1FA5AD34462F7 /* Pods */ = {
@@ -1279,12 +1433,14 @@
 				"${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleTest/GoogleTest.framework",
 				"${BUILT_PRODUCTS_DIR}/OCMock/OCMock.framework",
+				"${BUILT_PRODUCTS_DIR}/ProtobufCpp/ProtobufCpp.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleTest.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OCMock.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ProtobufCpp.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1554,18 +1710,25 @@
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E09E2021552D00B64F25 /* FSTEagerGarbageCollectorTests.mm in Sources */,
+				61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
 				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
+				618BBEA620B89AAC00B5BCE7 /* target.pb.cc in Sources */,
 				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
 				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
+				618BBEA720B89AAC00B5BCE7 /* maybe_document.pb.cc in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
 				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
+				618BBEAC20B89AAC00B5BCE7 /* document.pb.cc in Sources */,
 				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
+				618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */,
+				618BBEAF20B89AAC00B5BCE7 /* annotations.pb.cc in Sources */,
+				618BBEAE20B89AAC00B5BCE7 /* latlng.pb.cc in Sources */,
 				5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */,
 				5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */,
 				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
@@ -1573,6 +1736,7 @@
 				5492E0A32021552D00B64F25 /* FSTLocalSerializerTests.mm in Sources */,
 				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
+				618BBEAB20B89AAC00B5BCE7 /* query.pb.cc in Sources */,
 				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
 				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
 				5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */,
@@ -1598,6 +1762,7 @@
 				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,
+				618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */,
 				54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */,
 				B6FB4684208EA0EC00554BA2 /* async_queue_libdispatch_test.mm in Sources */,
 				B6FB4685208EA0F000554BA2 /* async_queue_std_test.cc in Sources */,
@@ -1605,6 +1770,7 @@
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
 				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
+				618BBEB120B89AAC00B5BCE7 /* status.pb.cc in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
 				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				AB38D93020236E21000A432D /* database_info_test.cc in Sources */,
@@ -1612,6 +1778,7 @@
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
 				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
 				ABC1D7DD2023A04F00BA84F0 /* empty_credentials_provider_test.cc in Sources */,
+				618BBEA820B89AAC00B5BCE7 /* mutation.pb.cc in Sources */,
 				B6FB468E208F9BAB00554BA2 /* executor_libdispatch_test.mm in Sources */,
 				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
 				B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */,
@@ -1625,6 +1792,7 @@
 				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
 				54A0353520A3D8CB003E0143 /* iterator_adaptors_test.cc in Sources */,
 				54995F6F205B6E12004EFFA0 /* leveldb_key_test.cc in Sources */,
+				618BBEAD20B89AAC00B5BCE7 /* write.pb.cc in Sources */,
 				54C2294F1FECABAE007D065B /* log_test.cc in Sources */,
 				AB6B908620322E6D00CC290A /* maybe_document_test.cc in Sources */,
 				AB6B908820322E8800CC290A /* no_document_test.cc in Sources */,
@@ -1633,6 +1801,7 @@
 				B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */,
 				54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */,
 				ABA495BB202B7E80008A7851 /* snapshot_version_test.cc in Sources */,
+				618BBEAA20B89AAC00B5BCE7 /* firestore.pb.cc in Sources */,
 				549CCA5220A36DBC00BCEB75 /* sorted_map_test.cc in Sources */,
 				549CCA5020A36DBC00BCEB75 /* sorted_set_test.cc in Sources */,
 				54A0352F20A3B3D8003E0143 /* status_test.cc in Sources */,
@@ -1977,10 +2146,13 @@
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
+					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -2011,10 +2183,13 @@
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
 					"\"${PODS_ROOT}/GoogleTest/googletest/include\"",
 					"\"${PODS_ROOT}/leveldb-library/include\"",
+					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
+					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "\"${PODS_ROOT}/nanopb\"";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Firestore_Example_iOS.app/Firestore_Example_iOS";
 				WRAPPER_EXTENSION = xctest;
 			};
