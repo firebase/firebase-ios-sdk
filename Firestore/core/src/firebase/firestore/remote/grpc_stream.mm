@@ -129,7 +129,6 @@ GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
     void* tag = nullptr;
     bool ok = false;
     while (grpc_queue_->Next(&tag, &ok)) {
-      // if (!ok) continue;
       const auto operation = [tag, ok] {
         auto func = static_cast<std::function<void(bool)>*>(tag);
         (*func)(ok);
@@ -213,7 +212,16 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   buffered_writer_.SetCall(call_.get());
   call_->StartCall(new std::function<void(bool)>{[this] (const bool ok) {
       if (!ok) {
-        return;
+        state_ = State::Stopped;
+        buffered_writer_.Stop();
+
+        call_->Finish(&status_, new std::function<void(bool)>{[this] (const bool ok) {
+            const auto status = status_;
+            int i = 0;
+            ++i;
+        }});
+
+//        return;
       }
 
       state_ = State::Open;
@@ -232,6 +240,7 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
 std::function<void(bool)>* WatchStream::OnRead() {
   return new std::function<void(bool)>{[this] (const bool ok) {
     if (!ok) {
+      Stop();
       return;
     }
     auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
@@ -259,8 +268,7 @@ void WatchStream::Stop() {
   state_ = State::Stopped;
   buffered_writer_.Stop();
 
-  grpc::Status status;
-  call_->Finish(&status, new std::function<void(bool)>{[] (const bool ok) {
+  call_->Finish(&status_, new std::function<void(bool)>{[] (const bool ok) {
       int i = 0;
       ++i;
   }});
@@ -293,7 +301,8 @@ grpc::GenericStub WatchStream::CreateStub() const {
     options.pem_root_certs = cert;
 
     grpc::ChannelArguments args;
-    args.SetSslTargetNameOverride("test_cert_2");
+     args.SetSslTargetNameOverride("test_cert_2");
+    //args.SetSslTargetNameOverride("test_cert_4");
     return grpc::GenericStub{
         grpc::CreateCustomChannel(database_info_->host(), grpc::SslCredentials(options), args)};
   }

@@ -199,6 +199,7 @@ class WatchStream {
   internal::BufferedWriter buffered_writer_;
   internal::GrpcQueue polling_queue_;
   grpc::ByteBuffer last_read_message_;
+  grpc::Status status_;
 
   // FIXME
   id delegate_;
