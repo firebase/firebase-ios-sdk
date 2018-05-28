@@ -21,28 +21,25 @@
 # https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer/build.sh
 
 Pod::Spec.new do |s|
-  s.name           = 'LibFuzzer'
-  s.version        = '1.0'
-  s.summary        = 'libFuzzer for fuzz testing'
-  s.homepage       = 'https://llvm.org/docs/LibFuzzer.html'
-  s.license        = { :type => 'Apache' }
-  s.authors        = 'Google, Inc.'
+  s.name                = 'LibFuzzer'
+  s.version             = '1.0'
+  s.summary             = 'libFuzzer for fuzz testing'
+  s.homepage            = 'https://llvm.org/docs/LibFuzzer.html'
+  s.license             = { :type => 'BSD-Like' }
+  s.authors             = 'LLVM Team'
 
   # Check out only libFuzzer folder.
-  s.source         = {
+  s.source              = {
     :svn => 'https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer'
   }
 
   # Add all source files, except for the FuzzerMain.cpp.
-  s.source_files   = '*.{h,cpp,def}'
-  s.exclude_files  = 'FuzzerMain.cpp'
+  s.source_files        = '*.{h,cpp,def}'
+  s.exclude_files       = 'FuzzerMain.cpp'
 
-  s.library        = 'c++'
+  s.library             = 'c++'
 
-  # Set the compiler flags to:
-  #   -c  Compile only, since linking requires 'LLVMFuzzerTestOneInput'
-  #   -g  Generate source-level debug information
-  s.compiler_flags = '-c -g -O2 -std=c++11'
-
-  s.framework      = 'SystemConfiguration'
+  s.pod_target_xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++11'
+  }
 end
