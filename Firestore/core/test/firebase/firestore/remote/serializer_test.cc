@@ -230,20 +230,21 @@ class SerializerTest : public ::testing::Test {
   /**
    * Creates entries in the proto that we don't care about.
    *
-   * We ignore create time in our serializer. We never set it, and never read it
-   * (other than to throw it away). But the server could (and probably does) set
-   * it, so we need to be able to discard it properly. The ExpectRoundTrip deals
-   * with this asymmetry.
+   * We ignore certain fields in our serializer. We never set them, and never
+   * read them (other than to throw them away). But the server could (and
+   * probably does) set them, so we need to be able to discard them properly.
+   * The ExpectRoundTrip deals with this asymmetry.
    *
    * This method adds these ignored fields to the proto.
    */
   void TouchIgnoredBatchGetDocumentsResponseFields(
       v1beta1::BatchGetDocumentsResponse* proto) {
+    proto->set_transaction("random bytes");
+
     // TODO(rsgowman): This method currently assumes that this is a 'found'
     // document. We (probably) will need to adjust this to work with NoDocuments
     // too.
     v1beta1::Document* doc_proto = proto->mutable_found();
-
     google::protobuf::Timestamp* create_time_proto =
         doc_proto->mutable_create_time();
     create_time_proto->set_seconds(8765);
