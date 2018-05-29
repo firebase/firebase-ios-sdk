@@ -668,7 +668,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
-				618BBE7A20B89AAC00B5BCE7 /* cpp */,
+				618BBE7A20B89AAC00B5BCE7 /* CoreTestsProtos */,
 				543B4F0520A91E4B001F506D /* App */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F5B5195388D20070C39A /* Tests */,
@@ -770,13 +770,13 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
-		618BBE7A20B89AAC00B5BCE7 /* cpp */ = {
+		618BBE7A20B89AAC00B5BCE7 /* CoreTestsProtos */ = {
 			isa = PBXGroup;
 			children = (
 				618BBE7B20B89AAC00B5BCE7 /* firestore */,
 				618BBE8320B89AAC00B5BCE7 /* google */,
 			);
-			name = cpp;
+			name = CoreTestsProtos;
 			path = ../Protos/cpp;
 			sourceTree = "<group>";
 		};
