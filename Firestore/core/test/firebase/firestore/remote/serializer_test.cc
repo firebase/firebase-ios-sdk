@@ -146,9 +146,17 @@ class SerializerTest : public ::testing::Test {
    *
    * @param status the expected (failed) status. Only the code() is verified.
    */
-  void ExpectFailedStatusDuringDecode(Status status,
-                                      const std::vector<uint8_t>& bytes) {
+  void ExpectFailedStatusDuringFieldValueDecode(
+      Status status, const std::vector<uint8_t>& bytes) {
     StatusOr<FieldValue> bad_status = serializer.DecodeFieldValue(bytes);
+    ASSERT_NOT_OK(bad_status);
+    EXPECT_EQ(status.code(), bad_status.status().code());
+  }
+
+  void ExpectFailedStatusDuringMaybeDocumentDecode(
+      Status status, const std::vector<uint8_t>& bytes) {
+    StatusOr<std::unique_ptr<MaybeDocument>> bad_status =
+        serializer.DecodeMaybeDocument(bytes);
     ASSERT_NOT_OK(bad_status);
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
@@ -473,7 +481,7 @@ TEST_F(SerializerTest, BadNullValue) {
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -484,7 +492,7 @@ TEST_F(SerializerTest, BadBoolValue) {
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -503,7 +511,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
   bytes.resize(12);
   bytes[11] = 0x7f;
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -515,7 +523,7 @@ TEST_F(SerializerTest, BadStringValue) {
   // used by the encoded tag.)
   Mutate(&bytes[2], /*expected_initial_value=*/1, /*new_value=*/5);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -526,7 +534,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -537,7 +545,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -556,9 +564,9 @@ TEST_F(SerializerTest, BadTag) {
   // status. Remove this EXPECT_ANY_THROW statement (and reenable the
   // following commented out statement) once the corresponding assert has been
   // removed from serializer.cc.
-  EXPECT_ANY_THROW(ExpectFailedStatusDuringDecode(
+  EXPECT_ANY_THROW(ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes));
-  // ExpectFailedStatusDuringDecode(
+  // ExpectFailedStatusDuringFieldValueDecode(
   //    Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -571,7 +579,7 @@ TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
   // would do.)
   Mutate(&bytes[0], /*expected_initial_value=*/0x08, /*new_value=*/0x0a);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -582,7 +590,7 @@ TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
   // 0x88 represents a string value encoded as a varint.
   Mutate(&bytes[0], /*expected_initial_value=*/0x8a, /*new_value=*/0x88);
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -595,13 +603,13 @@ TEST_F(SerializerTest, IncompleteFieldValue) {
   ASSERT_EQ(0x00, bytes[1]);
   bytes.pop_back();
 
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes;
-  ExpectFailedStatusDuringDecode(
+  ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
@@ -712,6 +720,17 @@ TEST_F(SerializerTest, DecodesNoDocument) {
   read_time_proto->set_nanos(read_time.timestamp().nanoseconds());
 
   ExpectNoDocumentDeserializationRoundTrip(key, read_time, proto);
+}
+
+TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
+  v1beta1::BatchGetDocumentsResponse proto;
+
+  std::vector<uint8_t> bytes(proto.ByteSizeLong());
+  bool status = proto.SerializeToArray(bytes.data(), bytes.size());
+  EXPECT_TRUE(status);
+
+  ExpectFailedStatusDuringMaybeDocumentDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
