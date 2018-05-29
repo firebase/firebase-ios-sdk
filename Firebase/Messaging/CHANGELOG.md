@@ -1,6 +1,6 @@
 # 2015-06-12 -- v3.0.2
-- Adding a warning message when subscribing to topics with incorrect name formats.
-- Silenced a deprecated warning in FIRMessaging.
+- Added a warning message when subscribing to topics with incorrect name formats.
+- Silenced a deprecation warning in FIRMessaging.
 
 # 2018-05-29 -- v3.0.1
 - Clean up a few deprecation warnings.
