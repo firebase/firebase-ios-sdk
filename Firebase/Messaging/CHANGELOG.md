@@ -1,7 +1,6 @@
 # 2015-06-12 -- v3.0.2
-- Add support for global data collection switch in FIRApp.
-- Adding warning message when topic format is not right.
-- Adding deprecation warning to suppress deprecated token method usage inside FIRMessaging.
+- Adding a warning message when subscribing to topics with incorrect name formats.
+- Silenced a deprecated warning in FIRMessaging.
 
 # 2018-05-29 -- v3.0.1
 - Clean up a few deprecation warnings.
