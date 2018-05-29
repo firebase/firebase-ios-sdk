@@ -59,6 +59,7 @@ def sync_firestore()
   s.test_groups = [
     'Tests',
     'CoreTests',
+    'CoreTestsProtos',
     'SwiftTests',
   ]
 
@@ -66,6 +67,7 @@ def sync_firestore()
     t.source_files = [
       'Firestore/Example/Tests/**',
       'Firestore/core/test/**',
+      'Firestore/Protos/cpp/**',
       'Firestore/third_party/Immutable/Tests/**',
     ]
     t.exclude_files = [
@@ -74,6 +76,9 @@ def sync_firestore()
 
       # These files are integration tests, handled below
       'Firestore/Example/Tests/Integration/**',
+
+      # These files are already provided by the ProtobufCpp pod.
+      'Firestore/Protos/cpp/google/protobuf/**',
     ]
   end
 
