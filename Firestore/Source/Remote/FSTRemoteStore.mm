@@ -282,7 +282,9 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  // We do not check self.listenTargets.count. Even there is no listener, we still keep the watch
+  // stream live, see http://github.com/firebase/firebase-ios-sdk/issues/1165.
+  return [self isNetworkEnabled] && ![self.watchStream isStarted];
 }
 
 - (void)cleanUpWatchStreamState {
