@@ -551,9 +551,10 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       default:
-        reader->set_status(Status(
-            FirestoreErrorCode::DataLoss,
-            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+        // Unknown tag. According to the proto spec, we need to ignore these. No
+        // action required here, though we'll need to skip the relevant bytes
+        // below.
+        break;
     }
 
     if (!reader->status().ok()) return nullptr;
@@ -595,11 +596,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       default:
-        // This indicates an internal error as we've already ensured that this
-        // is a valid field_number.
-        HARD_FAIL(
-            "Somehow got an unexpected field number (tag) after verifying that "
-            "the field number was expected.");
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
     }
   }
 
