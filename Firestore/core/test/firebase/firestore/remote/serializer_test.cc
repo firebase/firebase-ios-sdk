@@ -511,7 +511,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
                boolean_value, 0),
   };
 
-  // craft the bytes. boolean_value has a smaller tag, so it'll get encoded
+  // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
   // first. Implying integer_value should "win".
   google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
   std::vector<uint8_t> bytes(128);
