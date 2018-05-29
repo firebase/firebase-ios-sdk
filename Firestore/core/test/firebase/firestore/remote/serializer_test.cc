@@ -723,14 +723,10 @@ TEST_F(SerializerTest, DecodesNoDocument) {
 }
 
 TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
-  google::firestore::v1beta1::BatchGetDocumentsResponse proto;
-  google::protobuf::Timestamp* read_time_proto = proto.mutable_read_time();
-  read_time_proto->set_seconds(1234);
-  read_time_proto->set_nanos(5678);
+  v1beta1::BatchGetDocumentsResponse proto;
 
-  size_t size = proto.ByteSizeLong();
-  std::vector<uint8_t> bytes(size);
-  bool status = proto.SerializeToArray(bytes.data(), size);
+  std::vector<uint8_t> bytes(proto.ByteSizeLong());
+  bool status = proto.SerializeToArray(bytes.data(), bytes.size());
   EXPECT_TRUE(status);
 
   ExpectFailedStatusDuringMaybeDocumentDecode(
