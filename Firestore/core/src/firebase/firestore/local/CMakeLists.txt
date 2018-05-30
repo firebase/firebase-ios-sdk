@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     leveldb_key.h
     leveldb_key.cc
+    leveldb_transaction.h
+    leveldb_transaction.cc
   DEPENDS
     LevelDB::LevelDB
     absl_strings
