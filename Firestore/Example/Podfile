@@ -37,4 +37,10 @@ target 'Firestore_Example_iOS' do
   target 'SwiftBuildTest' do
     platform :ios, '8.0'
   end
+
+  target 'Firestore_FuzzTests_iOS' do
+    inherit! :search_paths
+
+    pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec'
+  end
 end
