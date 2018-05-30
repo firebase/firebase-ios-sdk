@@ -350,6 +350,21 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 /**
+ * Cancels idel-close-timer and reset backoff as necessary. Mainly those stream-specific close
+ * operations.
+ *
+ * @param finalState the intended state of the stream after closing.
+ */
+- (void)closeWithFinalState:(FSTStreamState)finalState {
+  // The stream will be closed so we don't need our idle close timer anymore.
+  [self cancelIdleCheck];
+
+  // Ensure we don't leave a pending backoff operation queued (in case close()
+  // was called while we were waiting to reconnect).
+  [self.backoff cancel];
+}
+
+/**
  * Closes the stream and cleans up as necessary:
  *
  * * closes the underlying GRPC stream;
@@ -369,12 +384,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  // The stream will be closed so we don't need our idle close timer anymore.
-  [self cancelIdleCheck];
-
-  // Ensure we don't leave a pending backoff operation queued (in case close()
-  // was called while we were waiting to reconnect).
-  [self.backoff cancel];
+  [self closeWithFinalState:finalState];
 
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.
@@ -693,6 +703,14 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTWatchChange *change = [_serializer decodedWatchChange:proto];
   SnapshotVersion snap = [_serializer versionFromListenResponse:proto];
   [self.delegate watchStreamDidChange:change snapshotVersion:snap];
+}
+
+- (void)closeWithFinalState:(FSTStreamState)finalState {
+  if (finalState != FSTStreamStateError) {
+    // We only close those if there is no error. The RemoveStore will restart the stream if there is
+    // error.
+    [super closeWithFinalState:finalState];
+  }
 }
 
 @end

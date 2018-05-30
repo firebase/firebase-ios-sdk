@@ -358,7 +358,7 @@ static const int kMaxPendingWrites = 10;
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
-  if ((error == nil && [self shouldStartWatchStream]) || [self shouldStartWatchStreamAfterError]) {
+  if (error == nil ? [self shouldStartWatchStream] : [self shouldStartWatchStreamAfterError]) {
     [self startWatchStream:error != nil];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
