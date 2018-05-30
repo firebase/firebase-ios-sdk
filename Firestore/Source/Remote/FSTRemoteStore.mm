@@ -282,8 +282,15 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  // We do not check self.listenTargets.count. Even there is no listener, we still keep the watch
-  // stream live, see http://github.com/firebase/firebase-ios-sdk/issues/1165.
+  return [self shouldStartWatchStreamModuloListenerCheck] && self.listenTargets.count > 0;
+}
+
+/**
+ * Similar to shouldStartWatchStream except this one does not check whether there are active watch
+ * target or not. For certain cases, even there is no listener, we may still want to keep the watch
+ * stream live, see http://github.com/firebase/firebase-ios-sdk/issues/1165.
+ */
+- (BOOL)shouldStartWatchStreamModuloListenerCheck {
   return [self isNetworkEnabled] && ![self.watchStream isStarted];
 }
 
