@@ -438,8 +438,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
-    // iOS App extensions should not call [UIApplication sharedApplication], even
-    // if UIApplication responds to it.
 
     static Class applicationClass = nil;
     static dispatch_once_t onceToken;
@@ -447,6 +445,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     dispatch_once(&onceToken, ^{
       isAppExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
     });
+    // iOS App extensions should not call [UIApplication sharedApplication], even
+    // if UIApplication responds to it.
     if (!isAppExtension) {
       Class cls = NSClassFromString(@"UIApplication");
       if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
