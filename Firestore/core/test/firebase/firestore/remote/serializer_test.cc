@@ -474,6 +474,62 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
   ExpectRoundTrip(model, proto, FieldValue::Type::Object);
 }
 
+TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
+  // Technically, serialized Value protos can contain multiple values. (The last
+  // one "wins".) However, well-behaved proto emitters (such as libprotobuf)
+  // won't generate that, so to test, we either need to use hand-crafted, raw
+  // bytes or use a proto message that's *almost* the same as the real one, such
+  // that when it's encoded, you can generate these repeated fields. (This is
+  // how libprotobuf tests itself.)
+  //
+  // Using libprotobuf for this purpose is mildly inconvenient for us, since we
+  // don't run protoc as part of the build process, so we'd need to either add
+  // these fake messages to our protos tree (Protos/testprotos?) and then check
+  // in the results (which isn't great when writing new tests). Fortunately, we
+  // have another alternative: nanopb.
+  //
+  // So we'll create a nanopb struct that *looks* like
+  // google_firestore_v1beta1_Value, and then populate and serialize it using
+  // the normal nanopb mechanisms. This should give us a wire-compatible Value
+  // message, but with multiple values set.
+
+  // Copy of the real one (from the nanopb generated document.pb.h), but with
+  // only boolean_value and integer_value.
+  struct google_firestore_v1beta1_Value_Fake {
+    bool boolean_value;
+    int64_t integer_value;
+  };
+
+  // Copy of the real one (from the nanopb generated document.pb.c), but with
+  // only boolean_value and integer_value.
+  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[2] = {
+      PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
+               google_firestore_v1beta1_Value_Fake, boolean_value,
+               boolean_value, 0),
+      PB_FIELD(2, INT64, SINGULAR, STATIC, OTHER,
+               google_firestore_v1beta1_Value_Fake, integer_value,
+               boolean_value, 0),
+  };
+
+  // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
+  // first. Implying integer_value should "win".
+  google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
+  std::vector<uint8_t> bytes(128);
+  pb_ostream_t stream = pb_ostream_from_buffer(bytes.data(), bytes.size());
+  pb_encode(&stream, google_firestore_v1beta1_Value_fields_Fake, &crafty_value);
+  bytes.resize(stream.bytes_written);
+
+  // Decode the bytes into the model
+  StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
+  EXPECT_OK(actual_model_status);
+  FieldValue actual_model = actual_model_status.ValueOrDie();
+
+  // Ensure the decoded model is as expected.
+  FieldValue expected_model = FieldValue::IntegerValue(42);
+  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
+}
+
 TEST_F(SerializerTest, BadNullValue) {
   std::vector<uint8_t> bytes =
       EncodeFieldValue(&serializer, FieldValue::NullValue());

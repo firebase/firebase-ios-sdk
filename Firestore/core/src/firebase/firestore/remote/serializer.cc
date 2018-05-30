@@ -167,77 +167,96 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 FieldValue DecodeFieldValueImpl(Reader* reader) {
   if (!reader->status().ok()) return FieldValue::NullValue();
 
-  Tag tag = reader->ReadTag();
-  if (!reader->status().ok()) return FieldValue::NullValue();
-
-  // Ensure the tag matches the wire type
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_Value_null_value_tag:
-    case google_firestore_v1beta1_Value_boolean_value_tag:
-    case google_firestore_v1beta1_Value_integer_value_tag:
-      if (tag.wire_type != PB_WT_VARINT) {
-        reader->set_status(
-            Status(FirestoreErrorCode::DataLoss,
-                   "Input proto bytes cannot be parsed (mismatch between "
-                   "the wiretype and the field number (tag))"));
-      }
-      break;
-
-    case google_firestore_v1beta1_Value_string_value_tag:
-    case google_firestore_v1beta1_Value_timestamp_value_tag:
-    case google_firestore_v1beta1_Value_map_value_tag:
-      if (tag.wire_type != PB_WT_STRING) {
-        reader->set_status(
-            Status(FirestoreErrorCode::DataLoss,
-                   "Input proto bytes cannot be parsed (mismatch between "
-                   "the wiretype and the field number (tag))"));
-      }
-      break;
-
-    default:
-      // We could get here for one of two reasons; either because the input
-      // bytes are corrupt, or because we're attempting to parse a tag that we
-      // haven't implemented yet. Long term, the latter reason should become
-      // less likely (especially in production), so we'll assume former.
-
-      // TODO(rsgowman): While still in development, we'll contradict the above
-      // and assume the latter. Remove the following assertion when we're
-      // confident that we're handling all the tags in the protos.
-      HARD_FAIL(
-          "Unhandled message field number (tag): %s. (Or possibly "
-          "corrupt input bytes)",
-          tag.field_number);
-      reader->set_status(Status(
-          FirestoreErrorCode::DataLoss,
-          "Input proto bytes cannot be parsed (invalid field number (tag))"));
+  // There needs to be at least one entry in the FieldValue.
+  if (reader->bytes_left() == 0) {
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Input Value proto missing contents"));
+    return FieldValue::NullValue();
   }
 
-  if (!reader->status().ok()) return FieldValue::NullValue();
+  FieldValue result = FieldValue::NullValue();
 
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_Value_null_value_tag:
-      reader->ReadNull();
-      return FieldValue::NullValue();
-    case google_firestore_v1beta1_Value_boolean_value_tag:
-      return FieldValue::BooleanValue(reader->ReadBool());
-    case google_firestore_v1beta1_Value_integer_value_tag:
-      return FieldValue::IntegerValue(reader->ReadInteger());
-    case google_firestore_v1beta1_Value_string_value_tag:
-      return FieldValue::StringValue(reader->ReadString());
-    case google_firestore_v1beta1_Value_timestamp_value_tag:
-      return FieldValue::TimestampValue(
-          reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
-    case google_firestore_v1beta1_Value_map_value_tag:
-      return FieldValue::ObjectValueFromMap(
-          reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return FieldValue::NullValue();
 
-    default:
-      // This indicates an internal error as we've already ensured that this is
-      // a valid field_number.
-      HARD_FAIL(
-          "Somehow got an unexpected field number (tag) after verifying that "
-          "the field number was expected.");
+    // Ensure the tag matches the wire type
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Value_null_value_tag:
+      case google_firestore_v1beta1_Value_boolean_value_tag:
+      case google_firestore_v1beta1_Value_integer_value_tag:
+        if (tag.wire_type != PB_WT_VARINT) {
+          reader->set_status(
+              Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (mismatch between "
+                     "the wiretype and the field number (tag))"));
+        }
+        break;
+
+      case google_firestore_v1beta1_Value_string_value_tag:
+      case google_firestore_v1beta1_Value_timestamp_value_tag:
+      case google_firestore_v1beta1_Value_map_value_tag:
+        if (tag.wire_type != PB_WT_STRING) {
+          reader->set_status(
+              Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (mismatch between "
+                     "the wiretype and the field number (tag))"));
+        }
+        break;
+
+      default:
+        // We could get here for one of two reasons; either because the input
+        // bytes are corrupt, or because we're attempting to parse a tag that we
+        // haven't implemented yet. Long term, the latter reason should become
+        // less likely (especially in production), so we'll assume former.
+
+        // TODO(rsgowman): While still in development, we'll contradict the
+        // above and assume the latter. Remove the following assertion when
+        // we're confident that we're handling all the tags in the protos.
+        HARD_FAIL("Unhandled message field number (tag): %i.",
+                  tag.field_number);
+        reader->set_status(Status(
+            FirestoreErrorCode::DataLoss,
+            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+    }
+
+    if (!reader->status().ok()) return FieldValue::NullValue();
+
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Value_null_value_tag:
+        reader->ReadNull();
+        result = FieldValue::NullValue();
+        break;
+      case google_firestore_v1beta1_Value_boolean_value_tag:
+        result = FieldValue::BooleanValue(reader->ReadBool());
+        break;
+      case google_firestore_v1beta1_Value_integer_value_tag:
+        result = FieldValue::IntegerValue(reader->ReadInteger());
+        break;
+      case google_firestore_v1beta1_Value_string_value_tag:
+        result = FieldValue::StringValue(reader->ReadString());
+        break;
+      case google_firestore_v1beta1_Value_timestamp_value_tag:
+        result = FieldValue::TimestampValue(
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
+        break;
+      case google_firestore_v1beta1_Value_map_value_tag:
+        // TODO(rsgowman): We should merge the existing map (if any) with the
+        // newly parsed map.
+        result = FieldValue::ObjectValueFromMap(
+            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+        break;
+
+      default:
+        // This indicates an internal error as we've already ensured that this
+        // is a valid field_number.
+        HARD_FAIL(
+            "Somehow got an unexpected field number (tag) after verifying that "
+            "the field number was expected.");
+    }
   }
+
+  return result;
 }
 
 /**
