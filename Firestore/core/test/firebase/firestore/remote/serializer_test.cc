@@ -629,7 +629,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // deserialize the rest of the bytes as if it wasn't there. To craft these
   // bytes, we'll use the same technique as
   // EncodesFieldValuesWithRepeatedEntries (so go read the comments there
-  // first.)
+  // first).
 
   // Copy of the real one (from the nanopb generated document.pb.h), but with
   // only boolean_value and integer_value.
@@ -640,17 +640,18 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Copy of the real one (from the nanopb generated document.pb.c), but with
   // only boolean_value and integer_value. Also modified such that integer_value
-  // now has a tag of 31 (which isn't a valid tag) instead of 2.
+  // now has an invalid tag (instead of 2).
+  const int invalid_tag = 31;
   const pb_field_t google_firestore_v1beta1_Value_fields_Fake[2] = {
       PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
                google_firestore_v1beta1_Value_Fake, boolean_value,
                boolean_value, 0),
-      PB_FIELD(31, INT64, SINGULAR, STATIC, OTHER,
+      PB_FIELD(invalid_tag, INT64, SINGULAR, STATIC, OTHER,
                google_firestore_v1beta1_Value_Fake, integer_value,
                boolean_value, 0),
   };
 
-  // craft the bytes. boolean_value has a smaller tag, so it'll get encoded
+  // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
   // first, normally implying integer_value should "win". Except that
   // integer_value isn't a valid tag, so it should be ignored here.
   google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
