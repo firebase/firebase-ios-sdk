@@ -438,7 +438,26 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _settings = [[FIRAuthSettings alloc] init];
     _firebaseAppName = [appName copy];
     #if TARGET_OS_IOS
-    UIApplication *application = [UIApplication sharedApplication];
+    // iOS App extensions should not call [UIApplication sharedApplication], even
+    // if UIApplication responds to it.
+
+    static Class applicationClass = nil;
+    static dispatch_once_t onceToken;
+    __block BOOL isAppExtension;
+    dispatch_once(&onceToken, ^{
+      isAppExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
+    });
+    if (!isAppExtension) {
+      Class cls = NSClassFromString(@"UIApplication");
+      if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
+        applicationClass = cls;
+      }
+    }
+    UIApplication *application;
+    if (applicationClass) {
+      application = [UIApplication sharedApplication];
+    }
+
     // Initialize the shared FIRAuthAppDelegateProxy instance in the main thread if not already.
     [FIRAuthAppDelegateProxy sharedInstance];
     #endif
