@@ -441,8 +441,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     #if TARGET_OS_IOS
 
     static Class applicationClass = nil;
-    // iOS App extensions should not call [UIApplication sharedApplication], even
-    // if UIApplication responds to it.
+    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+    // responds to it.
     if (![FIRAppEnvironmentUtil isAppExtension]) {
       Class cls = NSClassFromString(@"UIApplication");
       if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
