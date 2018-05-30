@@ -19,6 +19,7 @@
 #import "FIRAuth_Internal.h"
 
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
+#import <FirebaseCore/FIRAppEnvironmentUtil.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
@@ -440,20 +441,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     #if TARGET_OS_IOS
 
     static Class applicationClass = nil;
-    static dispatch_once_t onceToken;
-    __block BOOL isAppExtension;
-    dispatch_once(&onceToken, ^{
-      isAppExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
-    });
     // iOS App extensions should not call [UIApplication sharedApplication], even
     // if UIApplication responds to it.
-    if (!isAppExtension) {
+    if (![FIRAppEnvironmentUtil isAppExtension]) {
       Class cls = NSClassFromString(@"UIApplication");
       if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
         applicationClass = cls;
       }
     }
-    UIApplication *application;
+    UIApplication *application = nil;
     if (applicationClass) {
       application = [UIApplication sharedApplication];
     }
