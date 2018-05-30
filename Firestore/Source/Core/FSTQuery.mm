@@ -753,7 +753,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     return _canonicalID;
   }
 
-  NSMutableString *canonicalID = [util::WrapNSStringNoCopy(_path.CanonicalString()) mutableCopy];
+  NSMutableString *canonicalID = [NSMutableString string];
+  [canonicalID appendFormat:@"%s", _path.CanonicalString().c_str()];
 
   // Add filters.
   [canonicalID appendString:@"|f:"];

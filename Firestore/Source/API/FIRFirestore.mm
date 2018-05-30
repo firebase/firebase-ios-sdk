@@ -128,11 +128,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                          @"before using Firestore");
   }
-  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
 }
 
 // TODO(b/62410906): make this public
