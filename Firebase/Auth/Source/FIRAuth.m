@@ -449,10 +449,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         applicationClass = cls;
       }
     }
-    UIApplication *application = nil;
-    if (applicationClass) {
-      application = [UIApplication sharedApplication];
-    }
+    UIApplication *application = [applicationClass sharedApplication];
 
     // Initialize the shared FIRAuthAppDelegateProxy instance in the main thread if not already.
     [FIRAuthAppDelegateProxy sharedInstance];
