@@ -227,8 +227,17 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Watch Stream
 
 - (void)startWatchStream {
-  HARD_ASSERT([self shouldStartWatchStream],
-              "startWatchStream: called when shouldStartWatchStream: is false.");
+  [self startWatchStream:NO];
+}
+
+- (void)startWatchStream:(BOOL)afterError {
+  if (afterError) {
+    HARD_ASSERT([self shouldStartWatchStreamAfterError],
+                "startWatchStream: called when shouldStartWatchStreamAfterError: is false.");
+  } else {
+    HARD_ASSERT([self shouldStartWatchStream],
+                "startWatchStream: called when shouldStartWatchStream: is false.");
+  }
   [self.watchStream startWithDelegate:self];
   [self.onlineStateTracker handleWatchStreamStart];
 }
@@ -282,7 +291,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self shouldStartWatchStreamModuloListenerCheck] && self.listenTargets.count > 0;
+  return [self shouldStartWatchStreamAfterError] && self.listenTargets.count > 0;
 }
 
 /**
@@ -290,7 +299,7 @@ static const int kMaxPendingWrites = 10;
  * target or not. For certain cases, even there is no listener, we may still want to keep the watch
  * stream live, see http://github.com/firebase/firebase-ios-sdk/issues/1165.
  */
-- (BOOL)shouldStartWatchStreamModuloListenerCheck {
+- (BOOL)shouldStartWatchStreamAfterError {
   return [self isNetworkEnabled] && ![self.watchStream isStarted];
 }
 
@@ -349,8 +358,8 @@ static const int kMaxPendingWrites = 10;
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
-  if ([self shouldStartWatchStream]) {
-    [self startWatchStream];
+  if ((error == nil && [self shouldStartWatchStream]) || [self shouldStartWatchStreamAfterError]) {
+    [self startWatchStream:error != nil];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
