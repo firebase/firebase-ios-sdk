@@ -147,7 +147,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   return error.code == FIRFirestoreErrorCodeAborted;
 }
 
-+ (BOOL)isPermanentWriteError:(NSError *)error {
++ (BOOL)isPermanentWriteError:(NSError *)error previousError:(nullable NSError *) previousError {
   FSTAssert([error.domain isEqualToString:FIRFirestoreErrorDomain],
             @"isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
   switch (error.code) {
@@ -157,10 +157,6 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeResourceExhausted:
     case FIRFirestoreErrorCodeInternal:
     case FIRFirestoreErrorCodeUnavailable:
-    case FIRFirestoreErrorCodeUnauthenticated:
-      // Unauthenticated means something went wrong with our token and we need
-      // to retry with new credentials which will happen automatically.
-      // TODO(b/37325376): Give up after second unauthenticated error.
       return NO;
     case FIRFirestoreErrorCodeInvalidArgument:
     case FIRFirestoreErrorCodeNotFound:
@@ -174,6 +170,13 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeOutOfRange:
     case FIRFirestoreErrorCodeUnimplemented:
     case FIRFirestoreErrorCodeDataLoss:
+      return YES;
+    case FIRFirestoreErrorCodeUnauthenticated:
+      // Unauthenticated means something went wrong with our token and we need
+      // to retry with new credentials which will happen automatically. However,
+      // if this error persists, there's probably some other underlying issue,
+      // so retrying is unlikely to help.
+      return previousError != nil && previousError.code == FIRFirestoreErrorCodeUnauthenticated;
     default:
       return YES;
   }

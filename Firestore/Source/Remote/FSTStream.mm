@@ -150,8 +150,6 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
  */
 @property(nonatomic, strong, nullable) FSTBufferedWriter *requestsWriter;
 
-@property(nonatomic, assign) BOOL forceTokenRefresh;
-
 @end
 
 #pragma mark - FSTCallbackFilter
@@ -209,7 +207,9 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 @end
 
 @implementation FSTStream {
-  util::StatusOr<Token> _lastToken;
+  /* util::StatusOr<Token> _lastToken; */
+  NSError _lastError;
+  BOOL _forceTokenRefresh;
 }
 
 /** The time a stream stays open after it is marked idle. */
@@ -233,8 +233,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                                                        initialDelay:kBackoffInitialDelay
                                                       backoffFactor:kBackoffFactor
                                                            maxDelay:kBackoffMaxDelay];
-    _state = FSTStreamStateInitial;
     _forceTokenRefresh = NO;
+    _state = FSTStreamStateInitial;
   }
   return self;
 }
@@ -283,7 +283,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   _forceTokenRefresh = NO;
-  _lastToken = result;
+  /* _lastToken = result; */
 
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
@@ -393,7 +393,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
            (__bridge void *)self);
     [self.backoff resetToMax];
   } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated
-      && _lastToken.ok() &&  _lastToken.ValueOrDie().user().is_authenticated()) {
+      && !(_lastError != nil && _lastError.code == FIRFirestoreErrorCodeUnauthenticated)) {
     // If the error was due to expired token, retry as soon as possible.
     [self.backoff reset];
     _forceTokenRefresh = YES;
@@ -432,6 +432,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   if (finalState != FSTStreamStateStopped) {
     [self notifyStreamInterruptedWithError:error];
   }
+
+  self.lastError = error;
 
   // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the stream with a new
   // delegate so we do /not/ want to clear the delegate here. And since we've already suppressed

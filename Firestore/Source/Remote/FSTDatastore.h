@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isAbortedError:(NSError *)error;
 
 /** Returns YES if the given error indicates the RPC associated with it may not be retried. */
-+ (BOOL)isPermanentWriteError:(NSError *)error;
++ (BOOL)isPermanentWriteError:(NSError *)error previousError:(nullable NSError*)previousError;
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
