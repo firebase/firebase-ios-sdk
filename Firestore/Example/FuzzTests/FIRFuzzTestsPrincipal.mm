@@ -20,28 +20,28 @@
 
 namespace {
 
-  // Contains the code to be fuzzed. Called by the fuzzing library with
-  // different argument values for `data` and `size`.
-  int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-    // Code to be fuzz-tested here.
-    return 0;
-  }
+// Contains the code to be fuzzed. Called by the fuzzing library with
+// different argument values for `data` and `size`.
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+  // Code to be fuzz-tested here.
+  return 0;
+}
 
-  // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
-  int RunFuzzTestingMain() {
-    // Arguments to libFuzzer main() function should be added to this array,
-    // e.g., dictionaries, corpus, number of runs, jobs, etc.
-    // Arguments are casted as character arrays because C++11 does not allow
-    // the conversion from string literals to character arrays.
-    char *programArgs[] = {
-      (char *) "RunFuzzTestingMain"  // First argument is program name.
-    };
-    char **argv = programArgs;
-    int argc = sizeof(programArgs)/sizeof(programArgs[0]);
+// Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
+int RunFuzzTestingMain() {
+  // Arguments to libFuzzer main() function should be added to this array,
+  // e.g., dictionaries, corpus, number of runs, jobs, etc.
+  // Arguments are casted as character arrays because C++11 does not allow
+  // the conversion from string literals to character arrays.
+  char *programArgs[] = {
+      (char *)"RunFuzzTestingMain"  // First argument is program name.
+  };
+  char **argv = programArgs;
+  int argc = sizeof(programArgs) / sizeof(programArgs[0]);
 
-    // Start fuzzing using libFuzzer's driver.
-    return fuzzer::FuzzerDriver(&argc, &argv, LLVMFuzzerTestOneInput);
-  }
+  // Start fuzzing using libFuzzer's driver.
+  return fuzzer::FuzzerDriver(&argc, &argv, LLVMFuzzerTestOneInput);
+}
 
 }  // namespace
 
@@ -58,7 +58,7 @@ namespace {
 
 @implementation FIRFuzzTestsPrincipal
 
-- (instancetype) init {
+- (instancetype)init {
   self = [super init];
   RunFuzzTestingMain();
   return self;
