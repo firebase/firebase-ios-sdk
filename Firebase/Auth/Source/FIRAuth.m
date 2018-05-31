@@ -370,8 +370,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         // Enable token auto-refresh if not aleady enabled.
         if (strongSelf && !strongSelf->_autoRefreshTokens) {
           FIRLogInfo(kFIRLoggerAuth, @"I-AUT000002", @"Token auto-refresh enabled.");
-          strongSelf->_autoRefreshTokens = YES;
-          [strongSelf scheduleAutoTokenRefresh];
+          // strongSelf->_autoRefreshTokens = YES;
+          // [strongSelf scheduleAutoTokenRefresh];
 
           #if TARGET_OS_IOS // TODO: Is a similar mechanism needed on macOS?
           strongSelf->_applicationDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter]

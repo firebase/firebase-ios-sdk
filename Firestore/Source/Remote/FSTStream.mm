@@ -150,6 +150,8 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
  */
 @property(nonatomic, strong, nullable) FSTBufferedWriter *requestsWriter;
 
+@property(nonatomic, assign) BOOL forceTokenRefresh;
+
 @end
 
 #pragma mark - FSTCallbackFilter
@@ -206,7 +208,9 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @end
 
-@implementation FSTStream
+@implementation FSTStream {
+  util::StatusOr<Token> _lastToken;
+}
 
 /** The time a stream stays open after it is marked idle. */
 static const NSTimeInterval kIdleTimeout = 60.0;
@@ -230,6 +234,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                                                       backoffFactor:kBackoffFactor
                                                            maxDelay:kBackoffMaxDelay];
     _state = FSTStreamStateInitial;
+    _forceTokenRefresh = NO;
   }
   return self;
 }
@@ -266,7 +271,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   _delegate = delegate;
 
   _credentials->GetToken(
-      /*force_refresh=*/false, [self](util::StatusOr<Token> result) {
+    _forceTokenRefresh, [self](util::StatusOr<Token> result) {
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
           [self resumeStartWithToken:result];
         }];
@@ -276,6 +281,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
 - (void)resumeStartWithToken:(const util::StatusOr<Token> &)result {
   [self.workerDispatchQueue verifyIsCurrentQueue];
+
+  _forceTokenRefresh = NO;
+  _lastToken = result;
 
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
@@ -384,6 +392,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     FSTLog(@"%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
            (__bridge void *)self);
     [self.backoff resetToMax];
+  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated
+      && _lastToken.ok() &&  _lastToken.ValueOrDie().user().is_authenticated()) {
+    // If the error was due to expired token, retry as soon as possible.
+    [self.backoff reset];
+    _forceTokenRefresh = YES;
   }
 
   if (finalState != FSTStreamStateError) {

@@ -599,8 +599,8 @@ static const int kMaxPendingWrites = 10;
   if (error != nil && self.pendingWrites.count > 0) {
     if (self.writeStream.handshakeComplete) {
       // This error affects the actual writes.
-      [self handleWriteError:error];
     } else {
+      [self handleWriteError:error];
       // If there was an error before the handshake finished, it's possible that the server is
       // unable to process the stream token we're sending. (Perhaps it's too old?)
       [self handleHandshakeError:error];
