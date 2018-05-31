@@ -580,6 +580,9 @@
 		ED8C81092088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		ED8C810A2088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		ED8C810B2088EFA20093EB8A /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		EDD43AA420BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
+		EDD43AA520BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
+		EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1257,6 +1260,7 @@
 		ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRReachabilityCheckerTest.m; sourceTree = "<group>"; };
 		ED8C80FE2088EFA20093EB8A /* GTMHTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMHTTPServer.h; sourceTree = "<group>"; };
 		ED8C80FF2088EFA20093EB8A /* GTMHTTPServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMHTTPServer.m; sourceTree = "<group>"; };
+		EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAnalyticsConfigurationTest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2265,6 +2269,7 @@
 				ED8C80FB2088EFA10093EB8A /* FIRNetworkTest.m */,
 				ED8C80FC2088EFA20093EB8A /* FIRReachabilityCheckerTest.m */,
 				ED8C80FD2088EFA20093EB8A /* third_party */,
+				EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */,
 				DE4B26DE20855F1F0030A38C /* FIRAppEnvironmentUtilTest.m */,
 				DEE14D7B1E844677006FA992 /* FIRTestCase.h */,
 				DEE14D751E844677006FA992 /* FIRAppAssociationRegistrationUnitTests.m */,
@@ -3622,6 +3627,7 @@
 				D064E6B31ED9B31C001956DF /* FIROptionsTest.m in Sources */,
 				ED8C810A2088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				D064E6B41ED9B31C001956DF /* FIRBundleUtilTest.m in Sources */,
+				EDD43AA520BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */,
 				D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4080,6 +4086,7 @@
 				DEAAD3D81FBA34250053BF48 /* FIRConfigurationTest.m in Sources */,
 				ED8C810B2088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				DEAAD3DB1FBA34250053BF48 /* FIRTestCase.m in Sources */,
+				EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */,
 				DEAAD3D71FBA34250053BF48 /* FIRBundleUtilTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4163,6 +4170,7 @@
 				DEE14D931E84468D006FA992 /* FIROptionsTest.m in Sources */,
 				ED8C81092088EFA20093EB8A /* GTMHTTPServer.m in Sources */,
 				DEE14D901E84468D006FA992 /* FIRBundleUtilTest.m in Sources */,
+				EDD43AA420BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */,
 				DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
