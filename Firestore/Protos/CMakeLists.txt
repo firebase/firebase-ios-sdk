@@ -77,16 +77,6 @@ cc_library(
     cpp/google/firestore/v1beta1/query.pb.h
     cpp/google/firestore/v1beta1/write.pb.cc
     cpp/google/firestore/v1beta1/write.pb.h
-    cpp/google/protobuf/any.pb.cc
-    cpp/google/protobuf/any.pb.h
-    cpp/google/protobuf/empty.pb.cc
-    cpp/google/protobuf/empty.pb.h
-    cpp/google/protobuf/struct.pb.cc
-    cpp/google/protobuf/struct.pb.h
-    cpp/google/protobuf/timestamp.pb.cc
-    cpp/google/protobuf/timestamp.pb.h
-    cpp/google/protobuf/wrappers.pb.cc
-    cpp/google/protobuf/wrappers.pb.h
     cpp/google/rpc/status.pb.cc
     cpp/google/rpc/status.pb.h
     cpp/google/type/latlng.pb.cc
