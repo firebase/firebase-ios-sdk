@@ -137,3 +137,11 @@ cc_test(
     firebase_firestore_util
     gmock
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_util_test
+    PUBLIC
+      type_traits_apple_test.mm
+  )
+endif()

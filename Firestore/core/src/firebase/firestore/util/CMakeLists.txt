@@ -200,6 +200,7 @@ cc_library(
     statusor_internals.h
     string_util.cc
     string_util.h
+    type_traits.h
   DEPENDS
     absl_base
     firebase_firestore_util_base

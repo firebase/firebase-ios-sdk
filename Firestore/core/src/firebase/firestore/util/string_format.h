@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
@@ -85,9 +86,8 @@ class FormatArg : public absl::AlphaNum {
   /**
    * Creates a FormatArg from any pointer to an object derived from NSObject.
    */
-  template <
-      typename T,
-      typename = typename std::enable_if<std::is_base_of<NSObject, T>{}>::type>
+  template <typename T,
+            typename = typename std::enable_if<is_objective_c_class<T>{}>::type>
   FormatArg(T* object, internal::FormatChoice<0>)
       : AlphaNum{MakeStringView([object description])} {
   }
