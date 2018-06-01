@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <Foundation/NSObject.h>
 
-#include "FuzzerDefs.h"
+#include "LibFuzzer/FuzzerDefs.h"
 
 namespace {
 
@@ -31,13 +31,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 int RunFuzzTestingMain() {
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc.
-  // Arguments are casted as character arrays because C++11 does not allow
-  // the conversion from string literals to character arrays.
-  char *programArgs[] = {
-      (char *)"RunFuzzTestingMain"  // First argument is program name.
+  char *program_args[] = {
+      const_cast<char *>("RunFuzzTestingMain")  // First argument is program name.
   };
-  char **argv = programArgs;
-  int argc = sizeof(programArgs) / sizeof(programArgs[0]);
+  char **argv = program_args;
+  int argc = sizeof(program_args) / sizeof(program_args[0]);
 
   // Start fuzzing using libFuzzer's driver.
   return fuzzer::FuzzerDriver(&argc, &argv, LLVMFuzzerTestOneInput);
@@ -48,8 +46,7 @@ int RunFuzzTestingMain() {
 /**
  * This class is registered as the NSPrincipalClass in the
  * Firestore_FuzzTests_iOS bundle's Info.plist. XCTest instantiates this class
- * to perform one-time setup
- * for the test bundle, as documented here:
+ * to perform one-time setup for the test bundle, as documented here:
  *
  *   https://developer.apple.com/documentation/xctest/xctestobservationcenter
  */
