@@ -14,7 +14,7 @@
 
 #import "FIRTestCase.h"
 
-#import <FirebaseCore/FIRMutableDictionary.h>
+#import <FirebaseUtilities/FIRMutableDictionary.h>
 
 const static NSString *const kKey = @"testKey1";
 const static NSString *const kValue = @"testValue1";

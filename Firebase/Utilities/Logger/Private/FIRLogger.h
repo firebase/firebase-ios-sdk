@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLoggerLevel.h"
+#import <FirebaseUtilities/FIRLoggerLevel.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -78,6 +78,12 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
  * (required) whether or not this function is called from the Analytics component.
  */
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
+
+/**
+ * Register version to include in logs.
+ * (required) version
+ */
+void FIRLoggerRegisterVersion(const char *version);
 
 /**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will

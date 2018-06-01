@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLoggerLevel.h"
+#import <FirebaseUtilities/FIRLoggerLevel.h>
 #import "FIRNetworkMessageCode.h"
 
 /// The log levels used by FIRNetworkLogger.

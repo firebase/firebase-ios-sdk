@@ -15,7 +15,7 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppEnvironmentUtil.h>
+#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
 
 #import "FIRTestCase.h"
 

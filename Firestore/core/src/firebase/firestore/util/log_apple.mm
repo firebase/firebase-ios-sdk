@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import <Foundation/Foundation.h>
 
 #include <cstdarg>

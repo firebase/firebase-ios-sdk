@@ -18,7 +18,7 @@
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
