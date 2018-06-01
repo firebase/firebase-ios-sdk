@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 
+#import <Foundation/NSArray.h>
 #import <Foundation/NSObject.h>
 #import <Foundation/NSString.h>
 
@@ -26,15 +27,21 @@ namespace firestore {
 namespace util {
 
 TEST(TypeTraitsTest, IsObjectiveCClass) {
-  static_assert(is_objective_c_class<id>{}, "id");
-
   static_assert(is_objective_c_class<NSObject>{}, "NSObject");
   static_assert(is_objective_c_class<NSString>{}, "NSString");
+  static_assert(is_objective_c_class<NSArray<NSString*>>{},
+                "NSArray<NSString*>");
+
+  static_assert(!is_objective_c_class<int*>{}, "int*");
+  static_assert(!is_objective_c_class<void*>{}, "void*");
   static_assert(!is_objective_c_class<int>{}, "int");
   static_assert(!is_objective_c_class<void>{}, "void");
 
   struct Foo {};
   static_assert(!is_objective_c_class<Foo>{}, "Foo");
+
+  static_assert(!is_objective_c_class<id>{}, "id");
+  static_assert(!is_objective_c_class<id<NSCopying>>{}, "id<NSCopying>");
 }
 
 }  // namespace util

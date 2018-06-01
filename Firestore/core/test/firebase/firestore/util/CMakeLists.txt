@@ -142,6 +142,7 @@ if(APPLE)
   target_sources(
     firebase_firestore_util_test
     PUBLIC
+      string_format_apple_test.mm
       type_traits_apple_test.mm
   )
 endif()

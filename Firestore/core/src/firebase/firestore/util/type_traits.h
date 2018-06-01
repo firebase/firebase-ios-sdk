@@ -34,8 +34,12 @@ namespace util {
  * class.
  *
  * is_objective_c_class<NSObject>::value == true
- * is_objective_c_class<id>::value == true
+ * is_objective_c_class<NSArray<NSString*>>::value == true
  *
+ * // id is a pointer to an Objective-C object, not an Objective-C class.
+ * is_objective_c_class<id>::value == false
+ *
+ * // fundamental types and C++ classes are not Objective-C classes.
  * is_objective_c_class<int>::value == false
  * is_objective_c_class<std::string>::value == false
  */
@@ -70,9 +74,6 @@ struct is_objective_c_class {
     return value;
   }
 };
-
-template <>
-struct is_objective_c_class<id> : public std::true_type {};
 
 #endif  // __OBJC__
 
