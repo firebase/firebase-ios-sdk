@@ -17,7 +17,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>NSPrincipalClass</key>
-	<string>FIRFuzzTestsPrincipal</string>
+	<string>FSTFuzzTestsPrincipal</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 </dict>

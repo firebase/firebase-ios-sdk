@@ -50,10 +50,10 @@ int RunFuzzTestingMain() {
  *
  *   https://developer.apple.com/documentation/xctest/xctestobservationcenter
  */
-@interface FIRFuzzTestsPrincipal : NSObject
+@interface FSTFuzzTestsPrincipal : NSObject
 @end
 
-@implementation FIRFuzzTestsPrincipal
+@implementation FSTFuzzTestsPrincipal
 
 - (instancetype)init {
   self = [super init];
