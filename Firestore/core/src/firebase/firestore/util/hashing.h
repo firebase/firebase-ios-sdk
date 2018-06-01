@@ -64,8 +64,10 @@ template <typename T>
 struct has_std_hash {
   // There may be other types for which std::hash is defined but they don't
   // matter for our purposes.
-  static const bool value = std::is_arithmetic<T>{} || std::is_pointer<T>{} ||
-                            std::is_same<T, std::string>{};
+  enum {
+    value = std::is_arithmetic<T>{} || std::is_pointer<T>{} ||
+            std::is_same<T, std::string>{}
+  };
 
   constexpr operator bool() const {
     return value;
