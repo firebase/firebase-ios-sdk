@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HASHING_H_
 
 #include <iterator>
+#include <string>
 #include <type_traits>
 
 namespace firebase {
@@ -47,6 +48,41 @@ namespace util {
 // TODO(wilhuff): Replace this with whatever Abseil releases.
 
 namespace impl {
+
+/**
+ * A type trait that identifies whether or not std::hash is available for a
+ * given type.
+ *
+ * This type should not be necessary since specialization failure on an
+ * expression like `decltype(std::hash<K>{}(value)` should be enough to disable
+ * overloads that require `std::hash` to be defined but unfortunately some
+ * standard libraries ship with std::hash defined for all types that only
+ * fail later (e.g. via static_assert). One such implementation is the libc++
+ * that ships with Xcode 8.3.3, which is a supported platform.
+ */
+template <typename T>
+struct has_std_hash {
+  // There may be other types for which std::hash is defined but they don't
+  // matter for our purposes.
+  enum {
+    value = std::is_arithmetic<T>{} || std::is_pointer<T>{} ||
+            std::is_same<T, std::string>{}
+  };
+
+  constexpr operator bool() const {
+    return value;
+  }
+};
+
+/**
+ * A type that's equivalent to size_t if std::hash<T> is defined or a compile
+ * error otherwise.
+ *
+ * This is effectively just a safe implementation of
+ * `decltype(std::hash<T>{}(std::declval<T>()))`.
+ */
+template <typename T>
+using std_hash_type = typename std::enable_if<has_std_hash<T>{}, size_t>::type;
 
 /**
  * Combines a hash_value with whatever accumulated state there is so far.
@@ -100,8 +136,7 @@ auto RankedInvokeHash(const K& value, HashChoice<0>) -> decltype(value.Hash()) {
  * @return The result of `std::hash<K>{}(value)`
  */
 template <typename K>
-auto RankedInvokeHash(const K& value, HashChoice<1>)
-    -> decltype(std::hash<K>{}(value)) {
+std_hash_type<K> RankedInvokeHash(const K& value, HashChoice<1>) {
   return std::hash<K>{}(value);
 }
 
