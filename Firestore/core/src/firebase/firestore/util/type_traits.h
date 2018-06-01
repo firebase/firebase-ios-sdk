@@ -30,21 +30,22 @@ namespace util {
 #if __OBJC__
 
 /**
- * A type trait that identifies whether or not the given type is an Objective-C
- * class.
+ * A type trait that identifies whether or not the given pointer points to an
+ * Objective-C object.
  *
- * is_objective_c_class<NSObject>::value == true
- * is_objective_c_class<NSArray<NSString*>>::value == true
+ * is_objective_c_pointer<NSObject*>::value == true
+ * is_objective_c_pointer<NSArray<NSString*>*>::value == true
  *
- * // id is a pointer to an Objective-C object, not an Objective-C class.
- * is_objective_c_class<id>::value == false
+ * // id is a dynamically typed pointer to an Objective-C object.
+ * is_objective_c_pointer<id>::value == true
  *
- * // fundamental types and C++ classes are not Objective-C classes.
- * is_objective_c_class<int>::value == false
- * is_objective_c_class<std::string>::value == false
+ * // pointers to C++ classes are not Objective-C pointers.
+ * is_objective_c_pointer<void*>::value == false
+ * is_objective_c_pointer<std::string*>::value == false
+ * is_objective_c_pointer<std::unique_ptr<int>>::value == false
  */
 template <typename T>
-struct is_objective_c_class {
+struct is_objective_c_pointer {
  private:
   using yes_type = char (&)[10];
   using no_type = char (&)[1];
@@ -56,7 +57,7 @@ struct is_objective_c_class {
    * Note that there is no definition for this function but that's okay because
    * we only need it to reason about the function's type at compile type.
    */
-  static T* Instance();
+  static T Pointer();
 
   static yes_type Choose(id value);
   static no_type Choose(...);
@@ -64,7 +65,7 @@ struct is_objective_c_class {
  public:
   using value_type = bool;
 
-  enum { value = sizeof(Choose(Instance())) == sizeof(yes_type) };
+  enum { value = sizeof(Choose(Pointer())) == sizeof(yes_type) };
 
   constexpr operator bool() const {
     return value;
@@ -74,6 +75,11 @@ struct is_objective_c_class {
     return value;
   }
 };
+
+// Hard-code the answer for `void` because you can't pass arguments of type
+// `void` to another function.
+template <>
+struct is_objective_c_pointer<void> : public std::false_type {};
 
 #endif  // __OBJC__
 

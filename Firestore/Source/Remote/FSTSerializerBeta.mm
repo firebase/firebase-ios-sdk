@@ -921,7 +921,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([filter isKindOfClass:[FSTNullFilter class]]) {
     proto.unaryFilter.op = GCFSStructuredQuery_UnaryFilter_Operator_IsNull;
   } else {
-    HARD_FAIL("Unrecognized filter: %s", static_cast<id>(filter));
+    HARD_FAIL("Unrecognized filter: %s", filter);
   }
   return proto;
 }

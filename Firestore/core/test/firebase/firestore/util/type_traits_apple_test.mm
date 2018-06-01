@@ -26,22 +26,23 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-TEST(TypeTraitsTest, IsObjectiveCClass) {
-  static_assert(is_objective_c_class<NSObject>{}, "NSObject");
-  static_assert(is_objective_c_class<NSString>{}, "NSString");
-  static_assert(is_objective_c_class<NSArray<NSString*>>{},
+TEST(TypeTraitsTest, IsObjectiveCPointer) {
+  static_assert(is_objective_c_pointer<NSObject*>{}, "NSObject");
+  static_assert(is_objective_c_pointer<NSString*>{}, "NSString");
+  static_assert(is_objective_c_pointer<NSArray<NSString*>*>{},
                 "NSArray<NSString*>");
 
-  static_assert(!is_objective_c_class<int*>{}, "int*");
-  static_assert(!is_objective_c_class<void*>{}, "void*");
-  static_assert(!is_objective_c_class<int>{}, "int");
-  static_assert(!is_objective_c_class<void>{}, "void");
+  static_assert(is_objective_c_pointer<id>{}, "id");
+  static_assert(is_objective_c_pointer<id<NSCopying>>{}, "id<NSCopying>");
+
+  static_assert(!is_objective_c_pointer<int*>{}, "int*");
+  static_assert(!is_objective_c_pointer<void*>{}, "void*");
+  static_assert(!is_objective_c_pointer<int>{}, "int");
+  static_assert(!is_objective_c_pointer<void>{}, "void");
 
   struct Foo {};
-  static_assert(!is_objective_c_class<Foo>{}, "Foo");
-
-  static_assert(!is_objective_c_class<id>{}, "id");
-  static_assert(!is_objective_c_class<id<NSCopying>>{}, "id<NSCopying>");
+  static_assert(!is_objective_c_pointer<Foo>{}, "Foo");
+  static_assert(!is_objective_c_pointer<Foo*>{}, "Foo");
 }
 
 }  // namespace util
