@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/type_traits.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
@@ -43,7 +44,7 @@ template <int I>
 struct FormatChoice : FormatChoice<I + 1> {};
 
 template <>
-struct FormatChoice<4> {};
+struct FormatChoice<5> {};
 
 }  // namespace internal
 
@@ -87,8 +88,8 @@ class FormatArg : public absl::AlphaNum {
    */
   template <
       typename T,
-      typename = typename std::enable_if<std::is_base_of<NSObject, T>{}>::type>
-  FormatArg(T* object, internal::FormatChoice<0>)
+      typename = typename std::enable_if<is_objective_c_pointer<T>{}>::type>
+  FormatArg(T object, internal::FormatChoice<1>)
       : AlphaNum{MakeStringView([object description])} {
   }
 
@@ -96,19 +97,8 @@ class FormatArg : public absl::AlphaNum {
    * Creates a FormatArg from any Objective-C Class type. Objective-C Class
    * types are a special struct that aren't of a type derived from NSObject.
    */
-  FormatArg(Class object, internal::FormatChoice<0>)
+  FormatArg(Class object, internal::FormatChoice<1>)
       : AlphaNum{MakeStringView(NSStringFromClass(object))} {
-  }
-
-  /**
-   * Creates a FormatArg from any id pointer. Note that instances of `id<Foo>`
-   * (which means "pointer conforming to the protocol Foo") do not match this
-   * without first casting to type `id`. There's no way to express a template of
-   * `id<T>` since `id<Foo>` isn't actually a C++ template and `id` isn't a
-   * parameterized C++ class.
-   */
-  FormatArg(id object, internal::FormatChoice<0>)
-      : AlphaNum{MakeStringView([object description])} {
   }
 #endif
 
@@ -117,7 +107,7 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(std::nullptr_t, internal::FormatChoice<1>) : AlphaNum{"null"} {
+  FormatArg(std::nullptr_t, internal::FormatChoice<2>) : AlphaNum{"null"} {
   }
 
   /**
@@ -125,7 +115,7 @@ class FormatArg : public absl::AlphaNum {
    * handled specially to avoid ambiguity with generic pointers, which are
    * handled differently.
    */
-  FormatArg(const char* string_value, internal::FormatChoice<2>)
+  FormatArg(const char* string_value, internal::FormatChoice<3>)
       : AlphaNum{string_value == nullptr ? "null" : string_value} {
   }
 
@@ -134,7 +124,7 @@ class FormatArg : public absl::AlphaNum {
    * hexidecimal integer literal.
    */
   template <typename T>
-  FormatArg(T* pointer_value, internal::FormatChoice<3>)
+  FormatArg(T* pointer_value, internal::FormatChoice<4>)
       : AlphaNum{absl::Hex{reinterpret_cast<uintptr_t>(pointer_value)}} {
   }
 
@@ -143,7 +133,7 @@ class FormatArg : public absl::AlphaNum {
    * absl::AlphaNum accepts.
    */
   template <typename T>
-  FormatArg(T&& value, internal::FormatChoice<4>)
+  FormatArg(T&& value, internal::FormatChoice<5>)
       : AlphaNum{std::forward<T>(value)} {
   }
 };
