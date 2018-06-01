@@ -2,39 +2,39 @@ cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
     nanopb/firestore/local/maybe_document.pb.c
-    nanopb/firestore/local/maybe_document.pb.h
+    nanopb/firestore/local/maybe_document.nanopb.h
     nanopb/firestore/local/mutation.pb.c
-    nanopb/firestore/local/mutation.pb.h
+    nanopb/firestore/local/mutation.nanopb.h
     nanopb/firestore/local/target.pb.c
-    nanopb/firestore/local/target.pb.h
+    nanopb/firestore/local/target.nanopb.h
     nanopb/google/api/annotations.pb.c
-    nanopb/google/api/annotations.pb.h
+    nanopb/google/api/annotations.nanopb.h
     nanopb/google/api/http.pb.c
-    nanopb/google/api/http.pb.h
+    nanopb/google/api/http.nanopb.h
     nanopb/google/firestore/v1beta1/common.pb.c
-    nanopb/google/firestore/v1beta1/common.pb.h
+    nanopb/google/firestore/v1beta1/common.nanopb.h
     nanopb/google/firestore/v1beta1/document.pb.c
-    nanopb/google/firestore/v1beta1/document.pb.h
+    nanopb/google/firestore/v1beta1/document.nanopb.h
     nanopb/google/firestore/v1beta1/firestore.pb.c
-    nanopb/google/firestore/v1beta1/firestore.pb.h
+    nanopb/google/firestore/v1beta1/firestore.nanopb.h
     nanopb/google/firestore/v1beta1/query.pb.c
-    nanopb/google/firestore/v1beta1/query.pb.h
+    nanopb/google/firestore/v1beta1/query.nanopb.h
     nanopb/google/firestore/v1beta1/write.pb.c
-    nanopb/google/firestore/v1beta1/write.pb.h
+    nanopb/google/firestore/v1beta1/write.nanopb.h
     nanopb/google/protobuf/any.pb.c
-    nanopb/google/protobuf/any.pb.h
+    nanopb/google/protobuf/any.nanopb.h
     nanopb/google/protobuf/empty.pb.c
-    nanopb/google/protobuf/empty.pb.h
+    nanopb/google/protobuf/empty.nanopb.h
     nanopb/google/protobuf/struct.pb.c
-    nanopb/google/protobuf/struct.pb.h
+    nanopb/google/protobuf/struct.nanopb.h
     nanopb/google/protobuf/timestamp.pb.c
-    nanopb/google/protobuf/timestamp.pb.h
+    nanopb/google/protobuf/timestamp.nanopb.h
     nanopb/google/protobuf/wrappers.pb.c
-    nanopb/google/protobuf/wrappers.pb.h
+    nanopb/google/protobuf/wrappers.nanopb.h
     nanopb/google/rpc/status.pb.c
-    nanopb/google/rpc/status.pb.h
+    nanopb/google/rpc/status.nanopb.h
     nanopb/google/type/latlng.pb.c
-    nanopb/google/type/latlng.pb.h
+    nanopb/google/type/latlng.nanopb.h
   DEPENDS
     nanopb
 )
@@ -77,16 +77,6 @@ cc_library(
     cpp/google/firestore/v1beta1/query.pb.h
     cpp/google/firestore/v1beta1/write.pb.cc
     cpp/google/firestore/v1beta1/write.pb.h
-    cpp/google/protobuf/any.pb.cc
-    cpp/google/protobuf/any.pb.h
-    cpp/google/protobuf/empty.pb.cc
-    cpp/google/protobuf/empty.pb.h
-    cpp/google/protobuf/struct.pb.cc
-    cpp/google/protobuf/struct.pb.h
-    cpp/google/protobuf/timestamp.pb.cc
-    cpp/google/protobuf/timestamp.pb.h
-    cpp/google/protobuf/wrappers.pb.cc
-    cpp/google/protobuf/wrappers.pb.h
     cpp/google/rpc/status.pb.cc
     cpp/google/rpc/status.pb.h
     cpp/google/type/latlng.pb.cc
