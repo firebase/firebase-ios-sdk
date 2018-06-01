@@ -207,8 +207,6 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 @end
 
 @implementation FSTStream {
-  /* util::StatusOr<Token> _lastToken; */
-  NSError* _lastError;
   BOOL _forceTokenRefresh;
 }
 

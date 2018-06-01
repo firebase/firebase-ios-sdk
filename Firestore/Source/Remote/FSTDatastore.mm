@@ -87,7 +87,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @end
 
-@implementation FSTDatastore
+@implementation FSTDatastore {
+  BOOL _forceTokenRefresh;
+  NSError *_lastError;
+}
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -316,10 +319,16 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
   // but I'm not sure how to detect that right now. http://b/32762461
   _credentials->GetToken(
-      /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
+      _forceTokenRefresh, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
         [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+          _forceTokenRefresh = false;
           if (!result.ok()) {
-            errorHandler(util::MakeNSError(result.status()));
+            NSError *error = util::MakeNSError(result.status());
+            if (error != nil && _lastError != nil && error.code == FIRFirestoreErrorCodeUnauthenticated && _lastError.code != FIRFirestoreErrorCodeUnauthenticated) {
+              _forceTokenRefresh = true;
+            }
+            _lastError = error;
+            errorHandler(error);
           } else {
             GRPCProtoCall *rpc = rpcFactory();
             const Token &token = result.ValueOrDie();

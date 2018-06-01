@@ -116,8 +116,6 @@ static const int kMaxPendingWrites = 10;
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
 
-@property(nonatomic, strong) NSError *lastWriteError;
-
 @end
 
 @implementation FSTRemoteStore
@@ -614,8 +612,6 @@ static const int kMaxPendingWrites = 10;
   if ([self shouldStartWriteStream]) {
     [self startWriteStream];
   }
-
-  _lastWriteError = error;
 }
 
 - (void)handleHandshakeError:(NSError *)error {
