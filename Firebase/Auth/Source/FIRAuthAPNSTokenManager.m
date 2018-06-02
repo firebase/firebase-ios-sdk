@@ -16,7 +16,7 @@
 
 #import "FIRAuthAPNSTokenManager.h"
 
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthGlobalWorkQueue.h"
 

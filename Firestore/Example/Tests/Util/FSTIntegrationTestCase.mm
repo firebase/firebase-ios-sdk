@@ -16,7 +16,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
-#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
@@ -24,6 +23,7 @@
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 

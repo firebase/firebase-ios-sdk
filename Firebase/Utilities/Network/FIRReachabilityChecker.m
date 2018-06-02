@@ -14,10 +14,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRReachabilityChecker+Internal.h"
+#import "FIRReachabilityChecker+Internal.h"
 #import "Private/FIRReachabilityChecker.h"
 
-#import "Private/FIRLogger.h"
+#import <FirebaseUtilities/FIRLogger.h>
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
 
