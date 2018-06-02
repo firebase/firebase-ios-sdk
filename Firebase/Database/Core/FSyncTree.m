@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import "FSyncTree.h"
 #import "FListenProvider.h"
 #import "FWriteTree.h"

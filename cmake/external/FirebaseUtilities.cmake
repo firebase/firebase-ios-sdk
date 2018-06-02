@@ -12,28 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
-  firebase_firestore_testutil_apple
-  SOURCES
-    app_testing.h
-    app_testing.mm
-  DEPENDS
-    FirebaseCore
-    FirebaseUtilities
-    absl_strings
-  EXCLUDE_FROM_ALL
-)
+include(xcodebuild)
 
 if(APPLE)
-  list(APPEND TESTUTIL_DEPENDS firebase_firestore_testutil_apple)
+  # FirebaseUtilities is only available as a CocoaPod build.
+  xcodebuild(FirebaseUtilities)
+else()
+  # On non-Apple platforms, there's no way to build FirebaseUtilities.
+  add_custom_target(FirebaseUtilities)
 endif()
-
-cc_library(
-  firebase_firestore_testutil
-  SOURCES
-    testutil.cc
-    testutil.h
-  DEPENDS
-    ${TESTUTIL_DEPENDS}
-    firebase_firestore_model
-)

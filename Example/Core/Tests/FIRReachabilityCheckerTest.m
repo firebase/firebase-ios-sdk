@@ -14,8 +14,8 @@
 
 #import "FIRTestCase.h"
 
-#import <FirebaseCore/FIRReachabilityChecker+Internal.h>
-#import <FirebaseCore/FIRReachabilityChecker.h>
+#import <FirebaseUtilities/FIRReachabilityChecker+Internal.h>
+#import <FirebaseUtilities/FIRReachabilityChecker.h>
 
 @interface FIRReachabilityCheckerTest : FIRTestCase <FIRReachabilityDelegate> {
  @private

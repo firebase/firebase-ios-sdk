@@ -94,6 +94,7 @@ find_package(Protobuf REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
+  find_package(FirebaseUtilities REQUIRED)
 endif()
 
 enable_testing()

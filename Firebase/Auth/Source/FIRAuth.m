@@ -19,10 +19,10 @@
 #import "FIRAuth_Internal.h"
 
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
-#import <FirebaseCore/FIRAppEnvironmentUtil.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
+#import <FirebaseUtilities/FIRLogger.h>
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"

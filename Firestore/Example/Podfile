@@ -15,6 +15,7 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
+  pod 'FirebaseUtilities', :path => '../../'
 
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
