@@ -16,7 +16,7 @@
 
 #import "FIRAuthDefaultUIDelegate.h"
 
-#import <FirebaseCore/FIRAppEnvironmentUtil.h>
+#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

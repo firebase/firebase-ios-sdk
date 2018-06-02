@@ -17,7 +17,7 @@
 #import "FAuthTokenProvider.h"
 #import "FUtilities.h"
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
 

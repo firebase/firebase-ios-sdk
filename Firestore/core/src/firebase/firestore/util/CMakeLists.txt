@@ -55,6 +55,7 @@ cc_library(
     string_apple.h
   DEPENDS
     FirebaseCore
+    FirebaseUtilities
     absl_strings
     firebase_firestore_util_base
   EXCLUDE_FROM_ALL

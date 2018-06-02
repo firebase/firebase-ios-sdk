@@ -14,9 +14,8 @@
 
 #import "Private/FIRLogger.h"
 
-#import "FIRLoggerLevel.h"
-#import "Private/FIRVersion.h"
-#import "third_party/FIRAppEnvironmentUtil.h"
+#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
+#import "Public/FIRLoggerLevel.h"
 
 #include <asl.h>
 #include <assert.h>
@@ -77,6 +76,9 @@ static BOOL sFIRLoggerDebugMode;
 static BOOL sFIRAnalyticsDebugMode;
 
 static FIRLoggerLevel sFIRLoggerMaximumLevel;
+
+// When the Logger is used from Firebase, FirebaseCore should register the Firebase Version.
+static const char *sFirebaseVersion = "";
 
 #ifdef DEBUG
 /// The regex pattern for the message code.
@@ -218,6 +220,10 @@ BOOL getFIRLoggerDebugMode() {
 }
 #endif
 
+void FIRLoggerRegisterVersion(const char *version) {
+  sFirebaseVersion = version;
+}
+
 void FIRLogBasic(FIRLoggerLevel level,
                  FIRLoggerService service,
                  NSString *messageCode,
@@ -244,7 +250,7 @@ void FIRLogBasic(FIRLoggerLevel level,
 #endif
   NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
   logMsg =
-      [NSString stringWithFormat:@"%s - %@[%@] %@", FIRVersionString, service, messageCode, logMsg];
+      [NSString stringWithFormat:@"%s - %@[%@] %@", sFirebaseVersion, service, messageCode, logMsg];
   dispatch_async(sFIRClientQueue, ^{
     asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
   });

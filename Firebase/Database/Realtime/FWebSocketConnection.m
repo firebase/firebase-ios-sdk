@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import "FWebSocketConnection.h"
 #import "FConstants.h"
 #import "FIRDatabaseReference.h"

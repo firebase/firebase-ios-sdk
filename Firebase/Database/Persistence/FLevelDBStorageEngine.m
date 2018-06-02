@@ -18,7 +18,7 @@
 
 #import "FLevelDBStorageEngine.h"
 
-#import <FirebaseCore/FIRLogger.h>
+#import <FirebaseUtilities/FIRLogger.h>
 #import "APLevelDB.h"
 #import "FSnapshotUtilities.h"
 #import "FWriteRecord.h"
