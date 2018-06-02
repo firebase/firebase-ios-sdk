@@ -18,7 +18,7 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
     :tag => 'pre-5.3-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '6.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
