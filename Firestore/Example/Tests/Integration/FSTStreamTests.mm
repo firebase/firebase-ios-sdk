@@ -339,12 +339,12 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     EmptyCredentialsProvider::GetToken(force_refresh, std::move(completion));
   }
 
-  NSMutableArray<NSNumber*>* observed_refreshes() const {
+  NSMutableArray<NSNumber *> *observed_refreshes() const {
     return observed_refreshes_;
   }
 
  private:
-  NSMutableArray<NSNumber*> *observed_refreshes_;
+  NSMutableArray<NSNumber *> *observed_refreshes_;
 };
 
 - (void)testStreamRefreshesTokenUponExpiration {
@@ -352,7 +352,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:&credentials];
-  FSTWatchStream* watchStream = [datastore createWatchStream];
+  FSTWatchStream *watchStream = [datastore createWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
     [watchStream startWithDelegate:_delegate];
@@ -360,13 +360,14 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   // Simulate callback from GRPC with the first unauthenticated error.
   NSError *unauthenticatedError = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeUnauthenticated
-                          userInfo:nil];
+                                                      code:FIRFirestoreErrorCodeUnauthenticated
+                                                  userInfo:nil];
   dispatch_async(_testQueue, ^{
     [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
   });
   // Drain the queue.
-  dispatch_sync(_testQueue, ^{});
+  dispatch_sync(_testQueue, ^{
+                });
 
   // Try reconnecting -- token should be force refreshed.
   [_delegate awaitNotificationFromBlock:^{
@@ -376,15 +377,17 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   dispatch_async(_testQueue, ^{
     [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
   });
-  dispatch_sync(_testQueue, ^{});
+  dispatch_sync(_testQueue, ^{
+                });
 
   // This reconnection attempt shouldn't try to refresh the token.
   [_delegate awaitNotificationFromBlock:^{
     [watchStream startWithDelegate:_delegate];
   }];
-  dispatch_sync(_testQueue, ^{});
+  dispatch_sync(_testQueue, ^{
+                });
 
-  NSArray<NSNumber*>* expected = @[@0, @1, @0];
+  NSArray<NSNumber *> *expected = @[ @0, @1, @0 ];
   XCTAssertEqualObjects(credentials.observed_refreshes(), expected);
 }
 

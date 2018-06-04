@@ -268,12 +268,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  _credentials->GetToken(
-    _forceTokenRefresh, [self](util::StatusOr<Token> result) {
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          [self resumeStartWithToken:result];
-        }];
-      });
+  _credentials->GetToken(_forceTokenRefresh, [self](util::StatusOr<Token> result) {
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      [self resumeStartWithToken:result];
+    }];
+  });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
@@ -387,8 +386,8 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     FSTLog(@"%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
            (__bridge void *)self);
     [self.backoff resetToMax];
-  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated
-      && !(_lastError != nil && _lastError.code == FIRFirestoreErrorCodeUnauthenticated)) {
+  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated &&
+             !(_lastError != nil && _lastError.code == FIRFirestoreErrorCodeUnauthenticated)) {
     // If the error was due to expired token, retry as soon as possible. However, don't keep
     // retrying, because if after token refresh the unauthenticated error persists, there is likely
     // some other issue going on.

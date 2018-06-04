@@ -151,7 +151,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   return error.code == FIRFirestoreErrorCodeAborted;
 }
 
-+ (BOOL)isPermanentWriteError:(NSError *)error previousError:(nullable NSError *) previousError {
++ (BOOL)isPermanentWriteError:(NSError *)error previousError:(nullable NSError *)previousError {
   FSTAssert([error.domain isEqualToString:FIRFirestoreErrorDomain],
             @"isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
   switch (error.code) {
@@ -317,29 +317,30 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 - (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
-  _credentials->GetToken(
-      _forceTokenRefresh, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          _forceTokenRefresh = NO;
-          if (!result.ok()) {
-            NSError *error = util::MakeNSError(result.status());
-            if (error != nil && _lastError != nil && error.code == FIRFirestoreErrorCodeUnauthenticated && _lastError.code != FIRFirestoreErrorCodeUnauthenticated) {
-              _forceTokenRefresh = YES;
-            }
-            _lastError = error;
-            errorHandler(error);
-          } else {
-            GRPCProtoCall *rpc = rpcFactory();
-            const Token &token = result.ValueOrDie();
-            [FSTDatastore
-                prepareHeadersForRPC:rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(token.user().is_authenticated() ? token.token()
-                                                                      : absl::string_view())];
-            [rpc start];
-          }
-        }];
-      });
+  _credentials->GetToken(_forceTokenRefresh, [self, rpcFactory,
+                                              errorHandler](util::StatusOr<Token> result) {
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      _forceTokenRefresh = NO;
+      if (!result.ok()) {
+        NSError *error = util::MakeNSError(result.status());
+        if (error != nil && _lastError != nil &&
+            error.code == FIRFirestoreErrorCodeUnauthenticated &&
+            _lastError.code != FIRFirestoreErrorCodeUnauthenticated) {
+          _forceTokenRefresh = YES;
+        }
+        _lastError = error;
+        errorHandler(error);
+      } else {
+        GRPCProtoCall *rpc = rpcFactory();
+        const Token &token = result.ValueOrDie();
+        [FSTDatastore prepareHeadersForRPC:rpc
+                                databaseID:&self.databaseInfo->database_id()
+                                     token:(token.user().is_authenticated() ? token.token()
+                                                                            : absl::string_view())];
+        [rpc start];
+      }
+    }];
+  });
 }
 
 - (FSTWatchStream *)createWatchStream {
