@@ -360,11 +360,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 + (void)prepareHeadersForRPC:(GRPCCall *)rpc
                   databaseID:(const DatabaseId *)databaseID
                        token:(const absl::string_view)token {
-  // rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token.substr(0, token.size() - 1));
-  // rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(absl::string_view{"OBC"});
-  absl::string_view new_token{"eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhNzE5ZDE4MjQ2OTAyN2ZkYWQ5YzVlMjVmNTA0NWUzZjRhZTBjMTAifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZnMtY2xpZW50cy1wbGF5Z3JvdW5kLW5pZ2h0bHkiLCJhdWQiOiJmcy1jbGllbnRzLXBsYXlncm91bmQtbmlnaHRseSIsImF1dGhfdGltZSI6MTUyNzc5NTc3NCwidXNlcl9pZCI6InhOSkZxa3lKZ3Nkb0pCWTJhSmZES1JVY0VJZjEiLCJzdWIiOiJ4TkpGcWt5SmdzZG9KQlkyYUpmREtSVWNFSWYxIiwiaWF0IjoxNTI3Nzk1Nzc0LCJleHAiOjE1Mjc3OTkzNzQsImVtYWlsIjoiZXhhbXBsZUBleGFtcGxlLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJleGFtcGxlQGV4YW1wbGUuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.ocoGaVEg_fBmiakCgS0P9xmb2YufSzU9jVXQuiQMDy0pvyEXnalsRRnKf0qhAo1l1sgRHJ0_zrFM6we9vy3qRN8wXkI6k2LPecLKR4xSARxFN5hdNJDy5yvFoxlf7PPRLDKB4W7VmHckq9spilIx0OQR6XQwUZzSeyY38BvDfq595Q0meg4qJqahPdRfz9CsLhQ_y2mjLu1fTE3kd9jvZPsW-QvXATPw--kB2bIOApNZjF-U8mMtVPhekAxTB1BHS7wNJvh1Ngk9DvvkmOEul0oiH_Yx7kMlIdMoP1WI4PU5T9QPQXD4ALcshmrDhfCy5pbGcbbPf9v2DgUkuHt23Q"};
-  // rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
-  rpc.oauth2AccessToken = util::WrapNSString(new_token);
+  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
   rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =
