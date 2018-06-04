@@ -29,6 +29,7 @@ cc_library(
     absl_strings
 )
 
+
 ## assert and log
 
 cc_library(
@@ -158,16 +159,6 @@ else()
 
 endif()
 
-cc_library(
-  firebase_firestore_util_async_queue
-  SOURCES
-    async_queue.cc
-    async_queue.h
-  DEPENDS
-    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
-  EXCLUDE_FROM_ALL
-)
 
 ## main library
 
@@ -179,6 +170,8 @@ configure_file(
 cc_library(
   firebase_firestore_util
   SOURCES
+    async_queue.cc
+    async_queue.h
     autoid.cc
     autoid.h
     bits.cc
@@ -204,7 +197,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_base
-    firebase_firestore_util_async_queue
+    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
