@@ -16,7 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
+#include <cerrno>
+
 #include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -85,21 +88,29 @@ TEST(Status, EqualsSame) {
 }
 
 TEST(Status, EqualsCopy) {
-  const Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
-  const Status b = a;
+  Status a(FirestoreErrorCode::InvalidArgument, "Invalid");
+  Status b = a;
   ASSERT_EQ(a, b);
 }
 
 TEST(Status, EqualsDifferentCode) {
-  const Status a(FirestoreErrorCode::InvalidArgument, "message");
-  const Status b(FirestoreErrorCode::Internal, "message");
+  Status a(FirestoreErrorCode::InvalidArgument, "message");
+  Status b(FirestoreErrorCode::Internal, "message");
   ASSERT_NE(a, b);
 }
 
 TEST(Status, EqualsDifferentMessage) {
-  const Status a(FirestoreErrorCode::InvalidArgument, "message");
-  const Status b(FirestoreErrorCode::InvalidArgument, "another");
+  Status a(FirestoreErrorCode::InvalidArgument, "message");
+  Status b(FirestoreErrorCode::InvalidArgument, "another");
   ASSERT_NE(a, b);
+}
+
+TEST(Status, FromErrno) {
+  Status a = Status::FromErrno(EEXIST, "Cannot write file");
+  ASSERT_THAT(
+      a.ToString(),
+      testing::MatchesRegex(
+          "Already exists: Cannot write file \\(errno .*: File exists\\)"));
 }
 
 }  // namespace util

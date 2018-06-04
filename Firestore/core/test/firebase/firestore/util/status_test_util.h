@@ -20,11 +20,31 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "gtest/gtest.h"
 
+namespace firebase {
+namespace firestore {
+namespace util {
+
+inline testing::AssertionResult Equal(Status expected, Status actual) {
+  if (expected != actual) {
+    return testing::AssertionFailure()
+           << "Should have seen status " << expected.ToString() << " but got "
+           << actual.ToString();
+  }
+
+  return testing::AssertionSuccess();
+}
+
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
+
 // Macros for testing the results of functions that return tensorflow::Status.
-#define EXPECT_OK(statement) \
-  EXPECT_EQ(::firebase::firestore::util::Status::OK(), (statement))
-#define ASSERT_OK(statement) \
-  ASSERT_EQ(::firebase::firestore::util::Status::OK(), (statement))
+#define EXPECT_OK(statement)                      \
+  EXPECT_TRUE(::firebase::firestore::util::Equal( \
+      ::firebase::firestore::util::Status::OK(), (statement)));
+#define ASSERT_OK(statement)                      \
+  ASSERT_TRUE(::firebase::firestore::util::Equal( \
+      ::firebase::firestore::util::Status::OK(), (statement)));
 
 // There are no EXPECT_NOT_OK/ASSERT_NOT_OK macros since they would not
 // provide much value (when they fail, they would just print the OK status
