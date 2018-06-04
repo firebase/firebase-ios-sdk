@@ -38,10 +38,8 @@ rm -rf cpp/google/protobuf
 perl -i -pe 's/\bdelete\b/delete_/g' `find nanopb -type f`
 
 # Rename nanopb's headers from foo.pb.h to foo.nanopb.h. This avoids collisions
-# with libprotobuf. (This mostly doesn't matter, as it's odd to want to use
-# both. However, we do use both in the test suite to verify our nanopb based
-# serializer is compatible with an equivalent libprotobuf implementation.)
-for f in $(find nanopb -name \*.pb.h -or -name \*.nanopb.c); do
+# with libprotobuf.
+for f in $(find nanopb -name \*.pb.h); do
   mv "$f" "${f%.pb.h}.nanopb.h"
 done
 
