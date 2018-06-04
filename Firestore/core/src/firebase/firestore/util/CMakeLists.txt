@@ -191,6 +191,8 @@ cc_library(
     iterator_adaptors.h
     ordered_code.cc
     ordered_code.h
+    path.cc
+    path.h
     range.h
     secure_random.h
     status.cc
