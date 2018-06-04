@@ -136,6 +136,14 @@ std::string Reader::ReadString() {
   return result;
 }
 
+void Reader::SkipField(const Tag& tag) {
+  if (!status_.ok()) return;
+
+  if (!pb_skip_field(&stream_, tag.wire_type)) {
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+  }
+}
+
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

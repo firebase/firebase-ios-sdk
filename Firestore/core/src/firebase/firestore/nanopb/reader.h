@@ -89,6 +89,15 @@ class Reader {
   template <typename T>
   T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
 
+  /**
+   * Discards the bytes associated with the given tag.
+   *
+   * @param tag The tag associated with the field that is otherwise about to be
+   * read. This method uses the tag to determine how many bytes should be
+   * discarded.
+   */
+  void SkipField(const Tag& tag);
+
   size_t bytes_left() const {
     return stream_.bytes_left;
   }
