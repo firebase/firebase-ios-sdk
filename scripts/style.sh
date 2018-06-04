@@ -122,6 +122,7 @@ s%^./%%
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
 \%\.pb\.% d
+\%\.nanopb\.% d
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc|swift)$% p
