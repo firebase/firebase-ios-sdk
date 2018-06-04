@@ -44,37 +44,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-/*
-message ListenRequest {
-// The database name. In the format:
-`projects/{project_id}/databases/{database_id}`. string database = 1; oneof
-target_change { Target add_target = 2; int32 remove_target = 3;
-}
-map<string, string> labels = 4;
-}
-
-message ListenResponse {
-oneof response_type {
-  TargetChange target_change = 2;
-  DocumentChange document_change = 3;
-  DocumentDelete document_delete = 4;
-  // because it is no longer relevant to that target.
-  DocumentRemove document_remove = 6;
-  // Returned when documents may have been removed from the given target, but
-  // the exact documents are unknown.
-  ExistenceFilter filter = 5;
-}
-}
- */
-
 // close
-//
 // error
 // backoff
-// idle
-// enable/disable
 // state machine
-// notify caller
+//
+// idle
+//
+// AsyncQueue instead of FSTDispatchQueue
+//
+// enable/disable
 //
 // WRITE STREAM
 
@@ -161,7 +140,6 @@ class WatchStream {
   void Stop();
   bool IsOpen() const;
   bool IsStarted() const;
-  // TODO: Close
 
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
@@ -173,8 +151,8 @@ class WatchStream {
     Initial,
     Auth,
     Open,
-    // Error
-    // Backoff
+    Error,
+    Backoff,
     Stopped
   };
 

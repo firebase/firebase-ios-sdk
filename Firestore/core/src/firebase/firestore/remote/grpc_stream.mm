@@ -314,16 +314,3 @@ grpc::GenericStub WatchStream::CreateStub() const {
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-// - (BOOL)isStarted;
-// - (BOOL)isOpen;
-// - (void)startWithDelegate:(id)delegate;
-// - (void)stop;
-
-// - (void)watchQuery:(FSTQueryData *)query;
-// - (void)unwatchTargetID:(FSTTargetID)targetID;
-
-// - (void)watchStreamDidOpen;
-// - (void)watchStreamDidChange:(FSTWatchChange *)change
-//              snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
-// - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
