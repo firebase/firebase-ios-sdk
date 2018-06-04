@@ -92,18 +92,15 @@ class ObjcBridge {
 
 class BufferedWriter {
  public:
-  // explicit BufferedWriter(grpc::GenericClientAsyncReaderWriter* const call) : call_{call} {
-  // }
   void SetCall(grpc::GenericClientAsyncReaderWriter* const call) { call_ = call; }
   void Start() { is_started_ = true; TryWrite(); }
   void Stop() { is_started_ = false; }
   void Enqueue(grpc::ByteBuffer&& bytes);
 
- private:
-  using FuncT = std::function<void(bool)>;
+  void OnSuccessfulWrite();
 
+ private:
   void TryWrite();
-  FuncT* CreateContinuation();
 
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
   std::vector<grpc::ByteBuffer> buffer_;
@@ -111,30 +108,15 @@ class BufferedWriter {
   bool is_started_ = false;
 };
 
-class GrpcQueue {
- public:
-  GrpcQueue(grpc::CompletionQueue* grpc_queue,
-            std::unique_ptr<util::internal::Executor> own_executor,
-            // util::AsyncQueue* callback_executor);
-            FSTDispatchQueue* callback_executor);
-  ~GrpcQueue();
-
- private:
-  grpc::CompletionQueue* grpc_queue_;
-  std::unique_ptr<util::internal::Executor> own_executor_;
-  // util::AsyncQueue* callback_executor_;
-  FSTDispatchQueue* callback_executor_;
-};
-
 }  // namespace internal
 
 class WatchStream {
  public:
-  // WatchStream(util::AsyncQueue* async_queue,
-  WatchStream(FSTDispatchQueue* async_queue,
+  WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer);
+  ~WatchStream();
 
   void Start(id delegate);
   void Stop();
@@ -157,25 +139,30 @@ class WatchStream {
   };
 
   void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
-  grpc::GenericStub CreateStub() const;
-  std::unique_ptr<util::internal::Executor> CreateExecutor() const;
 
-  std::function<void(bool)>* OnRead();
+  void PollGrpcQueue();
+  void OnSuccessfulStart();
+  void OnSuccessfulRead();
+  void OnSuccessfulWrite();
+  void OnFinish();
+
+  grpc::GenericStub CreateStub() const;
+  static std::unique_ptr<util::internal::Executor> CreateExecutor();
 
   State state_{State::Initial};
 
-  // std::unique_ptr<util::internal::Executor> executor_;
+  std::unique_ptr<util::internal::Executor> dedicated_executor_;
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
+  util::AsyncQueue* firestore_queue_;
 
   std::unique_ptr<grpc::ClientContext> context_;
   grpc::GenericStub stub_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
-  grpc::CompletionQueue queue_;
+  grpc::CompletionQueue grpc_queue_;
 
   internal::ObjcBridge objc_bridge_;
   internal::BufferedWriter buffered_writer_;
-  internal::GrpcQueue polling_queue_;
   grpc::ByteBuffer last_read_message_;
   grpc::Status status_;
 

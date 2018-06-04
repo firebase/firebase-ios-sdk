@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "Firestore/Source/Remote/FSTDatastore.h"
 #include "Firestore/Source/Remote/FSTStream.h"
 #include "absl/memory/memory.h"
@@ -32,6 +33,22 @@ namespace firestore {
 namespace remote {
 
 using firebase::firestore::model::SnapshotVersion;
+
+namespace {
+
+enum class GrpcOperationTag {
+  Start,
+  Read,
+  Write,
+  Finish,
+};
+
+GrpcOperationTag kStartTag = GrpcOperationTag::Start;
+GrpcOperationTag kReadTag = GrpcOperationTag::Read;
+GrpcOperationTag kWriteTag = GrpcOperationTag::Write;
+GrpcOperationTag kFinishTag = GrpcOperationTag::Finish;
+
+}  // namespace
 
 namespace internal {
 
@@ -105,43 +122,13 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  call_->Write(buffer_.back(), CreateContinuation());
+  call_->Write(buffer_.back(), &kWriteTag);
   buffer_.pop_back();
 }
 
-BufferedWriter::FuncT* BufferedWriter::CreateContinuation() {
-  return new FuncT{[this] (const bool ok) {
-    has_pending_write_ = false;
-    if (ok) {
-      TryWrite();
-    }
-  }};
-}
-
-GrpcQueue::GrpcQueue(grpc::CompletionQueue* grpc_queue,
-                     std::unique_ptr<util::internal::Executor> own_executor,
-                    // util::AsyncQueue* callback_executor)
-                    FSTDispatchQueue* callback_executor)
-    : grpc_queue_{grpc_queue},
-      own_executor_{std::move(own_executor)},
-      callback_executor_{callback_executor} {
-  own_executor_->Execute([this] {
-    void* tag = nullptr;
-    bool ok = false;
-    while (grpc_queue_->Next(&tag, &ok)) {
-      const auto operation = [tag, ok] {
-        auto func = static_cast<std::function<void(bool)>*>(tag);
-        (*func)(ok);
-        delete func;
-      };
-      [callback_executor_ dispatchAsync:^() { operation(); }];
-    }
-  });
-}
-
-GrpcQueue::~GrpcQueue() {
-  grpc_queue_->Shutdown();
-  own_executor_->ExecuteBlocking([]{});
+void BufferedWriter::OnSuccessfulWrite() {
+  has_pending_write_ = false;
+  TryWrite();
 }
 
 }  // namespace internal
@@ -152,21 +139,56 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 // using firebase::firestore::model::SnapshotVersion;
 
-WatchStream::WatchStream(/*util::AsyncQueue* async_queue,*/
-    FSTDispatchQueue* async_queue,
+WatchStream::WatchStream(util::AsyncQueue* const async_queue,
                          const DatabaseInfo& database_info,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer)
-    // : executor_{std::move(executor)},
-       :
-      database_info_{&database_info},
+    : database_info_{&database_info},
+      firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       stub_{CreateStub()},
-      objc_bridge_{serializer},
-      polling_queue_{&queue_, CreateExecutor(), async_queue} {
+      objc_bridge_{serializer} {
+  dedicated_executor_->Execute([this] {
+    PollGrpcQueue();
+  });
 }
 
-std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() const {
+WatchStream::~WatchStream() {
+  grpc_queue_.Shutdown();
+  dedicated_executor_->ExecuteBlocking([]{});
+}
+
+void WatchStream::PollGrpcQueue() {
+  FIREBASE_ASSERT_MESSAGE(dedicated_executor_->IsCurrentExecutor(), "TODO");
+
+  void* tag = nullptr;
+  bool ok = false;
+  while (grpc_queue_.Next(&tag, &ok)) {
+    if (!ok) {
+      // This is the only way to get the status
+      firestore_queue_->Enqueue([this] { Stop(); });
+      continue;
+    }
+
+    const auto operation_tag = static_cast<const GrpcOperationTag*>(tag);
+    switch (*operation_tag) {
+      case GrpcOperationTag::Start:
+        firestore_queue_->Enqueue([this] { OnSuccessfulStart(); });
+        break;
+      case GrpcOperationTag::Read:
+        firestore_queue_->Enqueue([this] { OnSuccessfulRead(); });
+        break;
+      case GrpcOperationTag::Write:
+        firestore_queue_->Enqueue([this] { OnSuccessfulWrite(); });
+        break;
+      case GrpcOperationTag::Finish:
+        firestore_queue_->Enqueue([this] { OnFinish(); });
+        break;
+    }
+  }
+}
+
+std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() {
   const auto queue = dispatch_queue_create(
       "com.google.firebase.firestore.watchstream", DISPATCH_QUEUE_SERIAL);
   return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
@@ -208,47 +230,36 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   }();
   context_ = objc_bridge_.CreateContext(database_info_->database_id(), token);
   call_ = stub_.PrepareCall(
-      context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &queue_);
-  buffered_writer_.SetCall(call_.get());
-  call_->StartCall(new std::function<void(bool)>{[this] (const bool ok) {
-      if (!ok) {
-        state_ = State::Stopped;
-        buffered_writer_.Stop();
-
-        call_->Finish(&status_, new std::function<void(bool)>{[this] (const bool ok) {
-            const auto status = status_;
-            int i = 0;
-            ++i;
-        }});
-
-//        return;
-      }
-
-      state_ = State::Open;
-      buffered_writer_.Start();
-      call_->Read(&last_read_message_, OnRead()); // ?
-
-      id<FSTWatchStreamDelegate> delegate = delegate_;
-      [delegate watchStreamDidOpen];
-  }});
+      context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &grpc_queue_);
   // TODO: if !call_
+  buffered_writer_.SetCall(call_.get());
+  call_->StartCall(&kStartTag);
   // callback filter
-
-  // notifystreamopen
 }
 
-std::function<void(bool)>* WatchStream::OnRead() {
-  return new std::function<void(bool)>{[this] (const bool ok) {
-    if (!ok) {
-      Stop();
-      return;
-    }
-    auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
-    id<FSTWatchStreamDelegate> delegate = delegate_;
-    [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
+void WatchStream::OnSuccessfulStart() {
+  state_ = State::Open;
+  buffered_writer_.Start();
+  call_->Read(&last_read_message_, &kReadTag);
 
-    call_->Read(&last_read_message_, OnRead());
-  }};
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidOpen];
+}
+
+void WatchStream::OnSuccessfulRead() {
+  auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
+
+  call_->Read(&last_read_message_, &kReadTag);
+}
+
+void WatchStream::OnSuccessfulWrite() {
+  buffered_writer_.OnSuccessfulWrite();
+}
+
+void WatchStream::OnFinish() {
+
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -268,10 +279,7 @@ void WatchStream::Stop() {
   state_ = State::Stopped;
   buffered_writer_.Stop();
 
-  call_->Finish(&status_, new std::function<void(bool)>{[] (const bool ok) {
-      int i = 0;
-      ++i;
-  }});
+  call_->Finish(&status_, &kFinishTag);
 }
 
 bool WatchStream::IsOpen() const {
