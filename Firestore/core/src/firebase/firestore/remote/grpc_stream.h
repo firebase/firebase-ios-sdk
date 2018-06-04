@@ -51,8 +51,6 @@ namespace remote {
 //
 // idle
 //
-// AsyncQueue instead of FSTDispatchQueue
-//
 // enable/disable
 //
 // WRITE STREAM

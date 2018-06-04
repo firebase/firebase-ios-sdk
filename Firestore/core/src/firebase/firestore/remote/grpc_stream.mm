@@ -195,17 +195,19 @@ std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() {
 }
 
 void WatchStream::Start(id delegate) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   delegate_ = delegate;
   // TODO: on error state
   // TODO: state transition details
 
   state_ = State::Auth;
-  // TODO: delegate?
 
   const bool do_force_refresh = false;
   credentials_provider_->GetToken(
-      do_force_refresh,
-      [this](util::StatusOr<Token> maybe_token) { Authenticate(maybe_token); });
+      do_force_refresh, [this](util::StatusOr<Token> maybe_token) {
+      firestore_queue_->Enqueue([this, maybe_token] { Authenticate(maybe_token); });
+  });
 }
 
 // Call may be closed due to:
@@ -213,6 +215,8 @@ void WatchStream::Start(id delegate) {
 // - idleness;
 // - network disable/reenable
 void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   if (state_ == State::Stopped) {
     // Streams can be stopped while waiting for authorization.
     return;
@@ -238,6 +242,8 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
 }
 
 void WatchStream::OnSuccessfulStart() {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   state_ = State::Open;
   buffered_writer_.Start();
   call_->Read(&last_read_message_, &kReadTag);
@@ -247,6 +253,8 @@ void WatchStream::OnSuccessfulStart() {
 }
 
 void WatchStream::OnSuccessfulRead() {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto) snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
@@ -255,24 +263,33 @@ void WatchStream::OnSuccessfulRead() {
 }
 
 void WatchStream::OnSuccessfulWrite() {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   buffered_writer_.OnSuccessfulWrite();
 }
 
 void WatchStream::OnFinish() {
+  firestore_queue_->VerifyIsCurrentQueue();
 
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   // [self cancelIdleCheck];
   buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   // [self cancelIdleCheck];
   buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(target_id));
 }
 
 void WatchStream::Stop() {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   if (!IsOpen()) {
     return;
   }
@@ -283,10 +300,14 @@ void WatchStream::Stop() {
 }
 
 bool WatchStream::IsOpen() const {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   return state_ == State::Open;
 }
 
 bool WatchStream::IsStarted() const {
+  firestore_queue_->VerifyIsCurrentQueue();
+
   // return state_ == State::Auth || state_ == State::Open;
   return state_ == State::Initial || state_ == State::Auth || state_ == State::Open;
 }
