@@ -198,6 +198,8 @@ cc_library(
     statusor.cc
     statusor.h
     statusor_internals.h
+    strerror.cc
+    strerror.h
     string_util.cc
     string_util.h
     type_traits.h
