@@ -861,6 +861,14 @@ using firebase::firestore::remote::WatchStream;
   return impl_->IsStarted();
 }
 
+- (BOOL)isEnabled {
+  return impl_->IsEnabled();
+}
+
+- (void)enable {
+  impl_->Enable();
+}
+
 - (void)markIdle {
 }
 

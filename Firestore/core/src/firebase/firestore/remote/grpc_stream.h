@@ -116,10 +116,12 @@ class WatchStream {
               FSTSerializerBeta* serializer);
   ~WatchStream();
 
+  void Enable();
   void Start(id delegate);
   void Stop();
-  bool IsOpen() const;
+  bool IsEnabled() const;
   bool IsStarted() const;
+  bool IsOpen() const;
 
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);

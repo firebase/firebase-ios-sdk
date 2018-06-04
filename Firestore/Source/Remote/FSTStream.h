@@ -236,6 +236,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isOpen;
 - (void)markIdle;
 - (BOOL)isStarted;
+- (BOOL)isEnabled;
+- (void)enable;
 
 @end
 

@@ -147,6 +147,7 @@ WatchStream::WatchStream(util::AsyncQueue* const async_queue,
       firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       stub_{CreateStub()},
+      dedicated_executor_{CreateExecutor()},
       objc_bridge_{serializer} {
   dedicated_executor_->Execute([this] {
     PollGrpcQueue();
@@ -194,19 +195,30 @@ std::unique_ptr<util::internal::Executor> WatchStream::CreateExecutor() {
   return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
 }
 
+void WatchStream::Enable() {
+  firestore_queue_->VerifyIsCurrentQueue();
+  state_ = State::Initial;
+}
+
 void WatchStream::Start(id delegate) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  delegate_ = delegate;
-  // TODO: on error state
-  // TODO: state transition details
+  if (state_ == State::Error) {
+    // TODO: backoff
+    return;
+  }
 
+  // TODO: util::LogDebug(%@ %p start", NSStringFromClass([self class]), (__bridge void *)self);
+
+  FIREBASE_ASSERT_MESSAGE(state_ == State::Initial, "Already started");
   state_ = State::Auth;
+  FIREBASE_ASSERT_MESSAGE(delegate_ == nil, "Delegate must be nil");
+  delegate_ = delegate;
 
   const bool do_force_refresh = false;
   credentials_provider_->GetToken(
       do_force_refresh, [this](util::StatusOr<Token> maybe_token) {
-      firestore_queue_->Enqueue([this, maybe_token] { Authenticate(maybe_token); });
+      firestore_queue_->EnqueueRelaxed([this, maybe_token] { Authenticate(maybe_token); });
   });
 }
 
@@ -220,10 +232,13 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   if (state_ == State::Stopped) {
     // Streams can be stopped while waiting for authorization.
     return;
+  } else {
+    FIREBASE_ASSERT_MESSAGE(state_ == State::Auth, "State should still be auth (was %s)", state_);
   }
-  // TODO: state transition details
+
   if (!maybe_token.ok()) {
     // TODO: error handling
+    OnFinish(); // FIXME
     return;
   }
 
@@ -236,9 +251,12 @@ void WatchStream::Authenticate(const util::StatusOr<Token>& maybe_token) {
   call_ = stub_.PrepareCall(
       context_.get(), "/google.firestore.v1beta1.Firestore/Listen", &grpc_queue_);
   // TODO: if !call_
+
   buffered_writer_.SetCall(call_.get());
   call_->StartCall(&kStartTag);
-  // callback filter
+  // TODO: set state to open here, or only upon successful completion? Objective-C does it here.
+
+  // TODO: callback filter
 }
 
 void WatchStream::OnSuccessfulStart() {
@@ -264,13 +282,15 @@ void WatchStream::OnSuccessfulRead() {
 
 void WatchStream::OnSuccessfulWrite() {
   firestore_queue_->VerifyIsCurrentQueue();
-
   buffered_writer_.OnSuccessfulWrite();
 }
 
 void WatchStream::OnFinish() {
   firestore_queue_->VerifyIsCurrentQueue();
 
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamWasInterruptedWithError:nil]; // FIXME
+  delegate_ = nil;
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -307,9 +327,12 @@ bool WatchStream::IsOpen() const {
 
 bool WatchStream::IsStarted() const {
   firestore_queue_->VerifyIsCurrentQueue();
+  return state_ == State::Auth || state_ == State::Open || state_ == State::Backoff;
+}
 
-  // return state_ == State::Auth || state_ == State::Open;
-  return state_ == State::Initial || state_ == State::Auth || state_ == State::Open;
+bool WatchStream::IsEnabled() const {
+  firestore_queue_->VerifyIsCurrentQueue();
+  return state_ != State::Stopped;
 }
 
 // void WatchStream::Close() {

@@ -157,7 +157,9 @@ static const int kMaxPendingWrites = 10;
   // FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
   //           @"WatchStream and WriteStream should both be null or non-null");
   // return self.watchStream != nil;
-  return self.watchStream.isStarted;
+  // return self.watchStream.isStarted;
+  // return !self.watchStream.isStopped;
+  return self.watchStream.isEnabled;
 }
 
 - (void)enableNetwork {
@@ -168,6 +170,8 @@ static const int kMaxPendingWrites = 10;
   // Create new streams (but note they're not started yet).
   if (self.watchStream == nil) {
     self.watchStream = [self.datastore createWatchStream];
+  } else {
+    [self.watchStream enable];
   }
   self.writeStream = [self.datastore createWriteStream];
 
@@ -285,8 +289,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  // return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
-  return [self isNetworkEnabled] && ![self.watchStream isOpen] && self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {
