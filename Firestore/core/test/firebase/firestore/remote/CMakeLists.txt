@@ -27,3 +27,17 @@ cc_test(
     firebase_firestore_protos_libprotobuf
     firebase_firestore_remote
 )
+
+set_target_properties(firebase_firestore_remote_test
+  PROPERTIES
+    # Treat headers from dependencies as *non* system includes (i.e. use -I
+    # rather than -isystem.) Required, as otherwise libprotobuf includes
+    # imported via -isystem are examined last, allowing nanopb includes to take
+    # priority.
+    NO_SYSTEM_FROM_IMPORTED true
+
+    # libprotobuf headers have plenty of unused parameters in them... which
+    # wouldn't be a problem, except these are now considered local (not system)
+    # headers due to the above.
+    COMPILE_FLAGS "-Wno-unused-parameter"
+)
