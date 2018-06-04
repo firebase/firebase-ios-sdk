@@ -18,6 +18,7 @@
 
 #import <GRPCClient/GRPCCall.h>
 
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -325,6 +326,66 @@ using firebase::firestore::model::SnapshotVersion;
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
     @"writeStreamDidReceiveResponseWithVersion"
   ]];
+}
+
+class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentialsProvider {
+ public:
+  MockCredentialsProvider() {
+    observed_refreshes_ = [NSMutableArray new];
+  }
+
+  void GetToken(bool force_refresh, firebase::firestore::auth::TokenListener completion) override {
+    [observed_refreshes_ addObject:[NSNumber numberWithBool:force_refresh]];
+    EmptyCredentialsProvider::GetToken(force_refresh, std::move(completion));
+  }
+
+  NSMutableArray<NSNumber*>* observed_refreshes() const {
+    return observed_refreshes_;
+  }
+
+ private:
+  NSMutableArray<NSNumber*> *observed_refreshes_;
+};
+
+- (void)testStreamRefreshesTokenUponExpiration {
+  MockCredentialsProvider credentials;
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                                   workerDispatchQueue:_workerDispatchQueue
+                                                           credentials:&credentials];
+  FSTWatchStream* watchStream = [datastore createWatchStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+
+  // Simulate callback from GRPC with the first unauthenticated error.
+  NSError *unauthenticatedError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                              code:FIRFirestoreErrorCodeUnauthenticated
+                          userInfo:nil];
+  dispatch_async(_testQueue, ^{
+    [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
+  });
+  // Drain the queue.
+  dispatch_sync(_testQueue, ^{});
+
+  // Try reconnecting -- token should be force refreshed.
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+  // Simulate that the unauthenticated error persists.
+  dispatch_async(_testQueue, ^{
+    [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
+  });
+  dispatch_sync(_testQueue, ^{});
+
+  // This reconnection attempt shouldn't try to refresh the token.
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+  dispatch_sync(_testQueue, ^{});
+
+  NSArray<NSNumber*>* expected = @[@0, @1, @0];
+  XCTAssertEqualObjects(credentials.observed_refreshes(), expected);
 }
 
 @end

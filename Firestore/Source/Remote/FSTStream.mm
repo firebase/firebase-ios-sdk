@@ -281,7 +281,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
   _forceTokenRefresh = NO;
-  /* _lastToken = result; */
 
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
@@ -290,8 +289,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(self.state == FSTStreamStateAuth, @"State should still be auth (was %ld)",
             (long)self.state);
 
-  // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
-  // but I'm not sure how to detect that right now. http://b/32762461
   if (!result.ok()) {
     // RPC has not been started yet, so just invoke higher-level close handler.
     [self handleStreamClose:util::MakeNSError(result.status())];
@@ -392,7 +389,9 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self.backoff resetToMax];
   } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated
       && !(_lastError != nil && _lastError.code == FIRFirestoreErrorCodeUnauthenticated)) {
-    // If the error was due to expired token, retry as soon as possible.
+    // If the error was due to expired token, retry as soon as possible. However, don't keep
+    // retrying, because if after token refresh the unauthenticated error persists, there is likely
+    // some other issue going on.
     [self.backoff reset];
     _forceTokenRefresh = YES;
   }
