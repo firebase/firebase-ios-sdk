@@ -22,6 +22,42 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+// There are several potential sources of inspiration for what is correct
+// behavior for these functions.
+//
+// Python: test with
+//
+//   python -c 'import os.path; print(os.path.basename("a/b/c//"))'
+//
+// POSIX shell: test with
+//
+//   dirname "a/b/c//"
+//
+// libc++: std::filesystem does not yet ship with Xcode (as of 9.4). Test with a
+// new (non-default installed) llvm, e.g. llvm-6.0:
+//
+//   brew install llvm
+//   llvm=$(brew --prefix)/opt/llvm
+//   $llvm/bin/clang++ -I$llvm/include -I$llvm/include/c++/v1 -L$llvm/lib \
+//       -Wl,-rpath,$llvm/lib test.cc -lc++experimental && ./a.out
+//
+//   test.cc contains something like:
+//     #include <experimental/filesystem>
+//     #include <iostream>
+//     namespace fs = std::experimental::filesystem;
+//     int main() {
+//       std::cout << fs::path("/a/b/c//").parent_path() << std::endl;
+//     }
+//
+// cppreference: look up example output in functions declared here:
+//   https://en.cppreference.com/w/cpp/filesystem/path
+//
+// This implementation mostly follows python's example:
+//
+//   * It's pretty simple to implement
+//   * POSIX is more complicated than we need
+//   * std::filesystem is still too experimental (as of 2018-06-05)
+
 #define EXPECT_BASENAME_EQ(expected, source)                  \
   do {                                                        \
     EXPECT_EQ(std::string{expected}, Path::Basename(source)); \
@@ -60,9 +96,9 @@ TEST(Path, Basename_IntermediateSlash) {
 }
 
 TEST(Path, Basename_TrailingSlash) {
-  // POSIX: "a/b//" => "b"
   // python: "a/b//" => ""
-  // libc++: "a/b//" => "." (cppreference: "")
+  // POSIX: "a/b//" => "b"
+  // libc++ path::filename(): "a/b//" => "." (cppreference suggests "")
   EXPECT_BASENAME_EQ("", "/a/");
   EXPECT_BASENAME_EQ("", "/a///");
 
@@ -100,8 +136,9 @@ TEST(Path, Dirname_NoSeparator) {
 TEST(Path, Dirname_LeadingSlash) {
   // POSIX says all "/".
   // python starts with "/" but does not strip trailing slashes.
-  // libc++ considers all of these be "", though cppreference.com indicates
-  // this should be "/" in example output so this is likely a bug.
+  // libc++ path::parent_path() considers all of these be "", though
+  // cppreference.com indicates this should be "/" in example output so this is
+  // likely a bug.
   EXPECT_DIRNAME_EQ("/", "/");
   EXPECT_DIRNAME_EQ("/", "///");
   EXPECT_DIRNAME_EQ("/", "/a");
@@ -186,6 +223,7 @@ TEST(Path, Join_Relative) {
   EXPECT_EQ("", Path::Join("", "", "", ""));
   EXPECT_EQ("a/b/c", Path::Join("a/b", "c"));
   EXPECT_EQ("/c/d", Path::Join("a/b", "/c", "d"));
+  EXPECT_EQ("/c/d", Path::Join("a/b/", "/c", "d"));
 }
 
 TEST(Path, Join_Types) {

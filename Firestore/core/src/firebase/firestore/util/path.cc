@@ -33,25 +33,25 @@ absl::string_view Path::Basename(absl::string_view pathname) {
 }
 
 absl::string_view Path::Dirname(absl::string_view pathname) {
-  size_t slash = pathname.find_last_of('/');
+  size_t last_slash = pathname.find_last_of('/');
 
-  if (slash == absl::string_view::npos) {
+  if (last_slash == absl::string_view::npos) {
     // No path separator found => empty string. Conformance with POSIX would
     // have us return "." here.
     return pathname.substr(0, 0);
   }
 
   // Collapse runs of slashes.
-  size_t nonslash = pathname.find_last_not_of('/', slash);
+  size_t nonslash = pathname.find_last_not_of('/', last_slash);
   if (nonslash == absl::string_view::npos) {
     // All characters preceding the last path separator are slashes
     return pathname.substr(0, 1);
   }
 
-  slash = nonslash + 1;
+  last_slash = nonslash + 1;
 
   // Otherwise everything up to the slash is the parent directory
-  return pathname.substr(0, slash);
+  return pathname.substr(0, last_slash);
 }
 
 bool Path::IsAbsolute(absl::string_view path) {
@@ -65,8 +65,7 @@ bool Path::IsAbsolute(absl::string_view path) {
 
 void Path::JoinAppend(std::string* base, absl::string_view path) {
   if (IsAbsolute(path)) {
-    base->clear();
-    base->append(path.data(), path.size());
+    base->assign(path.data(), path.size());
 
   } else {
     size_t nonslash = base->find_last_not_of('/');

@@ -28,12 +28,22 @@ namespace util {
 
 struct Path {
   /**
-   * Returns the unqualified trailing part of the pathname, e.g. "b" for "/a/b".
+   * Returns the unqualified trailing part of the pathname, e.g. "c" for
+   * "/a/b/c".
    */
   static absl::string_view Basename(absl::string_view pathname);
 
   /**
-   * Returns the parent directory name, e.g. "/a" for "/a/b".
+   * Returns the parent directory name, e.g. "/a/b" for "/a/b/c".
+   *
+   * Note:
+   *   * Trailing slashes are treated as a separator between an empty path
+   *     segment and the dirname, so Dirname("/a/b/c/") is "/a/b/c".
+   *   * Runs of more than one slash are treated as a single separator, so
+   *     Dirname("/a/b//c") is "/a/b".
+   *   * Paths are not canonicalized, so Dirname("/a//b//c") is "/a//b".
+   *   * Presently only UNIX style paths are supported (but compilation
+   *     intentionally fails on Windows to prompt implementation there).
    */
   static absl::string_view Dirname(absl::string_view pathname);
 
@@ -41,13 +51,6 @@ struct Path {
    * Returns true if the given `pathname` is an absolute path.
    */
   static bool IsAbsolute(absl::string_view pathname);
-
-  /**
-   * Returns the paths separated by path separators.
-   */
-  static std::string Join() {
-    return {};
-  }
 
   /**
    * Returns the paths separated by path separators.
@@ -63,18 +66,17 @@ struct Path {
     return result;
   }
 
- private:
   /**
-   * Joins the given base path with a suffix. If `path` is absolute, replaces
-   * `base`.
+   * Returns the paths separated by path separators.
    */
-  static void JoinAppend(std::string* base) {
-    (void)base;
+  static std::string Join() {
+    return {};
   }
 
+ private:
   /**
-   * Joins the given base path with a suffix. If `path` is absolute, replaces
-   * `base`.
+   * Joins the given base path with a suffix. If `path` is relative, appends it
+   * to the given base path. If `path` is absolute, replaces `base`.
    */
   static void JoinAppend(std::string* base, absl::string_view path);
 
@@ -84,6 +86,11 @@ struct Path {
                          const S&... rest) {
     JoinAppend(base, path);
     JoinAppend(base, rest...);
+  }
+
+  static void JoinAppend(std::string* base) {
+    // Recursive base case; nothing to do.
+    (void)base;
   }
 };
 
