@@ -502,13 +502,14 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
   // Copy of the real one (from the nanopb generated document.pb.c), but with
   // only boolean_value and integer_value.
-  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[2] = {
+  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[3] = {
       PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
                google_firestore_v1beta1_Value_Fake, boolean_value,
                boolean_value, 0),
       PB_FIELD(2, INT64, SINGULAR, STATIC, OTHER,
                google_firestore_v1beta1_Value_Fake, integer_value,
                boolean_value, 0),
+      PB_LAST_FIELD,
   };
 
   // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
@@ -642,13 +643,14 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // only boolean_value and integer_value. Also modified such that integer_value
   // now has an invalid tag (instead of 2).
   const int invalid_tag = 31;
-  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[2] = {
+  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[3] = {
       PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
                google_firestore_v1beta1_Value_Fake, boolean_value,
                boolean_value, 0),
       PB_FIELD(invalid_tag, INT64, SINGULAR, STATIC, OTHER,
                google_firestore_v1beta1_Value_Fake, integer_value,
                boolean_value, 0),
+      PB_LAST_FIELD,
   };
 
   // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
@@ -824,13 +826,14 @@ TEST_F(SerializerTest,
   // now has a tag of 31.
   const int invalid_tag = 31;
   const pb_field_t
-      google_firestore_v1beta1_BatchGetDocumentsResponse_fields_Fake[2] = {
+      google_firestore_v1beta1_BatchGetDocumentsResponse_fields_Fake[3] = {
           PB_FIELD(2, STRING, SINGULAR, CALLBACK, FIRST,
                    google_firestore_v1beta1_BatchGetDocumentsResponse_Fake,
                    missing, missing, 0),
           PB_FIELD(invalid_tag, INT64, SINGULAR, STATIC, OTHER,
                    google_firestore_v1beta1_BatchGetDocumentsResponse_Fake,
                    extra_field, missing, 0),
+          PB_LAST_FIELD,
       };
 
   const char* missing_value = "projects/p/databases/d/documents/one/two";
