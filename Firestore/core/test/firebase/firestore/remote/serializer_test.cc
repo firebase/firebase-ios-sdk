@@ -813,7 +813,7 @@ TEST_F(SerializerTest,
   // first).
 
   // Copy of the real one (from the nanopb generated firestore.pb.h), but with
-  // only missing and an extra_field
+  // only "missing" (a field from the original proto) and an extra_field.
   struct google_firestore_v1beta1_BatchGetDocumentsResponse_Fake {
     pb_callback_t missing;
     int64_t extra_field;
