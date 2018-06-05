@@ -22,9 +22,7 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-void EmptyCredentialsProvider::GetToken(bool force_refresh,
-                                        TokenListener completion) {
-  UNUSED(force_refresh);
+void EmptyCredentialsProvider::GetToken(TokenListener completion) {
   if (completion) {
     // Unauthenticated token will force the GRPC fallback to use default
     // settings.
@@ -37,6 +35,9 @@ void EmptyCredentialsProvider::SetUserChangeListener(
   if (listener) {
     listener(User::Unauthenticated());
   }
+}
+
+void EmptyCredentialsProvider::InvalidateToken() {
 }
 
 }  // namespace auth

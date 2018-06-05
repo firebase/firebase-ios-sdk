@@ -50,7 +50,9 @@ class CredentialsProvider {
    * Requests token for the current user, optionally forcing a refreshed token
    * to be fetched.
    */
-  virtual void GetToken(bool force_refresh, TokenListener completion) = 0;
+  virtual void GetToken(TokenListener completion) = 0;
+
+  virtual void InvalidateToken() = 0;
 
   /**
    * Sets the listener to be notified of user changes (sign-in / sign-out). It

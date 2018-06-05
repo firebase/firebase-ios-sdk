@@ -164,8 +164,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)inhibitBackoff;
 
-@property(nonatomic, strong, nullable) NSError *lastError;
-
 @end
 
 #pragma mark - FSTWatchStream

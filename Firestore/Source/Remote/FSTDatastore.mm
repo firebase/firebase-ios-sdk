@@ -87,10 +87,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @end
 
-@implementation FSTDatastore {
-  BOOL _forceTokenRefresh;
-  NSError *_lastError;
-}
+@implementation FSTDatastore
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -114,7 +111,6 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
-    _forceTokenRefresh = NO;
   }
   return self;
 }
@@ -151,7 +147,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   return error.code == FIRFirestoreErrorCodeAborted;
 }
 
-+ (BOOL)isPermanentWriteError:(NSError *)error previousError:(nullable NSError *)previousError {
++ (BOOL)isPermanentWriteError:(NSError *)error {
   FSTAssert([error.domain isEqualToString:FIRFirestoreErrorDomain],
             @"isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
   switch (error.code) {
@@ -161,6 +157,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeResourceExhausted:
     case FIRFirestoreErrorCodeInternal:
     case FIRFirestoreErrorCodeUnavailable:
+    // Unauthenticated means something went wrong with our token and we need to retry with new
+    // credentials which will happen automatically.
+    case FIRFirestoreErrorCodeUnauthenticated:
       return NO;
     case FIRFirestoreErrorCodeInvalidArgument:
     case FIRFirestoreErrorCodeNotFound:
@@ -175,12 +174,6 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeUnimplemented:
     case FIRFirestoreErrorCodeDataLoss:
       return YES;
-    case FIRFirestoreErrorCodeUnauthenticated:
-      // Unauthenticated means something went wrong with our token and we need
-      // to retry with new credentials which will happen automatically. However,
-      // if this error persists, there's probably some other underlying issue,
-      // so retrying is unlikely to help.
-      return previousError != nil && previousError.code == FIRFirestoreErrorCodeUnauthenticated;
     default:
       return YES;
   }
@@ -246,6 +239,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                        handler:^(GCFSCommitResponse *response, NSError *_Nullable error) {
                          error = [FSTDatastore firestoreErrorForError:error];
                          [self.workerDispatchQueue dispatchAsync:^{
+                           if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                             _credentials->InvalidateToken();
+                           }
                            FSTLog(@"RPC CommitRequest completed. Error: %@", error);
                            [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
                            completion(error);
@@ -277,6 +273,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                             GCFSBatchGetDocumentsResponse *_Nullable response,
                                             NSError *_Nullable error) {
                                error = [FSTDatastore firestoreErrorForError:error];
+                               if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                                 _credentials->InvalidateToken();
+                               }
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
                                    FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
@@ -317,19 +316,11 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 - (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
-  _credentials->GetToken(_forceTokenRefresh, [self, rpcFactory,
+  _credentials->GetToken([self, rpcFactory,
                                               errorHandler](util::StatusOr<Token> result) {
     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-      _forceTokenRefresh = NO;
       if (!result.ok()) {
-        NSError *error = util::MakeNSError(result.status());
-        if (error != nil && _lastError != nil &&
-            error.code == FIRFirestoreErrorCodeUnauthenticated &&
-            _lastError.code != FIRFirestoreErrorCodeUnauthenticated) {
-          _forceTokenRefresh = YES;
-        }
-        _lastError = error;
-        errorHandler(error);
+        errorHandler(util::MakeNSError(result.status()));
       } else {
         GRPCProtoCall *rpc = rpcFactory();
         const Token &token = result.ValueOrDie();

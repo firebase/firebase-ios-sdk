@@ -334,10 +334,15 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     observed_refreshes_ = [NSMutableArray new];
   }
 
-  void GetToken(bool force_refresh, firebase::firestore::auth::TokenListener completion) override {
-    [observed_refreshes_ addObject:[NSNumber numberWithBool:force_refresh]];
-    EmptyCredentialsProvider::GetToken(force_refresh, std::move(completion));
+  void GetToken(firebase::firestore::auth::TokenListener completion) {
+    [observed_refreshes_ addObject:[NSNumber numberWithBool:force_refresh_]];
+    EmptyCredentialsProvider::GetToken(std::move(completion));
+      force_refresh_ = false;
   }
+    
+    void InvalidateToken() override {
+        force_refresh_ = true;
+    }
 
   NSMutableArray<NSNumber *> *observed_refreshes() const {
     return observed_refreshes_;
@@ -345,6 +350,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
  private:
   NSMutableArray<NSNumber *> *observed_refreshes_;
+    bool force_refresh_ = false;
 };
 
 - (void)testStreamRefreshesTokenUponExpiration {
@@ -387,7 +393,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   dispatch_sync(_testQueue, ^{
                 });
 
-  NSArray<NSNumber *> *expected = @[ @0, @1, @0 ];
+  NSArray<NSNumber *> *expected = @[ @0, @1, @1 ];
   XCTAssertEqualObjects(credentials.observed_refreshes(), expected);
 }
 

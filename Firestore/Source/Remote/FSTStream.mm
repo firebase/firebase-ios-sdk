@@ -206,9 +206,7 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
 
 @end
 
-@implementation FSTStream {
-  BOOL _forceTokenRefresh;
-}
+@implementation FSTStream
 
 /** The time a stream stays open after it is marked idle. */
 static const NSTimeInterval kIdleTimeout = 60.0;
@@ -231,7 +229,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
                                                        initialDelay:kBackoffInitialDelay
                                                       backoffFactor:kBackoffFactor
                                                            maxDelay:kBackoffMaxDelay];
-    _forceTokenRefresh = NO;
     _state = FSTStreamStateInitial;
   }
   return self;
@@ -268,7 +265,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   FSTAssert(_delegate == nil, @"Delegate must be nil");
   _delegate = delegate;
 
-  _credentials->GetToken(_forceTokenRefresh, [self](util::StatusOr<Token> result) {
+  _credentials->GetToken([self](util::StatusOr<Token> result) {
     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
       [self resumeStartWithToken:result];
     }];
@@ -278,8 +275,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
 - (void)resumeStartWithToken:(const util::StatusOr<Token> &)result {
   [self.workerDispatchQueue verifyIsCurrentQueue];
-
-  _forceTokenRefresh = NO;
 
   if (self.state == FSTStreamStateStopped) {
     // Streams can be stopped while waiting for authorization.
@@ -386,13 +381,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     FSTLog(@"%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
            (__bridge void *)self);
     [self.backoff resetToMax];
-  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated &&
-             !(_lastError != nil && _lastError.code == FIRFirestoreErrorCodeUnauthenticated)) {
-    // If the error was due to expired token, retry as soon as possible. However, don't keep
-    // retrying, because if after token refresh the unauthenticated error persists, there is likely
-    // some other issue going on.
-    [self.backoff reset];
-    _forceTokenRefresh = YES;
+  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+    // "unauthenticated" error means the token was rejected. Try force refreshing it in case it just
+    // expired.
+    _credentials->InvalidateToken();
   }
 
   if (finalState != FSTStreamStateError) {
@@ -428,8 +420,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   if (finalState != FSTStreamStateStopped) {
     [self notifyStreamInterruptedWithError:error];
   }
-
-  self.lastError = error;
 
   // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the stream with a new
   // delegate so we do /not/ want to clear the delegate here. And since we've already suppressed
