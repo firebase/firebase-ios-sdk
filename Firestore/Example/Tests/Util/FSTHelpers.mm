@@ -65,6 +65,7 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
 using firebase::firestore::model::DocumentKeySet;
 
@@ -298,29 +299,118 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
       .snapshot;
 }
 
+@implementation FSTTestTargetMetadataProvider {
+  DocumentKeySet (^_remoteKeysCallback)(FSTTargetID);
+  FSTQueryData * (^_queryDataCallback)(FSTTargetID);
+}
+
++ (instancetype)withSingleResultAtKey:(DocumentKey)documentKey {
+  return [[FSTTestTargetMetadataProvider alloc]
+      initWithRemoteKeysForTargetCallback:^DocumentKeySet(FSTTargetID targetID) {
+        return DocumentKeySet{documentKey};
+      }
+      queryDataCallback:^FSTQueryData *(FSTTargetID targetID) {
+        FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+        return [[FSTQueryData alloc] initWithQuery:query
+                                          targetID:targetID
+                              listenSequenceNumber:0
+                                           purpose:FSTQueryPurposeListen];
+      }];
+}
+
++ (instancetype)withEmptyResultAtKey:(DocumentKey)documentKey {
+  return [[FSTTestTargetMetadataProvider alloc]
+      initWithRemoteKeysForTargetCallback:^DocumentKeySet(FSTTargetID targetID) {
+        return DocumentKeySet{};
+      }
+      queryDataCallback:^FSTQueryData *(FSTTargetID targetID) {
+        FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+        return [[FSTQueryData alloc] initWithQuery:query
+                                          targetID:targetID
+                              listenSequenceNumber:0
+                                           purpose:FSTQueryPurposeListen];
+      }];
+}
+
+- (instancetype)
+initWithRemoteKeysForTargetCallback:(DocumentKeySet (^)(FSTTargetID))remoteKeysCallback
+                  queryDataCallback:(FSTQueryData * (^)(FSTTargetID))queryDataCallback {
+  self = [super init];
+  if (self) {
+    _remoteKeysCallback = remoteKeysCallback;
+    _queryDataCallback = queryDataCallback;
+  }
+
+  return self;
+}
+
+- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
+  return _remoteKeysCallback(targetID.intValue);
+}
+
+- (FSTQueryData *_Nullable)queryDataForTarget:(FSTBoxedTargetID *)targetID {
+  return _queryDataCallback(targetID.intValue);
+}
+
+@end
+
+FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
+                                        NSArray<NSNumber *> *addedToTargets) {
+  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+              "Docs from remote updates shouldn't have local changes.");
+  FSTDocumentWatchChange *change =
+      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:addedToTargets
+                                              removedTargetIDs:{}
+                                                   documentKey:doc.key
+                                                      document:doc];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider withEmptyResultAtKey:doc.key]];
+  [aggregator handleDocumentChange:change];
+  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+}
+
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *updatedInTargets,
                                          NSArray<NSNumber *> *removedFromTargets) {
+  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+              "Docs from remote updates shouldn't have local changes.");
   FSTDocumentWatchChange *change =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
                                               removedTargetIDs:removedFromTargets
                                                    documentKey:doc.key
                                                       document:doc];
-  NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
-  FSTQueryData *dummyQueryData = [FSTQueryData alloc];
-  for (NSNumber *targetID in updatedInTargets) {
-    listens[targetID] = dummyQueryData;
-  }
-  for (NSNumber *targetID in removedFromTargets) {
-    listens[targetID] = dummyQueryData;
-  }
-  NSMutableDictionary<NSNumber *, NSNumber *> *pending = [NSMutableDictionary dictionary];
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:doc.version
-                                                  listenTargets:listens
-                                         pendingTargetResponses:pending];
-  [aggregator addWatchChange:change];
-  return [aggregator remoteEvent];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider withSingleResultAtKey:doc.key]];
+  [aggregator handleDocumentChange:change];
+  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+}
+
+FSTTargetChange *FSTTestTargetChangeMarkCurrent() {
+  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
+      current:YES
+      addedDocuments:DocumentKeySet {}
+      modifiedDocuments:DocumentKeySet {}
+      removedDocuments:DocumentKeySet{}];
+}
+
+FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
+  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
+                                              current:YES
+                                       addedDocuments:docs
+                                    modifiedDocuments:DocumentKeySet {}
+                                     removedDocuments:DocumentKeySet{}];
+}
+
+FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
+                                     DocumentKeySet modified,
+                                     DocumentKeySet removed,
+                                     NSData *resumeToken,
+                                     BOOL current) {
+  return [[FSTTargetChange alloc] initWithResumeToken:resumeToken
+                                              current:current
+                                       addedDocuments:added
+                                    modifiedDocuments:modified
+                                     removedDocuments:removed];
 }
 
 /** Creates a resume token to match the given snapshot version. */

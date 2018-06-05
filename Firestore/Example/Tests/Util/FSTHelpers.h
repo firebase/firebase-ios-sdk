@@ -21,6 +21,7 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -47,6 +48,9 @@
 @class FSTViewSnapshot;
 @class FSTObjectValue;
 @protocol FSTFilter;
+
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -147,6 +151,26 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     }                                                                   \
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
   } while (0)
+
+/** An implementation of FSTTargetMetadataProvider that can be customized at construction time. */
+@interface FSTTestTargetMetadataProvider : NSObject <FSTTargetMetadataProvider>
+/**
+ * Creates an FSTTestTargetMetadataProvider that returns the given document for the existing key
+ * callback (via `remoteKeysForTarget`) and marks queries as active (via `queryDataForTarget`).
+ */
++ (instancetype)withSingleResultAtKey:(DocumentKey)documentKey;
+/**
+ * Creates an FSTTestTargetMetadataProvider that returns an empty set of keys for the existing
+ * key callback (via `remoteKeysForTarget`) and marks queries as active (via `queryDataForTarget`).
+ */
++ (instancetype)withEmptyResultAtKey:(DocumentKey)documentKey;
+
+- (instancetype)
+initWithRemoteKeysForTargetCallback:(DocumentKeySet (^)(FSTTargetID))remoteKeysCallback
+                  queryDataCallback:(FSTQueryData * (^)(FSTTargetID))queryDataCallback
+    NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+@end
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
@@ -250,6 +274,9 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 /** Converts a list of documents to a sorted map. */
 FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
+/** Creates a remote event that inserts a new document. */
+FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber *> *addedToTargets);
+
 /** Creates a remote event with changes to a document. */
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *updatedInTargets,
@@ -259,6 +286,19 @@ FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
+
+/** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
+FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs);
+
+/** Creates a test target change that marks the target as CURRENT  */
+FSTTargetChange *FSTTestTargetChangeMarkCurrent();
+
+/** Creates a test target change. */
+FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
+                                     DocumentKeySet modified,
+                                     DocumentKeySet removed,
+                                     NSData *resumeToken,
+                                     BOOL current);
 
 /** Creates a resume token to match the given snapshot version. */
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);
