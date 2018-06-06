@@ -541,7 +541,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)updateEmail:(nullable NSString *)email
            password:(nullable NSString *)password
            callback:(nonnull FIRUserProfileChangeCallback)callback {
-  if (password && ![password length]){
+  if (password && ![password length]) {
     callback([FIRAuthErrorUtils weakPasswordErrorWithServerResponseReason:kMissingPasswordReason]);
     return;
   }
@@ -561,11 +561,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     if (email) {
-      self->_email = email;
+      self->_email = [email copy];
     }
-    if (self->_email && password) {
-      self->_anonymous = NO;
-      self->_hasEmailPasswordCredential = YES;
+    if (self->_email) {
       if (!hadEmailPasswordCredential) {
         // The list of providers need to be updated for the newly added email-password provider.
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
@@ -585,6 +583,20 @@ static void callInMainThreadWithAuthDataResultAndError(
               [self signOutIfTokenIsInvalidWithError:error];
               callback(error);
               return;
+            }
+            for (FIRGetAccountInfoResponseUser *userAccountInfo in response.users) {
+              // Set the account to non-anonymous if there are any providers, even if
+              // they're not email/password ones.
+              if (userAccountInfo.providerUserInfo.count > 0) {
+                self->_anonymous = NO;
+              }
+              for (FIRGetAccountInfoResponseProviderUserInfo *providerUserInfo in
+                   userAccountInfo.providerUserInfo) {
+                if ([providerUserInfo.providerID isEqualToString:FIREmailAuthProviderID]) {
+                  self->_hasEmailPasswordCredential = YES;
+                  break;
+                }
+              }
             }
             [self updateWithGetAccountInfoResponse:response];
             if (![self updateKeychain:&error]) {

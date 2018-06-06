@@ -1,3 +1,7 @@
+# v5.0.2
+- Fix an issue where anonymous accounts weren't correctly promoted to
+  non-anonymous when linked with passwordless email auth accounts.
+
 # v5.0.1
 - Restore 4.x level of support for extensions (#1357).
 
