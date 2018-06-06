@@ -331,26 +331,25 @@ using firebase::firestore::model::SnapshotVersion;
 class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentialsProvider {
  public:
   MockCredentialsProvider() {
-    observed_refreshes_ = [NSMutableArray new];
+    observed_states_ = [NSMutableArray new];
   }
 
-  void GetToken(firebase::firestore::auth::TokenListener completion) {
-    [observed_refreshes_ addObject:[NSNumber numberWithBool:force_refresh_]];
+  void GetToken(firebase::firestore::auth::TokenListener completion) override {
+    [observed_states_ addObject:@"GetToken"];
     EmptyCredentialsProvider::GetToken(std::move(completion));
-      force_refresh_ = false;
   }
-    
-    void InvalidateToken() override {
-        force_refresh_ = true;
-    }
 
-  NSMutableArray<NSNumber *> *observed_refreshes() const {
-    return observed_refreshes_;
+  void InvalidateToken() override {
+    [observed_states_ addObject:@"InvalidateToken"];
+    EmptyCredentialsProvider::InvalidateToken();
+  }
+
+  NSMutableArray<NSString *> *observed_states() const {
+    return observed_states_;
   }
 
  private:
-  NSMutableArray<NSNumber *> *observed_refreshes_;
-    bool force_refresh_ = false;
+  NSMutableArray<NSString *> *observed_states_;
 };
 
 - (void)testStreamRefreshesTokenUponExpiration {
@@ -364,7 +363,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     [watchStream startWithDelegate:_delegate];
   }];
 
-  // Simulate callback from GRPC with the first unauthenticated error.
+  // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
   NSError *unauthenticatedError = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                                       code:FIRFirestoreErrorCodeUnauthenticated
                                                   userInfo:nil];
@@ -375,26 +374,28 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   dispatch_sync(_testQueue, ^{
                 });
 
-  // Try reconnecting -- token should be force refreshed.
+  // Try reconnecting.
   [_delegate awaitNotificationFromBlock:^{
     [watchStream startWithDelegate:_delegate];
   }];
-  // Simulate that the unauthenticated error persists.
+  // Simulate a different error -- token should not be invalidated this time.
+    NSError *unavailableError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                                        code:FIRFirestoreErrorCodeUnavailable
+                                                    userInfo:nil];
   dispatch_async(_testQueue, ^{
-    [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
+    [watchStream.callbackFilter writesFinishedWithError:unavailableError];
   });
   dispatch_sync(_testQueue, ^{
                 });
 
-  // This reconnection attempt shouldn't try to refresh the token.
   [_delegate awaitNotificationFromBlock:^{
     [watchStream startWithDelegate:_delegate];
   }];
   dispatch_sync(_testQueue, ^{
                 });
 
-  NSArray<NSNumber *> *expected = @[ @0, @1, @1 ];
-  XCTAssertEqualObjects(credentials.observed_refreshes(), expected);
+  NSArray<NSString *> *expected = @[ @"GetToken", @"InvalidateToken", @"GetToken", @"GetToken" ];
+  XCTAssertEqualObjects(credentials.observed_states(), expected);
 }
 
 @end
