@@ -46,12 +46,13 @@ class CredentialsProvider {
 
   virtual ~CredentialsProvider();
 
-  /**
-   * Requests token for the current user, optionally forcing a refreshed token
-   * to be fetched.
-   */
+  /** Requests token for the current user. */
   virtual void GetToken(TokenListener completion) = 0;
 
+  /**
+   * Marks the last retrieved token as invalid, making the next `GetToken`
+   * request force refresh the token.
+   */
   virtual void InvalidateToken() = 0;
 
   /**
