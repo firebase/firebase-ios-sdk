@@ -690,13 +690,12 @@ static NSComparisonResult CompareBytes(NSData *left, NSData *right) {
 - (NSComparisonResult)compare:(FSTFieldValue *)other {
   if ([other isKindOfClass:[FSTReferenceValue class]]) {
     FSTReferenceValue *ref = (FSTReferenceValue *)other;
-    NSComparisonResult cmp = [util::WrapNSStringNoCopy(self.databaseID->project_id())
-        compare:util::WrapNSStringNoCopy(ref.databaseID->project_id())];
+    NSComparisonResult cmp =
+        WrapCompare(self.databaseID->project_id(), ref.databaseID->project_id());
     if (cmp != NSOrderedSame) {
       return cmp;
     }
-    cmp = [util::WrapNSStringNoCopy(self.databaseID->database_id())
-        compare:util::WrapNSStringNoCopy(ref.databaseID->database_id())];
+    cmp = WrapCompare(self.databaseID->database_id(), ref.databaseID->database_id());
     return cmp != NSOrderedSame ? cmp : [self.key compare:ref.key];
   } else {
     return [self defaultCompare:other];

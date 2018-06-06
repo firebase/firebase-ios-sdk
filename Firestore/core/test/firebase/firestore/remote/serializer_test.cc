@@ -502,13 +502,14 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
   // Copy of the real one (from the nanopb generated document.pb.c), but with
   // only boolean_value and integer_value.
-  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[2] = {
+  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[3] = {
       PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
                google_firestore_v1beta1_Value_Fake, boolean_value,
                boolean_value, 0),
       PB_FIELD(2, INT64, SINGULAR, STATIC, OTHER,
                google_firestore_v1beta1_Value_Fake, integer_value,
                boolean_value, 0),
+      PB_LAST_FIELD,
   };
 
   // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
@@ -605,7 +606,12 @@ TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
-TEST_F(SerializerTest, BadTag) {
+TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
+  // A bad tag should be ignored. But if there are *no* valid tags, then we
+  // don't know the type of the FieldValue. Although it might be reasonable to
+  // assume some sort of default type in this situation, we've decided to fail
+  // the deserialization process in this case instead.
+
   std::vector<uint8_t> bytes =
       EncodeFieldValue(&serializer, FieldValue::NullValue());
 
@@ -615,15 +621,56 @@ TEST_F(SerializerTest, BadTag) {
   // Specifically 31. 0xf8 represents field number 31 encoded as a varint.
   Mutate(&bytes[0], /*expected_initial_value=*/0x58, /*new_value=*/0xf8);
 
-  // TODO(rsgowman): The behaviour is *temporarily* slightly different during
-  // development; this will cause a failed assertion rather than a failed
-  // status. Remove this EXPECT_ANY_THROW statement (and reenable the
-  // following commented out statement) once the corresponding assert has been
-  // removed from serializer.cc.
-  EXPECT_ANY_THROW(ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes));
-  // ExpectFailedStatusDuringFieldValueDecode(
-  //    Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
+  // A bad tag should be ignored, in which case, we should successfully
+  // deserialize the rest of the bytes as if it wasn't there. To craft these
+  // bytes, we'll use the same technique as
+  // EncodesFieldValuesWithRepeatedEntries (so go read the comments there
+  // first).
+
+  // Copy of the real one (from the nanopb generated document.pb.h), but with
+  // only boolean_value and integer_value.
+  struct google_firestore_v1beta1_Value_Fake {
+    bool boolean_value;
+    int64_t integer_value;
+  };
+
+  // Copy of the real one (from the nanopb generated document.pb.c), but with
+  // only boolean_value and integer_value. Also modified such that integer_value
+  // now has an invalid tag (instead of 2).
+  const int invalid_tag = 31;
+  const pb_field_t google_firestore_v1beta1_Value_fields_Fake[3] = {
+      PB_FIELD(1, BOOL, SINGULAR, STATIC, FIRST,
+               google_firestore_v1beta1_Value_Fake, boolean_value,
+               boolean_value, 0),
+      PB_FIELD(invalid_tag, INT64, SINGULAR, STATIC, OTHER,
+               google_firestore_v1beta1_Value_Fake, integer_value,
+               boolean_value, 0),
+      PB_LAST_FIELD,
+  };
+
+  // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
+  // first, normally implying integer_value should "win". Except that
+  // integer_value isn't a valid tag, so it should be ignored here.
+  google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
+  std::vector<uint8_t> bytes(128);
+  pb_ostream_t stream = pb_ostream_from_buffer(bytes.data(), bytes.size());
+  pb_encode(&stream, google_firestore_v1beta1_Value_fields_Fake, &crafty_value);
+  bytes.resize(stream.bytes_written);
+
+  // Decode the bytes into the model
+  StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
+  EXPECT_OK(actual_model_status);
+  FieldValue actual_model = actual_model_status.ValueOrDie();
+
+  // Ensure the decoded model is as expected.
+  FieldValue expected_model = FieldValue::BooleanValue(false);
+  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
@@ -757,6 +804,69 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   TouchIgnoredBatchGetDocumentsResponseFields(&proto);
 
   ExpectRoundTrip(key, fields, update_time, proto);
+}
+
+TEST_F(SerializerTest,
+       BadBatchGetDocumentsResponseTagWithOtherValidTagsPresent) {
+  // A bad tag should be ignored, in which case, we should successfully
+  // deserialize the rest of the bytes as if it wasn't there. To craft these
+  // bytes, we'll use the same technique as
+  // EncodesFieldValuesWithRepeatedEntries (so go read the comments there
+  // first).
+
+  // Copy of the real one (from the nanopb generated firestore.pb.h), but with
+  // only "missing" (a field from the original proto) and an extra_field.
+  struct google_firestore_v1beta1_BatchGetDocumentsResponse_Fake {
+    pb_callback_t missing;
+    int64_t extra_field;
+  };
+
+  // Copy of the real one (from the nanopb generated firestore.pb.c), but with
+  // only missing and an extra_field. Also modified such that extra_field
+  // now has a tag of 31.
+  const int invalid_tag = 31;
+  const pb_field_t
+      google_firestore_v1beta1_BatchGetDocumentsResponse_fields_Fake[3] = {
+          PB_FIELD(2, STRING, SINGULAR, CALLBACK, FIRST,
+                   google_firestore_v1beta1_BatchGetDocumentsResponse_Fake,
+                   missing, missing, 0),
+          PB_FIELD(invalid_tag, INT64, SINGULAR, STATIC, OTHER,
+                   google_firestore_v1beta1_BatchGetDocumentsResponse_Fake,
+                   extra_field, missing, 0),
+          PB_LAST_FIELD,
+      };
+
+  const char* missing_value = "projects/p/databases/d/documents/one/two";
+  google_firestore_v1beta1_BatchGetDocumentsResponse_Fake crafty_value;
+  crafty_value.missing.funcs.encode =
+      [](pb_ostream_t* stream, const pb_field_t* field, void* const* arg) {
+        const char* missing_value = static_cast<const char*>(*arg);
+        if (!pb_encode_tag_for_field(stream, field)) return false;
+        return pb_encode_string(stream,
+                                reinterpret_cast<const uint8_t*>(missing_value),
+                                strlen(missing_value));
+      };
+  crafty_value.missing.arg = const_cast<char*>(missing_value);
+  crafty_value.extra_field = 42;
+
+  std::vector<uint8_t> bytes(128);
+  pb_ostream_t stream = pb_ostream_from_buffer(bytes.data(), bytes.size());
+  pb_encode(&stream,
+            google_firestore_v1beta1_BatchGetDocumentsResponse_fields_Fake,
+            &crafty_value);
+  bytes.resize(stream.bytes_written);
+
+  // Decode the bytes into the model
+  StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
+      serializer.DecodeMaybeDocument(bytes);
+  EXPECT_OK(actual_model_status);
+  std::unique_ptr<MaybeDocument> actual_model =
+      std::move(actual_model_status).ValueOrDie();
+
+  // Ensure the decoded model is as expected.
+  NoDocument expected_model =
+      NoDocument(Key("one/two"), SnapshotVersion::None());
+  EXPECT_EQ(expected_model, *actual_model.get());
 }
 
 TEST_F(SerializerTest, DecodesNoDocument) {

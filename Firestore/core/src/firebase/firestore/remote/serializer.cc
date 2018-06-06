@@ -24,8 +24,8 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.pb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -204,20 +204,20 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
         }
         break;
 
-      default:
-        // We could get here for one of two reasons; either because the input
-        // bytes are corrupt, or because we're attempting to parse a tag that we
-        // haven't implemented yet. Long term, the latter reason should become
-        // less likely (especially in production), so we'll assume former.
-
-        // TODO(rsgowman): While still in development, we'll contradict the
-        // above and assume the latter. Remove the following assertion when
-        // we're confident that we're handling all the tags in the protos.
+      case google_firestore_v1beta1_Value_double_value_tag:
+      case google_firestore_v1beta1_Value_bytes_value_tag:
+      case google_firestore_v1beta1_Value_reference_value_tag:
+      case google_firestore_v1beta1_Value_geo_point_value_tag:
+      case google_firestore_v1beta1_Value_array_value_tag:
+        // TODO(b/74243929): Implement remaining types.
         HARD_FAIL("Unhandled message field number (tag): %i.",
                   tag.field_number);
-        reader->set_status(Status(
-            FirestoreErrorCode::DataLoss,
-            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these. No
+        // action required here, though we'll need to skip the relevant bytes
+        // below.
+        break;
     }
 
     if (!reader->status().ok()) return FieldValue::NullValue();
@@ -247,12 +247,18 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
             reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
         break;
 
+      case google_firestore_v1beta1_Value_double_value_tag:
+      case google_firestore_v1beta1_Value_bytes_value_tag:
+      case google_firestore_v1beta1_Value_reference_value_tag:
+      case google_firestore_v1beta1_Value_geo_point_value_tag:
+      case google_firestore_v1beta1_Value_array_value_tag:
+        // TODO(b/74243929): Implement remaining types.
+        HARD_FAIL("Unhandled message field number (tag): %i.",
+                  tag.field_number);
+
       default:
-        // This indicates an internal error as we've already ensured that this
-        // is a valid field_number.
-        HARD_FAIL(
-            "Somehow got an unexpected field number (tag) after verifying that "
-            "the field number was expected.");
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
     }
   }
 
@@ -545,9 +551,10 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       default:
-        reader->set_status(Status(
-            FirestoreErrorCode::DataLoss,
-            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+        // Unknown tag. According to the proto spec, we need to ignore these. No
+        // action required here, though we'll need to skip the relevant bytes
+        // below.
+        break;
     }
 
     if (!reader->status().ok()) return nullptr;
@@ -589,11 +596,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       default:
-        // This indicates an internal error as we've already ensured that this
-        // is a valid field_number.
-        HARD_FAIL(
-            "Somehow got an unexpected field number (tag) after verifying that "
-            "the field number was expected.");
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
     }
   }
 
