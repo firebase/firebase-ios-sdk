@@ -32,14 +32,8 @@ Status::Status(FirestoreErrorCode code, absl::string_view msg) {
   state_->msg = static_cast<std::string>(msg);
 }
 
-Status Status::FromErrno(int errno_code, absl::string_view msg) {
-  FirestoreErrorCode canonical_code = CodeForErrno(errno_code);
-  return Status{canonical_code,
-                util::StringFormat("%s (errno %s: %s)", msg, errno_code,
-                                   StrError(errno_code))};
-}
-
-FirestoreErrorCode Status::CodeForErrno(int errno_code) {
+/// Returns the Canonical error code for the given errno value.
+static FirestoreErrorCode CodeForErrno(int errno_code) {
   switch (errno_code) {
     case 0:
       return FirestoreErrorCode::Ok;
@@ -177,6 +171,13 @@ FirestoreErrorCode Status::CodeForErrno(int errno_code) {
 
     default: { return FirestoreErrorCode::Unknown; }
   }
+}
+
+Status Status::FromErrno(int errno_code, absl::string_view msg) {
+  FirestoreErrorCode canonical_code = CodeForErrno(errno_code);
+  return Status{canonical_code,
+                util::StringFormat("%s (errno %s: %s)", msg, errno_code,
+                                   StrError(errno_code))};
 }
 
 void Status::Update(const Status& new_status) {

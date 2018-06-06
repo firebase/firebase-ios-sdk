@@ -50,11 +50,8 @@ class ABSL_MUST_USE_RESULT Status {
     return Status();
   }
 
-  /// Creates a status object from
+  /// Creates a status object from the given errno error code and message.
   static Status FromErrno(int errno_code, absl::string_view msg);
-
-  /// Returns the Canonical error code for the given errno value.
-  static FirestoreErrorCode CodeForErrno(int errno_code);
 
 #if defined(__OBJC__)
   static Status FromNSError(NSError* error);
