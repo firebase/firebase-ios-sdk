@@ -273,12 +273,12 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                             GCFSBatchGetDocumentsResponse *_Nullable response,
                                             NSError *_Nullable error) {
                                error = [FSTDatastore firestoreErrorForError:error];
-                               if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                                 _credentials->InvalidateToken();
-                               }
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
                                    FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
+                                  if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                                    _credentials->InvalidateToken();
+                                  }
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
                                    return;
