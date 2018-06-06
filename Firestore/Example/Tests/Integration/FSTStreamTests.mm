@@ -379,9 +379,9 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     [watchStream startWithDelegate:_delegate];
   }];
   // Simulate a different error -- token should not be invalidated this time.
-    NSError *unavailableError = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                                        code:FIRFirestoreErrorCodeUnavailable
-                                                    userInfo:nil];
+  NSError *unavailableError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                                  code:FIRFirestoreErrorCodeUnavailable
+                                              userInfo:nil];
   dispatch_async(_testQueue, ^{
     [watchStream.callbackFilter writesFinishedWithError:unavailableError];
   });

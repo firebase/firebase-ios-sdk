@@ -618,8 +618,7 @@ static const int kMaxPendingWrites = 10;
 - (void)handleHandshakeError:(NSError *)error {
   // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
   // stream is no longer valid.
-  if ([FSTDatastore isPermanentWriteError:error] ||
-      [FSTDatastore isAbortedError:error]) {
+  if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
     NSString *token = [self.writeStream.lastStreamToken base64EncodedStringWithOptions:0];
     FSTLog(@"FSTRemoteStore %p error before completed handshake; resetting stream token %@: %@",
            (__bridge void *)self, token, error);

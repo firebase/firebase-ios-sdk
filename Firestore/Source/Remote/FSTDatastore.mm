@@ -276,9 +276,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
                                    FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
-                                  if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                                    _credentials->InvalidateToken();
-                                  }
+                                   if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                                     _credentials->InvalidateToken();
+                                   }
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
                                    return;
@@ -316,8 +316,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 - (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
-  _credentials->GetToken([self, rpcFactory,
-                                              errorHandler](util::StatusOr<Token> result) {
+  _credentials->GetToken([self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
     [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
       if (!result.ok()) {
         errorHandler(util::MakeNSError(result.status()));
