@@ -54,18 +54,11 @@
                           userInfo:nil];
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
 
-  // Upon first encounter, "unauthenticated" is considered a recoverable error due to expired token.
+  // "unauthenticated" is considered a recoverable error due to expired token.
   error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                               code:FIRFirestoreErrorCodeUnauthenticated
                           userInfo:nil];
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
-
-  // If "unauthenticated" is repeated twice in a row, the error is probably due to something else,
-  // so it's considered unrecoverable.
-  error = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeUnauthenticated
-                          userInfo:nil];
-  XCTAssertTrue([FSTDatastore isPermanentWriteError:error]);
 }
 
 @end
