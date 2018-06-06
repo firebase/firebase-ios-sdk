@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,7 +32,7 @@ Document::Document(FieldValue&& data,
       data_(std::move(data)),
       has_local_mutations_(has_local_mutations) {
   set_type(Type::Document);
-  FIREBASE_ASSERT(FieldValue::Type::Object == data.type());
+  HARD_ASSERT(FieldValue::Type::Object == data.type());
 }
 
 bool Document::Equals(const MaybeDocument& other) const {

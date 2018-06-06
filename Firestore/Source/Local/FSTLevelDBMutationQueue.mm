@@ -27,12 +27,12 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "absl/strings/match.h"
@@ -120,7 +120,7 @@ using leveldb::WriteOptions;
   } else {
     FSTBatchID lastAcked = metadata.lastAcknowledgedBatchId;
     if (lastAcked >= nextBatchID) {
-      FSTAssert([self isEmpty], @"Reset nextBatchID is only possible when the queue is empty");
+      HARD_ASSERT([self isEmpty], "Reset nextBatchID is only possible when the queue is empty");
       lastAcked = kFSTBatchIDUnknown;
 
       metadata.lastAcknowledgedBatchId = lastAcked;
@@ -184,7 +184,7 @@ using leveldb::WriteOptions;
     // In all the cases above there was at least one row for the current user and each case has
     // set things up such that iterator points to it.
     if (![rowKey decodeKey:it->key()]) {
-      FSTFail(@"There should have been a key previous to %s", userEnd.c_str());
+      HARD_FAIL("There should have been a key previous to %s", userEnd);
     }
 
     if (rowKey.batchID > maxBatchID) {
@@ -215,8 +215,8 @@ using leveldb::WriteOptions;
 
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   FSTBatchID batchID = batch.batchID;
-  FSTAssert(batchID > self.highestAcknowledgedBatchID,
-            @"Mutation batchIDs must be acknowledged in order");
+  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
+              "Mutation batchIDs must be acknowledged in order");
 
   FSTPBMutationQueue *metadata = self.metadata;
   metadata.lastAcknowledgedBatchId = batchID;
@@ -248,8 +248,7 @@ using leveldb::WriteOptions;
   } else if (status.IsNotFound()) {
     return nil;
   } else {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 }
 
@@ -290,8 +289,8 @@ using leveldb::WriteOptions;
     if (status.IsNotFound()) {
       return nil;
     }
-    FSTFail(@"Lookup mutation batch (%@, %d) failed with status: %s", self.userID, batchID,
-            status.ToString().c_str());
+    HARD_FAIL("Lookup mutation batch (%s, %s) failed with status: %s", self.userID, batchID,
+              status.ToString());
   }
 
   return [self decodedMutationBatch:value];
@@ -318,7 +317,7 @@ using leveldb::WriteOptions;
     return nil;
   }
 
-  FSTAssert(rowKey.batchID >= nextBatchID, @"Should have found mutation after %d", nextBatchID);
+  HARD_ASSERT(rowKey.batchID >= nextBatchID, "Should have found mutation after %s", nextBatchID);
   return [self decodedMutationBatch:it->value()];
 }
 
@@ -385,9 +384,9 @@ using leveldb::WriteOptions;
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(
-          @"Dangling document-mutation reference found: "
-          @"%@ points to %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling document-mutation reference found: "
+          "%s points to %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:indexIterator->key()],
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
@@ -398,7 +397,7 @@ using leveldb::WriteOptions;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
-  FSTAssert(![query isDocumentQuery], @"Document queries shouldn't go down this path");
+  HARD_ASSERT(![query isDocumentQuery], "Document queries shouldn't go down this path");
   NSString *userID = self.userID;
 
   const ResourcePath &queryPath = query.path;
@@ -460,9 +459,9 @@ using leveldb::WriteOptions;
       if (mutationIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
       }
-      FSTFail(
-          @"Dangling document-mutation reference found: "
-          @"Missing batch %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling document-mutation reference found: "
+          "Missing batch %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
     }
 
@@ -497,12 +496,12 @@ using leveldb::WriteOptions;
 
     // As a sanity check, verify that the mutation batch exists before deleting it.
     checkIterator->Seek(key);
-    FSTAssert(checkIterator->Valid(), @"Mutation batch %@ did not exist",
-              [FSTLevelDBKey descriptionForKey:key]);
+    HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist",
+                [FSTLevelDBKey descriptionForKey:key]);
 
-    FSTAssert(key == checkIterator->key(), @"Mutation batch %@ not found; found %@",
-              [FSTLevelDBKey descriptionForKey:key],
-              [FSTLevelDBKey descriptionForKey:checkIterator->key()]);
+    HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
+                [FSTLevelDBKey descriptionForKey:key],
+                [FSTLevelDBKey descriptionForKey:checkIterator->key()]);
 
     _db.currentTransaction->Delete(key);
 
@@ -538,10 +537,10 @@ using leveldb::WriteOptions;
     [danglingMutationReferences addObject:[FSTLevelDBKey descriptionForKey:indexIterator->key()]];
   }
 
-  FSTAssert(danglingMutationReferences.count == 0,
-            @"Document leak -- detected dangling mutation references when queue "
-            @"is empty. Dangling keys: %@",
-            danglingMutationReferences);
+  HARD_ASSERT(danglingMutationReferences.count == 0,
+              "Document leak -- detected dangling mutation references when queue "
+              "is empty. Dangling keys: %s",
+              danglingMutationReferences);
 }
 
 - (std::string)mutationKeyForBatch:(FSTMutationBatch *)batch {
@@ -560,7 +559,7 @@ using leveldb::WriteOptions;
   NSError *error;
   FSTPBMutationQueue *proto = [FSTPBMutationQueue parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMutationQueue failed to parse: %@", error);
+    HARD_FAIL("FSTPBMutationQueue failed to parse: %s", error);
   }
 
   return proto;
@@ -574,7 +573,7 @@ using leveldb::WriteOptions;
   NSError *error;
   FSTPBWriteBatch *proto = [FSTPBWriteBatch parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMutationBatch failed to parse: %@", error);
+    HARD_FAIL("FSTPBMutationBatch failed to parse: %s", error);
   }
 
   return [self.serializer decodedMutationBatch:proto];

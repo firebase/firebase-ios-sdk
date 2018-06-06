@@ -65,11 +65,6 @@ std::string PrefixSuccessor(absl::string_view prefix);
  */
 std::string ImmediateSuccessor(absl::string_view s);
 
-/**
- * Returns true if the given value starts with the given prefix.
- */
-bool StartsWith(const std::string &value, const std::string &prefix);
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

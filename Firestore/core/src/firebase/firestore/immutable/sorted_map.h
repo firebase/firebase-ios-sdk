@@ -144,7 +144,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.empty();
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /** Returns the number of items in this map. */
@@ -155,7 +155,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.size();
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -184,7 +184,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return SortedMap{tree_.insert(key, value)};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -205,7 +205,7 @@ class SortedMap : public impl::SortedMapBase {
         }
         return SortedMap{std::move(result)};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   bool contains(const K& key) const {
@@ -215,7 +215,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.contains(key);
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -232,7 +232,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.find(key)};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -248,7 +248,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.find_index(key);
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -267,7 +267,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.lower_bound(key)};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   const_iterator min() const {
@@ -277,7 +277,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.min()};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   const_iterator max() const {
@@ -287,7 +287,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.max()};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -301,7 +301,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.begin()};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -314,7 +314,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return const_iterator{tree_.end()};
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   /**
@@ -359,7 +359,7 @@ class SortedMap : public impl::SortedMapBase {
       case Tag::Tree:
         return tree_.comparator();
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   enum class Tag {

@@ -21,11 +21,11 @@
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedSet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
@@ -102,8 +102,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     self.nextBatchID = 1;
     self.highestAcknowledgedBatchID = kFSTBatchIDUnknown;
   }
-  FSTAssert(self.highestAcknowledgedBatchID < self.nextBatchID,
-            @"highestAcknowledgedBatchID must be less than the nextBatchID");
+  HARD_ASSERT(self.highestAcknowledgedBatchID < self.nextBatchID,
+              "highestAcknowledgedBatchID must be less than the nextBatchID");
 }
 
 - (BOOL)isEmpty {
@@ -120,16 +120,16 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   FSTBatchID batchID = batch.batchID;
-  FSTAssert(batchID > self.highestAcknowledgedBatchID,
-            @"Mutation batchIDs must be acknowledged in order");
+  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
+              "Mutation batchIDs must be acknowledged in order");
 
   NSInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"acknowledged"];
 
   // Verify that the batch in the queue is the one to be acknowledged.
   FSTMutationBatch *check = queue[(NSUInteger)batchIndex];
-  FSTAssert(batchID == check.batchID, @"Queue ordering failure: expected batch %d, got batch %d",
-            batchID, check.batchID);
-  FSTAssert(![check isTombstone], @"Can't acknowledge a previously removed batch");
+  HARD_ASSERT(batchID == check.batchID, "Queue ordering failure: expected batch %s, got batch %s",
+              batchID, check.batchID);
+  HARD_ASSERT(![check isTombstone], "Can't acknowledge a previously removed batch");
 
   self.highestAcknowledgedBatchID = batchID;
   self.lastStreamToken = streamToken;
@@ -137,7 +137,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (FSTMutationBatch *)addMutationBatchWithWriteTime:(FIRTimestamp *)localWriteTime
                                           mutations:(NSArray<FSTMutation *> *)mutations {
-  FSTAssert(mutations.count > 0, @"Mutation batches should not be empty");
+  HARD_ASSERT(mutations.count > 0, "Mutation batches should not be empty");
 
   FSTBatchID batchID = self.nextBatchID;
   self.nextBatchID += 1;
@@ -145,7 +145,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   if (queue.count > 0) {
     FSTMutationBatch *prior = queue[queue.count - 1];
-    FSTAssert(prior.batchID < batchID, @"Mutation batchIDs must be monotonically increasing order");
+    HARD_ASSERT(prior.batchID < batchID,
+                "Mutation batchIDs must be monotonically increasing order");
   }
 
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:batchID
@@ -173,7 +174,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   }
 
   FSTMutationBatch *batch = queue[(NSUInteger)index];
-  FSTAssert(batch.batchID == batchID, @"If found batch must match");
+  HARD_ASSERT(batch.batchID == batchID, "If found batch must match");
   return [batch isTombstone] ? nil : batch;
 }
 
@@ -233,7 +234,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     }
 
     FSTMutationBatch *batch = [self lookupMutationBatch:reference.ID];
-    FSTAssert(batch, @"Batches in the index must exist in the main table");
+    HARD_ASSERT(batch, "Batches in the index must exist in the main table");
     [result addObject:batch];
   };
 
@@ -292,7 +293,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSUInteger batchCount = batches.count;
-  FSTAssert(batchCount > 0, @"Should not remove mutations when none exist.");
+  HARD_ASSERT(batchCount > 0, "Should not remove mutations when none exist.");
 
   FSTBatchID firstBatchID = batches[0].batchID;
 
@@ -302,7 +303,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   // Find the position of the first batch for removal. This need not be the first entry in the
   // queue.
   NSUInteger startIndex = [self indexOfExistingBatchID:firstBatchID action:@"removed"];
-  FSTAssert(queue[startIndex].batchID == firstBatchID, @"Removed batches must exist in the queue");
+  HARD_ASSERT(queue[startIndex].batchID == firstBatchID, "Removed batches must exist in the queue");
 
   // Check that removed batches are contiguous (while excluding tombstones).
   NSUInteger batchIndex = 1;
@@ -314,8 +315,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
       continue;
     }
 
-    FSTAssert(batch.batchID == batches[batchIndex].batchID,
-              @"Removed batches must be contiguous in the queue");
+    HARD_ASSERT(batch.batchID == batches[batchIndex].batchID,
+                "Removed batches must be contiguous in the queue");
     batchIndex++;
     queueIndex++;
   }
@@ -359,8 +360,8 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (void)performConsistencyCheck {
   if (self.queue.count == 0) {
-    FSTAssert([self.batchesByDocumentKey isEmpty],
-              @"Document leak -- detected dangling mutation references when queue is empty.");
+    HARD_ASSERT([self.batchesByDocumentKey isEmpty],
+                "Document leak -- detected dangling mutation references when queue is empty.");
   }
 }
 
@@ -431,7 +432,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
  */
 - (NSUInteger)indexOfExistingBatchID:(FSTBatchID)batchID action:(NSString *)action {
   NSInteger index = [self indexOfBatchID:batchID];
-  FSTAssert(index >= 0 && index < self.queue.count, @"Batches must exist to be %@", action);
+  HARD_ASSERT(index >= 0 && index < self.queue.count, "Batches must exist to be %s", action);
   return (NSUInteger)index;
 }
 

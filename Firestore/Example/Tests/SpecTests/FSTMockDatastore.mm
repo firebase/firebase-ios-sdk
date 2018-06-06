@@ -16,12 +16,11 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
+#import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
@@ -29,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 using firebase::firestore::auth::CredentialsProvider;
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
                      credentials:credentials
                       serializer:serializer];
   if (self) {
-    FSTAssert(datastore, @"Datastore must not be nil");
+    HARD_ASSERT(datastore, "Datastore must not be nil");
     _datastore = datastore;
     _activeTargets = [NSMutableDictionary dictionary];
   }
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Overridden FSTWatchStream methods.
 
 - (void)startWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
-  FSTAssert(!self.open, @"Trying to start already started watch stream");
+  HARD_ASSERT(!self.open, "Trying to start already started watch stream");
   self.open = YES;
   self.delegate = delegate;
   [self notifyStreamOpen];
@@ -117,7 +117,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)watchQuery:(FSTQueryData *)query {
-  FSTLog(@"watchQuery: %d: %@", query.targetID, query.query);
+  LOG_DEBUG("watchQuery: %s: %s", query.targetID, query.query);
   self.datastore.watchStreamRequestCount += 1;
   // Snapshot version is ignored on the wire
   FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
@@ -127,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)unwatchTargetID:(FSTTargetID)targetID {
-  FSTLog(@"unwatchTargetID: %d", targetID);
+  LOG_DEBUG("unwatchTargetID: %s", targetID);
   [self.activeTargets removeObjectForKey:@(targetID)];
 }
 
@@ -147,7 +147,7 @@ NS_ASSUME_NONNULL_BEGIN
           // Technically removing an unknown target is valid (e.g. it could race with a
           // server-side removal), but we want to pay extra careful attention in tests
           // that we only remove targets we listened too.
-          FSTFail(@"Removing a non-active target");
+          HARD_FAIL("Removing a non-active target");
         }
         [self.activeTargets removeObjectForKey:targetID];
       }
@@ -203,7 +203,7 @@ NS_ASSUME_NONNULL_BEGIN
                      credentials:credentials
                       serializer:serializer];
   if (self) {
-    FSTAssert(datastore, @"Datastore must not be nil");
+    HARD_ASSERT(datastore, "Datastore must not be nil");
     _datastore = datastore;
     _sentMutations = [NSMutableArray array];
   }
@@ -213,7 +213,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Overridden FSTWriteStream methods.
 
 - (void)startWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
-  FSTAssert(!self.open, @"Trying to start already started write stream");
+  HARD_ASSERT(!self.open, "Trying to start already started write stream");
   self.open = YES;
   [self.sentMutations removeAllObjects];
   self.delegate = delegate;
@@ -257,8 +257,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the next write that was "sent to the backend", failing if there are no queued sent
  */
 - (NSArray<FSTMutation *> *)nextSentWrite {
-  FSTAssert(self.sentMutations.count > 0,
-            @"Writes need to happen before you can call nextSentWrite.");
+  HARD_ASSERT(self.sentMutations.count > 0,
+              "Writes need to happen before you can call nextSentWrite.");
   NSArray<FSTMutation *> *result = [self.sentMutations objectAtIndex:0];
   [self.sentMutations removeObjectAtIndex:0];
   return result;
@@ -291,7 +291,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Overridden FSTDatastore methods.
 
 - (FSTWatchStream *)createWatchStream {
-  // FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.watchStream = [[FSTMockWatchStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
@@ -302,7 +301,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTWriteStream *)createWriteStream {
-  // FSTAssert(self.databaseInfo, @"DatabaseInfo must not be nil");
   self.writeStream = [[FSTMockWriteStream alloc]
         initWithDatastore:self
       workerDispatchQueue:self.workerDispatchQueue
@@ -313,7 +311,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)authorizeAndStartRPC:(GRPCProtoCall *)rpc completion:(FSTVoidErrorBlock)completion {
-  FSTFail(@"FSTMockDatastore shouldn't be starting any RPCs.");
+  HARD_FAIL("FSTMockDatastore shouldn't be starting any RPCs.");
 }
 
 #pragma mark - Method exposed for tests to call.

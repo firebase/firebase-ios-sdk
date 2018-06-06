@@ -1,4 +1,12 @@
 # Unreleased
+
+# 2018-05-29 -- v5.0.2 -- M26
+- [changed] Delayed library registration call from `+load` to `+initialize`. (#1305)
+
+# 2018-05-15 -- v5.0.1 -- M25.1
+- [fixed] Eliminated duplicate symbol in CocoaPods `-all_load build` (#1223)
+
+# 2018-05-08 -- v5.0.0 -- M25
 - [changed] Removed `UIKit` import from `FIRApp.h`.
 - [changed] Removed deprecated methods.
 

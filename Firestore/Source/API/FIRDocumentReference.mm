@@ -36,13 +36,13 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -269,7 +269,7 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
       return;
     }
 
-    FSTAssert(snapshot.documents.count <= 1, @"Too many document returned on a document query");
+    HARD_ASSERT(snapshot.documents.count <= 1, "Too many document returned on a document query");
     FSTDocument *document = [snapshot.documents documentForKey:key];
 
     FIRDocumentSnapshot *result = [FIRDocumentSnapshot snapshotWithFirestore:firestore

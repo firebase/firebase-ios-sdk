@@ -25,7 +25,6 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -34,6 +33,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 #include "absl/types/optional.h"
 
@@ -153,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
                         localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
-    FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTSetMutation.");
+    HARD_ASSERT(!mutationResult.transformResults, "Transform results received by FSTSetMutation.");
   }
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -169,11 +169,11 @@ NS_ASSUME_NONNULL_BEGIN
                        hasLocalMutations:hasLocalMutations];
   }
 
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown MaybeDocument type %@",
-            [maybeDoc class]);
+  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
+              [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only set a document with the same key");
+  HARD_ASSERT([doc.key isEqual:self.key], "Can only set a document with the same key");
   return [FSTDocument documentWithData:self.value
                                    key:doc.key
                                version:doc.version
@@ -236,7 +236,8 @@ NS_ASSUME_NONNULL_BEGIN
                         localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
-    FSTAssert(!mutationResult.transformResults, @"Transform results received by FSTPatchMutation.");
+    HARD_ASSERT(!mutationResult.transformResults,
+                "Transform results received by FSTPatchMutation.");
   }
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -254,11 +255,11 @@ NS_ASSUME_NONNULL_BEGIN
                            hasLocalMutations:hasLocalMutations];
   }
 
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown MaybeDocument type %@",
-            [maybeDoc class]);
+  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
+              [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only patch a document with the same key");
+  HARD_ASSERT([doc.key isEqual:self.key], "Can only patch a document with the same key");
 
   FSTObjectValue *newData = [self patchObjectValue:doc.data];
   return [FSTDocument documentWithData:newData
@@ -340,8 +341,8 @@ NS_ASSUME_NONNULL_BEGIN
                         localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
-    FSTAssert(mutationResult.transformResults,
-              @"Transform results missing for FSTTransformMutation.");
+    HARD_ASSERT(mutationResult.transformResults,
+                "Transform results missing for FSTTransformMutation.");
   }
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -350,11 +351,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   // We only support transforms with precondition exists, so we can only apply it to an existing
   // document
-  FSTAssert([maybeDoc isMemberOfClass:[FSTDocument class]], @"Unknown MaybeDocument type %@",
-            [maybeDoc class]);
+  HARD_ASSERT([maybeDoc isMemberOfClass:[FSTDocument class]], "Unknown MaybeDocument type %s",
+              [maybeDoc class]);
   FSTDocument *doc = (FSTDocument *)maybeDoc;
 
-  FSTAssert([doc.key isEqual:self.key], @"Can only transform a document with the same key");
+  HARD_ASSERT([doc.key isEqual:self.key], "Can only transform a document with the same key");
 
   BOOL hasLocalMutations = (mutationResult == nil);
   NSArray<FSTFieldValue *> *transformResults;
@@ -386,9 +387,9 @@ NS_ASSUME_NONNULL_BEGIN
 serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
                 serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
-  FSTAssert(self.fieldTransforms.size() == serverTransformResults.count,
-            @"server transform result count (%lu) should match field transforms count (%zu)",
-            (unsigned long)serverTransformResults.count, self.fieldTransforms.size());
+  HARD_ASSERT(self.fieldTransforms.size() == serverTransformResults.count,
+              "server transform result count (%s) should match field transforms count (%s)",
+              (unsigned long)serverTransformResults.count, self.fieldTransforms.size());
 
   for (NSUInteger i = 0; i < serverTransformResults.count; i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
@@ -433,8 +434,8 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
 
 - (FSTObjectValue *)transformObject:(FSTObjectValue *)objectValue
                    transformResults:(NSArray<FSTFieldValue *> *)transformResults {
-  FSTAssert(transformResults.count == self.fieldTransforms.size(),
-            @"Transform results length mismatch.");
+  HARD_ASSERT(transformResults.count == self.fieldTransforms.size(),
+              "Transform results length mismatch.");
 
   for (size_t i = 0; i < self.fieldTransforms.size(); i++) {
     const FieldTransform &fieldTransform = self.fieldTransforms[i];
@@ -478,8 +479,8 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
                         localWriteTime:(FIRTimestamp *)localWriteTime
                         mutationResult:(nullable FSTMutationResult *)mutationResult {
   if (mutationResult) {
-    FSTAssert(!mutationResult.transformResults,
-              @"Transform results received by FSTDeleteMutation.");
+    HARD_ASSERT(!mutationResult.transformResults,
+                "Transform results received by FSTDeleteMutation.");
   }
 
   if (!self.precondition.IsValidFor(maybeDoc)) {
@@ -487,7 +488,7 @@ serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
   }
 
   if (maybeDoc) {
-    FSTAssert([maybeDoc.key isEqual:self.key], @"Can only delete a document with the same key");
+    HARD_ASSERT([maybeDoc.key isEqual:self.key], "Can only delete a document with the same key");
   }
 
   return [FSTDeletedDocument documentWithKey:self.key version:SnapshotVersion::None()];

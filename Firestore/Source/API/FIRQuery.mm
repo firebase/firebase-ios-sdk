@@ -34,13 +34,13 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -526,6 +526,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
       [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
+    }
+  } else if (filter.filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if ([self.query hasArrayContainsFilter]) {
+      FSTThrowInvalidUsage(@"InvalidQueryException",
+                           @"Invalid Query. Queries only support a single arrayContains filter.");
     }
   }
 }

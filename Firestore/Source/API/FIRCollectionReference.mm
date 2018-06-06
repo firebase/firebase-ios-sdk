@@ -23,7 +23,6 @@
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 #import "Firestore/Source/API/FIRQuery_Init.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -68,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Override the designated initializer from the super class.
 - (instancetype)initWithQuery:(FSTQuery *)query firestore:(FIRFirestore *)firestore {
-  FSTFail(@"Use FIRCollectionReference initWithPath: initializer.");
+  HARD_FAIL("Use FIRCollectionReference initWithPath: initializer.");
 }
 
 // NSObject Methods

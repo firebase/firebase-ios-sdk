@@ -26,10 +26,10 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 
@@ -77,8 +77,8 @@ using leveldb::Status;
   } else if (status.ok()) {
     return [self decodeMaybeDocument:value withKey:documentKey];
   } else {
-    FSTFail(@"Fetch document for key (%s) failed with status: %s", documentKey.ToString().c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("Fetch document for key (%s) failed with status: %s", documentKey.ToString(),
+              status.ToString());
   }
 }
 
@@ -118,13 +118,13 @@ using leveldb::Status;
   NSError *error;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBMaybeDocument failed to parse: %@", error);
+    HARD_FAIL("FSTPBMaybeDocument failed to parse: %s", error);
   }
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
-  FSTAssert([maybeDocument.key isEqualToKey:documentKey],
-            @"Read document has key (%s) instead of expected key (%s).",
-            maybeDocument.key.ToString().c_str(), documentKey.ToString().c_str());
+  HARD_ASSERT([maybeDocument.key isEqualToKey:documentKey],
+              "Read document has key (%s) instead of expected key (%s).",
+              maybeDocument.key.ToString(), documentKey.ToString());
   return maybeDocument;
 }
 

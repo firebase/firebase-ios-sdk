@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Invalid field path. Provided names must not be empty.");
   }
 
-  std::vector<std::string> field_names{};
+  std::vector<std::string> field_names;
   field_names.reserve(fieldNames.count);
   for (int i = 0; i < fieldNames.count; ++i) {
     if (fieldNames[i].length == 0) {

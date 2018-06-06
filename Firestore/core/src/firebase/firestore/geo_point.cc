@@ -18,9 +18,7 @@
 
 #include <cmath>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
-using std::isnan;
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,14 +28,10 @@ GeoPoint::GeoPoint() : GeoPoint(0, 0) {
 
 GeoPoint::GeoPoint(double latitude, double longitude)
     : latitude_(latitude), longitude_(longitude) {
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      !isnan(latitude) && -90 <= latitude && latitude <= 90,
-      -90 <= latitude && latitude <= 90,
-      "Latitude must be in the range of [-90, 90]");
-  FIREBASE_ASSERT_MESSAGE_WITH_EXPRESSION(
-      !isnan(longitude) && -180 <= longitude && longitude <= 180,
-      -180 <= longitude && longitude <= 180,
-      "Latitude must be in the range of [-180, 180]");
+  HARD_ASSERT(!std::isnan(latitude) && -90 <= latitude && latitude <= 90,
+              "Latitude must be in the range of [-90, 90]");
+  HARD_ASSERT(!std::isnan(longitude) && -180 <= longitude && longitude <= 180,
+              "Latitude must be in the range of [-180, 180]");
 }
 
 bool operator<(const GeoPoint& lhs, const GeoPoint& rhs) {

@@ -23,7 +23,7 @@ if(APPLE)
   cc_test(
     firebase_firestore_util_log_apple_test
     SOURCES
-      assert_test.cc
+      hard_assert_test.cc
       log_test.cc
     DEPENDS
       firebase_firestore_util_log_apple
@@ -33,7 +33,7 @@ endif(APPLE)
 cc_test(
   firebase_firestore_util_log_stdio_test
   SOURCES
-    assert_test.cc
+    hard_assert_test.cc
     log_test.cc
   DEPENDS
     firebase_firestore_util_log_stdio
@@ -98,7 +98,7 @@ cc_test(
     async_tests_util.h
   DEPENDS
     firebase_firestore_util_executor_std
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
 )
 
 if(HAVE_LIBDISPATCH)
@@ -111,7 +111,7 @@ if(HAVE_LIBDISPATCH)
       async_tests_util.h
     DEPENDS
     firebase_firestore_util_executor_libdispatch
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
   )
 endif()
 
@@ -126,10 +126,11 @@ cc_test(
     hashing_test.cc
     iterator_adaptors_test.cc
     ordered_code_test.cc
+    path_test.cc
     status_test.cc
     status_test_util.h
     statusor_test.cc
-    string_printf_test.cc
+    string_format_test.cc
     string_util_test.cc
   DEPENDS
     absl_base
@@ -137,3 +138,12 @@ cc_test(
     firebase_firestore_util
     gmock
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_util_test
+    PUBLIC
+      string_format_apple_test.mm
+      type_traits_apple_test.mm
+  )
+endif()

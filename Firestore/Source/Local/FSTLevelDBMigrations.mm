@@ -21,8 +21,8 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 #include "leveldb/write_batch.h"
 
@@ -80,8 +80,8 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 
   FSTPBTargetGlobal *targetGlobal =
       [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
-  FSTCAssert(targetGlobal != nil,
-             @"We should have a metadata row as it was added in an earlier migration");
+  HARD_ASSERT(targetGlobal != nil,
+              "We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
   transaction->Put([FSTLevelDBTargetGlobalKey key], targetGlobal);
 }

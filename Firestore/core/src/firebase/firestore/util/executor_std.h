@@ -27,7 +27,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -41,7 +41,7 @@ namespace async {
 // the exact same time are prioritized in FIFO order.
 //
 // The main function of `Schedule` is `PopBlocking`, which sleeps until an entry
-// becomes available. It correctly handles entries being asynchonously added or
+// becomes available. It correctly handles entries being asynchronously added or
 // removed from the schedule.
 //
 // The details of time management are completely concealed within the class.
@@ -181,8 +181,8 @@ class Schedule {
 
   // This function expects the mutex to be already locked.
   T ExtractLocked(const Iterator where) {
-    FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
-                            "Trying to pop an entry from an empty queue.");
+    HARD_ASSERT(!scheduled_.empty(),
+                "Trying to pop an entry from an empty queue.");
 
     T result = std::move(where->value);
     scheduled_.erase(where);

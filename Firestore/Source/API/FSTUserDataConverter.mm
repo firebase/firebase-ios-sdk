@@ -17,6 +17,7 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -29,7 +30,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -39,8 +39,10 @@
 #include "Firestore/core/src/firebase/firestore/model/field_transform.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/src/firebase/firestore/model/transform_operations.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::ArrayTransform;
@@ -55,7 +57,7 @@ using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
+static const char *RESERVED_FIELD_DESIGNATOR = "__";
 
 #pragma mark - FSTParsedSetData
 
@@ -268,7 +270,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (instancetype)contextForField:(NSString *)fieldName {
-  std::unique_ptr<FieldPath> path{};
+  std::unique_ptr<FieldPath> path;
   if (_path) {
     path = absl::make_unique<FieldPath>(_path->Append(util::MakeString(fieldName)));
   }
@@ -277,12 +279,12 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                                         arrayElement:NO
                                                      fieldTransforms:_fieldTransforms
                                                            fieldMask:_fieldMask];
-  [context validatePathSegment:fieldName];
+  [context validatePathSegment:util::MakeStringView(fieldName)];
   return context;
 }
 
 - (instancetype)contextForFieldPath:(const FieldPath &)fieldPath {
-  std::unique_ptr<FieldPath> path{};
+  std::unique_ptr<FieldPath> path;
   if (_path) {
     path = absl::make_unique<FieldPath>(_path->Append(fieldPath));
   }
@@ -334,15 +336,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   if (_path == nullptr) {
     return;
   }
-  for (const auto &segment : *_path) {
-    [self validatePathSegment:util::WrapNSStringNoCopy(segment)];
+  for (const std::string &segment : *_path) {
+    [self validatePathSegment:segment];
   }
 }
 
-- (void)validatePathSegment:(NSString *)segment {
-  if ([self isWrite] && [segment hasPrefix:RESERVED_FIELD_DESIGNATOR] &&
-      [segment hasSuffix:RESERVED_FIELD_DESIGNATOR]) {
-    FSTThrowInvalidArgument(@"Document fields cannot begin and end with %@%@",
+- (void)validatePathSegment:(absl::string_view)segment {
+  absl::string_view designator{RESERVED_FIELD_DESIGNATOR};
+  if ([self isWrite] && absl::StartsWith(segment, designator) &&
+      absl::EndsWith(segment, designator)) {
+    FSTThrowInvalidArgument(@"Document fields cannot begin and end with %s%@",
                             RESERVED_FIELD_DESIGNATOR, [self fieldDescription]);
   }
 }
@@ -428,9 +431,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   std::vector<FieldTransform> convertedFieldTransform;
 
   if (fieldMask) {
-    __block std::vector<FieldPath> fieldMaskPaths{};
+    __block std::vector<FieldPath> fieldMaskPaths;
     [fieldMask enumerateObjectsUsingBlock:^(id fieldPath, NSUInteger idx, BOOL *stop) {
-      FieldPath path{};
+      FieldPath path;
 
       if ([fieldPath isKindOfClass:[NSString class]]) {
         path = [FIRFieldPath pathWithDotSeparatedString:fieldPath].internalValue;
@@ -490,14 +493,14 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
   NSDictionary *dict = input;
 
-  __block std::vector<FieldPath> fieldMaskPaths{};
+  __block std::vector<FieldPath> fieldMaskPaths;
   __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
 
   FSTParseContext *context =
       [FSTParseContext contextWithSource:FSTUserDataSourceUpdate
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-    FieldPath path{};
+    FieldPath path;
 
     if ([key isKindOfClass:[NSString class]]) {
       path = [FIRFieldPath pathWithDotSeparatedString:key].internalValue;
@@ -532,8 +535,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       [FSTParseContext contextWithSource:FSTUserDataSourceArgument
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTFieldValue *_Nullable parsed = [self parseData:input context:context];
-  FSTAssert(parsed, @"Parsed data should not be nil.");
-  FSTAssert(context.fieldTransforms->empty(), @"Field transforms should have been disallowed.");
+  HARD_ASSERT(parsed, "Parsed data should not be nil.");
+  HARD_ASSERT(context.fieldTransforms->empty(), "Field transforms should have been disallowed.");
   return parsed;
 }
 
@@ -626,8 +629,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // deleted.
       [context appendToFieldMaskWithFieldPath:*context.path];
     } else if (context.dataSource == FSTUserDataSourceUpdate) {
-      FSTAssert(context.path->size() > 0,
-                @"FieldValue.delete() at the top level should have already been handled.");
+      HARD_ASSERT(context.path->size() > 0,
+                  "FieldValue.delete() at the top level should have already been handled.");
       FSTThrowInvalidArgument(
           @"FieldValue.delete() can only appear at the top level of your "
            "update data%@",
@@ -662,7 +665,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                transformOperation:std::move(array_remove)];
 
   } else {
-    FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([fieldValue class]));
+    HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([fieldValue class]));
   }
 }
 
@@ -741,7 +744,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 
       default:
         // All documented codes should be handled above, so this shouldn't happen.
-        FSTCFail(@"Unknown NSNumber objCType %s on %@", cType, input);
+        HARD_FAIL("Unknown NSNumber objCType %s on %s", cType, input);
     }
 
   } else if ([input isKindOfClass:[NSString class]]) {
@@ -780,8 +783,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       if (context.dataSource == FSTUserDataSourceMergeSet) {
         return nil;
       } else if (context.dataSource == FSTUserDataSourceUpdate) {
-        FSTAssert(context.path->size() > 0,
-                  @"FieldValue.delete() at the top level should have already been handled.");
+        HARD_ASSERT(context.path->size() > 0,
+                    "FieldValue.delete() at the top level should have already been handled.");
         FSTThrowInvalidArgument(
             @"FieldValue.delete() can only appear at the top level of your update data%@",
             [context fieldDescription]);
@@ -808,7 +811,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
       // Return nil so this value is omitted from the parsed result.
       return nil;
     } else {
-      FSTFail(@"Unknown FIRFieldValue type: %@", NSStringFromClass([input class]));
+      HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([input class]));
     }
 
   } else {
@@ -828,8 +831,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                       path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
     FSTFieldValue *parsedElement =
         [self parseData:element context:[context contextForArrayIndex:i]];
-    FSTAssert(parsedElement && context.fieldTransforms->size() == 0,
-              @"Failed to properly parse array transform element: %@", element);
+    HARD_ASSERT(parsedElement && context.fieldTransforms->size() == 0,
+                "Failed to properly parse array transform element: %s", element);
     results.push_back(parsedElement);
   }
   return results;

@@ -33,27 +33,19 @@ namespace util {
 //   defaults write firebase_firestore_util_log_apple_test
 //       /google/firebase/debug_mode NO
 TEST(Log, SetAndGet) {
-  LogSetLevel(kLogLevelVerbose);
+  EXPECT_FALSE(LogIsDebugEnabled());
 
   LogSetLevel(kLogLevelDebug);
-  EXPECT_EQ(kLogLevelDebug, LogGetLevel());
-
-  LogSetLevel(kLogLevelInfo);
-  EXPECT_EQ(kLogLevelInfo, LogGetLevel());
+  EXPECT_TRUE(LogIsDebugEnabled());
 
   LogSetLevel(kLogLevelWarning);
-  EXPECT_EQ(kLogLevelWarning, LogGetLevel());
-
-  LogSetLevel(kLogLevelError);
-  EXPECT_EQ(kLogLevelError, LogGetLevel());
+  EXPECT_FALSE(LogIsDebugEnabled());
 }
 
 TEST(Log, LogAllKinds) {
-  LogDebug("test debug logging %d", 1);
-  LogInfo("test info logging %d", 2);
-  LogWarning("test warning logging %d", 3);
-  LogError("test error logging %d", 4);
-  LogMessage(kLogLevelError, "test va-args %s %c %d", "abc", ':', 123);
+  LOG_DEBUG("test debug logging %s", 1);
+  LOG_WARN("test warning logging %s", 3);
+  LOG_DEBUG("test va-args %s %s %s", "abc", std::string{"def"}, 123);
 }
 
 }  //  namespace util

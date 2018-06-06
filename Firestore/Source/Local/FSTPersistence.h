@@ -17,8 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 @class FSTDocumentKey;
 @protocol FSTMutationQueue;
@@ -181,7 +182,7 @@ struct FSTTransactionRunner {
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
-      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+      HARD_FAIL("Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
       [strongDb startTransaction:label];
@@ -198,7 +199,7 @@ struct FSTTransactionRunner {
     using ReturnT = decltype(block());
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
-      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+      HARD_FAIL("Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
       [strongDb startTransaction:label];

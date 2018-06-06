@@ -16,7 +16,7 @@
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 
@@ -58,7 +58,7 @@ Timestamp Timestamp::FromTimePoint(
   const auto epoch_time = time_point.time_since_epoch();
   auto seconds = chr::duration_cast<chr::duration<int64_t>>(epoch_time);
   auto nanoseconds = chr::duration_cast<chr::nanoseconds>(epoch_time - seconds);
-  FIREBASE_DEV_ASSERT(nanoseconds.count() < 1 * 1000 * 1000 * 1000);
+  HARD_ASSERT(nanoseconds.count() < 1 * 1000 * 1000 * 1000);
 
   if (nanoseconds.count() < 0) {
     // Timestamp format always has a positive number of nanoseconds that is
@@ -89,19 +89,17 @@ std::string Timestamp::ToString() const {
 }
 
 void Timestamp::ValidateBounds() const {
-  FIREBASE_ASSERT_MESSAGE(nanoseconds_ >= 0,
-                          "Timestamp nanoseconds out of range: %d",
-                          nanoseconds_);
-  FIREBASE_ASSERT_MESSAGE(nanoseconds_ < 1e9,
-                          "Timestamp nanoseconds out of range: %d",
-                          nanoseconds_);
+  HARD_ASSERT(nanoseconds_ >= 0, "Timestamp nanoseconds out of range: %s",
+              nanoseconds_);
+  HARD_ASSERT(nanoseconds_ < 1e9, "Timestamp nanoseconds out of range: %s",
+              nanoseconds_);
   // Midnight at the beginning of 1/1/1 is the earliest timestamp Firestore
   // supports.
-  FIREBASE_ASSERT_MESSAGE(seconds_ >= -62135596800L,
-                          "Timestamp seconds out of range: %lld", seconds_);
+  HARD_ASSERT(seconds_ >= -62135596800L, "Timestamp seconds out of range: %s",
+              seconds_);
   // This will break in the year 10,000.
-  FIREBASE_ASSERT_MESSAGE(seconds_ < 253402300800L,
-                          "Timestamp seconds out of range: %lld", seconds_);
+  HARD_ASSERT(seconds_ < 253402300800L, "Timestamp seconds out of range: %s",
+              seconds_);
 }
 
 }  // namespace firebase

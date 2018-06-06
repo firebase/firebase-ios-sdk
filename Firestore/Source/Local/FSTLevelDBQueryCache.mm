@@ -26,10 +26,10 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -70,8 +70,7 @@ using firebase::firestore::model::DocumentKeySet;
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -80,7 +79,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
@@ -93,8 +92,7 @@ using firebase::firestore::model::DocumentKeySet;
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -103,7 +101,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
@@ -111,7 +109,7 @@ using firebase::firestore::model::DocumentKeySet;
 
 - (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    FSTAssert(db, @"db must not be NULL");
+    HARD_ASSERT(db, "db must not be NULL");
     _db = db;
     _serializer = serializer;
   }
@@ -121,9 +119,9 @@ using firebase::firestore::model::DocumentKeySet;
 - (void)start {
   // TODO(gsoltis): switch this usage of ptr to currentTransaction
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.ptr];
-  FSTAssert(
+  HARD_ASSERT(
       metadata != nil,
-      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
+      "Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;
@@ -224,7 +222,7 @@ using firebase::firestore::model::DocumentKeySet;
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTarget failed to parse: %@", error);
+    HARD_FAIL("FSTPBTarget failed to parse: %s", error);
   }
 
   return [self.serializer decodedQueryData:proto];
@@ -263,9 +261,9 @@ using firebase::firestore::model::DocumentKeySet;
       if (targetIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:targetIterator->key()];
       }
-      FSTFail(
-          @"Dangling query-target reference found: "
-          @"%@ points to %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling query-target reference found: "
+          "%s points to %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:indexItererator->key()],
           [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
     }
