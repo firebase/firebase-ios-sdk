@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define UNUSED(x) (void)(x)
-
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 
 namespace firebase {
