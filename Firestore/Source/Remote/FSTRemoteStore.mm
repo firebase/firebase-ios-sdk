@@ -115,7 +115,6 @@ static const int kMaxPendingWrites = 10;
  * requests may not have been sent to the Datastore server if the write stream is not yet running.
  */
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
-
 @end
 
 @implementation FSTRemoteStore
