@@ -26,7 +26,7 @@ namespace auth {
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
   credentials_provider.GetToken(
-      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
+      [](util::StatusOr<Token> result) {
         EXPECT_TRUE(result.ok());
         const Token& token = result.ValueOrDie();
         EXPECT_ANY_THROW(token.token());
