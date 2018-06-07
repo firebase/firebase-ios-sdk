@@ -26,9 +26,21 @@
 #include "Firestore/core/src/firebase/firestore/util/strerror.h"
 
 #include <cerrno>
-#include <cstdio>
-#if defined(_WIN32)
 #include <cstring>
+
+#if defined(_WIN32)
+#  define HAVE_STRERROR_S 1
+
+#elif defined(__GLIBC__)
+#  if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
+#    define HAVE_POSIX_STRERROR_R 1
+#  else
+#    define HAVE_GNU_STRERROR_R 1
+#  endif
+
+#else
+#  define HAVE_POSIX_STRERROR_R 1
+
 #endif
 
 namespace firebase {
@@ -37,36 +49,8 @@ namespace util {
 
 namespace {
 
-#if !defined(_WIN32)
-#if defined(__GNUC__)
-#define POSSIBLY_UNUSED __attribute__((unused))
-#else
-#define POSSIBLY_UNUSED
-#endif
-
-// Only one of these overloads will be used in any given build, as determined by
-// the return type of strerror_r(): char* (for GNU), or int (for XSI).  See 'man
-// strerror_r' for more details.
-POSSIBLY_UNUSED const char* StrErrorR(char* (*strerror_r)(int, char*, size_t),
-                                      int errnum,
-                                      char* buf,
-                                      size_t buflen) {
-  return strerror_r(errnum, buf, buflen);
-}
-
-POSSIBLY_UNUSED const char* StrErrorR(int (*strerror_r)(int, char*, size_t),
-                                      int errnum,
-                                      char* buf,
-                                      size_t buflen) {
-  if (strerror_r(errnum, buf, buflen)) {
-    *buf = '\0';
-  }
-  return buf;
-}
-#endif  // !defined(_WIN32)
-
 inline const char* StrErrorAdaptor(int errnum, char* buf, size_t buflen) {
-#if defined(_WIN32)
+#if HAVE_STRERROR_S
   int rc = strerror_s(buf, buflen, errnum);
   buf[buflen - 1] = '\0';  // guarantee NUL termination
 
@@ -75,9 +59,16 @@ inline const char* StrErrorAdaptor(int errnum, char* buf, size_t buflen) {
   }
   return buf;
 
-#elif defined(__GLIBC__) || defined(__APPLE__)
-  return StrErrorR(strerror_r, errnum, buf, buflen);
-#endif  // defined(_WIN32)
+#elif HAVE_POSIX_STRERROR_R
+  if (strerror_r(errnum, buf, buflen)) {
+    *buf = '\0';
+  }
+  return buf;
+
+#elif HAVE_GNU_STRERROR_R
+  return strerror_r(errnum, buf, buflen);
+
+#endif  // HAVE_STRERROR_S
 }
 
 }  // namespace
