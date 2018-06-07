@@ -44,11 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTRemoteEventTests {
   NSData *_resumeToken1;
   NSMutableDictionary<NSNumber *, NSNumber *> *_noPendingResponses;
+  FSTTestTargetMetadataProvider *_targetMetadataProvider;
 }
 
 - (void)setUp {
   _resumeToken1 = [@"resume1" dataUsingEncoding:NSUTF8StringEncoding];
   _noPendingResponses = [NSMutableDictionary dictionary];
+  _targetMetadataProvider = [FSTTestTargetMetadataProvider new];
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)listensForTargets:
@@ -81,30 +83,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTWatchChangeAggregator *)
 aggregatorWithTargetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
-   outstandingResponses:(NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
+   outstandingResponses:
+       (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
            existingKeys:(DocumentKeySet)existingKeys
                 changes:(NSArray<FSTWatchChange *> *)watchChanges {
+  FSTWatchChangeAggregator *aggregator =
+      [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:_targetMetadataProvider];
+
   NSMutableArray<FSTBoxedTargetID *> *targetIDs = [NSMutableArray array];
   [targetMap enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID,
                                                  FSTQueryData *queryData, BOOL *stop) {
     [targetIDs addObject:targetID];
+    [_targetMetadataProvider setSyncedKeys:existingKeys forQueryData:queryData];
   }];
-
-  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:
-          [[FSTTestTargetMetadataProvider alloc]
-              initWithRemoteKeysForTargetCallback:^firebase::firestore::model::DocumentKeySet(
-                  FSTTargetID targetID) {
-                return existingKeys;
-              }
-              queryDataCallback:^FSTQueryData *(FSTTargetID targetID) {
-                return targetMap[@(targetID)];
-              }]];
 
   [outstandingResponses
       enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *targetID, NSNumber *count, BOOL *stop) {
         for (int i = 0; i < count.intValue; ++i) {
-          [aggregator recordPendingTargetRequest:targetID];
+          [aggregator recordTargetRequest:targetID];
         }
       }];
 
@@ -129,7 +125,7 @@ aggregatorWithTargetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targ
 remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
                    targetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
         outstandingResponses:
-            (NSDictionary<FSTBoxedTargetID *, NSNumber *> *__nullable)outstandingResponses
+            (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
                 existingKeys:(DocumentKeySet)existingKeys
                      changes:(NSArray<FSTWatchChange *> *)watchChanges {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
@@ -611,11 +607,10 @@ remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
                                                                          documentKey:doc2.key
                                                                             document:doc2];
 
-  FSTWatchChangeAggregator *aggregator =
-      [self aggregatorWithTargetMap:targetMap
-               outstandingResponses:_noPendingResponses
-                       existingKeys:DocumentKeySet{doc1.key, doc2.key}
-                            changes:@[ change1, change2 ]];
+  FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
+                                                  outstandingResponses:_noPendingResponses
+                                                          existingKeys:DocumentKeySet {}
+                                                               changes:@[ change1, change2 ]];
 
   FSTRemoteEvent *event = [aggregator remoteEventAtSnapshotVersion:testutil::Version(3)];
 
@@ -623,6 +618,9 @@ remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
   XCTAssertEqual(event.documentUpdates.size(), 2);
   XCTAssertEqualObjects(event.documentUpdates.at(doc1.key), doc1);
   XCTAssertEqualObjects(event.documentUpdates.at(doc2.key), doc2);
+
+  [_targetMetadataProvider setSyncedKeys:DocumentKeySet{doc1.key, doc2.key}
+                            forQueryData:targetMap[@1]];
 
   FSTDocumentWatchChange *change3 =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[]

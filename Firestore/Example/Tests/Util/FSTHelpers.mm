@@ -300,62 +300,64 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 @implementation FSTTestTargetMetadataProvider {
-  DocumentKeySet (^_remoteKeysCallback)(FSTTargetID);
-  FSTQueryData * (^_queryDataCallback)(FSTTargetID);
+  std::unordered_map<FSTTargetID, DocumentKeySet> _syncedKeys;
+  std::unordered_map<FSTTargetID, FSTQueryData *> _queryData;
 }
 
-+ (instancetype)withSingleResultAtKey:(DocumentKey)documentKey {
-  return [[FSTTestTargetMetadataProvider alloc]
-      initWithRemoteKeysForTargetCallback:^DocumentKeySet(FSTTargetID targetID) {
-        return DocumentKeySet{documentKey};
-      }
-      queryDataCallback:^FSTQueryData *(FSTTargetID targetID) {
-        FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
-        return [[FSTQueryData alloc] initWithQuery:query
-                                          targetID:targetID
-                              listenSequenceNumber:0
-                                           purpose:FSTQueryPurposeListen];
-      }];
-}
++ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                       targets:(NSArray<FSTBoxedTargetID *> *)targets {
+  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
+  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
 
-+ (instancetype)withEmptyResultAtKey:(DocumentKey)documentKey {
-  return [[FSTTestTargetMetadataProvider alloc]
-      initWithRemoteKeysForTargetCallback:^DocumentKeySet(FSTTargetID targetID) {
-        return DocumentKeySet{};
-      }
-      queryDataCallback:^FSTQueryData *(FSTTargetID targetID) {
-        FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
-        return [[FSTQueryData alloc] initWithQuery:query
-                                          targetID:targetID
-                              listenSequenceNumber:0
-                                           purpose:FSTQueryPurposeListen];
-      }];
-}
-
-- (instancetype)
-initWithRemoteKeysForTargetCallback:(DocumentKeySet (^)(FSTTargetID))remoteKeysCallback
-                  queryDataCallback:(FSTQueryData * (^)(FSTTargetID))queryDataCallback {
-  self = [super init];
-  if (self) {
-    _remoteKeysCallback = remoteKeysCallback;
-    _queryDataCallback = queryDataCallback;
+  for (FSTBoxedTargetID *targetID in targets) {
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+                                                         targetID:targetID.intValue
+                                             listenSequenceNumber:0
+                                                          purpose:FSTQueryPurposeListen];
+    [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
   }
 
-  return self;
+  return metadataProvider;
+}
+
++ (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                      targets:(NSArray<FSTBoxedTargetID *> *)targets {
+  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
+  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+
+  for (FSTBoxedTargetID *targetID in targets) {
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+                                                         targetID:targetID.intValue
+                                             listenSequenceNumber:0
+                                                          purpose:FSTQueryPurposeListen];
+    [metadataProvider setSyncedKeys:DocumentKeySet {} forQueryData:queryData];
+  }
+
+  return metadataProvider;
+}
+
+- (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
+         forQueryData:(FSTQueryData *)queryData {
+  _syncedKeys[queryData.targetID] = keys;
+  _queryData[queryData.targetID] = queryData;
 }
 
 - (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
-  return _remoteKeysCallback(targetID.intValue);
+  auto it = _syncedKeys.find(targetID.intValue);
+  HARD_ASSERT(it != _syncedKeys.end(), "Cannot process unknown target %s", targetID.intValue);
+  return it->second;
 }
 
-- (FSTQueryData *_Nullable)queryDataForTarget:(FSTBoxedTargetID *)targetID {
-  return _queryDataCallback(targetID.intValue);
+- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID {
+  auto it = _queryData.find(targetID.intValue);
+  HARD_ASSERT(it != _queryData.end(), "Cannot process unknown target %s", targetID.intValue);
+  return it->second;
 }
 
 @end
 
 FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
-                                        NSArray<NSNumber *> *addedToTargets) {
+                                        NSArray<FSTBoxedTargetID *> *addedToTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   FSTDocumentWatchChange *change =
@@ -364,14 +366,16 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
                                                    documentKey:doc.key
                                                       document:doc];
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider withEmptyResultAtKey:doc.key]];
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithEmptyResultForKey:doc.key
+                                                               targets:addedToTargets]];
   [aggregator handleDocumentChange:change];
   return [aggregator remoteEventAtSnapshotVersion:doc.version];
 }
 
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
-                                         NSArray<NSNumber *> *removedFromTargets) {
+                                         NSArray<FSTBoxedTargetID *> *updatedInTargets,
+                                         NSArray<FSTBoxedTargetID *> *removedFromTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
               "Docs from remote updates shouldn't have local changes.");
   FSTDocumentWatchChange *change =
@@ -379,8 +383,12 @@ FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                               removedTargetIDs:removedFromTargets
                                                    documentKey:doc.key
                                                       document:doc];
+  NSArray<FSTBoxedTargetID *> *targets =
+      [updatedInTargets arrayByAddingObjectsFromArray:removedFromTargets];
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider withSingleResultAtKey:doc.key]];
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithSingleResultForKey:doc.key
+                                                                targets:targets]];
   [aggregator handleDocumentChange:change];
   return [aggregator remoteEventAtSnapshotVersion:doc.version];
 }

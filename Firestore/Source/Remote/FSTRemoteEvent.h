@@ -37,11 +37,6 @@
 @class FSTWatchTargetChange;
 @class FSTExistenceFilterWatchChange;
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeyHash;
-using firebase::firestore::model::DocumentKeySet;
-using firebase::firestore::model::SnapshotVersion;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -52,12 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Returns the set of remote document keys for the given target ID as of the last raised snapshot.
  */
-- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID;
 
 /**
  * Returns the FSTQueryData for an active target ID or 'null' if this query has become inactive
  */
-- (FSTQueryData *_Nullable)queryDataForTarget:(FSTBoxedTargetID *)targetID;
+- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID;
 
 @end
 
@@ -78,9 +73,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithResumeToken:(NSData *)resumeToken
                             current:(BOOL)current
-                     addedDocuments:(DocumentKeySet)addedDocuments
-                  modifiedDocuments:(DocumentKeySet)modifiedDocuments
-                   removedDocuments:(DocumentKeySet)removedDocuments NS_DESIGNATED_INITIALIZER;
+                     addedDocuments:(firebase::firestore::model::DocumentKeySet)addedDocuments
+                  modifiedDocuments:(firebase::firestore::model::DocumentKeySet)modifiedDocuments
+                   removedDocuments:(firebase::firestore::model::DocumentKeySet)removedDocuments
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -101,18 +97,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The set of documents that were newly assigned to this target as part of this remote event.
  */
-- (const DocumentKeySet &)addedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)addedDocuments;
 
 /**
  * The set of documents that were already assigned to this target but received an update during this
  * remote event.
  */
-- (const DocumentKeySet &)modifiedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)modifiedDocuments;
 
 /**
  * The set of documents that were removed from this target as part of this remote event.
  */
-- (const DocumentKeySet &)removedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)removedDocuments;
 
 @end
 
@@ -129,16 +125,18 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
           targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
        targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
         documentUpdates:
-            (std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)documentUpdates
-         limboDocuments:(DocumentKeySet)limboDocuments;
+            (std::unordered_map<firebase::firestore::model::DocumentKey,
+                                FSTMaybeDocument *,
+                                firebase::firestore::model::DocumentKeyHash>)documentUpdates
+         limboDocuments:(firebase::firestore::model::DocumentKeySet)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
-- (const SnapshotVersion &)snapshotVersion;
+- (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
 /**
  * A set of which document updates are due only to limbo resolution targets.
  */
-- (const DocumentKeySet &)limboDocumentChanges;
+- (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** A map from target to changes to the target. See TargetChange. */
 - (const std::unordered_map<FSTTargetID, FSTTargetChange *> &)targetChanges;
@@ -153,7 +151,9 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
  * A set of which documents have changed or been deleted, along with the doc's new values (if not
  * deleted).
  */
-- (const std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash> &)documentUpdates;
+- (const std::unordered_map<firebase::firestore::model::DocumentKey,
+                            FSTMaybeDocument *,
+                            firebase::firestore::model::DocumentKeyHash> &)documentUpdates;
 
 @end
 
@@ -183,17 +183,18 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
 - (void)handleExistenceFilter:(FSTExistenceFilterWatchChange *)existenceFilter;
 
 /**
+ * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'
+ * with the client's active targets.
+ */
+- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID;
+
+/**
  * Converts the current state into a remote event with the snapshot version taken from the
  * initializer.
  */
 - (FSTRemoteEvent *)remoteEventAtSnapshotVersion:
     (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
 
-/**
- * Increment the number of acks needed from watch before we can consider the server to be 'in-sync'
- * with the client's active targets.
- */
-- (void)recordPendingTargetRequest:(FSTBoxedTargetID *)targetID;
 @end
 
 NS_ASSUME_NONNULL_END

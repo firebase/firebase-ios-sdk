@@ -425,7 +425,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
         FSTTargetChange *_Nullable targetChange = nil;
         if (remoteEvent) {
-          const auto &it = remoteEvent.targetChanges.find(queryView.targetID);
+          auto it = remoteEvent.targetChanges.find(queryView.targetID);
           if (it != remoteEvent.targetChanges.end()) {
             targetChange = it->second;
           }

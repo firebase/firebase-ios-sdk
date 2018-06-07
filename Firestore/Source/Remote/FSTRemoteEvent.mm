@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
                   modifiedDocuments:(DocumentKeySet)modifiedDocuments
                    removedDocuments:(DocumentKeySet)removedDocuments {
   if (self = [super init]) {
-    _resumeToken = resumeToken;
+    _resumeToken = [resumeToken copy];
     _current = current;
     _addedDocuments = std::move(addedDocuments);
     _modifiedDocuments = std::move(modifiedDocuments);
@@ -85,22 +85,12 @@ NS_ASSUME_NONNULL_BEGIN
   if (![other isMemberOfClass:[FSTTargetChange class]]) {
     return NO;
   }
-  if ([self current] != [other current]) {
-    return NO;
-  }
-  if (![[self resumeToken] isEqualToData:[other resumeToken]]) {
-    return NO;
-  }
-  if ([self addedDocuments] != [other addedDocuments]) {
-    return NO;
-  }
-  if ([self modifiedDocuments] != [other modifiedDocuments]) {
-    return NO;
-  }
-  if ([self removedDocuments] != [other removedDocuments]) {
-    return NO;
-  }
-  return YES;
+
+  return [self current] == [other current] &&
+         [[self resumeToken] isEqualToData:[other resumeToken]] &&
+         [self addedDocuments] == [other addedDocuments] &&
+         [self modifiedDocuments] == [other modifiedDocuments] &&
+         [self removedDocuments] == [other removedDocuments];
 }
 
 @end
@@ -117,16 +107,16 @@ NS_ASSUME_NONNULL_BEGIN
  * all changes up to the point at which the target was added and that the target is consistent with
  * the rest of the watch stream.
  */
-@property(nonatomic) bool current;
+@property(nonatomic) BOOL current;
 
 /** The last resume token sent to us for this target. */
 @property(nonatomic, readonly, strong) NSData *resumeToken;
 
 /** Whether we have modified any state that should trigger a snapshot. */
-@property(nonatomic, readonly) bool hasPendingChanges;
+@property(nonatomic, readonly) BOOL hasPendingChanges;
 
 /** Whether this target has pending target adds or target removes. */
-- (bool)isPending;
+- (BOOL)isPending;
 
 /**
  * Applies the resume token to the TargetChange, but only when it has a new value. Empty
@@ -143,7 +133,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (FSTTargetChange *)toTargetChange;
 
-- (void)recordPendingTargetRequest;
+- (void)recordTargetRequest;
 - (void)recordTargetResponse;
 - (void)markCurrent;
 - (void)addDocumentChangeWithType:(FSTDocumentViewChangeType)type
@@ -154,10 +144,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTTargetState {
   /**
-   * The number of pending responses (adds or removes) that we are waiting on. We only consider
+   * The number of outstanding responses (adds or removes) that we are waiting on. We only consider
    * targets active that have no pending responses.
    */
-  int _pendingResponses;
+  int _outstandingResponses;
 
   /**
    * Keeps track of the document changes since the last raised snapshot.
@@ -171,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init {
   if (self = [super init]) {
     _resumeToken = [NSData data];
-    _pendingResponses = 0;
+    _outstandingResponses = 0;
 
     // We initialize to 'true' so that newly-added targets are included in the next RemoteEvent.
     _hasPendingChanges = true;
@@ -179,14 +169,14 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (bool)isPending {
-  return _pendingResponses != 0;
+- (BOOL)isPending {
+  return _outstandingResponses != 0;
 }
 
 - (void)updateResumeToken:(NSData *)resumeToken {
   if (resumeToken.length > 0) {
     _hasPendingChanges = true;
-    _resumeToken = resumeToken;
+    _resumeToken = [resumeToken copy];
   }
 }
 
@@ -195,12 +185,12 @@ NS_ASSUME_NONNULL_BEGIN
   _documentChanges.clear();
 }
 
-- (void)recordPendingTargetRequest {
-  _pendingResponses += 1;
+- (void)recordTargetRequest {
+  _outstandingResponses += 1;
 }
 
 - (void)recordTargetResponse {
-  _pendingResponses -= 1;
+  _outstandingResponses -= 1;
 }
 
 - (void)markCurrent {
@@ -220,9 +210,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTTargetChange *)toTargetChange {
-  __block DocumentKeySet addedDocuments;
-  __block DocumentKeySet modifiedDocuments;
-  __block DocumentKeySet removedDocuments;
+  DocumentKeySet addedDocuments;
+  DocumentKeySet modifiedDocuments;
+  DocumentKeySet removedDocuments;
 
   for (const auto &entry : _documentChanges) {
     switch (entry.second) {
@@ -236,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
         removedDocuments = removedDocuments.insert(entry.first);
         break;
       default:
-        HARD_FAIL("Encountered invalid change type:  %d", entry.second);
+        HARD_FAIL("Encountered invalid change type:  %s", entry.second);
     }
   }
 
@@ -300,9 +290,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 
 #pragma mark - FSTWatchChangeAggregator
 
-@interface FSTWatchChangeAggregator ()
-@end
-
 @implementation FSTWatchChangeAggregator {
   /** The internal state of all tracked targets. */
   std::unordered_map<FSTTargetID, FSTTargetState *> _targetStates;
@@ -350,37 +337,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   }
 }
 
-/**
- * Removes the provided document from the target mapping. If the document no longer matches the
- * target, but the document's state is still known (e.g. we know that the document was deleted or we
- * received the change that caused the filter mismatch), the new document can be provided to update
- * the remote document cache.
- */
-- (void)removeDocument:(FSTMaybeDocument *_Nullable)document
-               withKey:(const DocumentKey &)key
-            fromTarget:(FSTTargetID)targetID {
-  if (![self isActiveTarget:targetID]) {
-    return;
-  }
-
-  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
-
-  if ([self containsDocument:key inTarget:targetID]) {
-    [targetState addDocumentChangeWithType:FSTDocumentViewChangeTypeRemoved forKey:key];
-  } else {
-    // The document may have entered and left the target before we raised a snapshot, so we can just
-    // ignore the change.
-    [targetState removeDocumentChangeForKey:key];
-  }
-
-  _pendingDocumentTargetMappings[key].erase(targetID);
-
-  if (document) {
-    _pendingDocumentUpdates[key] = document;
-  }
-}
-
-/** Processes and adds the WatchTargetChange to the current set of changes. */
 - (void)handleTargetChange:(FSTWatchTargetChange *)targetChange {
   for (FSTBoxedTargetID *boxedTargetID in targetChange.targetIDs) {
     int targetID = boxedTargetID.intValue;
@@ -426,7 +382,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
         }
         break;
       default:
-        HARD_FAIL("Unknown target watch change state: %d", targetChange.state);
+        HARD_FAIL("Unknown target watch change state: %s", targetChange.state);
     }
   }
 }
@@ -454,7 +410,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
                    withKey:key
                 fromTarget:targetID];
       } else {
-        HARD_ASSERT(expectedCount == 1, "Single document existence filter with count: %d",
+        HARD_ASSERT(expectedCount == 1, "Single document existence filter with count: %s",
                     expectedCount);
       }
     } else {
@@ -481,7 +437,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
  * resume token and removes its target mapping from all documents).
  */
 - (void)resetTarget:(FSTTargetID)targetID {
-  const auto &currentTargetState = _targetStates.find(targetID);
+  auto currentTargetState = _targetStates.find(targetID);
   HARD_ASSERT(currentTargetState != _targetStates.end() && !(currentTargetState->second.isPending),
               "Should only reset active targets");
 
@@ -500,7 +456,6 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
  * Adds the provided document to the internal list of document updates and its document key to the
  * given target's mapping.
  */
-// Visible for testing.
 - (void)addDocument:(FSTMaybeDocument *)document toTarget:(FSTTargetID)targetID {
   if (![self isActiveTarget:targetID]) {
     return;
@@ -515,6 +470,36 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 
   _pendingDocumentUpdates[document.key] = document;
   _pendingDocumentTargetMappings[document.key].insert(targetID);
+}
+
+/**
+ * Removes the provided document from the target mapping. If the document no longer matches the
+ * target, but the document's state is still known (e.g. we know that the document was deleted or we
+ * received the change that caused the filter mismatch), the new document can be provided to update
+ * the remote document cache.
+ */
+- (void)removeDocument:(FSTMaybeDocument *_Nullable)document
+               withKey:(const DocumentKey &)key
+            fromTarget:(FSTTargetID)targetID {
+  if (![self isActiveTarget:targetID]) {
+    return;
+  }
+
+  FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
+
+  if ([self containsDocument:key inTarget:targetID]) {
+    [targetState addDocumentChangeWithType:FSTDocumentViewChangeTypeRemoved forKey:key];
+  } else {
+    // The document may have entered and left the target before we raised a snapshot, so we can just
+    // ignore the change.
+    [targetState removeDocumentChangeForKey:key];
+  }
+
+  _pendingDocumentTargetMappings[key].erase(targetID);
+
+  if (document) {
+    _pendingDocumentUpdates[key] = document;
+  }
 }
 
 /**
@@ -545,8 +530,8 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   return [self queryDataForActiveTarget:targetID] != nil;
 }
 
-- (FSTQueryData *_Nullable)queryDataForActiveTarget:(FSTTargetID)targetID {
-  const auto &targetState = _targetStates.find(targetID);
+- (nullable FSTQueryData *)queryDataForActiveTarget:(FSTTargetID)targetID {
+  auto targetState = _targetStates.find(targetID);
   return targetState != _targetStates.end() && targetState->second.isPending
              ? nil
              : [_targetMetadataProvider queryDataForTarget:@(targetID)];
@@ -566,11 +551,8 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
         // our local cache, we synthesize a document delete if we have not previously received the
         // document. This resolves the limbo state of the document, removing it from
         // limboDocumentRefs.
-        //
-        // TODO(dimond): Ideally we would have an explicit lookup query instead resulting in an
-        // explicit delete message and we could remove this special logic.
         FSTDocumentKey *key = [FSTDocumentKey keyWithPath:queryData.query.path];
-        if (self->_pendingDocumentUpdates.find(key) == self->_pendingDocumentUpdates.end() &&
+        if (_pendingDocumentUpdates.find(key) == _pendingDocumentUpdates.end() &&
             ![self containsDocument:key inTarget:targetID]) {
           [self removeDocument:[FSTDeletedDocument documentWithKey:key version:snapshotVersion]
                        withKey:key
@@ -621,10 +603,10 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   return remoteEvent;
 }
 
-- (void)recordPendingTargetRequest:(FSTBoxedTargetID *)targetID {
+- (void)recordTargetRequest:(FSTBoxedTargetID *)targetID {
   // For each request we get we need to record we need a response for it.
   FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID.intValue];
-  [targetState recordPendingTargetRequest];
+  [targetState recordTargetRequest];
 }
 @end
 

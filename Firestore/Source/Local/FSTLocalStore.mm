@@ -270,10 +270,11 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (const auto &entry : remoteEvent.targetChanges) {
       FSTTargetID targetID = entry.first;
+      FSTBoxedTargetID *boxedTargetID = @(targetID);
       FSTTargetChange *change = entry.second;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
-      FSTQueryData *queryData = self.targetIDs[@(targetID)];
+      FSTQueryData *queryData = self.targetIDs[boxedTargetID];
       if (!queryData) {
         continue;
       }
@@ -289,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
                                                        resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
-        self.targetIDs[@(targetID)] = queryData;
+        self.targetIDs[boxedTargetID] = queryData;
         [self.queryCache updateQueryData:queryData];
       }
     }

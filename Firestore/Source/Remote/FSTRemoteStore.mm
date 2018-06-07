@@ -246,7 +246,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  [self.watchChangeAggregator recordPendingTargetRequest:@(queryData.targetID)];
+  [self.watchChangeAggregator recordTargetRequest:@(queryData.targetID)];
   [self.watchStream watchQuery:queryData];
 }
 
@@ -265,7 +265,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  [self.watchChangeAggregator recordPendingTargetRequest:targetID];
+  [self.watchChangeAggregator recordTargetRequest:targetID];
   [self.watchStream unwatchTargetID:[targetID intValue]];
 }
 
@@ -415,7 +415,7 @@ static const int kMaxPendingWrites = 10;
   return [self.syncEngine remoteKeysForTarget:targetID];
 }
 
-- (FSTQueryData *_Nullable)queryDataForTarget:(FSTBoxedTargetID *)targetID {
+- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID {
   return self.listenTargets[targetID];
 }
 

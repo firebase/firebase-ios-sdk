@@ -814,7 +814,8 @@ NS_ASSUME_NONNULL_BEGIN
   listens[targetID] = queryData;
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
       initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
-                                         withSingleResultAtKey:testutil::Key("foo/bar")]];
+                                         providerWithSingleResultForKey:testutil::Key("foo/bar")
+                                                                targets:@[ targetID ]]];
   [aggregator handleTargetChange:watchChange];
   FSTRemoteEvent *remoteEvent = [aggregator remoteEventAtSnapshotVersion:testutil::Version(1000)];
   [self applyRemoteEvent:remoteEvent];

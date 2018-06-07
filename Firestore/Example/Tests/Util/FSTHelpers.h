@@ -49,9 +49,6 @@
 @class FSTObjectValue;
 @protocol FSTFilter;
 
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
-
 NS_ASSUME_NONNULL_BEGIN
 
 #if __cplusplus
@@ -154,22 +151,27 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 
 /** An implementation of FSTTargetMetadataProvider that can be customized at construction time. */
 @interface FSTTestTargetMetadataProvider : NSObject <FSTTargetMetadataProvider>
+
 /**
  * Creates an FSTTestTargetMetadataProvider that returns the given document for the existing key
- * callback (via `remoteKeysForTarget`) and marks queries as active (via `queryDataForTarget`).
+ * callback (via `remoteKeysForTarget`) and additionally marks the given targets as active (via
+ * `queryDataForTarget`).
  */
-+ (instancetype)withSingleResultAtKey:(DocumentKey)documentKey;
++ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                       targets:(NSArray<FSTBoxedTargetID *> *)targets;
+
 /**
  * Creates an FSTTestTargetMetadataProvider that returns an empty set of keys for the existing
- * key callback (via `remoteKeysForTarget`) and marks queries as active (via `queryDataForTarget`).
+ * key callback (via `remoteKeysForTarget`) and additionally marks the given targets as active (via
+ * `queryDataForTarget`).
  */
-+ (instancetype)withEmptyResultAtKey:(DocumentKey)documentKey;
++ (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                      targets:(NSArray<FSTBoxedTargetID *> *)targets;
 
-- (instancetype)
-initWithRemoteKeysForTargetCallback:(DocumentKeySet (^)(FSTTargetID))remoteKeysCallback
-                  queryDataCallback:(FSTQueryData * (^)(FSTTargetID))queryDataCallback
-    NS_DESIGNATED_INITIALIZER;
-- (instancetype)init NS_UNAVAILABLE;
+/** Sets or replaces the local state for the provided query data. */
+- (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
+         forQueryData:(FSTQueryData *)queryData;
+
 @end
 
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
@@ -288,15 +290,15 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *removedKeys);
 
 /** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
-FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs);
+FSTTargetChange *FSTTestTargetChangeAckDocuments(firebase::firestore::model::DocumentKeySet docs);
 
 /** Creates a test target change that marks the target as CURRENT  */
 FSTTargetChange *FSTTestTargetChangeMarkCurrent();
 
 /** Creates a test target change. */
-FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
-                                     DocumentKeySet modified,
-                                     DocumentKeySet removed,
+FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet added,
+                                     firebase::firestore::model::DocumentKeySet modified,
+                                     firebase::firestore::model::DocumentKeySet removed,
                                      NSData *resumeToken,
                                      BOOL current);
 
