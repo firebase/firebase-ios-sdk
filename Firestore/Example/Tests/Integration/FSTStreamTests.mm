@@ -18,6 +18,8 @@
 
 #import <GRPCClient/GRPCCall.h>
 
+#include <utility>
+
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 
