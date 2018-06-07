@@ -80,7 +80,7 @@ FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
 
 void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
   HARD_ASSERT(auth_listener_handle_,
-                          "GetToken cannot be called after listener removed.");
+              "GetToken cannot be called after listener removed.");
 
   // Take note of the current value of the userCounter so that this method can
   // fail if there is a user change while the request is outstanding.
