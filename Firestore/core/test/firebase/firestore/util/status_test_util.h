@@ -38,7 +38,7 @@ inline testing::AssertionResult Equal(Status expected, Status actual) {
 }  // namespace firestore
 }  // namespace firebase
 
-// Macros for testing the results of functions that return tensorflow::Status.
+// Macros for testing the results of functions that return util::Status.
 #define EXPECT_OK(statement)                      \
   EXPECT_TRUE(::firebase::firestore::util::Equal( \
       ::firebase::firestore::util::Status::OK(), (statement)));
@@ -50,6 +50,6 @@ inline testing::AssertionResult Equal(Status expected, Status actual) {
 // provide much value (when they fail, they would just print the OK status
 // which conveys no more information than EXPECT_FALSE(status.ok());
 // If you want to check for particular errors, a better alternative is:
-// EXPECT_EQ(..expected tensorflow::error::Code..., status.code());
+// EXPECT_EQ(..expected FirestoreErrorCode..., status.code());
 
 #endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_STATUS_TEST_UTIL_H_
