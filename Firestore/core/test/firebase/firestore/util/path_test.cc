@@ -38,7 +38,7 @@ namespace util {
 //
 //   brew install llvm
 //   llvm=$(brew --prefix)/opt/llvm
-//   $llvm/bin/clang++ -I$llvm/include -I$llvm/include/c++/v1 -L$llvm/lib \
+//   $llvm/bin/clang++ -I$llvm/include -I$llvm/include/c++/v1 -L$llvm/lib
 //       -Wl,-rpath,$llvm/lib test.cc -lc++experimental && ./a.out
 //
 //   test.cc contains something like:

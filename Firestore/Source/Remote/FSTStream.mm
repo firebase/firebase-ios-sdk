@@ -265,12 +265,11 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   HARD_ASSERT(_delegate == nil, "Delegate must be nil");
   _delegate = delegate;
 
-  _credentials->GetToken(
-      /*force_refresh=*/false, [self](util::StatusOr<Token> result) {
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          [self resumeStartWithToken:result];
-        }];
-      });
+  _credentials->GetToken([self](util::StatusOr<Token> result) {
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      [self resumeStartWithToken:result];
+    }];
+  });
 }
 
 /** Add an access token to our RPC, after obtaining one from the credentials provider. */
@@ -283,8 +282,6 @@ static const NSTimeInterval kIdleTimeout = 60.0;
   }
   HARD_ASSERT(self.state == FSTStreamStateAuth, "State should still be auth (was %s)", self.state);
 
-  // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
-  // but I'm not sure how to detect that right now. http://b/32762461
   if (!result.ok()) {
     // RPC has not been started yet, so just invoke higher-level close handler.
     [self handleStreamClose:util::MakeNSError(result.status())];
@@ -383,6 +380,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     LOG_DEBUG("%s %s Using maximum backoff delay to prevent overloading the backend.", [self class],
               (__bridge void *)self);
     [self.backoff resetToMax];
+  } else if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+    // "unauthenticated" error means the token was rejected. Try force refreshing it in case it just
+    // expired.
+    _credentials->InvalidateToken();
   }
 
   if (finalState != FSTStreamStateError) {
