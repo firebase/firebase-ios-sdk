@@ -18,10 +18,10 @@
 
 #import <GRPCClient/GRPCCall.h>
 
-#include <utility>
-
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
+
+#include <utility>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
