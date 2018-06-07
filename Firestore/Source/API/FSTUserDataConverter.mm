@@ -335,13 +335,13 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 }
 
 - (BOOL)containsFieldPath:(const FieldPath &)fieldPath {
-  for (FieldPath field : *_fieldMask) {
+  for (const FieldPath &field : *_fieldMask) {
     if (fieldPath.IsPrefixOf(field)) {
       return YES;
     }
   }
 
-  for (FieldTransform fieldTransform : *_fieldTransforms) {
+  for (const FieldTransform &fieldTransform : *_fieldTransforms) {
     if (fieldPath.IsPrefixOf(fieldTransform.path())) {
       return YES;
     }

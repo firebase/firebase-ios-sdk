@@ -274,11 +274,6 @@
     @"inner" : @{@"foo" : [FIRFieldValue fieldValueForServerTimestamp]},
     @"nested" : @{@"foo" : [FIRFieldValue fieldValueForServerTimestamp]}
   };
-  NSDictionary<NSString *, id> *finalData =
-      @{ @"untouched" : @YES,
-         @"foo" : @"bar",
-         @"inner" : @{},
-         @"nested" : @{@"untouched" : @YES} };
 
   [self writeDocumentRef:doc data:initialData];
 
