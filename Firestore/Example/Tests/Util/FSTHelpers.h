@@ -149,21 +149,32 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
   } while (0)
 
-/** An implementation of FSTTargetMetadataProvider that can be customized at construction time. */
+/**
+ * An implementation of FSTTargetMetadataProvider that provides controlled access to the
+ * `FSTTargetMetadataProvider` callbacks. Any target accessed via these callbacks must be
+ * registered beforehand via the factory methods or via `setSyncedKeys:forQueryData:`.
+ */
 @interface FSTTestTargetMetadataProvider : NSObject <FSTTargetMetadataProvider>
 
 /**
- * Creates an FSTTestTargetMetadataProvider that returns the given document for the existing key
- * callback (via `remoteKeysForTarget`) and additionally marks the given targets as active (via
- * `queryDataForTarget`).
+ * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
+ * each of the given targets, where each target has previously seen query results containing just
+ * the given documentKey.
+ *
+ * Internally this means that the `remoteKeysForTarget` callback for these targets will return just
+ * the documentKey and that the provided targets will be returned as active from the
+ * `queryDataForTarget` target.
  */
 + (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
                                        targets:(NSArray<FSTBoxedTargetID *> *)targets;
 
 /**
- * Creates an FSTTestTargetMetadataProvider that returns an empty set of keys for the existing
- * key callback (via `remoteKeysForTarget`) and additionally marks the given targets as active (via
- * `queryDataForTarget`).
+ * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
+ * each of the given targets, where each target has not seen any previous document.
+ *
+ * Internally this means that the `remoteKeysForTarget` callback for these targets will return an
+ * empty set of document keys and that the provided targets will be returned as active from the
+ * `queryDataForTarget` target.
  */
 + (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
                                       targets:(NSArray<FSTBoxedTargetID *> *)targets;

@@ -58,6 +58,7 @@ namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -67,7 +68,6 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
-using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -304,7 +304,7 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
   std::unordered_map<FSTTargetID, FSTQueryData *> _queryData;
 }
 
-+ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
++ (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
                                        targets:(NSArray<FSTBoxedTargetID *> *)targets {
   FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
   FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
@@ -320,7 +320,7 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
   return metadataProvider;
 }
 
-+ (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
++ (instancetype)providerWithEmptyResultForKey:(DocumentKey)documentKey
                                       targets:(NSArray<FSTBoxedTargetID *> *)targets {
   FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
   FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
@@ -336,8 +336,7 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
   return metadataProvider;
 }
 
-- (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
-         forQueryData:(FSTQueryData *)queryData {
+- (void)setSyncedKeys:(DocumentKeySet)keys forQueryData:(FSTQueryData *)queryData {
   _syncedKeys[queryData.targetID] = keys;
   _queryData[queryData.targetID] = queryData;
 }

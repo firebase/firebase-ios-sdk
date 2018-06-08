@@ -145,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTTargetState {
   /**
    * The number of outstanding responses (adds or removes) that we are waiting on. We only consider
-   * targets active that have no pending responses.
+   * targets active that have no outstanding responses.
    */
   int _outstandingResponses;
 
@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
     _outstandingResponses = 0;
 
     // We initialize to 'true' so that newly-added targets are included in the next RemoteEvent.
-    _hasPendingChanges = true;
+    _hasPendingChanges = YES;
   }
   return self;
 }
@@ -175,13 +175,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateResumeToken:(NSData *)resumeToken {
   if (resumeToken.length > 0) {
-    _hasPendingChanges = true;
+    _hasPendingChanges = YES;
     _resumeToken = [resumeToken copy];
   }
 }
 
 - (void)clearPendingChanges {
-  _hasPendingChanges = false;
+  _hasPendingChanges = NO;
   _documentChanges.clear();
 }
 
@@ -194,18 +194,18 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)markCurrent {
-  _hasPendingChanges = true;
+  _hasPendingChanges = YES;
   _current = true;
 }
 
 - (void)addDocumentChangeWithType:(FSTDocumentViewChangeType)type
                            forKey:(const DocumentKey &)documentKey {
-  _hasPendingChanges = true;
+  _hasPendingChanges = YES;
   _documentChanges[documentKey] = type;
 }
 
 - (void)removeDocumentChangeForKey:(const DocumentKey &)documentKey {
-  _hasPendingChanges = true;
+  _hasPendingChanges = YES;
   _documentChanges.erase(documentKey);
 }
 
@@ -226,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
         removedDocuments = removedDocuments.insert(entry.first);
         break;
       default:
-        HARD_FAIL("Encountered invalid change type:  %s", entry.second);
+        HARD_FAIL("Encountered invalid change type: %s", entry.second);
     }
   }
 
@@ -519,7 +519,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
 }
 
 /**
- * Returns true if the given targetId is active. Active targets are those for which there are no
+ * Returns YES if the given targetId is active. Active targets are those for which there are no
  * pending requests to add a listen and are in the current list of targets the client cares about.
  *
  * Clients can repeatedly listen and stop listening to targets, so this check is useful in
@@ -574,12 +574,12 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
   //
   // TODO(gsoltis): Expand on this comment.
   for (const auto &entry : _pendingDocumentTargetMappings) {
-    BOOL isOnlyLimboTarget = true;
+    BOOL isOnlyLimboTarget = YES;
 
     for (FSTTargetID targetID : entry.second) {
       FSTQueryData *queryData = [self queryDataForActiveTarget:targetID];
       if (queryData && queryData.purpose != FSTQueryPurposeLimboResolution) {
-        isOnlyLimboTarget = false;
+        isOnlyLimboTarget = NO;
         break;
       }
     }
