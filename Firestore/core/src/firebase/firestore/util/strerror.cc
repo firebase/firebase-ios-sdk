@@ -29,17 +29,17 @@
 #include <cstring>
 
 #if defined(_WIN32)
-#  define HAVE_STRERROR_S 1
+#define HAVE_STRERROR_S 1
 
 #elif defined(__GLIBC__)
-#  if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
-#    define HAVE_POSIX_STRERROR_R 1
-#  else
-#    define HAVE_GNU_STRERROR_R 1
-#  endif
+#if (_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE
+#define HAVE_POSIX_STRERROR_R 1
+#else
+#define HAVE_GNU_STRERROR_R 1
+#endif
 
 #else
-#  define HAVE_POSIX_STRERROR_R 1
+#define HAVE_POSIX_STRERROR_R 1
 
 #endif
 
