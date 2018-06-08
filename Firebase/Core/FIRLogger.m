@@ -174,7 +174,14 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
   });
 }
 
-BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent) {
+/**
+ * Check if the level is high enough to be loggable.
+ *
+ * Analytics can override the log level with an intentional race condition.
+ * Add the attribute to get a clean thread sanitizer run.
+ */
+__attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel,
+                                                               BOOL analyticsComponent) {
   FIRLoggerInitializeASL();
   if (sFIRLoggerDebugMode) {
     return YES;
