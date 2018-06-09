@@ -26,8 +26,6 @@ ExternalProject_Add(
   URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.9.1.tar.gz
   URL_HASH SHA256=67460d0c0ad331ef4d5369ad337056d0cd2f900c94887628d287eb56c69324bc
 
-  BUILD_IN_SOURCE ON
-
   PREFIX ${PROJECT_BINARY_DIR}/external/nanopb
 
   CMAKE_ARGS
