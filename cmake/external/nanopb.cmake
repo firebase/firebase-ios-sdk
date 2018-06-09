@@ -14,7 +14,7 @@ include(ExternalProject)
 
 set(
   NANOPB_PROTOC_BIN
-  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
+  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/protoc
 )
 
 ExternalProject_Add(
