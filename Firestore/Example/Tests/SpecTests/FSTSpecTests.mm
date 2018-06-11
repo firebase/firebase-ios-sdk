@@ -256,12 +256,15 @@ static NSString *const kNoIOSTag = @"no-ios";
   } else if (watchEntity[@"doc"]) {
     NSArray *docSpec = watchEntity[@"doc"];
     FSTDocumentKey *key = FSTTestDocKey(docSpec[0]);
-    FSTObjectValue *value = FSTTestObjectValue(docSpec[2]);
+    FSTObjectValue *_Nullable value =
+        [docSpec[2] isKindOfClass:[NSNull class]] ? nil : FSTTestObjectValue(docSpec[2]);
     SnapshotVersion version = [self parseVersion:docSpec[1]];
-    FSTMaybeDocument *doc = [FSTDocument documentWithData:value
-                                                      key:key
-                                                  version:std::move(version)
-                                        hasLocalMutations:NO];
+    FSTMaybeDocument *doc =
+        value ? [FSTDocument documentWithData:value
+                                          key:key
+                                      version:std::move(version)
+                            hasLocalMutations:NO]
+              : [FSTDeletedDocument documentWithKey:key version:std::move(version)];
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:watchEntity[@"targets"]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]

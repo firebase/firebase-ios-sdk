@@ -609,8 +609,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
+                                                 @[ @(targetID) ])];
   [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
 
@@ -703,8 +703,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
+                                                 @[ @(targetID) ])];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
   [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
@@ -805,21 +805,19 @@ NS_ASSUME_NONNULL_BEGIN
   FSTBoxedTargetID *targetID = @(queryData.targetID);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
-  FSTWatchChange *watchChange =
+  FSTWatchTargetChange *watchChange =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
                                   targetIDs:@[ targetID ]
                                 resumeToken:resumeToken];
   NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listens =
       [NSMutableDictionary dictionary];
   listens[targetID] = queryData;
-  NSMutableDictionary<FSTBoxedTargetID *, NSNumber *> *pendingResponses =
-      [NSMutableDictionary dictionary];
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:testutil::Version(1000)
-                                                  listenTargets:listens
-                                         pendingTargetResponses:pendingResponses];
-  [aggregator addWatchChanges:@[ watchChange ]];
-  FSTRemoteEvent *remoteEvent = [aggregator remoteEvent];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithSingleResultForKey:testutil::Key("foo/bar")
+                                                                targets:@[ targetID ]]];
+  [aggregator handleTargetChange:watchChange];
+  FSTRemoteEvent *remoteEvent = [aggregator remoteEventAtSnapshotVersion:testutil::Version(1000)];
   [self applyRemoteEvent:remoteEvent];
 
   // Stop listening so that the query should become inactive (but persistent)
@@ -842,10 +840,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
+                                                 @[ @2 ])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
+                                                 @[ @2 ])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 

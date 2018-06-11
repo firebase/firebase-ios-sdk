@@ -295,21 +295,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
-  // Make sure limbo documents are deleted if there were no results.
-  // Filter out document additions to targets that they already belong to.
-  [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
-                                 FSTBoxedTargetID *_Nonnull targetID,
-                                 FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
-    const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
-    if (iter == self->_limboKeysByTarget.end()) {
-      FSTQueryView *qv = self.queryViewsByTarget[targetID];
-      HARD_ASSERT(qv, "Missing queryview for non-limbo query: %s", [targetID intValue]);
-      [targetChange.mapping filterUpdatesUsingExistingKeys:qv.view.syncedDocuments];
-    } else {
-      [remoteEvent synthesizeDeleteForLimboTargetChange:targetChange key:iter->second];
-    }
-  }];
-
   FSTMaybeDocumentDictionary *changes = [self.localStore applyRemoteEvent:remoteEvent];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
@@ -345,18 +330,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     // It's a limbo doc. Create a synthetic event saying it was deleted. This is kind of a hack.
     // Ideally, we would have a method in the local store to purge a document. However, it would
     // be tricky to keep all of the local store's invariants with another method.
-    NSMutableDictionary<NSNumber *, FSTTargetChange *> *targetChanges =
-        [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
     DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
-    FSTRemoteEvent *event =
-        [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
-                                          targetChanges:targetChanges
-                                        documentUpdates:{
-                                          { limboKey, doc }
-                                        }
-                                         limboDocuments:std::move(limboDocuments)];
+    FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
+        targetChanges:{}
+        targetMismatches:{}
+        documentUpdates:{
+          { limboKey, doc }
+        }
+        limboDocuments:std::move(limboDocuments)];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
@@ -439,7 +422,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
           FSTDocumentDictionary *docs = [self.localStore executeQuery:queryView.query];
           viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
         }
-        FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
+
+        FSTTargetChange *_Nullable targetChange = nil;
+        if (remoteEvent) {
+          auto it = remoteEvent.targetChanges.find(queryView.targetID);
+          if (it != remoteEvent.targetChanges.end()) {
+            targetChange = it->second;
+          }
+        }
         FSTViewChange *viewChange =
             [queryView.view applyChangesToDocuments:viewDocChanges targetChange:targetChange];
 
@@ -529,6 +519,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   // Notify remote store so it can restart its streams.
   [self.remoteStore userDidChange:user];
+}
+
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+  FSTQueryView *queryView = self.queryViewsByTarget[targetId];
+  return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
 }
 
 @end

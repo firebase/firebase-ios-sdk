@@ -118,11 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
-
-  FSTTargetChange *ackTarget =
-      [FSTTargetChange changeWithDocuments:@[]
-                       currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent];
-  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], ackTarget);
+  FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], FSTTestTargetChangeMarkCurrent());
 
   [listener queryDidChangeViewSnapshot:snap1];
   XCTAssertEqualObjects(accum, @[]);
@@ -188,9 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
 
-  FSTTargetChange *ackTarget =
-      [FSTTargetChange changeWithDocuments:@[ doc1 ]
-                       currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent];
+  FSTTargetChange *ackTarget = FSTTestTargetChangeAckDocuments({doc1.key});
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[], ackTarget);
   FSTViewSnapshot *snap3 = FSTTestApplyChanges(view, @[ doc2 ], nil);
 
@@ -342,9 +336,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
   FSTViewSnapshot *snap3 =
-      FSTTestApplyChanges(view, @[],
-                          [FSTTargetChange changeWithDocuments:@[ doc1, doc2 ]
-                                           currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
+      FSTTestApplyChanges(view, @[], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key}));
 
   [listener applyChangedOnlineState:FSTOnlineStateOnline];  // no event
   [listener queryDidChangeViewSnapshot:snap1];
