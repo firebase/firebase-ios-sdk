@@ -2089,6 +2089,12 @@
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
+					"\"${PODS_ROOT}/nanopb\"",
+				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
 					"$(inherited)",
@@ -2118,6 +2124,12 @@
 					"$(inherited)",
 					"COCOAPODS=1",
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/../../..\"",
+					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
+					"\"${PODS_ROOT}/nanopb\"",
 				);
 				INFOPLIST_FILE = "FuzzTests/Firestore_FuzzTests_iOS-Info.plist";
 				OTHER_CFLAGS = (
