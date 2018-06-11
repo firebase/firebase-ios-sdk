@@ -27,13 +27,12 @@ namespace {
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  // Blank intentionally.
+  // TODO(minafarid): fuzz-test Serializer.
 }
 
 // Contains the code to be fuzzed. Called by the fuzzing library with
 // different argument values for `data` and `size`.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  // Fuzz-test deserialization.
   FuzzTestDeserialization(data, size);
   return 0;
 }
