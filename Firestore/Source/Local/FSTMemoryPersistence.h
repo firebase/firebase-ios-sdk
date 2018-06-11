@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface FSTMemoryLRUReferenceDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+@interface FSTMemoryLRUReferenceDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate, FSTTransactional>
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 

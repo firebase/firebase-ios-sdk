@@ -18,6 +18,7 @@
 
 #include <unordered_map>
 
+#import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
@@ -108,6 +109,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _referenceDelegate;
 }
 
+- (FSTListenSequenceNumber)currentSequenceNumber {
+  return [_referenceDelegate currentSequenceNumber];
+}
+
 - (const FSTTransactionRunner &)run {
   return _transactionRunner;
 }
@@ -136,6 +141,8 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableDictionary<FSTDocumentKey *, NSNumber *> *_sequenceNumbers;
   FSTReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
+  FSTListenSequence *_listenSequence;
+  FSTListenSequenceNumber _currentSequenceNumber;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
@@ -144,6 +151,10 @@ NS_ASSUME_NONNULL_BEGIN
     _persistence = persistence;
     _gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache]
                                                     delegate:self];
+    _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+    // Theoretically this is always 0, since this is all in-memory...
+    FSTListenSequenceNumber highestSequenceNumber = _persistence.queryCache.highestListenSequenceNumber;
+    _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
   }
   return self;
 }
@@ -152,21 +163,26 @@ NS_ASSUME_NONNULL_BEGIN
   return _gc;
 }
 
+- (FSTListenSequenceNumber)currentSequenceNumber {
+  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid, "Asking for a sequence number outside of a transaction");
+  return _currentSequenceNumber;
+}
+
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
   // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
   //FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
   _additionalReferences = set;
 }
 
-- (void)removeTarget:(FSTQueryData *)queryData sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeTarget:(FSTQueryData *)queryData {
   FSTQueryData *updated = [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
                                                              resumeToken:queryData.resumeToken
-                                                          sequenceNumber:sequenceNumber];
+                                                          sequenceNumber:_currentSequenceNumber];
   [_persistence.queryCache updateQueryData:updated];
 }
 
-- (void)documentUpdated:(FSTDocumentKey *)key sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  _sequenceNumbers[key] = @(sequenceNumber);
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key {
+  _sequenceNumbers[key] = @(self.currentSequenceNumber);
   // TODO(gsoltis): probably need to implement this
   // Need to bump sequence number?
 }
@@ -174,9 +190,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startTransaction:(absl::string_view)label {
   // wat do?
+  _currentSequenceNumber = [_listenSequence next];
 }
 
 - (void)commitTransaction {
+  _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
   // TODO(gsoltis): maybe check if we need to schedule a GC?
 }
 
@@ -203,11 +221,11 @@ NS_ASSUME_NONNULL_BEGIN
                                                                              throughSequenceNumber:upperBound];
 }
 
-- (void)addReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  _sequenceNumbers[key] = @(sequenceNumber);
+- (void)addReference:(FSTDocumentKey *)key target:(__unused FSTTargetID)targetID {
+  _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
-- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID {
   // No-op. LRU doesn't care when references are removed.
 }
 
@@ -222,9 +240,8 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
-- (void)removeMutationReference:(FSTDocumentKey *)key
-                 sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  _sequenceNumbers[key] = @(sequenceNumber);
+- (void)removeMutationReference:(FSTDocumentKey *)key {
+  _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
 - (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound document:(FSTDocumentKey *)key {

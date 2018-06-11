@@ -42,7 +42,6 @@ namespace testutil = firebase::firestore::testutil;
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLRUGarbageCollectorTests {
-  FSTListenSequenceNumber _previousSequenceNumber;
   FSTTargetID _previousTargetID;
   NSUInteger _previousDocNum;
   FSTObjectValue *_testValue;
@@ -65,7 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  _previousSequenceNumber = 1000;
   _previousTargetID = 500;
   _previousDocNum = 10;
   _testValue = FSTTestObjectValue(@{ @"baz" : @YES, @"ok" : @"fine" });
@@ -79,13 +77,9 @@ NS_ASSUME_NONNULL_BEGIN
   return ([self class] == [FSTLRUGarbageCollectorTests class]);
 }
 
-- (FSTListenSequenceNumber)nextSequenceNumber {
-  return ++_previousSequenceNumber;
-}
-
-- (FSTQueryData *)nextTestQuery {
+- (FSTQueryData *)nextTestQuery:(id<FSTPersistence>)persistence {
   FSTTargetID targetID = ++_previousTargetID;
-  FSTListenSequenceNumber listenSequenceNumber = [self nextSequenceNumber];
+  FSTListenSequenceNumber listenSequenceNumber = persistence.currentSequenceNumber;
   FSTQuery *query = FSTTestQuery(absl::StrCat("path", targetID));
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:targetID
@@ -137,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
       id<FSTQueryCache> queryCache = [persistence queryCache];
       [queryCache start];
       for (int j = 0; j < numQueries; j++) {
-        [queryCache addQueryData:[self nextTestQuery]];
+        [queryCache addQueryData:[self nextTestQuery:persistence]];
       }
       FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
       FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
@@ -149,85 +143,98 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)testSequenceNumberForQueryCount {
+- (void)testSequenceNumberNoQueries {
   if ([self isTestBaseClass]) return;
 
   // Sequence numbers in this test start at 1001 and are incremented by one.
 
   // No queries... should get invalid sequence number (-1)
-  {
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("no queries", [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-      FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:0];
-      XCTAssertEqual(kFSTListenSequenceNumberInvalid, highestToCollect);
-    });
-    [persistence shutdown];
-  }
+  id<FSTPersistence> persistence = [self newPersistence];
+  persistence.run("no queries", [&]() {
+    id<FSTQueryCache> queryCache = [persistence queryCache];
+    [queryCache start];
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:0];
+    XCTAssertEqual(kFSTListenSequenceNumberInvalid, highestToCollect);
+  });
+  [persistence shutdown];
+}
 
-  // 50 queries, want 10. Should get 1010.
-  {
-    _previousSequenceNumber = 1000;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("50 queries, want 10. Should get 1010.", [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-      for (int i = 0; i < 50; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-      }
-      FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-      XCTAssertEqual(1010, highestToCollect);
-    });
-    [persistence shutdown];
-  }
 
-  // 50 queries, 9 with 1001, incrementing from there. Should get 1002.
-  {
-    _previousSequenceNumber = 1000;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("50 queries, 9 with 1001, incrementing from there. Should get 1002.", [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-      for (int i = 0; i < 9; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-        _previousSequenceNumber = 1000;
-      }
-      _previousSequenceNumber = 1001;
-      for (int i = 9; i < 50; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-      }
-      FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-      XCTAssertEqual(1002, highestToCollect);
+- (void)testSequenceNumberForFiftyQueries {
+  if ([self isTestBaseClass]) return;
+  // 50 queries, want 10. Should get 10 past whatever the starting point is.
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  for (int i = 0; i < 50; i++) {
+    persistence.run("add query", [&]() {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
     });
-    [persistence shutdown];
   }
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(10 + initial, highestToCollect);
+  });
+  [persistence shutdown];
+}
 
-  // 50 queries, 11 with 1001, incrementing from there. Should get 1001.
-  {
-    _previousSequenceNumber = 1000;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("50 queries, 11 with 1001, incrementing from there. Should get 1001.", [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-      for (int i = 0; i < 11; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-        _previousSequenceNumber = 1000;
-      }
-      _previousSequenceNumber = 1001;
-      for (int i = 11; i < 50; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-      }
-      FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-      XCTAssertEqual(1001, highestToCollect);
+- (void)testSequenceNumberForMultipleQueriesInATransaction {
+  // 50 queries, 9 with one transaction, incrementing from there. Should get second sequence number.
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  persistence.run("9 queries in a batch", [&]() {
+    for (int i = 0; i < 9; i++) {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
+    }
+  });
+  for (int i = 9; i < 50; i++) {
+    persistence.run("sequential queries", [&]() {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
     });
-    [persistence shutdown];
   }
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(2 + initial, highestToCollect);
+  });
+  [persistence shutdown];
+}
 
+-(void)testAllCollectedQueriesInSingleTransaction {
+  // 50 queries, 11 with one transaction, incrementing from there. Should get first sequence number.
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  persistence.run("11 queries in a batch", [&]() {
+    for (int i = 0; i < 11; i++) {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
+    }
+  });
+  for (int i = 11; i < 50; i++) {
+    persistence.run("sequential queries", [&]() {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
+    });
+  }
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(1 + initial, highestToCollect);
+  });
+  [persistence shutdown];
+}
+/*
   // A mutated doc at 1000, 50 queries 1001-1050. Should get 1009.
   {
     _previousSequenceNumber = 1000;
@@ -656,7 +663,7 @@ NS_ASSUME_NONNULL_BEGIN
       });
 
   [persistence shutdown];
-}
+}*/
 /*
 - (void)testShouldGC {
   if ([self isTestBaseClass]) return;

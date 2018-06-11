@@ -291,8 +291,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-               sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   NSUInteger batchCount = batches.count;
   HARD_ASSERT(batchCount > 0, "Should not remove mutations when none exist.");
 

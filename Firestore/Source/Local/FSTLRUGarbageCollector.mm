@@ -5,7 +5,7 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
@@ -126,7 +126,7 @@ class RollingSequenceNumberBuffer {
                        boundaryMs];
   [report appendFormat:@"\n - %i targets removed in %ims", queriesRemoved, queriesRemovedMs];
   [report appendFormat:@"\n - %i documents removed in %ims", documentsRemoved, documentsRemovedMs];
-  FSTLog(@"%@", report);
+  LOG_DEBUG("%s", [report cString]);
 }
 
 @end

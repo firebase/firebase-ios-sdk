@@ -99,6 +99,8 @@ struct FSTTransactionRunner;
  */
 @property(nonatomic, readonly, strong) _Nullable id<FSTReferenceDelegate> referenceDelegate;
 
+@property(nonatomic, readonly) FSTListenSequenceNumber currentSequenceNumber;
+
 @end
 
 @protocol FSTTransactional
@@ -152,6 +154,8 @@ struct FSTTransactionRunner;
  * Notify the delegate that a limbo document was updated.
  */
 - (void)limboDocumentUpdated:(FSTDocumentKey *)key;
+
+@property(nonatomic, readonly) FSTListenSequenceNumber currentSequenceNumber;
 
 @end
 

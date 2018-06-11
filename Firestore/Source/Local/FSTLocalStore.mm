@@ -152,8 +152,7 @@ NS_ASSUME_NONNULL_BEGIN
       if (batches.count > 0) {
         // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
         // should be very small and this code should go away eventually.
-        [self.mutationQueue removeMutationBatches:batches
-                                   sequenceNumber:[self.listenSequence next]];
+        [self.mutationQueue removeMutationBatches:batches];
       }
     }
   });
@@ -164,8 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTargetID targetID = [self.queryCache highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
-  FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
-  self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
+  //FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
+  //sself.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
 }
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
@@ -217,7 +216,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)acknowledgeBatchWithResult:(FSTMutationBatchResult *)batchResult {
   return self.persistence.run("Acknowledge batch", [&]() -> FSTMaybeDocumentDictionary * {
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     id<FSTMutationQueue> mutationQueue = self.mutationQueue;
 
     [mutationQueue acknowledgeBatch:batchResult.batch streamToken:batchResult.streamToken];
@@ -226,7 +224,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ([self shouldHoldBatchResultWithVersion:batchResult.commitVersion]) {
       [self.heldBatchResults addObject:batchResult];
     } else {
-      affected = [self releaseBatchResults:@[ batchResult ] sequenceNumber:sequenceNumber];
+      affected = [self releaseBatchResults:@[ batchResult ]];
     }
 
     [self.mutationQueue performConsistencyCheck];
@@ -237,14 +235,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
   return self.persistence.run("Reject batch", [&]() -> FSTMaybeDocumentDictionary * {
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
     FSTBatchID lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
     HARD_ASSERT(batchID > lastAcked, "Acknowledged batches can't be rejected.");
 
-    DocumentKeySet affected = [self removeMutationBatch:toReject sequenceNumber:sequenceNumber];
+    DocumentKeySet affected = [self removeMutationBatch:toReject];
 
     [self.mutationQueue performConsistencyCheck];
 
@@ -268,7 +265,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
     // TODO(gsoltis): move the sequence number into the reference delegate.
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
+    FSTListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
     id<FSTQueryCache> queryCache = self.queryCache;
 
     [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
@@ -299,18 +296,12 @@ NS_ASSUME_NONNULL_BEGIN
         if ([mapping isKindOfClass:[FSTResetMapping class]]) {
           FSTResetMapping *reset = (FSTResetMapping *)mapping;
           [queryCache removeMatchingKeysForTargetID:targetID];
-          [queryCache addMatchingKeys:reset.documents
-                          forTargetID:targetID
-                     atSequenceNumber:sequenceNumber];
+          [queryCache addMatchingKeys:reset.documents forTargetID:targetID];
 
         } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
           FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-          [queryCache removeMatchingKeys:update.removedDocuments
-                             forTargetID:targetID
-                          sequenceNumber:sequenceNumber];
-          [queryCache addMatchingKeys:update.addedDocuments
-                          forTargetID:targetID
-                     atSequenceNumber:sequenceNumber];
+          [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
+          [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
 
         } else {
           HARD_FAIL("Unknown mapping type: %s", mapping);
@@ -360,8 +351,7 @@ NS_ASSUME_NONNULL_BEGIN
       [self.queryCache setLastRemoteSnapshotVersion:remoteVersion];
     }
 
-    DocumentKeySet releasedWriteKeys =
-            [self releaseHeldBatchResultsAtSequenceNumber:sequenceNumber];
+    DocumentKeySet releasedWriteKeys = [self releaseHeldBatchResults];
 
     // Union the two key sets.
     DocumentKeySet keysToRecalc = changedDocKeys;
@@ -375,7 +365,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     FSTReferenceSet *localViewReferences = self.localViewReferences;
     for (FSTLocalViewChanges *view in viewChanges) {
       FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
@@ -411,7 +400,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (!cached) {
       cached = [[FSTQueryData alloc] initWithQuery:query
                                           targetID:_targetIDGenerator.NextId()
-                              listenSequenceNumber:[self.listenSequence next]
+                              listenSequenceNumber:self.persistence.currentSequenceNumber
                                            purpose:FSTQueryPurposeListen];
       [self.queryCache addQueryData:cached];
     }
@@ -440,7 +429,7 @@ NS_ASSUME_NONNULL_BEGIN
     // If this was the last watch target, then we won't get any more watch snapshots, so we should
     // release any held batch results.
     if ([self.targetIDs count] == 0) {
-      [self releaseHeldBatchResultsAtSequenceNumber:sequenceNumber];
+      [self releaseHeldBatchResults];
     }
   });
 }
@@ -476,7 +465,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the set of keys of docs that were modified by those writes.
  */
-- (DocumentKeySet)releaseHeldBatchResultsAtSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (DocumentKeySet)releaseHeldBatchResults {
   NSMutableArray<FSTMutationBatchResult *> *toRelease = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in self.heldBatchResults) {
     if (![self isRemoteUpToVersion:batchResult.commitVersion]) {
@@ -489,7 +478,7 @@ NS_ASSUME_NONNULL_BEGIN
     return DocumentKeySet{};
   } else {
     [self.heldBatchResults removeObjectsInRange:NSMakeRange(0, toRelease.count)];
-    return [self releaseBatchResults:toRelease sequenceNumber:sequenceNumber];
+    return [self releaseBatchResults:toRelease];
   }
 }
 
@@ -503,28 +492,23 @@ NS_ASSUME_NONNULL_BEGIN
   return ![self isRemoteUpToVersion:version] || self.heldBatchResults.count > 0;
 }
 
-- (DocumentKeySet)releaseBatchResults:(NSArray<FSTMutationBatchResult *> *)batchResults
-                            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (DocumentKeySet)releaseBatchResults:(NSArray<FSTMutationBatchResult *> *)batchResults {
   NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
   for (FSTMutationBatchResult *batchResult in batchResults) {
     [self applyBatchResult:batchResult];
     [batches addObject:batchResult.batch];
   }
 
-  return [self removeMutationBatches:batches sequenceNumber:sequenceNumber];
+  return [self removeMutationBatches:batches];
 }
 
-- (DocumentKeySet)removeMutationBatch:(FSTMutationBatch *)batch
-                            sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  return [self removeMutationBatches:@[ batch ] sequenceNumber:sequenceNumber];
+- (DocumentKeySet)removeMutationBatch:(FSTMutationBatch *)batch {
+  return [self removeMutationBatches:@[ batch ]];
 }
 
 /** Removes all the mutation batches named in the given array. */
-- (DocumentKeySet)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches
-                              sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
-  // TODO(klimt): Could this be an NSMutableDictionary?
+- (DocumentKeySet)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
   DocumentKeySet affectedDocs;
-
   for (FSTMutationBatch *batch in batches) {
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
@@ -532,8 +516,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  [self.mutationQueue removeMutationBatches:batches sequenceNumber:sequenceNumber];
-
+  [self.mutationQueue removeMutationBatches:batches];
   return affectedDocs;
 }
 
