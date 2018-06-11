@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field, it must be an array, and the array must contain the provided value.
  *
+ * A query can have only one arrayContains filter.
+ *
  * @param field The name of the field containing an array to search
  * @param value The value that must be contained in the array
  *
@@ -48,6 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
  * the specified field, it must be an array, and the array must contain the provided value.
+ *
+ * A query can have only one arrayContains filter.
  *
  * @param path The path of the field containing an array to search
  * @param value The value that must be contained in the array

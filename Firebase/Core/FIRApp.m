@@ -16,6 +16,7 @@
 
 #import "FIRApp.h"
 #import "FIRConfiguration.h"
+#import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRLogger.h"
@@ -29,6 +30,7 @@ NSString *const kFIRServiceCrash = @"Crash";
 NSString *const kFIRServiceDatabase = @"Database";
 NSString *const kFIRServiceDynamicLinks = @"DynamicLinks";
 NSString *const kFIRServiceFirestore = @"Firestore";
+NSString *const kFIRServiceFunctions = @"Functions";
 NSString *const kFIRServiceInstanceID = @"InstanceID";
 NSString *const kFIRServiceInvites = @"Invites";
 NSString *const kFIRServiceMessaging = @"Messaging";
@@ -45,6 +47,11 @@ NSString *const kFIRAppDeleteNotification = @"FIRAppDeleteNotification";
 NSString *const kFIRAppIsDefaultAppKey = @"FIRAppIsDefaultAppKey";
 NSString *const kFIRAppNameKey = @"FIRAppNameKey";
 NSString *const kFIRGoogleAppIDKey = @"FIRGoogleAppIDKey";
+
+NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
+    @"/google/firebase/global_data_collection_enabled:%@";
+NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
+    @"FirebaseAutomaticDataCollectionEnabled";
 
 NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
 
@@ -227,6 +234,7 @@ static NSMutableDictionary *sLibraryVersions;
     if (sAllApps && sAllApps[self.name]) {
       FIRLogDebug(kFIRLoggerCore, @"I-COR000006", @"Deleting app named %@", self.name);
       [sAllApps removeObjectForKey:self.name];
+      [self clearDataCollectionSwitchFromUserDefaults];
       if ([self.name isEqualToString:kFIRDefaultAppName]) {
         sDefaultApp = nil;
       }
@@ -330,6 +338,47 @@ static NSMutableDictionary *sLibraryVersions;
 
 - (FIROptions *)options {
   return [_options copy];
+}
+
+- (void)setAutomaticDataCollectionEnabled:(BOOL)automaticDataCollectionEnabled {
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
+  [[NSUserDefaults standardUserDefaults] setBool:automaticDataCollectionEnabled forKey:key];
+
+  // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
+  // within FIROptions and change the Analytics value if necessary. Analytics only works with the
+  // default app, so return if this isn't the default app.
+  if (self != sDefaultApp) {
+    return;
+  }
+
+  // Check if the Analytics flag is explicitly set. If so, no further actions are necessary.
+  if ([self.options isAnalyticsCollectionExpicitlySet]) {
+    return;
+  }
+
+  // The Analytics flag has not been explicitly set, so update with the value being set.
+  [[FIRAnalyticsConfiguration sharedInstance]
+      setAnalyticsCollectionEnabled:automaticDataCollectionEnabled
+                     persistSetting:NO];
+}
+
+- (BOOL)isAutomaticDataCollectionEnabled {
+  // Check if it's been manually set before in code, and use that as the higher priority value.
+  NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
+  if (defaultsObject) {
+    return [defaultsObject boolValue];
+  }
+
+  // Read the Info.plist to see if the flag is set. If it's not set, it should default to `YES`.
+  // As per the implementation of `readDataCollectionSwitchFromPlist`, it's a cached value and has
+  // no performance impact calling multiple times.
+  NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
+  if (collectionEnabledPlistValue) {
+    return [collectionEnabledPlistValue boolValue];
+  }
+
+  return YES;
 }
 
 #pragma mark - private
@@ -613,11 +662,64 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 // end App ID validation
-#pragma mark
+
+#pragma mark - Reading From Plist & User Defaults
+
+/**
+ * Clears the data collection switch from the standard NSUserDefaults for easier testing and
+ * readability.
+ */
+- (void)clearDataCollectionSwitchFromUserDefaults {
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
+  [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+}
+
+/**
+ * Reads the data collection switch from the standard NSUserDefaults for easier testing and
+ * readability.
+ */
++ (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app {
+  // Read the object in user defaults, and only return if it's an NSNumber.
+  NSString *key =
+      [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
+  id collectionEnabledDefaultsObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+  if ([collectionEnabledDefaultsObject isKindOfClass:[NSNumber class]]) {
+    return collectionEnabledDefaultsObject;
+  }
+
+  return nil;
+}
+
+/**
+ * Reads the data collection switch from the Info.plist for easier testing and readability. Will
+ * only read once from the plist and return the cached value.
+ */
++ (nullable NSNumber *)readDataCollectionSwitchFromPlist {
+  static NSNumber *collectionEnabledPlistObject;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // Read the data from the `Info.plist`, only assign it if it's there and an NSNumber.
+    id plistValue = [[NSBundle mainBundle]
+        objectForInfoDictionaryKey:kFIRGlobalAppDataCollectionEnabledPlistKey];
+    if (plistValue && [plistValue isKindOfClass:[NSNumber class]]) {
+      collectionEnabledPlistObject = (NSNumber *)plistValue;
+    }
+  });
+
+  return collectionEnabledPlistObject;
+}
+
+#pragma mark - Sending Logs
 
 - (void)sendLogsWithServiceName:(NSString *)serviceName
                         version:(NSString *)version
                           error:(NSError *)error {
+  // If the user has manually turned off data collection, return and don't send logs.
+  if (![self isAutomaticDataCollectionEnabled]) {
+    return;
+  }
+
   NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] initWithDictionary:@{
     kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeSDK),
     kFIRAppDiagnosticsSDKNameKey : serviceName,

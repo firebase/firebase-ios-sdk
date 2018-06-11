@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -109,27 +109,27 @@ class FieldValue {
   }
 
   bool boolean_value() const {
-    FIREBASE_ASSERT(tag_ == Type::Boolean);
+    HARD_ASSERT(tag_ == Type::Boolean);
     return boolean_value_;
   }
 
   int64_t integer_value() const {
-    FIREBASE_ASSERT(tag_ == Type::Integer);
+    HARD_ASSERT(tag_ == Type::Integer);
     return integer_value_;
   }
 
   Timestamp timestamp_value() const {
-    FIREBASE_ASSERT(tag_ == Type::Timestamp);
+    HARD_ASSERT(tag_ == Type::Timestamp);
     return timestamp_value_;
   }
 
   const std::string& string_value() const {
-    FIREBASE_ASSERT(tag_ == Type::String);
+    HARD_ASSERT(tag_ == Type::String);
     return string_value_;
   }
 
   ObjectValue object_value() const {
-    FIREBASE_ASSERT(tag_ == Type::Object);
+    HARD_ASSERT(tag_ == Type::Object);
     return ObjectValue{object_value_};
   }
 

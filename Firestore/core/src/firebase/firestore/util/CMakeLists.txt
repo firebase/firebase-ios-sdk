@@ -22,19 +22,21 @@ include(CheckIncludeFiles)
 cc_library(
   firebase_firestore_util_base
   SOURCES
-    string_printf.cc
-    string_printf.h
+    string_format.cc
+    string_format.h
   DEPENDS
     absl_base
+    absl_strings
 )
+
 
 ## assert and log
 
 cc_library(
   firebase_firestore_util_log_stdio
   SOURCES
-    firebase_assert.h
-    assert_stdio.cc
+    hard_assert_stdio.cc
+    hard_assert.h
     log.h
     log_stdio.cc
   DEPENDS
@@ -46,14 +48,15 @@ cc_library(
 cc_library(
   firebase_firestore_util_log_apple
   SOURCES
-    firebase_assert.h
-    assert_apple.mm
+    hard_assert.h
+    hard_assert_apple.mm
     log.h
     log_apple.mm
     string_apple.h
   DEPENDS
     FirebaseCore
     absl_strings
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
@@ -130,7 +133,7 @@ if(HAVE_LIBDISPATCH)
 cc_library(
   firebase_firestore_util_executor_libdispatch
   SOURCES
-    executor_libdispatch.cc
+    executor_libdispatch.mm
     executor_libdispatch.h
     executor.h
   DEPENDS
@@ -156,16 +159,6 @@ else()
 
 endif()
 
-cc_library(
-  firebase_firestore_util_async_queue
-  SOURCES
-    async_queue.cc
-    async_queue.h
-  DEPENDS
-    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
-  EXCLUDE_FROM_ALL
-)
 
 ## main library
 
@@ -177,6 +170,8 @@ configure_file(
 cc_library(
   firebase_firestore_util
   SOURCES
+    async_queue.cc
+    async_queue.h
     autoid.cc
     autoid.h
     bits.cc
@@ -189,6 +184,8 @@ cc_library(
     iterator_adaptors.h
     ordered_code.cc
     ordered_code.h
+    path.cc
+    path.h
     range.h
     secure_random.h
     status.cc
@@ -198,10 +195,11 @@ cc_library(
     statusor_internals.h
     string_util.cc
     string_util.h
+    type_traits.h
   DEPENDS
     absl_base
     firebase_firestore_util_base
-    firebase_firestore_util_async_queue
+    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )

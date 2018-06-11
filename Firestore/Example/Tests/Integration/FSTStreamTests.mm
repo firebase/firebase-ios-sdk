@@ -18,18 +18,21 @@
 
 #import <GRPCClient/GRPCCall.h>
 
+#import <FirebaseFirestore/FIRFirestoreErrors.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
+
+#include <utility>
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -121,7 +124,7 @@ using firebase::firestore::model::SnapshotVersion;
  * to be called.
  */
 - (void)awaitNotificationFromBlock:(void (^)(void))block {
-  FSTAssert(_expectation == nil, @"Previous expectation still active");
+  HARD_ASSERT(_expectation == nil, "Previous expectation still active");
   XCTestExpectation *expectation =
       [self.testCase expectationWithDescription:@"awaitCallbackInBlock"];
   _expectation = expectation;
@@ -325,6 +328,76 @@ using firebase::firestore::model::SnapshotVersion;
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
     @"writeStreamDidReceiveResponseWithVersion"
   ]];
+}
+
+class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentialsProvider {
+ public:
+  MockCredentialsProvider() {
+    observed_states_ = [NSMutableArray new];
+  }
+
+  void GetToken(firebase::firestore::auth::TokenListener completion) override {
+    [observed_states_ addObject:@"GetToken"];
+    EmptyCredentialsProvider::GetToken(std::move(completion));
+  }
+
+  void InvalidateToken() override {
+    [observed_states_ addObject:@"InvalidateToken"];
+    EmptyCredentialsProvider::InvalidateToken();
+  }
+
+  NSMutableArray<NSString *> *observed_states() const {
+    return observed_states_;
+  }
+
+ private:
+  NSMutableArray<NSString *> *observed_states_;
+};
+
+- (void)testStreamRefreshesTokenUponExpiration {
+  MockCredentialsProvider credentials;
+  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                                   workerDispatchQueue:_workerDispatchQueue
+                                                           credentials:&credentials];
+  FSTWatchStream *watchStream = [datastore createWatchStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+
+  // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
+  NSError *unauthenticatedError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                                      code:FIRFirestoreErrorCodeUnauthenticated
+                                                  userInfo:nil];
+  dispatch_async(_testQueue, ^{
+    [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
+  });
+  // Drain the queue.
+  dispatch_sync(_testQueue, ^{
+                });
+
+  // Try reconnecting.
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+  // Simulate a different error -- token should not be invalidated this time.
+  NSError *unavailableError = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                                  code:FIRFirestoreErrorCodeUnavailable
+                                              userInfo:nil];
+  dispatch_async(_testQueue, ^{
+    [watchStream.callbackFilter writesFinishedWithError:unavailableError];
+  });
+  dispatch_sync(_testQueue, ^{
+                });
+
+  [_delegate awaitNotificationFromBlock:^{
+    [watchStream startWithDelegate:_delegate];
+  }];
+  dispatch_sync(_testQueue, ^{
+                });
+
+  NSArray<NSString *> *expected = @[ @"GetToken", @"InvalidateToken", @"GetToken", @"GetToken" ];
+  XCTAssertEqualObjects(credentials.observed_states(), expected);
 }
 
 @end

@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/immutable/map_entry.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/range.h"
 
 namespace firebase {
@@ -74,7 +74,7 @@ class FixedArray {
   void append(SourceIterator src_begin, SourceIterator src_end) {
     auto appending = static_cast<size_type>(src_end - src_begin);
     auto new_size = size_ + appending;
-    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
+    HARD_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     std::copy(src_begin, src_end, end());
     size_ = new_size;
@@ -85,7 +85,7 @@ class FixedArray {
    */
   void append(T&& value) {
     size_type new_size = size_ + 1;
-    FIREBASE_ASSERT(new_size <= SortedMapBase::kFixedSize);
+    HARD_ASSERT(new_size <= SortedMapBase::kFixedSize);
 
     *end() = std::move(value);
     size_ = new_size;

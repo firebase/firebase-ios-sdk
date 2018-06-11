@@ -24,9 +24,9 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -235,8 +235,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      FSTAssert([key isEqual:newDoc.key], @"Mismatching key in document changes: %@ != %s", key,
-                newDoc.key.ToString().c_str());
+      HARD_ASSERT([key isEqual:newDoc.key], "Mismatching key in document changes: %s != %s", key,
+                  newDoc.key.ToString());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }
@@ -300,8 +300,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     }
   }
 
-  FSTAssert(!needsRefill || !previousChanges,
-            @"View was refilled using docs that themselves needed refilling.");
+  HARD_ASSERT(!needsRefill || !previousChanges,
+              "View was refilled using docs that themselves needed refilling.");
 
   return [[FSTViewDocumentChanges alloc] initWithDocumentSet:newDocumentSet
                                                    changeSet:changeSet
@@ -315,7 +315,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
                               targetChange:(nullable FSTTargetChange *)targetChange {
-  FSTAssert(!docChanges.needsRefill, @"Cannot apply changes that need a refill");
+  HARD_ASSERT(!docChanges.needsRefill, "Cannot apply changes that need a refill");
 
   FSTDocumentSet *oldDocuments = self.documentSet;
   self.documentSet = docChanges.documentSet;
@@ -476,7 +476,7 @@ static inline int DocumentViewChangeTypePosition(FSTDocumentViewChangeType chang
       // equivalently.
       return 2;
     default:
-      FSTCFail(@"Unknown FSTDocumentViewChangeType %lu", (unsigned long)changeType);
+      HARD_FAIL("Unknown FSTDocumentViewChangeType %s", changeType);
   }
 }
 

@@ -84,7 +84,7 @@ case "$platform" in
   iOS)
     xcb_flags=(
       -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 7'
+      -destination 'platform=iOS Simulator,name=iPhone 8 Plus'
     )
     ;;
 
@@ -111,6 +111,7 @@ esac
 xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
+  CODE_SIGNING_ALLOWED=YES
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
@@ -179,10 +180,6 @@ case "$product-$method-$platform" in
       cd Example
       sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
       pod update --no-repo-update
-      # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
-      # Remove when updating to CocoaPods 1.5.1
-      sed -i -e 's/-l"FirebaseMessaging"//' "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.debug.xcconfig"
-      sed -i -e 's/-l"FirebaseAuth-iOS" -l"FirebaseCore-iOS"//' "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"
       cd ..
       RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \

@@ -18,9 +18,12 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Util/FSTAssert.h"
-
 #import "Firestore/Example/Tests/Util/XCTestCase+Await.h"
+#import "Firestore/Source/Public/FIRDocumentSnapshot.h"
+#import "Firestore/Source/Public/FIRQuerySnapshot.h"
+#import "Firestore/Source/Public/FIRSnapshotMetadata.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<id> *)awaitEvents:(NSUInteger)events name:(NSString *)name {
   @synchronized(self) {
-    FSTAssert(!self.expectation, @"Existing expectation still pending?");
+    HARD_ASSERT(!self.expectation, "Existing expectation still pending?");
     self.expectation = [self.testCase expectationWithDescription:name];
     self.maxEvents = self.maxEvents + events;
     [self checkFulfilled];
@@ -66,6 +69,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)awaitEventWithName:(NSString *)name {
   NSArray<id> *events = [self awaitEvents:1 name:name];
   return events[0];
+}
+
+- (id)awaitLocalEvent {
+  id event;
+  do {
+    event = [self awaitEventWithName:@"Local Event"];
+  } while (![self hasPendingWrites:event]);
+  return event;
+}
+
+- (id)awaitRemoteEvent {
+  id event;
+  do {
+    event = [self awaitEventWithName:@"Remote Event"];
+  } while ([self hasPendingWrites:event]);
+  return event;
+}
+
+- (BOOL)hasPendingWrites:(id)event {
+  if ([event isKindOfClass:[FIRDocumentSnapshot class]]) {
+    return ((FIRDocumentSnapshot *)event).metadata.hasPendingWrites;
+  } else {
+    HARD_ASSERT([event isKindOfClass:[FIRQuerySnapshot class]], "Unexpected event: %s", event);
+    return ((FIRQuerySnapshot *)event).metadata.hasPendingWrites;
+  }
 }
 
 - (void (^)(id _Nullable, NSError *_Nullable))valueEventHandler {

@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 
@@ -33,10 +33,8 @@ ResourcePath ResourcePath::FromString(const absl::string_view path) {
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
 
-  FIREBASE_ASSERT_MESSAGE(
-      path.find("//") == std::string::npos,
-      "Invalid path (%s). Paths must not contain // in them.",
-      std::string{path.data(), path.data() + path.size()}.c_str());
+  HARD_ASSERT(path.find("//") == std::string::npos,
+              "Invalid path (%s). Paths must not contain // in them.", path);
 
   // SkipEmpty because we may still have an empty segment at the beginning or
   // end if they had a leading or trailing slash (which we allow).

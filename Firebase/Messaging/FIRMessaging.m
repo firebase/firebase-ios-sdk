@@ -75,7 +75,7 @@ NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled =
 
 NSString *const kFIRMessagingAPNSTokenType = @"APNSTokenType"; // APNS Token type key stored in user info.
 
-static NSString *const kFIRMessagingPlistAutoInitEnabled =
+NSString *const kFIRMessagingPlistAutoInitEnabled =
     @"FirebaseMessagingAutoInitEnabled";  // Auto Init Enabled key stored in Info.plist
 
 @interface FIRMessagingMessageInfo ()
@@ -173,6 +173,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
     _loggedMessageIDs = [NSMutableSet set];
     _instanceID = instanceID;
     _messagingUserDefaults = defaults;
+
+    // TODO: Remove this once the race condition with FIRApp configuring and InstanceID
+    //       is fixed. This must be fixed before Core's flag becomes public.
+    _globalAutomaticDataCollectionEnabled = YES;
   }
   return self;
 }
@@ -411,13 +415,15 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
                      openURL:url
            sourceApplication:FIRMessagingAppIdentifier()
                   annotation:@{}];
-
   } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
     [appDelegate application:application handleOpenURL:url];
+#pragma clang diagnostic pop
   }
 }
 
@@ -471,8 +477,9 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   if (isAutoInitEnabledObject) {
     return [isAutoInitEnabledObject boolValue];
   }
-  // If none of above exists, we default assume FCM auto init is enabled.
-  return YES;
+
+  // If none of above exists, we default to the global switch that comes from FIRApp.
+  return self.isGlobalAutomaticDataCollectionEnabled;
 }
 
 - (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
@@ -480,7 +487,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   [_messagingUserDefaults setBool:autoInitEnabled
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFcmToken = self.instanceID.token;
+#pragma clang diagnostic pop
   }
 }
 
@@ -488,7 +498,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSString *token = self.defaultFcmToken;
   if (!token) {
     // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     token = self.instanceID.token;
+#pragma clang diagnostic pop
   }
   return token;
 }
@@ -684,6 +697,11 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
               completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
+    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                             @"Format '%@' is deprecated. Only '%@' should be used in "
+                             @"subscribeToTopic.", topic, normalizeTopic);
+    }
     if (normalizeTopic.length) {
       [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
     } else {
@@ -705,6 +723,11 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
   if (self.defaultFcmToken.length && topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                             @"Format '%@' is deprecated. Only '%@' should be used in "
+                             @"unsubscribeFromTopic.", topic, normalizeTopic);
+    }
     if (normalizeTopic.length) {
       [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
     } else {
@@ -836,7 +859,10 @@ static NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and if it is non-nil, post it
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSString *token = self.instanceID.token;
+#pragma clang diagnostic pop
   // Sometimes Instance ID doesn't yet have a token, so wait until the default
   // token is fetched, and then notify. This ensures that this token should not
   // be nil when the developer accesses it.

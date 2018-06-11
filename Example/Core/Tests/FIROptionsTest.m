@@ -17,6 +17,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRBundleUtil.h>
 #import <FirebaseCore/FIROptionsInternal.h>
+#import <FirebaseCore/FIRVersion.h>
 
 extern NSString *const kFIRIsMeasurementEnabled;
 extern NSString *const kFIRIsAnalyticsCollectionEnabled;
@@ -427,6 +428,134 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(mainSizeCount[3], 8);
 }
 
+- (void)testAnalyticsCollectionGlobalSwitchEnabled {
+  // Stub the default app, and set the global switch to YES.
+  id appMock = OCMClassMock([FIRApp class]);
+  OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
+  OCMStub([appMock defaultApp]).andReturn(appMock);
+  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(YES);
+
+  // With no other settings, Analytics collection should default to the app's flag.
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
+  XCTAssertTrue(options.isAnalyticsCollectionEnabled);
+  XCTAssertTrue(options.isMeasurementEnabled);
+
+  [appMock stopMocking];
+}
+
+- (void)testAnalyticsCollectionGlobalSwitchDisabled {
+  // Stub the default app, and set the global switch to NO.
+  id appMock = OCMClassMock([FIRApp class]);
+  OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
+  OCMStub([appMock defaultApp]).andReturn(appMock);
+  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(NO);
+
+  // With no other settings, Analytics collection should default to the app's flag.
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
+  XCTAssertFalse(options.isAnalyticsCollectionEnabled);
+  XCTAssertFalse(options.isMeasurementEnabled);
+
+  [appMock stopMocking];
+}
+
+- (void)testAnalyticsCollectionGlobalSwitchOverrideToDisable {
+  // Stub the default app, and set the global switch to YES.
+  id appMock = OCMClassMock([FIRApp class]);
+  OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
+  OCMStub([appMock defaultApp]).andReturn(appMock);
+  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(YES);
+
+  // Test the three Analytics flags that override to disable Analytics collection.
+  FIROptions *collectionEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRIsAnalyticsCollectionEnabled : @NO
+  }];
+  XCTAssertFalse(collectionEnabledOptions.isAnalyticsCollectionEnabled);
+
+  FIROptions *collectionDeactivatedOptions =
+      [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+        kFIRIsAnalyticsCollectionDeactivated : @YES
+      }];
+  XCTAssertFalse(collectionDeactivatedOptions.isAnalyticsCollectionEnabled);
+
+  FIROptions *measurementEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRIsMeasurementEnabled : @NO
+  }];
+  XCTAssertFalse(measurementEnabledOptions.isAnalyticsCollectionEnabled);
+}
+
+- (void)testAnalyticsCollectionGlobalSwitchOverrideToEnable {
+  // Stub the default app, and set the global switch to YES.
+  id appMock = OCMClassMock([FIRApp class]);
+  OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
+  OCMStub([appMock defaultApp]).andReturn(appMock);
+  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(NO);
+
+  // Test the two Analytics flags that can override and enable collection.
+  FIROptions *collectionEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRIsAnalyticsCollectionEnabled : @YES
+  }];
+  XCTAssertTrue(collectionEnabledOptions.isAnalyticsCollectionEnabled);
+
+  FIROptions *measurementEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
+    kFIRIsMeasurementEnabled : @YES
+  }];
+  XCTAssertTrue(measurementEnabledOptions.isAnalyticsCollectionEnabled);
+}
+
+- (void)testAnalyticsCollectionExplicitlySet {
+  NSDictionary *optionsDictionary = @{};
+  FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  NSDictionary *analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
+  XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
+
+  // Test deactivation flag.
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @YES };
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+
+  // If "deactivated" == NO, that doesn't mean it's explicitly set / enabled so it should be treated
+  // as if it's not set.
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @NO };
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
+  XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
+
+  // Test the collection enabled flag.
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @YES };
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @NO };
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+
+  // Test the old measurement flag.
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{
+    kFIRIsMeasurementEnabled : @YES
+  }];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{
+    kFIRIsMeasurementEnabled : @NO
+  }];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+
+  // For good measure, a combination of all 3 (even if they conflict).
+  optionsDictionary =
+      @{ kFIRIsAnalyticsCollectionDeactivated : @YES,
+         kFIRIsAnalyticsCollectionEnabled : @YES };
+  options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
+  analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{
+    kFIRIsMeasurementEnabled : @NO
+  }];
+  XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+}
+
 - (void)testVersionFormat {
   NSRegularExpression *sLibraryVersionRegex =
       [NSRegularExpression regularExpressionWithPattern:@"^[0-9]{8,}$" options:0 error:NULL];
@@ -435,6 +564,15 @@ extern NSString *const kFIRLibraryVersionID;
                                             options:0
                                               range:NSMakeRange(0, kFIRLibraryVersionID.length)];
   XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
+}
+
+- (void)testVersionConsistency {
+  const char *versionString = [kFIRLibraryVersionID UTF8String];
+  int major = versionString[0] - '0';
+  int minor = (versionString[1] - '0') * 10 + versionString[2] - '0';
+  int patch = (versionString[3] - '0') * 10 + versionString[4] - '0';
+  NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
+  XCTAssertEqualObjects(str, [NSString stringWithUTF8String:(const char *)FIRCoreVersionString]);
 }
 
 @end

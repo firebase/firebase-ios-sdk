@@ -21,7 +21,9 @@ cc_library(
     serializer.cc
   DEPENDS
     firebase_firestore_model
+    firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
+    firebase_firestore_util
     grpc::grpc
     nanopb
 )

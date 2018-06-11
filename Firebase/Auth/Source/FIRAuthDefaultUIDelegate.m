@@ -16,6 +16,8 @@
 
 #import "FIRAuthDefaultUIDelegate.h"
 
+#import <FirebaseCore/FIRAppEnvironmentUtil.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthDefaultUIDelegate ()
@@ -58,8 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (id<FIRAuthUIDelegate>)defaultUIDelegate {
-  UIViewController *topViewController =
-      [UIApplication sharedApplication].keyWindow.rootViewController;
+  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+  // responds to it.
+  static Class applicationClass = nil;
+  if (![FIRAppEnvironmentUtil isAppExtension]) {
+    Class cls = NSClassFromString(@"UIApplication");
+    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
+      applicationClass = cls;
+    }
+  }
+  UIApplication *application = [applicationClass sharedApplication];
+  UIViewController *topViewController = application.keyWindow.rootViewController;
   while (true){
     if (topViewController.presentedViewController) {
       topViewController = topViewController.presentedViewController;

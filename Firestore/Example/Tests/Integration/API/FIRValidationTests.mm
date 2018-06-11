@@ -507,8 +507,8 @@
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] isEqualTo:@1], reason);
 
   reason =
-      @"Invalid query. You can't do arrayContains queries on document ID since document IDs are "
-      @"not arrays.";
+      @"Invalid query. You can't perform arrayContains queries on document ID since document IDs "
+       "are not arrays.";
   FSTAssertThrows([collection queryWhereFieldPath:[FIRFieldPath documentID] arrayContains:@1],
                   reason);
 }
@@ -555,6 +555,13 @@
                    @"equality different than orderBy works.");
   XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"y" arrayContains:@"cat"],
                    @"array_contains different than orderBy works.");
+}
+
+- (void)testQueryMustNotHaveMultipleArrayContainsFilters {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo" arrayContains:@2],
+      @"Invalid Query. Queries only support a single arrayContains filter.");
 }
 
 #pragma mark - GeoPoint Validation

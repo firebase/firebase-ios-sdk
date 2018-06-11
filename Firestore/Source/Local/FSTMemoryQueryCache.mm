@@ -150,7 +150,7 @@ NS_ASSUME_NONNULL_BEGIN
        atSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate addReference:key target:targetID sequenceNumber:sequenceNumber];
+    [_persistence.referenceDelegate addReference:key target:targetID];
   }
 }
 
@@ -159,9 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
             sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate removeReference:key
-                                             target:targetID
-                                     sequenceNumber:sequenceNumber];
+    [_persistence.referenceDelegate removeReference:key target:targetID];
   }
 }
 

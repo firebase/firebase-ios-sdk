@@ -17,8 +17,9 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 @class FSTDocumentKey;
 @protocol FSTMutationQueue;
@@ -115,6 +116,9 @@ struct FSTTransactionRunner;
  *
  * Different implementations may do different things with each of these events. Not every
  * implementation needs to do something with every lifecycle hook.
+ *
+ * Implementations that care about sequence numbers are responsible for generating them and making
+ * them available.
  */
 @protocol FSTReferenceDelegate
 
@@ -127,34 +131,27 @@ struct FSTTransactionRunner;
 /**
  * Notify the delegate that a target was removed.
  */
-- (void)removeTarget:(FSTQueryData *)queryData
-      sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeTarget:(FSTQueryData *)queryData;
 
 /**
  * Notify the delegate that the given document was added to the given target.
  */
-- (void)addReference:(FSTDocumentKey *)key
-              target:(FSTTargetID)targetID
-      sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)addReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
 
 /**
  * Notify the delegate that the given document was removed from the given target.
  */
-- (void)removeReference:(FSTDocumentKey *)key
-                 target:(FSTTargetID)targetID
-         sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
 
 /**
  * Notify the delegate that a document is no longer being mutated by the user.
  */
-- (void)removeMutationReference:(FSTDocumentKey *)key
-                 sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)removeMutationReference:(FSTDocumentKey *)key;
 
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key
-              sequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key;
 
 @end
 
@@ -185,7 +182,7 @@ struct FSTTransactionRunner {
       typename std::enable_if<std::is_void<decltype(block())>::value, void>::type {
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
-      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+      HARD_FAIL("Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
       [strongDb startTransaction:label];
@@ -202,7 +199,7 @@ struct FSTTransactionRunner {
     using ReturnT = decltype(block());
     __strong id<FSTTransactional> strongDb = _db;
     if (!strongDb && _expect_db) {
-      FSTCFail(@"Transaction runner accessed without underlying db when it expected one");
+      HARD_FAIL("Transaction runner accessed without underlying db when it expected one");
     }
     if (strongDb) {
       [strongDb startTransaction:label];

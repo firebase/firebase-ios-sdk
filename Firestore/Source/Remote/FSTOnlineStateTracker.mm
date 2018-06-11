@@ -16,9 +16,10 @@
 
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,19 +75,18 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
   if (self.watchStreamFailures == 0) {
     [self setAndBroadcastState:FSTOnlineStateUnknown];
 
-    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer shouldn't be started yet");
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer shouldn't be started yet");
     self.onlineStateTimer = [self.queue
         dispatchAfterDelay:kOnlineStateTimeout
                    timerID:FSTTimerIDOnlineStateTimeout
                      block:^{
                        self.onlineStateTimer = nil;
-                       FSTAssert(
+                       HARD_ASSERT(
                            self.state == FSTOnlineStateUnknown,
-                           @"Timer should be canceled if we transitioned to a different state.");
-                       FSTLog(
-                           @"Watch stream didn't reach Online or Offline within %f seconds. "
-                           @"Considering "
-                            "client offline.",
+                           "Timer should be canceled if we transitioned to a different state.");
+                       LOG_DEBUG(
+                           "Watch stream didn't reach Online or Offline within %s seconds. "
+                           "Considering client offline.",
                            kOnlineStateTimeout);
                        [self logClientOfflineWarningIfNecessary];
                        [self setAndBroadcastState:FSTOnlineStateOffline];
@@ -104,8 +104,8 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 
     // To get to FSTOnlineStateOnline, updateState: must have been called which would have reset
     // our heuristics.
-    FSTAssert(self.watchStreamFailures == 0, @"watchStreamFailures must be 0");
-    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer must be nil");
+    HARD_ASSERT(self.watchStreamFailures == 0, "watchStreamFailures must be 0");
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer must be nil");
   } else {
     self.watchStreamFailures++;
     if (self.watchStreamFailures >= kMaxWatchStreamFailures) {
@@ -138,7 +138,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 
 - (void)logClientOfflineWarningIfNecessary {
   if (self.shouldWarnClientIsOffline) {
-    FSTWarn(@"Could not reach Firestore backend.");
+    LOG_WARN("Could not reach Firestore backend.");
     self.shouldWarnClientIsOffline = NO;
   }
 }

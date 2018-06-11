@@ -19,77 +19,42 @@
 #include <cstdio>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
-LogLevel g_log_level = kLogLevelInfo;
+LogLevel g_log_level = kLogLevelWarning;
 
 void LogSetLevel(LogLevel level) {
   g_log_level = level;
 }
 
-LogLevel LogGetLevel() {
-  return g_log_level;
+bool LogIsLoggable(LogLevel level) {
+  return level >= g_log_level;
 }
 
-void LogDebug(const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(kLogLevelDebug, format, list);
-  va_end(list);
-}
-
-void LogInfo(const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(kLogLevelInfo, format, list);
-  va_end(list);
-}
-
-void LogWarning(const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(kLogLevelWarning, format, list);
-  va_end(list);
-}
-
-void LogError(const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(kLogLevelError, format, list);
-  va_end(list);
-}
-
-void LogMessageV(LogLevel log_level, const char* format, va_list args) {
+void LogMessage(LogLevel log_level, const std::string& message) {
   if (log_level < g_log_level) {
     return;
   }
+
+  const char* level_word;
+
   switch (log_level) {
-    case kLogLevelVerbose:
-      printf("VERBOSE: ");
-      break;
     case kLogLevelDebug:
-      printf("DEBUG: ");
-      break;
-    case kLogLevelInfo:
+      level_word = "DEBUG";
       break;
     case kLogLevelWarning:
-      printf("WARNING: ");
+      level_word = "WARNING";
       break;
-    case kLogLevelError:
-      printf("ERROR: ");
+    default:
+      UNREACHABLE();
       break;
   }
-  vprintf(format, args);
-  printf("\n");
-}
 
-void LogMessage(LogLevel log_level, const char* format, ...) {
-  va_list list;
-  va_start(list, format);
-  LogMessageV(log_level, format, list);
-  va_end(list);
+  printf("%s: %s\n", level_word, message.c_str());
 }
 
 }  // namespace util

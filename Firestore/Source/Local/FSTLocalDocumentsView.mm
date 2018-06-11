@@ -23,11 +23,11 @@
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
       result = [result dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
     } else {
-      FSTFail(@"Unknown document: %@", mutatedDoc);
+      HARD_FAIL("Unknown document: %s", mutatedDoc);
     }
   }];
   return result;

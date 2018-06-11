@@ -22,7 +22,8 @@
 
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTMutation.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
@@ -76,15 +77,14 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
 - (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
                            documentKey:(const DocumentKey &)documentKey
                    mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult {
-  FSTAssert(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
-            @"applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString().c_str(),
-            maybeDoc.key.ToString().c_str());
+  HARD_ASSERT(!maybeDoc || [maybeDoc.key isEqualToKey:documentKey],
+              "applyTo: key %s doesn't match maybeDoc key %s", documentKey.ToString(),
+              maybeDoc.key.ToString());
   FSTMaybeDocument *baseDoc = maybeDoc;
   if (mutationBatchResult) {
-    FSTAssert(mutationBatchResult.mutationResults.count == self.mutations.count,
-              @"Mismatch between mutations length (%lu) and results length (%lu)",
-              (unsigned long)self.mutations.count,
-              (unsigned long)mutationBatchResult.mutationResults.count);
+    HARD_ASSERT(mutationBatchResult.mutationResults.count == self.mutations.count,
+                "Mismatch between mutations length (%s) and results length (%s)",
+                self.mutations.count, mutationBatchResult.mutationResults.count);
   }
 
   for (NSUInteger i = 0; i < self.mutations.count; i++) {
@@ -168,9 +168,9 @@ const FSTBatchID kFSTBatchIDUnknown = -1;
                   commitVersion:(SnapshotVersion)commitVersion
                 mutationResults:(NSArray<FSTMutationResult *> *)mutationResults
                     streamToken:(nullable NSData *)streamToken {
-  FSTAssert(batch.mutations.count == mutationResults.count,
-            @"Mutations sent %lu must equal results received %lu",
-            (unsigned long)batch.mutations.count, (unsigned long)mutationResults.count);
+  HARD_ASSERT(batch.mutations.count == mutationResults.count,
+              "Mutations sent %s must equal results received %s", batch.mutations.count,
+              mutationResults.count);
 
   DocumentVersionMap docVersions;
   NSArray<FSTMutation *> *mutations = batch.mutations;

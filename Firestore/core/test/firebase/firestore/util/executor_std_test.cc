@@ -70,7 +70,6 @@ TEST_F(ScheduleTest, PopIfDue_Delayed) {
   schedule.Push(2, start_time + chr::milliseconds(3));
   schedule.Push(3, start_time + chr::milliseconds(1));
 
-  EXPECT_FALSE(schedule.PopIfDue().has_value());
   std::this_thread::sleep_for(chr::milliseconds(5));
 
   EXPECT_EQ(schedule.PopIfDue().value(), 3);
@@ -212,11 +211,16 @@ TEST_F(ScheduleTest, PopBlockingIsNotAffectedByIrrelevantRemovals) {
     EXPECT_EQ(schedule.PopBlocking(), 1);
   });
 
-  while (schedule.empty()) {
+  // Wait (with timeout) for both values to appear in the schedule.
+  while (schedule.size() != 2) {
+    if (now() - start_time >= kTimeout) {
+      Abort();
+    }
     std::this_thread::sleep_for(chr::milliseconds(1));
   }
   const auto maybe_removed =
       schedule.RemoveIf([](const int v) { return v == 2; });
+  ASSERT_TRUE(maybe_removed.has_value());
   EXPECT_EQ(maybe_removed.value(), 2);
   ABORT_ON_TIMEOUT(future);
 }

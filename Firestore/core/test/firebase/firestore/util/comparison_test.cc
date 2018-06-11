@@ -16,11 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 
-#include <cinttypes>
 #include <cmath>
 #include <limits>
 
-#include "Firestore/core/src/firebase/firestore/util/string_printf.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -84,47 +83,47 @@ TEST(Comparison, DoubleCompare) {
   ASSERT_SAME(Compare<double>(-0, 0));
 }
 
-#define ASSERT_BIT_EQUALS(expected, actual)                 \
-  do {                                                      \
-    uint64_t expectedBits = DoubleBits(expected);           \
-    uint64_t actualBits = DoubleBits(actual);               \
-    if (expectedBits != actualBits) {                       \
-      std::string message = StringPrintf(                   \
-          "Expected <%f> to compare equal to <%f> "         \
-          "with bits <%" PRIu64 "> equal to <%" PRIu64 ">", \
-          actual, expected, actualBits, expectedBits);      \
-      FAIL() << message;                                    \
-    }                                                       \
+#define ASSERT_BIT_EQUALS(expected, actual)            \
+  do {                                                 \
+    uint64_t expectedBits = DoubleBits(expected);      \
+    uint64_t actualBits = DoubleBits(actual);          \
+    if (expectedBits != actualBits) {                  \
+      std::string message = StringFormat(              \
+          "Expected <%s> to compare equal to <%s> "    \
+          "with bits <%s> equal to <%s>",              \
+          actual, expected, actualBits, expectedBits); \
+      FAIL() << message;                               \
+    }                                                  \
   } while (0);
 
-#define ASSERT_MIXED_SAME(doubleValue, longValue)                              \
-  do {                                                                         \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);      \
-    if (result != ComparisonResult::Same) {                                    \
-      std::string message = StringPrintf(                                      \
-          "Expected <%f> to compare equal to <%lld>", doubleValue, longValue); \
-      FAIL() << message;                                                       \
-    }                                                                          \
+#define ASSERT_MIXED_SAME(doubleValue, longValue)                            \
+  do {                                                                       \
+    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
+    if (result != ComparisonResult::Same) {                                  \
+      std::string message = StringFormat(                                    \
+          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
+      FAIL() << message;                                                     \
+    }                                                                        \
   } while (0);
 
-#define ASSERT_MIXED_DESCENDING(doubleValue, longValue)                        \
-  do {                                                                         \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);      \
-    if (result != ComparisonResult::Descending) {                              \
-      std::string message = StringPrintf(                                      \
-          "Expected <%f> to compare equal to <%lld>", doubleValue, longValue); \
-      FAIL() << message;                                                       \
-    }                                                                          \
+#define ASSERT_MIXED_DESCENDING(doubleValue, longValue)                      \
+  do {                                                                       \
+    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
+    if (result != ComparisonResult::Descending) {                            \
+      std::string message = StringFormat(                                    \
+          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
+      FAIL() << message;                                                     \
+    }                                                                        \
   } while (0);
 
-#define ASSERT_MIXED_ASCENDING(doubleValue, longValue)                         \
-  do {                                                                         \
-    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);      \
-    if (result != ComparisonResult::Ascending) {                               \
-      std::string message = StringPrintf(                                      \
-          "Expected <%f> to compare equal to <%lld>", doubleValue, longValue); \
-      FAIL() << message;                                                       \
-    }                                                                          \
+#define ASSERT_MIXED_ASCENDING(doubleValue, longValue)                       \
+  do {                                                                       \
+    ComparisonResult result = CompareMixedNumber(doubleValue, longValue);    \
+    if (result != ComparisonResult::Ascending) {                             \
+      std::string message = StringFormat(                                    \
+          "Expected <%s> to compare equal to <%s>", doubleValue, longValue); \
+      FAIL() << message;                                                     \
+    }                                                                        \
   } while (0);
 
 TEST(Comparison, MixedNumberCompare) {

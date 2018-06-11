@@ -34,13 +34,13 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -183,8 +183,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   };
 
   FSTAsyncQueryListener *asyncListener =
-      [[FSTAsyncQueryListener alloc] initWithDispatchQueue:self.firestore.client.userDispatchQueue
-                                           snapshotHandler:snapshotHandler];
+      [[FSTAsyncQueryListener alloc] initWithExecutor:self.firestore.client.userExecutor
+                                      snapshotHandler:snapshotHandler];
 
   FSTQueryListener *internalListener =
       [firestore.client listenToQuery:query
@@ -456,8 +456,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
   if (fieldPath.IsKeyFieldPath()) {
     if (filterOperator == FSTRelationFilterOperatorArrayContains) {
       FSTThrowInvalidArgument(
-          @"Invalid query. You can't do arrayContains queries on document ID since document IDs "
-          @"are not arrays.");
+          @"Invalid query. You can't perform arrayContains queries on document ID since document "
+           "IDs are not arrays.");
     }
     if ([value isKindOfClass:[NSString class]]) {
       NSString *documentKey = (NSString *)value;
@@ -526,6 +526,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
       [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
+    }
+  } else if (filter.filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if ([self.query hasArrayContainsFilter]) {
+      FSTThrowInvalidUsage(@"InvalidQueryException",
+                           @"Invalid Query. Queries only support a single arrayContains filter.");
     }
   }
 }

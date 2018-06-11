@@ -66,7 +66,8 @@ NS_SWIFT_NAME(Query)
  *     documentSet will be `nil` only if error is `non-nil`.
  */
 // clang-format off
-- (void)getDocumentsWithSource:(FIRFirestoreSource)source completion:(FIRQuerySnapshotBlock)completion
+- (void)getDocumentsWithSource:(FIRFirestoreSource)source
+                    completion:(FIRQuerySnapshotBlock)completion
     NS_SWIFT_NAME(getDocuments(source:completion:));
 // clang-format on
 

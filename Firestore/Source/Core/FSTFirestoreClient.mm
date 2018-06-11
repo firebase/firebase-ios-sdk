@@ -18,6 +18,7 @@
 
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -41,14 +42,14 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -57,6 +58,8 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
+
+using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                        userExecutor:(std::unique_ptr<Executor>)userExecutor
                  workerDispatchQueue:(FSTDispatchQueue *)queue NS_DESIGNATED_INITIALIZER;
 
 @property(nonatomic, assign, readonly) const DatabaseInfo *databaseInfo;
@@ -91,18 +94,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FSTFirestoreClient
+@implementation FSTFirestoreClient {
+  std::unique_ptr<Executor> _userExecutor;
+}
+
+- (Executor *)userExecutor {
+  return _userExecutor.get();
+}
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
                         usePersistence:(BOOL)usePersistence
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
-                     userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                          userExecutor:(std::unique_ptr<Executor>)userExecutor
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
                                            usePersistence:usePersistence
                                       credentialsProvider:credentialsProvider
-                                        userDispatchQueue:userDispatchQueue
+                                             userExecutor:std::move(userExecutor)
                                       workerDispatchQueue:workerDispatchQueue];
 }
 
@@ -110,12 +119,12 @@ NS_ASSUME_NONNULL_BEGIN
                       usePersistence:(BOOL)usePersistence
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
-                   userDispatchQueue:(FSTDispatchQueue *)userDispatchQueue
+                        userExecutor:(std::unique_ptr<Executor>)userExecutor
                  workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   if (self = [super init]) {
     _databaseInfo = databaseInfo;
     _credentialsProvider = credentialsProvider;
-    _userDispatchQueue = userDispatchQueue;
+    _userExecutor = std::move(userExecutor);
     _workerDispatchQueue = workerDispatchQueue;
 
     auto userPromise = std::make_shared<std::promise<User>>();
@@ -217,7 +226,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %s", user.uid().c_str());
+  LOG_DEBUG("User Changed: %s", user.uid());
   [self.syncEngine userDidChange:user];
 }
 
@@ -230,9 +239,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore disableNetwork];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
-        completion(nil);
-      }];
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -241,9 +248,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     [self.remoteStore enableNetwork];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
-        completion(nil);
-      }];
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -255,9 +260,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {
-      [self.userDispatchQueue dispatchAsync:^{
-        completion(nil);
-      }];
+      self->_userExecutor->Execute([=] { completion(nil); });
     }
   }];
 }
@@ -317,8 +320,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-    FSTAssert(viewChange.limboChanges.count == 0,
-              @"View returned limbo documents during local-only query execution.");
+    HARD_ASSERT(viewChange.limboChanges.count == 0,
+                "View returned limbo documents during local-only query execution.");
 
     FSTViewSnapshot *snapshot = viewChange.snapshot;
     FIRSnapshotMetadata *metadata =
@@ -338,18 +341,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     if (mutations.count == 0) {
       if (completion) {
-        [self.userDispatchQueue dispatchAsync:^{
-          completion(nil);
-        }];
+        self->_userExecutor->Execute([=] { completion(nil); });
       }
     } else {
       [self.syncEngine writeMutations:mutations
                            completion:^(NSError *error) {
                              // Dispatch the result back onto the user dispatch queue.
                              if (completion) {
-                               [self.userDispatchQueue dispatchAsync:^{
-                                 completion(error);
-                               }];
+                               self->_userExecutor->Execute([=] { completion(error); });
                              }
                            }];
     }
@@ -360,17 +359,16 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    [self.syncEngine transactionWithRetries:retries
-                        workerDispatchQueue:self.workerDispatchQueue
-                                updateBlock:updateBlock
-                                 completion:^(id _Nullable result, NSError *_Nullable error) {
-                                   // Dispatch the result back onto the user dispatch queue.
-                                   if (completion) {
-                                     [self.userDispatchQueue dispatchAsync:^{
-                                       completion(result, error);
-                                     }];
-                                   }
-                                 }];
+    [self.syncEngine
+        transactionWithRetries:retries
+           workerDispatchQueue:self.workerDispatchQueue
+                   updateBlock:updateBlock
+                    completion:^(id _Nullable result, NSError *_Nullable error) {
+                      // Dispatch the result back onto the user dispatch queue.
+                      if (completion) {
+                        self->_userExecutor->Execute([=] { completion(result, error); });
+                      }
+                    }];
   }];
 }
 

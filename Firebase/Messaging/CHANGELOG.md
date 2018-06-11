@@ -1,3 +1,10 @@
+# 2015-06-12 -- v3.0.2
+- Added a warning message when subscribing to topics with incorrect name formats.
+- Silenced a deprecation warning in FIRMessaging.
+
+# 2018-05-29 -- v3.0.1
+- Clean up a few deprecation warnings.
+
 # 2018-05-08 -- v3.0.0
 - Remove deprecated delegate property `remoteMessageDelegate`, please use `delegate` instead.
 - Remove deprecated method `messaging:didRefreshRegistrationToken:` defined in FIRMessagingDelegate protocol, please use `messaging:didReceiveRegistrationToken:` instead.

@@ -21,18 +21,36 @@
 # Commonly
 # ./scripts/style.sh master
 
-system=$(uname -s)
-
+# Strip the clang-format version output down to the major version. Examples:
+#   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
+#   clang-format version google3-trunk (trunk r333779)
 version=$(clang-format --version)
-version="${version/*version /}"
-version="${version/.*/}"
-if [[ "$version" != 6 && "$version" != 7 ]]; then
-  # Allow an older clang-format to accommodate Travis version skew.
-  echo "Please upgrade to clang-format version 7."
-  echo "If it's installed via homebrew you can run: brew upgrade clang-format"
-  exit 1
-fi
 
+# Remove leading "clang-format version"
+version="${version/*version /}"
+# Remove trailing parenthetical version details
+version="${version/ (*)/}"
+# Remove everything after the first dot (note this is a glob, not a regex)
+version="${version/.*/}"
+
+case "$version" in
+  6 | 7)
+    # Allow an older clang-format to accommodate Travis version skew.
+    ;;
+  google3-trunk)
+    echo "Please use a publicly released clang-format; a recent LLVM release"
+    echo "from http://releases.llvm.org/download.html will work."
+    echo "Prepend to PATH when running style.sh."
+    exit 1
+    ;;
+  *)
+    echo "Please upgrade to clang-format version 7."
+    echo "If it's installed via homebrew you can run: brew upgrade clang-format"
+    exit 1
+    ;;
+esac
+
+system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   version="${version/*version /}"
@@ -122,6 +140,7 @@ s%^./%%
 # Checked-in generated code
 \%\.pb(objc|rpc)\.% d
 \%\.pb\.% d
+\%\.nanopb\.% d
 
 # Format C-ish sources only
 \%\.(h|m|mm|cc|swift)$% p

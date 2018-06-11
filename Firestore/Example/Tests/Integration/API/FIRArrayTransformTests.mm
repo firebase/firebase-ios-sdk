@@ -36,7 +36,7 @@
   FIRDocumentReference *_docRef;
 
   // Accumulator used to capture events during the test.
-  FSTEventAccumulator *_accumulator;
+  FSTEventAccumulator<FIRDocumentSnapshot *> *_accumulator;
 
   // Listener registration for a listener maintained during the course of the test.
   id<FIRListenerRegistration> _listenerRegistration;
@@ -64,29 +64,11 @@
 
 #pragma mark - Test Helpers
 
-/** Waits for a snapshot with local writes. */
-- (FIRDocumentSnapshot *)waitForLocalEvent {
-  FIRDocumentSnapshot *snapshot;
-  do {
-    snapshot = [_accumulator awaitEventWithName:@"Local event."];
-  } while (!snapshot.metadata.hasPendingWrites);
-  return snapshot;
-}
-
-/** Waits for a snapshot that has no pending writes */
-- (FIRDocumentSnapshot *)waitForRemoteEvent {
-  FIRDocumentSnapshot *snapshot;
-  do {
-    snapshot = [_accumulator awaitEventWithName:@"Remote event."];
-  } while (snapshot.metadata.hasPendingWrites);
-  return snapshot;
-}
-
 /** Writes some initial data and consumes the events generated. */
 - (void)writeInitialData:(NSDictionary<NSString *, id> *)data {
   [self writeDocumentRef:_docRef data:data];
-  XCTAssertEqualObjects([self waitForLocalEvent].data, data);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, data);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, data);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, data);
 }
 
 #pragma mark - Test Cases
@@ -97,8 +79,8 @@
                       @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]
                     }];
   id expected = @{ @"array" : @[ @1, @2 ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testAppendToArrayViaUpdate {
@@ -110,8 +92,8 @@
                      }];
 
   id expected = @{ @"array" : @[ @1, @3, @2, @4 ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testAppendToArrayViaMergeSet {
@@ -123,8 +105,8 @@
                     }];
 
   id expected = @{ @"array" : @[ @1, @3, @2, @4 ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testAppendObjectToArrayViaUpdate {
@@ -137,8 +119,8 @@
                      }];
 
   id expected = @{ @"array" : @[ @{@"a" : @"hi"}, @{@"a" : @"bye"} ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testRemoveFromArrayViaUpdate {
@@ -150,8 +132,8 @@
                      }];
 
   id expected = @{ @"array" : @[ @3, @3 ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testRemoveFromArrayViaMergeSet {
@@ -163,8 +145,8 @@
                     }];
 
   id expected = @{ @"array" : @[ @3, @3 ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 - (void)testRemoveObjectFromArrayViaUpdate {
@@ -176,8 +158,8 @@
                      }];
 
   id expected = @{ @"array" : @[ @{@"a" : @"bye"} ] };
-  XCTAssertEqualObjects([self waitForLocalEvent].data, expected);
-  XCTAssertEqualObjects([self waitForRemoteEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitLocalEvent].data, expected);
+  XCTAssertEqualObjects([_accumulator awaitRemoteEvent].data, expected);
 }
 
 @end
