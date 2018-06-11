@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#include <map>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
