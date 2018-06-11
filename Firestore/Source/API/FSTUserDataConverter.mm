@@ -218,6 +218,9 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
 /** Returns true for the non-query parse contexts (Set, MergeSet and Update) */
 - (BOOL)isWrite;
 
+/** Returns 'YES' if 'fieldPath' was traversed when creating this context. */
+- (BOOL)containsFieldPath:(const FieldPath &)fieldPath;
+
 - (const FieldPath *)path;
 
 - (const std::vector<FieldPath> *)fieldMask;
@@ -329,6 +332,22 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     default:
       FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d", self.dataSource);
   }
+}
+
+- (BOOL)containsFieldPath:(const FieldPath &)fieldPath {
+  for (const FieldPath &field : *_fieldMask) {
+    if (fieldPath.IsPrefixOf(field)) {
+      return YES;
+    }
+  }
+
+  for (const FieldTransform &fieldTransform : *_fieldTransforms) {
+    if (fieldPath.IsPrefixOf(fieldTransform.path())) {
+      return YES;
+    }
+  }
+
+  return NO;
 }
 
 - (void)validatePath {
@@ -444,7 +463,8 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
             @"All elements in mergeFields: must be NSStrings or FIRFieldPaths.");
       }
 
-      if ([updateData valueForPath:path] == nil) {
+      // Verify that all elements specified in the field mask are part of the parsed context.
+      if (![context containsFieldPath:path]) {
         FSTThrowInvalidArgument(
             @"Field '%s' is specified in your field mask but missing from your input data.",
             path.CanonicalString().c_str());

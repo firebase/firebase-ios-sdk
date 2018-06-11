@@ -22,16 +22,16 @@
 # investigation.
 
 pod cache clean FirebaseCore --all
-#pod cache clean FirebaseAuth --all
-pod cache clean FirebaseDatabase --all
+pod cache clean FirebaseAuth --all
+#pod cache clean FirebaseDatabase --all
 pod cache clean FirebaseFirestore --all
 #pod cache clean FirebaseFunctions --all
 pod cache clean FirebaseMessaging --all
 #pod cache clean FirebaseStorage --all
 
 pod repo push cpdc-internal-spec FirebaseCore.podspec
-#pod repo push cpdc-internal-spec FirebaseAuth.podspec
-pod repo push cpdc-internal-spec FirebaseDatabase.podspec
+pod repo push cpdc-internal-spec FirebaseAuth.podspec
+#pod repo push cpdc-internal-spec FirebaseDatabase.podspec
 pod repo push cpdc-internal-spec FirebaseFirestore.podspec --allow-warnings
 #pod repo push cpdc-internal-spec FirebaseFunctions.podspec
 pod repo push cpdc-internal-spec FirebaseMessaging.podspec
