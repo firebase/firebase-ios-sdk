@@ -98,7 +98,7 @@ cc_test(
     async_tests_util.h
   DEPENDS
     firebase_firestore_util_executor_std
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
 )
 
 if(HAVE_LIBDISPATCH)
@@ -111,7 +111,7 @@ if(HAVE_LIBDISPATCH)
       async_tests_util.h
     DEPENDS
     firebase_firestore_util_executor_libdispatch
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
   )
 endif()
 
@@ -126,6 +126,7 @@ cc_test(
     hashing_test.cc
     iterator_adaptors_test.cc
     ordered_code_test.cc
+    path_test.cc
     status_test.cc
     status_test_util.h
     statusor_test.cc

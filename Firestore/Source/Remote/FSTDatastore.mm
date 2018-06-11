@@ -157,10 +157,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeResourceExhausted:
     case FIRFirestoreErrorCodeInternal:
     case FIRFirestoreErrorCodeUnavailable:
+    // Unauthenticated means something went wrong with our token and we need to retry with new
+    // credentials which will happen automatically.
     case FIRFirestoreErrorCodeUnauthenticated:
-      // Unauthenticated means something went wrong with our token and we need
-      // to retry with new credentials which will happen automatically.
-      // TODO(b/37325376): Give up after second unauthenticated error.
       return NO;
     case FIRFirestoreErrorCodeInvalidArgument:
     case FIRFirestoreErrorCodeNotFound:
@@ -174,6 +173,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeOutOfRange:
     case FIRFirestoreErrorCodeUnimplemented:
     case FIRFirestoreErrorCodeDataLoss:
+      return YES;
     default:
       return YES;
   }
@@ -239,6 +239,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                        handler:^(GCFSCommitResponse *response, NSError *_Nullable error) {
                          error = [FSTDatastore firestoreErrorForError:error];
                          [self.workerDispatchQueue dispatchAsync:^{
+                           if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                             _credentials->InvalidateToken();
+                           }
                            LOG_DEBUG("RPC CommitRequest completed. Error: %s", error);
                            [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
                            completion(error);
@@ -273,6 +276,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
                                    LOG_DEBUG("RPC BatchGetDocuments completed. Error: %s", error);
+                                   if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                                     _credentials->InvalidateToken();
+                                   }
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
                                    return;
@@ -310,25 +316,21 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 - (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
-  // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
-  // but I'm not sure how to detect that right now. http://b/32762461
-  _credentials->GetToken(
-      /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          if (!result.ok()) {
-            errorHandler(util::MakeNSError(result.status()));
-          } else {
-            GRPCProtoCall *rpc = rpcFactory();
-            const Token &token = result.ValueOrDie();
-            [FSTDatastore
-                prepareHeadersForRPC:rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(token.user().is_authenticated() ? token.token()
-                                                                      : absl::string_view())];
-            [rpc start];
-          }
-        }];
-      });
+  _credentials->GetToken([self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      if (!result.ok()) {
+        errorHandler(util::MakeNSError(result.status()));
+      } else {
+        GRPCProtoCall *rpc = rpcFactory();
+        const Token &token = result.ValueOrDie();
+        [FSTDatastore prepareHeadersForRPC:rpc
+                                databaseID:&self.databaseInfo->database_id()
+                                     token:(token.user().is_authenticated() ? token.token()
+                                                                            : absl::string_view())];
+        [rpc start];
+      }
+    }];
+  });
 }
 
 - (FSTWatchStream *)createWatchStream {

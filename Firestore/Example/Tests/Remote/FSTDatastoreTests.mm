@@ -53,6 +53,12 @@
                               code:FIRFirestoreErrorCodeUnavailable
                           userInfo:nil];
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
+
+  // "unauthenticated" is considered a recoverable error due to expired token.
+  error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                              code:FIRFirestoreErrorCodeUnauthenticated
+                          userInfo:nil];
+  XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
 }
 
 @end
