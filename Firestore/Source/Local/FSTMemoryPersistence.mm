@@ -189,13 +189,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 - (void)startTransaction:(absl::string_view)label {
-  // wat do?
   _currentSequenceNumber = [_listenSequence next];
 }
 
 - (void)commitTransaction {
   _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
-  // TODO(gsoltis): maybe check if we need to schedule a GC?
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {

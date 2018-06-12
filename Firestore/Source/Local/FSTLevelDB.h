@@ -99,6 +99,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *currentTransaction;
 
+@property(nonatomic, readonly) const std::set<std::string>& users;
+
 @end
 
 NS_ASSUME_NONNULL_END

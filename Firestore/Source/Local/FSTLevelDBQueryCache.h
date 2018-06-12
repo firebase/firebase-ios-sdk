@@ -57,6 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDB:(FSTLevelDB *)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
+- (void)enumerateOrphanedDocumentsUsingBlock:
+        (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
+
 @end
 
 NS_ASSUME_NONNULL_END

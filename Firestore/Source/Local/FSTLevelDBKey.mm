@@ -710,6 +710,10 @@ NSString *InvalidKey(const Slice &key) {
 
 @end
 
+// Used for sentinel row for a document in the document target index. No target has the ID 0,
+// and it will sort first in the list of targets for a document.
+static const FSTTargetID kInvalidTargetID = 0;
+
 @implementation FSTLevelDBDocumentTargetKey
 
 + (std::string)keyPrefix {
@@ -734,6 +738,10 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
++ (std::string)sentinelKeyWithDocumentKey:(FSTDocumentKey *)documentKey {
+  return [self keyWithDocumentKey:documentKey targetID:kInvalidTargetID];
+}
+
 - (BOOL)decodeKey:(Firestore::StringView)key {
   _documentKey = nil;
 
@@ -741,6 +749,10 @@ NSString *InvalidKey(const Slice &key) {
   return ReadTableNameMatching(&contents, kDocumentTargetsTable) &&
          ReadDocumentKey(&contents, &_documentKey) && ReadTargetID(&contents, &_targetID) &&
          ReadTerminator(&contents);
+}
+
+- (BOOL)isSentinel {
+  return _targetID == kInvalidTargetID;
 }
 
 @end
