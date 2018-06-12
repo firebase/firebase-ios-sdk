@@ -193,6 +193,8 @@ cc_library(
     statusor.cc
     statusor.h
     statusor_internals.h
+    strerror.cc
+    strerror.h
     string_util.cc
     string_util.h
     type_traits.h
@@ -203,3 +205,10 @@ cc_library(
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_util PRIVATE
+    status_apple.mm
+  )
+endif()

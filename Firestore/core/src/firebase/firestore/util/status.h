@@ -50,6 +50,13 @@ class ABSL_MUST_USE_RESULT Status {
     return Status();
   }
 
+  /// Creates a status object from the given errno error code and message.
+  static Status FromErrno(int errno_code, absl::string_view msg);
+
+#if defined(__OBJC__)
+  static Status FromNSError(NSError* error);
+#endif  // defined(__OBJC__)
+
   /// Returns true iff the status indicates success.
   bool ok() const {
     return (state_ == nullptr);
