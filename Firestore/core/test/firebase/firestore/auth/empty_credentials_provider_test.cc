@@ -25,15 +25,14 @@ namespace auth {
 
 TEST(EmptyCredentialsProvider, GetToken) {
   EmptyCredentialsProvider credentials_provider;
-  credentials_provider.GetToken(
-      /*force_refresh=*/true, [](util::StatusOr<Token> result) {
-        EXPECT_TRUE(result.ok());
-        const Token& token = result.ValueOrDie();
-        EXPECT_ANY_THROW(token.token());
-        const User& user = token.user();
-        EXPECT_EQ("", user.uid());
-        EXPECT_FALSE(user.is_authenticated());
-      });
+  credentials_provider.GetToken([](util::StatusOr<Token> result) {
+    EXPECT_TRUE(result.ok());
+    const Token& token = result.ValueOrDie();
+    EXPECT_ANY_THROW(token.token());
+    const User& user = token.user();
+    EXPECT_EQ("", user.uid());
+    EXPECT_FALSE(user.is_authenticated());
+  });
 }
 
 TEST(EmptyCredentialsProvider, SetListener) {
@@ -44,6 +43,13 @@ TEST(EmptyCredentialsProvider, SetListener) {
   });
 
   credentials_provider.SetUserChangeListener(nullptr);
+}
+
+TEST(EmptyCredentialsProvider, InvalidateToken) {
+  EmptyCredentialsProvider credentials_provider;
+  credentials_provider.InvalidateToken();
+  credentials_provider.GetToken(
+      [](util::StatusOr<Token> result) { EXPECT_TRUE(result.ok()); });
 }
 
 }  // namespace auth

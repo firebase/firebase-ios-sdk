@@ -78,8 +78,7 @@ FirebaseCredentialsProvider::~FirebaseCredentialsProvider() {
   }
 }
 
-void FirebaseCredentialsProvider::GetToken(bool force_refresh,
-                                           TokenListener completion) {
+void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
   HARD_ASSERT(auth_listener_handle_,
               "GetToken cannot be called after listener removed.");
 
@@ -121,8 +120,13 @@ void FirebaseCredentialsProvider::GetToken(bool force_refresh,
         }
       };
 
-  [contents_->app getTokenForcingRefresh:force_refresh
+  [contents_->app getTokenForcingRefresh:contents_->force_refresh
                             withCallback:get_token_callback];
+  contents_->force_refresh = false;
+}
+
+void FirebaseCredentialsProvider::InvalidateToken() {
+  contents_->force_refresh = true;
 }
 
 void FirebaseCredentialsProvider::SetUserChangeListener(

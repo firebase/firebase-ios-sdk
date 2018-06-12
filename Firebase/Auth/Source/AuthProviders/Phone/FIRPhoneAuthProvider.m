@@ -94,7 +94,7 @@ NSString *const kReCAPTCHAURLStringFormat = @"https://%@/__/auth/handler?";
 }
 
 /** @fn initWithAuth:
-    @brief returns an instance of @c FIRPhoneAuthProvider assocaited with the provided auth
+    @brief returns an instance of @c FIRPhoneAuthProvider associated with the provided auth
           instance.
     @return An Instance of @c FIRPhoneAuthProvider.
    */

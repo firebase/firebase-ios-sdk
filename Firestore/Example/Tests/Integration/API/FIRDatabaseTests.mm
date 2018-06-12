@@ -162,8 +162,10 @@
   NSDictionary<NSString *, id> *initialData = @{
     @"updated" : @NO,
   };
-  NSDictionary<NSString *, id> *mergeData =
-      @{@"time" : [FIRFieldValue fieldValueForServerTimestamp]};
+  NSDictionary<NSString *, id> *mergeData = @{
+    @"time" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"nested" : @{@"time" : [FIRFieldValue fieldValueForServerTimestamp]}
+  };
 
   [self writeDocumentRef:doc data:initialData];
 
@@ -182,6 +184,7 @@
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
   XCTAssertEqual(document[@"updated"], @NO);
   XCTAssertTrue([document[@"time"] isKindOfClass:[FIRTimestamp class]]);
+  XCTAssertTrue([document[@"nested.time"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testCanDeleteFieldUsingMerge {
@@ -216,6 +219,81 @@
   XCTAssertNil(document[@"foo"]);
   XCTAssertEqual(document[@"nested.untouched"], @YES);
   XCTAssertNil(document[@"nested.foo"]);
+}
+
+- (void)testCanDeleteFieldUsingMergeFields {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData = @{
+    @"untouched" : @YES,
+    @"foo" : @"bar",
+    @"inner" : @{@"removed" : @YES, @"foo" : @"bar"},
+    @"nested" : @{@"untouched" : @YES, @"foo" : @"bar"}
+  };
+  NSDictionary<NSString *, id> *mergeData = @{
+    @"foo" : [FIRFieldValue fieldValueForDelete],
+    @"inner" : @{@"foo" : [FIRFieldValue fieldValueForDelete]},
+    @"nested" : @{
+      @"untouched" : [FIRFieldValue fieldValueForDelete],
+      @"foo" : [FIRFieldValue fieldValueForDelete]
+    }
+  };
+  NSDictionary<NSString *, id> *finalData =
+      @{ @"untouched" : @YES,
+         @"inner" : @{},
+         @"nested" : @{@"untouched" : @YES} };
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
+
+  [doc setData:mergeData
+      mergeFields:@[ @"foo", @"inner", @"nested.foo" ]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects([document data], finalData);
+}
+
+- (void)testCanSetServerTimestampsUsingMergeFields {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  NSDictionary<NSString *, id> *initialData = @{
+    @"untouched" : @YES,
+    @"foo" : @"bar",
+    @"nested" : @{@"untouched" : @YES, @"foo" : @"bar"}
+  };
+  NSDictionary<NSString *, id> *mergeData = @{
+    @"foo" : [FIRFieldValue fieldValueForServerTimestamp],
+    @"inner" : @{@"foo" : [FIRFieldValue fieldValueForServerTimestamp]},
+    @"nested" : @{@"foo" : [FIRFieldValue fieldValueForServerTimestamp]}
+  };
+
+  [self writeDocumentRef:doc data:initialData];
+
+  XCTestExpectation *completed =
+      [self expectationWithDescription:@"testCanMergeDataWithAnExistingDocumentUsingSet"];
+
+  [doc setData:mergeData
+      mergeFields:@[ @"foo", @"inner", @"nested.foo" ]
+       completion:^(NSError *error) {
+         XCTAssertNil(error);
+         [completed fulfill];
+       }];
+
+  [self awaitExpectations];
+
+  FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
+  XCTAssertTrue([document exists]);
+  XCTAssertTrue([document[@"foo"] isKindOfClass:[FIRTimestamp class]]);
+  XCTAssertTrue([document[@"inner.foo"] isKindOfClass:[FIRTimestamp class]]);
+  XCTAssertTrue([document[@"nested.foo"] isKindOfClass:[FIRTimestamp class]]);
 }
 
 - (void)testMergeReplacesArrays {

@@ -65,9 +65,11 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
 
   ~FirebaseCredentialsProvider() override;
 
-  void GetToken(bool force_refresh, TokenListener completion) override;
+  void GetToken(TokenListener completion) override;
 
   void SetUserChangeListener(UserChangeListener listener) override;
+
+  void InvalidateToken() override;
 
  private:
   /**
@@ -95,6 +97,8 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
     int user_counter = 0;
 
     std::mutex mutex;
+
+    bool force_refresh = false;
   };
 
   /**
