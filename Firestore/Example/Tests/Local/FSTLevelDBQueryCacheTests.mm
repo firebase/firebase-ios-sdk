@@ -42,10 +42,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)tearDown {
+  [super tearDown];
   self.persistence = nil;
   self.queryCache = nil;
-
-  [super tearDown];
 }
 
 @end

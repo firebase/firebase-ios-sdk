@@ -52,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
   _previousSnapshotVersion = 100;
 }
 
+- (void)tearDown {
+  [self.persistence shutdown];
+}
+
 /**
  * Xcode will run tests from any class that extends XCTestCase, but this doesn't work for
  * FSTSpecTests since it is incomplete without the implementations supplied by its subclasses.

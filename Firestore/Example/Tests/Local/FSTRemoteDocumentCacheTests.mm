@@ -48,6 +48,10 @@ static const int kVersion = 42;
   _kDocData = @{ @"a" : @1, @"b" : @2 };
 }
 
+- (void)tearDown {
+  [self.persistence shutdown];
+}
+
 - (void)testReadDocumentNotInCache {
   if (!self.remoteDocumentCache) return;
 

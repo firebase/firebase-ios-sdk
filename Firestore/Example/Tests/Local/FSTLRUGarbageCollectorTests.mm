@@ -184,6 +184,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSequenceNumberForMultipleQueriesInATransaction {
+  if ([self isTestBaseClass]) return;
+
   // 50 queries, 9 with one transaction, incrementing from there. Should get second sequence number.
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
@@ -210,6 +212,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 -(void)testAllCollectedQueriesInSingleTransaction {
+  if ([self isTestBaseClass]) return;
+
   // 50 queries, 11 with one transaction, incrementing from there. Should get first sequence number.
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
@@ -236,6 +240,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testSequenceNumbersWithMutationAndSequentialQueries {
+  if ([self isTestBaseClass]) return;
+
   // A mutated doc, then 50 queries. Should get 10 past initial (9 queries).
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
@@ -262,6 +268,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 - (void)testSequenceNumbersWithMutationsInQueries {
+  if ([self isTestBaseClass]) return;
+
   // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
   // Expect 3 past the initial value: the mutations not part of a query, and two queries
   id<FSTPersistence> persistence = [self newPersistence];
