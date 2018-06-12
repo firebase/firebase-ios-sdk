@@ -1,5 +1,11 @@
 # Unreleased
 
+# v0.12.4
+- [fixed] DocumentReference.setData(_:mergeFields:) can now delete fields using
+  FieldValue.delete().
+- [fixed] Firestore will now transparently recover from auth token expiration.
+- [fixed] Fixed compilation with older Xcode versions (#1366).
+
 # v0.12.3
 - [changed] Internal improvements.
 
