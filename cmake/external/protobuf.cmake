@@ -24,8 +24,18 @@ ExternalProject_Add(
 
   PREFIX ${PROJECT_BINARY_DIR}/external/protobuf
 
+  # protobuf ships CMake files but not at the root of the repo, which confuses
+  # CMake by default. Unfortunately when you override CONFIGURE_COMMAND like
+  # this, CMake no longer automatically plumbs in CMAKE_ARGS and friends so
+  # those need to be manually passed in this command line.
+  CONFIGURE_COMMAND
+    ${CMAKE_COMMAND}
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_INSTALL_PREFIX:PATH=${FIREBASE_INSTALL_DIR}
+      -Dprotobuf_BUILD_TESTS=OFF
+      ${PROJECT_BINARY_DIR}/external/protobuf/src/protobuf/cmake
+
   UPDATE_COMMAND ""
-  CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
-    COMMAND <SOURCE_DIR>/configure --prefix=${PREFIX}
+  TEST_COMMAND ""
   INSTALL_COMMAND ""
 )

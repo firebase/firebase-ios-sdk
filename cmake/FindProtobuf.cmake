@@ -23,14 +23,14 @@ find_path(
 
 find_library(
   PROTOBUF_LIBRARY
-  NAMES libprotobuf.a
-  HINTS ${BINARY_DIR}/src/protobuf-build/src/.libs/
+  NAMES protobuf protobufd
+  HINTS ${BINARY_DIR}/src/protobuf-build
 )
 
 find_library(
   PROTOBUFLITE_LIBRARY
-  NAMES libprotobuf-lite.a
-  HINTS ${BINARY_DIR}/src/protobuf-build/src/.libs/
+  NAMES protobuf-lite protobuf-lited
+  HINTS ${BINARY_DIR}/src/protobuf-build
 )
 
 find_package_handle_standard_args(

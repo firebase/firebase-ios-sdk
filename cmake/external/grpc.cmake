@@ -33,6 +33,17 @@ else()
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DgRPC_BUILD_TESTS:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=OFF
+
+    # TODO(rsgowman): We're currently building nanopb twice; once via grpc, and
+    # once via nanopb. The version from grpc is the one that actually ends up
+    # being used. We need to fix this such that either:
+    #   a) we instruct grpc to use our nanopb
+    #   b) we rely on grpc's nanopb instead of using our own.
+    # For now, we'll pass in the necessary nanopb cflags into grpc. (We require
+    # 16 bit fields. Without explicitly requesting this, nanopb uses 8 bit
+    # fields.)
+    -DCMAKE_C_FLAGS=-DPB_FIELD_16BIT
+    -DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
   )
 
   # zlib can be built by grpc but we can avoid it on platforms that provide it
@@ -68,15 +79,8 @@ else()
 
     PREFIX ${PROJECT_BINARY_DIR}/external/grpc
 
-    # TODO(rsgowman): We're currently building nanopb twice; once via grpc, and
-    # once via nanopb. The version from grpc is the one that actually ends up
-    # being used. We need to fix this such that either:
-    # a) we instruct grpc to use our nanopb
-    # b) we rely on grpc's nanopb instead of using our own.
-    # For now, we'll pass in the necessary nanopb cflags into grpc. (We require
-    # 16 bit fields. Without explicitly requesting this, nanopb uses 8 bit
-    # fields.)
-    CMAKE_ARGS ${CMAKE_ARGS};-DCMAKE_C_FLAGS=-DPB_FIELD_16BIT;DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
+    CMAKE_ARGS
+      ${CMAKE_ARGS}
 
     BUILD_COMMAND
       ${CMAKE_COMMAND} --build . --target grpc
