@@ -340,10 +340,9 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTRemoteDocumentCache> documentCache = [persistence remoteDocumentCache];
   User user("user");
   id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
-  FSTListenSequenceNumber initial = persistence.run("start tables", [&]() -> FSTListenSequenceNumber {
+  persistence.run("start tables", [&]() {
     [mutationQueue start];
     [queryCache start];
-    return persistence.currentSequenceNumber;
   });
   // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
   // removed.
@@ -426,7 +425,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
   [persistence shutdown];
 }
-/*
+
 // TODO(gsoltis): write a test that includes limbo documents
 
 - (void)testRemoveTargetsThenGC {
@@ -460,8 +459,9 @@ NS_ASSUME_NONNULL_BEGIN
   NSMutableSet<FSTDocumentKey *> *expectedRemoved = [NSMutableSet set];
 
   // Add oldest target and docs
-  FSTQueryData *oldestTarget = [self nextTestQuery];
-  persistence.run("Add oldest target and docs", [&]() {
+
+  FSTQueryData *oldestTarget = persistence.run("Add oldest target and docs", [&]() -> FSTQueryData * {
+    FSTQueryData *queryData = [self nextTestQuery:persistence];
     DocumentKeySet oldestDocs{};
 
     for (int i = 0; i < 5; i++) {
@@ -471,17 +471,16 @@ NS_ASSUME_NONNULL_BEGIN
       [documentCache addEntry:doc];
     }
 
-    [queryCache addQueryData:oldestTarget];
-    [queryCache addMatchingKeys:oldestDocs
-                    forTargetID:oldestTarget.targetID
-               atSequenceNumber:oldestTarget.sequenceNumber];
+    [queryCache addQueryData:queryData];
+    [queryCache addMatchingKeys:oldestDocs forTargetID:queryData.targetID];
+    return queryData;
   });
 
   // Add middle target and docs. Some docs will be removed from this target later.
-  FSTQueryData *middleTarget = [self nextTestQuery];
   DocumentKeySet middleDocsToRemove{};
   FSTDocumentKey *middleDocToUpdate = nil;
-  persistence.run("Add middle target and docs", [&]() {
+  FSTQueryData *middleTarget = persistence.run("Add middle target and docs", [&]() -> FSTQueryData * {
+    FSTQueryData *middleTarget = [self nextTestQuery:persistence];
     [queryCache addQueryData:middleTarget];
     DocumentKeySet middleDocs{};
     // these docs will be removed from this target later
@@ -507,16 +506,14 @@ NS_ASSUME_NONNULL_BEGIN
       [documentCache addEntry:doc];
       middleDocToUpdate = doc.key;
     }
-    [queryCache addMatchingKeys:middleDocs
-                    forTargetID:middleTarget.targetID
-               atSequenceNumber:middleTarget.sequenceNumber];
-
+    [queryCache addMatchingKeys:middleDocs forTargetID:middleTarget.targetID];
+    return middleTarget;
   });
 
   // Add newest target and docs.
-  FSTQueryData *newestTarget = [self nextTestQuery];
   DocumentKeySet newestDocsToAddToOldest{};
   persistence.run("Add newest target and docs", [&]() {
+    FSTQueryData *newestTarget = [self nextTestQuery:persistence];
     [queryCache addQueryData:newestTarget];
     DocumentKeySet newestDocs{};
     for (int i = 0; i < 3; i++) {
@@ -533,15 +530,8 @@ NS_ASSUME_NONNULL_BEGIN
       newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key);
       [documentCache addEntry:doc];
     }
-    [queryCache addMatchingKeys:newestDocs
-                    forTargetID:newestTarget.targetID
-               atSequenceNumber:newestTarget.sequenceNumber];
+    [queryCache addMatchingKeys:newestDocs forTargetID:newestTarget.targetID];
   });
-
-  // newestTarget removed here, this should bump sequence number? maybe?
-  // we don't really need the sequence number for anything, we just don't include it
-  // in live queries.
-  [self nextSequenceNumber];
 
   // 2 doc writes, add one of them to the oldest target.
   persistence.run("2 doc writes, add one of them to the oldest target", [&]() {
@@ -559,21 +549,17 @@ NS_ASSUME_NONNULL_BEGIN
     [documentCache addEntry:doc2];
     docKeys = docKeys.insert(doc2.key);
 
-    FSTListenSequenceNumber sequenceNumber = [self nextSequenceNumber];
     for (const DocumentKey &key : docKeys)  {
-      [persistence.referenceDelegate removeMutationReference:key sequenceNumber:sequenceNumber];
+      [persistence.referenceDelegate removeMutationReference:key];
     };
     //[queryCache addPotentiallyOrphanedDocuments:docKeys atSequenceNumber:[self nextSequenceNumber]];
 
     NSData *token = [@"hello" dataUsingEncoding:NSUTF8StringEncoding];
-    sequenceNumber = [self nextSequenceNumber];
     oldestTarget = [oldestTarget queryDataByReplacingSnapshotVersion:oldestTarget.snapshotVersion
                                                          resumeToken:token
-                                                      sequenceNumber:sequenceNumber];
+                                                      sequenceNumber:persistence.currentSequenceNumber];
     [queryCache updateQueryData:oldestTarget];
-    [queryCache addMatchingKeys:firstKey
-                    forTargetID:oldestTarget.targetID
-               atSequenceNumber:oldestTarget.sequenceNumber];
+    [queryCache addMatchingKeys:firstKey forTargetID:oldestTarget.targetID];
     // nothing is keeping doc2 around, it should be removed
     [expectedRemoved addObject:doc2.key];
     // doc1 should be retained by being added to oldestTarget.
@@ -582,34 +568,27 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Remove some documents from the middle target.
   persistence.run("Remove some documents from the middle target", [&]() {
-    FSTListenSequenceNumber sequenceNumber = [self nextSequenceNumber];
     NSData *token = [@"token" dataUsingEncoding:NSUTF8StringEncoding];
     middleTarget = [middleTarget queryDataByReplacingSnapshotVersion:middleTarget.snapshotVersion
                                                          resumeToken:token
-                                                      sequenceNumber:sequenceNumber];
+                                                      sequenceNumber:persistence.currentSequenceNumber];
 
     [queryCache updateQueryData:middleTarget];
-    [queryCache removeMatchingKeys:middleDocsToRemove
-                       forTargetID:middleTarget.targetID
-                    sequenceNumber:sequenceNumber];
+    [queryCache removeMatchingKeys:middleDocsToRemove forTargetID:middleTarget.targetID];
   });
 
   // Add a couple docs from the newest target to the oldest (preserves them past the point where
   // newest was removed)
-  persistence.run("Add a couple docs from the newest target to the oldest", [&]() {
+  // upperBound is the sequence number right before middleTarget is updated, then removed.
+  FSTListenSequenceNumber upperBound = persistence.run("Add a couple docs from the newest target to the oldest", [&]() -> FSTListenSequenceNumber {
     NSData *token = [@"add documents" dataUsingEncoding:NSUTF8StringEncoding];
-    FSTListenSequenceNumber sequenceNumber = [self nextSequenceNumber];
     oldestTarget = [oldestTarget queryDataByReplacingSnapshotVersion:oldestTarget.snapshotVersion
                                                          resumeToken:token
-                                                      sequenceNumber:sequenceNumber];
+                                                      sequenceNumber:persistence.currentSequenceNumber];
     [queryCache updateQueryData:oldestTarget];
-    [queryCache addMatchingKeys:newestDocsToAddToOldest
-                    forTargetID:oldestTarget.targetID
-               atSequenceNumber:oldestTarget.sequenceNumber];
+    [queryCache addMatchingKeys:newestDocsToAddToOldest forTargetID:oldestTarget.targetID];
+    return persistence.currentSequenceNumber;
   });
-
-  // the sequence number right before middleTarget is updated, then removed.
-  FSTListenSequenceNumber upperBound = [self nextSequenceNumber];
 
   // Update a doc in the middle target
   persistence.run("Update a doc in the middle target", [&]() {
@@ -620,15 +599,13 @@ NS_ASSUME_NONNULL_BEGIN
                                    hasLocalMutations:NO];
     [documentCache addEntry:doc];
     NSData *token = [@"updated" dataUsingEncoding:NSUTF8StringEncoding];
-    FSTListenSequenceNumber sequenceNumber = [self nextSequenceNumber];
     middleTarget = [middleTarget queryDataByReplacingSnapshotVersion:middleTarget.snapshotVersion
                                                          resumeToken:token
-                                                      sequenceNumber:sequenceNumber];
+                                                      sequenceNumber:persistence.currentSequenceNumber];
     [queryCache updateQueryData:middleTarget];
   });
 
-  // middleTarget removed here
-  [self nextSequenceNumber];
+  // middleTarget removed here, no update needed
 
   // Write a doc and get an ack, not part of a target
   persistence.run("Write a doc and get an ack, not part of a target", [&]() {
@@ -637,11 +614,9 @@ NS_ASSUME_NONNULL_BEGIN
     [documentCache addEntry:doc];
     // This should be retained, it's too new to get removed.
     [expectedRetained addObject:doc.key];
-    FSTListenSequenceNumber sequenceNumber = [self nextSequenceNumber];
     //[queryCache addPotentiallyOrphanedDocuments:docKey atSequenceNumber:sequenceNumber];
-    [persistence.referenceDelegate removeMutationReference:doc.key sequenceNumber:sequenceNumber];
+    [persistence.referenceDelegate removeMutationReference:doc.key];
   });
-
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
   persistence.run(
@@ -672,9 +647,8 @@ NS_ASSUME_NONNULL_BEGIN
                           key);
         }
       });
-
   [persistence shutdown];
-}*/
+}
 @end
 
 NS_ASSUME_NONNULL_END
