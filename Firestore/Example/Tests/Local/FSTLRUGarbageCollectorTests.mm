@@ -234,85 +234,99 @@ NS_ASSUME_NONNULL_BEGIN
   });
   [persistence shutdown];
 }
-/*
-  // A mutated doc at 1000, 50 queries 1001-1050. Should get 1009.
-  {
-    _previousSequenceNumber = 1000;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("A mutated doc at 1000, 50 queries 1001-1050. Should get 1009.", [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-      FSTDocumentKey *key = [self nextTestDocKey];
-      [persistence.referenceDelegate removeMutationReference:key sequenceNumber:1000];
-      for (int i = 0; i < 50; i++) {
-        [queryCache addQueryData:[self nextTestQuery]];
-      }
-      FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-      XCTAssertEqual(1009, highestToCollect);
-    });
-    [persistence shutdown];
-  }
 
-  // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
-  // Expect 1002.
-  {
-    _previousSequenceNumber = 1000;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run(
-        "Add mutated docs, then add one of them to a query target so it doesn't get GC'd. Expect "
-        "1002",
-        [&]() {
-          id<FSTQueryCache> queryCache = [persistence queryCache];
-          [queryCache start];
-          FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-          FSTDocument *docInQuery = [self nextTestDocument];
-          DocumentKeySet docInQuerySet{docInQuery.key};
-          [persistence.referenceDelegate removeMutationReference:docInQuery.key sequenceNumber:1000];
-          for (int i = 0; i < 8; i++) {
-            [persistence.referenceDelegate removeMutationReference:[self nextTestDocKey] sequenceNumber:1000];
-          }
-          // Adding 9 doc keys at 1000. If we remove one of them, we'll have room for two actual
-          // queries.
-          for (int i = 0; i < 49; i++) {
-            [queryCache addQueryData:[self nextTestQuery]];
-          }
-          FSTQueryData *queryData = [self nextTestQuery];
-          [queryCache addQueryData:queryData];
-          // This should bump one document out of the mutated documents cache.
-          [queryCache addMatchingKeys:docInQuerySet
-                          forTargetID:queryData.targetID
-                     atSequenceNumber:queryData.sequenceNumber];
-          // This should catch the remaining 8 documents, plus the first two queries we added.
-          FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-          XCTAssertEqual(1002, highestToCollect);
-        });
-    [persistence shutdown];
+- (void)testSequenceNumbersWithMutationAndSequentialQueries {
+  // A mutated doc, then 50 queries. Should get 10 past initial (9 queries).
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  persistence.run("Add mutated doc", [&]() {
+    FSTDocumentKey *key = [self nextTestDocKey];
+    [persistence.referenceDelegate removeMutationReference:key];
+  });
+  for (int i = 0; i < 50; i++) {
+    persistence.run("sequential queries", [&]() {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
+    });
   }
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(10 + initial, highestToCollect);
+  });
+  [persistence shutdown];
+}
+
+
+- (void)testSequenceNumbersWithMutationsInQueries {
+  // Add mutated docs, then add one of them to a query target so it doesn't get GC'd.
+  // Expect 3 past the initial value: the mutations not part of a query, and two queries
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  FSTDocument *docInQuery = [self nextTestDocument];
+  DocumentKeySet docInQuerySet{docInQuery.key};
+  persistence.run("mark mutations", [&]() {
+    // Adding 9 doc keys in a transaction. If we remove one of them, we'll have room for two actual
+    // queries.
+    [persistence.referenceDelegate removeMutationReference:docInQuery.key];
+    for (int i = 0; i < 8; i++) {
+      [persistence.referenceDelegate removeMutationReference:[self nextTestDocKey]];
+    }
+  });
+  for (int i = 0; i < 49; i++) {
+    persistence.run("sequential queries", [&]() {
+      [queryCache addQueryData:[self nextTestQuery:persistence]];
+    });
+  }
+  persistence.run("query with mutation", [&]() {
+    FSTQueryData *queryData = [self nextTestQuery:persistence];
+    [queryCache addQueryData:queryData];
+    // This should bump one document out of the mutated documents cache.
+    [queryCache addMatchingKeys:docInQuerySet forTargetID:queryData.targetID];
+  });
+
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    // This should catch the remaining 8 documents, plus the first two queries we added.
+    XCTAssertEqual(3 + initial, highestToCollect);
+  });
+  [persistence shutdown];
 }
 
 - (void)testRemoveQueriesUpThroughSequenceNumber {
   if ([self isTestBaseClass]) return;
 
   id<FSTPersistence> persistence = [self newPersistence];
-  persistence.run("testRemoveQueriesUpThroughSequenceNumber", [&]() {
-    id<FSTQueryCache> queryCache = [persistence queryCache];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial = persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
     [queryCache start];
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-    NSMutableDictionary<NSNumber *, FSTQueryData *> *liveQueries =
-        [[NSMutableDictionary alloc] init];
-    for (int i = 0; i < 100; i++) {
-      FSTQueryData *queryData = [self nextTestQuery];
+    return persistence.currentSequenceNumber;
+  });
+  NSMutableDictionary<NSNumber *, FSTQueryData *> *liveQueries =
+      [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < 100; i++) {
+    persistence.run("sequential queries", [&]() {
+      FSTQueryData *queryData = [self nextTestQuery:persistence];
       // Mark odd queries as live so we can test filtering out live queries.
       if (queryData.targetID % 2 == 1) {
         liveQueries[@(queryData.targetID)] = queryData;
       }
       [queryCache addQueryData:queryData];
-    }
-
-    // GC up through 1015, which is 15%.
-    // Expect to have GC'd 7 targets (even values of 1001-1015).
-    NSUInteger removed = [gc removeQueriesUpThroughSequenceNumber:1015 liveQueries:liveQueries];
+    });
+  }
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    // GC up through 15th query, which is 15%.
+    // Expect to have GC'd 8 targets (even values of 2-16).
+    NSUInteger removed = [gc removeQueriesUpThroughSequenceNumber:15 + initial liveQueries:liveQueries];
     XCTAssertEqual(7, removed);
   });
   [persistence shutdown];
@@ -322,86 +336,83 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   id<FSTPersistence> persistence = [self newPersistence];
-  persistence.run("testRemoveOrphanedDocuments", [&]() {
-    id<FSTQueryCache> queryCache = [persistence queryCache];
-    [queryCache start];
-    id<FSTRemoteDocumentCache> documentCache = [persistence remoteDocumentCache];
-    User user("user");
-    id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  id<FSTRemoteDocumentCache> documentCache = [persistence remoteDocumentCache];
+  User user("user");
+  id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
+  FSTListenSequenceNumber initial = persistence.run("start tables", [&]() -> FSTListenSequenceNumber {
     [mutationQueue start];
+    [queryCache start];
+    return persistence.currentSequenceNumber;
+  });
+  // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
+  // removed.
+  NSMutableSet<FSTDocumentKey *> *toBeRetained = [NSMutableSet set];
+  NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
+  persistence.run("add a target and add two documents to it", [&]() {
+    // Add two documents to first target, queue a mutation on the second document
+    FSTQueryData *queryData = [self nextTestQuery:persistence];
+    [queryCache addQueryData:queryData];
+    DocumentKeySet keySet{};
+    FSTDocument *doc1 = [self nextTestDocument];
+    [documentCache addEntry:doc1];
+    keySet = keySet.insert(doc1.key);
+    [toBeRetained addObject:doc1.key];
+    FSTDocument *doc2 = [self nextTestDocument];
+    [documentCache addEntry:doc2];
+    keySet = keySet.insert(doc2.key);
+    [toBeRetained addObject:doc2.key];
+    [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID];
 
-    // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
-    // removed.
-    NSMutableSet<FSTDocumentKey *> *toBeRetained = [NSMutableSet set];
+    FSTObjectValue *newValue = [[FSTObjectValue alloc]
+        initWithDictionary:@{@"foo" : [FSTStringValue stringValue:@"bar"]}];
+    [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc2.key
+                                                       value:newValue
+                                                precondition:Precondition::None()]];
+  });
+  // Add a second query and register a document on it
+  persistence.run("second query", [&]() {
+    FSTQueryData *queryData = [self nextTestQuery:persistence];
+    [queryCache addQueryData:queryData];
+    DocumentKeySet keySet{};
+    FSTDocument *doc1 = [self nextTestDocument];
+    [documentCache addEntry:doc1];
+    keySet = keySet.insert(doc1.key);
+    [toBeRetained addObject:doc1.key];
+    [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID];
+  });
 
-    NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
-    // Add two documents to first target, and register a mutation on the second one
-    {
-      FSTQueryData *queryData = [self nextTestQuery];
-      [queryCache addQueryData:queryData];
-      DocumentKeySet keySet{};
-      FSTDocument *doc1 = [self nextTestDocument];
-      [documentCache addEntry:doc1];
-      keySet = keySet.insert(doc1.key);
-      [toBeRetained addObject:doc1.key];
-      FSTDocument *doc2 = [self nextTestDocument];
-      [documentCache addEntry:doc2];
-      keySet = keySet.insert(doc2.key);
-      [toBeRetained addObject:doc2.key];
-      [queryCache addMatchingKeys:keySet
-                      forTargetID:queryData.targetID
-                 atSequenceNumber:queryData.sequenceNumber];
+  persistence.run("queue a mutation", [&]() {
+    FSTDocument *doc1 = [self nextTestDocument];
+    [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc1.key
+                                                       value:doc1.data
+                                                precondition:Precondition::None()]];
+    [documentCache addEntry:doc1];
+    [toBeRetained addObject:doc1.key];
+  });
 
-      FSTObjectValue *newValue = [[FSTObjectValue alloc]
-          initWithDictionary:@{@"foo" : [FSTStringValue stringValue:@"bar"]}];
-      [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc2.key
-                                                         value:newValue
-                                                  precondition:Precondition::None()]];
-    }
-
-    // Add one document to the second target
-    {
-      FSTQueryData *queryData = [self nextTestQuery];
-      [queryCache addQueryData:queryData];
-      DocumentKeySet keySet{};
-      FSTDocument *doc1 = [self nextTestDocument];
-      [documentCache addEntry:doc1];
-      keySet = keySet.insert(doc1.key);
-      [toBeRetained addObject:doc1.key];
-      [queryCache addMatchingKeys:keySet
-                      forTargetID:queryData.targetID
-                 atSequenceNumber:queryData.sequenceNumber];
-    }
-
-    {
-      FSTDocument *doc1 = [self nextTestDocument];
-      [mutations addObject:[[FSTSetMutation alloc] initWithKey:doc1.key
-                                                         value:doc1.data
-                                                  precondition:Precondition::None()]];
-      [documentCache addEntry:doc1];
-      [toBeRetained addObject:doc1.key];
-    }
-
+  persistence.run("actually register the mutations", [&]() {
     FIRTimestamp *writeTime = [FIRTimestamp timestamp];
     [mutationQueue addMutationBatchWithWriteTime:writeTime mutations:mutations];
+  });
 
+  NSUInteger expectedRemoveCount = 5;
+  NSMutableSet<FSTDocumentKey *> *toBeRemoved =
+          [NSMutableSet setWithCapacity:expectedRemoveCount];
+  persistence.run("add orphaned docs (previously mutated, then ack'd)", [&]() {
     // Now add the docs we expect to get resolved.
-    NSUInteger expectedRemoveCount = 5;
-    NSMutableSet<FSTDocumentKey *> *toBeRemoved =
-        [NSMutableSet setWithCapacity:expectedRemoveCount];
-    DocumentKeySet removedSet{};
+
     for (int i = 0; i < expectedRemoveCount; i++) {
       FSTDocument *doc = [self nextTestDocument];
       [toBeRemoved addObject:doc.key];
       [documentCache addEntry:doc];
-      removedSet = removedSet.insert(doc.key);
-      [persistence.referenceDelegate removeMutationReference:doc.key
-                                              sequenceNumber:1000];
+      [persistence.referenceDelegate removeMutationReference:doc.key];
     }
-    //[queryCache addPotentiallyOrphanedDocuments:removedSet atSequenceNumber:1000];
+  });
+  persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
     NSUInteger removed = [gc removeOrphanedDocuments:documentCache
-                               throughSequenceNumber:1000
+                               throughSequenceNumber:1000 // remove as much as possible
                                        mutationQueue:mutationQueue];
 
     XCTAssertEqual(expectedRemoveCount, removed);
@@ -415,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
   [persistence shutdown];
 }
-
+/*
 // TODO(gsoltis): write a test that includes limbo documents
 
 - (void)testRemoveTargetsThenGC {
@@ -664,41 +675,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   [persistence shutdown];
 }*/
-/*
-- (void)testShouldGC {
-  if ([self isTestBaseClass]) return;
-
-  id<FSTPersistence> persistence = [self newPersistence];
-  id<FSTQueryCache> queryCache = [persistence queryCache];
-  id<FSTRemoteDocumentCache> docCache = [persistence remoteDocumentCache];
-  User user("user");
-  id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
-  FSTLRUThreshold thresholds{.min_ms_since_start = 1000,
-                             .max_bytes_stored = 128,
-                             .min_ms_between_attempts = 500,
-                             .percentile_to_gc = 10};
-  FSTLRUGarbageCollector *gc =
-      [[FSTLRUGarbageCollector alloc] initWithQueryCache:queryCache thresholds:thresholds now:0];
-  // It's too soon, we should not GC yet.
-  XCTAssertFalse([gc shouldGCAt:0 currentSize:1024]);
-
-  XCTAssertTrue([gc shouldGCAt:1001 currentSize:1024]);
-
-  persistence.run("gc 1", [&]() {
-    [gc collectGarbageWithLiveQueries:@{} documentCache:docCache mutationQueue:mutationQueue];
-  });
-  NSDate *now = [NSDate date];
-  long nowMs = (long)([now timeIntervalSince1970] * 1000);
-  // Too recent compared to the GC we just did.
-  XCTAssertFalse([gc shouldGCAt:nowMs currentSize:1024]);
-
-  // Enough time has passed
-  XCTAssertTrue([gc shouldGCAt:nowMs + 501 currentSize:1024]);
-
-  // Enough time has passed, but the stored byte size is too small
-  XCTAssertFalse([gc shouldGCAt:nowMs + 501 currentSize:10]);
-}
-*/
 @end
 
 NS_ASSUME_NONNULL_END
