@@ -268,46 +268,32 @@ NS_ASSUME_NONNULL_BEGIN
     FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     id<FSTQueryCache> queryCache = self.queryCache;
 
-    [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
-                                   NSNumber *targetIDNumber, FSTTargetChange *change, BOOL *stop) {
-      FSTTargetID targetID = targetIDNumber.intValue;
+    for (const auto &entry : remoteEvent.targetChanges) {
+      FSTTargetID targetID = entry.first;
+      FSTBoxedTargetID *boxedTargetID = @(targetID);
+      FSTTargetChange *change = entry.second;
 
       // Do not ref/unref unassigned targetIDs - it may lead to leaks.
-      FSTQueryData *queryData = self.targetIDs[targetIDNumber];
+      FSTQueryData *queryData = self.targetIDs[boxedTargetID];
       if (!queryData) {
-        return;
+        continue;
       }
+
+      [queryCache removeMatchingKeys:change.removedDocuments forTargetID:targetID];
+      [queryCache addMatchingKeys:change.addedDocuments forTargetID:targetID];
 
       // Update the resume token if the change includes one. Don't clear any preexisting value.
       // Bump the sequence number as well, so that documents being removed now are ordered later
       // than documents that were previously removed from this target.
       NSData *resumeToken = change.resumeToken;
       if (resumeToken.length > 0) {
-        queryData = [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
+        queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
                                                        resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
-        self.targetIDs[targetIDNumber] = queryData;
+        self.targetIDs[boxedTargetID] = queryData;
         [self.queryCache updateQueryData:queryData];
       }
-
-      FSTTargetMapping *mapping = change.mapping;
-      if (mapping) {
-        // First make sure that all references are deleted.
-        if ([mapping isKindOfClass:[FSTResetMapping class]]) {
-          FSTResetMapping *reset = (FSTResetMapping *)mapping;
-          [queryCache removeMatchingKeysForTargetID:targetID];
-          [queryCache addMatchingKeys:reset.documents forTargetID:targetID];
-
-        } else if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
-          FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-          [queryCache removeMatchingKeys:update.removedDocuments forTargetID:targetID];
-          [queryCache addMatchingKeys:update.addedDocuments forTargetID:targetID];
-
-        } else {
-          HARD_FAIL("Unknown mapping type: %s", mapping);
-        }
-      }
-    }];
+    }
 
     // TODO(klimt): This could probably be an NSMutableDictionary.
     DocumentKeySet changedDocKeys;

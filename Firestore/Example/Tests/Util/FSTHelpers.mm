@@ -22,7 +22,7 @@
 
 #include <cinttypes>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -58,6 +58,7 @@ namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::FieldMask;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::FieldTransform;
@@ -65,8 +66,8 @@ using firebase::firestore::model::FieldValue;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
-using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -298,29 +299,125 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
       .snapshot;
 }
 
+@implementation FSTTestTargetMetadataProvider {
+  std::unordered_map<FSTTargetID, DocumentKeySet> _syncedKeys;
+  std::unordered_map<FSTTargetID, FSTQueryData *> _queryData;
+}
+
++ (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
+                                       targets:(NSArray<FSTBoxedTargetID *> *)targets {
+  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
+  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+
+  for (FSTBoxedTargetID *targetID in targets) {
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+                                                         targetID:targetID.intValue
+                                             listenSequenceNumber:0
+                                                          purpose:FSTQueryPurposeListen];
+    [metadataProvider setSyncedKeys:DocumentKeySet{documentKey} forQueryData:queryData];
+  }
+
+  return metadataProvider;
+}
+
++ (instancetype)providerWithEmptyResultForKey:(DocumentKey)documentKey
+                                      targets:(NSArray<FSTBoxedTargetID *> *)targets {
+  FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
+  FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
+
+  for (FSTBoxedTargetID *targetID in targets) {
+    FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
+                                                         targetID:targetID.intValue
+                                             listenSequenceNumber:0
+                                                          purpose:FSTQueryPurposeListen];
+    [metadataProvider setSyncedKeys:DocumentKeySet {} forQueryData:queryData];
+  }
+
+  return metadataProvider;
+}
+
+- (void)setSyncedKeys:(DocumentKeySet)keys forQueryData:(FSTQueryData *)queryData {
+  _syncedKeys[queryData.targetID] = keys;
+  _queryData[queryData.targetID] = queryData;
+}
+
+- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
+  auto it = _syncedKeys.find(targetID.intValue);
+  HARD_ASSERT(it != _syncedKeys.end(), "Cannot process unknown target %s", targetID.intValue);
+  return it->second;
+}
+
+- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID {
+  auto it = _queryData.find(targetID.intValue);
+  HARD_ASSERT(it != _queryData.end(), "Cannot process unknown target %s", targetID.intValue);
+  return it->second;
+}
+
+@end
+
+FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc,
+                                        NSArray<FSTBoxedTargetID *> *addedToTargets) {
+  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+              "Docs from remote updates shouldn't have local changes.");
+  FSTDocumentWatchChange *change =
+      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:addedToTargets
+                                              removedTargetIDs:{}
+                                                   documentKey:doc.key
+                                                      document:doc];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithEmptyResultForKey:doc.key
+                                                               targets:addedToTargets]];
+  [aggregator handleDocumentChange:change];
+  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+}
+
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
-                                         NSArray<NSNumber *> *removedFromTargets) {
+                                         NSArray<FSTBoxedTargetID *> *updatedInTargets,
+                                         NSArray<FSTBoxedTargetID *> *removedFromTargets) {
+  HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
+              "Docs from remote updates shouldn't have local changes.");
   FSTDocumentWatchChange *change =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
                                               removedTargetIDs:removedFromTargets
                                                    documentKey:doc.key
                                                       document:doc];
-  NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
-  FSTQueryData *dummyQueryData = [FSTQueryData alloc];
-  for (NSNumber *targetID in updatedInTargets) {
-    listens[targetID] = dummyQueryData;
-  }
-  for (NSNumber *targetID in removedFromTargets) {
-    listens[targetID] = dummyQueryData;
-  }
-  NSMutableDictionary<NSNumber *, NSNumber *> *pending = [NSMutableDictionary dictionary];
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:doc.version
-                                                  listenTargets:listens
-                                         pendingTargetResponses:pending];
-  [aggregator addWatchChange:change];
-  return [aggregator remoteEvent];
+  NSArray<FSTBoxedTargetID *> *targets =
+      [updatedInTargets arrayByAddingObjectsFromArray:removedFromTargets];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithSingleResultForKey:doc.key
+                                                                targets:targets]];
+  [aggregator handleDocumentChange:change];
+  return [aggregator remoteEventAtSnapshotVersion:doc.version];
+}
+
+FSTTargetChange *FSTTestTargetChangeMarkCurrent() {
+  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
+      current:YES
+      addedDocuments:DocumentKeySet {}
+      modifiedDocuments:DocumentKeySet {}
+      removedDocuments:DocumentKeySet{}];
+}
+
+FSTTargetChange *FSTTestTargetChangeAckDocuments(DocumentKeySet docs) {
+  return [[FSTTargetChange alloc] initWithResumeToken:[NSData data]
+                                              current:YES
+                                       addedDocuments:docs
+                                    modifiedDocuments:DocumentKeySet {}
+                                     removedDocuments:DocumentKeySet{}];
+}
+
+FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
+                                     DocumentKeySet modified,
+                                     DocumentKeySet removed,
+                                     NSData *resumeToken,
+                                     BOOL current) {
+  return [[FSTTargetChange alloc] initWithResumeToken:resumeToken
+                                              current:current
+                                       addedDocuments:added
+                                    modifiedDocuments:modified
+                                     removedDocuments:removed];
 }
 
 /** Creates a resume token to match the given snapshot version. */

@@ -401,28 +401,18 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
  */
 - (void)applyTargetChange:(nullable FSTTargetChange *)targetChange {
   if (targetChange) {
-    FSTTargetMapping *targetMapping = targetChange.mapping;
-    if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
-      _syncedDocuments = ((FSTResetMapping *)targetMapping).documents;
-    } else if ([targetMapping isKindOfClass:[FSTUpdateMapping class]]) {
-      for (const DocumentKey &key : ((FSTUpdateMapping *)targetMapping).addedDocuments) {
-        _syncedDocuments = _syncedDocuments.insert(key);
-      }
-      for (const DocumentKey &key : ((FSTUpdateMapping *)targetMapping).removedDocuments) {
-        _syncedDocuments = _syncedDocuments.erase(key);
-      }
+    for (const DocumentKey &key : targetChange.addedDocuments) {
+      _syncedDocuments = _syncedDocuments.insert(key);
+    }
+    for (const DocumentKey &key : targetChange.modifiedDocuments) {
+      HARD_ASSERT(_syncedDocuments.find(key) != _syncedDocuments.end(),
+                  "Modified document %s not found in view.", key.ToString());
+    }
+    for (const DocumentKey &key : targetChange.removedDocuments) {
+      _syncedDocuments = _syncedDocuments.erase(key);
     }
 
-    switch (targetChange.currentStatusUpdate) {
-      case FSTCurrentStatusUpdateMarkCurrent:
-        self.current = YES;
-        break;
-      case FSTCurrentStatusUpdateMarkNotCurrent:
-        self.current = NO;
-        break;
-      case FSTCurrentStatusUpdateNone:
-        break;
-    }
+    self.current = targetChange.current;
   }
 }
 
