@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Hack to make the headers show up in IDEs
+# Workaround to make the headers show up in IDEs
 # (see https://stackoverflow.com/questions/27039019/ and open issue on CMake
 # issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
 add_custom_target(firebase_firestore_types_ide SOURCES

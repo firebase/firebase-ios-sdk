@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
 
 namespace firebase {
 namespace firestore {

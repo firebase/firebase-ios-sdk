@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.12.1'
+  s.version          = '0.12.2'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -55,17 +55,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.frameworks = 'MobileCoreServices'
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ',
+    'GCC_PREPROCESSOR_DEFINITIONS' => 'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
+      'FIRFirestore_VERSION=' + s.version.to_s + ' PB_FIELD_16BIT',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
       '"${PODS_ROOT}/nanopb" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
-    'OTHER_CFLAGS' => '-DFIRFirestore_VERSION=' + s.version.to_s + ' ' +
-      # The nanopb pod (which is pulled in indirectly) sets these defs, so we must too.
-      # (We *do* require 16bit (or larger) fields, so we'd have to set at least
-      # PB_FIELD_16BIT anyways.)
-      '-DPB_FIELD_32BIT -DPB_NO_PACKED_STRUCTS=1'
+
+    # The nanopb pod (which is pulled in indirectly) sets these defs, so we
+    # must too.  (We *do* require 16bit (or larger) fields, so we'd have to set
+    # at least PB_FIELD_16BIT anyways.)
+    'OTHER_CFLAGS' => '-DPB_FIELD_32BIT -DPB_NO_PACKED_STRUCTS=1'
   }
 
   s.prepare_command = <<-CMD

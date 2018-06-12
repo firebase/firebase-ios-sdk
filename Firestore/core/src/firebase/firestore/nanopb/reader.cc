@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
 
 namespace firebase {
 namespace firestore {
@@ -134,6 +134,14 @@ std::string Reader::ReadString() {
   pb_close_string_substream(&stream_, &substream);
 
   return result;
+}
+
+void Reader::SkipField(const Tag& tag) {
+  if (!status_.ok()) return;
+
+  if (!pb_skip_field(&stream_, tag.wire_type)) {
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+  }
 }
 
 }  // namespace nanopb

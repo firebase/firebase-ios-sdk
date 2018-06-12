@@ -17,6 +17,7 @@
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -41,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::ArrayTransform;
@@ -55,7 +57,7 @@ using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const RESERVED_FIELD_DESIGNATOR = @"__";
+static const char *RESERVED_FIELD_DESIGNATOR = "__";
 
 #pragma mark - FSTParsedSetData
 
@@ -277,7 +279,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                                         arrayElement:NO
                                                      fieldTransforms:_fieldTransforms
                                                            fieldMask:_fieldMask];
-  [context validatePathSegment:fieldName];
+  [context validatePathSegment:util::MakeStringView(fieldName)];
   return context;
 }
 
@@ -334,15 +336,16 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   if (_path == nullptr) {
     return;
   }
-  for (const auto &segment : *_path) {
-    [self validatePathSegment:util::WrapNSStringNoCopy(segment)];
+  for (const std::string &segment : *_path) {
+    [self validatePathSegment:segment];
   }
 }
 
-- (void)validatePathSegment:(NSString *)segment {
-  if ([self isWrite] && [segment hasPrefix:RESERVED_FIELD_DESIGNATOR] &&
-      [segment hasSuffix:RESERVED_FIELD_DESIGNATOR]) {
-    FSTThrowInvalidArgument(@"Document fields cannot begin and end with %@%@",
+- (void)validatePathSegment:(absl::string_view)segment {
+  absl::string_view designator{RESERVED_FIELD_DESIGNATOR};
+  if ([self isWrite] && absl::StartsWith(segment, designator) &&
+      absl::EndsWith(segment, designator)) {
+    FSTThrowInvalidArgument(@"Document fields cannot begin and end with %s%@",
                             RESERVED_FIELD_DESIGNATOR, [self fieldDescription]);
   }
 }

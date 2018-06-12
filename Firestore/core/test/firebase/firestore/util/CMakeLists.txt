@@ -98,7 +98,7 @@ cc_test(
     async_tests_util.h
   DEPENDS
     firebase_firestore_util_executor_std
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
 )
 
 if(HAVE_LIBDISPATCH)
@@ -111,7 +111,7 @@ if(HAVE_LIBDISPATCH)
       async_tests_util.h
     DEPENDS
     firebase_firestore_util_executor_libdispatch
-    firebase_firestore_util_async_queue
+    firebase_firestore_util
   )
 endif()
 
@@ -137,3 +137,12 @@ cc_test(
     firebase_firestore_util
     gmock
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_util_test
+    PUBLIC
+      string_format_apple_test.mm
+      type_traits_apple_test.mm
+  )
+endif()

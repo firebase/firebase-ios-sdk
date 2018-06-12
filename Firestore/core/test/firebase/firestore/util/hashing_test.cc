@@ -16,6 +16,9 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
+#include <map>
+#include <string>
+
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
@@ -28,6 +31,21 @@ struct HasHashMember {
     return 42;
   }
 };
+
+TEST(HashingTest, HasStdHash) {
+  EXPECT_TRUE(impl::has_std_hash<float>::value);
+  EXPECT_TRUE(impl::has_std_hash<double>::value);
+  EXPECT_TRUE(impl::has_std_hash<int>::value);
+  EXPECT_TRUE(impl::has_std_hash<int64_t>::value);
+  EXPECT_TRUE(impl::has_std_hash<std::string>::value);
+  EXPECT_TRUE(impl::has_std_hash<void*>::value);
+  EXPECT_TRUE(impl::has_std_hash<const char*>::value);
+
+  struct Foo {};
+  EXPECT_FALSE(impl::has_std_hash<Foo>::value);
+  EXPECT_FALSE(impl::has_std_hash<absl::string_view>::value);
+  EXPECT_FALSE((impl::has_std_hash<std::map<std::string, std::string>>::value));
+}
 
 TEST(HashingTest, Int) {
   ASSERT_EQ(std::hash<int>{}(0), Hash(0));

@@ -24,8 +24,8 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.pb.h"
-#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.pb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/Protos/nanopb/google/firestore/v1beta1/firestore.nanopb.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
@@ -167,77 +167,102 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
 FieldValue DecodeFieldValueImpl(Reader* reader) {
   if (!reader->status().ok()) return FieldValue::NullValue();
 
-  Tag tag = reader->ReadTag();
-  if (!reader->status().ok()) return FieldValue::NullValue();
-
-  // Ensure the tag matches the wire type
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_Value_null_value_tag:
-    case google_firestore_v1beta1_Value_boolean_value_tag:
-    case google_firestore_v1beta1_Value_integer_value_tag:
-      if (tag.wire_type != PB_WT_VARINT) {
-        reader->set_status(
-            Status(FirestoreErrorCode::DataLoss,
-                   "Input proto bytes cannot be parsed (mismatch between "
-                   "the wiretype and the field number (tag))"));
-      }
-      break;
-
-    case google_firestore_v1beta1_Value_string_value_tag:
-    case google_firestore_v1beta1_Value_timestamp_value_tag:
-    case google_firestore_v1beta1_Value_map_value_tag:
-      if (tag.wire_type != PB_WT_STRING) {
-        reader->set_status(
-            Status(FirestoreErrorCode::DataLoss,
-                   "Input proto bytes cannot be parsed (mismatch between "
-                   "the wiretype and the field number (tag))"));
-      }
-      break;
-
-    default:
-      // We could get here for one of two reasons; either because the input
-      // bytes are corrupt, or because we're attempting to parse a tag that we
-      // haven't implemented yet. Long term, the latter reason should become
-      // less likely (especially in production), so we'll assume former.
-
-      // TODO(rsgowman): While still in development, we'll contradict the above
-      // and assume the latter. Remove the following assertion when we're
-      // confident that we're handling all the tags in the protos.
-      HARD_FAIL(
-          "Unhandled message field number (tag): %s. (Or possibly "
-          "corrupt input bytes)",
-          tag.field_number);
-      reader->set_status(Status(
-          FirestoreErrorCode::DataLoss,
-          "Input proto bytes cannot be parsed (invalid field number (tag))"));
+  // There needs to be at least one entry in the FieldValue.
+  if (reader->bytes_left() == 0) {
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Input Value proto missing contents"));
+    return FieldValue::NullValue();
   }
 
-  if (!reader->status().ok()) return FieldValue::NullValue();
+  FieldValue result = FieldValue::NullValue();
 
-  switch (tag.field_number) {
-    case google_firestore_v1beta1_Value_null_value_tag:
-      reader->ReadNull();
-      return FieldValue::NullValue();
-    case google_firestore_v1beta1_Value_boolean_value_tag:
-      return FieldValue::BooleanValue(reader->ReadBool());
-    case google_firestore_v1beta1_Value_integer_value_tag:
-      return FieldValue::IntegerValue(reader->ReadInteger());
-    case google_firestore_v1beta1_Value_string_value_tag:
-      return FieldValue::StringValue(reader->ReadString());
-    case google_firestore_v1beta1_Value_timestamp_value_tag:
-      return FieldValue::TimestampValue(
-          reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
-    case google_firestore_v1beta1_Value_map_value_tag:
-      return FieldValue::ObjectValueFromMap(
-          reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return FieldValue::NullValue();
 
-    default:
-      // This indicates an internal error as we've already ensured that this is
-      // a valid field_number.
-      HARD_FAIL(
-          "Somehow got an unexpected field number (tag) after verifying that "
-          "the field number was expected.");
+    // Ensure the tag matches the wire type
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Value_null_value_tag:
+      case google_firestore_v1beta1_Value_boolean_value_tag:
+      case google_firestore_v1beta1_Value_integer_value_tag:
+        if (tag.wire_type != PB_WT_VARINT) {
+          reader->set_status(
+              Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (mismatch between "
+                     "the wiretype and the field number (tag))"));
+        }
+        break;
+
+      case google_firestore_v1beta1_Value_string_value_tag:
+      case google_firestore_v1beta1_Value_timestamp_value_tag:
+      case google_firestore_v1beta1_Value_map_value_tag:
+        if (tag.wire_type != PB_WT_STRING) {
+          reader->set_status(
+              Status(FirestoreErrorCode::DataLoss,
+                     "Input proto bytes cannot be parsed (mismatch between "
+                     "the wiretype and the field number (tag))"));
+        }
+        break;
+
+      case google_firestore_v1beta1_Value_double_value_tag:
+      case google_firestore_v1beta1_Value_bytes_value_tag:
+      case google_firestore_v1beta1_Value_reference_value_tag:
+      case google_firestore_v1beta1_Value_geo_point_value_tag:
+      case google_firestore_v1beta1_Value_array_value_tag:
+        // TODO(b/74243929): Implement remaining types.
+        HARD_FAIL("Unhandled message field number (tag): %i.",
+                  tag.field_number);
+
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these. No
+        // action required here, though we'll need to skip the relevant bytes
+        // below.
+        break;
+    }
+
+    if (!reader->status().ok()) return FieldValue::NullValue();
+
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Value_null_value_tag:
+        reader->ReadNull();
+        result = FieldValue::NullValue();
+        break;
+      case google_firestore_v1beta1_Value_boolean_value_tag:
+        result = FieldValue::BooleanValue(reader->ReadBool());
+        break;
+      case google_firestore_v1beta1_Value_integer_value_tag:
+        result = FieldValue::IntegerValue(reader->ReadInteger());
+        break;
+      case google_firestore_v1beta1_Value_string_value_tag:
+        result = FieldValue::StringValue(reader->ReadString());
+        break;
+      case google_firestore_v1beta1_Value_timestamp_value_tag:
+        result = FieldValue::TimestampValue(
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
+        break;
+      case google_firestore_v1beta1_Value_map_value_tag:
+        // TODO(rsgowman): We should merge the existing map (if any) with the
+        // newly parsed map.
+        result = FieldValue::ObjectValueFromMap(
+            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+        break;
+
+      case google_firestore_v1beta1_Value_double_value_tag:
+      case google_firestore_v1beta1_Value_bytes_value_tag:
+      case google_firestore_v1beta1_Value_reference_value_tag:
+      case google_firestore_v1beta1_Value_geo_point_value_tag:
+      case google_firestore_v1beta1_Value_array_value_tag:
+        // TODO(b/74243929): Implement remaining types.
+        HARD_FAIL("Unhandled message field number (tag): %i.",
+                  tag.field_number);
+
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
+    }
   }
+
+  return result;
 }
 
 /**
@@ -504,7 +529,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   // Initialize BatchGetDocumentsResponse fields to their default values
   std::unique_ptr<MaybeDocument> found;
   std::string missing;
-  // TODO(rsgowman): transaction
+  // We explicitly ignore the 'transaction' field
   SnapshotVersion read_time = SnapshotVersion::None();
 
   while (reader->bytes_left()) {
@@ -515,6 +540,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     switch (tag.field_number) {
       case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
       case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
         if (tag.wire_type != PB_WT_STRING) {
           reader->set_status(
@@ -524,14 +550,11 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         }
         break;
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
-        // TODO(rsgowman)
-        abort();
-
       default:
-        reader->set_status(Status(
-            FirestoreErrorCode::DataLoss,
-            "Input proto bytes cannot be parsed (invalid field number (tag))"));
+        // Unknown tag. According to the proto spec, we need to ignore these. No
+        // action required here, though we'll need to skip the relevant bytes
+        // below.
+        break;
     }
 
     if (!reader->status().ok()) return nullptr;
@@ -559,8 +582,13 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
-        // TODO(rsgowman)
-        abort();
+        // This field is ignored by the client sdk, but we still need to extract
+        // it.
+        // TODO(rsgowman) switch this to reader->SkipField() (or whatever we end
+        // up calling it) once that exists. Possibly group this with other
+        // ignored and/or unknown fields
+        reader->ReadString();
+        break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
         read_time = SnapshotVersion{
@@ -568,11 +596,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       default:
-        // This indicates an internal error as we've already ensured that this
-        // is a valid field_number.
-        HARD_FAIL(
-            "Somehow got an unexpected field number (tag) after verifying that "
-            "the field number was expected.");
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
     }
   }
 
@@ -581,9 +606,10 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   } else if (!missing.empty()) {
     return absl::make_unique<NoDocument>(DecodeKey(missing), read_time);
   } else {
-    // Neither 'found' nor 'missing' fields were set.
-    // TODO(rsgowman): Handle the error case.
-    abort();
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Invalid BatchGetDocumentsReponse message: "
+                              "Neither 'found' nor 'missing' fields set."));
+    return nullptr;
   }
 }
 

@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.12.2
 - [fixed] Fixed an issue where `FirestoreSettings` would accept a concurrent
   dispatch queue, but this configuration would trigger an assertion failure.
   Passing a concurrent dispatch queue should now work correctly (#988).
