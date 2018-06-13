@@ -2,6 +2,7 @@
 
 # 2018-06-19 -- v5.0.4 -- M28
 - [fixed] Fixed a thread sanitizer error (#1390)
+- [fixed] Updated FirebaseCore.podspec so that it works with coocoapod-packager. (#1378)
 
 # 2018-05-29 -- v5.0.2 -- M26
 - [changed] Delayed library registration call from `+load` to `+initialize`. (#1305)
