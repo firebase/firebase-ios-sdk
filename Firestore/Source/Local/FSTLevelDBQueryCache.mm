@@ -85,7 +85,7 @@ using firebase::firestore::model::DocumentKeySet;
   return proto;
 }
 
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(DB *)db {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);

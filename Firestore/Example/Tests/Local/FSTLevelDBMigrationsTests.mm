@@ -42,7 +42,7 @@ using leveldb::Status;
 @end
 
 @implementation FSTLevelDBMigrationsTests {
-  std::shared_ptr<DB> _db;
+  std::unique_ptr<DB> _db;
 }
 
 - (void)setUp {
@@ -62,12 +62,12 @@ using leveldb::Status;
 }
 
 - (void)testAddsTargetGlobal {
-  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
   LevelDbTransaction transaction(_db.get(), "testAddsTargetGlobal");
   [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   transaction.Commit();
-  metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+  metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
 
@@ -107,7 +107,7 @@ using leveldb::Status;
     LevelDbTransaction transaction(_db.get(), "testCountsQueries");
     [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
     transaction.Commit();
-    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db];
+    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
     XCTAssertEqual(expected, metadata.targetCount, @"Failed to count all of the targets we added");
   }
 }

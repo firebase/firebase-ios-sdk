@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include <memory>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
@@ -60,6 +61,7 @@ using leveldb::WriteOptions;
 
 @implementation FSTLevelDB {
   std::unique_ptr<LevelDbTransaction> _transaction;
+  std::unique_ptr<leveldb::DB> _ptr;
   FSTTransactionRunner _transactionRunner;
 }
 
@@ -80,6 +82,10 @@ using leveldb::WriteOptions;
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (leveldb::DB *)ptr {
+  return _ptr.get();
 }
 
 - (const FSTTransactionRunner &)run {
