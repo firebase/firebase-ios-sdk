@@ -29,8 +29,6 @@ extern NSString *const kFIRPersistedDebugModeKey;
 
 extern const char *kFIRLoggerASLClientFacilityName;
 
-extern const char *kFIRLoggerCustomASLMessageFormat;
-
 extern void FIRResetLogger(void);
 
 extern aslclient getFIRLoggerClient(void);
@@ -38,10 +36,6 @@ extern aslclient getFIRLoggerClient(void);
 extern dispatch_queue_t getFIRClientQueue(void);
 
 extern BOOL getFIRLoggerDebugMode(void);
-
-// Define the message format again to make sure the format doesn't accidentally change.
-static NSString *const kCorrectASLMessageFormat =
-    @"$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
 
 static NSString *const kMessageCode = @"I-COR000001";
 
@@ -71,10 +65,6 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 // Test some stable variables to make sure they weren't accidently changed.
 - (void)testStableVariables {
-  // kFIRLoggerCustomASLMessageFormat.
-  XCTAssertEqualObjects(kCorrectASLMessageFormat,
-                        [NSString stringWithUTF8String:kFIRLoggerCustomASLMessageFormat]);
-
   // Strings of type FIRLoggerServices.
   XCTAssertEqualObjects(kFIRLoggerABTesting, @"[Firebase/ABTesting]");
   XCTAssertEqualObjects(kFIRLoggerAdMob, @"[Firebase/AdMob]");

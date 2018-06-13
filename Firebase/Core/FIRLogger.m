@@ -54,10 +54,6 @@ NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
 /// ASL client facility name used by FIRLogger.
 const char *kFIRLoggerASLClientFacilityName = "com.firebase.app.logger";
 
-/// Message format used by ASL client that matches format of NSLog.
-const char *kFIRLoggerCustomASLMessageFormat =
-    "$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
-
 /// Keys for the number of errors and warnings logged.
 NSString *const kFIRLoggerErrorCountKey = @"/google/firebase/count_of_errors_logged";
 NSString *const kFIRLoggerWarningCountKey = @"/google/firebase/count_of_warnings_logged";
