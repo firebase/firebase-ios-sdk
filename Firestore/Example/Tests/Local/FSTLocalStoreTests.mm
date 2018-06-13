@@ -20,9 +20,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
-#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -150,10 +148,6 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   self.lastTargetID = queryData.targetID;
   return queryData.targetID;
-}
-
-- (void)collectGarbage {
-  return;
 }
 
 /** Asserts that the last target ID is the given number. */
@@ -640,12 +634,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
                                                  @[ @(targetID) ])];
-  [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"baz"}, NO),
                                                   @[], @[ @(targetID) ])];
-  [self collectGarbage];
 
   FSTAssertNotContains(@"foo/bar");
 }
@@ -665,25 +657,21 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
   FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:3];
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:4];
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self acknowledgeMutationWithVersion:5];
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
   FSTAssertNotContains(@"foo/baz");
@@ -704,25 +692,21 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self writeMutation:FSTTestSetMutation(@"foo/bah", @{@"foo" : @"bah"})];
   [self writeMutation:FSTTestDeleteMutation(@"foo/baz")];
-  [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
   FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // patch mutation
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertContains(FSTTestDoc("foo/bah", 0, @{@"foo" : @"bah"}, YES));
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // set mutation
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
   FSTAssertContains(FSTTestDeletedDoc("foo/baz", 0));
 
   [self rejectMutation];  // delete mutation
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/bah");
   FSTAssertNotContains(@"foo/baz");
@@ -738,7 +722,6 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                  @[ @(targetID) ])];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
-  [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES));
 
@@ -751,13 +734,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, YES));
   [self acknowledgeMutationWithVersion:2];
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
-  [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(query, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self.localStore releaseQuery:query];
-  [self collectGarbage];
 
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/baz");
@@ -775,9 +756,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTargetID targetID = 321;
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 1, @{}, NO),
                                                   @[ @(targetID) ], @[], @[ @(targetID) ])];
-  //FSTAssertContains(FSTTestDoc("foo/bar", 1, @{}, NO));
 
-  //[self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 }
 

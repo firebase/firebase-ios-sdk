@@ -158,14 +158,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID;
 
 /**
- * Collects garbage if necessary.
- *
- * Should be called periodically by Sync Engine to recover resources. The implementation must
- * guarantee that GC won't happen in other places than this method call.
- */
-- (void)collectGarbage;
-
-/**
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.
  * A query must be allocated in the local store before the store can be used to manage its view.
  */

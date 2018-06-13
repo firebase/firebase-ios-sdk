@@ -21,7 +21,6 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -406,20 +405,6 @@ NS_ASSUME_NONNULL_BEGIN
   return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
     return [self.queryCache matchingKeysForTargetID:targetID];
   });
-}
-
-- (void)collectGarbage {
-  return;
-  /*self.persistence.run("Garbage Collection", [&]() {
-    // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
-    // accumulate the garbage keys.
-    std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
-    if (garbage.size() > 0) {
-      for (const DocumentKey &key : garbage) {
-        [self.remoteDocumentCache removeEntryForKey:key];
-      }
-    }
-  });*/
 }
 
 /**
