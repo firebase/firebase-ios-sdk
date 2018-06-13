@@ -61,6 +61,7 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GoogleSignIn.bundle
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GPPACLPickerResources.bundle
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GINInviteResources.bundle
+- Please note that you shouldn't add the Firebase frameworks to the Carthage build phase (`copy-frameworks`). The frameworks contain static libraries that are linked at build time.
 
 ## Versioning
 

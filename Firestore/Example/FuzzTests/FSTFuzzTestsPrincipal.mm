@@ -18,12 +18,22 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+
+using firebase::firestore::remote::Serializer;
+
 namespace {
+
+// Fuzz-test the deserialization process in Firestore. The Serializer reads raw
+// bytes and converts them to a model object.
+void FuzzTestDeserialization(const uint8_t *data, size_t size) {
+  // TODO(minafarid): fuzz-test Serializer.
+}
 
 // Contains the code to be fuzzed. Called by the fuzzing library with
 // different argument values for `data` and `size`.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  // Code to be fuzz-tested here.
+  FuzzTestDeserialization(data, size);
   return 0;
 }
 
@@ -32,7 +42,7 @@ int RunFuzzTestingMain() {
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc.
   char *program_args[] = {
-      const_cast<char *>("RunFuzzTestingMain")  // First argument is program name.
+      const_cast<char *>("RunFuzzTestingMain")  // First arg is program name.
   };
   char **argv = program_args;
   int argc = sizeof(program_args) / sizeof(program_args[0]);

@@ -287,7 +287,15 @@
           "targets": [
             2
           ]
-        },
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ],
         "watchSnapshot": 2000,
         "stateExpect": {
           "limboDocs": [
@@ -1144,7 +1152,15 @@
           "targets": [
             2
           ]
-        },
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ],
         "watchSnapshot": 2000,
         "stateExpect": {
           "limboDocs": [

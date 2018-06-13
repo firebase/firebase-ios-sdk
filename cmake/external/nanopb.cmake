@@ -1,4 +1,6 @@
-# Copyright 2018 Google # # Licensed under the Apache License, Version 2.0 (the "License");
+# Copyright 2018 Google
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -14,7 +16,7 @@ include(ExternalProject)
 
 set(
   NANOPB_PROTOC_BIN
-  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
+  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
 )
 
 ExternalProject_Add(
@@ -23,42 +25,18 @@ ExternalProject_Add(
     protobuf
 
   DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
-  URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.8.tar.gz
-  URL_HASH SHA256=f192c7c7cc036be36babc303b7d2315d4f62e2fe4be28c172cfed4cfa0ed5f22
-
-  BUILD_IN_SOURCE ON
+  URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.9.1.tar.gz
+  URL_HASH SHA256=67460d0c0ad331ef4d5369ad337056d0cd2f900c94887628d287eb56c69324bc
 
   PREFIX ${PROJECT_BINARY_DIR}/external/nanopb
 
-  # Note for (not yet released) nanopb 0.4.0: nanopb will (likely) switch to
-  # cmake for the protoc plugin. Set these additional cmake variables to use
-  # it.
-  #   -Dnanopb_BUILD_GENERATOR:BOOL=ON
-  #   -Dnanopb_PROTOC_PATH:STRING=${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/src/protoc
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DBUILD_SHARED_LIBS:BOOL=OFF
-
-  BUILD_COMMAND
-  COMMAND
-    ${CMAKE_COMMAND} --build .
-  # NB: The following additional command is only necessary to regenerate the
-  # nanopb proto files.
-  COMMAND
-    make -C <SOURCE_DIR>/generator/proto
-
-  # nanopb relies on $PATH for the location of protoc. cmake makes it difficult
-  # to adjust the path, so we'll just patch the build files with the exact
-  # location of protoc.
-  #
-  # NB: cmake sometimes runs the patch command multiple times in the same src
-  # dir, so we need to make sure this is idempotent. (eg 'make && make clean &&
-  # make')
-  PATCH_COMMAND
-    grep ${NANOPB_PROTOC_BIN} ./generator/proto/Makefile
-      || perl -i -pe s,protoc,${NANOPB_PROTOC_BIN},g
-           ./CMakeLists.txt ./generator/proto/Makefile
+    -Dnanopb_BUILD_GENERATOR:BOOL=ON
+    -Dnanopb_PROTOC_PATH:STRING=${NANOPB_PROTOC_BIN}
 
   UPDATE_COMMAND ""
+  TEST_COMMAND ""
   INSTALL_COMMAND ""
 )

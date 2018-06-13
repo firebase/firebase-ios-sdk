@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Retrieves the global singleton metadata row from the given database, if it exists.
  * TODO(gsoltis): remove this method once fully ported to transactions.
  */
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<leveldb::DB>)db;
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(leveldb::DB *)db;
 
 /**
  * Retrieves the global singleton metadata row using the given transaction, if it exists.

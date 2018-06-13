@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns one larger than the largest batch ID that has been stored. If there are no mutations
  * returns 0. Note that batch IDs are global.
  */
-+ (FSTBatchID)loadNextBatchIDFromDB:(std::shared_ptr<leveldb::DB>)db;
++ (FSTBatchID)loadNextBatchIDFromDB:(leveldb::DB *)db;
 
 @end
 

@@ -48,6 +48,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
@@ -119,6 +120,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
   HARD_FAIL("Not implemented");
+}
+
+- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+  return DocumentKeySet{};
 }
 
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {

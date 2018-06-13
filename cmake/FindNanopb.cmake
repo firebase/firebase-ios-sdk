@@ -24,7 +24,7 @@ find_path(
 find_library(
   NANOPB_LIBRARY
   NAMES protobuf-nanopb protobuf-nanopbd
-  HINTS ${BINARY_DIR}/src/nanopb
+  HINTS ${BINARY_DIR}/src/nanopb-build
 )
 
 find_package_handle_standard_args(

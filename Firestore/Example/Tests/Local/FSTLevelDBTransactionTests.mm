@@ -46,7 +46,7 @@ using firebase::firestore::local::LevelDbTransaction;
 @end
 
 @implementation FSTLevelDBTransactionTests {
-  std::shared_ptr<DB> _db;
+  std::unique_ptr<DB> _db;
 }
 
 - (void)setUp {
