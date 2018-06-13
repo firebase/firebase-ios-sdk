@@ -278,8 +278,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"bar/baz");
 
   [self
-      applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
-                                                @[ @(targetID) ], @[])];
+      applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
+                                                @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO));
   FSTAssertNotContains(@"bar/baz");
@@ -294,7 +294,13 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
                                                   @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+  // Under eager GC, there is no longer a reference for the document, and it should be
+  // deleted.
+  if (![self gcIsEager]) {
+    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+  } else {
+    FSTAssertNotContains(@"foo/bar");
+  }
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
@@ -334,8 +340,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
+                                                  @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO));
 
@@ -377,8 +383,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
+                                                  @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
 
@@ -498,7 +504,9 @@ NS_ASSUME_NONNULL_BEGIN
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
                                                   @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+  if (![self gcIsEager]) {
+    FSTAssertContains(FSTTestDeletedDoc("foo/bar", 2));
+  }
 
   [self
       applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 3, @{@"it" : @"changed"}, NO),
@@ -616,14 +624,10 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[], @[ @1 ])];
-  FSTAssertRemoved(@[ @"foo/bar" ]);
-
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
                                                   @[ @1 ], @[], @[ @1 ])];
-  [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 }
 
