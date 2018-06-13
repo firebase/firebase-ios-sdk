@@ -37,10 +37,6 @@ extern dispatch_queue_t getFIRClientQueue(void);
 
 extern BOOL getFIRLoggerDebugMode(void);
 
-// Define the message format again to make sure the format doesn't accidentally change.
-static NSString *const kCorrectASLMessageFormat =
-    @"$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
-
 static NSString *const kMessageCode = @"I-COR000001";
 
 @interface FIRLoggerTest : FIRTestCase
