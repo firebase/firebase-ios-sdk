@@ -565,12 +565,9 @@ NS_ASSUME_NONNULL_BEGIN
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
   // A blind patch is not visible in the cache
   FSTAssertNotContains(@"foo/bar");
-  //FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self rejectMutation];
   FSTAssertNotContains(@"foo/bar");
-  //FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO) ]);
-  //FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
 }
 
 - (void)testHandlesSetMutationsAndPatchMutationOfJustOneTogether {
@@ -742,11 +739,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTAssertNotContains(@"foo/bar");
   FSTAssertNotContains(@"foo/baz");
-}
-
-- (id<FSTQueryCache>)queryCache {
-  id result = [self.localStore performSelector:@selector(queryCache)];
-  return (id<FSTQueryCache>)result;
 }
 
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {
