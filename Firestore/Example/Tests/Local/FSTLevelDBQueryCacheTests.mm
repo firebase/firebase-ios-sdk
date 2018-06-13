@@ -47,10 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
   self.queryCache = nil;
 }
 
-- (void)removeQueryData:(FSTQueryData *)queryData {
-  [(FSTLevelDBQueryCache *)self.queryCache removeQueryData:queryData];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -48,10 +48,6 @@ NS_ASSUME_NONNULL_BEGIN
   [super tearDown];
 }
 
-- (void)removeQueryData:(FSTQueryData *)queryData {
-  [(FSTMemoryQueryCache *)self.queryCache removeQueryData:queryData];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

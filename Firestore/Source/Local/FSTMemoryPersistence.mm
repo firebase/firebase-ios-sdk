@@ -298,7 +298,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocumentKey *key = docKey;
     self->_orphaned->insert(key);
   }
-  [(FSTMemoryQueryCache *)_persistence.queryCache removeQueryData:queryData];
+  [_persistence.queryCache removeQueryData:queryData];
 }
 
 
