@@ -165,12 +165,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
-  id<FSTGarbageCollector> garbageCollector;
   if (usePersistence) {
-    // TODO(http://b/33384523): For now we just disable garbage collection when persistence is
-    // enabled.
-    garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
-
     NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                              documentsDirectory:[FSTLevelDB documentsDirectory]];
 
@@ -181,8 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     _persistence = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
   } else {
-    garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-    _persistence = [FSTMemoryPersistence persistence];
+    _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
 
   NSError *error;
@@ -195,7 +189,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence
-                                          garbageCollector:garbageCollector
                                                initialUser:user];
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo

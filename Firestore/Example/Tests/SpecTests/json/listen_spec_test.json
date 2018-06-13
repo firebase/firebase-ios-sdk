@@ -2,7 +2,8 @@
   "Contents of query are cleared when listen is removed.": {
     "describeName": "Listens:",
     "itName": "Contents of query are cleared when listen is removed.",
-    "tags": [],
+    "tags": ["no-lru"],
+    "comment": "Explicitly tests eager GC behavior",
     "config": {
       "useGarbageCollection": true
     },

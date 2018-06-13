@@ -22,6 +22,7 @@
 #import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
@@ -54,6 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)tearDown {
   [self.persistence shutdown];
+}
+
+- (void)removeQueryData:(FSTQueryData *)queryData {
+  @throw FSTAbstractMethodException();  // NOLINT
 }
 
 /**
@@ -109,12 +114,12 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects([self.queryCache queryDataForQuery:q1], data1);
     XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
 
-    [self.queryCache removeQueryData:data1];
+    [self removeQueryData:data1];
     XCTAssertNil([self.queryCache queryDataForQuery:q1]);
     XCTAssertEqualObjects([self.queryCache queryDataForQuery:q2], data2);
     XCTAssertEqual([self.queryCache count], 1);
 
-    [self.queryCache removeQueryData:data2];
+    [self removeQueryData:data2];
     XCTAssertNil([self.queryCache queryDataForQuery:q1]);
     XCTAssertNil([self.queryCache queryDataForQuery:q2]);
     XCTAssertEqual([self.queryCache count], 0);
@@ -148,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData1 = [self queryDataWithQuery:_queryRooms];
     [self.queryCache addQueryData:queryData1];
 
-    [self.queryCache removeQueryData:queryData1];
+    [self removeQueryData:queryData1];
 
     FSTQueryData *result = [self.queryCache queryDataForQuery:_queryRooms];
     XCTAssertNil(result);
@@ -162,7 +167,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData = [self queryDataWithQuery:_queryRooms];
 
     // no-op, but make sure it doesn't throw.
-    XCTAssertNoThrow([self.queryCache removeQueryData:queryData]);
+    XCTAssertNoThrow([self removeQueryData:queryData]);
   });
 }
 
@@ -181,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertTrue([self.queryCache containsKey:key1]);
     XCTAssertTrue([self.queryCache containsKey:key2]);
 
-    [self.queryCache removeQueryData:rooms];
+    [self removeQueryData:rooms];
     XCTAssertFalse([self.queryCache containsKey:key1]);
     XCTAssertFalse([self.queryCache containsKey:key2]);
   });
@@ -263,7 +268,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self removeMatchingKey:room1 forTargetID:rooms.targetID];
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
 
-    [self.queryCache removeQueryData:rooms];
+    [self removeQueryData:rooms];
     XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
 
     [self.queryCache removeMatchingKeysForTargetID:halls.targetID];
@@ -309,7 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
     // TargetIDs never come down.
-    [self.queryCache removeQueryData:query2];
+    [self removeQueryData:query2];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
     // A query with an empty result set still counts.
@@ -320,10 +325,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache addQueryData:query3];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-    [self.queryCache removeQueryData:query1];
+    [self removeQueryData:query1];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
 
-    [self.queryCache removeQueryData:query3];
+    [self removeQueryData:query3];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
   });
 
@@ -361,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self.queryCache highestTargetID], 2);
 
     // TargetIDs never come down.
-    [self.queryCache removeQueryData:query2];
+    [self removeQueryData:query2];
     XCTAssertEqual([self.queryCache highestTargetID], 2);
 
     // A query with an empty result set still counts.
@@ -372,10 +377,10 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache addQueryData:query3];
     XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-    [self.queryCache removeQueryData:query1];
+    [self removeQueryData:query1];
     XCTAssertEqual([self.queryCache highestTargetID], 42);
 
-    [self.queryCache removeQueryData:query3];
+    [self removeQueryData:query3];
     XCTAssertEqual([self.queryCache highestTargetID], 42);
   });
 

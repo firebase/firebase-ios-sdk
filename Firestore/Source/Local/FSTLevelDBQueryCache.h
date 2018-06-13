@@ -60,6 +60,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enumerateOrphanedDocumentsUsingBlock:
         (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
 
+- (void)removeQueryData:(FSTQueryData *)queryData;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -37,7 +37,7 @@ using firebase::firestore::auth::User;
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers memoryPersistence];
+  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
 }
 

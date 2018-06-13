@@ -298,29 +298,48 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
       .snapshot;
 }
 
-FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
-                                         NSArray<NSNumber *> *updatedInTargets,
-                                         NSArray<NSNumber *> *removedFromTargets) {
+FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
+        NSArray<NSNumber *> *updatedInTargets,
+        NSArray<NSNumber *> *removedFromTargets,
+        NSArray<NSNumber *> *limboTargets) {
   FSTDocumentWatchChange *change =
-      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
-                                              removedTargetIDs:removedFromTargets
-                                                   documentKey:doc.key
-                                                      document:doc];
+          [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
+                                                  removedTargetIDs:removedFromTargets
+                                                       documentKey:doc.key
+                                                          document:doc];
   NSMutableDictionary<NSNumber *, FSTQueryData *> *listens = [NSMutableDictionary dictionary];
   FSTQueryData *dummyQueryData = [FSTQueryData alloc];
+  FSTQueryData *limboQueryData = [[FSTQueryData alloc] initWithQuery:nil
+                                                            targetID:0
+                                                listenSequenceNumber:0
+                                                             purpose:FSTQueryPurposeLimboResolution];
   for (NSNumber *targetID in updatedInTargets) {
-    listens[targetID] = dummyQueryData;
+    if ([limboTargets containsObject:targetID]) {
+      listens[targetID] = limboQueryData;
+    } else {
+      listens[targetID] = dummyQueryData;
+    }
   }
   for (NSNumber *targetID in removedFromTargets) {
-    listens[targetID] = dummyQueryData;
+    if ([limboTargets containsObject:targetID]) {
+      listens[targetID] = limboQueryData;
+    } else {
+      listens[targetID] = dummyQueryData;
+    }
   }
   NSMutableDictionary<NSNumber *, NSNumber *> *pending = [NSMutableDictionary dictionary];
   FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:doc.version
-                                                  listenTargets:listens
-                                         pendingTargetResponses:pending];
+          [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:doc.version
+                                                      listenTargets:listens
+                                             pendingTargetResponses:pending];
   [aggregator addWatchChange:change];
   return [aggregator remoteEvent];
+}
+
+FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
+                                         NSArray<NSNumber *> *updatedInTargets,
+                                         NSArray<NSNumber *> *removedFromTargets) {
+  return FSTTestUpdateRemoteEventWithLimboTargets(doc, updatedInTargets, removedFromTargets, @[]);
 }
 
 /** Creates a resume token to match the given snapshot version. */

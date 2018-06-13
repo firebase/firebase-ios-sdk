@@ -98,16 +98,13 @@ NS_ASSUME_NONNULL_BEGIN
   EmptyCredentialsProvider _credentialProvider;
 }
 
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector {
+- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence {
   return [self initWithPersistence:persistence
-                  garbageCollector:garbageCollector
                        initialUser:User::Unauthenticated()
                  outstandingWrites:{}];
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector
                         initialUser:(const User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites {
   if (self = [super init]) {
@@ -125,7 +122,6 @@ NS_ASSUME_NONNULL_BEGIN
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _dispatchQueue = [FSTDispatchQueue queueWith:queue];
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
-                                            garbageCollector:garbageCollector
                                                  initialUser:initialUser];
     _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                             workerDispatchQueue:_dispatchQueue

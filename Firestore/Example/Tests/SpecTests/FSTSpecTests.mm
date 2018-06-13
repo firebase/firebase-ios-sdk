@@ -66,6 +66,8 @@ static NSString *const kExclusiveTag = @"exclusive";
 // to temporarily diverge.
 static NSString *const kNoIOSTag = @"no-ios";
 
+NSString *const kNoLRUTag = @"no-lru";
+
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
@@ -76,32 +78,26 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 @implementation FSTSpecTests
 
-- (id<FSTPersistence>)persistence {
+- (id<FSTPersistence>)persistence:(BOOL)enableGC {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Store persistence / GCEnabled so we can re-use it in doRestart.
-  self.driverPersistence = [self persistence];
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   self.GCEnabled = [GCEnabled boolValue];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector];
+  self.driverPersistence = [self persistence:self.GCEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
 }
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
   [self.driverPersistence shutdown];
-}
-
-/**
- * Creates the appropriate garbage collector for the test configuration: an eager collector if
- * GC is enabled or a no-op collector otherwise.
- */
-- (id<FSTGarbageCollector>)garbageCollector {
-  return self.GCEnabled ? [[FSTEagerGarbageCollector alloc] init]
-                        : [[FSTNoOpGarbageCollector alloc] init];
 }
 
 /**
@@ -394,7 +390,6 @@ static NSString *const kNoIOSTag = @"no-ios";
   // re-create FSTMemoryPersistence without losing all persisted state).
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
@@ -688,11 +683,18 @@ static NSString *const kNoIOSTag = @"no-ios";
         runTest = NO;
       }
       if (runTest) {
+        runTest = [self shouldRunWithTags:tags];
+      }
+      if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
       } else {
         NSLog(@"  [SKIPPED] Spec test: %@", name);
+        NSString *comment = testDescription[@"comment"];
+        if (comment) {
+          NSLog(@"    %@", comment);
+        }
       }
     }];
   }

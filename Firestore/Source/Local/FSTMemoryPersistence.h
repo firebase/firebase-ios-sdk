@@ -27,9 +27,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTMemoryPersistence : NSObject <FSTPersistence>
 
++ (instancetype)persistenceWithEagerGC;
+
 + (instancetype)persistenceWithLRUGC;
 
-+ (instancetype)persistence;
+//+ (instancetype)persistence;
+
+@end
+
+@interface FSTMemoryEagerReferenceDelegate : NSObject <FSTReferenceDelegate, FSTTransactional>
+
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 
 @end
 

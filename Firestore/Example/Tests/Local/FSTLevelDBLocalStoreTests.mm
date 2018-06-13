@@ -36,6 +36,10 @@ NS_ASSUME_NONNULL_BEGIN
   return [FSTPersistenceTestHelpers levelDBPersistence];
 }
 
+- (BOOL)gcIsEager {
+  return NO;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

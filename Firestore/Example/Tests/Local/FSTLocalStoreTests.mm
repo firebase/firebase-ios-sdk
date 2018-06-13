@@ -24,6 +24,7 @@
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
 #import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
+#import "Firestore/Source/Local/FSTQueryCache.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
@@ -72,9 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   id<FSTPersistence> persistence = [self persistence];
   self.localStorePersistence = persistence;
-  id<FSTGarbageCollector> garbageCollector = [[FSTEagerGarbageCollector alloc] init];
   self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
-                                              garbageCollector:garbageCollector
                                                    initialUser:User::Unauthenticated()];
   [self.localStore start];
 
@@ -93,6 +92,10 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
+- (BOOL)gcIsEager {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
 /**
  * Xcode will run tests from any class that extends XCTestCase, but this doesn't work for
  * FSTLocalStoreTests since it is incomplete without the implementations supplied by its
@@ -100,15 +103,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isTestBaseClass {
   return [self class] == [FSTLocalStoreTests class];
-}
-
-/** Restarts the local store using the FSTNoOpGarbageCollector instead of the default. */
-- (void)restartWithNoopGarbageCollector {
-  id<FSTGarbageCollector> garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
-  self.localStore = [[FSTLocalStore alloc] initWithPersistence:self.localStorePersistence
-                                              garbageCollector:garbageCollector
-                                                   initialUser:User::Unauthenticated()];
-  [self.localStore start];
 }
 
 - (void)writeMutation:(FSTMutation *)mutation {
@@ -159,7 +153,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)collectGarbage {
-  [self.localStore collectGarbage];
+  return;
 }
 
 /** Asserts that the last target ID is the given number. */
@@ -236,7 +230,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:0];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
+  if ([self gcIsEager]) {
+    // Nothing is pinning this anymore, as it has been acknowledged and there are no targets active.
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesSetMutationThenDocument {
@@ -304,10 +301,15 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
   // Can now remove the target, since we have a mutation pinning the document
   [self.localStore releaseQuery:query];
+  // Verify we didn't lose anything
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self acknowledgeMutationWithVersion:3];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
+  // It has been acknowledged, and should no longer be retained as there is no target and mutation
+  if ([self gcIsEager]) {
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesSetMutationThenDeletedDocument {
@@ -423,7 +425,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:1];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  // There's no target pinning the doc, and we've ack'd the mutation.
+  if ([self gcIsEager]) {
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesDocumentThenDeleteMutationThenAck {
@@ -446,7 +451,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  if ([self gcIsEager]) {
+    // Neither the target nor the mutation pin the document, it should be gone.
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesDeleteMutationThenDocumentThenAck {
@@ -459,6 +467,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertRemoved(@[ @"foo/bar" ]);
   FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
 
+  // Add the document to a target so it will remain in persistence even when ack'd
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @(targetID) ], @[])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
@@ -469,7 +478,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  if ([self gcIsEager]) {
+    // The doc is not pinned in a target and we've acknowledged the mutation. It shouldn't exist anymore.
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesDocumentThenDeletedDocumentThenDocument {
@@ -521,7 +533,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
+  if ([self gcIsEager]) {
+    // we've ack'd all of the mutations, nothing is keeping this pinned anymore
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testHandlesSetMutationAndPatchMutationTogether {
@@ -538,17 +553,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testHandlesSetMutationThenPatchMutationThenReject {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"old"})];
+  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, YES));
   [self acknowledgeMutationWithVersion:1];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
+  FSTAssertNotContains(@"foo/bar");
 
   [self writeMutation:FSTTestPatchMutation("foo/bar", @{@"foo" : @"bar"}, {})];
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
+  // A blind patch is not visible in the cache
+  FSTAssertNotContains(@"foo/bar");
+  //FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   [self rejectMutation];
-  FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO) ]);
-  FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
+  FSTAssertNotContains(@"foo/bar");
+  //FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO) ]);
+  //FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO));
 }
 
 - (void)testHandlesSetMutationsAndPatchMutationOfJustOneTogether {
@@ -585,26 +605,31 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self acknowledgeMutationWithVersion:3];  // patch mutation
   FSTAssertRemoved(@[ @"foo/bar" ]);
-  FSTAssertContains(FSTTestDeletedDoc("foo/bar", 0));
+  if ([self gcIsEager]) {
+    // There are no more pending mutations, the doc has been dropped
+    FSTAssertNotContains(@"foo/bar");
+  }
 }
 
 - (void)testCollectsGarbageAfterChangeBatchWithNoTargetIDs {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDeletedDoc("foo/bar", 2), @[ @1 ], @[], @[ @1 ])];
   FSTAssertRemoved(@[ @"foo/bar" ]);
 
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                  @[ @1 ], @[])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
+                                                  @[ @1 ], @[], @[ @1 ])];
   [self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 }
 
 - (void)testCollectsGarbageAfterChangeBatch {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
@@ -623,6 +648,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testCollectsGarbageAfterAcknowledgedMutation {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
@@ -661,6 +687,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testCollectsGarbageAfterRejectedMutation {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
@@ -699,6 +726,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testPinsDocumentsInTheLocalView {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
@@ -711,11 +739,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES));
 
   [self notifyLocalViewChanges:FSTTestViewChanges(query, @[ @"foo/bar", @"foo/baz" ], @[])];
+  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                   @[], @[ @(targetID) ])];
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO),
                                                   @[ @(targetID) ], @[])];
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, YES));
   [self acknowledgeMutationWithVersion:2];
+  FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
   [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
@@ -728,15 +759,21 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"foo/baz");
 }
 
+- (id<FSTQueryCache>)queryCache {
+  id result = [self.localStore performSelector:@selector(queryCache)];
+  return (id<FSTQueryCache>)result;
+}
+
 - (void)testThrowsAwayDocumentsWithUnknownTargetIDsImmediately {
   if ([self isTestBaseClass]) return;
+  if (![self gcIsEager]) return;
 
   FSTTargetID targetID = 321;
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{}, NO),
-                                                  @[ @(targetID) ], @[])];
-  FSTAssertContains(FSTTestDoc("foo/bar", 1, @{}, NO));
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 1, @{}, NO),
+                                                  @[ @(targetID) ], @[], @[ @(targetID) ])];
+  //FSTAssertContains(FSTTestDoc("foo/bar", 1, @{}, NO));
 
-  [self collectGarbage];
+  //[self collectGarbage];
   FSTAssertNotContains(@"foo/bar");
 }
 
@@ -795,9 +832,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testPersistsResumeTokens {
   if ([self isTestBaseClass]) return;
-
   // This test only works in the absence of the FSTEagerGarbageCollector.
-  [self restartWithNoopGarbageCollector];
+  if ([self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo/bar");
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
@@ -836,7 +872,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testRemoteDocumentKeysForTarget {
   if ([self isTestBaseClass]) return;
-  [self restartWithNoopGarbageCollector];
 
   FSTQuery *query = FSTTestQuery("foo");
   [self allocateQuery:query];
@@ -852,8 +887,6 @@ NS_ASSUME_NONNULL_BEGIN
   DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
   DocumentKeySet expected{testutil::Key("foo/bar"), testutil::Key("foo/baz")};
   XCTAssertEqual(keys, expected);
-
-  [self restartWithNoopGarbageCollector];
 
   keys = [self.localStore remoteDocumentKeysForTarget:2];
   XCTAssertEqual(keys, (DocumentKeySet{testutil::Key("foo/bar"), testutil::Key("foo/baz")}));

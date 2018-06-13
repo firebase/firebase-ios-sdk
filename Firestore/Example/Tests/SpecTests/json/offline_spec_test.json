@@ -176,7 +176,8 @@
   "Removing all listeners delays \"Offline\" status on next listen": {
     "describeName": "Offline:",
     "itName": "Removing all listeners delays \"Offline\" status on next listen",
-    "tags": [],
+    "comment": "Marked as no-lru because when a listen is re-added, it gets a new target id rather than reusing one",
+    "tags": ["no-lru"],
     "config": {
       "useGarbageCollection": true
     },

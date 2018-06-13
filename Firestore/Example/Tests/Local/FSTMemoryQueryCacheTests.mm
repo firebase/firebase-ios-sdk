@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  self.persistence = [FSTPersistenceTestHelpers memoryPersistence];
+  self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   self.queryCache = [self.persistence queryCache];
   [self.queryCache start];
 }
@@ -46,6 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
   self.queryCache = nil;
 
   [super tearDown];
+}
+
+- (void)removeQueryData:(FSTQueryData *)queryData {
+  [(FSTMemoryQueryCache *)self.queryCache removeQueryData:queryData];
 }
 
 @end

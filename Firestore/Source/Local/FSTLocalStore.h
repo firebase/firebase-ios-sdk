@@ -81,7 +81,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a new instance of the FSTLocalStore with its required dependencies as parameters. */
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector
                         initialUser:(const firebase::firestore::auth::User &)initialUser
     NS_DESIGNATED_INITIALIZER;
 

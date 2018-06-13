@@ -18,6 +18,7 @@
 
 #include <unordered_map>
 
+#include "absl/memory/memory.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
@@ -25,10 +26,12 @@
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::DocumentKey;
 using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -61,8 +64,14 @@ NS_ASSUME_NONNULL_BEGIN
   _Nullable id<FSTReferenceDelegate> _referenceDelegate;
 }
 
-+ (instancetype)persistence {
+/*+ (instancetype)persistence {
   return [[FSTMemoryPersistence alloc] init];
+}*/
+
++ (instancetype)persistenceWithEagerGC {
+  return [[FSTMemoryPersistence alloc] initWithReferenceBlock:^id <FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
+    return [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
+  }];
 }
 
 + (instancetype)persistenceWithLRUGC {
@@ -259,6 +268,98 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
+@end
+
+@implementation FSTMemoryEagerReferenceDelegate {
+  std::unique_ptr<std::set<FSTDocumentKey *> > _orphaned;
+  FSTMemoryPersistence *_persistence;
+  FSTReferenceSet *_additionalReferences;
+}
+
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
+  if (self = [super init]) {
+    _persistence = persistence;
+  }
+  return self;
+}
+
+- (FSTListenSequenceNumber)currentSequenceNumber {
+  return kFSTListenSequenceNumberInvalid;
+}
+
+- (void)addInMemoryPins:(FSTReferenceSet *)set {
+  // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
+  //FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
+  _additionalReferences = set;
+}
+
+- (void)removeTarget:(FSTQueryData *)queryData {
+  for (const DocumentKey &docKey : [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
+    FSTDocumentKey *key = docKey;
+    self->_orphaned->insert(key);
+  }
+  [(FSTMemoryQueryCache *)_persistence.queryCache removeQueryData:queryData];
+}
+
+
+- (void)addReference:(FSTDocumentKey *)key
+              target:(__unused FSTTargetID)targetID {
+  _orphaned->erase(key);
+}
+
+- (void)removeReference:(FSTDocumentKey *)key
+                 target:(__unused FSTTargetID)targetID {
+  _orphaned->insert(key);
+}
+
+- (void)removeMutationReference:(FSTDocumentKey *)key {
+  _orphaned->insert(key);
+}
+
+- (BOOL)isReferenced:(FSTDocumentKey *)key {
+  if ([[_persistence queryCache] containsKey:key]) {
+    return YES;
+  }
+  if ([self mutationQueuesContainKey:key]) {
+    return YES;
+  }
+  if ([_additionalReferences containsKey:key]) {
+    return YES;
+  }
+  return NO;
+}
+
+- (void)limboDocumentUpdated:(FSTDocumentKey *)key {
+  if ([self isReferenced:key]) {
+    _orphaned->erase(key);
+  } else {
+    _orphaned->insert(key);
+  }
+}
+
+- (void)startTransaction:(__unused absl::string_view)label {
+  _orphaned = absl::make_unique<std::set<FSTDocumentKey *> >();
+}
+
+- (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)key {
+  const MutationQueues& queues = [_persistence mutationQueues];
+  for (auto it = queues.begin(); it != queues.end(); ++it) {
+    if ([it->second containsKey:key]) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
+- (void)commitTransaction {
+  for (auto it = _orphaned->begin(); it != _orphaned->end(); ++it) {
+    FSTDocumentKey *key = *it;
+    if (![self isReferenced:key]) {
+      [[_persistence remoteDocumentCache] removeEntryForKey:key];
+    }
+  }
+  _orphaned.reset();
+}
 
 @end
 

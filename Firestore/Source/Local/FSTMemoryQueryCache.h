@@ -32,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+- (void)removeQueryData:(FSTQueryData *)queryData;
+
 @end
 
 NS_ASSUME_NONNULL_END
