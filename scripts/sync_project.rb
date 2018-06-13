@@ -76,9 +76,6 @@ def sync_firestore()
 
       # These files are integration tests, handled below
       'Firestore/Example/Tests/Integration/**',
-
-      # These files are already provided by the ProtobufCpp pod.
-      'Firestore/Protos/cpp/google/protobuf/**',
     ]
   end
 
