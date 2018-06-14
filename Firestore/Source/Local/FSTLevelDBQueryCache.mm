@@ -28,9 +28,9 @@
 #import "Firestore/Source/Local/FSTQueryData.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -176,7 +176,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
-        (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(documentTargetPrefix);
@@ -270,7 +270,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
-                                             (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   NSUInteger count = 0;
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
   auto it = _db.currentTransaction->NewIterator();
@@ -360,8 +360,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
@@ -376,8 +375,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   };
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
@@ -442,10 +440,10 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   indexIterator->Seek(indexPrefix);
 
   for (; indexIterator->Valid() && absl::StartsWith(indexIterator->key(), indexPrefix);
-         indexIterator->Next()) {
+       indexIterator->Next()) {
     FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
     if ([rowKey decodeKey:indexIterator->key()] && !rowKey.isSentinel &&
-            DocumentKey{rowKey.documentKey} == key) {
+        DocumentKey{rowKey.documentKey} == key) {
       return YES;
     }
   }

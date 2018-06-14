@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
-        (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
+    (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
 
 @end
 

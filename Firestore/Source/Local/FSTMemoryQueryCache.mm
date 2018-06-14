@@ -121,40 +121,38 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
   [self.queries
-          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
-            block(queryData, stop);
-          }];
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+        block(queryData, stop);
+      }];
 }
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
-                                             (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
   [self.queries
-          enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
-            if (queryData.sequenceNumber <= sequenceNumber) {
-              if (liveQueries[@(queryData.targetID)] == nil) {
-                [toRemove addObject:query];
-                [self.references removeReferencesForID:queryData.targetID];
-              }
-            }
-          }];
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
+        if (queryData.sequenceNumber <= sequenceNumber) {
+          if (liveQueries[@(queryData.targetID)] == nil) {
+            [toRemove addObject:query];
+            [self.references removeReferencesForID:queryData.targetID];
+          }
+        }
+      }];
   [self.queries removeObjectsForKeys:toRemove];
   return [toRemove count];
 }
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate addReference:key];
   }
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate removeReference:key];

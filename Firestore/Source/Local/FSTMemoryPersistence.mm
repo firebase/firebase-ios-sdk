@@ -18,12 +18,12 @@
 
 #include <unordered_map>
 
-#include "absl/memory/memory.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
+#include "absl/memory/memory.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
 
-@property(nonatomic, readonly) MutationQueues& mutationQueues;
+@property(nonatomic, readonly) MutationQueues &mutationQueues;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
 @end
@@ -63,15 +63,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)persistenceWithEagerGC {
-  return [[FSTMemoryPersistence alloc] initWithReferenceBlock:^id <FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
-    return [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
-  }];
+  return [[FSTMemoryPersistence alloc]
+      initWithReferenceBlock:^id<FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
+        return [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
+      }];
 }
 
 + (instancetype)persistenceWithLRUGC {
-  return [[FSTMemoryPersistence alloc] initWithReferenceBlock:^id <FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
-    return [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
-  }];
+  return [[FSTMemoryPersistence alloc]
+      initWithReferenceBlock:^id<FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
+        return [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
+      }];
 }
 
 /*- (instancetype)init {
@@ -82,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }*/
 
-- (instancetype)initWithReferenceBlock:(id<FSTReferenceDelegate> (^)(FSTMemoryPersistence *persistence))block {
+- (instancetype)initWithReferenceBlock:
+    (id<FSTReferenceDelegate> (^)(FSTMemoryPersistence *persistence))block {
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _referenceDelegate = block(self);
@@ -152,11 +155,12 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _sequenceNumbers = [NSMutableDictionary dictionary];
     _persistence = persistence;
-    _gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache]
-                                                    delegate:self];
+    _gc =
+        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache] delegate:self];
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
-    FSTListenSequenceNumber highestSequenceNumber = _persistence.queryCache.highestListenSequenceNumber;
+    FSTListenSequenceNumber highestSequenceNumber =
+        _persistence.queryCache.highestListenSequenceNumber;
     _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
   }
   return self;
@@ -167,13 +171,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTListenSequenceNumber)currentSequenceNumber {
-  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid, "Asking for a sequence number outside of a transaction");
+  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
+              "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
 }
 
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
   // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
-  //FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
+  // FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
   _additionalReferences = set;
 }
 
@@ -190,7 +195,6 @@ NS_ASSUME_NONNULL_BEGIN
   // Need to bump sequence number?
 }
 
-
 - (void)startTransaction:(absl::string_view)label {
   _currentSequenceNumber = [_listenSequence next];
 }
@@ -203,23 +207,28 @@ NS_ASSUME_NONNULL_BEGIN
   return [_persistence.queryCache enumerateTargetsUsingBlock:block];
 }
 
-- (void)enumerateMutationsUsingBlock:(void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  [_sequenceNumbers enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *seq, BOOL *stop) {
-    FSTListenSequenceNumber sequenceNumber = [seq longLongValue];
-    if (![self->_persistence.queryCache containsKey:key]) {
-      block(key, sequenceNumber, stop);
-    }
-  }];
+- (void)enumerateMutationsUsingBlock:
+    (void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+  [_sequenceNumbers
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *seq, BOOL *stop) {
+        FSTListenSequenceNumber sequenceNumber = [seq longLongValue];
+        if (![self->_persistence.queryCache containsKey:key]) {
+          block(key, sequenceNumber, stop);
+        }
+      }];
 }
 
 - (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
+                                     liveQueries:
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+  return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
+                                                         liveQueries:liveQueries];
 }
 
 - (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
-  return [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache removeOrphanedDocuments:self
-                                                                             throughSequenceNumber:upperBound];
+  return [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
+      removeOrphanedDocuments:self
+        throughSequenceNumber:upperBound];
 }
 
 - (void)addReference:(FSTDocumentKey *)key {
@@ -230,9 +239,8 @@ NS_ASSUME_NONNULL_BEGIN
   _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
-
 - (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)key {
-  const MutationQueues& queues = [_persistence mutationQueues];
+  const MutationQueues &queues = [_persistence mutationQueues];
   for (auto it = queues.begin(); it != queues.end(); ++it) {
     if ([it->second containsKey:key]) {
       return YES;
@@ -245,7 +253,8 @@ NS_ASSUME_NONNULL_BEGIN
   _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
-- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound document:(FSTDocumentKey *)key {
+- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
+                        document:(FSTDocumentKey *)key {
   if ([self mutationQueuesContainKey:key]) {
     return YES;
   }
@@ -282,19 +291,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
-  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec tests
-  // it would fail.
+  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec
+  // tests it would fail.
   _additionalReferences = set;
 }
 
 - (void)removeTarget:(FSTQueryData *)queryData {
-  for (const DocumentKey &docKey : [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
+  for (const DocumentKey &docKey :
+       [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
     FSTDocumentKey *key = docKey;
     self->_orphaned->insert(key);
   }
   [_persistence.queryCache removeQueryData:queryData];
 }
-
 
 - (void)addReference:(FSTDocumentKey *)key {
   _orphaned->erase(key);
@@ -334,7 +343,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)key {
-  const MutationQueues& queues = [_persistence mutationQueues];
+  const MutationQueues &queues = [_persistence mutationQueues];
   for (auto it = queues.begin(); it != queues.end(); ++it) {
     if ([it->second containsKey:key]) {
       return YES;

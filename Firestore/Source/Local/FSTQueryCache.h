@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
-                                             (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
 /** Returns the number of targets cached. */
 - (int32_t)count;

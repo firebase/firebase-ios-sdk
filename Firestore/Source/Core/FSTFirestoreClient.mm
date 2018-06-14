@@ -187,8 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSException raise:NSInternalInconsistencyException format:@"Failed to open DB: %@", error];
   }
 
-  _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence
-                                               initialUser:user];
+  _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo
                                             workerDispatchQueue:self.workerDispatchQueue

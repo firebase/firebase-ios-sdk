@@ -121,8 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_t queue =
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _dispatchQueue = [FSTDispatchQueue queueWith:queue];
-    _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
-                                                 initialUser:initialUser];
+    _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
     _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                             workerDispatchQueue:_dispatchQueue
                                                     credentials:&_credentialProvider];

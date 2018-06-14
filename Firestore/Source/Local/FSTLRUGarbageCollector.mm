@@ -8,8 +8,8 @@
 const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 /**
- * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be added
- * out of order.
+ * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be
+ * added out of order.
  */
 class RollingSequenceNumberBuffer {
  public:
@@ -82,8 +82,8 @@ class RollingSequenceNumberBuffer {
   [_delegate enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
-  [_delegate enumerateMutationsUsingBlock:^(
-                       FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+  [_delegate enumerateMutationsUsingBlock:^(FSTDocumentKey *docKey,
+                                            FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
     ptr_to_buffer->AddElement(sequenceNumber);
   }];
   return buffer.max_value();

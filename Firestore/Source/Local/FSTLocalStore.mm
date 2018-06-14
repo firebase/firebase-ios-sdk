@@ -155,7 +155,6 @@ NS_ASSUME_NONNULL_BEGIN
       "OldBatches",
       [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
 
-
   self.mutationQueue = [self.persistence mutationQueueForUser:user];
 
   [self startMutationQueue];

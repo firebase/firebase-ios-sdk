@@ -413,22 +413,25 @@ FSTTargetChange *FSTTestTargetChange(DocumentKeySet added,
                                      removedDocuments:removed];
 }
 
-FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
-        NSArray<FSTBoxedTargetID *> *updatedInTargets,
-        NSArray<FSTBoxedTargetID *> *removedFromTargets,
-        NSArray<FSTBoxedTargetID *> *limboTargets) {
+FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(
+    FSTMaybeDocument *doc,
+    NSArray<FSTBoxedTargetID *> *updatedInTargets,
+    NSArray<FSTBoxedTargetID *> *removedFromTargets,
+    NSArray<FSTBoxedTargetID *> *limboTargets) {
   HARD_ASSERT(![doc isKindOfClass:[FSTDocument class]] || ![(FSTDocument *)doc hasLocalMutations],
-          "Docs from remote updates shouldn't have local changes.");
+              "Docs from remote updates shouldn't have local changes.");
   FSTDocumentWatchChange *change =
-          [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
-                                                  removedTargetIDs:removedFromTargets
-                                                       documentKey:doc.key
-                                                          document:doc];
-  NSArray<FSTBoxedTargetID *> *listens = [updatedInTargets arrayByAddingObjectsFromArray:removedFromTargets];
+      [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:updatedInTargets
+                                              removedTargetIDs:removedFromTargets
+                                                   documentKey:doc.key
+                                                      document:doc];
+  NSArray<FSTBoxedTargetID *> *listens =
+      [updatedInTargets arrayByAddingObjectsFromArray:removedFromTargets];
   FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
-          initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider providerWithSingleResultForKey:doc.key
-                                                                                         listenTargets:listens
-                                                                                          limboTargets:limboTargets]];
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithSingleResultForKey:doc.key
+                                                          listenTargets:listens
+                                                           limboTargets:limboTargets]];
   [aggregator handleDocumentChange:change];
   return [aggregator remoteEventAtSnapshotVersion:doc.version];
 }

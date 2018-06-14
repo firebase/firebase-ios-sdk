@@ -21,12 +21,12 @@
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
-#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
@@ -67,7 +67,7 @@ using leveldb::WriteOptions;
  * Although this could implement FSTTransactional, it doesn't because it is not directly tied to
  * a transaction runner, it just happens to be called from FSTLevelDB, which is FSTTransactional.
  */
-@interface FSTLevelDBLRUDelegate : NSObject<FSTReferenceDelegate, FSTLRUDelegate>
+@interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
 
 - (void)startTransaction;
 
@@ -85,8 +85,8 @@ using leveldb::WriteOptions;
 
 - (instancetype)initWithPersistence:(FSTLevelDB *)persistence {
   if (self = [super init]) {
-    _gc = [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache]
-                                                    delegate:self];
+    _gc =
+        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache] delegate:self];
     _db = persistence;
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     FSTListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
@@ -96,7 +96,8 @@ using leveldb::WriteOptions;
 }
 
 - (void)startTransaction {
-  HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid, "Previous sequence number is still in effect");
+  HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
+              "Previous sequence number is still in effect");
   _currentSequenceNumber = [_listenSequence next];
 }
 
@@ -105,20 +106,22 @@ using leveldb::WriteOptions;
 }
 
 - (FSTListenSequenceNumber)currentSequenceNumber {
-  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid, "Asking for a sequence number outside of a transaction");
+  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
+              "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
 }
 
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
-  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec tests
-  // it would fail.
+  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec
+  // tests it would fail.
   _additionalReferences = set;
 }
 
 - (void)removeTarget:(FSTQueryData *)queryData {
-  FSTQueryData *updated = [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
-                                                             resumeToken:queryData.resumeToken
-                                                          sequenceNumber:[self currentSequenceNumber]];
+  FSTQueryData *updated =
+      [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
+                                         resumeToken:queryData.resumeToken
+                                      sequenceNumber:[self currentSequenceNumber]];
   [_db.queryCache updateQueryData:updated];
 }
 
@@ -130,15 +133,16 @@ using leveldb::WriteOptions;
   [self writeSentinelForKey:key];
 }
 
-
 - (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)docKey {
-  const std::set<std::string>& users = _db.users;
-  const ResourcePath& path = [docKey path];
+  const std::set<std::string> &users = _db.users;
+  const ResourcePath &path = [docKey path];
   std::string buffer;
   auto it = _db.currentTransaction->NewIterator();
-  // For each user, if there is any batch that contains this document in any batch, we know it's pinned.
+  // For each user, if there is any batch that contains this document in any batch, we know it's
+  // pinned.
   for (auto user = users.begin(); user != users.end(); ++user) {
-    std::string mutationKey = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:*user resourcePath:path];
+    std::string mutationKey =
+        [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:*user resourcePath:path];
     it->Seek(mutationKey);
     if (it->Valid() && absl::StartsWith(it->key(), mutationKey)) {
       return YES;
@@ -162,16 +166,17 @@ using leveldb::WriteOptions;
   [queryCache enumerateTargetsUsingBlock:block];
 }
 
-- (void)enumerateMutationsUsingBlock:(void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+- (void)enumerateMutationsUsingBlock:
+    (void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   [queryCache enumerateOrphanedDocumentsUsingBlock:block];
 }
 
-
 - (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   __block NSUInteger count = 0;
-  [queryCache enumerateOrphanedDocumentsUsingBlock:^(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+  [queryCache enumerateOrphanedDocumentsUsingBlock:^(
+                  FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
     if (sequenceNumber <= upperBound) {
       if (![self isPinned:docKey]) {
         count++;
@@ -184,12 +189,10 @@ using leveldb::WriteOptions;
 
 - (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
-                                             (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
-  return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber
-                                            liveQueries:liveQueries];
+  return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
-
 
 - (FSTLRUGarbageCollector *)gc {
   return _gc;
@@ -267,7 +270,7 @@ using leveldb::WriteOptions;
   return self;
 }
 
-- (const std::set<std::string>&)users {
+- (const std::set<std::string> &)users {
   return _users;
 }
 

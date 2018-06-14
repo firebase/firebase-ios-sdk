@@ -45,7 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Provides the LRU GC implementation for memory persistence.
  */
-@interface FSTMemoryLRUReferenceDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate, FSTTransactional>
+@interface FSTMemoryLRUReferenceDelegate
+    : NSObject <FSTReferenceDelegate, FSTLRUDelegate, FSTTransactional>
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 

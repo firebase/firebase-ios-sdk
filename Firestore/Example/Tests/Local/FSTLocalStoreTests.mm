@@ -71,8 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   id<FSTPersistence> persistence = [self persistence];
   self.localStorePersistence = persistence;
-  self.localStore = [[FSTLocalStore alloc] initWithPersistence:persistence
-                                                   initialUser:User::Unauthenticated()];
+  self.localStore =
+      [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:User::Unauthenticated()];
   [self.localStore start];
 
   _batches = [NSMutableArray array];
@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self
       applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
-                                                @[ @(targetID) ])];
+                                               @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO));
   FSTAssertNotContains(@"bar/baz");
@@ -335,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTargetID targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ])];
+                                                 @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO));
 
@@ -378,7 +378,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTargetID targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
-                                                  @[ @(targetID) ])];
+                                                 @[ @(targetID) ])];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES) ]);
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar", @"it" : @"base"}, YES));
 
@@ -479,7 +479,8 @@ NS_ASSUME_NONNULL_BEGIN
   [self acknowledgeMutationWithVersion:2];
   FSTAssertRemoved(@[ @"foo/bar" ]);
   if ([self gcIsEager]) {
-    // The doc is not pinned in a target and we've acknowledged the mutation. It shouldn't exist anymore.
+    // The doc is not pinned in a target and we've acknowledged the mutation. It shouldn't exist
+    // anymore.
     FSTAssertNotContains(@"foo/bar");
   }
 }
@@ -614,11 +615,12 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   if (![self gcIsEager]) return;
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDeletedDoc("foo/bar", 2), @[], @[], @[ @1 ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDeletedDoc("foo/bar", 2),
+                                                                  @[], @[], @[ @1 ])];
   FSTAssertNotContains(@"foo/bar");
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                  @[], @[], @[ @1 ])];
+  [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(
+                             FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO), @[], @[], @[ @1 ])];
   FSTAssertNotContains(@"foo/bar");
 }
 
@@ -747,7 +749,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTargetID targetID = 321;
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 1, @{}, NO),
-                                                  @[], @[], @[ @(targetID) ])];
+                                                                  @[], @[], @[ @(targetID) ])];
 
   FSTAssertNotContains(@"foo/bar");
 }
