@@ -218,7 +218,7 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }

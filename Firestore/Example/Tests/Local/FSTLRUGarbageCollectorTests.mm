@@ -24,6 +24,7 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -49,10 +50,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FSTPersistence>)newPersistence {
-  @throw FSTAbstractMethodException();  // NOLINT
-}
-
-- (long)compactedSize:(id<FSTPersistence>)persistence {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -418,9 +415,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
   persistence.run("gc", [&]() {
     FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-    NSUInteger removed = [gc removeOrphanedDocuments:documentCache
-                               throughSequenceNumber:1000 // remove as much as possible
-                                       mutationQueue:mutationQueue];
+    NSUInteger removed = [gc removeOrphanedDocumentsThroughSequenceNumber:1000]; // remove as much as possible
 
     XCTAssertEqual(expectedRemoveCount, removed);
     for (FSTDocumentKey *key in toBeRemoved) {
@@ -462,6 +457,10 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTMutationQueue> mutationQueue = [persistence mutationQueueForUser:user];
   id<FSTQueryCache> queryCache = [persistence queryCache];
   id<FSTRemoteDocumentCache> documentCache = [persistence remoteDocumentCache];
+  persistence.run("start tables", [&]() {
+    [mutationQueue start];
+    [queryCache start];
+  });
 
   NSMutableSet<FSTDocumentKey *> *expectedRetained = [NSMutableSet set];
   NSMutableSet<FSTDocumentKey *> *expectedRemoved = [NSMutableSet set];
@@ -637,9 +636,7 @@ NS_ASSUME_NONNULL_BEGIN
             [gc removeQueriesUpThroughSequenceNumber:upperBound liveQueries:liveQueries];
         XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
 
-        NSUInteger docsRemoved = [gc removeOrphanedDocuments:documentCache
-                                       throughSequenceNumber:upperBound
-                                               mutationQueue:mutationQueue];
+        NSUInteger docsRemoved = [gc removeOrphanedDocumentsThroughSequenceNumber:upperBound];
         NSLog(@"Expected removed: %@", expectedRemoved);
         NSLog(@"Expected retained: %@", expectedRetained);
         XCTAssertEqual([expectedRemoved count], docsRemoved);
