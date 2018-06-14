@@ -76,14 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 }
 
-/*- (instancetype)init {
-  if (self = [super init]) {
-    _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
-    _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
-  }
-  return self;
-}*/
-
 - (instancetype)initWithReferenceBlock:
     (id<FSTReferenceDelegate> (^)(FSTMemoryPersistence *persistence))block {
   if (self = [super init]) {
