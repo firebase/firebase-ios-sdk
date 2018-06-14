@@ -394,7 +394,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   DocumentKeySet limboKeys = [self.limboDocumentRefs referencedKeysForID:queryView.targetID];
   [self.limboDocumentRefs removeReferencesForID:queryView.targetID];
-  for (const DocumentKey& key : limboKeys) {
+  for (const DocumentKey &key : limboKeys) {
     if (![self.limboDocumentRefs containsKey:key]) {
       // We removed the last reference for this key.
       [self removeLimboTargetForKey:key];
