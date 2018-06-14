@@ -15,7 +15,7 @@
 include(FindPackageHandleStandardArgs)
 include(FindZLIB)
 
-set(BINARY_DIR ${FIREBASE_INSTALL_DIR}/external/grpc)
+set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/grpc)
 
 ## ZLIB
 

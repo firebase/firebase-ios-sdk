@@ -16,7 +16,7 @@ include(ExternalProject)
 
 set(
   NANOPB_PROTOC_BIN
-  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
+  ${FIREBASE_BINARY_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
 )
 
 ExternalProject_Add(

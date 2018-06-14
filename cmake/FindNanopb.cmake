@@ -14,7 +14,7 @@
 
 include(FindPackageHandleStandardArgs)
 
-set(BINARY_DIR ${FIREBASE_INSTALL_DIR}/external/nanopb)
+set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/nanopb)
 
 find_path(
   NANOPB_INCLUDE_DIR pb.h
