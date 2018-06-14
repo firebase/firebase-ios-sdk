@@ -584,14 +584,6 @@ TEST_F(SerializerTest, BadStringValue) {
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
-TEST_F(SerializerTest, BadStringValue_Malformed) {
-  // Malformed bytes with a string tag.
-  std::std::vector<uint8_t> bytes{0x8a, 0x01};
-
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
       &serializer, FieldValue::TimestampValue(TimestampInternal::Max()));
