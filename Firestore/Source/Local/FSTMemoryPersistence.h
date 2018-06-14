@@ -31,16 +31,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)persistenceWithLRUGC;
 
-//+ (instancetype)persistence;
-
 @end
 
+/**
+ * Provides the eager GC implementation for memory persistence.
+ */
 @interface FSTMemoryEagerReferenceDelegate : NSObject <FSTReferenceDelegate, FSTTransactional>
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 
 @end
 
+/**
+ * Provides the LRU GC implementation for memory persistence.
+ */
 @interface FSTMemoryLRUReferenceDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate, FSTTransactional>
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;

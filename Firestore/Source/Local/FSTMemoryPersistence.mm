@@ -57,16 +57,10 @@ NS_ASSUME_NONNULL_BEGIN
   /** The FSTRemoteDocumentCache representing the persisted cache of remote documents. */
   FSTMemoryRemoteDocumentCache *_remoteDocumentCache;
 
-  //std::unordered_map<User, id<FSTMutationQueue>, HashUser> _mutationQueues;
-
   FSTTransactionRunner _transactionRunner;
 
   _Nullable id<FSTReferenceDelegate> _referenceDelegate;
 }
-
-/*+ (instancetype)persistence {
-  return [[FSTMemoryPersistence alloc] init];
-}*/
 
 + (instancetype)persistenceWithEagerGC {
   return [[FSTMemoryPersistence alloc] initWithReferenceBlock:^id <FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
@@ -288,8 +282,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
-  // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
-  //FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
+  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec tests
+  // it would fail.
   _additionalReferences = set;
 }
 

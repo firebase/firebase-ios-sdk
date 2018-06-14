@@ -61,6 +61,12 @@ using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
 
+/**
+ * Provides LRU functionality for leveldb persistence.
+ *
+ * Although this could implement FSTTransactional, it doesn't because it is not directly tied to
+ * a transaction runner, it just happens to be called from FSTLevelDB, which is FSTTransactional.
+ */
 @interface FSTLevelDBLRUDelegate : NSObject<FSTReferenceDelegate, FSTLRUDelegate>
 
 - (void)startTransaction;
@@ -104,8 +110,8 @@ using leveldb::WriteOptions;
 }
 
 - (void)addInMemoryPins:(FSTReferenceSet *)set {
-  // Technically can't assert this, due to restartWithNoopGarbageCollector (for now...)
-  //FSTAssert(_additionalReferences == nil, @"Overwriting additional references");
+  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec tests
+  // it would fail.
   _additionalReferences = set;
 }
 
