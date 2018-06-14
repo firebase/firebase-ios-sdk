@@ -558,8 +558,6 @@ NS_ASSUME_NONNULL_BEGIN
     for (const DocumentKey &key : docKeys) {
       [persistence.referenceDelegate removeMutationReference:key];
     };
-    //[queryCache addPotentiallyOrphanedDocuments:docKeys atSequenceNumber:[self
-    //nextSequenceNumber]];
 
     NSData *token = [@"hello" dataUsingEncoding:NSUTF8StringEncoding];
     oldestTarget =
