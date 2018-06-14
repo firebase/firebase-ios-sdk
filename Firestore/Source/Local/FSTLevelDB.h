@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <set>
+#include <string>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"

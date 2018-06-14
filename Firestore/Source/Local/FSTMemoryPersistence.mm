@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
+#include <memory>
+#include <set>
 #include <unordered_map>
 
 #import "Firestore/Source/Core/FSTListenSequence.h"

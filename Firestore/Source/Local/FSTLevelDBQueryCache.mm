@@ -56,7 +56,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
     HARD_FAIL("Failed to read sequence number from a sentinel row");
   }
 }
-}
+}  // namespace
 
 @interface FSTLevelDBQueryCache ()
 
