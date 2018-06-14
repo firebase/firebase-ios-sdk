@@ -448,7 +448,7 @@ using leveldb::WriteOptions;
   _ptr.reset();
 }
 
-- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+- (id<FSTReferenceDelegate>)referenceDelegate {
   return _referenceDelegate;
 }
 

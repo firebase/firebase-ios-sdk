@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTTransactionRunner _transactionRunner;
 
-  _Nullable id<FSTReferenceDelegate> _referenceDelegate;
+  id<FSTReferenceDelegate> _referenceDelegate;
 }
 
 + (instancetype)persistenceWithEagerGC {
@@ -74,13 +74,13 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (instancetype)init {
+/*- (instancetype)init {
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
   }
   return self;
-}
+}*/
 
 - (instancetype)initWithReferenceBlock:(id<FSTReferenceDelegate> (^)(FSTMemoryPersistence *persistence))block {
   if (self = [super init]) {
@@ -108,7 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.started = NO;
 }
 
-- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+- (id<FSTReferenceDelegate>)referenceDelegate {
   return _referenceDelegate;
 }
 

@@ -39,10 +39,6 @@ extern NSString *const kNoLRUTag;
  * + override -persistence to create and return an appropriate id<FSTPersistence> implementation.
  */
 @interface FSTSpecTests : XCTestCase
-
-/** Creates and returns an appropriate id<FSTPersistence> implementation. */
-- (id<FSTPersistence>)persistence;
-
 @end
 
 NS_ASSUME_NONNULL_END

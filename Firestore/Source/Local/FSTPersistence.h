@@ -97,7 +97,7 @@ struct FSTTransactionRunner;
  * This property provides access to hooks around the document reference lifecycle. It is initially
  * nullable while being implemented, but the goal is to eventually have it be non-nil.
  */
-@property(nonatomic, readonly, strong) _Nullable id<FSTReferenceDelegate> referenceDelegate;
+@property(nonatomic, readonly, strong) id<FSTReferenceDelegate> referenceDelegate;
 
 @property(nonatomic, readonly) FSTListenSequenceNumber currentSequenceNumber;
 
