@@ -3,12 +3,14 @@
 #import <queue>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
-#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
+/**
+ * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be added
+ * out of order.
+ */
 class RollingSequenceNumberBuffer {
  public:
   RollingSequenceNumberBuffer(NSUInteger max_elements)
@@ -16,10 +18,8 @@ class RollingSequenceNumberBuffer {
   }
 
   RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
-  RollingSequenceNumberBuffer(RollingSequenceNumberBuffer &other) = delete;
 
   RollingSequenceNumberBuffer &operator=(const RollingSequenceNumberBuffer &other) = delete;
-  RollingSequenceNumberBuffer &operator=(RollingSequenceNumberBuffer &other) = delete;
 
   void AddElement(FSTListenSequenceNumber sequence_number) {
     if (queue_.size() < max_elements_) {
@@ -77,6 +77,7 @@ class RollingSequenceNumberBuffer {
     return kFSTListenSequenceNumberInvalid;
   }
   RollingSequenceNumberBuffer buffer(queryCount);
+  // Pointer is necessary to access stack-allocated buffer from a block.
   RollingSequenceNumberBuffer *ptr_to_buffer = &buffer;
   [_delegate enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
