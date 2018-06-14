@@ -150,7 +150,6 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
     status_ =
         util::Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &raw_substream);
     return read_message_fn(this);
   }
   Reader substream(raw_substream);

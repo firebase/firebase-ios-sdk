@@ -110,14 +110,13 @@ std::string Reader::ReadString() {
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
     status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &substream);
     return "";
   }
 
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&substream));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
