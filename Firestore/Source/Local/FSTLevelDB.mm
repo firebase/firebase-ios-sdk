@@ -122,13 +122,11 @@ using leveldb::WriteOptions;
   [_db.queryCache updateQueryData:updated];
 }
 
-- (void)addReference:(FSTDocumentKey *)key
-              target:(__unused FSTTargetID)targetID {
+- (void)addReference:(FSTDocumentKey *)key {
   [self writeSentinelForKey:key];
 }
 
-- (void)removeReference:(FSTDocumentKey *)key
-                 target:(__unused FSTTargetID)targetID {
+- (void)removeReference:(FSTDocumentKey *)key {
   [self writeSentinelForKey:key];
 }
 

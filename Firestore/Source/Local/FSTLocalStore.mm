@@ -335,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
       HARD_ASSERT(queryData, "Local view changes contain unallocated query.");
       FSTTargetID targetID = queryData.targetID;
       for (const DocumentKey &key : view.removedKeys) {
-        [self->_persistence.referenceDelegate removeReference:key target:targetID];
+        [self->_persistence.referenceDelegate removeReference:key];
       }
       [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
       [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];

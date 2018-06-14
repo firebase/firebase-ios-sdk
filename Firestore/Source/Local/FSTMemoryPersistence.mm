@@ -222,12 +222,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                                              throughSequenceNumber:upperBound];
 }
 
-- (void)addReference:(FSTDocumentKey *)key target:(__unused FSTTargetID)targetID {
+- (void)addReference:(FSTDocumentKey *)key {
   _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
-- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID {
-  // No-op. LRU doesn't care when references are removed.
+- (void)removeReference:(FSTDocumentKey *)key {
+  _sequenceNumbers[key] = @(self.currentSequenceNumber);
 }
 
 
@@ -296,13 +296,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 
-- (void)addReference:(FSTDocumentKey *)key
-              target:(__unused FSTTargetID)targetID {
+- (void)addReference:(FSTDocumentKey *)key {
   _orphaned->erase(key);
 }
 
-- (void)removeReference:(FSTDocumentKey *)key
-                 target:(__unused FSTTargetID)targetID {
+- (void)removeReference:(FSTDocumentKey *)key {
   _orphaned->insert(key);
 }
 

@@ -372,7 +372,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
-    [self->_db.referenceDelegate addReference:key target:targetID];
+    [self->_db.referenceDelegate addReference:key];
   };
 }
 
@@ -383,7 +383,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
-    [self->_db.referenceDelegate removeReference:key target:targetID];
+    [self->_db.referenceDelegate removeReference:key];
     [self.garbageCollector addPotentialGarbageKey:key];
   }
 }

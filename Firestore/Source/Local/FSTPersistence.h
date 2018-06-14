@@ -136,14 +136,14 @@ struct FSTTransactionRunner;
 - (void)removeTarget:(FSTQueryData *)queryData;
 
 /**
- * Notify the delegate that the given document was added to the given target.
+ * Notify the delegate that the given document was added to a target.
  */
-- (void)addReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
+- (void)addReference:(FSTDocumentKey *)key;
 
 /**
- * Notify the delegate that the given document was removed from the given target.
+ * Notify the delegate that the given document was removed from a target.
  */
-- (void)removeReference:(FSTDocumentKey *)key target:(FSTTargetID)targetID;
+- (void)removeReference:(FSTDocumentKey *)key;
 
 /**
  * Notify the delegate that a document is no longer being mutated by the user.

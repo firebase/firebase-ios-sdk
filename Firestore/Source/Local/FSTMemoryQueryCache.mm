@@ -149,7 +149,7 @@ NS_ASSUME_NONNULL_BEGIN
             forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate addReference:key target:targetID];
+    [_persistence.referenceDelegate addReference:key];
   }
 }
 
@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
                forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate removeReference:key target:targetID];
+    [_persistence.referenceDelegate removeReference:key];
   }
 }
 
