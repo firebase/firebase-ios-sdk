@@ -492,6 +492,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     self.defaultFcmToken = self.instanceID.token;
 #pragma clang diagnostic pop
   }
+  [_messagingUserDefaults synchronize];
 }
 
 - (NSString *)FCMToken {
