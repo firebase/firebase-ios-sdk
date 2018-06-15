@@ -64,6 +64,11 @@ Pod::Spec.new do |s|
     'ALWAYS_SEARCH_USER_PATHS' => 'NO',
   }
 
+  # Disable warnings that upstream does not concern itself with
+  s.compiler_flags = '$(inherited) ' +
+    '-Wno-comma ' +
+    '-Wno-shorten-64-to-32'
+
   s.requires_arc = false
   s.library = 'c++'
 end
