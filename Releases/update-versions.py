@@ -16,7 +16,7 @@
 
 """update-versions.py creates a release branch and commit with version updates.
 
-With the required -version parameter, this script will update all files in
+With the required --version parameter, this script will update all files in
 the repo based on the versions in Releases/Manifests/{version}.json.
 
 It will create a release branch, push and tag the updates, and push the
@@ -28,6 +28,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 
 test_mode = False  # Flag to disable external repo updates
 
@@ -40,16 +41,16 @@ def SetupArguments():
   """
   parser = argparse.ArgumentParser(description='Update Pod Versions')
 
-  parser.add_argument('-version', required=True, help='Firebase version')
+  parser.add_argument('--version', required=True, help='Firebase version')
 
   parser.add_argument(
-      '-test_mode',
+      '--test_mode',
       dest='test_mode',
       action='store_true',
       help='Log commands instead of updating public repo')
 
   parser.add_argument(
-      '-tag_update',
+      '--tag_update',
       dest='tag_update',
       action='store_true',
       help='Update the tags only')
@@ -97,6 +98,8 @@ def CreateReleaseBranch(release_branch):
   os.system('git pull')
   os.system('git checkout -b {}'.format(release_branch))
   LogOrRun('git push origin {}'.format(release_branch))
+  LogOrRun('git branch --set-upstream-to=origin/{} {}'.format(release_branch,
+                                                              release_branch))
 
 
 def UpdateFIROptions(git_root, version_data):
@@ -126,7 +129,7 @@ def UpdatePodSpecs(git_root, version_data, firebase_version):
     firebase_version: the Firebase version.
   """
   core_podspec = os.path.join(git_root, 'FirebaseCore.podspec')
-  os.system("sed -i.bak -e \"s/\\(Firebase_VERSION=\\).*'/\\1{}/\" {}".format(
+  os.system("sed -i.bak -e \"s/\\(Firebase_VERSION=\\).*'/\\1{}'/\" {}".format(
       firebase_version, core_podspec))
   for pod, version in version_data.items():
     podspec = os.path.join(git_root, '{}.podspec'.format(pod))
@@ -172,6 +175,19 @@ def UpdateTags(version_data, firebase_version, first=False):
   LogOrRun('git push origin --tags')
 
 
+def GetCpdcInternal():
+  """Find the cpdc-internal repo.
+
+"""
+  tmp_file = tempfile.mktemp()
+  os.system('pod repo list | grep -B2 sso://cpdc-internal | head -1 > {}'
+            .format(tmp_file))
+  with open(tmp_file,'r') as o:
+    output_var = ''.join(o.readlines()).strip()
+  os.system('rm -rf {}'.format(tmp_file))
+  return output_var
+
+
 def PushPodspecs(version_data):
   """Push podspecs to cpdc-internal.
 
@@ -180,14 +196,20 @@ def PushPodspecs(version_data):
   """
   pods = version_data.keys()
   pods.insert(0, pods.pop(pods.index('FirebaseCore')))  # Core should be first
+  tmp_dir = tempfile.mkdtemp()
   for pod in pods:
     LogOrRun('pod cache clean {} --all'.format(pod))
     if pod == 'FirebaseFirestore':
       warnings_ok = ' --allow-warnings'
     else:
       warnings_ok = ''
-    LogOrRun('pod repo push cpdc-internal-spec {}.podspec{}'.format(
-        pod, warnings_ok))
+
+    podspec = '{}.podspec'.format(pod)
+    json = os.path.join(tmp_dir, '{}.json'.format(podspec))
+    os.system('pod ipc spec {} > {}'.format(podspec, json))
+    LogOrRun('pod repo push {} {}{}'.format(GetCpdcInternal(), json,
+                                            warnings_ok))
+  os.system('rm -rf {}'.format(tmp_dir))
 
 
 def UpdateVersions():
@@ -206,7 +228,6 @@ def UpdateVersions():
       stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
 
   version_data = GetVersionData(git_root, args.version)
-
   if args.tag_update:
     UpdateTags(version_data, args.version)
     return
