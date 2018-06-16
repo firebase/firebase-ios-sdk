@@ -190,7 +190,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingError) {
   /// Some parameters of the request were invalid.
   FIRMessagingErrorInvalidRequest = 7,
 
-  /// Token is not available for topic subscription/unsubscription.
+  /// Token is not available.
   FIRMessagingErrorTokenNotAvailable = 8,
 
   /// Topic name is invalid for subscription/unsubscription.
