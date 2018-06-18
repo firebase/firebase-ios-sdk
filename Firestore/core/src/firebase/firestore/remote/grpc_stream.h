@@ -51,7 +51,8 @@ namespace remote {
 //
 // idle
 //
-// enable/disable
+// enable/disable -- make sure gRPC leaves us alone with its callbacks as soon
+//     as we close the stream.
 //
 // WRITE STREAM
 
@@ -152,14 +153,15 @@ class WatchStream {
   State state_{State::Initial};
 
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
+  std::unique_ptr<grpc::ClientContext> context_;
+  grpc::GenericStub stub_;
+  grpc::CompletionQueue grpc_queue_;
+
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
-
-  std::unique_ptr<grpc::ClientContext> context_;
-  grpc::GenericStub stub_;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
-  grpc::CompletionQueue grpc_queue_;
 
   internal::ObjcBridge objc_bridge_;
   internal::BufferedWriter buffered_writer_;
