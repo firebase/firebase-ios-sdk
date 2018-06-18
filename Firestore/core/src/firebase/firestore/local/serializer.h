@@ -28,16 +28,16 @@ namespace firestore {
 namespace local {
 
 /**
- * @brief Serializer for values stored in the LocalStore
+ * @brief Serializer for values stored in the LocalStore.
  *
- * Note tha local::Serializer currently delegates to the remote::Serializer (for
- * the Firestore v1beta1 RPC protocol) to save implementation time and code
+ * Note that local::Serializer currently delegates to the remote::Serializer
+ * (for the Firestore v1beta1 RPC protocol) to save implementation time and code
  * duplication. We'll need to revisit this when the RPC protocol we use diverges
  * from local storage.
  */
 class Serializer {
  public:
-  Serializer(const remote::Serializer& rpc_serializer)
+  explicit Serializer(const remote::Serializer& rpc_serializer)
       : rpc_serializer_(rpc_serializer) {
   }
 

@@ -15,6 +15,9 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/local/serializer.h"
+
+#include <cstdlib>
+
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
@@ -44,8 +47,7 @@ void Serializer::EncodeMaybeDocument(
       writer->WriteTag(
           {PB_WT_STRING, firestore_client_MaybeDocument_document_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
-        const model::Document& doc =
-            static_cast<const model::Document&>(maybe_doc);
+        auto doc = static_cast<const model::Document&>(maybe_doc);
         rpc_serializer_.EncodeDocument(writer, doc.key(),
                                        doc.data().object_value());
       });

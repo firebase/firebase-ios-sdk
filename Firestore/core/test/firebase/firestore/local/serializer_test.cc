@@ -43,7 +43,6 @@ using google::protobuf::util::MessageDifferencer;
 // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
 #define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
 
-// Fixutre for running the local serializer tests.
 class SerializerTest : public ::testing::Test {
  public:
   SerializerTest()
@@ -112,9 +111,8 @@ class SerializerTest : public ::testing::Test {
       const MaybeDocument& model,
       const firestore::client::MaybeDocument& proto,
       MaybeDocument::Type type) {
-    size_t size = proto.ByteSizeLong();
-    std::vector<uint8_t> bytes(size);
-    bool status = proto.SerializeToArray(bytes.data(), size);
+    std::vector<uint8_t> bytes(proto.ByteSizeLong());
+    bool status = proto.SerializeToArray(bytes.data(), bytes.size());
     EXPECT_TRUE(status);
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
         serializer.DecodeMaybeDocument(bytes);
