@@ -17,8 +17,8 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import <XCTest/XCTest.h>
-#import <absl/strings/str_cat.h>
 
+#include "absl/strings/str_cat.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLRUGarbageCollectorTests {
   FSTTargetID _previousTargetID;
-  NSUInteger _previousDocNum;
+  int _previousDocNum;
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
 }
@@ -83,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentKey *)nextTestDocKey {
-  NSString *path = [NSString stringWithFormat:@"docs/doc_%lu", (unsigned long)++_previousDocNum];
+  NSString *path = [NSString stringWithFormat:@"docs/doc_%i", ++_previousDocNum];
   return FSTTestDocKey(path);
 }
 
