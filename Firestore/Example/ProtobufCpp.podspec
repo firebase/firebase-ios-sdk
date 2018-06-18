@@ -51,7 +51,10 @@ Pod::Spec.new do |s|
 
   # Set a CPP symbol so the code knows to use framework imports.
   s.pod_target_xcconfig = {
-    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
+      '$(inherited) ' +
+      'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
+      'HAVE_PTHREAD=1',
     'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/ProtobufCpp/src"',
 
     # Cocoapods flattens header imports, leading to much anguish.  The
@@ -59,9 +62,12 @@ Pod::Spec.new do |s|
     # - https://github.com/CocoaPods/CocoaPods/issues/1437
     'USE_HEADERMAP' => 'NO',
     'ALWAYS_SEARCH_USER_PATHS' => 'NO',
-
-    'OTHER_CFLAGS' => '-DHAVE_PTHREAD'
   }
+
+  # Disable warnings that upstream does not concern itself with
+  s.compiler_flags = '$(inherited) ' +
+    '-Wno-comma ' +
+    '-Wno-shorten-64-to-32'
 
   s.requires_arc = false
   s.library = 'c++'

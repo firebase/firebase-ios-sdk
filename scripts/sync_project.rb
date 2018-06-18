@@ -50,9 +50,6 @@ def sync_firestore()
     'CMakeLists.txt',
     'InfoPlist.strings',
     '*.plist',
-
-    # b/79496027
-    'Firestore/core/test/firebase/firestore/remote/serializer_test.cc',
   ]
 
   # Folder groups in the Xcode project that contain tests.
