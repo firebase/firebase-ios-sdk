@@ -43,41 +43,31 @@ namespace testutil = firebase::firestore::testutil;
 
 NS_ASSUME_NONNULL_BEGIN
 
-struct TestResources {
-  id<FSTPersistence> persistence;
-  id<FSTQueryCache> queryCache;
-  // TODO(gsoltis): other tables as necessary
-  FSTListenSequenceNumber initialSequenceNumber;
-};
-
 @implementation FSTLRUGarbageCollectorTests {
   FSTTargetID _previousTargetID;
   int _previousDocNum;
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
+  id<FSTPersistence> _persistence;
+  id<FSTQueryCache> _queryCache;
+  FSTListenSequenceNumber _initialSequenceNumber;
 }
 
-- (TestResources)allocateResources {
-  id<FSTPersistence> persistence = [self newPersistence];
-  id<FSTQueryCache> queryCache = [persistence queryCache];
-  FSTListenSequenceNumber initial =
-          persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
-            [queryCache start];
-            return persistence.currentSequenceNumber;
+- (void)newTestResources {
+  HARD_ASSERT(_persistence == nil, "Persistence already created");
+  _persistence = [self newPersistence];
+  _queryCache = [_persistence queryCache];
+  _initialSequenceNumber =
+          _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+            [_queryCache start];
+            return _persistence.currentSequenceNumber;
           });
-  return TestResources {
-    persistence,
-    queryCache,
-    initial
-  };
 }
 
-- (void)assertSequenceNumberOffsetAfterGC:(int)offset testResources:(const TestResources &)testResources {
-  testResources.persistence.run("gc", [&]() {
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:testResources.persistence];
-    // TODO(gsoltis): need to provide queryCount?
-    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-    XCTAssertEqual(offset + testResources.initialSequenceNumber, highestToCollect);
+- (FSTListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
+  return _persistence.run("gc", [&]() -> FSTListenSequenceNumber {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:_persistence];
+    return [gc sequenceNumberForQueryCount:queryCount];
   });
 }
 
@@ -152,20 +142,19 @@ struct TestResources {
     // Fill the query cache.
     int numQueries = testCases[i].queries;
     int expectedTenthPercentile = testCases[i].expected;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("testPickSequenceNumberPercentile" + std::to_string(i), [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      for (int j = 0; j < numQueries; j++) {
-        [queryCache addQueryData:[self nextTestQuery:persistence]];
-      }
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    [self newTestResources];
+    for (int j = 0; j < numQueries; j++) {
+      _persistence.run("add query", [&]() {
+        [_queryCache addQueryData:[self nextTestQuery:_persistence]];
+      });
+    }
+    _persistence.run("Check GC", [&]() {
+      FSTLRUGarbageCollector *gc = [self gcForPersistence:_persistence];
       FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
       XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
     });
-
-    // TODO(gsoltis): technically should shutdown query cache, but it doesn't do anything anymore.
-    [persistence shutdown];
+    [_persistence shutdown];
+    _persistence = nil;
   }
 }
 
@@ -188,13 +177,13 @@ struct TestResources {
   if ([self isTestBaseClass]) return;
   // Add 50 queries sequentially, aim to collect 10 of them.
   // The sequence number to collect should be 10 past the initial sequence number.
-  TestResources testResources = [self allocateResources];
+  [self newTestResources];
   for (int i = 0; i < 50; i++) {
-    testResources.persistence.run("add query",
-                    [&]() { [testResources.queryCache addQueryData:[self nextTestQuery:testResources.persistence]]; });
+    _persistence.run("add query",
+                    [&]() { [_queryCache addQueryData:[self nextTestQuery:_persistence]]; });
   }
-  [self assertSequenceNumberOffsetAfterGC:10 testResources:testResources];
-  [testResources.persistence shutdown];
+  XCTAssertEqual(_initialSequenceNumber + 10, [self sequenceNumberForQueryCount:10]);
+  [_persistence shutdown];
 }
 
 - (void)testSequenceNumberForMultipleQueriesInATransaction {
