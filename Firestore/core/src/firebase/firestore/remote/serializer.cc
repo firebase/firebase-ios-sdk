@@ -103,63 +103,6 @@ Timestamp DecodeTimestamp(Reader* reader) {
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
-}  // namespace
-
-// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
-
-void Serializer::EncodeFieldValue(Writer* writer,
-                                  const FieldValue& field_value) {
-  // TODO(rsgowman): some refactoring is in order... but will wait until after a
-  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  switch (field_value.type()) {
-    case FieldValue::Type::Null:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
-      writer->WriteNull();
-      break;
-
-    case FieldValue::Type::Boolean:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
-      writer->WriteBool(field_value.boolean_value());
-      break;
-
-    case FieldValue::Type::Integer:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
-      writer->WriteInteger(field_value.integer_value());
-      break;
-
-    case FieldValue::Type::String:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
-      writer->WriteString(field_value.string_value());
-      break;
-
-    case FieldValue::Type::Timestamp:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeTimestamp(writer, field_value.timestamp_value());
-      });
-      break;
-
-    case FieldValue::Type::Object:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeMapValue(writer, field_value.object_value());
-      });
-      break;
-
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
-  }
-}
-
-namespace {
-
 FieldValue DecodeFieldValueImpl(Reader* reader) {
   if (!reader->status().ok()) return FieldValue::NullValue();
 
@@ -261,46 +204,6 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
   return result;
 }
 
-}  // namespace
-
-// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
-
-/**
- * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
- *
- * In protobuf, maps are implemented as a repeated set of key/values. For
- * instance, this:
- *   message Foo {
- *     map<string, Value> fields = 1;
- *   }
- * would be written (in proto text format) as:
- *   {
- *     fields: {key:"key string 1", value:{<Value message here>}}
- *     fields: {key:"key string 2", value:{<Value message here>}}
- *     ...
- *   }
- *
- * This method writes an individual entry from that list. It is expected that
- * this method will be called once for each entry in the map.
- *
- * @param kv The individual key/value pair to write.
- */
-void Serializer::EncodeFieldsEntry(Writer* writer,
-                                   const ObjectValue::Map::value_type& kv,
-                                   uint32_t key_tag,
-                                   uint32_t value_tag) {
-  // Write the key (string)
-  writer->WriteTag({PB_WT_STRING, key_tag});
-  writer->WriteString(kv.first);
-
-  // Write the value (FieldValue)
-  writer->WriteTag({PB_WT_STRING, value_tag});
-  writer->WriteNestedMessage(
-      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
-}
-
-namespace {
-
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
                                                uint32_t value_tag) {
@@ -337,20 +240,6 @@ ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
       reader, google_firestore_v1beta1_Document_FieldsEntry_key_tag,
       google_firestore_v1beta1_Document_FieldsEntry_value_tag);
 }
-
-}  // namespace
-
-// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
-
-void Serializer::EncodeMapValue(Writer* writer,
-                                const ObjectValue& object_value) {
-  EncodeObjectMap(writer, object_value.internal_value,
-                  google_firestore_v1beta1_MapValue_fields_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-}
-
-namespace {
 
 ObjectValue::Map DecodeMapValue(Reader* reader) {
   ObjectValue::Map result;
@@ -451,6 +340,57 @@ Status Serializer::EncodeFieldValue(const FieldValue& field_value,
   Writer writer = Writer::Wrap(out_bytes);
   EncodeFieldValue(&writer, field_value);
   return writer.status();
+}
+
+void Serializer::EncodeFieldValue(Writer* writer,
+                                  const FieldValue& field_value) {
+  // TODO(rsgowman): some refactoring is in order... but will wait until after a
+  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  switch (field_value.type()) {
+    case FieldValue::Type::Null:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
+      writer->WriteNull();
+      break;
+
+    case FieldValue::Type::Boolean:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
+      writer->WriteBool(field_value.boolean_value());
+      break;
+
+    case FieldValue::Type::Integer:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
+      writer->WriteInteger(field_value.integer_value());
+      break;
+
+    case FieldValue::Type::String:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
+      writer->WriteString(field_value.string_value());
+      break;
+
+    case FieldValue::Type::Timestamp:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeTimestamp(writer, field_value.timestamp_value());
+      });
+      break;
+
+    case FieldValue::Type::Object:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeMapValue(writer, field_value.object_value());
+      });
+      break;
+
+    default:
+      // TODO(rsgowman): implement the other types
+      abort();
+  }
 }
 
 StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
@@ -662,6 +602,14 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       /*has_local_modifications=*/false);
 }
 
+void Serializer::EncodeMapValue(Writer* writer,
+                                const ObjectValue& object_value) {
+  EncodeObjectMap(writer, object_value.internal_value,
+                  google_firestore_v1beta1_MapValue_fields_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+}
+
 void Serializer::EncodeObjectMap(
     nanopb::Writer* writer,
     const model::ObjectValue::Map& object_value_map,
@@ -680,6 +628,40 @@ void Serializer::EncodeObjectMap(
 void Serializer::EncodeVersion(nanopb::Writer* writer,
                                const model::SnapshotVersion& version) {
   EncodeTimestamp(writer, version.timestamp());
+}
+
+/**
+ * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
+ *
+ * In protobuf, maps are implemented as a repeated set of key/values. For
+ * instance, this:
+ *   message Foo {
+ *     map<string, Value> fields = 1;
+ *   }
+ * would be written (in proto text format) as:
+ *   {
+ *     fields: {key:"key string 1", value:{<Value message here>}}
+ *     fields: {key:"key string 2", value:{<Value message here>}}
+ *     ...
+ *   }
+ *
+ * This method writes an individual entry from that list. It is expected that
+ * this method will be called once for each entry in the map.
+ *
+ * @param kv The individual key/value pair to write.
+ */
+void Serializer::EncodeFieldsEntry(Writer* writer,
+                                   const ObjectValue::Map::value_type& kv,
+                                   uint32_t key_tag,
+                                   uint32_t value_tag) {
+  // Write the key (string)
+  writer->WriteTag({PB_WT_STRING, key_tag});
+  writer->WriteString(kv.first);
+
+  // Write the value (FieldValue)
+  writer->WriteTag({PB_WT_STRING, value_tag});
+  writer->WriteNestedMessage(
+      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
 }
 
 }  // namespace remote
