@@ -173,6 +173,15 @@ class Serializer {
       nanopb::Reader* reader) const;
   std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 
+  static void EncodeObjectMap(nanopb::Writer* writer,
+                       const model::ObjectValue::Map& object_value_map,
+                       uint32_t map_tag,
+                       uint32_t key_tag,
+                       uint32_t value_tag);
+
+  static void EncodeVersion(nanopb::Writer* writer,
+                            const model::SnapshotVersion& version);
+
   const firebase::firestore::model::DatabaseId& database_id_;
 };
 

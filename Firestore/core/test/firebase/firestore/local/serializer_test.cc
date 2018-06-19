@@ -136,11 +136,13 @@ class SerializerTest : public ::testing::Test {
 };
 
 TEST_F(SerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = Doc("some/path", /*version=*/0);
+  Document doc = Doc("some/path", /*version=*/42);
 
   firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
       "projects/p/databases/d/documents/some/path");
+  maybe_doc_proto.mutable_document()->mutable_update_time()->set_seconds(0);
+  maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
   ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
 }

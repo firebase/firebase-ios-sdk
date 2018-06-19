@@ -89,6 +89,13 @@ class Serializer {
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader) const;
 
+  /**
+   * Encodes a Document for local storage. This differs from the v1beta1 RPC
+   * serializer for Documents in that it preserves the updateTime, which is
+   * considered an output only value by the server.
+   */
+  void EncodeDocument(nanopb::Writer* writer, const model::Document& doc) const;
+
   const remote::Serializer& rpc_serializer_;
 };
 
