@@ -652,8 +652,12 @@
   }
 
   if (handler) {
+    __weak typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-      handler(response, data, self->_sessionID, error);
+      typeof(self) strongSelf = weakSelf;
+      if (strongSelf) {
+        handler(response, data, strongSelf->_sessionID, error);
+      }
     });
   }
 }

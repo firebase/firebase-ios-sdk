@@ -146,13 +146,13 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
       sessionIDFromAsyncPOSTRequest:request
                   completionHandler:^(NSHTTPURLResponse *response, NSData *data,
                                       NSString *sessionID, NSError *error) {
-                    FIRNetwork *strongSelf = weakSelf;
-                    if (!strongSelf) {
+                    if (!weakSelf) {
                       return;
                     }
                     dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
                     dispatch_async(queueToDispatch, ^{
-                      if (sessionID.length) {
+                      typeof(self) strongSelf = weakSelf;
+                      if (strongSelf && sessionID.length) {
                         [strongSelf->_requests removeObjectForKey:sessionID];
                       }
                       if (handler) {
@@ -209,12 +209,12 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
       sessionIDFromAsyncGETRequest:request
                  completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSString *sessionID,
                                      NSError *error) {
-                   FIRNetwork *strongSelf = weakSelf;
-                   if (!strongSelf) {
-                     return;
-                   }
                    dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
                    dispatch_async(queueToDispatch, ^{
+                     FIRNetwork *strongSelf = weakSelf;
+                     if (!strongSelf) {
+                       return;
+                     }
                      if (sessionID.length) {
                        [strongSelf->_requests removeObjectForKey:sessionID];
                      }

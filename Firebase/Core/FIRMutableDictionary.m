@@ -63,8 +63,12 @@
 }
 
 - (void)removeAllObjects {
+  __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    [self->_objects removeAllObjects];
+    if (weakSelf) {
+      typeof(self) strongSelf = weakSelf;
+      [strongSelf->_objects removeAllObjects];
+    }
   });
 }
 
