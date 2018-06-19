@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -46,7 +47,6 @@ namespace remote {
 
 // close
 // error
-// backoff
 // state machine
 //
 // idle
@@ -127,6 +127,9 @@ class WatchStream {
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
 
+  // ClearError?
+  void CancelBackoff();
+
   static const char* pemRootCertsPath;
 
  private:
@@ -141,6 +144,9 @@ class WatchStream {
 
   void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
 
+  void PerformBackoff(id delegate);
+  void ResumeStartFromBackoff(id delegate);
+
   void PollGrpcQueue();
   void OnSuccessfulStart();
   void OnSuccessfulRead();
@@ -153,15 +159,16 @@ class WatchStream {
   State state_{State::Initial};
 
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
-  std::unique_ptr<grpc::ClientContext> context_;
   grpc::GenericStub stub_;
   grpc::CompletionQueue grpc_queue_;
 
+  std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
+  ExponentialBackoff backoff_;
 
   internal::ObjcBridge objc_bridge_;
   internal::BufferedWriter buffered_writer_;
