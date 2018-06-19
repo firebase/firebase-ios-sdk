@@ -239,35 +239,6 @@ static NSString *const kFakeToken =
   OCMVerifyAll(_mockPubSub);
 }
 
-- (void)testSubScriptionCompletionHandlerWithInvalidToken {
-  XCTestExpectation *subscriptionCompletionExpectation =
-      [self expectationWithDescription:@"Subscription is complete"];
-  _messaging.defaultFcmToken = nil;
-  [_messaging subscribeToTopic:@"news"
-                    completion:^(NSError *error) {
-                      XCTAssertNotNil(error);
-                      XCTAssertEqual(error.code, FIRMessagingErrorTokenNotAvailable);
-                      [subscriptionCompletionExpectation fulfill];
-                    }];
-  [self waitForExpectationsWithTimeout:0.2
-                               handler:^(NSError *_Nullable error){
-                               }];
-}
-
-- (void)testSubscriptionCompletionHandlerWithInvalidTopicName {
-  XCTestExpectation *subscriptionCompletionExpectation =
-      [self expectationWithDescription:@"Subscription is complete"];
-  [_messaging subscribeToTopic:@"!@#$%^&*()"
-                    completion:^(NSError *_Nullable error) {
-                      XCTAssertNotNil(error);
-                      XCTAssertEqual(error.code, FIRMessagingErrorInvalidTopicName);
-                      [subscriptionCompletionExpectation fulfill];
-                    }];
-  [self waitForExpectationsWithTimeout:0.2
-                               handler:^(NSError *_Nullable error){
-                               }];
-}
-
 - (void)testSubscriptionCompletionHandlerWithSuccess {
   OCMStub([_mockPubSub subscribeToTopic:[OCMArg any]
                                 handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
@@ -278,35 +249,6 @@ static NSString *const kFakeToken =
                       XCTAssertNil(error);
                       [subscriptionCompletionExpectation fulfill];
                     }];
-  [self waitForExpectationsWithTimeout:0.2
-                               handler:^(NSError *_Nullable error){
-                               }];
-}
-
-- (void)testUnsubscribeCompletionHandlerWithInvalidToken {
-  XCTestExpectation *unsubscriptionCompletionExpectation =
-      [self expectationWithDescription:@"Unsubscription is complete"];
-  _messaging.defaultFcmToken = nil;
-  [_messaging unsubscribeFromTopic:@""
-                        completion:^(NSError *error) {
-                          XCTAssertNotNil(error);
-                          XCTAssertEqual(error.code, FIRMessagingErrorTokenNotAvailable);
-                          [unsubscriptionCompletionExpectation fulfill];
-                        }];
-  [self waitForExpectationsWithTimeout:0.2
-                               handler:^(NSError *_Nullable error){
-                               }];
-}
-
-- (void)testUnsubscribeCompletionHandlerWithInvalidTopic {
-  XCTestExpectation *unsubscriptionCompletionExpectation =
-      [self expectationWithDescription:@"Unsubscription is complete"];
-  [_messaging unsubscribeFromTopic:@"!@#$%^&*()"
-                        completion:^(NSError *error) {
-                          XCTAssertNotNil(error);
-                          XCTAssertEqual(error.code, FIRMessagingErrorInvalidTopicName);
-                          [unsubscriptionCompletionExpectation fulfill];
-                        }];
   [self waitForExpectationsWithTimeout:0.2
                                handler:^(NSError *_Nullable error){
                                }];
