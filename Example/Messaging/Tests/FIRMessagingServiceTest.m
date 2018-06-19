@@ -26,6 +26,11 @@
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "NSError+FIRMessaging.h"
 
+static NSString *const kFakeToken =
+    @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
+    @"yUTTzK6dhIvLqzqqCSabaa4TQVM0pGTmF6r7tmMHPe6VYiGMHuCwJFgj5v97xl78sUNMLwuPPhoci8z_"
+    @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
+
 @interface FIRMessaging () <FIRMessagingClientDelegate>
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
@@ -40,22 +45,35 @@
 
 @end
 
-
-@interface FIRMessagingServiceTest : XCTestCase
+@interface FIRMessagingServiceTest : XCTestCase {
+  FIRMessaging *_messaging;
+  id _mockPubSub;
+}
 
 @end
 
 @implementation FIRMessagingServiceTest
 
+- (void)setUp {
+  _messaging = [FIRMessaging messaging];
+  _messaging.defaultFcmToken = kFakeToken;
+  _mockPubSub = OCMPartialMock(_messaging.pubsub);
+  [super setUp];
+}
+
+- (void)tearDown {
+  [_mockPubSub stopMocking];
+  [super tearDown];
+}
+
 - (void)testSubscribe {
   id mockClient = OCMClassMock([FIRMessagingClient class]);
-  FIRMessaging *service = [FIRMessaging messaging];
-  [service setClient:mockClient];
-  [service.pubsub setClient:mockClient];
+  [_messaging setClient:mockClient];
+  [_mockPubSub setClient:mockClient];
 
   XCTestExpectation *subscribeExpectation =
       [self expectationWithDescription:@"Should call subscribe on FIRMessagingClient"];
-  NSString *token = @"abcdefghijklmn";
+  NSString *token = kFakeToken;
   NSString *topic = @"/topics/some-random-topic";
 
   [[[mockClient stub]
@@ -68,12 +86,12 @@
                      shouldDelete:NO
                           handler:OCMOCK_ANY];
 
-  [service.pubsub subscribeWithToken:token
-                               topic:topic
-                             options:nil
-                             handler:^(NSError *error){
-                                 // not a nil block
-                             }];
+  [_mockPubSub subscribeWithToken:token
+                            topic:topic
+                          options:nil
+                          handler:^(NSError *error){
+                              // not a nil block
+                          }];
 
   // should call updateSubscription
   [self waitForExpectationsWithTimeout:0.1
@@ -85,14 +103,13 @@
 
 - (void)testUnsubscribe {
   id mockClient = OCMClassMock([FIRMessagingClient class]);
-  FIRMessaging *messaging = [FIRMessaging messaging];
-  [messaging setClient:mockClient];
-  [messaging.pubsub setClient:mockClient];
+  [_messaging setClient:mockClient];
+  [_mockPubSub setClient:mockClient];
 
   XCTestExpectation *subscribeExpectation =
       [self expectationWithDescription:@"Should call unsubscribe on FIRMessagingClient"];
 
-  NSString *token = @"abcdefghijklmn";
+  NSString *token = kFakeToken;
   NSString *topic = @"/topics/some-random-topic";
 
   [[[mockClient stub] andDo:^(NSInvocation *invocation) {
@@ -109,12 +126,12 @@
                      shouldDelete:YES
                           handler:OCMOCK_ANY];
 
-  [messaging.pubsub unsubscribeWithToken:token
-                                   topic:topic
-                                 options:nil
-                                 handler:^(NSError *error){
+  [_mockPubSub unsubscribeWithToken:token
+                              topic:topic
+                            options:nil
+                            handler:^(NSError *error){
 
-                                 }];
+                            }];
 
   // should call updateSubscription
   [self waitForExpectationsWithTimeout:0.1
@@ -128,8 +145,8 @@
  *  Test using PubSub without explicitly starting FIRMessagingService.
  */
 - (void)testSubscribeWithoutStart {
-  [[[FIRMessaging messaging] pubsub]
-      subscribeWithToken:@"abcdef1234"
+  [_mockPubSub
+      subscribeWithToken:kFakeToken
                    topic:@"/topics/hello-world"
                  options:nil
                  handler:^(NSError *error) {
@@ -141,19 +158,18 @@
 // TODO(chliangGoogle) Investigate why invalid token can't throw assertion but the rest can under
 // release build.
 - (void)testSubscribeWithInvalidTopic {
-  FIRMessaging *messaging = [FIRMessaging messaging];
 
   XCTestExpectation *exceptionExpectation =
   [self expectationWithDescription:@"Should throw exception for invalid token"];
   @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    [messaging.pubsub subscribeWithToken:@"abcdef1234"
-                                   topic:nil
-                                 options:nil
-                                 handler:^(NSError *error) {
-                                   XCTFail(@"Should not invoke the handler");
-                                 }];
+    [_mockPubSub subscribeWithToken:kFakeToken
+                              topic:nil
+                            options:nil
+                            handler:^(NSError *error) {
+                              XCTFail(@"Should not invoke the handler");
+                            }];
 #pragma clang diagnostic pop
   }
   @catch (NSException *exception) {
@@ -167,19 +183,17 @@
 }
 
 - (void)testUnsubscribeWithInvalidTopic {
-  FIRMessaging *messaging = [FIRMessaging messaging];
-
   XCTestExpectation *exceptionExpectation =
       [self expectationWithDescription:@"Should throw exception for invalid token"];
   @try {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-    [messaging.pubsub unsubscribeWithToken:@"abcdef1234"
-                                     topic:nil
-                                   options:nil
-                                   handler:^(NSError *error) {
-                                     XCTFail(@"Should not invoke the handler");
-                                   }];
+    [_mockPubSub unsubscribeWithToken:kFakeToken
+                                topic:nil
+                              options:nil
+                              handler:^(NSError *error) {
+                                XCTFail(@"Should not invoke the handler");
+                              }];
 #pragma clang diagnostic pop
   }
   @catch (NSException *exception) {
@@ -193,68 +207,66 @@
 }
 
 - (void)testSubscribeWithNoTopicPrefix {
-  FIRMessaging *messaging = [FIRMessaging messaging];
-  FIRMessagingPubSub *pubSub = messaging.pubsub;
-  id mockPubSub = OCMClassMock([FIRMessagingPubSub class]);
 
   NSString *topicName = @"topicWithoutPrefix";
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
-  messaging.pubsub = mockPubSub;
-  messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicNameWithPrefix]
-                                       handler:[OCMArg any]]);
-  [messaging subscribeToTopic:topicName];
-  OCMVerifyAll(mockPubSub);
-  // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
-  messaging.pubsub = pubSub;
+  OCMExpect(
+      [_mockPubSub subscribeToTopic:[OCMArg isEqual:topicNameWithPrefix] handler:[OCMArg any]]);
+  [_messaging subscribeToTopic:topicName];
+  OCMVerifyAll(_mockPubSub);
 }
 
 - (void)testSubscribeWithTopicPrefix {
-  FIRMessaging *messaging = [FIRMessaging messaging];
-  FIRMessagingPubSub *pubSub = messaging.pubsub;
-  id mockPubSub = OCMClassMock([FIRMessagingPubSub class]);
-
   NSString *topicName = @"/topics/topicWithoutPrefix";
-  messaging.pubsub = mockPubSub;
-  messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub subscribeToTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
-  [messaging subscribeToTopic:topicName];
-  OCMVerifyAll(mockPubSub);
-  // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
-  messaging.pubsub = pubSub;
+  OCMExpect([_mockPubSub subscribeToTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
+  [_messaging subscribeToTopic:topicName];
+  OCMVerifyAll(_mockPubSub);
 }
 
 - (void)testUnsubscribeWithNoTopicPrefix {
-  FIRMessaging *messaging = [FIRMessaging messaging];
-  FIRMessagingPubSub *pubSub = messaging.pubsub;
-  id mockPubSub = OCMClassMock([FIRMessagingPubSub class]);
-
   NSString *topicName = @"topicWithoutPrefix";
   NSString *topicNameWithPrefix = [FIRMessagingPubSub addPrefixToTopic:topicName];
-  messaging.pubsub = mockPubSub;
-  messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicNameWithPrefix]
-                                           handler:[OCMArg any]]);
-  [messaging unsubscribeFromTopic:topicName];
-  OCMVerifyAll(mockPubSub);
-  // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
-  messaging.pubsub = pubSub;
+  OCMExpect(
+      [_mockPubSub unsubscribeFromTopic:[OCMArg isEqual:topicNameWithPrefix] handler:[OCMArg any]]);
+  [_messaging unsubscribeFromTopic:topicName];
+  OCMVerifyAll(_mockPubSub);
 }
 
 - (void)testUnsubscribeWithTopicPrefix {
-  FIRMessaging *messaging = [FIRMessaging messaging];
-  FIRMessagingPubSub *pubSub = messaging.pubsub;
-  id mockPubSub = OCMClassMock([FIRMessagingPubSub class]);
-
   NSString *topicName = @"/topics/topicWithPrefix";
-  messaging.pubsub = mockPubSub;
-  messaging.defaultFcmToken = @"fake-default-token";
-  OCMExpect([messaging.pubsub unsubscribeFromTopic:[OCMArg isEqual:topicName]
-                                           handler:[OCMArg any]]);
-  [messaging unsubscribeFromTopic:topicName];
-  OCMVerifyAll(mockPubSub);
-  // Need to swap back since it's a singleton and hence will live beyond the scope of this test.
-  messaging.pubsub = pubSub;
+  OCMExpect([_mockPubSub unsubscribeFromTopic:[OCMArg isEqual:topicName] handler:[OCMArg any]]);
+  [_messaging unsubscribeFromTopic:topicName];
+  OCMVerifyAll(_mockPubSub);
+}
+
+- (void)testSubscriptionCompletionHandlerWithSuccess {
+  OCMStub([_mockPubSub subscribeToTopic:[OCMArg any]
+                                handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
+  XCTestExpectation *subscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Subscription is complete"];
+  [_messaging subscribeToTopic:@"news"
+                    completion:^(NSError *error) {
+                      XCTAssertNil(error);
+                      [subscriptionCompletionExpectation fulfill];
+                    }];
+  [self waitForExpectationsWithTimeout:0.2
+                               handler:^(NSError *_Nullable error){
+                               }];
+}
+
+- (void)testUnsubscribeCompletionHandlerWithSuccess {
+  OCMStub([_mockPubSub unsubscribeFromTopic:[OCMArg any]
+                                    handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
+  XCTestExpectation *unsubscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Unsubscription is complete"];
+  [_messaging unsubscribeFromTopic:@"news"
+                        completion:^(NSError *_Nullable error) {
+                          XCTAssertNil(error);
+                          [unsubscriptionCompletionExpectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:0.2
+                               handler:^(NSError *_Nullable error){
+                               }];
 }
 
 - (void)testFIRMessagingSDKVersionInFIRMessagingService {
