@@ -163,6 +163,8 @@ void Serializer::EncodeDocument(Writer* writer,
   writer->WriteNestedMessage([&](Writer* writer) {
     rpc_serializer_.EncodeVersion(writer, doc.version());
   });
+
+  // Ignore Document.create_time. (We don't use this in our on-disk protos.)
 }
 
 util::StatusOr<std::unique_ptr<model::MaybeDocument>>
