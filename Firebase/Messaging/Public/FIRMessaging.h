@@ -189,6 +189,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingError) {
 
   /// Some parameters of the request were invalid.
   FIRMessagingErrorInvalidRequest = 7,
+
+  /// Token is not available for topic subscription/unsubscription.
+  FIRMessagingErrorTokenNotAvailable = 8,
+
+  /// Topic name is invalid for subscription/unsubscription.
+  FIRMessagingErrorInvalidTopicName = 9,
 } NS_SWIFT_NAME(MessagingError);
 
 /// Status for the downstream message received by the app.

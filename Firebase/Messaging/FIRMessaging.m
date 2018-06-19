@@ -492,6 +492,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     self.defaultFcmToken = self.instanceID.token;
 #pragma clang diagnostic pop
   }
+  [_messagingUserDefaults synchronize];
 }
 
 - (NSString *)FCMToken {
@@ -680,6 +681,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma mark - Topics
 
 + (NSString *)normalizeTopic:(NSString *)topic {
+  if (!topic.length) {
+    return nil;
+  }
   if (![FIRMessagingPubSub hasTopicsPrefix:topic]) {
     topic = [FIRMessagingPubSub addPrefixToTopic:topic];
   }
@@ -695,25 +699,24 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)subscribeToTopic:(NSString *)topic
               completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (topic.length) {
-    NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
-    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
-      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
-                             @"Format '%@' is deprecated. Only '%@' should be used in "
-                             @"subscribeToTopic.", topic,
-                             [FIRMessagingPubSub removePrefixFromTopic:topic]);
-    }
-    if (normalizeTopic.length) {
-      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
-    } else {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
-                              @"Cannot parse topic name %@. Will not subscribe.", topic);
-    }
-  } else {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging010,
-                            @"Cannot subscribe to topic: %@ with token: %@", topic,
-                            self.defaultFcmToken);
+  if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                           @"Format '%@' is deprecated. Only '%@' should be used in "
+                           @"subscribeToTopic.",
+                           topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  if (!self.defaultFcmToken.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging010,
+                            @"The subscription operation is suspended because you don't have a "
+                            @"token. The operation will resume once you get an FCM token.");
+  }
+  NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+  if (normalizeTopic.length) {
+    [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
+    return;
+  }
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
+                          @"Cannot parse topic name %@. Will not subscribe.", topic);
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -722,25 +725,24 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)unsubscribeFromTopic:(NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (topic.length) {
-    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
-    if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
-      FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
-                             @"Format '%@' is deprecated. Only '%@' should be used in "
-                             @"unsubscribeFromTopic.", topic,
-                             [FIRMessagingPubSub removePrefixFromTopic:topic]);
-    }
-    if (normalizeTopic.length) {
-      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
-    } else {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-                              @"Cannot parse topic name %@. Will not unsubscribe.", topic);
-    }
-  } else {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging012,
-                            @"Cannot unsubscribe to topic: %@ with token: %@", topic,
-                            self.defaultFcmToken);
+ if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                           @"Format '%@' is deprecated. Only '%@' should be used in "
+                           @"unsubscribeFromTopic.",
+                           topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  if (!self.defaultFcmToken.length) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging012,
+                            @"The unsubscription operation is suspended because you don't have a "
+                            @"token. The operation will resume once you get an FCM token.");
+  }
+  NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+  if (normalizeTopic.length) {
+    [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
+    return;
+  }
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
+                          @"Cannot parse topic name %@. Will not unsubscribe.", topic);
 }
 
 #pragma mark - Send
