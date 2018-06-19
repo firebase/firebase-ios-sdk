@@ -50,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTObjectValue *_bigObjectValue;
   id<FSTPersistence> _persistence;
   id<FSTQueryCache> _queryCache;
+  FSTLRUGarbageCollector *_gc;
   FSTListenSequenceNumber _initialSequenceNumber;
 }
 
@@ -60,14 +61,14 @@ NS_ASSUME_NONNULL_BEGIN
   _initialSequenceNumber =
           _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
             [_queryCache start];
+            _gc = [self gcForPersistence:_persistence];
             return _persistence.currentSequenceNumber;
           });
 }
 
 - (FSTListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
   return _persistence.run("gc", [&]() -> FSTListenSequenceNumber {
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:_persistence];
-    return [gc sequenceNumberForQueryCount:queryCount];
+    return [_gc sequenceNumberForQueryCount:queryCount];
   });
 }
 
@@ -75,6 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
+// TODO(gsoltis): drop persistence param here and elsewhere when no longer required
 - (FSTLRUGarbageCollector *)gcForPersistence:(id<FSTPersistence>)persistence {
   id<FSTLRUDelegate> delegate = (id<FSTLRUDelegate>)persistence.referenceDelegate;
   return delegate.gc;
