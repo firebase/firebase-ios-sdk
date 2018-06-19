@@ -43,11 +43,42 @@ namespace testutil = firebase::firestore::testutil;
 
 NS_ASSUME_NONNULL_BEGIN
 
+struct TestResources {
+  id<FSTPersistence> persistence;
+  id<FSTQueryCache> queryCache;
+  // TODO(gsoltis): other tables as necessary
+  FSTListenSequenceNumber initialSequenceNumber;
+};
+
 @implementation FSTLRUGarbageCollectorTests {
   FSTTargetID _previousTargetID;
   int _previousDocNum;
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
+}
+
+- (struct TestResources)allocateResources {
+  id<FSTPersistence> persistence = [self newPersistence];
+  id<FSTQueryCache> queryCache = [persistence queryCache];
+  FSTListenSequenceNumber initial =
+          persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+            [queryCache start];
+            return persistence.currentSequenceNumber;
+          });
+  return TestResources {
+    persistence,
+    queryCache,
+    initial
+  };
+}
+
+- (void)assertSequenceNumberOffsetAfterGC:(int)offset testResources:(const TestResources &)testResources {
+  testResources.persistence.run("gc", [&]() {
+    FSTLRUGarbageCollector *gc = [self gcForPersistence:testResources.persistence];
+    // TODO(gsoltis): need to provide queryCount?
+    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
+    XCTAssertEqual(offset + testResources.initialSequenceNumber, highestToCollect);
+  });
 }
 
 - (id<FSTPersistence>)newPersistence {
@@ -157,23 +188,13 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   // Add 50 queries sequentially, aim to collect 10 of them.
   // The sequence number to collect should be 10 past the initial sequence number.
-  id<FSTPersistence> persistence = [self newPersistence];
-  id<FSTQueryCache> queryCache = [persistence queryCache];
-  FSTListenSequenceNumber initial =
-      persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
-        [queryCache start];
-        return persistence.currentSequenceNumber;
-      });
+  TestResources testResources = [self allocateResources];
   for (int i = 0; i < 50; i++) {
-    persistence.run("add query",
-                    [&]() { [queryCache addQueryData:[self nextTestQuery:persistence]]; });
+    testResources.persistence.run("add query",
+                    [&]() { [testResources.queryCache addQueryData:[self nextTestQuery:testResources.persistence]]; });
   }
-  persistence.run("gc", [&]() {
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-    XCTAssertEqual(10 + initial, highestToCollect);
-  });
-  [persistence shutdown];
+  [self assertSequenceNumberOffsetAfterGC:10 testResources:testResources];
+  [testResources.persistence shutdown];
 }
 
 - (void)testSequenceNumberForMultipleQueriesInATransaction {
