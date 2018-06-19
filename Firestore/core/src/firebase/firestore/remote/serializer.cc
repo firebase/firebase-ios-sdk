@@ -62,13 +62,6 @@ using firebase::firestore::util::StatusOr;
 
 namespace {
 
-void EncodeMapValue(Writer* writer, const ObjectValue& object_value);
-void EncodeObjectMapImpl(Writer* writer,
-                         const ObjectValue::Map& object_value_map,
-                         uint32_t map_tag,
-                         uint32_t key_tag,
-                         uint32_t value_tag);
-
 ObjectValue::Map DecodeMapValue(Reader* reader);
 
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
@@ -110,11 +103,12 @@ Timestamp DecodeTimestamp(Reader* reader) {
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
-// Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
-// TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
-// This will help with error handling, and should eliminate the issue of two
-// 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
+}  // namespace
+
+// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
+
+void Serializer::EncodeFieldValue(Writer* writer,
+                                  const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
@@ -163,6 +157,8 @@ void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
       abort();
   }
 }
+
+namespace {
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
   if (!reader->status().ok()) return FieldValue::NullValue();
@@ -265,6 +261,10 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
   return result;
 }
 
+}  // namespace
+
+// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
+
 /**
  * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
  *
@@ -285,10 +285,10 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
  *
  * @param kv The individual key/value pair to write.
  */
-void EncodeFieldsEntry(Writer* writer,
-                       const ObjectValue::Map::value_type& kv,
-                       uint32_t key_tag,
-                       uint32_t value_tag) {
+void Serializer::EncodeFieldsEntry(Writer* writer,
+                                   const ObjectValue::Map::value_type& kv,
+                                   uint32_t key_tag,
+                                   uint32_t value_tag) {
   // Write the key (string)
   writer->WriteTag({PB_WT_STRING, key_tag});
   writer->WriteString(kv.first);
@@ -296,8 +296,10 @@ void EncodeFieldsEntry(Writer* writer,
   // Write the value (FieldValue)
   writer->WriteTag({PB_WT_STRING, value_tag});
   writer->WriteNestedMessage(
-      [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
+      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
 }
+
+namespace {
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
@@ -336,26 +338,19 @@ ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
       google_firestore_v1beta1_Document_FieldsEntry_value_tag);
 }
 
-void EncodeObjectMapImpl(Writer* writer,
-                         const ObjectValue::Map& object_value_map,
-                         uint32_t map_tag,
-                         uint32_t key_tag,
-                         uint32_t value_tag) {
-  // Write each FieldsEntry (i.e. key-value pair.)
-  for (const auto& kv : object_value_map) {
-    writer->WriteTag({PB_WT_STRING, map_tag});
-    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
-      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
-    });
-  }
+}  // namespace
+
+// TODO(rsgowman): move this to avoid splitting the anon namespace in two.
+
+void Serializer::EncodeMapValue(Writer* writer,
+                                const ObjectValue& object_value) {
+  EncodeObjectMap(writer, object_value.internal_value,
+                  google_firestore_v1beta1_MapValue_fields_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
-void EncodeMapValue(Writer* writer, const ObjectValue& object_value) {
-  EncodeObjectMapImpl(writer, object_value.internal_value,
-                      google_firestore_v1beta1_MapValue_fields_tag,
-                      google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                      google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
-}
+namespace {
 
 ObjectValue::Map DecodeMapValue(Reader* reader) {
   ObjectValue::Map result;
@@ -454,7 +449,7 @@ ResourcePath ExtractLocalPathFromResourceName(
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
                                     std::vector<uint8_t>* out_bytes) {
   Writer writer = Writer::Wrap(out_bytes);
-  EncodeFieldValueImpl(&writer, field_value);
+  EncodeFieldValue(&writer, field_value);
   return writer.status();
 }
 
@@ -499,11 +494,10 @@ void Serializer::EncodeDocument(Writer* writer,
 
   // Encode Document.fields (unless it's empty)
   if (!object_value.internal_value.empty()) {
-    EncodeObjectMapImpl(
-        writer, object_value.internal_value,
-        google_firestore_v1beta1_Document_fields_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+    EncodeObjectMap(writer, object_value.internal_value,
+                    google_firestore_v1beta1_Document_fields_tag,
+                    google_firestore_v1beta1_Document_FieldsEntry_key_tag,
+                    google_firestore_v1beta1_Document_FieldsEntry_value_tag);
   }
 
   // Skip Document.create_time and Document.update_time, since they're
@@ -674,11 +668,13 @@ void Serializer::EncodeObjectMap(
     uint32_t map_tag,
     uint32_t key_tag,
     uint32_t value_tag) {
-  // TODO(rsgowman): Move the implementation of EncodeObjectMapImpl here and
-  // eliminate that function. The only reason I'm (temporarily) keeping it, is
-  // that performing that refactoring now will cause a cascade of things that
-  // need to move into the local serializer class (as private functions).
-  EncodeObjectMapImpl(writer, object_value_map, map_tag, key_tag, value_tag);
+  // Write each FieldsEntry (i.e. key-value pair.)
+  for (const auto& kv : object_value_map) {
+    writer->WriteTag({PB_WT_STRING, map_tag});
+    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
+      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
+    });
+  }
 }
 
 void Serializer::EncodeVersion(nanopb::Writer* writer,
