@@ -17,7 +17,7 @@
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #include <memory>
-#include <set>
+#include <unordered_set>
 #include <unordered_map>
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
@@ -34,6 +34,7 @@
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeyHash;
 using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -138,7 +139,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryLRUReferenceDelegate {
   FSTMemoryPersistence *_persistence;
-  NSMutableDictionary<FSTDocumentKey *, NSNumber *> *_sequenceNumbers;
+  std::unordered_map<DocumentKey, FSTListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   FSTReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
   FSTListenSequence *_listenSequence;
@@ -147,7 +148,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
   if (self = [super init]) {
-    _sequenceNumbers = [NSMutableDictionary dictionary];
     _persistence = persistence;
     _gc =
         [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache] delegate:self];
@@ -183,10 +183,8 @@ NS_ASSUME_NONNULL_BEGIN
   [_persistence.queryCache updateQueryData:updated];
 }
 
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key {
-  _sequenceNumbers[key] = @(self.currentSequenceNumber);
-  // TODO(gsoltis): probably need to implement this
-  // Need to bump sequence number?
+- (void)limboDocumentUpdated:(const DocumentKey &)key {
+  _sequenceNumbers[key] = self.currentSequenceNumber;
 }
 
 - (void)startTransaction:(absl::string_view)label {
@@ -202,14 +200,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)enumerateMutationsUsingBlock:
-    (void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  [_sequenceNumbers
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, NSNumber *seq, BOOL *stop) {
-        FSTListenSequenceNumber sequenceNumber = [seq longLongValue];
-        if (![self->_persistence.queryCache containsKey:key]) {
-          block(key, sequenceNumber, stop);
-        }
-      }];
+    (void (^)(const DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+  BOOL stop = NO;
+  for (auto it = _sequenceNumbers.begin(); !stop && it != _sequenceNumbers.end(); ++it) {
+    FSTListenSequenceNumber sequenceNumber = it->second;
+    const DocumentKey &key = it->first;
+    if (![_persistence.queryCache containsKey:key]) {
+      block(key, sequenceNumber, &stop);
+    }
+  }
 }
 
 - (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
@@ -225,15 +224,15 @@ NS_ASSUME_NONNULL_BEGIN
         throughSequenceNumber:upperBound];
 }
 
-- (void)addReference:(FSTDocumentKey *)key {
-  _sequenceNumbers[key] = @(self.currentSequenceNumber);
+- (void)addReference:(const DocumentKey &)key {
+  _sequenceNumbers[key] = self.currentSequenceNumber;
 }
 
-- (void)removeReference:(FSTDocumentKey *)key {
-  _sequenceNumbers[key] = @(self.currentSequenceNumber);
+- (void)removeReference:(const DocumentKey &)key {
+  _sequenceNumbers[key] = self.currentSequenceNumber;
 }
 
-- (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)key {
+- (BOOL)mutationQueuesContainKey:(const DocumentKey &)key {
   const MutationQueues &queues = [_persistence mutationQueues];
   for (auto it = queues.begin(); it != queues.end(); ++it) {
     if ([it->second containsKey:key]) {
@@ -243,12 +242,12 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
-- (void)removeMutationReference:(FSTDocumentKey *)key {
-  _sequenceNumbers[key] = @(self.currentSequenceNumber);
+- (void)removeMutationReference:(const DocumentKey &)key {
+  _sequenceNumbers[key] = self.currentSequenceNumber;
 }
 
 - (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
-                        document:(FSTDocumentKey *)key {
+                        document:(const DocumentKey &)key {
   if ([self mutationQueuesContainKey:key]) {
     return YES;
   }
@@ -258,8 +257,8 @@ NS_ASSUME_NONNULL_BEGIN
   if ([_persistence.queryCache containsKey:key]) {
     return YES;
   }
-  NSNumber *orphaned = _sequenceNumbers[key];
-  if (orphaned && [orphaned longLongValue] > upperBound) {
+  auto it = _sequenceNumbers.find(key);
+  if (it != _sequenceNumbers.end() && it->second > upperBound) {
     return YES;
   }
   return NO;
@@ -268,7 +267,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMemoryEagerReferenceDelegate {
-  std::unique_ptr<std::set<FSTDocumentKey *> > _orphaned;
+  std::unique_ptr<std::unordered_set<DocumentKey, DocumentKeyHash> > _orphaned;
   FSTMemoryPersistence *_persistence;
   FSTReferenceSet *_additionalReferences;
 }
@@ -293,25 +292,24 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTarget:(FSTQueryData *)queryData {
   for (const DocumentKey &docKey :
        [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
-    FSTDocumentKey *key = docKey;
-    self->_orphaned->insert(key);
+    self->_orphaned->insert(docKey);
   }
   [_persistence.queryCache removeQueryData:queryData];
 }
 
-- (void)addReference:(FSTDocumentKey *)key {
+- (void)addReference:(const DocumentKey &)key {
   _orphaned->erase(key);
 }
 
-- (void)removeReference:(FSTDocumentKey *)key {
+- (void)removeReference:(const DocumentKey &)key {
   _orphaned->insert(key);
 }
 
-- (void)removeMutationReference:(FSTDocumentKey *)key {
+- (void)removeMutationReference:(const DocumentKey &)key {
   _orphaned->insert(key);
 }
 
-- (BOOL)isReferenced:(FSTDocumentKey *)key {
+- (BOOL)isReferenced:(const DocumentKey &)key {
   if ([[_persistence queryCache] containsKey:key]) {
     return YES;
   }
@@ -324,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key {
+- (void)limboDocumentUpdated:(const DocumentKey &)key {
   if ([self isReferenced:key]) {
     _orphaned->erase(key);
   } else {
@@ -333,10 +331,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startTransaction:(__unused absl::string_view)label {
-  _orphaned = absl::make_unique<std::set<FSTDocumentKey *> >();
+  _orphaned = absl::make_unique<std::unordered_set<DocumentKey, DocumentKeyHash> >();
 }
 
-- (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)key {
+- (BOOL)mutationQueuesContainKey:(const DocumentKey &)key {
   const MutationQueues &queues = [_persistence mutationQueues];
   for (auto it = queues.begin(); it != queues.end(); ++it) {
     if ([it->second containsKey:key]) {
@@ -348,7 +346,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)commitTransaction {
   for (auto it = _orphaned->begin(); it != _orphaned->end(); ++it) {
-    FSTDocumentKey *key = *it;
+    const DocumentKey key = *it;
     if (![self isReferenced:key]) {
       [[_persistence remoteDocumentCache] removeEntryForKey:key];
     }

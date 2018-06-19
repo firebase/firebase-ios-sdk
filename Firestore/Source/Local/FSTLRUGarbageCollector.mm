@@ -20,6 +20,9 @@
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
@@ -98,7 +101,7 @@ class RollingSequenceNumberBuffer {
   [_delegate enumerateTargetsUsingBlock:^(FSTQueryData *queryData, BOOL *stop) {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
-  [_delegate enumerateMutationsUsingBlock:^(FSTDocumentKey *docKey,
+  [_delegate enumerateMutationsUsingBlock:^(const DocumentKey &docKey,
                                             FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
     ptr_to_buffer->AddElement(sequenceNumber);
   }];

@@ -18,9 +18,9 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 @protocol FSTQueryCache;
-@class FSTDocumentKey;
 
 @class FSTLRUGarbageCollector;
 
@@ -42,7 +42,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * Enumerates all of the outstanding mutations.
  */
 - (void)enumerateMutationsUsingBlock:
-    (void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
+    (void (^)(const firebase::firestore::model::DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal

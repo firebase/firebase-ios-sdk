@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
@@ -47,6 +48,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using util::OrderedCode;
 
@@ -125,17 +127,17 @@ using leveldb::WriteOptions;
   [_db.queryCache updateQueryData:updated];
 }
 
-- (void)addReference:(FSTDocumentKey *)key {
+- (void)addReference:(const DocumentKey &)key {
   [self writeSentinelForKey:key];
 }
 
-- (void)removeReference:(FSTDocumentKey *)key {
+- (void)removeReference:(const DocumentKey &)key {
   [self writeSentinelForKey:key];
 }
 
-- (BOOL)mutationQueuesContainKey:(FSTDocumentKey *)docKey {
+- (BOOL)mutationQueuesContainKey:(const DocumentKey &)docKey {
   const std::set<std::string> &users = _db.users;
-  const ResourcePath &path = [docKey path];
+  const ResourcePath &path = docKey.path();
   std::string buffer;
   auto it = _db.currentTransaction->NewIterator();
   // For each user, if there is any batch that contains this document in any batch, we know it's
@@ -151,7 +153,7 @@ using leveldb::WriteOptions;
   return NO;
 }
 
-- (BOOL)isPinned:(FSTDocumentKey *)docKey {
+- (BOOL)isPinned:(const DocumentKey &)docKey {
   if ([_additionalReferences containsKey:docKey]) {
     return YES;
   }
@@ -167,7 +169,7 @@ using leveldb::WriteOptions;
 }
 
 - (void)enumerateMutationsUsingBlock:
-    (void (^)(FSTDocumentKey *key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(const DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   [queryCache enumerateOrphanedDocumentsUsingBlock:block];
 }
@@ -176,7 +178,7 @@ using leveldb::WriteOptions;
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   __block NSUInteger count = 0;
   [queryCache enumerateOrphanedDocumentsUsingBlock:^(
-                  FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+                  const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
     if (sequenceNumber <= upperBound) {
       if (![self isPinned:docKey]) {
         count++;
@@ -198,18 +200,18 @@ using leveldb::WriteOptions;
   return _gc;
 }
 
-- (void)writeSentinelForKey:(FSTDocumentKey *)key {
+- (void)writeSentinelForKey:(const DocumentKey &)key {
   std::string encodedSequenceNumber;
   OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
   std::string sentinelKey = [FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key];
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 
-- (void)removeMutationReference:(FSTDocumentKey *)key {
+- (void)removeMutationReference:(const DocumentKey &)key {
   [self writeSentinelForKey:key];
 }
 
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key {
+- (void)limboDocumentUpdated:(const DocumentKey &)key {
   [self writeSentinelForKey:key];
 }
 

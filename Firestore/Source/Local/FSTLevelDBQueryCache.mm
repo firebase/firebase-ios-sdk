@@ -176,12 +176,12 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
-    (void (^)(FSTDocumentKey *docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
   std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(documentTargetPrefix);
   FSTListenSequenceNumber nextToReport = 0;
-  FSTDocumentKey *keyToReport = nil;
+  DocumentKey keyToReport;
   FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
   BOOL stop = NO;
   for (; !stop && it->Valid() && absl::StartsWith(it->key(), documentTargetPrefix); it->Next()) {
@@ -200,7 +200,6 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
       // set nextToReport to be 0, we know we don't need to report this one since
       // we found a target for it.
       nextToReport = 0;
-      keyToReport = nil;
     }
   }
   // if not stop and nextToReport is non-zero, report it. We didn't find any targets for

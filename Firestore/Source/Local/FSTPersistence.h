@@ -19,6 +19,7 @@
 #import "Firestore/Source/Core/FSTTypes.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 @class FSTDocumentKey;
@@ -138,22 +139,22 @@ struct FSTTransactionRunner;
 /**
  * Notify the delegate that the given document was added to a target.
  */
-- (void)addReference:(FSTDocumentKey *)key;
+- (void)addReference:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Notify the delegate that the given document was removed from a target.
  */
-- (void)removeReference:(FSTDocumentKey *)key;
+- (void)removeReference:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Notify the delegate that a document is no longer being mutated by the user.
  */
-- (void)removeMutationReference:(FSTDocumentKey *)key;
+- (void)removeMutationReference:(const firebase::firestore::model::DocumentKey &)key;
 
 /**
  * Notify the delegate that a limbo document was updated.
  */
-- (void)limboDocumentUpdated:(FSTDocumentKey *)key;
+- (void)limboDocumentUpdated:(const firebase::firestore::model::DocumentKey &)key;
 
 @property(nonatomic, readonly) FSTListenSequenceNumber currentSequenceNumber;
 

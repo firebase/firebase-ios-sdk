@@ -36,6 +36,7 @@
 
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 namespace testutil = firebase::firestore::testutil;
@@ -82,13 +83,12 @@ NS_ASSUME_NONNULL_BEGIN
                                      purpose:FSTQueryPurposeListen];
 }
 
-- (FSTDocumentKey *)nextTestDocKey {
-  NSString *path = [NSString stringWithFormat:@"docs/doc_%i", ++_previousDocNum];
-  return FSTTestDocKey(path);
+- (DocumentKey)nextTestDocKey {
+  return testutil::Key("docs/doc_" + std::to_string(++_previousDocNum));
 }
 
 - (FSTDocument *)nextTestDocumentWithValue:(FSTObjectValue *)value {
-  FSTDocumentKey *key = [self nextTestDocKey];
+  DocumentKey key = [self nextTestDocKey];
   FSTTestSnapshotVersion version = 2;
   BOOL hasMutations = NO;
   return [FSTDocument documentWithData:value
@@ -245,7 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
         return persistence.currentSequenceNumber;
       });
   persistence.run("Add mutated doc", [&]() {
-    FSTDocumentKey *key = [self nextTestDocKey];
+    DocumentKey key = [self nextTestDocKey];
     [persistence.referenceDelegate removeMutationReference:key];
   });
   for (int i = 0; i < 50; i++) {
@@ -348,7 +348,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
   // Add docs to mutation queue, as well as keep some queries. verify that correct documents are
   // removed.
-  NSMutableSet<FSTDocumentKey *> *toBeRetained = [NSMutableSet set];
+  std::unordered_set<DocumentKey, DocumentKeyHash> toBeRetained;
   NSMutableArray *mutations = [NSMutableArray arrayWithCapacity:2];
   persistence.run("add a target and add two documents to it", [&]() {
     // Add two documents to first target, queue a mutation on the second document
@@ -358,11 +358,11 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc1 = [self nextTestDocument];
     [documentCache addEntry:doc1];
     keySet = keySet.insert(doc1.key);
-    [toBeRetained addObject:doc1.key];
+    toBeRetained.insert(doc1.key);
     FSTDocument *doc2 = [self nextTestDocument];
     [documentCache addEntry:doc2];
     keySet = keySet.insert(doc2.key);
-    [toBeRetained addObject:doc2.key];
+    toBeRetained.insert(doc2.key);
     [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID];
 
     FSTObjectValue *newValue =
@@ -379,7 +379,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc1 = [self nextTestDocument];
     [documentCache addEntry:doc1];
     keySet = keySet.insert(doc1.key);
-    [toBeRetained addObject:doc1.key];
+    toBeRetained.insert(doc1.key);
     [queryCache addMatchingKeys:keySet forTargetID:queryData.targetID];
   });
 
@@ -389,7 +389,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        value:doc1.data
                                                 precondition:Precondition::None()]];
     [documentCache addEntry:doc1];
-    [toBeRetained addObject:doc1.key];
+    toBeRetained.insert(doc1.key);
   });
 
   persistence.run("actually register the mutations", [&]() {
@@ -398,13 +398,13 @@ NS_ASSUME_NONNULL_BEGIN
   });
 
   NSUInteger expectedRemoveCount = 5;
-  NSMutableSet<FSTDocumentKey *> *toBeRemoved = [NSMutableSet setWithCapacity:expectedRemoveCount];
+  std::unordered_set<DocumentKey, DocumentKeyHash> toBeRemoved;
   persistence.run("add orphaned docs (previously mutated, then ack'd)", [&]() {
     // Now add the docs we expect to get resolved.
 
     for (int i = 0; i < expectedRemoveCount; i++) {
       FSTDocument *doc = [self nextTestDocument];
-      [toBeRemoved addObject:doc.key];
+      toBeRemoved.insert(doc.key);
       [documentCache addEntry:doc];
       [persistence.referenceDelegate removeMutationReference:doc.key];
     }
@@ -415,12 +415,12 @@ NS_ASSUME_NONNULL_BEGIN
         [gc removeOrphanedDocumentsThroughSequenceNumber:1000];  // remove as much as possible
 
     XCTAssertEqual(expectedRemoveCount, removed);
-    for (FSTDocumentKey *key in toBeRemoved) {
+    for (const DocumentKey &key : toBeRemoved) {
       XCTAssertNil([documentCache entryForKey:key]);
       XCTAssertFalse([queryCache containsKey:key]);
     }
-    for (FSTDocumentKey *key in toBeRetained) {
-      XCTAssertNotNil([documentCache entryForKey:key], @"Missing document %@", key);
+    for (const DocumentKey &key : toBeRetained) {
+      XCTAssertNotNil([documentCache entryForKey:key], @"Missing document %s", key.ToString().c_str());
     }
   });
   [persistence shutdown];
@@ -459,8 +459,8 @@ NS_ASSUME_NONNULL_BEGIN
     [queryCache start];
   });
 
-  NSMutableSet<FSTDocumentKey *> *expectedRetained = [NSMutableSet set];
-  NSMutableSet<FSTDocumentKey *> *expectedRemoved = [NSMutableSet set];
+  std::unordered_set<DocumentKey, DocumentKeyHash> expectedRetained;
+  std::unordered_set<DocumentKey, DocumentKeyHash> expectedRemoved;
 
   // Add oldest target and docs
 
@@ -471,7 +471,7 @@ NS_ASSUME_NONNULL_BEGIN
 
         for (int i = 0; i < 5; i++) {
           FSTDocument *doc = [self nextTestDocument];
-          [expectedRetained addObject:doc.key];
+          expectedRetained.insert(doc.key);
           oldestDocs = oldestDocs.insert(doc.key);
           [documentCache addEntry:doc];
         }
@@ -483,7 +483,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Add middle target and docs. Some docs will be removed from this target later.
   DocumentKeySet middleDocsToRemove{};
-  FSTDocumentKey *middleDocToUpdate = nil;
+  DocumentKey middleDocToUpdate;
   FSTQueryData *middleTarget =
       persistence.run("Add middle target and docs", [&]() -> FSTQueryData * {
         FSTQueryData *middleTarget = [self nextTestQuery:persistence];
@@ -492,7 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
         // these docs will be removed from this target later
         for (int i = 0; i < 2; i++) {
           FSTDocument *doc = [self nextTestDocument];
-          [expectedRemoved addObject:doc.key];
+          expectedRemoved.insert(doc.key);
           middleDocs = middleDocs.insert(doc.key);
           [documentCache addEntry:doc];
           middleDocsToRemove = middleDocsToRemove.insert(doc.key);
@@ -500,14 +500,14 @@ NS_ASSUME_NONNULL_BEGIN
         // these docs stay in this target and only this target
         for (int i = 2; i < 4; i++) {
           FSTDocument *doc = [self nextTestDocument];
-          [expectedRetained addObject:doc.key];
+          expectedRetained.insert(doc.key);
           middleDocs = middleDocs.insert(doc.key);
           [documentCache addEntry:doc];
         }
         // This doc stays in this target, but gets updated
         {
           FSTDocument *doc = [self nextTestDocument];
-          [expectedRetained addObject:doc.key];
+          expectedRetained.insert(doc.key);
           middleDocs = middleDocs.insert(doc.key);
           [documentCache addEntry:doc];
           middleDocToUpdate = doc.key;
@@ -524,14 +524,14 @@ NS_ASSUME_NONNULL_BEGIN
     DocumentKeySet newestDocs{};
     for (int i = 0; i < 3; i++) {
       FSTDocument *doc = [self nextBigTestDocument];
-      [expectedRemoved addObject:doc.key];
+      expectedRemoved.insert(doc.key);
       newestDocs = newestDocs.insert(doc.key);
       [documentCache addEntry:doc];
     }
     // docs to add to the oldest target, will be retained
     for (int i = 3; i < 5; i++) {
       FSTDocument *doc = [self nextBigTestDocument];
-      [expectedRetained addObject:doc.key];
+      expectedRetained.insert(doc.key);
       newestDocs = newestDocs.insert(doc.key);
       newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key);
       [documentCache addEntry:doc];
@@ -567,9 +567,9 @@ NS_ASSUME_NONNULL_BEGIN
     [queryCache updateQueryData:oldestTarget];
     [queryCache addMatchingKeys:firstKey forTargetID:oldestTarget.targetID];
     // nothing is keeping doc2 around, it should be removed
-    [expectedRemoved addObject:doc2.key];
+    expectedRemoved.insert(doc2.key);
     // doc1 should be retained by being added to oldestTarget.
-    [expectedRetained addObject:doc1.key];
+    expectedRetained.insert(doc1.key);
   });
 
   // Remove some documents from the middle target.
@@ -623,7 +623,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     [documentCache addEntry:doc];
     // This should be retained, it's too new to get removed.
-    [expectedRetained addObject:doc.key];
+    expectedRetained.insert(doc.key);
     //[queryCache addPotentiallyOrphanedDocuments:docKey atSequenceNumber:sequenceNumber];
     [persistence.referenceDelegate removeMutationReference:doc.key];
   });
@@ -640,19 +640,17 @@ NS_ASSUME_NONNULL_BEGIN
         XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
 
         NSUInteger docsRemoved = [gc removeOrphanedDocumentsThroughSequenceNumber:upperBound];
-        NSLog(@"Expected removed: %@", expectedRemoved);
-        NSLog(@"Expected retained: %@", expectedRetained);
-        XCTAssertEqual([expectedRemoved count], docsRemoved);
+        XCTAssertEqual(expectedRemoved.size(), docsRemoved);
 
-        for (FSTDocumentKey *key in expectedRemoved) {
+        for (const DocumentKey &key : expectedRemoved) {
           XCTAssertNil([documentCache entryForKey:key],
-                       @"Did not expect to find %@ in document cache", key);
-          XCTAssertFalse([queryCache containsKey:key], @"Did not expect to find %@ in queryCache",
-                         key);
+                       @"Did not expect to find %s in document cache", key.ToString().c_str());
+          XCTAssertFalse([queryCache containsKey:key], @"Did not expect to find %s in queryCache",
+                         key.ToString().c_str());
         }
-        for (FSTDocumentKey *key in expectedRetained) {
-          XCTAssertNotNil([documentCache entryForKey:key], @"Expected to find %@ in document cache",
-                          key);
+        for (const DocumentKey &key : expectedRetained) {
+          XCTAssertNotNil([documentCache entryForKey:key], @"Expected to find %s in document cache",
+                          key.ToString().c_str());
         }
       });
   [persistence shutdown];
