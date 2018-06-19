@@ -19,6 +19,7 @@
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -34,7 +35,9 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::MaybeDocument;
+using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::testutil::DeletedDoc;
 using firebase::firestore::testutil::Doc;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
@@ -147,4 +150,16 @@ TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
   ExpectRoundTrip(doc, maybe_doc_proto, doc.type());
+}
+
+TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
+  NoDocument no_doc = DeletedDoc("some/path", /*version=*/42);
+
+  firestore::client::MaybeDocument maybe_doc_proto;
+  maybe_doc_proto.mutable_no_document()->set_name(
+      "projects/p/databases/d/documents/some/path");
+  maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_seconds(0);
+  maybe_doc_proto.mutable_no_document()->mutable_read_time()->set_nanos(42000);
+
+  ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
 }

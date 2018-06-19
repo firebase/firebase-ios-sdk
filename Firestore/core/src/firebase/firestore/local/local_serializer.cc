@@ -17,12 +17,14 @@
 #include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 
 #include <cstdlib>
+#include <string>
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -31,6 +33,7 @@ namespace firestore {
 namespace local {
 
 using firebase::firestore::model::ObjectValue;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Tag;
 using firebase::firestore::nanopb::Writer;
@@ -56,8 +59,13 @@ void LocalSerializer::EncodeMaybeDocument(
       return;
 
     case model::MaybeDocument::Type::NoDocument:
-      // TODO(rsgowman)
-      abort();
+      writer->WriteTag(
+          {PB_WT_STRING, firestore_client_MaybeDocument_no_document_tag});
+      writer->WriteNestedMessage([&](Writer* writer) {
+        EncodeNoDocument(writer,
+                         static_cast<const model::NoDocument&>(maybe_doc));
+      });
+      return;
 
     case model::MaybeDocument::Type::Unknown:
       // TODO(rsgowman)
@@ -90,7 +98,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         // claim that if both are set on the wire, the last one wins.
         no_document = nullptr;
 
-        // TODO(rsgowman): If multiple '_document' values are found, we should
+        // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
         document = reader->ReadNestedMessage<std::unique_ptr<model::Document>>(
             [&](Reader* reader) -> std::unique_ptr<model::Document> {
@@ -106,8 +114,14 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         // claim that if both are set on the wire, the last one wins.
         document = nullptr;
 
-        // TODO(rsgowman): Parse the no_document field.
-        abort();
+        // TODO(rsgowman): If multiple 'no_document' values are found, we should
+        // merge them (rather than using the last one.)
+        no_document =
+            reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
+                [&](Reader* reader) -> std::unique_ptr<model::NoDocument> {
+                  return DecodeNoDocument(reader);
+                });
+        break;
 
         break;
 
@@ -155,6 +169,19 @@ void LocalSerializer::EncodeDocument(Writer* writer,
   // Ignore Document.create_time. (We don't use this in our on-disk protos.)
 }
 
+void LocalSerializer::EncodeNoDocument(Writer* writer,
+                                       const model::NoDocument& no_doc) const {
+  // Encode Document.name
+  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
+  writer->WriteString(rpc_serializer_.EncodeKey(no_doc.key()));
+
+  // Encode Document.read_time
+  writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_read_time_tag});
+  writer->WriteNestedMessage([&](Writer* writer) {
+    rpc_serializer_.EncodeVersion(writer, no_doc.version());
+  });
+}
+
 util::StatusOr<std::unique_ptr<model::MaybeDocument>>
 LocalSerializer::DecodeMaybeDocument(const uint8_t* bytes,
                                      size_t length) const {
@@ -166,6 +193,41 @@ LocalSerializer::DecodeMaybeDocument(const uint8_t* bytes,
   } else {
     return reader.status();
   }
+}
+
+std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
+    Reader* reader) const {
+  if (!reader->status().ok()) return nullptr;
+
+  std::string name;
+  SnapshotVersion version = SnapshotVersion::None();
+
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return nullptr;
+
+    // Ensure the tag matches the wire type
+    switch (tag.field_number) {
+      case firestore_client_NoDocument_name_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
+        name = reader->ReadString();
+        break;
+
+      case firestore_client_NoDocument_read_time_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
+        version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
+            rpc_serializer_.DecodeTimestamp)};
+        break;
+
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
+        break;
+    }
+  }
+
+  return absl::make_unique<model::NoDocument>(rpc_serializer_.DecodeKey(name),
+                                              version);
 }
 
 }  // namespace local

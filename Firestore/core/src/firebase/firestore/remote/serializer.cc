@@ -73,7 +73,7 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
                              &timestamp_proto);
 }
 
-Timestamp DecodeTimestamp(Reader* reader) {
+Timestamp DecodeTimestampImpl(Reader* reader) {
   if (!reader->status().ok()) return {};
 
   google_protobuf_Timestamp timestamp_proto =
@@ -150,7 +150,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
         if (!reader->RequireWireType(PB_WT_STRING, tag))
           return FieldValue::NullValue();
         result = FieldValue::TimestampValue(
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl));
         break;
 
       case google_firestore_v1beta1_Value_map_value_tag:
@@ -475,7 +475,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         read_time = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl)};
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
@@ -531,7 +531,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       case google_firestore_v1beta1_Document_create_time_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
-        reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
+        reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl);
         break;
       case google_firestore_v1beta1_Document_update_time_tag:
         // TODO(rsgowman): Rather than overwriting, we should instead merge with
@@ -539,7 +539,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // just two numbers which are both expected to be present, but if the
         // proto evolves that might change.
         version = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl)};
         break;
       default:
         // TODO(rsgowman): Error handling. (Invalid tags should fail to decode,
@@ -613,6 +613,11 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
   writer->WriteTag({PB_WT_STRING, value_tag});
   writer->WriteNestedMessage(
       [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
+}
+
+Timestamp Serializer::DecodeTimestamp(nanopb::Reader* reader) {
+  // TODO(rsgowman): move DecodeTimestampImpl here and eliminate that function.
+  return DecodeTimestampImpl(reader);
 }
 
 }  // namespace remote

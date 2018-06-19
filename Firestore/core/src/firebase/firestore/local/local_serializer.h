@@ -20,7 +20,9 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -98,6 +100,13 @@ class LocalSerializer {
    * considered an output only value by the server.
    */
   void EncodeDocument(nanopb::Writer* writer, const model::Document& doc) const;
+
+  /** Decodes a Document proto to the equivalent model. */
+  void EncodeNoDocument(nanopb::Writer* writer,
+                        const model::NoDocument& no_doc) const;
+
+  std::unique_ptr<model::NoDocument> DecodeNoDocument(
+      nanopb::Reader* reader) const;
 
   const remote::Serializer& rpc_serializer_;
 };
