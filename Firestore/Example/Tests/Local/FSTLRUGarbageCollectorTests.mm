@@ -57,7 +57,7 @@ struct TestResources {
   FSTObjectValue *_bigObjectValue;
 }
 
-- (struct TestResources)allocateResources {
+- (TestResources)allocateResources {
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
   FSTListenSequenceNumber initial =
