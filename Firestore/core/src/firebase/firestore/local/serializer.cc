@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/local/serializer.h"
 
 #include <cstdlib>
+#include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"

@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SERIALIZER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SERIALIZER_H_
 
+#include <memory>
+#include <vector>
+
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
