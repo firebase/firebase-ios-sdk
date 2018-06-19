@@ -141,8 +141,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSequenceNumberNoQueries {
   if ([self isTestBaseClass]) return;
 
-  // Sequence numbers in this test start at 1001 and are incremented by one.
-
   // No queries... should get invalid sequence number (-1)
   id<FSTPersistence> persistence = [self newPersistence];
   persistence.run("no queries", [&]() {
@@ -157,7 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testSequenceNumberForFiftyQueries {
   if ([self isTestBaseClass]) return;
-  // 50 queries, want 10. Should get 10 past whatever the starting point is.
+  // Add 50 queries sequentially, aim to collect 10 of them.
+  // The sequence number to collect should be 10 past the initial sequence number.
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
   FSTListenSequenceNumber initial =
@@ -236,7 +235,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testSequenceNumbersWithMutationAndSequentialQueries {
   if ([self isTestBaseClass]) return;
 
-  // A mutated doc, then 50 queries. Should get 10 past initial (9 queries).
+  // Remove a mutated doc reference, marking it as eligible for GC.
+  // Then add 50 queries. Should get 10 past initial (9 queries).
   id<FSTPersistence> persistence = [self newPersistence];
   id<FSTQueryCache> queryCache = [persistence queryCache];
   FSTListenSequenceNumber initial =
