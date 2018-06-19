@@ -48,12 +48,35 @@ NS_ASSUME_NONNULL_BEGIN
   int _previousDocNum;
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
+  id<FSTPersistence> _persistence;
+  id<FSTQueryCache> _queryCache;
+  FSTLRUGarbageCollector *_gc;
+  FSTListenSequenceNumber _initialSequenceNumber;
+}
+
+- (void)newTestResources {
+  HARD_ASSERT(_persistence == nil, "Persistence already created");
+  _persistence = [self newPersistence];
+  _queryCache = [_persistence queryCache];
+  _initialSequenceNumber =
+          _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+            [_queryCache start];
+            _gc = [self gcForPersistence:_persistence];
+            return _persistence.currentSequenceNumber;
+          });
+}
+
+- (FSTListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
+  return _persistence.run("gc", [&]() -> FSTListenSequenceNumber {
+    return [_gc sequenceNumberForQueryCount:queryCount];
+  });
 }
 
 - (id<FSTPersistence>)newPersistence {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
+// TODO(gsoltis): drop persistence param here and elsewhere when no longer required
 - (FSTLRUGarbageCollector *)gcForPersistence:(id<FSTPersistence>)persistence {
   id<FSTLRUDelegate> delegate = (id<FSTLRUDelegate>)persistence.referenceDelegate;
   return delegate.gc;
@@ -121,20 +144,19 @@ NS_ASSUME_NONNULL_BEGIN
     // Fill the query cache.
     int numQueries = testCases[i].queries;
     int expectedTenthPercentile = testCases[i].expected;
-    id<FSTPersistence> persistence = [self newPersistence];
-    persistence.run("testPickSequenceNumberPercentile" + std::to_string(i), [&]() {
-      id<FSTQueryCache> queryCache = [persistence queryCache];
-      [queryCache start];
-      for (int j = 0; j < numQueries; j++) {
-        [queryCache addQueryData:[self nextTestQuery:persistence]];
-      }
-      FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
+    [self newTestResources];
+    for (int j = 0; j < numQueries; j++) {
+      _persistence.run("add query", [&]() {
+        [_queryCache addQueryData:[self nextTestQuery:_persistence]];
+      });
+    }
+    _persistence.run("Check GC", [&]() {
+      FSTLRUGarbageCollector *gc = [self gcForPersistence:_persistence];
       FSTListenSequenceNumber tenth = [gc queryCountForPercentile:10];
       XCTAssertEqual(expectedTenthPercentile, tenth, @"Total query count: %i", numQueries);
     });
-
-    // TODO(gsoltis): technically should shutdown query cache, but it doesn't do anything anymore.
-    [persistence shutdown];
+    [_persistence shutdown];
+    _persistence = nil;
   }
 }
 
@@ -157,23 +179,13 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   // Add 50 queries sequentially, aim to collect 10 of them.
   // The sequence number to collect should be 10 past the initial sequence number.
-  id<FSTPersistence> persistence = [self newPersistence];
-  id<FSTQueryCache> queryCache = [persistence queryCache];
-  FSTListenSequenceNumber initial =
-      persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
-        [queryCache start];
-        return persistence.currentSequenceNumber;
-      });
+  [self newTestResources];
   for (int i = 0; i < 50; i++) {
-    persistence.run("add query",
-                    [&]() { [queryCache addQueryData:[self nextTestQuery:persistence]]; });
+    _persistence.run("add query",
+                    [&]() { [_queryCache addQueryData:[self nextTestQuery:_persistence]]; });
   }
-  persistence.run("gc", [&]() {
-    FSTLRUGarbageCollector *gc = [self gcForPersistence:persistence];
-    FSTListenSequenceNumber highestToCollect = [gc sequenceNumberForQueryCount:10];
-    XCTAssertEqual(10 + initial, highestToCollect);
-  });
-  [persistence shutdown];
+  XCTAssertEqual(_initialSequenceNumber + 10, [self sequenceNumberForQueryCount:10]);
+  [_persistence shutdown];
 }
 
 - (void)testSequenceNumberForMultipleQueriesInATransaction {
