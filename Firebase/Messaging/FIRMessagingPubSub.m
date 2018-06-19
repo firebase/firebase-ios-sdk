@@ -231,6 +231,14 @@ static NSString *const kTopicRegexPattern = @"/topics/([a-zA-Z0-9-_.~%]+)";
   }
 }
 
++ (NSString *)removePrefixFromTopic:(NSString *)topic {
+  if ([self hasTopicsPrefix:topic]) {
+    return [topic substringFromIndex:kTopicsPrefix.length];
+  } else {
+    return [topic copy];
+  }
+}
+
 + (BOOL)hasTopicsPrefix:(NSString *)topic {
   return [topic hasPrefix:kTopicsPrefix];
 }
