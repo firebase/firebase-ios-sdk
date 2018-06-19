@@ -64,10 +64,10 @@ namespace {
 
 void EncodeMapValue(Writer* writer, const ObjectValue& object_value);
 void EncodeObjectMapImpl(Writer* writer,
-                     const ObjectValue::Map& object_value_map,
-                     uint32_t map_tag,
-                     uint32_t key_tag,
-                     uint32_t value_tag);
+                         const ObjectValue::Map& object_value_map,
+                         uint32_t map_tag,
+                         uint32_t key_tag,
+                         uint32_t value_tag);
 
 ObjectValue::Map DecodeMapValue(Reader* reader);
 
@@ -337,10 +337,10 @@ ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
 }
 
 void EncodeObjectMapImpl(Writer* writer,
-                     const ObjectValue::Map& object_value_map,
-                     uint32_t map_tag,
-                     uint32_t key_tag,
-                     uint32_t value_tag) {
+                         const ObjectValue::Map& object_value_map,
+                         uint32_t map_tag,
+                         uint32_t key_tag,
+                         uint32_t value_tag) {
   // Write each FieldsEntry (i.e. key-value pair.)
   for (const auto& kv : object_value_map) {
     writer->WriteTag({PB_WT_STRING, map_tag});
@@ -352,9 +352,9 @@ void EncodeObjectMapImpl(Writer* writer,
 
 void EncodeMapValue(Writer* writer, const ObjectValue& object_value) {
   EncodeObjectMapImpl(writer, object_value.internal_value,
-                  google_firestore_v1beta1_MapValue_fields_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+                      google_firestore_v1beta1_MapValue_fields_tag,
+                      google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+                      google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
 ObjectValue::Map DecodeMapValue(Reader* reader) {
@@ -499,10 +499,11 @@ void Serializer::EncodeDocument(Writer* writer,
 
   // Encode Document.fields (unless it's empty)
   if (!object_value.internal_value.empty()) {
-    EncodeObjectMapImpl(writer, object_value.internal_value,
-                    google_firestore_v1beta1_Document_fields_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+    EncodeObjectMapImpl(
+        writer, object_value.internal_value,
+        google_firestore_v1beta1_Document_fields_tag,
+        google_firestore_v1beta1_Document_FieldsEntry_key_tag,
+        google_firestore_v1beta1_Document_FieldsEntry_value_tag);
   }
 
   // Skip Document.create_time and Document.update_time, since they're
@@ -667,11 +668,12 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       /*has_local_modifications=*/false);
 }
 
-void Serializer::EncodeObjectMap(nanopb::Writer* writer,
-                       const model::ObjectValue::Map& object_value_map,
-                       uint32_t map_tag,
-                       uint32_t key_tag,
-                       uint32_t value_tag) {
+void Serializer::EncodeObjectMap(
+    nanopb::Writer* writer,
+    const model::ObjectValue::Map& object_value_map,
+    uint32_t map_tag,
+    uint32_t key_tag,
+    uint32_t value_tag) {
   // TODO(rsgowman): Move the implementation of EncodeObjectMapImpl here and
   // eliminate that function. The only reason I'm (temporarily) keeping it, is
   // that performing that refactoring now will cause a cascade of things that
@@ -679,7 +681,8 @@ void Serializer::EncodeObjectMap(nanopb::Writer* writer,
   EncodeObjectMapImpl(writer, object_value_map, map_tag, key_tag, value_tag);
 }
 
-void Serializer::EncodeVersion(nanopb::Writer* writer, const model::SnapshotVersion& version) {
+void Serializer::EncodeVersion(nanopb::Writer* writer,
+                               const model::SnapshotVersion& version) {
   EncodeTimestamp(writer, version.timestamp());
 }
 

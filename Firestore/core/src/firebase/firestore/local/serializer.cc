@@ -20,8 +20,8 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
-#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
@@ -140,7 +140,8 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
   }
 }
 
-void Serializer::EncodeDocument(Writer* writer, const model::Document& doc) const {
+void Serializer::EncodeDocument(Writer* writer,
+                                const model::Document& doc) const {
   // Encode Document.name
   writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(doc.key()));
@@ -148,11 +149,16 @@ void Serializer::EncodeDocument(Writer* writer, const model::Document& doc) cons
   // Encode Document.fields (unless it's empty)
   const ObjectValue& object_value = doc.data().object_value();
   if (!object_value.internal_value.empty()) {
-    rpc_serializer_.EncodeObjectMap(writer, object_value.internal_value, google_firestore_v1beta1_Document_fields_tag, google_firestore_v1beta1_Document_FieldsEntry_key_tag, google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+    rpc_serializer_.EncodeObjectMap(
+        writer, object_value.internal_value,
+        google_firestore_v1beta1_Document_fields_tag,
+        google_firestore_v1beta1_Document_FieldsEntry_key_tag,
+        google_firestore_v1beta1_Document_FieldsEntry_value_tag);
   }
 
   // Encode Document.update_time
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_update_time_tag});
+  writer->WriteTag(
+      {PB_WT_STRING, google_firestore_v1beta1_Document_update_time_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     rpc_serializer_.EncodeVersion(writer, doc.version());
   });
