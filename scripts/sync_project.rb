@@ -50,15 +50,13 @@ def sync_firestore()
     'CMakeLists.txt',
     'InfoPlist.strings',
     '*.plist',
-
-    # b/79496027
-    'Firestore/core/test/firebase/firestore/remote/serializer_test.cc',
   ]
 
   # Folder groups in the Xcode project that contain tests.
   s.test_groups = [
     'Tests',
     'CoreTests',
+    'CoreTestsProtos',
     'SwiftTests',
   ]
 
@@ -66,6 +64,7 @@ def sync_firestore()
     t.source_files = [
       'Firestore/Example/Tests/**',
       'Firestore/core/test/**',
+      'Firestore/Protos/cpp/**',
       'Firestore/third_party/Immutable/Tests/**',
     ]
     t.exclude_files = [
