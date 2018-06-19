@@ -695,7 +695,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)subscribeToTopic:(NSString *)topic
               completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (self.defaultFcmToken.length && topic.length) {
+  if (topic.length) {
     NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
     if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
       FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
@@ -721,7 +721,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)unsubscribeFromTopic:(NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (self.defaultFcmToken.length && topic.length) {
+  if (topic.length) {
     NSString *normalizeTopic = [[self class] normalizeTopic:topic];
     if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
       FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
