@@ -93,8 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an aggregator initialized with the set of provided FSTWatchChanges. Tests can add further
  * changes via `handleDocumentChange`, `handleTargetChange` and `handleExistenceFilterChange`.
  *
- * @param snapshotVersion The version at which to create the remote event. This corresponds to the
- * snapshot version provided by a NO_CHANGE event.
  * @param targetMap A map of query data for all active targets. The map must include an entry for
  * every target referenced by any of the watch changes.
  * @param outstandingResponses The number of outstanding ACKs a target has to receive before it is

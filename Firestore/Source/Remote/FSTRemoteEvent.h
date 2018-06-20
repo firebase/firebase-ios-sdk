@@ -176,6 +176,9 @@ initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVer
 /** Processes and adds the WatchTargetChange to the current set of changes. */
 - (void)handleTargetChange:(FSTWatchTargetChange *)targetChange;
 
+/** Removes the in-memory state for the provided target. */
+- (void)removeTarget:(FSTTargetID)targetID;
+
 /**
  * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are
  * invalidated by filter mismatches are added to `targetMismatches`.
