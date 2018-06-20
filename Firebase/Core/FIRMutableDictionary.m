@@ -54,7 +54,8 @@
   __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
     if (weakSelf) {
-      self->_objects[key] = object;
+      typeof(self) strongSelf = weakSelf;
+      strongSelf->_objects[key] = object;
     }
   });
 }
@@ -63,7 +64,8 @@
   __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
     if (weakSelf) {
-      [self->_objects removeObjectForKey:key];
+      typeof(self) strongSelf = weakSelf;
+      [strongSelf->_objects removeObjectForKey:key];
     }
   });
 }
