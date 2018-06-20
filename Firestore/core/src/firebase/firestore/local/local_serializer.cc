@@ -90,6 +90,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
               Status(FirestoreErrorCode::DataLoss,
                      "Input proto bytes cannot be parsed (mismatch between "
                      "the wiretype and the field number (tag))"));
+          return nullptr;
         }
         break;
 
@@ -99,8 +100,6 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         // below.
         break;
     }
-
-    if (!reader->status().ok()) return nullptr;
 
     switch (tag.field_number) {
       case firestore_client_MaybeDocument_document_tag:
@@ -130,9 +129,9 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     }
   }
 
-  if (no_document != nullptr) {
+  if (no_document) {
     return no_document;
-  } else if (document != nullptr) {
+  } else if (document) {
     return document;
   } else {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
