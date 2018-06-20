@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SERIALIZER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SERIALIZER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_SERIALIZER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_SERIALIZER_H_
 
 #include <memory>
 #include <vector>
@@ -33,14 +33,14 @@ namespace local {
 /**
  * @brief Serializer for values stored in the LocalStore.
  *
- * Note that local::Serializer currently delegates to the remote::Serializer
- * (for the Firestore v1beta1 RPC protocol) to save implementation time and code
- * duplication. We'll need to revisit this when the RPC protocol we use diverges
- * from local storage.
+ * Note that local::LocalSerializer currently delegates to the
+ * remote::Serializer (for the Firestore v1beta1 RPC protocol) to save
+ * implementation time and code duplication. We'll need to revisit this when the
+ * RPC protocol we use diverges from local storage.
  */
-class Serializer {
+class LocalSerializer {
  public:
-  explicit Serializer(const remote::Serializer& rpc_serializer)
+  explicit LocalSerializer(const remote::Serializer& rpc_serializer)
       : rpc_serializer_(rpc_serializer) {
   }
 
@@ -55,8 +55,8 @@ class Serializer {
    * errors during encoding generally indicate a serious/fatal error.
    */
   // TODO(rsgowman): If we never support any output except to a vector, it may
-  // make sense to have Serializer own the vector and provide an accessor rather
-  // than asking the user to create it first.
+  // make sense to have LocalSerializer own the vector and provide an accessor
+  // rather than asking the user to create it first.
   util::Status EncodeMaybeDocument(const model::MaybeDocument& maybe_doc,
                                    std::vector<uint8_t>* out_bytes) const;
 
@@ -106,4 +106,4 @@ class Serializer {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_SERIALIZER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_LOCAL_SERIALIZER_H_

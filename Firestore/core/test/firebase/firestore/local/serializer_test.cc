@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/serializer.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 
 #include "Firestore/Protos/cpp/firestore/local/maybe_document.pb.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -52,7 +52,7 @@ class SerializerTest : public ::testing::Test {
 
   const DatabaseId kDatabaseId{"p", "d"};
   remote::Serializer remote_serializer;
-  local::Serializer serializer;
+  local::LocalSerializer serializer;
 
   void ExpectRoundTrip(const MaybeDocument& model,
                        const firestore::client::MaybeDocument& proto,
@@ -123,7 +123,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(model, *actual_model);
   }
 
-  std::vector<uint8_t> EncodeMaybeDocument(local::Serializer* serializer,
+  std::vector<uint8_t> EncodeMaybeDocument(local::LocalSerializer* serializer,
                                            const MaybeDocument& maybe_doc) {
     std::vector<uint8_t> bytes;
     Status status = serializer->EncodeMaybeDocument(maybe_doc, &bytes);

@@ -19,8 +19,8 @@ cc_library(
     leveldb_key.cc
     leveldb_transaction.h
     leveldb_transaction.cc
-    serializer.h
-    serializer.cc
+    local_serializer.h
+    local_serializer.cc
   DEPENDS
     LevelDB::LevelDB
     absl_strings

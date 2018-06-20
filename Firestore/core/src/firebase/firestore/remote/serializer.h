@@ -40,7 +40,7 @@ namespace firebase {
 namespace firestore {
 
 namespace local {
-class Serializer;
+class LocalSerializer;
 }
 
 namespace remote {
@@ -164,7 +164,7 @@ class Serializer {
   }
 
  private:
-  friend class local::Serializer;
+  friend class local::LocalSerializer;
 
   void EncodeDocument(nanopb::Writer* writer,
                       const model::DocumentKey& key,

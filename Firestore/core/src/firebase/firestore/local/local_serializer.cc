@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/local/serializer.h"
+#include "Firestore/core/src/firebase/firestore/local/local_serializer.h"
 
 #include <cstdlib>
 #include <utility>
@@ -36,14 +36,15 @@ using firebase::firestore::nanopb::Tag;
 using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 
-Status Serializer::EncodeMaybeDocument(const model::MaybeDocument& document,
-                                       std::vector<uint8_t>* out_bytes) const {
+Status LocalSerializer::EncodeMaybeDocument(
+    const model::MaybeDocument& document,
+    std::vector<uint8_t>* out_bytes) const {
   Writer writer = Writer::Wrap(out_bytes);
   EncodeMaybeDocument(&writer, document);
   return writer.status();
 }
 
-void Serializer::EncodeMaybeDocument(
+void LocalSerializer::EncodeMaybeDocument(
     Writer* writer, const model::MaybeDocument& maybe_doc) const {
   switch (maybe_doc.type()) {
     case model::MaybeDocument::Type::Document:
@@ -66,7 +67,7 @@ void Serializer::EncodeMaybeDocument(
   UNREACHABLE();
 }
 
-std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
+std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
 
@@ -141,8 +142,8 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
   }
 }
 
-void Serializer::EncodeDocument(Writer* writer,
-                                const model::Document& doc) const {
+void LocalSerializer::EncodeDocument(Writer* writer,
+                                     const model::Document& doc) const {
   // Encode Document.name
   writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(doc.key()));
@@ -168,7 +169,8 @@ void Serializer::EncodeDocument(Writer* writer,
 }
 
 util::StatusOr<std::unique_ptr<model::MaybeDocument>>
-Serializer::DecodeMaybeDocument(const uint8_t* bytes, size_t length) const {
+LocalSerializer::DecodeMaybeDocument(const uint8_t* bytes,
+                                     size_t length) const {
   Reader reader = Reader::Wrap(bytes, length);
   std::unique_ptr<model::MaybeDocument> maybe_doc =
       DecodeMaybeDocument(&reader);
