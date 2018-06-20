@@ -44,6 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) MutationQueues &mutationQueues;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
+
+// Make this property writable so we can wire up a delegate.
+@property(nonatomic, strong) id<FSTReferenceDelegate> referenceDelegate;
+
 @end
 
 @implementation FSTMemoryPersistence {
@@ -66,31 +70,31 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)persistenceWithEagerGC {
-  return [[FSTMemoryPersistence alloc]
-      initWithReferenceBlock:^id<FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
-        return [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
-      }];
+  FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
+  persistence.referenceDelegate = [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
+  return persistence;
 }
 
 + (instancetype)persistenceWithLRUGC {
-  return [[FSTMemoryPersistence alloc]
-      initWithReferenceBlock:^id<FSTReferenceDelegate>(FSTMemoryPersistence *persistence) {
-        return [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
-      }];
+  FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
+  persistence.referenceDelegate = [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
+  return persistence;
 }
 
-- (instancetype)initWithReferenceBlock:
-    (id<FSTReferenceDelegate> (^)(FSTMemoryPersistence *persistence))block {
+- (instancetype)init {
   if (self = [super init]) {
     _queryCache = [[FSTMemoryQueryCache alloc] initWithPersistence:self];
-    _referenceDelegate = block(self);
     _remoteDocumentCache = [[FSTMemoryRemoteDocumentCache alloc] init];
-    id delegate = _referenceDelegate;
-    if ([delegate conformsToProtocol:@protocol(FSTTransactional)]) {
-      _transactionRunner.SetBackingPersistence((id<FSTTransactional>)_referenceDelegate);
-    }
   }
   return self;
+}
+
+- (void)setReferenceDelegate:(id <FSTReferenceDelegate>)referenceDelegate {
+  _referenceDelegate = referenceDelegate;
+  id delegate = _referenceDelegate;
+  if ([delegate conformsToProtocol:@protocol(FSTTransactional)]) {
+    _transactionRunner.SetBackingPersistence((id<FSTTransactional>)_referenceDelegate);
+  }
 }
 
 - (BOOL)start:(NSError **)error {
@@ -138,7 +142,9 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMemoryLRUReferenceDelegate {
-  FSTMemoryPersistence *_persistence;
+  // This delegate should have the same lifetime as the persistence layer, but mark as
+  // weak to avoid retain cycle.
+  __weak FSTMemoryPersistence *_persistence;
   std::unordered_map<DocumentKey, FSTListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   FSTReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
@@ -268,7 +274,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryEagerReferenceDelegate {
   std::unique_ptr<std::unordered_set<DocumentKey, DocumentKeyHash> > _orphaned;
-  FSTMemoryPersistence *_persistence;
+  // This delegate should have the same lifetime as the persistence layer, but mark as
+  // weak to avoid retain cycle.
+  __weak FSTMemoryPersistence *_persistence;
   FSTReferenceSet *_additionalReferences;
 }
 

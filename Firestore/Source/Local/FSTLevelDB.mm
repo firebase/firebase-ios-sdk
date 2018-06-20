@@ -79,7 +79,9 @@ using leveldb::WriteOptions;
 
 @implementation FSTLevelDBLRUDelegate {
   FSTLRUGarbageCollector *_gc;
-  FSTLevelDB *_db;
+  // This delegate should have the same lifetime as the persistence layer, but mark as
+  // weak to avoid retain cycle.
+  __weak FSTLevelDB *_db;
   FSTReferenceSet *_additionalReferences;
   FSTListenSequenceNumber _currentSequenceNumber;
   FSTListenSequence *_listenSequence;
