@@ -82,7 +82,7 @@ cc_library(
     cpp/google/type/latlng.pb.cc
     cpp/google/type/latlng.pb.h
   DEPENDS
-    protobuf
+    protobuf::libprotobuf
   EXCLUDE_FROM_ALL
 )
 

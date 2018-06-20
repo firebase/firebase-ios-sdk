@@ -31,8 +31,8 @@ else()
   set(
     CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DgRPC_BUILD_TESTS:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DgRPC_BUILD_TESTS:BOOL=OFF
 
     # TODO(rsgowman): We're currently building nanopb twice; once via grpc, and
     # once via nanopb. The version from grpc is the one that actually ends up
@@ -45,6 +45,29 @@ else()
     -DCMAKE_C_FLAGS=-DPB_FIELD_16BIT
     -DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
   )
+
+
+  ## protobuf
+
+  # Unlike other dependencies of gRPC, we control the protobuf version because we
+  # have checked-in protoc outputs that must match the runtime.
+
+  # The location where protobuf-config.cmake will be installed varies by platform
+  if (WIN32)
+    set(PROTOBUF_CMAKE_DIR "${FIREBASE_INSTALL_DIR}/cmake")
+  else()
+    set(PROTOBUF_CMAKE_DIR "${FIREBASE_INSTALL_DIR}/lib/cmake/protobuf")
+  endif()
+
+  list(
+    APPEND CMAKE_ARGS
+    -DgRPC_PROTOBUF_PROVIDER:STRING=package
+    -DgRPC_PROTOBUF_PACKAGE_TYPE:STRING=CONFIG
+    -DProtobuf_DIR:PATH=${PROTOBUF_CMAKE_DIR}
+  )
+
+
+  ## zlib
 
   # zlib can be built by grpc but we can avoid it on platforms that provide it
   # by default.
@@ -62,8 +85,8 @@ else()
       APPEND GIT_SUBMODULES
       third_party/zlib
     )
+  endif()
 
-  endif(ZLIB_FOUND)
 
   ExternalProject_GitSource(
     GRPC_GIT
@@ -74,6 +97,8 @@ else()
 
   ExternalProject_Add(
     grpc
+    DEPENDS
+      protobuf
 
     ${GRPC_GIT}
 
