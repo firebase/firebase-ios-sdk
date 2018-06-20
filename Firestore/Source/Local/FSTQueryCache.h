@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
 
-- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 

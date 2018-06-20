@@ -48,13 +48,13 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal
  * to the given sequence number. Returns the number of documents removed.
  */
-- (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 /**
  * Removes all targets that are not currently being listened to and have a sequence number less than
  * or equal to the given sequence number. Returns the number of targets removed.
  */
-- (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
@@ -77,7 +77,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * queries that are cached. For instance, if 20 queries are cached, and the percentile is 40, the
  * result will be 8.
  */
-- (NSUInteger)queryCountForPercentile:(NSUInteger)percentile;
+- (int)queryCountForPercentile:(NSUInteger)percentile;
 
 /**
  * Given a number of queries n, return the nth sequence number in the cache.
@@ -88,7 +88,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * Removes queries that are not currently live (as indicated by presence in the liveQueries map) and
  * have a sequence number less than or equal to the given sequence number.
  */
-- (NSUInteger)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                        liveQueries:
                                            (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
@@ -96,6 +96,6 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal
  * to the given sequence number. Returns the number of documents removed.
  */
-- (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber;
 
 @end

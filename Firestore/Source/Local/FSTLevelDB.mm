@@ -174,9 +174,9 @@ using leveldb::WriteOptions;
   [queryCache enumerateOrphanedDocumentsUsingBlock:block];
 }
 
-- (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
-  __block NSUInteger count = 0;
+  __block int count = 0;
   [queryCache enumerateOrphanedDocumentsUsingBlock:^(
                   const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
     if (sequenceNumber <= upperBound) {
@@ -189,7 +189,7 @@ using leveldb::WriteOptions;
   return count;
 }
 
-- (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;

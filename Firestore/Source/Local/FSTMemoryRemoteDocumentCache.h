@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (NSUInteger)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-                throughSequenceNumber:(FSTListenSequenceNumber)upperBound;
+- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
+         throughSequenceNumber:(FSTListenSequenceNumber)upperBound;
 
 @end
 

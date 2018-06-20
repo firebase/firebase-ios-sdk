@@ -85,9 +85,9 @@ class RollingSequenceNumberBuffer {
   return self;
 }
 
-- (NSUInteger)queryCountForPercentile:(NSUInteger)percentile {
-  NSUInteger totalCount = (NSUInteger)[self.queryCache count];
-  NSUInteger setSize = (NSUInteger)((percentile / 100.0f) * totalCount);
+- (int)queryCountForPercentile:(NSUInteger)percentile {
+  int totalCount = [self.queryCache count];
+  int setSize = (int)((percentile / 100.0f) * totalCount);
   return setSize;
 }
 
@@ -108,13 +108,13 @@ class RollingSequenceNumberBuffer {
   return buffer.max_value();
 }
 
-- (NSUInteger)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                        liveQueries:
                                            (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
-- (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
   return [_delegate removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
 }
 

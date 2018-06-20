@@ -211,14 +211,14 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (NSUInteger)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
                                                          liveQueries:liveQueries];
 }
 
-- (NSUInteger)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
   return [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
       removeOrphanedDocuments:self
         throughSequenceNumber:upperBound];

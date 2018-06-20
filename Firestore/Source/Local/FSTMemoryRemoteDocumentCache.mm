@@ -79,9 +79,9 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (NSUInteger)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-                throughSequenceNumber:(FSTListenSequenceNumber)upperBound {
-  NSUInteger count = 0;
+- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
+         throughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+  int count = 0;
   FSTMaybeDocumentDictionary *updatedDocs = self.docs;
   for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
     if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {

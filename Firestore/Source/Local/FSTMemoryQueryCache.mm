@@ -126,7 +126,7 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 }
 
-- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
       }];
   [self.queries removeObjectsForKeys:toRemove];
-  return [toRemove count];
+  return (int)[toRemove count];
 }
 
 #pragma mark Reference tracking

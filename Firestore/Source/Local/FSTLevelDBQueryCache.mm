@@ -267,10 +267,10 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
-- (NSUInteger)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                                      liveQueries:
                                          (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
-  NSUInteger count = 0;
+  int count = 0;
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(targetPrefix);
