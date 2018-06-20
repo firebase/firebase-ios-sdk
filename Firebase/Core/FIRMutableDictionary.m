@@ -53,8 +53,8 @@
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
   __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    if (weakSelf) {
-      typeof(self) strongSelf = weakSelf;
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
       strongSelf->_objects[key] = object;
     }
   });
@@ -63,8 +63,8 @@
 - (void)removeObjectForKey:(id)key {
   __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    if (weakSelf) {
-      typeof(self) strongSelf = weakSelf;
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
       [strongSelf->_objects removeObjectForKey:key];
     }
   });
@@ -73,8 +73,8 @@
 - (void)removeAllObjects {
   __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    if (weakSelf) {
-      typeof(self) strongSelf = weakSelf;
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
       [strongSelf->_objects removeAllObjects];
     }
   });

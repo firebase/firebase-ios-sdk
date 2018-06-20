@@ -209,19 +209,19 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
       sessionIDFromAsyncGETRequest:request
                  completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSString *sessionID,
                                      NSError *error) {
-                   dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
-                   dispatch_async(queueToDispatch, ^{
-                     FIRNetwork *strongSelf = weakSelf;
-                     if (!strongSelf) {
-                       return;
-                     }
-                     if (sessionID.length) {
-                       [strongSelf->_requests removeObjectForKey:sessionID];
-                     }
-                     if (handler) {
+                   FIRNetwork *strongSelf = weakSelf;
+                   if (!strongSelf) {
+                     return;
+                   }
+                   if (sessionID.length) {
+                     [strongSelf->_requests removeObjectForKey:sessionID];
+                   }
+                   if (handler) {
+                     dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
+                     dispatch_async(queueToDispatch, ^{
                        handler(response, data, error);
-                     }
-                   });
+                     });
+                   }
                  }];
 
   if (!requestID) {
