@@ -28,7 +28,6 @@
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -136,9 +135,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /** Used to track any documents that are currently in limbo. */
 @property(nonatomic, strong, readonly) FSTReferenceSet *limboDocumentRefs;
 
-/** The garbage collector used to collect documents that are no longer in limbo. */
-@property(nonatomic, strong, readonly) FSTEagerGarbageCollector *limboCollector;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -171,10 +167,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     _queryViewsByQuery = [NSMutableDictionary dictionary];
     _queryViewsByTarget = [NSMutableDictionary dictionary];
 
-    _limboCollector = [[FSTEagerGarbageCollector alloc] init];
     _limboDocumentRefs = [[FSTReferenceSet alloc] init];
-    [_limboCollector addGarbageSource:_limboDocumentRefs];
-
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
@@ -399,8 +392,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self.queryViewsByQuery removeObjectForKey:queryView.query];
   [self.queryViewsByTarget removeObjectForKey:@(queryView.targetID)];
 
+  DocumentKeySet limboKeys = [self.limboDocumentRefs referencedKeysForID:queryView.targetID];
   [self.limboDocumentRefs removeReferencesForID:queryView.targetID];
-  [self garbageCollectLimboDocuments];
+  for (const DocumentKey &key : limboKeys) {
+    if (![self.limboDocumentRefs containsKey:key]) {
+      // We removed the last reference for this key.
+      [self removeLimboTargetForKey:key];
+    }
+  }
 }
 
 /**
@@ -462,13 +461,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
       case FSTLimboDocumentChangeTypeRemoved:
         LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
         [self.limboDocumentRefs removeReferenceToKey:limboChange.key forID:targetID];
+        if (![self.limboDocumentRefs containsKey:limboChange.key]) {
+          // We removed the last reference for this key
+          [self removeLimboTargetForKey:limboChange.key];
+        }
         break;
 
       default:
         HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
     }
   }
-  [self garbageCollectLimboDocuments];
 }
 
 - (void)trackLimboChange:(FSTLimboDocumentChange *)limboChange {
@@ -488,20 +490,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   }
 }
 
-/** Garbage collect the limbo documents that we no longer need to track. */
-- (void)garbageCollectLimboDocuments {
-  const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
-  for (const DocumentKey &key : garbage) {
-    const auto iter = _limboTargetsByKey.find(key);
-    if (iter == _limboTargetsByKey.end()) {
-      // This target already got removed, because the query failed.
-      return;
-    }
-    TargetId limboTargetID = iter->second;
-    [self.remoteStore stopListeningToTargetID:limboTargetID];
-    _limboTargetsByKey.erase(key);
-    _limboKeysByTarget.erase(limboTargetID);
+- (void)removeLimboTargetForKey:(const DocumentKey &)key {
+  const auto iter = _limboTargetsByKey.find(key);
+  if (iter == _limboTargetsByKey.end()) {
+    // This target already got removed, because the query failed.
+    return;
   }
+  TargetId limboTargetID = iter->second;
+  [self.remoteStore stopListeningToTargetID:limboTargetID];
+  _limboTargetsByKey.erase(key);
+  _limboKeysByTarget.erase(limboTargetID);
 }
 
 // Used for testing
