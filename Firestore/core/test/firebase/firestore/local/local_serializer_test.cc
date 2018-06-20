@@ -43,9 +43,9 @@ using google::protobuf::util::MessageDifferencer;
 // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
 #define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
 
-class SerializerTest : public ::testing::Test {
+class LocalSerializerTest : public ::testing::Test {
  public:
-  SerializerTest()
+  LocalSerializerTest()
       : remote_serializer(kDatabaseId), serializer(remote_serializer) {
     msg_diff.ReportDifferencesToString(&message_differences);
   }
@@ -135,7 +135,7 @@ class SerializerTest : public ::testing::Test {
   MessageDifferencer msg_diff;
 };
 
-TEST_F(SerializerTest, EncodesDocumentAsMaybeDocument) {
+TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
   Document doc = Doc("some/path", /*version=*/42);
 
   firestore::client::MaybeDocument maybe_doc_proto;
