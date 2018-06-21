@@ -23,6 +23,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Describes functionality for SDKs registering components in the `FIRComponentContainer`.
 NS_SWIFT_NAME(ComponentRegistrant)
 @protocol FIRComponentRegistrant
 

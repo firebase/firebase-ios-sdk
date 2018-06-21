@@ -22,7 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(Dependency)
 @interface FIRDependency : NSObject
 
+/// The protocol describing functionality being depended on.
 @property(nonatomic, strong, readonly) Protocol *protocol;
+
+/// A flag to specify if the dependency is required or not.
 @property(nonatomic, readonly) BOOL isRequired;
 
 /// Initializes a dependency that is required. Calls `initWithProtocol:isRequired` with `YES` for

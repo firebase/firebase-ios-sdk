@@ -19,21 +19,27 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Retrieve a component from a container.
+/// A type-safe macro to retrieve a component from a container. This should be used to retrieve
+/// components instead of using the container directly.
 #define FIR_COMPONENT(type, container) \
   [FIRComponentType<id<type>> instanceForProtocol:@protocol(type) inContainer:container]
 
 @class FIRApp;
 
+/// A container that holds different components that are registered via the
+/// `registerAsComponentRegistrant:` call. These classes should conform to `FIRComponentRegistrant`
+/// in order to properly register components for Core.
 NS_SWIFT_NAME(FirebaseComponentContainer)
 @interface FIRComponentContainer : NSObject
 
 /// A weak reference to the app that an instance of the container belongs to.
 @property(nonatomic, weak, readonly) FIRApp *app;
 
+/// Unavailable. Use the `container` property on `FIRApp`.
 - (instancetype)init NS_UNAVAILABLE;
 
-/// TODO(wilsonryan): Rename this, maybe "provideComponents:", registerAsComponentProvider:?
+/// Register a class to provide components for the interoperability system. The class should conform
+/// to `FIRComponentRegistrant` and provide an array of `FIRComponent` objects.
 + (void)registerAsComponentRegistrant:(Class)klass;
 
 @end

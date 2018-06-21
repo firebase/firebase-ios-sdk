@@ -83,6 +83,7 @@ NS_SWIFT_NAME(init(_:instantiationTiming:dependencies:creationBlock:));
 
 // clang-format on
 
+/// Unavailable.
 - (instancetype)init NS_UNAVAILABLE;
 
 @end

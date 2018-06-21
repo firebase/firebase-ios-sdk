@@ -23,6 +23,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Provides an interface to set up an SDK once a `FIRApp` is configured.
+NS_SWIFT_NAME(CoreConfigurable)
 @protocol FIRCoreConfigurable
 
 /// Configure the SDK if needed ahead of time. This method is called when the developer calls
