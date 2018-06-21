@@ -109,6 +109,20 @@ class BufferedWriter {
 
 }  // namespace internal
 
+class PseudoDatastore {
+  private:
+  void PollGrpcQueue();
+
+  grpc::GenericStub CreateStub() const;
+  static std::unique_ptr<util::internal::Executor> CreateExecutor();
+
+  const core::DatabaseInfo* database_info_;
+  std::unique_ptr<util::internal::Executor> dedicated_executor_;
+
+  grpc::GenericStub stub_;
+  grpc::CompletionQueue grpc_queue_;
+};
+
 class WatchStream {
  public:
   WatchStream(util::AsyncQueue* async_queue,
@@ -134,12 +148,12 @@ class WatchStream {
 
  private:
   enum class State {
-    Initial,
+    NotStarted,
     Auth,
     Open,
-    Error,
-    Backoff,
-    Stopped
+    GrpcError,
+    ReconnectingWithBackoff,
+    ShuttingDown
   };
 
   void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
@@ -147,33 +161,29 @@ class WatchStream {
   void PerformBackoff(id delegate);
   void ResumeStartFromBackoff(id delegate);
 
-  void PollGrpcQueue();
   void OnSuccessfulStart();
   void OnSuccessfulRead();
   void OnSuccessfulWrite();
   void OnFinish();
 
-  grpc::GenericStub CreateStub() const;
-  static std::unique_ptr<util::internal::Executor> CreateExecutor();
-
   State state_{State::Initial};
 
-  std::unique_ptr<util::internal::Executor> dedicated_executor_;
-  grpc::GenericStub stub_;
-  grpc::CompletionQueue grpc_queue_;
+  struct GrpcCall {
+    std::unique_ptr<grpc::ClientContext> context;
+    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
 
-  std::unique_ptr<grpc::ClientContext> context_;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+    internal::BufferedWriter buffered_writer;
+    grpc::ByteBuffer last_read_message;
+    grpc::Status status;
+  };
+  std::unique_ptr<GrpcCall> call_;
+  std::vector<std::unique_ptr<GrpcCall>> dying_calls_;
 
-  const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   ExponentialBackoff backoff_;
 
   internal::ObjcBridge objc_bridge_;
-  internal::BufferedWriter buffered_writer_;
-  grpc::ByteBuffer last_read_message_;
-  grpc::Status status_;
 
   // FIXME
   id delegate_;
