@@ -42,7 +42,7 @@ NS_SWIFT_NAME(Functions)
  * Creates a Cloud Functions client with the default app and given region.
  * @param region The region for the http trigger, such as "us-central1".
  */
-// + (instancetype)functionsForRegion:(NSString *)region NS_SWIFT_NAME(functions(region:));
++ (instancetype)functionsForRegion:(NSString *)region NS_SWIFT_NAME(functions(region:));
 
 /**
  * Creates a Cloud Functions client with the given app and region.
@@ -51,8 +51,8 @@ NS_SWIFT_NAME(Functions)
  */
 // clang-format off
 // because it incorrectly breaks this NS_SWIFT_NAME.
-// + (instancetype)functionsForApp:(FIRApp *)app
-//                         region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
++ (instancetype)functionsForApp:(FIRApp *)app
+                         region:(NSString *)region NS_SWIFT_NAME(functions(app:region:));
 // clang-format on
 
 /**
