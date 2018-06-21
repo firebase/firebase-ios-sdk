@@ -61,6 +61,13 @@ NS_SWIFT_NAME(Functions)
  */
 - (FIRHTTPSCallable *)HTTPSCallableWithName:(NSString *)name NS_SWIFT_NAME(httpsCallable(_:));
 
+/**
+ * Changes this instance to point to a Cloud Functions emulator running locally.
+ * See https://firebase.google.com/docs/functions/local-emulator
+ * @param origin The origin of the local emulator, such as "http://localhost:5005".
+ */
+- (void)useFunctionsEmulatorOrigin:(NSString *)origin NS_SWIFT_NAME(useFunctionsEmulator(origin:));
+
 @end
 
 NS_ASSUME_NONNULL_END
