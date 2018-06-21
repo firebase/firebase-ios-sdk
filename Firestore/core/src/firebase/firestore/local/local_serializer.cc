@@ -84,25 +84,8 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case firestore_client_MaybeDocument_document_tag:
-      case firestore_client_MaybeDocument_no_document_tag:
-        if (tag.wire_type != PB_WT_STRING) {
-          reader->set_status(
-              Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (mismatch between "
-                     "the wiretype and the field number (tag))"));
-          return nullptr;
-        }
-        break;
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
 
-      default:
-        // Unknown tag. According to the proto spec, we need to ignore these. No
-        // action required here, though we'll need to skip the relevant bytes
-        // below.
-        break;
-    }
-
-    switch (tag.field_number) {
-      case firestore_client_MaybeDocument_document_tag:
         // 'no_document' and 'document' are part of a oneof. The proto docs
         // claim that if both are set on the wire, the last one wins.
         no_document = nullptr;
@@ -113,15 +96,20 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
             [&](Reader* reader) -> std::unique_ptr<model::Document> {
               return rpc_serializer_.DecodeDocument(reader);
             });
+
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
+
         // 'no_document' and 'document' are part of a oneof. The proto docs
         // claim that if both are set on the wire, the last one wins.
         document = nullptr;
 
         // TODO(rsgowman): Parse the no_document field.
         abort();
+
+        break;
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.

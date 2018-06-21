@@ -122,64 +122,34 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case google_firestore_v1beta1_Value_null_value_tag:
-      case google_firestore_v1beta1_Value_boolean_value_tag:
-      case google_firestore_v1beta1_Value_integer_value_tag:
-        if (tag.wire_type != PB_WT_VARINT) {
-          reader->set_status(
-              Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (mismatch between "
-                     "the wiretype and the field number (tag))"));
-        }
-        break;
-
-      case google_firestore_v1beta1_Value_string_value_tag:
-      case google_firestore_v1beta1_Value_timestamp_value_tag:
-      case google_firestore_v1beta1_Value_map_value_tag:
-        if (tag.wire_type != PB_WT_STRING) {
-          reader->set_status(
-              Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (mismatch between "
-                     "the wiretype and the field number (tag))"));
-        }
-        break;
-
-      case google_firestore_v1beta1_Value_double_value_tag:
-      case google_firestore_v1beta1_Value_bytes_value_tag:
-      case google_firestore_v1beta1_Value_reference_value_tag:
-      case google_firestore_v1beta1_Value_geo_point_value_tag:
-      case google_firestore_v1beta1_Value_array_value_tag:
-        // TODO(b/74243929): Implement remaining types.
-        HARD_FAIL("Unhandled message field number (tag): %i.",
-                  tag.field_number);
-
-      default:
-        // Unknown tag. According to the proto spec, we need to ignore these. No
-        // action required here, though we'll need to skip the relevant bytes
-        // below.
-        break;
-    }
-
-    if (!reader->status().ok()) return FieldValue::NullValue();
-
-    switch (tag.field_number) {
-      case google_firestore_v1beta1_Value_null_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
         reader->ReadNull();
         result = FieldValue::NullValue();
         break;
+
       case google_firestore_v1beta1_Value_boolean_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
         result = FieldValue::BooleanValue(reader->ReadBool());
         break;
+
       case google_firestore_v1beta1_Value_integer_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
         result = FieldValue::IntegerValue(reader->ReadInteger());
         break;
+
       case google_firestore_v1beta1_Value_string_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
         result = FieldValue::StringValue(reader->ReadString());
         break;
+
       case google_firestore_v1beta1_Value_timestamp_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
         result = FieldValue::TimestampValue(
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
         break;
+
       case google_firestore_v1beta1_Value_map_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
         result = FieldValue::ObjectValueFromMap(
@@ -474,28 +444,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
-        if (tag.wire_type != PB_WT_STRING) {
-          reader->set_status(
-              Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (mismatch between "
-                     "the wiretype and the field number (tag))"));
-        }
-        break;
-
-      default:
-        // Unknown tag. According to the proto spec, we need to ignore these. No
-        // action required here, though we'll need to skip the relevant bytes
-        // below.
-        break;
-    }
-
-    if (!reader->status().ok()) return nullptr;
-
-    switch (tag.field_number) {
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         missing = "";
@@ -509,6 +458,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         found = nullptr;
@@ -517,6 +467,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         // This field is ignored by the client sdk, but we still need to extract
         // it.
         // TODO(rsgowman) switch this to reader->SkipField() (or whatever we end
@@ -526,6 +477,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         read_time = SnapshotVersion{
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;

@@ -46,6 +46,18 @@ Tag Reader::ReadTag() {
   return tag;
 }
 
+bool Reader::RequireWireType(pb_wire_type_t wire_type, Tag tag) {
+  if (!status_.ok()) return false;
+  if (wire_type != tag.wire_type) {
+    set_status(
+        Status(FirestoreErrorCode::DataLoss,
+               "Input proto bytes cannot be parsed (mismatch between "
+               "the wiretype and the field number (tag))"));
+    return false;
+  }
+  return true;
+}
+
 void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
   if (!status_.ok()) return;
 
