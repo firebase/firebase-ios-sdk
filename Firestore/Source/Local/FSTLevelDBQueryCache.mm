@@ -268,8 +268,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   int count = 0;
   std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
   auto it = _db.currentTransaction->NewIterator();

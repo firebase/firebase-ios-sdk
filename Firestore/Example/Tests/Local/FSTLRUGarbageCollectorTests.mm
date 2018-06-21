@@ -18,7 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#include "absl/strings/str_cat.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
@@ -33,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/strings/str_cat.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
@@ -63,13 +63,12 @@ NS_ASSUME_NONNULL_BEGIN
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
-  _initialSequenceNumber =
-          _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
-            [_queryCache start];
-            [_mutationQueue start];
-            _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
-            return _persistence.currentSequenceNumber;
-          });
+  _initialSequenceNumber = _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+    [_queryCache start];
+    [_mutationQueue start];
+    _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
+    return _persistence.currentSequenceNumber;
+  });
 }
 
 - (FSTListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
@@ -114,16 +113,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)addNextQuery {
-  return _persistence.run("adding query", [&]() -> FSTQueryData * {
-    return [self addNextQueryInTransaction];
-  });
+  return _persistence.run("adding query",
+                          [&]() -> FSTQueryData * { return [self addNextQueryInTransaction]; });
 }
 
 - (DocumentKey)removeMutationReference {
   DocumentKey key = [self nextTestDocKey];
-  _persistence.run("Removing mutation reference", [&]() {
-    [_persistence.referenceDelegate removeMutationReference:key];
-  });
+  _persistence.run("Removing mutation reference",
+                   [&]() { [_persistence.referenceDelegate removeMutationReference:key]; });
   return key;
 }
 
@@ -167,9 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
     int expectedTenthPercentile = testCases[i].expected;
     [self newTestResources];
     for (int j = 0; j < numQueries; j++) {
-      _persistence.run("add query", [&]() {
-        [_queryCache addQueryData:[self nextTestQuery]];
-      });
+      _persistence.run("add query", [&]() { [_queryCache addQueryData:[self nextTestQuery]]; });
     }
     _persistence.run("Check GC", [&]() {
       FSTListenSequenceNumber tenth = [_gc queryCountForPercentile:10];
@@ -195,8 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
   // The sequence number to collect should be 10 past the initial sequence number.
   [self newTestResources];
   for (int i = 0; i < 50; i++) {
-    _persistence.run("add query",
-                    [&]() { [_queryCache addQueryData:[self nextTestQuery]]; });
+    _persistence.run("add query", [&]() { [_queryCache addQueryData:[self nextTestQuery]]; });
   }
   XCTAssertEqual(_initialSequenceNumber + 10, [self sequenceNumberForQueryCount:10]);
   [_persistence shutdown];
@@ -297,8 +291,8 @@ NS_ASSUME_NONNULL_BEGIN
   // GC up through 15th query, which is 15%.
   // Expect to have GC'd 8 targets (even values of 2-16).
   _persistence.run("gc", [&]() {
-    NSUInteger removed =
-            [_gc removeQueriesUpThroughSequenceNumber:15 + _initialSequenceNumber liveQueries:liveQueries];
+    NSUInteger removed = [_gc removeQueriesUpThroughSequenceNumber:15 + _initialSequenceNumber
+                                                       liveQueries:liveQueries];
     XCTAssertEqual(7, removed);
   });
   [_persistence shutdown];
@@ -379,7 +373,8 @@ NS_ASSUME_NONNULL_BEGIN
       XCTAssertFalse([_queryCache containsKey:key]);
     }
     for (const DocumentKey &key : toBeRetained) {
-      XCTAssertNotNil([_documentCache entryForKey:key], @"Missing document %s", key.ToString().c_str());
+      XCTAssertNotNil([_documentCache entryForKey:key], @"Missing document %s",
+                      key.ToString().c_str());
     }
   });
   [_persistence shutdown];
@@ -595,8 +590,8 @@ NS_ASSUME_NONNULL_BEGIN
                          key.ToString().c_str());
         }
         for (const DocumentKey &key : expectedRetained) {
-          XCTAssertNotNil([_documentCache entryForKey:key], @"Expected to find %s in document cache",
-                          key.ToString().c_str());
+          XCTAssertNotNil([_documentCache entryForKey:key],
+                          @"Expected to find %s in document cache", key.ToString().c_str());
         }
       });
   [_persistence shutdown];

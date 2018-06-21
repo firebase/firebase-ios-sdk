@@ -192,8 +192,7 @@ using leveldb::WriteOptions;
 }
 
 - (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }

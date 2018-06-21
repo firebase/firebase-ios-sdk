@@ -17,8 +17,8 @@
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 
 #include <memory>
-#include <unordered_set>
 #include <unordered_map>
+#include <unordered_set>
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
@@ -71,13 +71,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)persistenceWithEagerGC {
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
-  persistence.referenceDelegate = [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
+  persistence.referenceDelegate =
+      [[FSTMemoryEagerReferenceDelegate alloc] initWithPersistence:persistence];
   return persistence;
 }
 
 + (instancetype)persistenceWithLRUGC {
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
-  persistence.referenceDelegate = [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
+  persistence.referenceDelegate =
+      [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
   return persistence;
 }
 
@@ -89,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (void)setReferenceDelegate:(id <FSTReferenceDelegate>)referenceDelegate {
+- (void)setReferenceDelegate:(id<FSTReferenceDelegate>)referenceDelegate {
   _referenceDelegate = referenceDelegate;
   id delegate = _referenceDelegate;
   if ([delegate conformsToProtocol:@protocol(FSTTransactional)]) {
@@ -218,8 +220,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
                                                          liveQueries:liveQueries];
 }

@@ -127,8 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
   [self.queries
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {

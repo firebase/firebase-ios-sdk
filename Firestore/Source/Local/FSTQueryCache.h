@@ -96,8 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
 
 - (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
 /** Returns the number of targets cached. */
 - (int32_t)count;

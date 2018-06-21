@@ -51,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 
-- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound document:(const firebase::firestore::model::DocumentKey &)key;
+- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
+                        document:(const firebase::firestore::model::DocumentKey &)key;
 
 @end
 

@@ -41,8 +41,9 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
 /**
  * Enumerates all of the outstanding mutations.
  */
-- (void)enumerateMutationsUsingBlock:
-    (void (^)(const firebase::firestore::model::DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block;
+- (void)enumerateMutationsUsingBlock:(void (^)(const firebase::firestore::model::DocumentKey &key,
+                                               FSTListenSequenceNumber sequenceNumber,
+                                               BOOL *stop))block;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal
@@ -55,8 +56,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * or equal to the given sequence number. Returns the number of targets removed.
  */
 - (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                     liveQueries:
-                                         (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
 /** Access to the underlying LRU Garbage collector instance. */
 @property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;
@@ -89,8 +89,7 @@ extern const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid;
  * have a sequence number less than or equal to the given sequence number.
  */
 - (int)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                       liveQueries:
-                                           (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
+                                liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
 /**
  * Removes all unreferenced documents from the cache that have a sequence number less than or equal

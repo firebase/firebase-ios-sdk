@@ -109,8 +109,8 @@ class RollingSequenceNumberBuffer {
 }
 
 - (int)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
-                                       liveQueries:
-                                           (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+                                liveQueries:
+                                    (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
