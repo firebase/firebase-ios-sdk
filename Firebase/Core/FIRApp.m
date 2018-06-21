@@ -16,7 +16,7 @@
 
 #import "FIRApp.h"
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 #import "FIRConfiguration.h"
 #import "Private/FIRAnalyticsConfiguration+Internal.h"

@@ -38,7 +38,7 @@
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import "FIRSecureTokenService.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"

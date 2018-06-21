@@ -16,8 +16,8 @@
 
 #import "GTMHTTPServer.h"
 
-#import <FirebaseUtilities/FIRNetwork.h>
-#import <FirebaseUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/FIRNetwork.h>
+#import <GoogleUtilities/FIRReachabilityChecker.h>
 #import <GoogleToolboxForMac/GTMNSData+zlib.h>
 
 @interface FIRNetwork ()

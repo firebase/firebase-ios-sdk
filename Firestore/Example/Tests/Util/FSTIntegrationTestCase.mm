@@ -23,7 +23,7 @@
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 

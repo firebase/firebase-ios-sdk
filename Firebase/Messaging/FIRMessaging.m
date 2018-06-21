@@ -37,7 +37,7 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <FirebaseUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/FIRReachabilityChecker.h>
 
 #import "NSError+FIRMessaging.h"
 

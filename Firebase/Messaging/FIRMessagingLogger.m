@@ -16,7 +16,7 @@
 
 #import "FIRMessagingLogger.h"
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 @implementation FIRMessagingLogger
 

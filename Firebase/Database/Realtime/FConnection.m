@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import "FConnection.h"
 #import "FConstants.h"
 

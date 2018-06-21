@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 #import "FSyncPointTests.h"
 #import "FListenProvider.h"

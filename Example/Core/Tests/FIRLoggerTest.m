@@ -17,7 +17,7 @@
 
 #import "FIRTestCase.h"
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 #import <asl.h>
 
