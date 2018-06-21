@@ -188,7 +188,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
     [key decodeKey:it->key()];
     if (FSTTargetIDIsSentinel(key.targetID)) {
       // if nextToReport is non-zero, report it, this is a new key so the last one
-      // must be orphaned.
+      // must be not be a member of any targets.
       if (nextToReport != 0) {
         block(keyToReport, nextToReport, &stop);
       }
