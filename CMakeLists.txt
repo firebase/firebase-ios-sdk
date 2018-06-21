@@ -39,6 +39,12 @@ list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR}/opt)
 
+set(
+  FIREBASE_DOWNLOAD_DIR
+  ${PROJECT_BINARY_DIR}/downloads
+  CACHE PATH "Where to store downloaded files"
+)
+
 enable_testing()
 
 include(external/FirebaseCore)
