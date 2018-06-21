@@ -466,22 +466,15 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         missing = reader->ReadString();
         break;
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
-        // This field is ignored by the client sdk, but we still need to extract
-        // it.
-        // TODO(rsgowman) switch this to reader->SkipField() (or whatever we end
-        // up calling it) once that exists. Possibly group this with other
-        // ignored and/or unknown fields
-        reader->ReadString();
-        break;
-
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         read_time = SnapshotVersion{
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;
 
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
+        // This field is ignored by the client sdk, but we still need to extract
+        // it.
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
         reader->SkipField(tag);
