@@ -49,6 +49,110 @@ const double kBackoffFactor = 1.5;
 
 namespace internal {
 
+// Can we eliminate state Stopped? `Stop` method should be pretty fast and make the object ready for
+// destruction.
+
+class StreamOp {
+ public:
+  virtual ~StreamOp() {
+  }
+
+  void Finalize(bool ok) {
+    if (auto stream = stream_handle_.lock()) {
+      DoFinalize(stream.get(), ok);
+    }
+  }
+
+ protected:
+  StreamOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : stream_handle_{stream},
+  call_{call} {
+  }
+
+ private:
+  virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
+
+  std::weak_ptr<WatchStream> stream_handle_;
+  std::shared_ptr<WatchStream> call_;
+};
+
+class StreamStartOp : public StreamOp {
+ public:
+  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
+    auto op = new StreamStartOp{stream, call};
+    call->Start(op);
+  }
+
+ private:
+  StreamStartOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : StreamOp{stream, call} {
+  }
+
+  void DoFinalize(WatchStream* stream, bool ok) override {
+    stream->OnStart(ok);
+  }
+};
+
+class StreamReadOp : public StreamOp {
+ public:
+  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
+    auto op = new StreamReadOp{stream, call};
+    call->Read(&op->message, op);
+  }
+
+ private:
+  StreamReadOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : StreamOp{stream, call} {
+  }
+
+  void DoFinalize(WatchStream* stream, bool ok) override {
+    stream->OnRead(ok, message);
+  }
+
+  grpc::ByteBuffer message;
+};
+
+class StreamWriteOp : public StreamOp {
+ public:
+  static void Execute(
+                    const grpc::ByteBuffer& message,
+                    const std::shared_ptr<WatchStream>& stream,
+                    const std::shared_ptr<GrpcCall>& call) {
+    auto op = new StreamWriteOp{stream, call};
+    call->Write(message, op);
+  }
+
+ private:
+  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : StreamOp{stream, call} {
+  }
+
+  void DoFinalize(WatchStream* stream, bool ok) override {
+    stream->OnWrite(ok);
+  }
+};
+
+class StreamFinishOp : public StreamOp {
+ public:
+  static void Execute(
+                    const std::shared_ptr<WatchStream>& stream,
+                    const std::shared_ptr<GrpcCall>& call) {
+    auto op = new StreamFinishOp{stream, call};
+    call->Finish(&op->status, op);
+  }
+
+ private:
+  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : StreamOp{stream, call} {
+  }
+
+  void DoFinalize(WatchStream* stream, bool ok) override {
+    stream->OnFinish(ok);
+  }
+
+  grpc::Status status_;
+};
+
 //        OBJC BRIDGE
 
 std::unique_ptr<grpc::ClientContext> ObjcBridge::CreateContext(
@@ -123,7 +227,8 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  bidi_stream_->Write(buffer_.back(), &kWriteTag);
+  // bidi_stream_->Write(buffer_.back(), &kWriteTag);
+  stream_->Write(buffer.back());
   buffer_.pop_back();
 }
 
@@ -150,6 +255,7 @@ WatchStream::WatchStream(util::AsyncQueue* const async_queue,
     : database_info_{&database_info},
       firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
+      buffered_writer_{this},
       stub_{CreateStub()},
       dedicated_executor_{CreateExecutor()},
       objc_bridge_{serializer},
@@ -169,10 +275,10 @@ void PseudoDataStore::PollGrpcQueue() {
   void* tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto* func = static_cast<std::function<void(bool)>*>(tag);
-    firestore_queue_->Enqueue([func] {
-      (*func)();
-      delete func;
+    auto* operation = static_cast<StreamOp*>(tag);
+    firestore_queue_->Enqueue([operation, ok] {
+      operation->Finalize(ok);
+      delete operation;
     });
   }
 }
@@ -216,7 +322,8 @@ void WatchStream::Start(id delegate) {
 // - error;
 // - idleness;
 // - network disable/reenable
-void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
+void WatchStream::ResumeStartAfterAuth(
+    const util::StatusOr<Token>& maybe_token) {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (state_ == State::Stopped) {
@@ -238,14 +345,14 @@ void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token)
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  context_ = objc_bridge_.CreateContext(database_info_->database_id(), token);
-  bidi_stream_ = stub_.PrepareCall(context_.get(),
-                            "/google.firestore.v1beta1.Firestore/Listen",
-                            &grpc_queue_);
-  // TODO: if !bidi_stream_
+  auto context = objc_bridge_.CreateContext(database_info_->database_id(), token);
+  auto bidi_stream = stub_.PrepareCall(context_.get(),
+                                   "/google.firestore.v1beta1.Firestore/Listen",
+                                   &grpc_queue_);
+  call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
-  buffered_writer_.SetCall(bidi_stream_.get());
-  bidi_stream_->StartCall(&kStartTag);
+  // bidi_stream_->StartCall(&kStartTag);
+  StreamStartOp::Execute(call_, shared_from_this());
   // TODO: set state to open here, or only upon successful completion?
   // Objective-C does it here.
 
@@ -288,25 +395,31 @@ void WatchStream::ResumeStartFromBackoff(id delegate) {
 void WatchStream::CancelBackoff() {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  FIREBASE_ASSERT_MESSAGE(!IsStarted(), "Can only cancel backoff after an error (was %s)", state_);
+  FIREBASE_ASSERT_MESSAGE(
+      !IsStarted(), "Can only cancel backoff after an error (was %s)", state_);
 
   // Clear the error condition.
   state_ = State::Initial;
   backoff_.Reset();
 }
 
-void WatchStream::OnSuccessfulStart() {
+void WatchStream::OnStart(const bool ok) {
+  // OBC: if !ok
+
   firestore_queue_->VerifyIsCurrentQueue();
 
   state_ = State::Open;
   buffered_writer_.Start();
-  bidi_stream_->Read(&last_read_message_, &kReadTag);
+  //bidi_stream_->Read(&last_read_message_, &kReadTag);
+  StreamReadOp::Execute(call_, shared_from_this());
 
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
-void WatchStream::OnSuccessfulRead() {
+void WatchStream::OnRead(const bool ok, const grpc::ByteBuffer& message) {
+  // OBC: if !ok
+
   firestore_queue_->VerifyIsCurrentQueue();
 
   auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
@@ -314,20 +427,28 @@ void WatchStream::OnSuccessfulRead() {
   [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto)
                  snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
 
-  bidi_stream_->Read(&last_read_message_, &kReadTag);
+  //bidi_stream_->Read(&last_read_message_, &kReadTag);
+  StreamReadOp::Execute(call_, shared_from_this());
 }
 
-void WatchStream::OnSuccessfulWrite() {
+void WatchStream::OnWrite(const bool ok) {
+  // OBC: if !ok
+
   firestore_queue_->VerifyIsCurrentQueue();
   buffered_writer_.OnSuccessfulWrite();
 }
 
-void WatchStream::OnFinish() {
-  firestore_queue_->VerifyIsCurrentQueue();
+void WatchStream::OnFinish(bool ok, grpc::Status status) {
+  // OBC: assert ok
+  // OBC: if status == success
 
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamWasInterruptedWithError:nil];  // FIXME
   delegate_ = nil;
+}
+
+void WatchStream::Write(const grpc::ByteBuffer& message) {
+  StreamWriteOp::Execute(message, call_, shared_from_this());
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -353,7 +474,8 @@ void WatchStream::Stop() {
   state_ = State::Stopped;
   buffered_writer_.Stop();
 
-  bidi_stream_->Finish(&status_, &kFinishTag);
+  //bidi_stream_->Finish(&status_, &kFinishTag);
+  StreamFinishOp::Execute(call_, shared_from_this());
 }
 
 bool WatchStream::IsOpen() const {
@@ -373,7 +495,8 @@ bool WatchStream::IsEnabled() const {
 }
 
 void WatchStream::Stop() {
-  // LogDebug(@"%@ %p stop", NSStringFromClass([self class]), (__bridge void *)self);
+  // LogDebug(@"%@ %p stop", NSStringFromClass([self class]), (__bridge void
+  // *)self);
   if (IsStarted()) {
     Close();
   }
@@ -393,51 +516,57 @@ void WatchStream::Close(const absl::optional<grpc::Status> error) {
     CloseNormally();
   }
 
-  // This state must be assigned before calling `notifyStreamInterrupted` to allow the callback to
-  // inhibit backoff or otherwise manipulate the state in its non-started state.
+  // This state must be assigned before calling `notifyStreamInterrupted` to
+  // allow the callback to inhibit backoff or otherwise manipulate the state in
+  // its non-started state.
 
   // TODO: [self.callbackFilter suppressCallbacks];
   // TODO: _callbackFilter = nil;
 
   bidi_stream_.reset();
 
-  // If the caller explicitly requested a stream stop, don't notify them of a closing stream (it
-  // could trigger undesirable recovery logic, etc.).
+  // If the caller explicitly requested a stream stop, don't notify them of a
+  // closing stream (it could trigger undesirable recovery logic, etc.).
   if (error) {
     // TODO: [self notifyStreamInterruptedWithError:error.value()];
   }
 
-  // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the stream with a new
-  // delegate so we do /not/ want to clear the delegate here. And since we've already suppressed
-  // callbacks via our callbackFilter, there is no worry about bleed through of events from GRPC.
+  // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the
+  // stream with a new delegate so we do /not/ want to clear the delegate here.
+  // And since we've already suppressed callbacks via our callbackFilter, there
+  // is no worry about bleed through of events from GRPC.
 }
 
 void WatchStream::CloseOnError(const Error error) {
   if (error == Error::ResourceExhausted) {
-  //LogDebug("%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
-  //       (__bridge void *)self);
+    // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
+    // backend.", [self class],
+    //       (__bridge void *)self);
     backoff_.ResetToMax();
   }
   state_ = State::Error;
 }
 
 void WatchStream::CloseNormally() {
-  // If this is an intentional close ensure we don't delay our next connection attempt.
+  // If this is an intentional close ensure we don't delay our next connection
+  // attempt.
   backoff_.Reset();
-  //LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void *)self);
+  // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
+  // *)self);
   // TODO: [self tearDown];
 
-    // Clean up the underlying RPC. If this close: is in response to an error, don't attempt to
-    // call half-close to avoid secondary failures.
+  // Clean up the underlying RPC. If this close: is in response to an error,
+  // don't attempt to call half-close to avoid secondary failures.
   if (self.requestsWriter) {
-      FSTLog(@"%@ %p Closing stream client-side", [self class], (__bridge void *)self);
-      @synchronized(self.requestsWriter) {
-        [self.requestsWriter finishWithError:nil];
-      }
+    FSTLog(@"%@ %p Closing stream client-side", [self class],
+           (__bridge void*)self);
+    @synchronized(self.requestsWriter) {
+      [self.requestsWriter finishWithError:nil];
     }
-    //_requestsWriter = nil;
   }
-  state_ = State::Stopped;
+  //_requestsWriter = nil;
+}
+state_ = State::Stopped;
 }
 
 void WatchStream::CloseDueToIdleness() {
@@ -445,11 +574,11 @@ void WatchStream::CloseDueToIdleness() {
 
   if (IsOpen()) {
     Close();
-    // When timing out an idle stream there's no reason to force the stream into backoff when
-    // it restarts.
+    // When timing out an idle stream there's no reason to force the stream into
+    // backoff when it restarts.
     CancelBackoff();
-    // TODO: porting note. It's probably better to avoid the ability to set any state as final
-    // state, it should be just Stopped|Error.
+    // TODO: porting note. It's probably better to avoid the ability to set any
+    // state as final state, it should be just Stopped|Error.
   }
 }
 

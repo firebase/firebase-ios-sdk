@@ -89,9 +89,12 @@ class ObjcBridge {
   FSTSerializerBeta* serializer_;
 };
 
+class WatchStream;
+
 class BufferedWriter {
  public:
-  void SetCall(grpc::GenericClientAsyncReaderWriter* const call) { call_ = call; }
+  explicit BufferedWriter(WatchStream* stream) : stream_{stream} {}
+
   void Start() { is_started_ = true; TryWrite(); }
   void Stop() { is_started_ = false; }
   void Enqueue(grpc::ByteBuffer&& bytes);
@@ -99,6 +102,8 @@ class BufferedWriter {
   void OnSuccessfulWrite();
 
  private:
+  friend class WatchStream;
+
   void TryWrite();
 
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
@@ -123,7 +128,16 @@ class PseudoDatastore {
   grpc::CompletionQueue grpc_queue_;
 };
 
-class WatchStream {
+class GrpcCallbacks {
+  virtual ~GrpcCallbacks() {}
+
+  virtual void OnStart(bool ok) = 0;
+  virtual void OnRead(bool ok, const grpc::ByteBuffer& message) = 0;
+  virtual void OnWrite(bool ok) = 0;
+  virtual void OnFinish(bool ok, grpc::Status status) = 0;
+};
+
+class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,
@@ -140,6 +154,11 @@ class WatchStream {
 
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
+
+  void OnStart(bool ok) override;
+  void OnRead(bool ok, const grpc::ByteBuffer& message) override;
+  void OnWrite(bool ok) override;
+  void OnFinish(bool ok, grpc::Status status) override;
 
   // ClearError?
   void CancelBackoff();
@@ -161,23 +180,17 @@ class WatchStream {
   void PerformBackoff(id delegate);
   void ResumeStartFromBackoff(id delegate);
 
-  void OnSuccessfulStart();
-  void OnSuccessfulRead();
-  void OnSuccessfulWrite();
-  void OnFinish();
+  void Write(const grpc::ByteBuffer& message) {
 
   State state_{State::Initial};
 
   struct GrpcCall {
     std::unique_ptr<grpc::ClientContext> context;
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
-
-    internal::BufferedWriter buffered_writer;
-    grpc::ByteBuffer last_read_message;
-    grpc::Status status;
   };
-  std::unique_ptr<GrpcCall> call_;
-  std::vector<std::unique_ptr<GrpcCall>> dying_calls_;
+  internal::BufferedWriter buffered_writer;
+
+  std::shared_ptr<GrpcCall> call_;
 
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;

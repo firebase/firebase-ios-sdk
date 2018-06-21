@@ -366,20 +366,25 @@ static const NSTimeInterval kIdleTimeout = 60.0;
  * @param error the NSError the connection was closed with.
  */
 - (void)closeWithFinalState:(FSTStreamState)finalState error:(nullable NSError *)error {
+  // NO-OP
   FSTAssert(finalState == FSTStreamStateError || error == nil,
             @"Can't provide an error when not in an error state.");
 
+  // NO-OP
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
+  // FAST
   // The stream will be closed so we don't need our idle close timer anymore.
   [self cancelIdleCheck];
 
+  // FAST
   // Ensure we don't leave a pending backoff operation queued (in case close()
   // was called while we were waiting to reconnect).
   [self.backoff cancel];
 
   if (finalState != FSTStreamStateError) {
     // If this is an intentional close ensure we don't delay our next connection attempt.
+    // FAST. Won't it be destroyed though?
     [self.backoff reset];
   } else if (error != nil && error.code == FIRFirestoreErrorCodeResourceExhausted) {
     FSTLog(@"%@ %p Using maximum backoff delay to prevent overloading the backend.", [self class],
@@ -392,6 +397,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self tearDown];
   }
 
+  // FAST
   if (self.requestsWriter) {
     // Clean up the underlying RPC. If this close: is in response to an error, don't attempt to
     // call half-close to avoid secondary failures.
@@ -406,8 +412,10 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
   // This state must be assigned before calling `notifyStreamInterrupted` to allow the callback to
   // inhibit backoff or otherwise manipulate the state in its non-started state.
+  // FAST
   self.state = finalState;
 
+  // FAST
   [self.callbackFilter suppressCallbacks];
   _callbackFilter = nil;
 
