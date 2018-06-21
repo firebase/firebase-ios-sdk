@@ -186,7 +186,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   BOOL stop = NO;
   for (; !stop && it->Valid() && absl::StartsWith(it->key(), documentTargetPrefix); it->Next()) {
     [key decodeKey:it->key()];
-    if (key.isSentinel) {
+    if (FSTTargetIDIsSentinel(key.targetID)) {
       // if nextToReport is non-zero, report it, this is a new key so the last one
       // must be orphaned.
       if (nextToReport != 0) {
@@ -441,7 +441,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   for (; indexIterator->Valid() && absl::StartsWith(indexIterator->key(), indexPrefix);
        indexIterator->Next()) {
     FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && !rowKey.isSentinel &&
+    if ([rowKey decodeKey:indexIterator->key()] && !FSTTargetIDIsSentinel(rowKey.targetID) &&
         DocumentKey{rowKey.documentKey} == key) {
       return YES;
     }

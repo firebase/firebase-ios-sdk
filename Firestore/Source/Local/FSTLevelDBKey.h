@@ -282,6 +282,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+BOOL FSTTargetIDIsSentinel(FSTTargetID targetId);
+
 /**
  * A key in the document targets table, an index from documents to the targets that contain them.
  */
@@ -310,8 +312,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** The path to the document, as encoded in the key. */
 @property(nonatomic, strong, readonly, nullable) FSTDocumentKey *documentKey;
-
-@property(nonatomic, readonly, getter=isSentinel) BOOL sentinel;
 
 @end
 

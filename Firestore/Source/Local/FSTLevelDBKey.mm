@@ -751,11 +751,11 @@ static const FSTTargetID kInvalidTargetID = 0;
          ReadTerminator(&contents);
 }
 
-- (BOOL)isSentinel {
-  return _targetID == kInvalidTargetID;
-}
-
 @end
+
+BOOL FSTTargetIDIsSentinel(FSTTargetID targetId) {
+  return targetId == 0;
+}
 
 @implementation FSTLevelDBRemoteDocumentKey
 
