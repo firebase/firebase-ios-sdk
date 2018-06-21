@@ -122,34 +122,40 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case google_firestore_v1beta1_Value_null_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
         reader->ReadNull();
         result = FieldValue::NullValue();
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
         result = FieldValue::BooleanValue(reader->ReadBool());
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
         result = FieldValue::IntegerValue(reader->ReadInteger());
         break;
 
       case google_firestore_v1beta1_Value_string_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
         result = FieldValue::StringValue(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Value_timestamp_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
         result = FieldValue::TimestampValue(
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
         break;
 
       case google_firestore_v1beta1_Value_map_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return FieldValue::NullValue();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
         result = FieldValue::ObjectValueFromMap(
