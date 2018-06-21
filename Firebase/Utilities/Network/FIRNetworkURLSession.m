@@ -16,7 +16,7 @@
 
 #import "Private/FIRNetworkURLSession.h"
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import "Private/FIRMutableDictionary.h"
 #import "Private/FIRNetworkConstants.h"
 #import "Private/FIRNetworkMessageCode.h"

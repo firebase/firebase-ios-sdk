@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import "FValueEventRegistration.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FQueryParams.h"

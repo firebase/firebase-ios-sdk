@@ -14,5 +14,5 @@
  * limitations under the License.
  */
 
-// This file is deprecated. Use FirebaseUtilities/FIRLoggerLevel.h instead.
-#import <FirebaseUtilities/FIRLoggerLevel.h>
+// This file is deprecated. Use GoogleUtilities/FIRLoggerLevel.h instead.
+#import <GoogleUtilities/FIRLoggerLevel.h>

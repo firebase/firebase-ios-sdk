@@ -15,9 +15,9 @@
 include(xcodebuild)
 
 if(APPLE)
-  # FirebaseUtilities is only available as a CocoaPod build.
-  xcodebuild(FirebaseUtilities)
+  # GoogleUtilities is only available as a CocoaPod build.
+  xcodebuild(GoogleUtilities)
 else()
-  # On non-Apple platforms, there's no way to build FirebaseUtilities.
-  add_custom_target(FirebaseUtilities)
+  # On non-Apple platforms, there's no way to build GoogleUtilities.
+  add_custom_target(GoogleUtilities)
 endif()

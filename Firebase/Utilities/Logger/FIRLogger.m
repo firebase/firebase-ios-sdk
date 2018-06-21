@@ -14,7 +14,7 @@
 
 #import "Private/FIRLogger.h"
 
-#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
 #import "Public/FIRLoggerLevel.h"
 
 #include <asl.h>

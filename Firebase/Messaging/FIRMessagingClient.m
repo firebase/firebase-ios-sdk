@@ -16,7 +16,7 @@
 
 #import "FIRMessagingClient.h"
 
-#import <FirebaseUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/FIRReachabilityChecker.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingConnection.h"

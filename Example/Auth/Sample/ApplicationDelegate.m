@@ -17,7 +17,7 @@
 #import "ApplicationDelegate.h"
 
 #import <FirebaseCore/FIRApp.h>
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 #import "AuthProviders.h"
 #import "FirebaseAuth.h"

@@ -17,7 +17,7 @@
 #import "FIRReachabilityChecker+Internal.h"
 #import "Private/FIRReachabilityChecker.h"
 
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRLogger.h>
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
 

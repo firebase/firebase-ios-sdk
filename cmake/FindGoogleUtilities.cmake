@@ -13,44 +13,44 @@
 # limitations under the License.
 
 find_library(
-  FIREBASEUTILITIES_LIBRARY
-  FirebaseUtilities
+  GoogleUtilities_LIBRARY
+  GoogleUtilities
   PATHS ${FIREBASE_INSTALL_DIR}/Frameworks
 )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  FirebaseUtilities
+  GoogleUtilities
   DEFAULT_MSG
-  FIREBASEUTILITIES_LIBRARY
+  GoogleUtilities_LIBRARY
 )
 
-if(FIREBASEUTILITIES_FOUND)
+if(GoogleUtilities_FOUND)
   # Emulate CocoaPods behavior which makes all headers available unqualified.
   set(
-    FIREBASEUTILITIES_INCLUDE_DIRS
-    ${FIREBASEUTILITIES_LIBRARY}/Headers
-    ${FIREBASEUTILITIES_LIBRARY}/PrivateHeaders
+    GoogleUtilities_INCLUDE_DIRS
+    ${GoogleUtilities_LIBRARY}/Headers
+    ${GoogleUtilities_LIBRARY}/PrivateHeaders
   )
 
   set(
-    FIREBASEUTILITIES_LIBRARIES
-    ${FIREBASEUTILITIES_LIBRARY}
+    GoogleUtilities_LIBRARIES
+    ${GoogleUtilities_LIBRARY}
     "-framework Foundation"
   )
 
-  if(NOT TARGET FirebaseUtilities)
+  if(NOT TARGET GoogleUtilities)
     # Add frameworks as INTERFACE libraries rather than IMPORTED so that
     # framework behavior is preserved.
-    add_library(FirebaseUtilities INTERFACE)
+    add_library(GoogleUtilities INTERFACE)
 
     set_property(
-      TARGET FirebaseUtilities APPEND PROPERTY
-      INTERFACE_INCLUDE_DIRECTORIES ${FIREBASEUTILITIES_INCLUDE_DIRS}
+      TARGET GoogleUtilities APPEND PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES ${GoogleUtilities_INCLUDE_DIRS}
     )
     set_property(
-      TARGET FirebaseUtilities APPEND PROPERTY
-      INTERFACE_LINK_LIBRARIES ${FIREBASEUTILITIES_LIBRARIES}
+      TARGET GoogleUtilities APPEND PROPERTY
+      INTERFACE_LINK_LIBRARIES ${GoogleUtilities_LIBRARIES}
     )
   endif()
-endif(FIREBASEUTILITIES_FOUND)
+endif(GoogleUtilities_FOUND)

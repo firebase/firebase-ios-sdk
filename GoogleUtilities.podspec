@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseUtilities'
-  s.version          = '5.0.2'
+  s.name             = 'GoogleUtilities'
+  s.version          = '5.0.4'
   s.summary          = 'Firebase Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -34,7 +34,7 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
       'SystemConfiguration'
     ]
     ns.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-    ns.dependency 'FirebaseUtilities/Logger'
+    ns.dependency 'GoogleUtilities/Logger'
   end
 
   s.subspec 'Environment' do |es|
@@ -47,6 +47,6 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
     ls.source_files = 'Firebase/Utilities/Logger/**/*.[mh]'
     ls.public_header_files = 'Firebase/Utilities/Logger/Private/*.h', 'Firebase/Utilities/Logger/Public/*.h'
     ls.private_header_files = 'Firebase/Utilities/Logger/Private/*.h'
-    ls.dependency 'FirebaseUtilities/Environment'
+    ls.dependency 'GoogleUtilities/Environment'
   end
 end

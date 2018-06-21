@@ -21,8 +21,8 @@
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
-#import <FirebaseUtilities/FIRLogger.h>
+#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/FIRLogger.h>
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"

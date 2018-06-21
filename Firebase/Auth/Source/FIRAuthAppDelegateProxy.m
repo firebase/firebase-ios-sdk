@@ -16,7 +16,7 @@
 
 #import "FIRAuthAppDelegateProxy.h"
 
-#import <FirebaseUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
 
 #import <objc/runtime.h>
 

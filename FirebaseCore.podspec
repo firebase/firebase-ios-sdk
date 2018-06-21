@@ -32,9 +32,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.frameworks = [
     'Foundation'
   ]
-  s.dependency 'FirebaseUtilities/Logger', '~> 5.0'
+  s.dependency 'GoogleUtilities/Logger', '~> 5.0'
   # TODO delete next line, once FirebaseAnalytics pod is published with the dependency
-  s.dependency 'FirebaseUtilities/Network', '~> 5.0'
+  s.dependency 'GoogleUtilities/Network', '~> 5.0'
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
