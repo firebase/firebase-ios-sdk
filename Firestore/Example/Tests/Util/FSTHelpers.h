@@ -168,7 +168,7 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
                                        targets:(NSArray<FSTBoxedTargetID *> *)targets;
 
 + (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
-                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listens
+                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
                                   limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets;
 
 /**

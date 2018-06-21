@@ -305,12 +305,12 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 + (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
-                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listens
+                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
                                   limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets {
   FSTTestTargetMetadataProvider *metadataProvider = [FSTTestTargetMetadataProvider new];
   FSTQuery *query = [FSTQuery queryWithPath:documentKey.path()];
 
-  for (FSTBoxedTargetID *targetID in listens) {
+  for (FSTBoxedTargetID *targetID in listenTargets) {
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:targetID.intValue
                                              listenSequenceNumber:0
