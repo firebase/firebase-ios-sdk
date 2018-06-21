@@ -71,13 +71,12 @@ NSString *const kNoLRUTag = @"no-lru";
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
 // Some config info for the currently running spec; used when restarting the driver (for doRestart).
-@property(nonatomic, assign) BOOL GCEnabled;
 @property(nonatomic, strong) id<FSTPersistence> driverPersistence;
 @end
 
 @implementation FSTSpecTests
 
-- (id<FSTPersistence>)persistence:(BOOL)enableGC {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -88,8 +87,7 @@ NSString *const kNoLRUTag = @"no-lru";
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Store persistence / GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  self.GCEnabled = [GCEnabled boolValue];
-  self.driverPersistence = [self persistence:self.GCEnabled];
+  self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
 }
