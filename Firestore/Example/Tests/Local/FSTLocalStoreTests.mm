@@ -227,6 +227,8 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self gcIsEager]) {
     // Nothing is pinning this anymore, as it has been acknowledged and there are no targets active.
     FSTAssertNotContains(@"foo/bar");
+  } else {
+    FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, NO));
   }
 }
 
