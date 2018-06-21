@@ -17,6 +17,9 @@
 #import "FIRApp.h"
 #import "FIRErrors.h"
 
+@class FIRComponentContainer;
+@protocol FIRCoreConfigurable;
+
 /**
  * The internal interface to FIRApp. This is meant for first-party integrators, who need to receive
  * FIRApp notifications, log info about the success or failure of their configuration, and access
@@ -126,6 +129,11 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 
 @interface FIRApp ()
 
+/**
+ * A flag indicating if this is the default app.
+ */
+@property(nonatomic, readonly) BOOL isDefaultApp;
+
 /** @property getTokenImplementation
     @brief Gets or sets the block to use for the implementation of
         @c getTokenForcingRefresh:withCallback:
@@ -136,6 +144,11 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
     @brief Gets or sets the block to use for the implementation of @c getUID.
  */
 @property(nonatomic, copy) FIRAppGetUIDImplementation getUIDImplementation;
+
+/*
+ * The container of interop SDKs for this app.
+ */
+@property(nonatomic) FIRComponentContainer *container;
 
 /**
  * Creates an error for failing to configure a subspec service. This method is called by each
@@ -149,6 +162,13 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  * Checks if the default app is configured without trying to configure it.
  */
 + (BOOL)isDefaultAppConfigured;
+
+/**
+ * Register a class that conforms to `FIRCoreConfigurable`. Each SDK should have one class that
+ * registers in order to provide critical information for interoperability and lifecycle events.
+ * TODO(wilsonryan): Write more documentation.
+ */
++ (void)registerAsConfigurable:(Class<FIRCoreConfigurable>)klass;
 
 /**
  * Registers a given third-party library with the given version number to be reported for

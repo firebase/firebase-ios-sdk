@@ -18,6 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+//  TODO: Remove this once Auth moves over to Core's instance registration system.
 /** @class FIRAppAssociationRegistration
     @brief Manages object associations as a singleton-dependent: At most one object is
         registered for any given host/key pair, and the object shall be created on-the-fly when
