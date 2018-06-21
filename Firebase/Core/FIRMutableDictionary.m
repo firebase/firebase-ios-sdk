@@ -51,20 +51,32 @@
 }
 
 - (void)setObject:(id)object forKey:(id<NSCopying>)key {
+  __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    self->_objects[key] = object;
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
+      strongSelf->_objects[key] = object;
+    }
   });
 }
 
 - (void)removeObjectForKey:(id)key {
+  __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    [self->_objects removeObjectForKey:key];
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
+      [strongSelf->_objects removeObjectForKey:key];
+    }
   });
 }
 
 - (void)removeAllObjects {
+  __weak typeof(self) weakSelf = self;
   dispatch_async(_queue, ^{
-    [self->_objects removeAllObjects];
+    typeof(self) strongSelf = weakSelf;
+    if (strongSelf) {
+      [strongSelf->_objects removeAllObjects];
+    }
   });
 }
 

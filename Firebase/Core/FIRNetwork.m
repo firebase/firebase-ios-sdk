@@ -150,15 +150,15 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                     if (!strongSelf) {
                       return;
                     }
-                    dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
-                    dispatch_async(queueToDispatch, ^{
-                      if (sessionID.length) {
-                        [strongSelf->_requests removeObjectForKey:sessionID];
-                      }
-                      if (handler) {
+                    if (sessionID.length) {
+                      [strongSelf->_requests removeObjectForKey:sessionID];
+                    }
+                    if (handler) {
+                      dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
+                      dispatch_async(queueToDispatch, ^{
                         handler(response, data, error);
-                      }
-                    });
+                      });
+                    }
                   }];
   if (!requestID) {
     [self handleErrorWithCode:FIRErrorCodeNetworkSessionTaskCreation
@@ -213,15 +213,15 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                    if (!strongSelf) {
                      return;
                    }
-                   dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
-                   dispatch_async(queueToDispatch, ^{
-                     if (sessionID.length) {
-                       [strongSelf->_requests removeObjectForKey:sessionID];
-                     }
-                     if (handler) {
+                   if (sessionID.length) {
+                     [strongSelf->_requests removeObjectForKey:sessionID];
+                   }
+                   if (handler) {
+                     dispatch_queue_t queueToDispatch = queue ? queue : dispatch_get_main_queue();
+                     dispatch_async(queueToDispatch, ^{
                        handler(response, data, error);
-                     }
-                   });
+                     });
+                   }
                  }];
 
   if (!requestID) {
