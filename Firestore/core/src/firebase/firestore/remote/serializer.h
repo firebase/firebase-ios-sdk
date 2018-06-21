@@ -163,14 +163,6 @@ class Serializer {
     return DecodeMaybeDocument(bytes.data(), bytes.size());
   }
 
- private:
-  friend class local::LocalSerializer;
-
-  void EncodeDocument(nanopb::Writer* writer,
-                      const model::DocumentKey& key,
-                      const model::ObjectValue& object_value) const;
-  std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
-      nanopb::Reader* reader) const;
   std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 
   static void EncodeObjectMap(nanopb::Writer* writer,
@@ -181,6 +173,13 @@ class Serializer {
 
   static void EncodeVersion(nanopb::Writer* writer,
                             const model::SnapshotVersion& version);
+
+ private:
+  void EncodeDocument(nanopb::Writer* writer,
+                      const model::DocumentKey& key,
+                      const model::ObjectValue& object_value) const;
+  std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
+      nanopb::Reader* reader) const;
 
   const firebase::firestore::model::DatabaseId& database_id_;
 };
