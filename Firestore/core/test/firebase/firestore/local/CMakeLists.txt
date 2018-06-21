@@ -16,7 +16,9 @@ cc_test(
   firebase_firestore_local_test
   SOURCES
     leveldb_key_test.cc
+    local_serializer_test.cc
   DEPENDS
     firebase_firestore_local
     firebase_firestore_model
+    firebase_firestore_protos_libprotobuf
 )
