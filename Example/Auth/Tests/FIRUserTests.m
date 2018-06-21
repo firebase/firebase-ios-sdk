@@ -1151,8 +1151,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
       XCTAssertEqualObjects(request.APIKey, kAPIKey);
 
       dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-
-        callback(nil, [FIRAuthErrorUtils networkErrorWithUnderlyingError:[NSError new]]);
+        NSError *underlying = [NSError errorWithDomain:@"Test Error" code:1 userInfo:nil];
+        callback(nil, [FIRAuthErrorUtils networkErrorWithUnderlyingError:underlying]);
       });
     });
     [user getIDTokenResultForcingRefresh:YES

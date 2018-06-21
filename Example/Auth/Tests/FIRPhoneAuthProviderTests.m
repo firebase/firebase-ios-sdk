@@ -453,7 +453,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
     // Assert that the app credential is nil when in test mode.
     XCTAssertNil(request.appCredential);
     dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-      callback(nil, [FIRAuthErrorUtils networkErrorWithUnderlyingError:[NSError new]]);
+      NSError *underlying = [NSError errorWithDomain:@"Test Error" code:1 userInfo:nil];
+      callback(nil, [FIRAuthErrorUtils networkErrorWithUnderlyingError:underlying]);
     });
   });
 

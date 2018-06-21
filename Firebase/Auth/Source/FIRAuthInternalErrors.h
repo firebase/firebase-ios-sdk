@@ -376,6 +376,9 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeNullUser =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNullUser,
 
+  FIRAuthInternalErrorCodeMalformedJWT =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
+
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
       @brief Indicates an error encoding the RPC request.
       @remarks This is typically due to some sort of unexpected input value.
