@@ -71,9 +71,9 @@ using leveldb::WriteOptions;
  */
 @interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
 
-- (void)startTransaction;
+- (void)transactionWillStart;
 
-- (void)commit;
+- (void)transactionWillCommit;
 
 @end
 
@@ -99,13 +99,13 @@ using leveldb::WriteOptions;
   return self;
 }
 
-- (void)startTransaction {
+- (void)transactionWillStart {
   HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
               "Previous sequence number is still in effect");
   _currentSequenceNumber = [_listenSequence next];
 }
 
-- (void)commit {
+- (void)transactionWillCommit {
   _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
 }
 
@@ -246,7 +246,7 @@ using leveldb::WriteOptions;
 }
 
 + (std::set<std::string>)collectUserSet:(LevelDbTransaction *)transaction {
-  std::set<std::string> users{};
+  std::set<std::string> users;
 
   std::string tablePrefix = [FSTLevelDBMutationKey keyPrefix];
   auto it = transaction->NewIterator();
@@ -344,17 +344,10 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  {
-    LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
-    transaction.Commit();
-  }
-  {
-    LevelDbTransaction transaction(_ptr.get(), "Collect users");
-    _users = [FSTLevelDB collectUserSet:&transaction];
-    // Should be a noop.
-    transaction.Commit();
-  }
+  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
+  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
+  _users = [FSTLevelDB collectUserSet:&transaction];
+  transaction.Commit();
   return YES;
 }
 
@@ -437,12 +430,12 @@ using leveldb::WriteOptions;
 - (void)startTransaction:(absl::string_view)label {
   HARD_ASSERT(_transaction == nullptr, "Starting a transaction while one is already outstanding");
   _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
-  [_referenceDelegate startTransaction];
+  [_referenceDelegate transactionWillStart];
 }
 
 - (void)commitTransaction {
   HARD_ASSERT(_transaction != nullptr, "Committing a transaction before one is started");
-  [_referenceDelegate commit];
+  [_referenceDelegate transactionWillCommit];
   _transaction->Commit();
   _transaction.reset();
 }
