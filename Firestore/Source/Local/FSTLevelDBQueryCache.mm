@@ -380,7 +380,6 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self->_db.referenceDelegate removeReference:key];
-    [self.garbageCollector addPotentialGarbageKey:key];
   }
 }
 
@@ -403,7 +402,6 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
     _db.currentTransaction->Delete(indexKey);
     _db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
-    [self.garbageCollector addPotentialGarbageKey:documentKey];
   }
 }
 

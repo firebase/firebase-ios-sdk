@@ -34,7 +34,6 @@
 @class FSTQueryData;
 @class FSTViewSnapshot;
 @class FSTWatchChange;
-@protocol FSTGarbageCollector;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN

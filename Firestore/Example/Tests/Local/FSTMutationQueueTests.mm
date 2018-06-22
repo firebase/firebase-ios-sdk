@@ -21,7 +21,6 @@
 #include <set>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -404,50 +403,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, @[]);
     XCTAssertEqual(found.count, 0);
     XCTAssertTrue([self.mutationQueue isEmpty]);
-  });
-}
-
-- (void)testRemoveMutationBatchesEmitsGarbageEvents {
-  if ([self isTestBaseClass]) return;
-
-  FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-  [garbageCollector addGarbageSource:self.mutationQueue];
-
-  NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-  self.persistence.run("testRemoveMutationBatchesEmitsGarbageEvents", [&]() {
-    [batches addObjectsFromArray:@[
-      [self addMutationBatchWithKey:@"foo/bar"],
-      [self addMutationBatchWithKey:@"foo/ba"],
-      [self addMutationBatchWithKey:@"foo/bar2"],
-      [self addMutationBatchWithKey:@"foo/bar"],
-      [self addMutationBatchWithKey:@"foo/bar/suffix/baz"],
-      [self addMutationBatchWithKey:@"bar/baz"],
-    ]];
-
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
-    std::set<DocumentKey> garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/ba")}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[5] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("bar/baz")}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage,
-                   std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
-
-    [batches addObject:[self addMutationBatchWithKey:@"foo/bar/suffix/baz"]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/bar/suffix/baz")}));
   });
 }
 

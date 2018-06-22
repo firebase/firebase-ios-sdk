@@ -25,7 +25,6 @@
 @class FSTLevelDB;
 @class FSTLocalSerializer;
 @class FSTPBTargetGlobal;
-@protocol FSTGarbageCollector;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,9 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
     (firebase::firestore::local::LevelDbTransaction *)transaction;
 
 - (instancetype)init NS_UNAVAILABLE;
-
-/** The garbage collector to notify about potential garbage keys. */
-@property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
 
 /**
  * Creates a new query cache in the given LevelDB.
