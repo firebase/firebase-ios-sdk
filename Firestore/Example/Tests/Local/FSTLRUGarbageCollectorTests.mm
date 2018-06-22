@@ -176,14 +176,20 @@ NS_ASSUME_NONNULL_BEGIN
   [_persistence.referenceDelegate removeMutationReference:docKey];
 }
 
-- (void)addDocument:(const DocumentKey &)docKey toQueryInTransaction:(FSTTargetID)targetId {
+- (void)addDocument:(const DocumentKey &)docKey toTarget:(FSTTargetID)targetId {
   [_queryCache addMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
 }
 
-- (void)removeDocument:(const DocumentKey &)docKey fromQueryInTransaction:(FSTTargetID)targetId {
+- (void)removeDocument:(const DocumentKey &)docKey fromTarget:(FSTTargetID)targetId {
   [_queryCache removeMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
 }
 
+/**
+ * Used to insert a document into the remote document cache. Use of this method should
+ * be paired with some explanation for why it is in the cache, for instance:
+ * - added to a target
+ * - now has or previously had a pending mutation
+ */
 - (FSTDocument *)cacheADocumentInTransaction {
   FSTDocument *doc = [self nextTestDocument];
   [_documentCache addEntry:doc];
@@ -338,7 +344,7 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("query with mutation", [&]() {
     FSTQueryData *queryData = [self addNextQueryInTransaction];
     // This should keep the document from getting GC'd, since it is no longer orphaned.
-    [self addDocument:docInQuery.key toQueryInTransaction:queryData.targetID];
+    [self addDocument:docInQuery.key toTarget:queryData.targetID];
   });
 
   // This should catch the remaining 8 documents, plus the first two queries we added.
@@ -389,11 +395,11 @@ NS_ASSUME_NONNULL_BEGIN
     // Add two documents to first target, queue a mutation on the second document
     FSTQueryData *queryData = [self addNextQueryInTransaction];
     FSTDocument *doc1 = [self cacheADocumentInTransaction];
-    [self addDocument:doc1.key toQueryInTransaction:queryData.targetID];
+    [self addDocument:doc1.key toTarget:queryData.targetID];
     expectedRetained.insert(doc1.key);
 
     FSTDocument *doc2 = [self cacheADocumentInTransaction];
-    [self addDocument:doc2.key toQueryInTransaction:queryData.targetID];
+    [self addDocument:doc2.key toTarget:queryData.targetID];
     expectedRetained.insert(doc2.key);
     [mutations addObject:[self mutationForDocument:doc2.key]];
   });
@@ -403,7 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData = [self addNextQueryInTransaction];
     FSTDocument *doc3 = [self cacheADocumentInTransaction];
     expectedRetained.insert(doc3.key);
-    [self addDocument:doc3.key toQueryInTransaction:queryData.targetID];
+    [self addDocument:doc3.key toTarget:queryData.targetID];
   });
 
   // cache another document and prepare a mutation on it.
@@ -489,7 +495,7 @@ NS_ASSUME_NONNULL_BEGIN
         for (int i = 0; i < 5; i++) {
           FSTDocument *doc = [self cacheADocumentInTransaction];
           expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toQueryInTransaction:queryData.targetID];
+          [self addDocument:doc.key toTarget:queryData.targetID];
         }
         return queryData;
       });
@@ -508,7 +514,7 @@ NS_ASSUME_NONNULL_BEGIN
         for (int i = 0; i < 2; i++) {
           FSTDocument *doc = [self cacheADocumentInTransaction];
           expectedRemoved.insert(doc.key);
-          [self addDocument:doc.key toQueryInTransaction:middleTarget.targetID];
+          [self addDocument:doc.key toTarget:middleTarget.targetID];
           middleDocsToRemove = middleDocsToRemove.insert(doc.key);
         }
         // these docs stay in this target and only this target. There presence in this
@@ -516,13 +522,13 @@ NS_ASSUME_NONNULL_BEGIN
         for (int i = 2; i < 4; i++) {
           FSTDocument *doc = [self cacheADocumentInTransaction];
           expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toQueryInTransaction:middleTarget.targetID];
+          [self addDocument:doc.key toTarget:middleTarget.targetID];
         }
         // This doc stays in this target, but gets updated.
         {
           FSTDocument *doc = [self cacheADocumentInTransaction];
           expectedRetained.insert(doc.key);
-          [self addDocument:doc.key toQueryInTransaction:middleTarget.targetID];
+          [self addDocument:doc.key toTarget:middleTarget.targetID];
           middleDocToUpdate = doc.key;
         }
         return middleTarget;
@@ -540,13 +546,13 @@ NS_ASSUME_NONNULL_BEGIN
     for (int i = 0; i < 3; i++) {
       FSTDocument *doc = [self cacheADocumentInTransaction];
       expectedRemoved.insert(doc.key);
-      [self addDocument:doc.key toQueryInTransaction:newestTarget.targetID];
+      [self addDocument:doc.key toTarget:newestTarget.targetID];
     }
     // docs to add to the oldest target in addition to this target. They will be retained
     for (int i = 3; i < 5; i++) {
       FSTDocument *doc = [self cacheADocumentInTransaction];
       expectedRetained.insert(doc.key);
-      [self addDocument:doc.key toQueryInTransaction:newestTarget.targetID];
+      [self addDocument:doc.key toTarget:newestTarget.targetID];
       newestDocsToAddToOldest = newestDocsToAddToOldest.insert(doc.key);
     }
   });
@@ -559,7 +565,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc1 = [self cacheADocumentInTransaction];
     [self markDocumentEligibleForGCInTransaction:doc1.key];
     [self updateTargetInTransaction:oldestTarget];
-    [self addDocument:doc1.key toQueryInTransaction:oldestTarget.targetID];
+    [self addDocument:doc1.key toTarget:oldestTarget.targetID];
     // doc1 should be retained by being added to oldestTarget.
     expectedRetained.insert(doc1.key);
 
@@ -573,7 +579,7 @@ NS_ASSUME_NONNULL_BEGIN
   _persistence.run("Remove some documents from the middle target", [&]() {
     [self updateTargetInTransaction:middleTarget];
     for (const DocumentKey &docKey : middleDocsToRemove) {
-      [self removeDocument:docKey fromQueryInTransaction:middleTarget.targetID];
+      [self removeDocument:docKey fromTarget:middleTarget.targetID];
     }
   });
 
@@ -584,7 +590,7 @@ NS_ASSUME_NONNULL_BEGIN
       "Add a couple docs from the newest target to the oldest", [&]() -> FSTListenSequenceNumber {
         [self updateTargetInTransaction:oldestTarget];
         for (const DocumentKey &docKey : newestDocsToAddToOldest) {
-          [self addDocument:docKey toQueryInTransaction:oldestTarget.targetID];
+          [self addDocument:docKey toTarget:oldestTarget.targetID];
         }
         return _persistence.currentSequenceNumber;
       });
