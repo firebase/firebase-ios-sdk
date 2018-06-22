@@ -30,6 +30,16 @@
 @class FSTTransaction;
 @class FSTDispatchQueue;
 
+namespace firebase {
+namespace firestore {
+namespace remote {
+
+extern const char* pemRootCertsPath;
+
+}
+}
+}
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTRemoteSyncer

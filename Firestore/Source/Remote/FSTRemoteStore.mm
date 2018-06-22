@@ -17,6 +17,9 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include <cinttypes>
+#include <memory>
+#include "absl/memory/memory.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -37,6 +40,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -67,9 +71,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) FSTDatastore *datastore;
 
 #pragma mark Watch Stream
-// The watchStream is null when the network is disabled. The non-null check is performed by
-// isNetworkEnabled.
-@property(nonatomic, strong, nullable) FSTWatchStream *watchStream;
 
 /**
  * A mapping of watched targets that the client cares about tracking and the
@@ -117,7 +118,12 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
 @end
 
-@implementation FSTRemoteStore
+
+@implementation FSTRemoteStore {
+  // The watchStream is null when the network is disabled. The non-null check is performed by
+  // isNetworkEnabled.
+  std::shared_ptr<firebase::firestore::remote::WatchStream> _watchStream;
+}
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore
@@ -137,6 +143,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)start {
+  _remoteStore->Start();
   // For now, all setup is handled by enableNetwork(). We might expand on this in the future.
   [self enableNetwork];
 }
@@ -159,7 +166,7 @@ static const int kMaxPendingWrites = 10;
   // return self.watchStream != nil;
   // return self.watchStream.isStarted;
   // return !self.watchStream.isStopped;
-  return self.watchStream.isEnabled;
+  return _watchStream != nullptr;
 }
 
 - (void)enableNetwork {
@@ -168,11 +175,7 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Create new streams (but note they're not started yet).
-  if (self.watchStream == nil) {
-    self.watchStream = [self.datastore createWatchStream];
-  } else {
-    [self.watchStream enable];
-  }
+  _watchStream = [self.datastore createWatchStream];
   self.writeStream = [self.datastore createWriteStream];
 
   // Load any saved stream token from persistent storage
@@ -198,14 +201,14 @@ static const int kMaxPendingWrites = 10;
   if ([self isNetworkEnabled]) {
     // NOTE: We're guaranteed not to get any further events from these streams (not even a close
     // event).
-    [self.watchStream stop];
+    watchStream.Stop();
     [self.writeStream stop];
 
     [self cleanUpWatchStreamState];
     [self cleanUpWriteStreamState];
 
+    _watchStream.reset();
     self.writeStream = nil;
-    //self.watchStream = nil;
   }
 }
 
@@ -236,7 +239,7 @@ static const int kMaxPendingWrites = 10;
 - (void)startWatchStream {
   FSTAssert([self shouldStartWatchStream],
             @"startWatchStream: called when shouldStartWatchStream: is false.");
-  [self.watchStream startWithDelegate:self];
+  _watchStream->StartWithDelegate(self);
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
@@ -249,14 +252,14 @@ static const int kMaxPendingWrites = 10;
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
-  } else if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
+  } else if ([self isNetworkEnabled] && _watchStream->IsOpen()) {
     [self sendWatchRequestWithQueryData:queryData];
   }
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
   [self recordPendingRequestForTargetID:@(queryData.targetID)];
-  [self.watchStream watchQuery:queryData];
+  _watchStream->WatchQuery(queryData);
 }
 
 - (void)stopListeningToTargetID:(FSTTargetID)targetID {
@@ -265,17 +268,17 @@ static const int kMaxPendingWrites = 10;
   FSTAssert(queryData, @"unlistenToTarget: target not currently watched: %@", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
-  if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
+  if ([self isNetworkEnabled] && _watchStream->IsOpen()) {
     [self sendUnwatchRequestForTargetID:targetKey];
     if ([self.listenTargets count] == 0) {
-      [self.watchStream markIdle];
+      _watchStream->MarkIdle();
     }
   }
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
   [self recordPendingRequestForTargetID:targetID];
-  [self.watchStream unwatchTargetID:[targetID intValue]];
+  _watchStream->UnwatchTargetId([targetID intValue]);
 }
 
 - (void)recordPendingRequestForTargetID:(FSTBoxedTargetID *)targetID {
@@ -289,7 +292,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && ![self.watchStream isStarted] && self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && !_watchStream->isStarted() && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {

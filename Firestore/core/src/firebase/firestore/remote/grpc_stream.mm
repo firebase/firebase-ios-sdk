@@ -16,12 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 
-#include <grpcpp/create_channel.h>
 #include <utility>
 
 #include "Firestore/Source/Remote/FSTDatastore.h"
-#include "Firestore/Source/Remote/FSTStream.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+//#include "Firestore/Source/Remote/FSTStream.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/memory/memory.h"
 
@@ -51,30 +49,6 @@ namespace internal {
 
 // Can we eliminate state Stopped? `Stop` method should be pretty fast and make the object ready for
 // destruction.
-
-class StreamOp {
- public:
-  virtual ~StreamOp() {
-  }
-
-  void Finalize(bool ok) {
-    if (auto stream = stream_handle_.lock()) {
-      DoFinalize(stream.get(), ok);
-    }
-  }
-
- protected:
-  StreamOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
-      : stream_handle_{stream},
-  call_{call} {
-  }
-
- private:
-  virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
-
-  std::weak_ptr<WatchStream> stream_handle_;
-  std::shared_ptr<WatchStream> call_;
-};
 
 class StreamStartOp : public StreamOp {
  public:
@@ -251,47 +225,16 @@ WatchStream::WatchStream(util::AsyncQueue* const async_queue,
                          TimerId timer_id,
                          const DatabaseInfo& database_info,
                          CredentialsProvider* const credentials_provider,
-                         FSTSerializerBeta* serializer)
+                         FSTSerializerBeta* serializer,
+                         DatastoreImpl* datastore)
     : database_info_{&database_info},
       firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
+      datastore_{datastore},
       buffered_writer_{this},
-      stub_{CreateStub()},
-      dedicated_executor_{CreateExecutor()},
       objc_bridge_{serializer},
       backoff_{firestore_queue_, timer_id, kBackoffInitialDelay,
                kBackoffMaxDelay, kBackoffFactor} {
-  dedicated_executor_->Execute([this] { PollGrpcQueue(); });
-}
-
-PseudoDatastore::~PseudoDatastore() {
-  grpc_queue_.Shutdown();
-  dedicated_executor_->ExecuteBlocking([] {});
-}
-
-void PseudoDataStore::PollGrpcQueue() {
-  FIREBASE_ASSERT_MESSAGE(dedicated_executor_->IsCurrentExecutor(), "TODO");
-
-  void* tag = nullptr;
-  bool ok = false;
-  while (grpc_queue_.Next(&tag, &ok)) {
-    auto* operation = static_cast<StreamOp*>(tag);
-    firestore_queue_->Enqueue([operation, ok] {
-      operation->Finalize(ok);
-      delete operation;
-    });
-  }
-}
-
-std::unique_ptr<util::internal::Executor> PseudoDatastore::CreateExecutor() {
-  const auto queue = dispatch_queue_create(
-      "com.google.firebase.firestore.watchstream", DISPATCH_QUEUE_SERIAL);
-  return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
-}
-
-void WatchStream::Enable() {
-  firestore_queue_->VerifyIsCurrentQueue();
-  state_ = State::Initial;
 }
 
 void WatchStream::Start(id delegate) {
@@ -346,17 +289,14 @@ void WatchStream::ResumeStartAfterAuth(
                                            : absl::string_view{};
   }();
   auto context = objc_bridge_.CreateContext(database_info_->database_id(), token);
-  auto bidi_stream = stub_.PrepareCall(context_.get(),
-                                   "/google.firestore.v1beta1.Firestore/Listen",
-                                   &grpc_queue_);
+  auto bidi_stream = datastore_->-CreateGrpcCall(context_.get(),
+                                   "/google.firestore.v1beta1.Firestore/Listen");
   call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
   // bidi_stream_->StartCall(&kStartTag);
   StreamStartOp::Execute(call_, shared_from_this());
   // TODO: set state to open here, or only upon successful completion?
   // Objective-C does it here.
-
-  // TODO: callback filter
 }
 
 void WatchStream::BackoffAndTryRestarting() {
@@ -404,7 +344,10 @@ void WatchStream::CancelBackoff() {
 }
 
 void WatchStream::OnStart(const bool ok) {
-  // OBC: if !ok
+  if (!ok) {
+    FinishStream();
+    return;
+  }
 
   firestore_queue_->VerifyIsCurrentQueue();
 
@@ -418,7 +361,10 @@ void WatchStream::OnStart(const bool ok) {
 }
 
 void WatchStream::OnRead(const bool ok, const grpc::ByteBuffer& message) {
-  // OBC: if !ok
+  if (!ok) {
+    FinishStream();
+    return;
+  }
 
   firestore_queue_->VerifyIsCurrentQueue();
 
@@ -432,15 +378,39 @@ void WatchStream::OnRead(const bool ok, const grpc::ByteBuffer& message) {
 }
 
 void WatchStream::OnWrite(const bool ok) {
-  // OBC: if !ok
+  if (!ok) {
+    FinishStream();
+    return;
+  }
 
   firestore_queue_->VerifyIsCurrentQueue();
   buffered_writer_.OnSuccessfulWrite();
 }
 
 void WatchStream::OnFinish(bool ok, grpc::Status status) {
-  // OBC: assert ok
-  // OBC: if status == success
+  firestore_queue_->VerifyIsCurrentQueue();
+
+  FIREBASE_ASSERT_MESSAGE(ok, "TODO");
+  // FIXME
+  if (status.code() == FIRFirestoreErrorCodeOK) {
+    // TODO
+    return;
+  }
+
+  state_ = State::Error;
+  buffered_writer_.Stop();
+
+  // FIXME
+  long error = status.code();
+
+  // FIXME
+  if (error == FIRFirestoreErrorCodeResourceExhausted) {
+    // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
+    // backend.", [self class],
+    //       (__bridge void *)self);
+    backoff_.ResetToMax();
+  }
+}
 
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamWasInterruptedWithError:nil];  // FIXME
@@ -474,7 +444,16 @@ void WatchStream::Stop() {
   state_ = State::Stopped;
   buffered_writer_.Stop();
 
-  //bidi_stream_->Finish(&status_, &kFinishTag);
+  FinishStream();
+  // If this is an intentional close ensure we don't delay our next connection
+  // attempt.
+  backoff_.Reset(); // ???
+  // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
+  // *)self);
+  // TODO: [self tearDown];
+}
+
+void WatchStream::FinishStream() {
   StreamFinishOp::Execute(call_, shared_from_this());
 }
 
@@ -489,121 +468,15 @@ bool WatchStream::IsStarted() const {
   return is_starting || IsOpen();
 }
 
-bool WatchStream::IsEnabled() const {
-  firestore_queue_->VerifyIsCurrentQueue();
-  return state_ != State::Stopped;
-}
-
-void WatchStream::Stop() {
-  // LogDebug(@"%@ %p stop", NSStringFromClass([self class]), (__bridge void
-  // *)self);
-  if (IsStarted()) {
-    Close();
-  }
-}
-
-// Private
-
-void WatchStream::Close(const absl::optional<grpc::Status> error) {
-  firestore_queue_->VerifyIsCurrentQueue();
-
-  // [self cancelIdleCheck];
-  backoff_.Cancel();
-
-  if (error) {
-    CloseOnError(error.value());
-  } else {
-    CloseNormally();
-  }
-
-  // This state must be assigned before calling `notifyStreamInterrupted` to
-  // allow the callback to inhibit backoff or otherwise manipulate the state in
-  // its non-started state.
-
-  // TODO: [self.callbackFilter suppressCallbacks];
-  // TODO: _callbackFilter = nil;
-
-  bidi_stream_.reset();
-
-  // If the caller explicitly requested a stream stop, don't notify them of a
-  // closing stream (it could trigger undesirable recovery logic, etc.).
-  if (error) {
-    // TODO: [self notifyStreamInterruptedWithError:error.value()];
-  }
-
-  // PORTING NOTE: notifyStreamInterruptedWithError may have restarted the
-  // stream with a new delegate so we do /not/ want to clear the delegate here.
-  // And since we've already suppressed callbacks via our callbackFilter, there
-  // is no worry about bleed through of events from GRPC.
-}
-
-void WatchStream::CloseOnError(const Error error) {
-  if (error == Error::ResourceExhausted) {
-    // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
-    // backend.", [self class],
-    //       (__bridge void *)self);
-    backoff_.ResetToMax();
-  }
-  state_ = State::Error;
-}
-
-void WatchStream::CloseNormally() {
-  // If this is an intentional close ensure we don't delay our next connection
-  // attempt.
-  backoff_.Reset();
-  // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
-  // *)self);
-  // TODO: [self tearDown];
-
-  // Clean up the underlying RPC. If this close: is in response to an error,
-  // don't attempt to call half-close to avoid secondary failures.
-  if (self.requestsWriter) {
-    FSTLog(@"%@ %p Closing stream client-side", [self class],
-           (__bridge void*)self);
-    @synchronized(self.requestsWriter) {
-      [self.requestsWriter finishWithError:nil];
-    }
-  }
-  //_requestsWriter = nil;
-}
-state_ = State::Stopped;
-}
-
 void WatchStream::CloseDueToIdleness() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (IsOpen()) {
-    Close();
+    Stop();
     // When timing out an idle stream there's no reason to force the stream into
     // backoff when it restarts.
     CancelBackoff();
-    // TODO: porting note. It's probably better to avoid the ability to set any
-    // state as final state, it should be just Stopped|Error.
   }
-}
-
-// TESTING
-
-const char* WatchStream::pemRootCertsPath = nullptr;
-
-grpc::GenericStub WatchStream::CreateStub() const {
-  if (pemRootCertsPath) {
-    grpc::SslCredentialsOptions options;
-    std::fstream file{pemRootCertsPath};
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    const std::string cert = buffer.str();
-    options.pem_root_certs = cert;
-
-    grpc::ChannelArguments args;
-    args.SetSslTargetNameOverride("test_cert_2");
-    // args.SetSslTargetNameOverride("test_cert_4");
-    return grpc::GenericStub{grpc::CreateCustomChannel(
-        database_info_->host(), grpc::SslCredentials(options), args)};
-  }
-  return grpc::GenericStub{
-      grpc::CreateChannel(database_info_->host(),
-                          grpc::SslCredentials(grpc::SslCredentialsOptions()))};
 }
 
 }  // namespace remote

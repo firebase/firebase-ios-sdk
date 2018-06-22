@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
            "has been run.");
     }
     [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
-    firebase::firestore::remote::WatchStream::pemRootCertsPath = [certsPath cStringUsingEncoding:NSASCIIStringEncoding];
+    firebase::firestore::remote::pemRootCertsPath = [certsPath cStringUsingEncoding:NSASCIIStringEncoding];
   }
   settings.host = host;
   settings.persistenceEnabled = YES;

@@ -114,18 +114,28 @@ class BufferedWriter {
 
 }  // namespace internal
 
-class PseudoDatastore {
-  private:
-  void PollGrpcQueue();
+class StreamOp {
+ public:
+  virtual ~StreamOp() {
+  }
 
-  grpc::GenericStub CreateStub() const;
-  static std::unique_ptr<util::internal::Executor> CreateExecutor();
+  void Finalize(bool ok) {
+    if (auto stream = stream_handle_.lock()) {
+      DoFinalize(stream.get(), ok);
+    }
+  }
 
-  const core::DatabaseInfo* database_info_;
-  std::unique_ptr<util::internal::Executor> dedicated_executor_;
+ protected:
+  StreamOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+      : stream_handle_{stream},
+  call_{call} {
+  }
 
-  grpc::GenericStub stub_;
-  grpc::CompletionQueue grpc_queue_;
+ private:
+  virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
+
+  std::weak_ptr<WatchStream> stream_handle_;
+  std::shared_ptr<WatchStream> call_;
 };
 
 class GrpcCallbacks {
@@ -142,7 +152,8 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
   WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,
               auth::CredentialsProvider* credentials_provider,
-              FSTSerializerBeta* serializer);
+              FSTSerializerBeta* serializer,
+              DatastoreImpl* datastore);
   ~WatchStream();
 
   void Enable();
@@ -163,8 +174,6 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
   // ClearError?
   void CancelBackoff();
 
-  static const char* pemRootCertsPath;
-
  private:
   enum class State {
     NotStarted,
@@ -180,7 +189,8 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
   void PerformBackoff(id delegate);
   void ResumeStartFromBackoff(id delegate);
 
-  void Write(const grpc::ByteBuffer& message) {
+  void Write(const grpc::ByteBuffer& message);
+  void FinishStream();
 
   State state_{State::Initial};
 
@@ -192,8 +202,10 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
 
   std::shared_ptr<GrpcCall> call_;
 
+  const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
+  DatastoreImpl* datastore_;
   ExponentialBackoff backoff_;
 
   internal::ObjcBridge objc_bridge_;

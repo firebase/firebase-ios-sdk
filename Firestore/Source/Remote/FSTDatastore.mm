@@ -48,12 +48,81 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include <grpcpp/create_channel.h>
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+
+DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue) :
+  dedicated_executor_{DatastoreImpl::CreateExecutor()},
+  stub_{CreateStub()},
+  firestore_queue_{firestore_queue}
+{
+  dedicated_executor_->Execute([this] {
+    PollGrpcQueue();
+  }):
+}
+
+std::unique_ptr<grpc::GenericClientAsyncReaderWriter> DatastoreImpl::CreateGrpcCall(
+    grpc::ClientContext* context, const absl::string_view path) {
+  return stub_.PrepareCall(context, path, &grpc_queue_);
+}
+
+void DatastoreImpl::PollGrpcQueue() {
+  FIREBASE_ASSERT_MESSAGE(dedicated_executor_->IsCurrentExecutor(), "TODO");
+
+  void* tag = nullptr;
+  bool ok = false;
+  while (grpc_queue_.Next(&tag, &ok)) {
+    auto* operation = static_cast<StreamOp*>(tag);
+    firestore_queue_->Enqueue([operation, ok] {
+      operation->Finalize(ok);
+      delete operation;
+    });
+  }
+}
+
+std::unique_ptr<util::internal::Executor> DatastoreImpl::CreateExecutor() {
+  const auto queue = dispatch_queue_create(
+      "com.google.firebase.firestore.datastore", DISPATCH_QUEUE_SERIAL);
+  return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
+}
+
+grpc::GenericStub DatastoreImpl::CreateStub() const {
+  if (pemRootCertsPath) {
+    grpc::SslCredentialsOptions options;
+    std::fstream file{pemRootCertsPath};
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const std::string cert = buffer.str();
+    options.pem_root_certs = cert;
+
+    grpc::ChannelArguments args;
+    args.SetSslTargetNameOverride("test_cert_2");
+    // args.SetSslTargetNameOverride("test_cert_4");
+    return grpc::GenericStub{grpc::CreateCustomChannel(
+        database_info_->host(), grpc::SslCredentials(options), args)};
+  }
+  return grpc::GenericStub{
+      grpc::CreateChannel(database_info_->host(),
+                          grpc::SslCredentials(grpc::SslCredentialsOptions()))};
+}
+
+const char* pemRootCertsPath = nullptr;
+
+}
+}
+}
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -90,7 +159,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @end
 
-@implementation FSTDatastore
+@implementation FSTDatastore {
+  std::unique_ptr<firebase::firestore::remote::DatastoreImpl> _datastore;
+}
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -114,6 +185,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
+
+    _datastore = absl::make_unique<firebase::firestore::remote::DatastoreImpl>([queue implementation]);
   }
   return self;
 }
@@ -334,11 +407,14 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
       });
 }
 
-- (FSTWatchStream *)createWatchStream {
-  return [[FSTWatchStream alloc] initWithDatabase:_databaseInfo
-                              workerDispatchQueue:_workerDispatchQueue
-                                      credentials:_credentials
-                                       serializer:_serializer];
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStream {
+  return std::make_shared<firebase::firestore::remote::WatchStream>(
+      [workerDispatchQueue implementation],
+      *_databaseInfo,
+      _credentials,
+      _serializer,
+      _datastore.get()
+  );
 }
 
 - (FSTWriteStream *)createWriteStream {
