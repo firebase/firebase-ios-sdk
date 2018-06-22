@@ -577,28 +577,6 @@ using leveldb::WriteOptions;
   return [self.serializer decodedMutationBatch:proto];
 }
 
-#pragma mark - FSTGarbageSource implementation
-
-- (BOOL)containsKey:(const DocumentKey &)documentKey {
-  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:self.userID
-                                                                  resourcePath:documentKey.path()];
-  auto indexIterator = _db.currentTransaction->NewIterator();
-  indexIterator->Seek(indexPrefix);
-
-  if (indexIterator->Valid()) {
-    FSTLevelDBDocumentMutationKey *rowKey = [[FSTLevelDBDocumentMutationKey alloc] init];
-
-    // Check both that the key prefix matches and that the decoded document key is exactly the key
-    // we're looking for.
-    if (absl::StartsWith(indexIterator->key(), indexPrefix) &&
-        [rowKey decodeKey:indexIterator->key()] && DocumentKey{rowKey.documentKey} == documentKey) {
-      return YES;
-    }
-  }
-
-  return NO;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -426,8 +426,6 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   return result;
 }
 
-#pragma mark - FSTGarbageSource implementation
-
 - (BOOL)containsKey:(const DocumentKey &)key {
   // ignore sentinel rows when determining if a key belongs to a target. Sentinel row just says the
   // document exists, not that it's a member of any particular target.
