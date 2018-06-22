@@ -166,16 +166,6 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.references referencedKeysForID:targetID];
 }
 
-#pragma mark - FSTGarbageSource implementation
-
-- (nullable id<FSTGarbageCollector>)garbageCollector {
-  return self.references.garbageCollector;
-}
-
-- (void)setGarbageCollector:(nullable id<FSTGarbageCollector>)garbageCollector {
-  self.references.garbageCollector = garbageCollector;
-}
-
 - (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {
   return [self.references containsKey:key];
 }

@@ -33,7 +33,6 @@
 @class FSTQueryData;
 @class FSTRemoteEvent;
 @protocol FSTPersistence;
-@protocol FSTGarbageCollector;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -67,12 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
  * that has already been applied to the LocalDocument (typically done by replaying all remaining
  * LocalMutations to the RemoteDocument to re-apply).
  *
- * The LocalStore is responsible for the garbage collection of the documents it contains. For now,
- * it every doc referenced by a view, the mutation queue, or the RemoteStore.
- *
- * It also maintains the persistence of mapping queries to resume tokens and target ids. It needs
- * to know this data about queries to properly know what docs it would be allowed to garbage
- * collect.
+ * It also maintains the persistence of mapping queries to resume tokens and target ids.
  *
  * The LocalStore must be able to efficiently execute queries against its local cache of the
  * documents, to provide the initial set of results before any remote changes have been received.
