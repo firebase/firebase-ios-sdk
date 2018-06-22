@@ -181,6 +181,17 @@ class Serializer {
   std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
       nanopb::Reader* reader) const;
 
+  static void EncodeMapValue(nanopb::Writer* writer,
+                             const model::ObjectValue& object_value);
+
+  static void EncodeFieldsEntry(nanopb::Writer* writer,
+                                const model::ObjectValue::Map::value_type& kv,
+                                uint32_t key_tag,
+                                uint32_t value_tag);
+
+  static void EncodeFieldValue(nanopb::Writer* writer,
+                               const model::FieldValue& field_value);
+
   const firebase::firestore::model::DatabaseId& database_id_;
 };
 
