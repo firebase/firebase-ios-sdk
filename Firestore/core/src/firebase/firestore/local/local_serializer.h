@@ -48,7 +48,7 @@ class LocalSerializer {
    * @brief Encodes a MaybeDocument model to the equivalent bytes for local
    * storage.
    *
-   * @param document the model to convert.
+   * @param maybe_doc the model to convert.
    * @param[out] out_bytes A buffer to place the output. The bytes will be
    * appended to this vector.
    * @return A Status, which if not ok(), indicates what went wrong. Note that

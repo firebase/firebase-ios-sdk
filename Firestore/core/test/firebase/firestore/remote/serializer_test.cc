@@ -165,7 +165,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::NullValue());
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -199,7 +200,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -208,7 +210,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -221,7 +224,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::StringValue(s));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -230,7 +234,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -266,7 +271,8 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, model);
     v1beta1::Value actual_proto;
-    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok = actual_proto.ParseFromArray(bytes.data(),
+                                          static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
@@ -276,7 +282,7 @@ class SerializerTest : public ::testing::Test {
                                       FieldValue::Type type) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
-    bool status = proto.SerializeToArray(bytes.data(), size);
+    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
     StatusOr<FieldValue> actual_model_status =
         serializer.DecodeFieldValue(bytes);
@@ -293,7 +299,8 @@ class SerializerTest : public ::testing::Test {
       const v1beta1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
     v1beta1::Document actual_proto;
-    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok = actual_proto.ParseFromArray(bytes.data(),
+                                          static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
 
     // Note that the client can only serialize Documents (and cannot serialize
@@ -325,7 +332,7 @@ class SerializerTest : public ::testing::Test {
       const v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
-    bool status = proto.SerializeToArray(bytes.data(), size);
+    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
         serializer.DecodeMaybeDocument(bytes);
@@ -893,7 +900,8 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
   v1beta1::BatchGetDocumentsResponse proto;
 
   std::vector<uint8_t> bytes(proto.ByteSizeLong());
-  bool status = proto.SerializeToArray(bytes.data(), bytes.size());
+  bool status =
+      proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
   EXPECT_TRUE(status);
 
   ExpectFailedStatusDuringMaybeDocumentDecode(
