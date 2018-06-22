@@ -19,6 +19,8 @@ cc_library(
     database_info.h
     target_id_generator.cc
     target_id_generator.h
+    query.cc
+    query.h
   DEPENDS
     absl_strings
     firebase_firestore_model

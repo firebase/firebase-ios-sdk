@@ -17,6 +17,7 @@ cc_test(
   SOURCES
     database_info_test.cc
     target_id_generator_test.cc
+    query_test.cc
   DEPENDS
     firebase_firestore_core
 )
