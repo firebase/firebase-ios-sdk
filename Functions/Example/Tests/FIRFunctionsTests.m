@@ -33,17 +33,13 @@
 }
 
 - (void)testURLWithName {
-  // TODO(klimt): Add this test back when we add the constructor back.
-  /*
   id app = [[FUNFakeApp alloc] initWithProjectID:@"my-project"];
   FIRFunctions *functions = [FIRFunctions functionsForApp:app region:@"my-region"];
   NSString *url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://my-region-my-project.cloudfunctions.net/my-endpoint", url);
-  */
 
-  id app = [[FUNFakeApp alloc] initWithProjectID:@"my-project"];
-  FIRFunctions *functions = [FIRFunctions functionsForApp:app];
-  NSString *url = [functions URLWithName:@"my-endpoint"];
+  functions = [FIRFunctions functionsForApp:app];
+  url = [functions URLWithName:@"my-endpoint"];
   XCTAssertEqualObjects(@"https://us-central1-my-project.cloudfunctions.net/my-endpoint", url);
 }
 

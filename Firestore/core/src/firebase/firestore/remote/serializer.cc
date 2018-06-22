@@ -62,13 +62,6 @@ using firebase::firestore::util::StatusOr;
 
 namespace {
 
-void EncodeMapValue(Writer* writer, const ObjectValue& object_value);
-void EncodeObjectMap(Writer* writer,
-                     const ObjectValue::Map& object_value_map,
-                     uint32_t map_tag,
-                     uint32_t key_tag,
-                     uint32_t value_tag);
-
 ObjectValue::Map DecodeMapValue(Reader* reader);
 
 void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
@@ -108,60 +101,6 @@ Timestamp DecodeTimestamp(Reader* reader) {
     return {};
   }
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
-}
-
-// Named '..Impl' so as to not conflict with Serializer::EncodeFieldValue.
-// TODO(rsgowman): Refactor to use a helper class that wraps the stream struct.
-// This will help with error handling, and should eliminate the issue of two
-// 'EncodeFieldValue' methods.
-void EncodeFieldValueImpl(Writer* writer, const FieldValue& field_value) {
-  // TODO(rsgowman): some refactoring is in order... but will wait until after a
-  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  switch (field_value.type()) {
-    case FieldValue::Type::Null:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
-      writer->WriteNull();
-      break;
-
-    case FieldValue::Type::Boolean:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
-      writer->WriteBool(field_value.boolean_value());
-      break;
-
-    case FieldValue::Type::Integer:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
-      writer->WriteInteger(field_value.integer_value());
-      break;
-
-    case FieldValue::Type::String:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
-      writer->WriteString(field_value.string_value());
-      break;
-
-    case FieldValue::Type::Timestamp:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeTimestamp(writer, field_value.timestamp_value());
-      });
-      break;
-
-    case FieldValue::Type::Object:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeMapValue(writer, field_value.object_value());
-      });
-      break;
-
-    default:
-      // TODO(rsgowman): implement the other types
-      abort();
-  }
 }
 
 FieldValue DecodeFieldValueImpl(Reader* reader) {
@@ -265,40 +204,6 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
   return result;
 }
 
-/**
- * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
- *
- * In protobuf, maps are implemented as a repeated set of key/values. For
- * instance, this:
- *   message Foo {
- *     map<string, Value> fields = 1;
- *   }
- * would be written (in proto text format) as:
- *   {
- *     fields: {key:"key string 1", value:{<Value message here>}}
- *     fields: {key:"key string 2", value:{<Value message here>}}
- *     ...
- *   }
- *
- * This method writes an individual entry from that list. It is expected that
- * this method will be called once for each entry in the map.
- *
- * @param kv The individual key/value pair to write.
- */
-void EncodeFieldsEntry(Writer* writer,
-                       const ObjectValue::Map::value_type& kv,
-                       uint32_t key_tag,
-                       uint32_t value_tag) {
-  // Write the key (string)
-  writer->WriteTag({PB_WT_STRING, key_tag});
-  writer->WriteString(kv.first);
-
-  // Write the value (FieldValue)
-  writer->WriteTag({PB_WT_STRING, value_tag});
-  writer->WriteNestedMessage(
-      [&kv](Writer* writer) { EncodeFieldValueImpl(writer, kv.second); });
-}
-
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
                                                uint32_t value_tag) {
@@ -334,27 +239,6 @@ ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
   return DecodeFieldsEntry(
       reader, google_firestore_v1beta1_Document_FieldsEntry_key_tag,
       google_firestore_v1beta1_Document_FieldsEntry_value_tag);
-}
-
-void EncodeObjectMap(Writer* writer,
-                     const ObjectValue::Map& object_value_map,
-                     uint32_t map_tag,
-                     uint32_t key_tag,
-                     uint32_t value_tag) {
-  // Write each FieldsEntry (i.e. key-value pair.)
-  for (const auto& kv : object_value_map) {
-    writer->WriteTag({PB_WT_STRING, map_tag});
-    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
-      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
-    });
-  }
-}
-
-void EncodeMapValue(Writer* writer, const ObjectValue& object_value) {
-  EncodeObjectMap(writer, object_value.internal_value,
-                  google_firestore_v1beta1_MapValue_fields_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
 ObjectValue::Map DecodeMapValue(Reader* reader) {
@@ -454,8 +338,59 @@ ResourcePath ExtractLocalPathFromResourceName(
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
                                     std::vector<uint8_t>* out_bytes) {
   Writer writer = Writer::Wrap(out_bytes);
-  EncodeFieldValueImpl(&writer, field_value);
+  EncodeFieldValue(&writer, field_value);
   return writer.status();
+}
+
+void Serializer::EncodeFieldValue(Writer* writer,
+                                  const FieldValue& field_value) {
+  // TODO(rsgowman): some refactoring is in order... but will wait until after a
+  // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  switch (field_value.type()) {
+    case FieldValue::Type::Null:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
+      writer->WriteNull();
+      break;
+
+    case FieldValue::Type::Boolean:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
+      writer->WriteBool(field_value.boolean_value());
+      break;
+
+    case FieldValue::Type::Integer:
+      writer->WriteTag(
+          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
+      writer->WriteInteger(field_value.integer_value());
+      break;
+
+    case FieldValue::Type::String:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
+      writer->WriteString(field_value.string_value());
+      break;
+
+    case FieldValue::Type::Timestamp:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeTimestamp(writer, field_value.timestamp_value());
+      });
+      break;
+
+    case FieldValue::Type::Object:
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
+      writer->WriteNestedMessage([&field_value](Writer* writer) {
+        EncodeMapValue(writer, field_value.object_value());
+      });
+      break;
+
+    default:
+      // TODO(rsgowman): implement the other types
+      abort();
+  }
 }
 
 StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
@@ -665,6 +600,68 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   return absl::make_unique<Document>(
       FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name), version,
       /*has_local_modifications=*/false);
+}
+
+void Serializer::EncodeMapValue(Writer* writer,
+                                const ObjectValue& object_value) {
+  EncodeObjectMap(writer, object_value.internal_value,
+                  google_firestore_v1beta1_MapValue_fields_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
+                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+}
+
+void Serializer::EncodeObjectMap(
+    nanopb::Writer* writer,
+    const model::ObjectValue::Map& object_value_map,
+    uint32_t map_tag,
+    uint32_t key_tag,
+    uint32_t value_tag) {
+  // Write each FieldsEntry (i.e. key-value pair.)
+  for (const auto& kv : object_value_map) {
+    writer->WriteTag({PB_WT_STRING, map_tag});
+    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
+      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
+    });
+  }
+}
+
+void Serializer::EncodeVersion(nanopb::Writer* writer,
+                               const model::SnapshotVersion& version) {
+  EncodeTimestamp(writer, version.timestamp());
+}
+
+/**
+ * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
+ *
+ * In protobuf, maps are implemented as a repeated set of key/values. For
+ * instance, this:
+ *   message Foo {
+ *     map<string, Value> fields = 1;
+ *   }
+ * would be written (in proto text format) as:
+ *   {
+ *     fields: {key:"key string 1", value:{<Value message here>}}
+ *     fields: {key:"key string 2", value:{<Value message here>}}
+ *     ...
+ *   }
+ *
+ * This method writes an individual entry from that list. It is expected that
+ * this method will be called once for each entry in the map.
+ *
+ * @param kv The individual key/value pair to write.
+ */
+void Serializer::EncodeFieldsEntry(Writer* writer,
+                                   const ObjectValue::Map::value_type& kv,
+                                   uint32_t key_tag,
+                                   uint32_t value_tag) {
+  // Write the key (string)
+  writer->WriteTag({PB_WT_STRING, key_tag});
+  writer->WriteString(kv.first);
+
+  // Write the value (FieldValue)
+  writer->WriteTag({PB_WT_STRING, value_tag});
+  writer->WriteNestedMessage(
+      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
 }
 
 }  // namespace remote

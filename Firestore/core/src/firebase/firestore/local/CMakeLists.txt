@@ -19,9 +19,15 @@ cc_library(
     leveldb_key.cc
     leveldb_transaction.h
     leveldb_transaction.cc
+    local_serializer.h
+    local_serializer.cc
   DEPENDS
     LevelDB::LevelDB
     absl_strings
     firebase_firestore_model
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_remote
     firebase_firestore_util
+    nanopb
 )

@@ -26,9 +26,11 @@
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthTokenResult.h"
+#import "FIREmailLinkSignInResponse.m"
 #import "FIRSecureTokenService.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
+#import "FIRSignUpNewUserResponse.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRSetAccountInfoRequest.h"
@@ -576,6 +578,57 @@ static const NSTimeInterval kExpectationTimeout = 2;
       XCTAssertNil(error);
       XCTAssertEqualObjects(user.email, kNewEmail);
       XCTAssertEqualObjects(user.displayName, kNewDisplayName);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testUpdateEmailWithAuthLinkAccountSuccess
+    @brief Tests a successful @c updateEmail:completion: call updates provider info.
+ */
+- (void)testUpdateEmailWithAuthLinkAccountSuccess {
+  id (^mockUserInfoWithDisplayName)(NSString *) = ^(NSString *displayName) {
+    id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+    OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+    OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+    OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(displayName);
+    OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
+    return mockGetAccountInfoResponseUser;
+  };
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithDisplayName(kGoogleDisplayName);
+  [self signInWithEmailLinkWithMockUserInfoResponse:userInfoResponse
+                                         completion:^(FIRUser *user) {
+    // Pretend that the display name on the server has been changed since last request.
+    [self
+        expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoWithDisplayName(kNewDisplayName)];
+    OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
+    .andCallBlock2(^(FIRSetAccountInfoRequest *_Nullable request,
+                     FIRSetAccountInfoResponseCallback callback) {
+      XCTAssertEqualObjects(request.APIKey, kAPIKey);
+      XCTAssertEqualObjects(request.accessToken, kAccessToken);
+      XCTAssertEqualObjects(request.email, kNewEmail);
+      XCTAssertNil(request.localID);
+      XCTAssertNil(request.displayName);
+      XCTAssertNil(request.photoURL);
+      XCTAssertNil(request.password);
+      XCTAssertNil(request.providers);
+      XCTAssertNil(request.deleteAttributes);
+      XCTAssertNil(request.deleteProviders);
+      dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+        id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
+        OCMStub([mockSetAccountInfoResponse email]).andReturn(kNewEmail);
+        OCMStub([mockSetAccountInfoResponse displayName]).andReturn(kNewDisplayName);
+        callback(mockSetAccountInfoResponse, nil);
+      });
+    });
+    [user updateEmail:kNewEmail completion:^(NSError *_Nullable error) {
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(user.email, kNewEmail);
+      XCTAssertEqualObjects(user.displayName, kNewDisplayName);
+      XCTAssertFalse(user.isAnonymous);
       [expectation fulfill];
     }];
   }];
@@ -1572,6 +1625,64 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn testLinkingAnonymousAccountsUpdatesIsAnonymous
+    @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
+        invocation for email credential.
+ */
+- (void)testLinkingAnonymousAccountsUpdatesIsAnonymous {
+  FIRAuthCredential *linkEmailCredential =
+      [FIREmailAuthProvider credentialWithEmail:kEmail
+                                           link:@"https://google.com?oobCode=aCode&mode=signIn"];
+
+  id (^mockUserInfoWithDisplayName)(NSString *, BOOL) = ^(NSString *displayName,
+                                                          BOOL hasProviders) {
+    NSArray *providers = hasProviders ? @[ @{
+      @"providerId": FIREmailAuthProviderID,
+      @"email": kEmail
+      } ] : @[];
+    FIRGetAccountInfoResponseUser *responseUser =
+        [[FIRGetAccountInfoResponseUser alloc] initWithDictionary:@{
+          @"providerUserInfo": providers,
+          @"localId": kLocalID,
+          @"displayName": displayName,
+          @"email": kEmail
+        }];
+    return responseUser;
+  };
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id userInfoResponse = mockUserInfoWithDisplayName(kGoogleDisplayName, NO);
+
+  [self signInAnonymouslyWithMockGetAccountInfoResponse:userInfoResponse
+                                             completion:^(FIRUser *user) {
+    // Pretend that the display name and providers on the server have been updated.
+    // Get account info is expected to be invoked twice.
+    id updatedMockUser = mockUserInfoWithDisplayName(kNewDisplayName, YES);
+    [self expectGetAccountInfoWithMockUserInfoResponse:updatedMockUser];
+    [self expectGetAccountInfoWithMockUserInfoResponse:updatedMockUser];
+    OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRSetAccountInfoRequest *_Nullable request,
+                         FIRSetAccountInfoResponseCallback callback) {
+      id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
+      OCMStub([mockSetAccountInfoResponse email]).andReturn(kNewEmail);
+      OCMStub([mockSetAccountInfoResponse displayName]).andReturn(kNewDisplayName);
+      callback(mockSetAccountInfoResponse, nil);
+    });
+    XCTAssertTrue(user.isAnonymous);
+
+    [user linkAndRetrieveDataWithCredential:linkEmailCredential
+                                 completion:^(FIRAuthDataResult *_Nullable linkAuthResult,
+                                              NSError *_Nullable error) {
+      XCTAssertTrue([NSThread isMainThread]);
+      XCTAssertNil(error);
+      XCTAssertEqualObjects(user.email, kEmail);
+      XCTAssertFalse(user.isAnonymous);
+      [expectation fulfill];
+    }];
+  }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testlinkEmailAndRetrieveDataSuccess
     @brief Tests the flow of a successful @c linkAndRetrieveDataWithCredential:completion:
         invocation for email credential.
@@ -2222,6 +2333,34 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
 }
 
+/** @fn signInAnonymouslyWithMockGetAccountInfoResponse:completion:
+    @brief Signs in with an anonymous account with mocked backend end calls.
+    @param mockUserInfoResponse A mocked FIRGetAccountInfoResponseUser object.
+    @param completion The completion block that takes the newly signed-in user as the only
+        parameter.
+ */
+- (void)signInAnonymouslyWithMockGetAccountInfoResponse:(id)mockUserInfoResponse
+                                             completion:(void (^)(FIRUser *user))completion {
+  OCMExpect([_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRSignUpNewUserRequest *_Nullable request,
+                       FIRSignupNewUserCallback callback) {
+    id mockSignUpResponse = OCMClassMock([FIRSignUpNewUserResponse class]);
+    OCMStub([mockSignUpResponse IDToken]).andReturn(kAccessToken);
+    OCMStub([mockSignUpResponse approximateExpirationDate])
+        .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+    OCMStub([mockSignUpResponse refreshToken]).andReturn(kRefreshToken);
+    callback(mockSignUpResponse, nil);
+  });
+  [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInAnonymouslyWithCompletion:^(FIRAuthDataResult *_Nullable result,
+                                                    NSError *_Nullable error) {
+    XCTAssertNotNil(result.user);
+    XCTAssertNil(error);
+    completion(result.user);
+  }];
+}
+
 /** @fn signInWithEmailPasswordWithMockGetAccountInfoResponse:completion:
     @brief Signs in with an email and password account with mocked backend end calls.
     @param mockUserInfoResponse A mocked FIRGetAccountInfoResponseUser object.
@@ -2229,7 +2368,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
         parameter.
  */
 - (void)signInWithEmailPasswordWithMockUserInfoResponse:(id)mockUserInfoResponse
-                                     completion:(void (^)(FIRUser *user))completion {
+                                             completion:(void (^)(FIRUser *user))completion {
   OCMExpect([_mockBackend verifyPassword:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyPasswordRequest *_Nullable request,
                        FIRVerifyPasswordResponseCallback callback) {
@@ -2239,13 +2378,42 @@ static const NSTimeInterval kExpectationTimeout = 2;
       OCMStub([mockVeriyPasswordResponse approximateExpirationDate])
           .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
       OCMStub([mockVeriyPasswordResponse refreshToken]).andReturn(kRefreshToken);
-          callback(mockVeriyPasswordResponse, nil);
+      callback(mockVeriyPasswordResponse, nil);
     });
   });
   [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
   [[FIRAuth auth] signOut:NULL];
   [[FIRAuth auth] signInWithEmail:kEmail
                          password:kFakePassword
+                       completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+    XCTAssertNotNil(result.user);
+    XCTAssertNil(error);
+    completion(result.user);
+  }];
+}
+
+/** @fn signInWithEmailLinkWithMockGetAccountInfoResponse:completion:
+    @brief Signs in with an email link auth account with mocked backend end calls.
+    @param mockUserInfoResponse A mocked FIRGetAccountInfoResponseUser object.
+    @param completion The completion block that takes the newly signed-in user as the only
+        parameter.
+ */
+- (void)signInWithEmailLinkWithMockUserInfoResponse:(id)mockUserInfoResponse
+                                         completion:(void (^)(FIRUser *user))completion {
+  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIREmailLinkSignInRequest *_Nullable request,
+                       FIREmailLinkSigninResponseCallback callback) {
+    id mockVerifyLinkResponse = OCMClassMock([FIREmailLinkSignInResponse class]);
+    OCMStub([mockVerifyLinkResponse IDToken]).andReturn(kAccessToken);
+    OCMStub([mockVerifyLinkResponse approximateExpirationDate])
+        .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+    OCMStub([mockVerifyLinkResponse refreshToken]).andReturn(kRefreshToken);
+    callback(mockVerifyLinkResponse, nil);
+  });
+  [self expectGetAccountInfoWithMockUserInfoResponse:mockUserInfoResponse];
+  [[FIRAuth auth] signOut:NULL];
+  [[FIRAuth auth] signInWithEmail:kEmail
+                             link:@"https://www.google.com?oobCode=aCode&mode=signIn"
                        completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
     XCTAssertNotNil(result.user);
     XCTAssertNil(error);

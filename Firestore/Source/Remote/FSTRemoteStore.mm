@@ -405,8 +405,10 @@ static const int kMaxPendingWrites = 10;
   // Ignore targets that have been removed already.
   for (FSTBoxedTargetID *targetID in change.targetIDs) {
     if (self.listenTargets[targetID]) {
+      int unboxedTargetId = targetID.intValue;
       [self.listenTargets removeObjectForKey:targetID];
-      [self.syncEngine rejectListenWithTargetID:[targetID intValue] error:change.cause];
+      [self.watchChangeAggregator removeTarget:unboxedTargetId];
+      [self.syncEngine rejectListenWithTargetID:unboxedTargetId error:change.cause];
     }
   }
 }

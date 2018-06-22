@@ -656,7 +656,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
   // first, normally implying integer_value should "win". Except that
   // integer_value isn't a valid tag, so it should be ignored here.
-  google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
+  google_firestore_v1beta1_Value_Fake crafty_value{true, int64_t{42}};
   std::vector<uint8_t> bytes(128);
   pb_ostream_t stream = pb_ostream_from_buffer(bytes.data(), bytes.size());
   pb_encode(&stream, google_firestore_v1beta1_Value_fields_Fake, &crafty_value);
@@ -664,11 +664,12 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Decode the bytes into the model
   StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
+  Status s = actual_model_status.status();
   EXPECT_OK(actual_model_status);
   FieldValue actual_model = actual_model_status.ValueOrDie();
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::BooleanValue(false);
+  FieldValue expected_model = FieldValue::BooleanValue(true);
   EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
   EXPECT_EQ(expected_model, actual_model);
 }

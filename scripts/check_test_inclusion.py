@@ -26,8 +26,6 @@ import sys
 
 # Tests that are known not to compile in Xcode and can't be added there.
 EXCLUDED = frozenset([
-    # b/79496027
-    "Firestore/core/test/firebase/firestore/remote/serializer_test.cc",
 ])
 
 
