@@ -102,7 +102,7 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> bytes = EncodeMaybeDocument(&serializer, model);
     firestore::client::MaybeDocument actual_proto;
-    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok = actual_proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
@@ -112,7 +112,7 @@ class LocalSerializerTest : public ::testing::Test {
       const firestore::client::MaybeDocument& proto,
       MaybeDocument::Type type) {
     std::vector<uint8_t> bytes(proto.ByteSizeLong());
-    bool status = proto.SerializeToArray(bytes.data(), bytes.size());
+    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
         serializer.DecodeMaybeDocument(bytes);
