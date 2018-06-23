@@ -14,5 +14,24 @@
  * limitations under the License.
  */
 
-// This file is deprecated. Use GoogleUtilities/FIRLoggerLevel.h instead.
-#import <GoogleUtilities/FIRLoggerLevel.h>
+#import <GoogleUtilities/GULLoggerLevel.h>
+
+/**
+ * The log levels used by internal logging.
+ */
+typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
+  /** Error level, matches ASL_LEVEL_ERR. */
+  FIRLoggerLevelError = GULLoggerLevelError,
+  /** Warning level, matches ASL_LEVEL_WARNING. */
+  FIRLoggerLevelWarning = GULLoggerLevelWarning,
+  /** Notice level, matches ASL_LEVEL_NOTICE. */
+  FIRLoggerLevelNotice = GULLoggerLevelNotice,
+  /** Info level, matches ASL_LEVEL_NOTICE. */
+  FIRLoggerLevelInfo = GULLoggerLevelInfo,
+  /** Debug level, matches ASL_LEVEL_DEBUG. */
+  FIRLoggerLevelDebug = GULLoggerLevelDebug,
+  /** Minimum log level. */
+  FIRLoggerLevelMin = FIRLoggerLevelError,
+  /** Maximum log level. */
+  FIRLoggerLevelMax = FIRLoggerLevelDebug
+} NS_SWIFT_NAME(FirebaseLoggerLevel);

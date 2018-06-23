@@ -17,19 +17,19 @@
 /**
  * The log levels used by internal logging.
  */
-typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
+typedef NS_ENUM(NSInteger, GULLoggerLevel) {
   /** Error level, matches ASL_LEVEL_ERR. */
-  FIRLoggerLevelError = 3,
+  GULLoggerLevelError = 3,
   /** Warning level, matches ASL_LEVEL_WARNING. */
-  FIRLoggerLevelWarning = 4,
+  GULLoggerLevelWarning = 4,
   /** Notice level, matches ASL_LEVEL_NOTICE. */
-  FIRLoggerLevelNotice = 5,
+  GULLoggerLevelNotice = 5,
   /** Info level, matches ASL_LEVEL_NOTICE. */
-  FIRLoggerLevelInfo = 6,
+  GULLoggerLevelInfo = 6,
   /** Debug level, matches ASL_LEVEL_DEBUG. */
-  FIRLoggerLevelDebug = 7,
+  GULLoggerLevelDebug = 7,
   /** Minimum log level. */
-  FIRLoggerLevelMin = FIRLoggerLevelError,
+  GULLoggerLevelMin = GULLoggerLevelError,
   /** Maximum log level. */
-  FIRLoggerLevelMax = FIRLoggerLevelDebug
-} NS_SWIFT_NAME(FirebaseLoggerLevel);
+  GULLoggerLevelMax = GULLoggerLevelDebug
+} NS_SWIFT_NAME(GoogleLoggerLevel);

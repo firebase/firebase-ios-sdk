@@ -37,3 +37,5 @@ const int kFIRNetworkHTTPStatusCodeCannotAcceptTraffic = 429;
 const int kFIRNetworkHTTPStatusCodeUnavailable = 503;
 
 NSString *const kFIRNetworkErrorDomain = @"com.firebase.network.ErrorDomain";
+
+GULLoggerService kGULLoggerNetwork = @"[GULNetwork]";

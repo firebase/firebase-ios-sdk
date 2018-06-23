@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <GoogleUtilities/FIRLogger.h>
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRErrors.h"
+#import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
 // Keys for the strings in the plist file.

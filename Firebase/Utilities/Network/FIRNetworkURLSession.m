@@ -16,7 +16,7 @@
 
 #import "Private/FIRNetworkURLSession.h"
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <GoogleUtilities/GULLogger.h>
 #import "Private/FIRMutableDictionary.h"
 #import "Private/FIRNetworkConstants.h"
 #import "Private/FIRNetworkMessageCode.h"
@@ -80,7 +80,7 @@
   if (fetcher != nil) {
     [fetcher addSystemCompletionHandler:systemCompletionHandler forSession:sessionID];
   } else {
-    FIRLogError(kFIRLoggerCore,
+    GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)kFIRNetworkMessageCodeNetwork003],
                 @"Failed to retrieve background session with ID %@ after app is relaunched.",
                 sessionID);
