@@ -113,16 +113,31 @@ extern void GULLogBasic(GULLoggerLevel level,
  * Example usage:
  * GULLogError(kGULLoggerCore, @"I-COR000001", @"Configuration of %@ failed.", app.name);
  */
-extern void GULLogError(GULLoggerService service, BOOL force,
-                        NSString *messageCode, NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
-extern void GULLogWarning(GULLoggerService service, BOOL force,
-                        NSString *messageCode, NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
-extern void GULLogNotice(GULLoggerService service, BOOL force,
-                         NSString *messageCode, NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
-extern void GULLogInfo(GULLoggerService service, BOOL force,
-                       NSString *messageCode, NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
-extern void GULLogDebug(GULLoggerService service, BOOL force,
-                        NSString *messageCode, NSString *message, ...) NS_FORMAT_FUNCTION(4, 5);
+extern void GULLogError(GULLoggerService service,
+                        BOOL force,
+                        NSString *messageCode,
+                        NSString *message,
+                        ...) NS_FORMAT_FUNCTION(4, 5);
+extern void GULLogWarning(GULLoggerService service,
+                          BOOL force,
+                          NSString *messageCode,
+                          NSString *message,
+                          ...) NS_FORMAT_FUNCTION(4, 5);
+extern void GULLogNotice(GULLoggerService service,
+                         BOOL force,
+                         NSString *messageCode,
+                         NSString *message,
+                         ...) NS_FORMAT_FUNCTION(4, 5);
+extern void GULLogInfo(GULLoggerService service,
+                       BOOL force,
+                       NSString *messageCode,
+                       NSString *message,
+                       ...) NS_FORMAT_FUNCTION(4, 5);
+extern void GULLogDebug(GULLoggerService service,
+                        BOOL force,
+                        NSString *messageCode,
+                        NSString *message,
+                        ...) NS_FORMAT_FUNCTION(4, 5);
 
 #ifdef __cplusplus
 }  // extern "C"
