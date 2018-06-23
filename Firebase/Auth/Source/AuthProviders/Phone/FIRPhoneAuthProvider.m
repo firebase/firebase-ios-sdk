@@ -16,7 +16,7 @@
 
 #import "FIRPhoneAuthProvider.h"
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <FirebaseCore/FIRLogger.h>
 #import "FIRPhoneAuthCredential_Internal.h"
 #import <FirebaseCore/FIRApp.h>
 #import "FIRAuthAPNSToken.h"

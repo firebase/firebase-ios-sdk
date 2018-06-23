@@ -12,68 +12,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRNetwork.h"
-#import "Private/FIRNetworkMessageCode.h"
+#import "Private/GULNetwork.h"
+#import "Private/GULNetworkMessageCode.h"
 
 #import <GoogleUtilities/GULLogger.h>
-#import "Private/FIRMutableDictionary.h"
-#import "Private/FIRNetworkConstants.h"
-#import "Private/FIRReachabilityChecker.h"
+#import "Private/GULMutableDictionary.h"
+#import "Private/GULNetworkConstants.h"
+#import "Private/GULReachabilityChecker.h"
 
 #import <GoogleToolboxForMac/GTMNSData+zlib.h>
 
 /// Constant string for request header Content-Encoding.
-static NSString *const kFIRNetworkContentCompressionKey = @"Content-Encoding";
+static NSString *const kGULNetworkContentCompressionKey = @"Content-Encoding";
 
 /// Constant string for request header Content-Encoding value.
-static NSString *const kFIRNetworkContentCompressionValue = @"gzip";
+static NSString *const kGULNetworkContentCompressionValue = @"gzip";
 
 /// Constant string for request header Content-Length.
-static NSString *const kFIRNetworkContentLengthKey = @"Content-Length";
+static NSString *const kGULNetworkContentLengthKey = @"Content-Length";
 
 /// Constant string for request header Content-Type.
-static NSString *const kFIRNetworkContentTypeKey = @"Content-Type";
+static NSString *const kGULNetworkContentTypeKey = @"Content-Type";
 
 /// Constant string for request header Content-Type value.
-static NSString *const kFIRNetworkContentTypeValue = @"application/x-www-form-urlencoded";
+static NSString *const kGULNetworkContentTypeValue = @"application/x-www-form-urlencoded";
 
 /// Constant string for GET request method.
-static NSString *const kFIRNetworkGETRequestMethod = @"GET";
+static NSString *const kGULNetworkGETRequestMethod = @"GET";
 
 /// Constant string for POST request method.
-static NSString *const kFIRNetworkPOSTRequestMethod = @"POST";
+static NSString *const kGULNetworkPOSTRequestMethod = @"POST";
 
 /// Default constant string as a prefix for network logger.
-static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
+static NSString *const kGULNetworkLogTag = @"Firebase/Network";
 
-@interface FIRNetwork () <FIRReachabilityDelegate, FIRNetworkLoggerDelegate>
+@interface GULNetwork () <GULReachabilityDelegate, GULNetworkLoggerDelegate>
 @end
 
-@implementation FIRNetwork {
+@implementation GULNetwork {
   /// Network reachability.
-  FIRReachabilityChecker *_reachability;
+  GULReachabilityChecker *_reachability;
 
   /// The dictionary of requests by session IDs { NSString : id }.
-  FIRMutableDictionary *_requests;
+  GULMutableDictionary *_requests;
 }
 
 - (instancetype)init {
-  return [self initWithReachabilityHost:kFIRNetworkReachabilityHost];
+  return [self initWithReachabilityHost:kGULNetworkReachabilityHost];
 }
 
 - (instancetype)initWithReachabilityHost:(NSString *)reachabilityHost {
   self = [super init];
   if (self) {
     // Setup reachability.
-    _reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
+    _reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
                                                                   loggerDelegate:self
                                                                         withHost:reachabilityHost];
     if (![_reachability start]) {
       return nil;
     }
 
-    _requests = [[FIRMutableDictionary alloc] init];
-    _timeoutInterval = kFIRNetworkTimeOutInterval;
+    _requests = [[GULMutableDictionary alloc] init];
+    _timeoutInterval = kGULNetworkTimeOutInterval;
   }
   return self;
 }
@@ -86,8 +86,8 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 #pragma mark - External Methods
 
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
-                            completionHandler:(FIRNetworkSystemCompletionHandler)completionHandler {
-  [FIRNetworkURLSession handleEventsForBackgroundURLSessionID:sessionID
+                            completionHandler:(GULNetworkSystemCompletionHandler)completionHandler {
+  [GULNetworkURLSession handleEventsForBackgroundURLSessionID:sessionID
                                             completionHandler:completionHandler];
 }
 
@@ -95,13 +95,13 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                    payload:(NSData *)payload
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
-         completionHandler:(FIRNetworkCompletionHandler)handler {
+         completionHandler:(GULNetworkCompletionHandler)handler {
   if (!url.absoluteString.length) {
     [self handleErrorWithCode:FIRErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
     return nil;
   }
 
-  NSTimeInterval timeOutInterval = _timeoutInterval ?: kFIRNetworkTimeOutInterval;
+  NSTimeInterval timeOutInterval = _timeoutInterval ?: kGULNetworkTimeOutInterval;
 
   NSMutableURLRequest *request =
       [[NSMutableURLRequest alloc] initWithURL:url
@@ -131,22 +131,22 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
   NSString *postLength = @(compressedData.length).stringValue;
 
   // Set up the request with the compressed data.
-  [request setValue:postLength forHTTPHeaderField:kFIRNetworkContentLengthKey];
+  [request setValue:postLength forHTTPHeaderField:kGULNetworkContentLengthKey];
   request.HTTPBody = compressedData;
-  request.HTTPMethod = kFIRNetworkPOSTRequestMethod;
-  [request setValue:kFIRNetworkContentTypeValue forHTTPHeaderField:kFIRNetworkContentTypeKey];
-  [request setValue:kFIRNetworkContentCompressionValue
-      forHTTPHeaderField:kFIRNetworkContentCompressionKey];
+  request.HTTPMethod = kGULNetworkPOSTRequestMethod;
+  [request setValue:kGULNetworkContentTypeValue forHTTPHeaderField:kGULNetworkContentTypeKey];
+  [request setValue:kGULNetworkContentCompressionValue
+      forHTTPHeaderField:kGULNetworkContentCompressionKey];
 
-  FIRNetworkURLSession *fetcher = [[FIRNetworkURLSession alloc] initWithNetworkLoggerDelegate:self];
+  GULNetworkURLSession *fetcher = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:self];
   fetcher.backgroundNetworkEnabled = usingBackgroundSession;
 
-  __weak FIRNetwork *weakSelf = self;
+  __weak GULNetwork *weakSelf = self;
   NSString *requestID = [fetcher
       sessionIDFromAsyncPOSTRequest:request
                   completionHandler:^(NSHTTPURLResponse *response, NSData *data,
                                       NSString *sessionID, NSError *error) {
-                    FIRNetwork *strongSelf = weakSelf;
+                    GULNetwork *strongSelf = weakSelf;
                     if (!strongSelf) {
                       return;
                     }
@@ -167,8 +167,8 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
     return nil;
   }
 
-  [self firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                    messageCode:kFIRNetworkMessageCodeNetwork000
+  [self GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                    messageCode:kGULNetworkMessageCodeNetwork000
                         message:@"Uploading data. Host"
                         context:url];
   _requests[requestID] = fetcher;
@@ -179,13 +179,13 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
                    headers:(NSDictionary *)headers
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
-         completionHandler:(FIRNetworkCompletionHandler)handler {
+         completionHandler:(GULNetworkCompletionHandler)handler {
   if (!url.absoluteString.length) {
     [self handleErrorWithCode:FIRErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
     return nil;
   }
 
-  NSTimeInterval timeOutInterval = _timeoutInterval ?: kFIRNetworkTimeOutInterval;
+  NSTimeInterval timeOutInterval = _timeoutInterval ?: kGULNetworkTimeOutInterval;
   NSMutableURLRequest *request =
       [[NSMutableURLRequest alloc] initWithURL:url
                                    cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
@@ -198,18 +198,18 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
     return nil;
   }
 
-  request.HTTPMethod = kFIRNetworkGETRequestMethod;
+  request.HTTPMethod = kGULNetworkGETRequestMethod;
   request.allHTTPHeaderFields = headers;
 
-  FIRNetworkURLSession *fetcher = [[FIRNetworkURLSession alloc] initWithNetworkLoggerDelegate:self];
+  GULNetworkURLSession *fetcher = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:self];
   fetcher.backgroundNetworkEnabled = usingBackgroundSession;
 
-  __weak FIRNetwork *weakSelf = self;
+  __weak GULNetwork *weakSelf = self;
   NSString *requestID = [fetcher
       sessionIDFromAsyncGETRequest:request
                  completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSString *sessionID,
                                      NSError *error) {
-                   FIRNetwork *strongSelf = weakSelf;
+                   GULNetwork *strongSelf = weakSelf;
                    if (!strongSelf) {
                      return;
                    }
@@ -231,8 +231,8 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
     return nil;
   }
 
-  [self firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                    messageCode:kFIRNetworkMessageCodeNetwork001
+  [self GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                    messageCode:kGULNetworkMessageCodeNetwork001
                         message:@"Downloading data. Host"
                         context:url];
   _requests[requestID] = fetcher;
@@ -247,26 +247,26 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 
 /// Tells reachability delegate to call reachabilityDidChangeToStatus: to notify the network
 /// reachability has changed.
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status {
-  _networkConnected = (status == kFIRReachabilityViaCellular || status == kFIRReachabilityViaWifi);
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status {
+  _networkConnected = (status == kGULReachabilityViaCellular || status == kGULReachabilityViaWifi);
   [_reachabilityDelegate reachabilityDidChange];
 }
 
 #pragma mark - Network logger delegate
 
-- (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
+- (void)setLoggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate {
   // Explicitly check whether the delegate responds to the methods because conformsToProtocol does
   // not work correctly even though the delegate does respond to the methods.
   if (!loggerDelegate ||
       ![loggerDelegate
-          respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:contexts:)] ||
+          respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:contexts:)] ||
       ![loggerDelegate
-          respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:context:)] ||
+          respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:context:)] ||
       !
-      [loggerDelegate respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:)]) {
+      [loggerDelegate respondsToSelector:@selector(GULNetwork_logWithLevel:messageCode:message:)]) {
     GULLogError(kGULLoggerNetwork, NO,
-                [NSString stringWithFormat:@"I-NET%06ld", (long)kFIRNetworkMessageCodeNetwork002],
+                [NSString stringWithFormat:@"I-NET%06ld", (long)kGULNetworkMessageCodeNetwork002],
                 @"Cannot set the network logger delegate: delegate does not conform to the network "
                  "logger protocol.");
     return;
@@ -279,12 +279,12 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 /// Handles network error and calls completion handler with the error.
 - (void)handleErrorWithCode:(NSInteger)code
                       queue:(dispatch_queue_t)queue
-                withHandler:(FIRNetworkCompletionHandler)handler {
-  NSDictionary *userInfo = @{kFIRNetworkErrorContext : @"Failed to create network request"};
+                withHandler:(GULNetworkCompletionHandler)handler {
+  NSDictionary *userInfo = @{kGULNetworkErrorContext : @"Failed to create network request"};
   NSError *error =
-      [[NSError alloc] initWithDomain:kFIRNetworkErrorDomain code:code userInfo:userInfo];
-  [self firNetwork_logWithLevel:kFIRNetworkLogLevelWarning
-                    messageCode:kFIRNetworkMessageCodeNetwork002
+      [[NSError alloc] initWithDomain:kGULNetworkErrorDomain code:code userInfo:userInfo];
+  [self GULNetwork_logWithLevel:kGULNetworkLogLevelWarning
+                    messageCode:kGULNetworkMessageCodeNetwork002
                         message:@"Failed to create network request. Code, error"
                        contexts:@[ @(code), error ]];
   if (handler) {
@@ -297,21 +297,21 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
 
 #pragma mark - Network logger
 
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message
                        contexts:(NSArray *)contexts {
   // Let the delegate log the message if there is a valid logger delegate. Otherwise, just log
   // errors/warnings/info messages to the console log.
   if (_loggerDelegate) {
-    [_loggerDelegate firNetwork_logWithLevel:logLevel
+    [_loggerDelegate GULNetwork_logWithLevel:logLevel
                                  messageCode:messageCode
                                      message:message
                                     contexts:contexts];
     return;
   }
-  if (_isDebugModeEnabled || logLevel == kFIRNetworkLogLevelError ||
-      logLevel == kFIRNetworkLogLevelWarning || logLevel == kFIRNetworkLogLevelInfo) {
+  if (_isDebugModeEnabled || logLevel == kGULNetworkLogLevelError ||
+      logLevel == kGULNetworkLogLevelWarning || logLevel == kGULNetworkLogLevelInfo) {
     NSString *formattedMessage = FIRStringWithLogMessage(message, logLevel, contexts);
     NSLog(@"%@", formattedMessage);
     GULLogBasic((GULLoggerLevel)logLevel, kGULLoggerNetwork, NO,
@@ -320,41 +320,41 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
   }
 }
 
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message
                         context:(id)context {
   if (_loggerDelegate) {
-    [_loggerDelegate firNetwork_logWithLevel:logLevel
+    [_loggerDelegate GULNetwork_logWithLevel:logLevel
                                  messageCode:messageCode
                                      message:message
                                      context:context];
     return;
   }
   NSArray *contexts = context ? @[ context ] : @[];
-  [self firNetwork_logWithLevel:logLevel messageCode:messageCode message:message contexts:contexts];
+  [self GULNetwork_logWithLevel:logLevel messageCode:messageCode message:message contexts:contexts];
 }
 
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message {
   if (_loggerDelegate) {
-    [_loggerDelegate firNetwork_logWithLevel:logLevel messageCode:messageCode message:message];
+    [_loggerDelegate GULNetwork_logWithLevel:logLevel messageCode:messageCode message:message];
     return;
   }
-  [self firNetwork_logWithLevel:logLevel messageCode:messageCode message:message contexts:@[]];
+  [self GULNetwork_logWithLevel:logLevel messageCode:messageCode message:message contexts:@[]];
 }
 
-/// Returns a string for the given log level (e.g. kFIRNetworkLogLevelError -> @"ERROR").
-static NSString *FIRLogLevelDescriptionFromLogLevel(FIRNetworkLogLevel logLevel) {
+/// Returns a string for the given log level (e.g. kGULNetworkLogLevelError -> @"ERROR").
+static NSString *FIRLogLevelDescriptionFromLogLevel(GULNetworkLogLevel logLevel) {
   static NSDictionary *levelNames = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     levelNames = @{
-      @(kFIRNetworkLogLevelError) : @"ERROR",
-      @(kFIRNetworkLogLevelWarning) : @"WARNING",
-      @(kFIRNetworkLogLevelInfo) : @"INFO",
-      @(kFIRNetworkLogLevelDebug) : @"DEBUG"
+      @(kGULNetworkLogLevelError) : @"ERROR",
+      @(kGULNetworkLogLevelWarning) : @"WARNING",
+      @(kGULNetworkLogLevelInfo) : @"INFO",
+      @(kGULNetworkLogLevelDebug) : @"DEBUG"
     };
   });
   return levelNames[@(logLevel)];
@@ -362,7 +362,7 @@ static NSString *FIRLogLevelDescriptionFromLogLevel(FIRNetworkLogLevel logLevel)
 
 /// Returns a formatted string to be used for console logging.
 static NSString *FIRStringWithLogMessage(NSString *message,
-                                         FIRNetworkLogLevel logLevel,
+                                         GULNetworkLogLevel logLevel,
                                          NSArray *contexts) {
   if (!message) {
     message = @"(Message was nil)";
@@ -370,7 +370,7 @@ static NSString *FIRStringWithLogMessage(NSString *message,
     message = @"(Message was empty)";
   }
   NSMutableString *result = [[NSMutableString alloc]
-      initWithFormat:@"<%@/%@> %@", kFIRNetworkLogTag, FIRLogLevelDescriptionFromLogLevel(logLevel),
+      initWithFormat:@"<%@/%@> %@", kGULNetworkLogTag, FIRLogLevelDescriptionFromLogLevel(logLevel),
                      message];
 
   if (!contexts.count) {

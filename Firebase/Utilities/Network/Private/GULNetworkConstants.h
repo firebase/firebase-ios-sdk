@@ -20,9 +20,9 @@
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if
 /// we inadvertently altered any of these codes in a future SDK version.
-typedef NS_ENUM(NSInteger, FIRNetworkErrorCode) {
+typedef NS_ENUM(NSInteger, GULNetworkErrorCode) {
   /// Unknown error.
-  FIRNetworkErrorCodeUnknown = 0,
+  GULNetworkErrorCodeUnknown = 0,
   /// Error occurs when the request URL is invalid.
   FIRErrorCodeNetworkInvalidURL = 1,
   /// Error occurs when request cannot be constructed.
@@ -38,42 +38,42 @@ typedef NS_ENUM(NSInteger, FIRNetworkErrorCode) {
 #pragma mark - Network constants
 
 /// The prefix of the ID of the background session.
-extern NSString *const kFIRNetworkBackgroundSessionConfigIDPrefix;
+extern NSString *const kGULNetworkBackgroundSessionConfigIDPrefix;
 
 /// The sub directory to store the files of data that is being uploaded in the background.
-extern NSString *const kFIRNetworkApplicationSupportSubdirectory;
+extern NSString *const kGULNetworkApplicationSupportSubdirectory;
 
 /// Name of the temporary directory that stores files for background uploading.
-extern NSString *const kFIRNetworkTempDirectoryName;
+extern NSString *const kGULNetworkTempDirectoryName;
 
 /// The period when the temporary uploading file can stay.
-extern const NSTimeInterval kFIRNetworkTempFolderExpireTime;
+extern const NSTimeInterval kGULNetworkTempFolderExpireTime;
 
 /// The default network request timeout interval.
-extern const NSTimeInterval kFIRNetworkTimeOutInterval;
+extern const NSTimeInterval kGULNetworkTimeOutInterval;
 
 /// The host to check the reachability of the network.
-extern NSString *const kFIRNetworkReachabilityHost;
+extern NSString *const kGULNetworkReachabilityHost;
 
 /// The key to get the error context of the UserInfo.
-extern NSString *const kFIRNetworkErrorContext;
+extern NSString *const kGULNetworkErrorContext;
 
 #pragma mark - Network Status Code
 
-extern const int kFIRNetworkHTTPStatusOK;
-extern const int kFIRNetworkHTTPStatusNoContent;
-extern const int kFIRNetworkHTTPStatusCodeMultipleChoices;
-extern const int kFIRNetworkHTTPStatusCodeMovedPermanently;
-extern const int kFIRNetworkHTTPStatusCodeFound;
-extern const int kFIRNetworkHTTPStatusCodeNotModified;
-extern const int kFIRNetworkHTTPStatusCodeMovedTemporarily;
-extern const int kFIRNetworkHTTPStatusCodeNotFound;
-extern const int kFIRNetworkHTTPStatusCodeCannotAcceptTraffic;
-extern const int kFIRNetworkHTTPStatusCodeUnavailable;
+extern const int kGULNetworkHTTPStatusOK;
+extern const int kGULNetworkHTTPStatusNoContent;
+extern const int kGULNetworkHTTPStatusCodeMultipleChoices;
+extern const int kGULNetworkHTTPStatusCodeMovedPermanently;
+extern const int kGULNetworkHTTPStatusCodeFound;
+extern const int kGULNetworkHTTPStatusCodeNotModified;
+extern const int kGULNetworkHTTPStatusCodeMovedTemporarily;
+extern const int kGULNetworkHTTPStatusCodeNotFound;
+extern const int kGULNetworkHTTPStatusCodeCannotAcceptTraffic;
+extern const int kGULNetworkHTTPStatusCodeUnavailable;
 
 #pragma mark - Error Domain
 
-extern NSString *const kFIRNetworkErrorDomain;
+extern NSString *const kGULNetworkErrorDomain;
 
 /// The logger service for GULNetwork.
 extern GULLoggerService kGULLoggerNetwork;

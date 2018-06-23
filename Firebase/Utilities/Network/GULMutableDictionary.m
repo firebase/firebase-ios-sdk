@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "Private/FIRMutableDictionary.h"
+#import "Private/GULMutableDictionary.h"
 
-@implementation FIRMutableDictionary {
+@implementation GULMutableDictionary {
   /// The mutable dictionary.
   NSMutableDictionary *_objects;
 
@@ -28,7 +28,7 @@
 
   if (self) {
     _objects = [[NSMutableDictionary alloc] init];
-    _queue = dispatch_queue_create("FIRMutableDictionary", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("GULMutableDictionary", DISPATCH_QUEUE_SERIAL);
   }
 
   return self;

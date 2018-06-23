@@ -16,12 +16,12 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRNetworkConstants.h"
-#import "FIRNetworkLoggerProtocol.h"
-#import "FIRNetworkURLSession.h"
+#import "GULNetworkConstants.h"
+#import "GULNetworkLoggerProtocol.h"
+#import "GULNetworkURLSession.h"
 
-/// Delegate protocol for FIRNetwork events.
-@protocol FIRNetworkReachabilityDelegate
+/// Delegate protocol for GULNetwork events.
+@protocol GULNetworkReachabilityDelegate
 
 /// Tells the delegate to handle events when the network reachability changes to connected or not
 /// connected.
@@ -35,7 +35,7 @@
 /// NOTE:
 /// User must add FIRAnalytics handleEventsForBackgroundURLSessionID:completionHandler to the
 /// AppDelegate application:handleEventsForBackgroundURLSession:completionHandler:
-@interface FIRNetwork : NSObject
+@interface GULNetwork : NSObject
 
 /// Indicates if network connectivity is available.
 @property(nonatomic, readonly, getter=isNetworkConnected) BOOL networkConnected;
@@ -44,11 +44,11 @@
 @property(nonatomic, readonly, getter=hasUploadInProgress) BOOL uploadInProgress;
 
 /// An optional delegate that can be used in the event when network reachability changes.
-@property(nonatomic, weak) id<FIRNetworkReachabilityDelegate> reachabilityDelegate;
+@property(nonatomic, weak) id<GULNetworkReachabilityDelegate> reachabilityDelegate;
 
 /// An optional delegate that can be used to log messages, warnings or errors that occur in the
 /// network operations.
-@property(nonatomic, weak) id<FIRNetworkLoggerDelegate> loggerDelegate;
+@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
 
 /// Indicates whether the logger should display debug messages.
 @property(nonatomic, assign) BOOL isDebugModeEnabled;
@@ -64,7 +64,7 @@
 
 /// Handles events when background session with the given ID has finished.
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
-                            completionHandler:(FIRNetworkSystemCompletionHandler)completionHandler;
+                            completionHandler:(GULNetworkSystemCompletionHandler)completionHandler;
 
 /// Compresses and sends a POST request with the provided data to the URL. The session will be
 /// background session if usingBackgroundSession is YES. Otherwise, the POST session is default
@@ -73,7 +73,7 @@
                    payload:(NSData *)payload
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
-         completionHandler:(FIRNetworkCompletionHandler)handler;
+         completionHandler:(GULNetworkCompletionHandler)handler;
 
 /// Sends a GET request with the provided data to the URL. The session will be background session
 /// if usingBackgroundSession is YES. Otherwise, the GET session is default session. Returns a
@@ -82,6 +82,6 @@
                    headers:(NSDictionary *)headers
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
-         completionHandler:(FIRNetworkCompletionHandler)handler;
+         completionHandler:(GULNetworkCompletionHandler)handler;
 
 @end

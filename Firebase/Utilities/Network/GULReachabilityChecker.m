@@ -14,18 +14,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRReachabilityChecker+Internal.h"
-#import "Private/FIRReachabilityChecker.h"
+#import "GULReachabilityChecker+Internal.h"
+#import "Private/GULReachabilityChecker.h"
 
 #import <GoogleUtilities/GULLogger.h>
-#import "Private/FIRNetwork.h"
-#import "Private/FIRNetworkMessageCode.h"
+#import "Private/GULNetwork.h"
+#import "Private/GULNetworkMessageCode.h"
 
 static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
                                  SCNetworkReachabilityFlags flags,
                                  void *info);
 
-static const struct FIRReachabilityApi kFIRDefaultReachabilityApi = {
+static const struct GULReachabilityApi kFIRDefaultReachabilityApi = {
     SCNetworkReachabilityCreateWithName,
     SCNetworkReachabilitySetCallback,
     SCNetworkReachabilityScheduleWithRunLoop,
@@ -33,35 +33,35 @@ static const struct FIRReachabilityApi kFIRDefaultReachabilityApi = {
     CFRelease,
 };
 
-static NSString *const kFIRReachabilityUnknownStatus = @"Unknown";
-static NSString *const kFIRReachabilityConnectedStatus = @"Connected";
-static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
+static NSString *const kGULReachabilityUnknownStatus = @"Unknown";
+static NSString *const kGULReachabilityConnectedStatus = @"Connected";
+static NSString *const kGULReachabilityDisconnectedStatus = @"Disconnected";
 
-@interface FIRReachabilityChecker ()
+@interface GULReachabilityChecker ()
 
-@property(nonatomic, assign) const struct FIRReachabilityApi *reachabilityApi;
-@property(nonatomic, assign) FIRReachabilityStatus reachabilityStatus;
+@property(nonatomic, assign) const struct GULReachabilityApi *reachabilityApi;
+@property(nonatomic, assign) GULReachabilityStatus reachabilityStatus;
 @property(nonatomic, copy) NSString *host;
 @property(nonatomic, assign) SCNetworkReachabilityRef reachability;
 
 @end
 
-@implementation FIRReachabilityChecker
+@implementation GULReachabilityChecker
 
 @synthesize reachabilityApi = reachabilityApi_;
 @synthesize reachability = reachability_;
 
-- (const struct FIRReachabilityApi *)reachabilityApi {
+- (const struct GULReachabilityApi *)reachabilityApi {
   return reachabilityApi_;
 }
 
-- (void)setReachabilityApi:(const struct FIRReachabilityApi *)reachabilityApi {
+- (void)setReachabilityApi:(const struct GULReachabilityApi *)reachabilityApi {
   if (reachability_) {
     NSString *message =
         @"Cannot change reachability API while reachability is running. "
         @"Call stop first.";
-    [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeReachabilityChecker000
+    [loggerDelegate_ GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeReachabilityChecker000
                                      message:message];
     return;
   }
@@ -77,47 +77,47 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
   return reachability_ != nil;
 }
 
-- (void)setReachabilityDelegate:(id<FIRReachabilityDelegate>)reachabilityDelegate {
+- (void)setReachabilityDelegate:(id<GULReachabilityDelegate>)reachabilityDelegate {
   if (reachabilityDelegate &&
-      (![(NSObject *)reachabilityDelegate conformsToProtocol:@protocol(FIRReachabilityDelegate)])) {
+      (![(NSObject *)reachabilityDelegate conformsToProtocol:@protocol(GULReachabilityDelegate)])) {
     GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld",
-                                           (long)kFIRNetworkMessageCodeReachabilityChecker005],
+                                           (long)kGULNetworkMessageCodeReachabilityChecker005],
                 @"Reachability delegate doesn't conform to Reachability protocol.");
     return;
   }
   reachabilityDelegate_ = reachabilityDelegate;
 }
 
-- (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
+- (void)setLoggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate {
   if (loggerDelegate &&
-      (![(NSObject *)loggerDelegate conformsToProtocol:@protocol(FIRNetworkLoggerDelegate)])) {
+      (![(NSObject *)loggerDelegate conformsToProtocol:@protocol(GULNetworkLoggerDelegate)])) {
     GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld",
-                                           (long)kFIRNetworkMessageCodeReachabilityChecker006],
+                                           (long)kGULNetworkMessageCodeReachabilityChecker006],
                 @"Reachability delegate doesn't conform to Logger protocol.");
     return;
   }
   loggerDelegate_ = loggerDelegate;
 }
 
-- (instancetype)initWithReachabilityDelegate:(id<FIRReachabilityDelegate>)reachabilityDelegate
-                              loggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate
+- (instancetype)initWithReachabilityDelegate:(id<GULReachabilityDelegate>)reachabilityDelegate
+                              loggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate
                                     withHost:(NSString *)host {
   self = [super init];
 
   [self setLoggerDelegate:loggerDelegate];
 
   if (!host || !host.length) {
-    [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeReachabilityChecker001
+    [loggerDelegate_ GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeReachabilityChecker001
                                      message:@"Invalid host specified"];
     return nil;
   }
   if (self) {
     [self setReachabilityDelegate:reachabilityDelegate];
     reachabilityApi_ = &kFIRDefaultReachabilityApi;
-    reachabilityStatus_ = kFIRReachabilityUnknown;
+    reachabilityStatus_ = kGULReachabilityUnknown;
     host_ = [host copy];
     reachability_ = nil;
   }
@@ -148,21 +148,21 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
                                                  kCFRunLoopCommonModes)) {
       reachabilityApi_->releaseFn(reachability_);
       reachability_ = nil;
-      [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                   messageCode:kFIRNetworkMessageCodeReachabilityChecker002
+      [loggerDelegate_ GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                   messageCode:kGULNetworkMessageCodeReachabilityChecker002
                                        message:@"Failed to start reachability handle"];
       return NO;
     }
   }
-  [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                               messageCode:kFIRNetworkMessageCodeReachabilityChecker003
+  [loggerDelegate_ GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                               messageCode:kGULNetworkMessageCodeReachabilityChecker003
                                    message:@"Monitoring the network status"];
   return YES;
 }
 
 - (void)stop {
   if (reachability_) {
-    reachabilityStatus_ = kFIRReachabilityUnknown;
+    reachabilityStatus_ = kGULReachabilityUnknown;
     reachabilityApi_->unscheduleFromRunLoopFn(reachability_, CFRunLoopGetMain(),
                                               kCFRunLoopCommonModes);
     reachabilityApi_->releaseFn(reachability_);
@@ -170,18 +170,18 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
   }
 }
 
-- (FIRReachabilityStatus)statusForFlags:(SCNetworkReachabilityFlags)flags {
-  FIRReachabilityStatus status = kFIRReachabilityNotReachable;
+- (GULReachabilityStatus)statusForFlags:(SCNetworkReachabilityFlags)flags {
+  GULReachabilityStatus status = kGULReachabilityNotReachable;
   // If the Reachable flag is not set, we definitely don't have connectivity.
   if (flags & kSCNetworkReachabilityFlagsReachable) {
     // Reachable flag is set. Check further flags.
     if (!(flags & kSCNetworkReachabilityFlagsConnectionRequired)) {
 // Connection required flag is not set, so we have connectivity.
 #if TARGET_OS_IOS || TARGET_OS_TV
-      status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
-                                                           : kFIRReachabilityViaWifi;
+      status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kGULReachabilityViaCellular
+                                                           : kGULReachabilityViaWifi;
 #elif TARGET_OS_OSX
-      status = kFIRReachabilityViaWifi;
+      status = kGULReachabilityViaWifi;
 #endif
     } else if ((flags & (kSCNetworkReachabilityFlagsConnectionOnDemand |
                          kSCNetworkReachabilityFlagsConnectionOnTraffic)) &&
@@ -189,10 +189,10 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 // If the connection on demand or connection on traffic flag is set, and user intervention
 // is not required, we have connectivity.
 #if TARGET_OS_IOS || TARGET_OS_TV
-      status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kFIRReachabilityViaCellular
-                                                           : kFIRReachabilityViaWifi;
+      status = (flags & kSCNetworkReachabilityFlagsIsWWAN) ? kGULReachabilityViaCellular
+                                                           : kGULReachabilityViaWifi;
 #elif TARGET_OS_OSX
-      status = kFIRReachabilityViaWifi;
+      status = kGULReachabilityViaWifi;
 #endif
     }
   }
@@ -200,18 +200,18 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 }
 
 - (void)reachabilityFlagsChanged:(SCNetworkReachabilityFlags)flags {
-  FIRReachabilityStatus status = [self statusForFlags:flags];
+  GULReachabilityStatus status = [self statusForFlags:flags];
   if (reachabilityStatus_ != status) {
     NSString *reachabilityStatusString;
-    if (status == kFIRReachabilityUnknown) {
-      reachabilityStatusString = kFIRReachabilityUnknownStatus;
+    if (status == kGULReachabilityUnknown) {
+      reachabilityStatusString = kGULReachabilityUnknownStatus;
     } else {
-      reachabilityStatusString = (status == kFIRReachabilityNotReachable)
-                                     ? kFIRReachabilityDisconnectedStatus
-                                     : kFIRReachabilityConnectedStatus;
+      reachabilityStatusString = (status == kGULReachabilityNotReachable)
+                                     ? kGULReachabilityDisconnectedStatus
+                                     : kGULReachabilityConnectedStatus;
     }
-    [loggerDelegate_ firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                                 messageCode:kFIRNetworkMessageCodeReachabilityChecker004
+    [loggerDelegate_ GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                                 messageCode:kGULNetworkMessageCodeReachabilityChecker004
                                      message:@"Network status has changed. Code, status"
                                     contexts:@[ @(status), reachabilityStatusString ]];
     reachabilityStatus_ = status;
@@ -224,7 +224,7 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
                                  SCNetworkReachabilityFlags flags,
                                  void *info) {
-  FIRReachabilityChecker *checker = (__bridge FIRReachabilityChecker *)info;
+  GULReachabilityChecker *checker = (__bridge GULReachabilityChecker *)info;
   [checker reachabilityFlagsChanged:flags];
 }
 
@@ -236,18 +236,18 @@ static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
 // discovered that moving this function to the end of the file magically fixed
 // the crash. If you are going to edit this file, exercise caution and make sure
 // to test thoroughly with an iOS device under various network conditions.
-const NSString *FIRReachabilityStatusString(FIRReachabilityStatus status) {
+const NSString *GULReachabilityStatusString(GULReachabilityStatus status) {
   switch (status) {
-    case kFIRReachabilityUnknown:
+    case kGULReachabilityUnknown:
       return @"Reachability Unknown";
 
-    case kFIRReachabilityNotReachable:
+    case kGULReachabilityNotReachable:
       return @"Not reachable";
 
-    case kFIRReachabilityViaWifi:
+    case kGULReachabilityViaWifi:
       return @"Reachable via Wifi";
 
-    case kFIRReachabilityViaCellular:
+    case kGULReachabilityViaCellular:
       return @"Reachable via Cellular Data";
 
     default:

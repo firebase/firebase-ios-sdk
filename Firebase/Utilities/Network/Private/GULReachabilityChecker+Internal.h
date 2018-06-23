@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-#import "FIRReachabilityChecker.h"
+#import "GULReachabilityChecker.h"
 
-typedef SCNetworkReachabilityRef (*FIRReachabilityCreateWithNameFn)(CFAllocatorRef allocator,
+typedef SCNetworkReachabilityRef (*GULReachabilityCreateWithNameFn)(CFAllocatorRef allocator,
                                                                     const char *host);
 
-typedef Boolean (*FIRReachabilitySetCallbackFn)(SCNetworkReachabilityRef target,
+typedef Boolean (*GULReachabilitySetCallbackFn)(SCNetworkReachabilityRef target,
                                                 SCNetworkReachabilityCallBack callback,
                                                 SCNetworkReachabilityContext *context);
-typedef Boolean (*FIRReachabilityScheduleWithRunLoopFn)(SCNetworkReachabilityRef target,
+typedef Boolean (*GULReachabilityScheduleWithRunLoopFn)(SCNetworkReachabilityRef target,
                                                         CFRunLoopRef runLoop,
                                                         CFStringRef runLoopMode);
-typedef Boolean (*FIRReachabilityUnscheduleFromRunLoopFn)(SCNetworkReachabilityRef target,
+typedef Boolean (*GULReachabilityUnscheduleFromRunLoopFn)(SCNetworkReachabilityRef target,
                                                           CFRunLoopRef runLoop,
                                                           CFStringRef runLoopMode);
 
-typedef void (*FIRReachabilityReleaseFn)(CFTypeRef cf);
+typedef void (*GULReachabilityReleaseFn)(CFTypeRef cf);
 
-struct FIRReachabilityApi {
-  FIRReachabilityCreateWithNameFn createWithNameFn;
-  FIRReachabilitySetCallbackFn setCallbackFn;
-  FIRReachabilityScheduleWithRunLoopFn scheduleWithRunLoopFn;
-  FIRReachabilityUnscheduleFromRunLoopFn unscheduleFromRunLoopFn;
-  FIRReachabilityReleaseFn releaseFn;
+struct GULReachabilityApi {
+  GULReachabilityCreateWithNameFn createWithNameFn;
+  GULReachabilitySetCallbackFn setCallbackFn;
+  GULReachabilityScheduleWithRunLoopFn scheduleWithRunLoopFn;
+  GULReachabilityUnscheduleFromRunLoopFn unscheduleFromRunLoopFn;
+  GULReachabilityReleaseFn releaseFn;
 };
 
-@interface FIRReachabilityChecker (Internal)
+@interface GULReachabilityChecker (Internal)
 
-- (const struct FIRReachabilityApi *)reachabilityApi;
-- (void)setReachabilityApi:(const struct FIRReachabilityApi *)reachabilityApi;
+- (const struct GULReachabilityApi *)reachabilityApi;
+- (void)setReachabilityApi:(const struct GULReachabilityApi *)reachabilityApi;
 
 @end

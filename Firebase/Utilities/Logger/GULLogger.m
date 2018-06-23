@@ -14,7 +14,7 @@
 
 #import "Private/GULLogger.h"
 
-#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "Public/GULLoggerLevel.h"
 
 #include <asl.h>
@@ -72,7 +72,7 @@ static NSRegularExpression *sMessageCodeRegex;
 
 void GULLoggerInitializeASL(BOOL disableDebug, BOOL enableDebug, BOOL forceStderr) {
   dispatch_once(&sGULLoggerOnceToken, ^{
-    NSInteger majorOSVersion = [[FIRAppEnvironmentUtil systemVersion] integerValue];
+    NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
     uint32_t aslOptions = ASL_OPT_STDERR;
 #if TARGET_OS_SIMULATOR
     // The iOS 11 simulator doesn't need the ASL_OPT_STDERR flag.
@@ -117,7 +117,7 @@ void GULLoggerInitializeASL(BOOL disableDebug, BOOL enableDebug, BOOL forceStder
     }
 
     // We should disable debug mode if we are running from App Store.
-    if (sGULLoggerDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
+    if (sGULLoggerDebugMode && [GULAppEnvironmentUtil isFromAppStore]) {
       sGULLoggerDebugMode = NO;
     }
 
@@ -136,7 +136,7 @@ void GULSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
   GULLoggerInitializeASL(NO, NO, NO);
   dispatch_async(sGULClientQueue, ^{
     // We should not enable debug mode if we are running from App Store.
-    if (analyticsDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
+    if (analyticsDebugMode && [GULAppEnvironmentUtil isFromAppStore]) {
       return;
     }
     sGULAnalyticsDebugMode = analyticsDebugMode;
@@ -152,7 +152,7 @@ void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
   }
   GULLoggerInitializeASL(NO, NO, NO);
   // We should not raise the logger level if we are running from App Store.
-  if (loggerLevel >= GULLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) {
+  if (loggerLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
 

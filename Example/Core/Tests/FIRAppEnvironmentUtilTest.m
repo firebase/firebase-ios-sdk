@@ -15,17 +15,17 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "FIRTestCase.h"
 
-@interface FIRAppEnvironmentUtilTest : FIRTestCase
+@interface GULAppEnvironmentUtilTest : FIRTestCase
 
 @property(nonatomic) id processInfoMock;
 
 @end
 
-@implementation FIRAppEnvironmentUtilTest
+@implementation GULAppEnvironmentUtilTest
 
 - (void)setUp {
   [super setUp];
@@ -43,21 +43,21 @@
   NSOperatingSystemVersion osTen = {.majorVersion = 10, .minorVersion = 0, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTen);
 
-  XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.0"]);
+  XCTAssertTrue([[GULAppEnvironmentUtil systemVersion] isEqualToString:@"10.0"]);
 }
 
 - (void)testSystemVersionInfoMajorMinor {
   NSOperatingSystemVersion osTenTwo = {.majorVersion = 10, .minorVersion = 2, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTenTwo);
 
-  XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.2"]);
+  XCTAssertTrue([[GULAppEnvironmentUtil systemVersion] isEqualToString:@"10.2"]);
 }
 
 - (void)testSystemVersionInfoMajorMinorPatch {
   NSOperatingSystemVersion osTenTwoOne = {.majorVersion = 10, .minorVersion = 2, .patchVersion = 1};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTenTwoOne);
 
-  XCTAssertTrue([[FIRAppEnvironmentUtil systemVersion] isEqualToString:@"10.2.1"]);
+  XCTAssertTrue([[GULAppEnvironmentUtil systemVersion] isEqualToString:@"10.2.1"]);
 }
 
 @end

@@ -14,7 +14,7 @@
 
 #import "Private/FIRLogger.h"
 
-#import <GoogleUtilities/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import "Public/FIRLoggerLevel.h"
 
@@ -72,7 +72,7 @@ void FIRLoggerInitializeASL() {
 }
 
 void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
-  if (analyticsDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
+  if (analyticsDebugMode && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
   }
   sFIRAnalyticsDebugMode = analyticsDebugMode;
