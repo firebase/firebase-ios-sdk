@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface FIRAppEnvironmentUtil : NSObject
+@interface GULAppEnvironmentUtil : NSObject
 
 /// Indicates whether the app is from Apple Store or not. Returns NO if the app is on simulator,
 /// development environment or sideloaded.

@@ -16,33 +16,33 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRNetworkLoggerProtocol.h"
+#import "GULNetworkLoggerProtocol.h"
 
-typedef void (^FIRNetworkCompletionHandler)(NSHTTPURLResponse *response,
+typedef void (^GULNetworkCompletionHandler)(NSHTTPURLResponse *response,
                                             NSData *data,
                                             NSError *error);
-typedef void (^FIRNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response,
+typedef void (^GULNetworkURLSessionCompletionHandler)(NSHTTPURLResponse *response,
                                                       NSData *data,
                                                       NSString *sessionID,
                                                       NSError *error);
-typedef void (^FIRNetworkSystemCompletionHandler)(void);
+typedef void (^GULNetworkSystemCompletionHandler)(void);
 
 /// The protocol that uses NSURLSession for iOS >= 7.0 to handle requests and responses.
-@interface FIRNetworkURLSession
+@interface GULNetworkURLSession
     : NSObject <NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate>
 
 /// Indicates whether the background network is enabled. Default value is NO.
 @property(nonatomic, getter=isBackgroundNetworkEnabled) BOOL backgroundNetworkEnabled;
 
 /// The logger delegate to log message, errors or warnings that occur during the network operations.
-@property(nonatomic, weak) id<FIRNetworkLoggerDelegate> loggerDelegate;
+@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
 
 /// Calls the system provided completion handler after the background session is finished.
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
-                            completionHandler:(FIRNetworkSystemCompletionHandler)completionHandler;
+                            completionHandler:(GULNetworkSystemCompletionHandler)completionHandler;
 
 /// Initializes with logger delegate.
-- (instancetype)initWithNetworkLoggerDelegate:(id<FIRNetworkLoggerDelegate>)networkLoggerDelegate
+- (instancetype)initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)networkLoggerDelegate
     NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -50,11 +50,11 @@ typedef void (^FIRNetworkSystemCompletionHandler)(void);
 /// Sends an asynchronous POST request and calls the provided completion handler when the request
 /// completes or when errors occur, and returns an ID of the session/connection.
 - (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(FIRNetworkURLSessionCompletionHandler)handler;
+                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
 
 /// Sends an asynchronous GET request and calls the provided completion handler when the request
 /// completes or when errors occur, and returns an ID of the session.
 - (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(FIRNetworkURLSessionCompletionHandler)handler;
+                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler;
 
 @end

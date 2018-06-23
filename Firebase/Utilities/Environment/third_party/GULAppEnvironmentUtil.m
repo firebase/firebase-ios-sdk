@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAppEnvironmentUtil.h"
+#import "GULAppEnvironmentUtil.h"
 
 #import <dlfcn.h>
 #import <mach-o/dyld.h>
@@ -34,7 +34,7 @@ struct encryption_info_command {
 };
 #endif
 
-@implementation FIRAppEnvironmentUtil
+@implementation GULAppEnvironmentUtil
 
 /// A key for the Info.plist to enable or disable checking if the App Store is running in a sandbox.
 /// This will affect your data integrity when using Firebase Analytics, as it will disable some
@@ -133,18 +133,18 @@ static BOOL isAppEncrypted() {
     isEncrypted = isAppEncrypted();
   });
 
-  if ([FIRAppEnvironmentUtil isSimulator]) {
+  if ([GULAppEnvironmentUtil isSimulator]) {
     return NO;
   }
 
   // If an app contain the sandboxReceipt file, it means its coming from TestFlight
   // This must be checked before the SCInfo Folder check below since TestFlight apps may
   // also have an SCInfo folder.
-  if ([FIRAppEnvironmentUtil isAppStoreReceiptSandbox]) {
+  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox]) {
     return NO;
   }
 
-  if ([FIRAppEnvironmentUtil hasSCInfoFolder]) {
+  if ([GULAppEnvironmentUtil hasSCInfoFolder]) {
     // When iTunes downloads a .ipa, it also gets a customized .sinf file which is added to the
     // main SC_Info directory.
     return YES;
@@ -154,7 +154,7 @@ static BOOL isAppEncrypted() {
   // the iTunesMetadata.plist outside of the sandbox will be rejected by Apple.
   // If the app does not contain the embedded.mobileprovision which is stripped out by Apple when
   // the app is submitted to store, then it is highly likely that it is from Apple Store.
-  return isEncrypted && ![FIRAppEnvironmentUtil hasEmbeddedMobileProvision];
+  return isEncrypted && ![GULAppEnvironmentUtil hasEmbeddedMobileProvision];
 }
 
 + (BOOL)isAppStoreReceiptSandbox {
@@ -182,7 +182,7 @@ static BOOL isAppEncrypted() {
 
 + (BOOL)isSimulator {
 #if TARGET_OS_IOS || TARGET_OS_TV
-  NSString *platform = [FIRAppEnvironmentUtil deviceModel];
+  NSString *platform = [GULAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
 #elif TARGET_OS_OSX
   return NO;

@@ -19,37 +19,37 @@
 
 /// Reachability Status
 typedef enum {
-  kFIRReachabilityUnknown,  ///< Have not yet checked or been notified whether host is reachable.
-  kFIRReachabilityNotReachable,  ///< Host is not reachable.
-  kFIRReachabilityViaWifi,       ///< Host is reachable via Wifi.
-  kFIRReachabilityViaCellular,   ///< Host is reachable via cellular.
-} FIRReachabilityStatus;
+  kGULReachabilityUnknown,  ///< Have not yet checked or been notified whether host is reachable.
+  kGULReachabilityNotReachable,  ///< Host is not reachable.
+  kGULReachabilityViaWifi,       ///< Host is reachable via Wifi.
+  kGULReachabilityViaCellular,   ///< Host is reachable via cellular.
+} GULReachabilityStatus;
 
-const NSString *FIRReachabilityStatusString(FIRReachabilityStatus status);
+const NSString *GULReachabilityStatusString(GULReachabilityStatus status);
 
-@class FIRReachabilityChecker;
-@protocol FIRNetworkLoggerDelegate;
+@class GULReachabilityChecker;
+@protocol GULNetworkLoggerDelegate;
 
 /// Google Analytics iOS Reachability Checker.
-@protocol FIRReachabilityDelegate
+@protocol GULReachabilityDelegate
 @required
 /// Called when network status has changed.
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status;
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status;
 @end
 
 /// Google Analytics iOS Network Status Checker.
-@interface FIRReachabilityChecker : NSObject
+@interface GULReachabilityChecker : NSObject
 
-/// The last known reachability status, or FIRReachabilityStatusUnknown if the
+/// The last known reachability status, or GULReachabilityStatusUnknown if the
 /// checker is not active.
-@property(nonatomic, readonly) FIRReachabilityStatus reachabilityStatus;
+@property(nonatomic, readonly) GULReachabilityStatus reachabilityStatus;
 /// The host to which reachability status is to be checked.
 @property(nonatomic, copy, readonly) NSString *host;
 /// The delegate to be notified of reachability status changes.
-@property(nonatomic, weak) id<FIRReachabilityDelegate> reachabilityDelegate;
+@property(nonatomic, weak) id<GULReachabilityDelegate> reachabilityDelegate;
 /// The delegate to be notified to log messages.
-@property(nonatomic, weak) id<FIRNetworkLoggerDelegate> loggerDelegate;
+@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
 /// `YES` if the reachability checker is active, `NO` otherwise.
 @property(nonatomic, readonly) BOOL isActive;
 
@@ -63,8 +63,8 @@ const NSString *FIRReachabilityStatusString(FIRReachabilityStatus status);
 ///
 /// @param host The name of the host.
 ///
-- (instancetype)initWithReachabilityDelegate:(id<FIRReachabilityDelegate>)reachabilityDelegate
-                              loggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate
+- (instancetype)initWithReachabilityDelegate:(id<GULReachabilityDelegate>)reachabilityDelegate
+                              loggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate
                                     withHost:(NSString *)host;
 
 - (instancetype)init NS_UNAVAILABLE;

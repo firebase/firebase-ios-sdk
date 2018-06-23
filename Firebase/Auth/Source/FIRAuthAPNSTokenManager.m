@@ -16,7 +16,7 @@
 
 #import "FIRAuthAPNSTokenManager.h"
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <FirebaseCore/FIRLogger.h>
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthGlobalWorkQueue.h"
 
@@ -137,7 +137,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
   NSError *error = nil;
 
-  Class envClass = NSClassFromString(@"FIRAppEnvironmentUtil");
+  Class envClass = NSClassFromString(@"GULAppEnvironmentUtil");
   SEL isSimulatorSelector = NSSelectorFromString(@"isSimulator");
   if ([envClass respondsToSelector:isSimulatorSelector]) {
 #pragma clang diagnostic push

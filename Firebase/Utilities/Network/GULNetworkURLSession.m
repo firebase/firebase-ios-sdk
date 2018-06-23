@@ -14,16 +14,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Private/FIRNetworkURLSession.h"
+#import "Private/GULNetworkURLSession.h"
 
 #import <GoogleUtilities/GULLogger.h>
-#import "Private/FIRMutableDictionary.h"
-#import "Private/FIRNetworkConstants.h"
-#import "Private/FIRNetworkMessageCode.h"
+#import "Private/GULMutableDictionary.h"
+#import "Private/GULNetworkConstants.h"
+#import "Private/GULNetworkMessageCode.h"
 
-@implementation FIRNetworkURLSession {
+@implementation GULNetworkURLSession {
   /// The handler to be called when the request completes or error has occurs.
-  FIRNetworkURLSessionCompletionHandler _completionHandler;
+  GULNetworkURLSessionCompletionHandler _completionHandler;
 
   /// Session ID generated randomly with a fixed prefix.
   NSString *_sessionID;
@@ -46,7 +46,7 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithNetworkLoggerDelegate:(id<FIRNetworkLoggerDelegate>)networkLoggerDelegate {
+- (instancetype)initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)networkLoggerDelegate {
   self = [super init];
   if (self) {
     // Create URL to the directory where all temporary files to upload have to be stored.
@@ -54,11 +54,11 @@
         NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     NSString *applicationSupportDirectory = paths.firstObject;
     NSArray *tempPathComponents = @[
-      applicationSupportDirectory, kFIRNetworkApplicationSupportSubdirectory,
-      kFIRNetworkTempDirectoryName
+      applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,
+      kGULNetworkTempDirectoryName
     ];
     _networkDirectoryURL = [NSURL fileURLWithPathComponents:tempPathComponents];
-    _sessionID = [NSString stringWithFormat:@"%@-%@", kFIRNetworkBackgroundSessionConfigIDPrefix,
+    _sessionID = [NSString stringWithFormat:@"%@-%@", kGULNetworkBackgroundSessionConfigIDPrefix,
                                             [[NSUUID UUID] UUIDString]];
     _loggerDelegate = networkLoggerDelegate;
   }
@@ -71,17 +71,17 @@
 
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
                             completionHandler:
-                                (FIRNetworkSystemCompletionHandler)systemCompletionHandler {
+                                (GULNetworkSystemCompletionHandler)systemCompletionHandler {
   // The session may not be FIRAnalytics background. Ignore those that do not have the prefix.
-  if (![sessionID hasPrefix:kFIRNetworkBackgroundSessionConfigIDPrefix]) {
+  if (![sessionID hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
     return;
   }
-  FIRNetworkURLSession *fetcher = [self fetcherWithSessionIdentifier:sessionID];
+  GULNetworkURLSession *fetcher = [self fetcherWithSessionIdentifier:sessionID];
   if (fetcher != nil) {
     [fetcher addSystemCompletionHandler:systemCompletionHandler forSession:sessionID];
   } else {
     GULLogError(kGULLoggerNetwork, NO,
-                [NSString stringWithFormat:@"I-NET%06ld", (long)kFIRNetworkMessageCodeNetwork003],
+                [NSString stringWithFormat:@"I-NET%06ld", (long)kGULNetworkMessageCodeNetwork003],
                 @"Failed to retrieve background session with ID %@ after app is relaunched.",
                 sessionID);
   }
@@ -92,7 +92,7 @@
 /// Sends an async POST request using NSURLSession for iOS >= 7.0, and returns an ID of the
 /// connection.
 - (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(FIRNetworkURLSessionCompletionHandler)handler {
+                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler {
   // NSURLSessionUploadTask does not work with NSData in the background.
   // To avoid this issue, write the data to a temporary file to upload it.
   // Make a temporary file with the data subset.
@@ -105,7 +105,7 @@
   // Clean up the entire temp folder to avoid temp files that remain in case the previous session
   // crashed and did not clean up.
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
-                     expiringTime:kFIRNetworkTempFolderExpireTime];
+                     expiringTime:kGULNetworkTempFolderExpireTime];
 
   // If there is no background network enabled, no need to write to file. This will allow default
   // network session which runs on the foreground.
@@ -115,8 +115,8 @@
                                            error:&writeError];
 
     if (writeError) {
-      [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                   messageCode:kFIRNetworkMessageCodeURLSession000
+      [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                   messageCode:kGULNetworkMessageCodeURLSession000
                                        message:@"Failed to write request data to file"
                                        context:writeError];
     }
@@ -146,9 +146,9 @@
 
   if (!session || !postRequestTask) {
     NSError *error = [[NSError alloc]
-        initWithDomain:kFIRNetworkErrorDomain
+        initWithDomain:kGULNetworkErrorDomain
                   code:FIRErrorCodeNetworkRequestCreation
-              userInfo:@{kFIRNetworkErrorContext : @"Cannot create network session"}];
+              userInfo:@{kGULNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
   }
@@ -169,7 +169,7 @@
 
 /// Sends an async GET request using NSURLSession for iOS >= 7.0, and returns an ID of the session.
 - (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(FIRNetworkURLSessionCompletionHandler)handler {
+                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler {
   if (_backgroundNetworkEnabled) {
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
   } else {
@@ -188,9 +188,9 @@
 
   if (!session || !downloadTask) {
     NSError *error = [[NSError alloc]
-        initWithDomain:kFIRNetworkErrorDomain
+        initWithDomain:kGULNetworkErrorDomain
                   code:FIRErrorCodeNetworkRequestCreation
-              userInfo:@{kFIRNetworkErrorContext : @"Cannot create network session"}];
+              userInfo:@{kGULNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
   }
@@ -218,8 +218,8 @@
     didFinishDownloadingToURL:(NSURL *)url {
   if (!url.path) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                    messageCode:kFIRNetworkMessageCodeURLSession001
+        GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                    messageCode:kGULNetworkMessageCodeURLSession001
                         message:@"Unable to read downloaded data from empty temp path"];
     _downloadedData = nil;
     return;
@@ -229,8 +229,8 @@
   _downloadedData = [NSData dataWithContentsOfFile:url.path options:0 error:&error];
 
   if (error) {
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeURLSession002
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeURLSession002
                                      message:@"Cannot read the content of downloaded data"
                                      context:error];
     _downloadedData = nil;
@@ -239,8 +239,8 @@
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session {
-  [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                               messageCode:kFIRNetworkMessageCodeURLSession003
+  [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                               messageCode:kGULNetworkMessageCodeURLSession003
                                    message:@"Background session finished"
                                    context:session.configuration.identifier];
   [self callSystemCompletionHandler:session.configuration.identifier];
@@ -251,7 +251,7 @@
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   // Avoid any chance of recursive behavior leading to it being used repeatedly.
-  FIRNetworkURLSessionCompletionHandler handler = _completionHandler;
+  GULNetworkURLSessionCompletionHandler handler = _completionHandler;
   _completionHandler = nil;
 
   if (task.response) {
@@ -262,9 +262,9 @@
     error = nil;
   } else if (!error) {
     error = [[NSError alloc]
-        initWithDomain:kFIRNetworkErrorDomain
+        initWithDomain:kGULNetworkErrorDomain
                   code:FIRErrorCodeNetworkInvalidResponse
-              userInfo:@{kFIRNetworkErrorContext : @"Network Error: Empty network response"}];
+              userInfo:@{kGULNetworkErrorContext : @"Network Error: Empty network response"}];
   }
 
   [self callCompletionHandler:handler
@@ -277,7 +277,7 @@
 
   // Try to clean up stale files again.
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
-                     expiringTime:kFIRNetworkTempFolderExpireTime];
+                     expiringTime:kGULNetworkTempFolderExpireTime];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -290,8 +290,8 @@
           isEqualToString:NSURLAuthenticationMethodServerTrust]) {
     SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
     if (serverTrust == NULL) {
-      [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                                   messageCode:kFIRNetworkMessageCodeURLSession004
+      [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                                   messageCode:kGULNetworkMessageCodeURLSession004
                                        message:@"Received empty server trust for host. Host"
                                        context:_request.URL];
       completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
@@ -299,16 +299,16 @@
     }
     NSURLCredential *credential = [NSURLCredential credentialForTrust:serverTrust];
     if (!credential) {
-      [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelWarning
-                                   messageCode:kFIRNetworkMessageCodeURLSession005
+      [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelWarning
+                                   messageCode:kGULNetworkMessageCodeURLSession005
                                        message:@"Unable to verify server identity. Host"
                                        context:_request.URL];
       completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
       return;
     }
 
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                                 messageCode:kFIRNetworkMessageCodeURLSession006
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                                 messageCode:kGULNetworkMessageCodeURLSession006
                                      message:@"Received SSL challenge for host. Host"
                                      context:_request.URL];
 
@@ -317,8 +317,8 @@
         completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
       } else {
         [self->_loggerDelegate
-            firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                        messageCode:kFIRNetworkMessageCodeURLSession007
+            GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                        messageCode:kGULNetworkMessageCodeURLSession007
                             message:@"Cancelling authentication challenge for host. Host"
                             context:self->_request.URL];
         completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
@@ -341,13 +341,13 @@
       BOOL shouldAllow;
       OSStatus trustError;
 
-      @synchronized([FIRNetworkURLSession class]) {
+      @synchronized([GULNetworkURLSession class]) {
         trustError = SecTrustEvaluate(serverTrust, &trustEval);
       }
 
       if (trustError != errSecSuccess) {
-        [self->_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                           messageCode:kFIRNetworkMessageCodeURLSession008
+        [self->_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                           messageCode:kGULNetworkMessageCodeURLSession008
                                                message:@"Cannot evaluate server trust. Error, host"
                                               contexts:@[ @(trustError), self->_request.URL ]];
         shouldAllow = NO;
@@ -373,31 +373,31 @@
 #pragma mark - Internal Methods
 
 /// Stores system completion handler with session ID as key.
-- (void)addSystemCompletionHandler:(FIRNetworkSystemCompletionHandler)handler
+- (void)addSystemCompletionHandler:(GULNetworkSystemCompletionHandler)handler
                         forSession:(NSString *)identifier {
   if (!handler) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                    messageCode:kFIRNetworkMessageCodeURLSession009
+        GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                    messageCode:kGULNetworkMessageCodeURLSession009
                         message:@"Cannot store nil system completion handler in network"];
     return;
   }
 
   if (!identifier.length) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                    messageCode:kFIRNetworkMessageCodeURLSession010
+        GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                    messageCode:kGULNetworkMessageCodeURLSession010
                         message:
                             @"Cannot store system completion handler with empty network "
                              "session identifier"];
     return;
   }
 
-  FIRMutableDictionary *systemCompletionHandlers =
+  GULMutableDictionary *systemCompletionHandlers =
       [[self class] sessionIDToSystemCompletionHandlerDictionary];
   if (systemCompletionHandlers[identifier]) {
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelWarning
-                                 messageCode:kFIRNetworkMessageCodeURLSession011
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelWarning
+                                 messageCode:kGULNetworkMessageCodeURLSession011
                                      message:@"Got multiple system handlers for a single session ID"
                                      context:identifier];
   }
@@ -408,9 +408,9 @@
 /// Calls the system provided completion handler with the session ID stored in the dictionary.
 /// The handler will be removed from the dictionary after being called.
 - (void)callSystemCompletionHandler:(NSString *)identifier {
-  FIRMutableDictionary *systemCompletionHandlers =
+  GULMutableDictionary *systemCompletionHandlers =
       [[self class] sessionIDToSystemCompletionHandlerDictionary];
-  FIRNetworkSystemCompletionHandler handler = [systemCompletionHandlers objectForKey:identifier];
+  GULNetworkSystemCompletionHandler handler = [systemCompletionHandlers objectForKey:identifier];
 
   if (handler) {
     [systemCompletionHandlers removeObjectForKey:identifier];
@@ -473,8 +473,8 @@
                                       error:&error];
   if (error && error.code != NSFileReadNoSuchFileError) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelDebug
-                    messageCode:kFIRNetworkMessageCodeURLSession012
+        GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                    messageCode:kGULNetworkMessageCodeURLSession012
                         message:@"Cannot get files from the temporary network folder. Error"
                         context:error];
     return;
@@ -511,8 +511,8 @@
 
   if (![fileManager removeItemAtURL:fileURL error:&error] && error.code != NSFileNoSuchFileError) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                    messageCode:kFIRNetworkMessageCodeURLSession013
+        GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                    messageCode:kGULNetworkMessageCodeURLSession013
                         message:@"Failed to remove temporary uploading data file. Error"
                         context:error.localizedDescription];
   }
@@ -521,9 +521,9 @@
 /// Gets the fetcher with the session ID.
 + (instancetype)fetcherWithSessionIdentifier:(NSString *)sessionIdentifier {
   NSMapTable *sessionIdentifierToFetcherMap = [self sessionIDToFetcherMap];
-  FIRNetworkURLSession *session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
-  if (!session && [sessionIdentifier hasPrefix:kFIRNetworkBackgroundSessionConfigIDPrefix]) {
-    session = [[FIRNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
+  GULNetworkURLSession *session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
+  if (!session && [sessionIdentifier hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
+    session = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
     [session setSessionID:sessionIdentifier];
     [sessionIdentifierToFetcherMap setObject:session forKey:sessionIdentifier];
   }
@@ -543,12 +543,12 @@
 
 /// Returns a map of system provided completion handler by session ID. Creates a map if it is not
 /// created.
-+ (FIRMutableDictionary *)sessionIDToSystemCompletionHandlerDictionary {
-  static FIRMutableDictionary *systemCompletionHandlers;
++ (GULMutableDictionary *)sessionIDToSystemCompletionHandlerDictionary {
+  static GULMutableDictionary *systemCompletionHandlers;
 
   static dispatch_once_t systemCompletionHandlerOnceToken;
   dispatch_once(&systemCompletionHandlerOnceToken, ^{
-    systemCompletionHandlers = [[FIRMutableDictionary alloc] init];
+    systemCompletionHandlers = [[GULMutableDictionary alloc] init];
   });
   return systemCompletionHandlers;
 }
@@ -571,8 +571,8 @@
 
   if (error && error.code != NSFileReadNoSuchFileError) {
     [_loggerDelegate
-        firNetwork_logWithLevel:kFIRNetworkLogLevelWarning
-                    messageCode:kFIRNetworkMessageCodeURLSession014
+        GULNetwork_logWithLevel:kGULNetworkLogLevelWarning
+                    messageCode:kGULNetworkMessageCodeURLSession014
                         message:@"Error while trying to access Network temp folder. Error"
                         context:error];
   }
@@ -584,8 +584,8 @@
                          attributes:nil
                               error:&writeError];
   if (writeError) {
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeURLSession015
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeURLSession015
                                      message:@"Cannot create temporary directory. Error"
                                      context:writeError];
     return NO;
@@ -606,8 +606,8 @@
   NSError *preventBackupError = nil;
   [url setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&preventBackupError];
   if (preventBackupError) {
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeURLSession016
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeURLSession016
                                      message:@"Cannot exclude temporary folder from iTunes backup"];
   }
 }
@@ -618,8 +618,8 @@
                     newRequest:(NSURLRequest *)request
              completionHandler:(void (^)(NSURLRequest *))completionHandler {
   NSArray *nonAllowedRedirectionCodes = @[
-    @(kFIRNetworkHTTPStatusCodeFound), @(kFIRNetworkHTTPStatusCodeMovedPermanently),
-    @(kFIRNetworkHTTPStatusCodeMovedTemporarily), @(kFIRNetworkHTTPStatusCodeMultipleChoices)
+    @(kGULNetworkHTTPStatusCodeFound), @(kGULNetworkHTTPStatusCodeMovedPermanently),
+    @(kGULNetworkHTTPStatusCodeMovedTemporarily), @(kGULNetworkHTTPStatusCodeMultipleChoices)
   ];
 
   // Allow those not in the non allowed list to be followed.
@@ -640,13 +640,13 @@
 
 #pragma mark - Helper Methods
 
-- (void)callCompletionHandler:(FIRNetworkURLSessionCompletionHandler)handler
+- (void)callCompletionHandler:(GULNetworkURLSessionCompletionHandler)handler
                  withResponse:(NSHTTPURLResponse *)response
                          data:(NSData *)data
                         error:(NSError *)error {
   if (error) {
-    [_loggerDelegate firNetwork_logWithLevel:kFIRNetworkLogLevelError
-                                 messageCode:kFIRNetworkMessageCodeURLSession017
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelError
+                                 messageCode:kGULNetworkMessageCodeURLSession017
                                      message:@"Encounter network error. Code, error"
                                     contexts:@[ @(error.code), error ]];
   }
