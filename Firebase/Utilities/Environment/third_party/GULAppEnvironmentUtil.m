@@ -125,6 +125,24 @@ static BOOL isAppEncrypted() {
   return NO;
 }
 
+static BOOL hasSCInfoFolder() {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  NSString *bundlePath = [NSBundle mainBundle].bundlePath;
+  NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
+  return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
+#elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
+static BOOL hasEmbeddedMobileProvision() {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
+#elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
 + (BOOL)isFromAppStore {
   static dispatch_once_t isEncryptedOnce;
   static BOOL isEncrypted = NO;
@@ -144,7 +162,7 @@ static BOOL isAppEncrypted() {
     return NO;
   }
 
-  if ([GULAppEnvironmentUtil hasSCInfoFolder]) {
+  if (hasSCInfoFolder()) {
     // When iTunes downloads a .ipa, it also gets a customized .sinf file which is added to the
     // main SC_Info directory.
     return YES;
@@ -154,7 +172,7 @@ static BOOL isAppEncrypted() {
   // the iTunesMetadata.plist outside of the sandbox will be rejected by Apple.
   // If the app does not contain the embedded.mobileprovision which is stripped out by Apple when
   // the app is submitted to store, then it is highly likely that it is from Apple Store.
-  return isEncrypted && ![GULAppEnvironmentUtil hasEmbeddedMobileProvision];
+  return isEncrypted && !hasEmbeddedMobileProvision();
 }
 
 + (BOOL)isAppStoreReceiptSandbox {
@@ -170,14 +188,6 @@ static BOOL isAppEncrypted() {
   NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
   NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
   return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
-}
-
-+ (BOOL)hasEmbeddedMobileProvision {
-#if TARGET_OS_IOS || TARGET_OS_TV
-  return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
 }
 
 + (BOOL)isSimulator {
@@ -219,18 +229,6 @@ static BOOL isAppEncrypted() {
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
-}
-
-#pragma mark - Helper methods
-
-+ (BOOL)hasSCInfoFolder {
-#if TARGET_OS_IOS || TARGET_OS_TV
-  NSString *bundlePath = [NSBundle mainBundle].bundlePath;
-  NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
-  return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
 #elif TARGET_OS_OSX
   return NO;
 #endif
