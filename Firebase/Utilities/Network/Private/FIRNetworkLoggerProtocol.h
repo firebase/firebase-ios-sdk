@@ -16,15 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/FIRLoggerLevel.h>
+#import <GoogleUtilities/GULLoggerLevel.h>
 #import "FIRNetworkMessageCode.h"
 
 /// The log levels used by FIRNetworkLogger.
 typedef NS_ENUM(NSInteger, FIRNetworkLogLevel) {
-  kFIRNetworkLogLevelError = FIRLoggerLevelError,
-  kFIRNetworkLogLevelWarning = FIRLoggerLevelWarning,
-  kFIRNetworkLogLevelInfo = FIRLoggerLevelInfo,
-  kFIRNetworkLogLevelDebug = FIRLoggerLevelDebug,
+  kFIRNetworkLogLevelError = GULLoggerLevelError,
+  kFIRNetworkLogLevelWarning = GULLoggerLevelWarning,
+  kFIRNetworkLogLevelInfo = GULLoggerLevelInfo,
+  kFIRNetworkLogLevelDebug = GULLoggerLevelDebug,
 };
 
 @protocol FIRNetworkLoggerDelegate <NSObject>

@@ -15,6 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "GULLogger.h"
 
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if
@@ -73,3 +74,6 @@ extern const int kFIRNetworkHTTPStatusCodeUnavailable;
 #pragma mark - Error Domain
 
 extern NSString *const kFIRNetworkErrorDomain;
+
+/// The logger service for GULNetwork.
+extern GULLoggerService kGULLoggerNetwork;

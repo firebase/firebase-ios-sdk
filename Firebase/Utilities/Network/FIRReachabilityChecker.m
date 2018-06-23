@@ -17,7 +17,7 @@
 #import "FIRReachabilityChecker+Internal.h"
 #import "Private/FIRReachabilityChecker.h"
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <GoogleUtilities/GULLogger.h>
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
 
@@ -80,7 +80,7 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 - (void)setReachabilityDelegate:(id<FIRReachabilityDelegate>)reachabilityDelegate {
   if (reachabilityDelegate &&
       (![(NSObject *)reachabilityDelegate conformsToProtocol:@protocol(FIRReachabilityDelegate)])) {
-    FIRLogError(kFIRLoggerCore,
+    GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld",
                                            (long)kFIRNetworkMessageCodeReachabilityChecker005],
                 @"Reachability delegate doesn't conform to Reachability protocol.");
@@ -92,7 +92,7 @@ static NSString *const kFIRReachabilityDisconnectedStatus = @"Disconnected";
 - (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
   if (loggerDelegate &&
       (![(NSObject *)loggerDelegate conformsToProtocol:@protocol(FIRNetworkLoggerDelegate)])) {
-    FIRLogError(kFIRLoggerCore,
+    GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld",
                                            (long)kFIRNetworkMessageCodeReachabilityChecker006],
                 @"Reachability delegate doesn't conform to Logger protocol.");

@@ -15,7 +15,7 @@
 #import "Private/FIRNetwork.h"
 #import "Private/FIRNetworkMessageCode.h"
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <GoogleUtilities/GULLogger.h>
 #import "Private/FIRMutableDictionary.h"
 #import "Private/FIRNetworkConstants.h"
 #import "Private/FIRReachabilityChecker.h"
@@ -265,7 +265,7 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
           respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:context:)] ||
       !
       [loggerDelegate respondsToSelector:@selector(firNetwork_logWithLevel:messageCode:message:)]) {
-    FIRLogError(kFIRLoggerAnalytics,
+    GULLogError(kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)kFIRNetworkMessageCodeNetwork002],
                 @"Cannot set the network logger delegate: delegate does not conform to the network "
                  "logger protocol.");
@@ -314,7 +314,7 @@ static NSString *const kFIRNetworkLogTag = @"Firebase/Network";
       logLevel == kFIRNetworkLogLevelWarning || logLevel == kFIRNetworkLogLevelInfo) {
     NSString *formattedMessage = FIRStringWithLogMessage(message, logLevel, contexts);
     NSLog(@"%@", formattedMessage);
-    FIRLogBasic((FIRLoggerLevel)logLevel, kFIRLoggerCore,
+    GULLogBasic((GULLoggerLevel)logLevel, kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)messageCode], formattedMessage,
                 NULL);
   }

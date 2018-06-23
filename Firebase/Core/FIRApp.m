@@ -16,14 +16,15 @@
 
 #import "FIRApp.h"
 
-#import <GoogleUtilities/FIRLogger.h>
-
 #import "FIRConfiguration.h"
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
 #import "Private/FIRBundleUtil.h"
+#import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 #import "Private/FIRVersion.h"
+
+#import <GoogleUtilities/GULLogger.h>
 
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
@@ -96,7 +97,7 @@ static FIRApp *sDefaultApp;
 static NSMutableDictionary *sLibraryVersions;
 
 + (void)configure {
-  FIRLoggerRegisterVersion(FIRVersionString);
+  GULLoggerRegisterVersion(FIRVersionString);
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
     [[NSNotificationCenter defaultCenter]
