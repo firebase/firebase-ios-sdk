@@ -70,9 +70,7 @@ static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
 
-void GULLoggerInitializeASL(BOOL disableDebug,
-                            BOOL enableDebug,
-                            BOOL forceStderr) {
+void GULLoggerInitializeASL(BOOL disableDebug, BOOL enableDebug, BOOL forceStderr) {
   dispatch_once(&sGULLoggerOnceToken, ^{
     NSInteger majorOSVersion = [[FIRAppEnvironmentUtil systemVersion] integerValue];
     uint32_t aslOptions = ASL_OPT_STDERR;
@@ -148,7 +146,8 @@ void GULSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
 
 void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
   if (loggerLevel < GULLoggerLevelMin || loggerLevel > GULLoggerLevelMax) {
-    GULLogError(kGULLoggerLogger, NO, @"I-COR000023", @"Invalid logger level, %ld", (long)loggerLevel);
+    GULLogError(kGULLoggerLogger, NO, @"I-COR000023", @"Invalid logger level, %ld",
+                (long)loggerLevel);
     return;
   }
   GULLoggerInitializeASL(NO, NO, NO);
@@ -242,13 +241,13 @@ void GULLogBasic(GULLoggerLevel level,
  * Calling GULLogDebug(kGULLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
  * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [Firebase/Core][I-COR000001] Configure succeed.
  */
-#define GUL_LOGGING_FUNCTION(level)                                                             \
-  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,               \
-    NSString *message, ...) {                                                                   \
-    va_list args_ptr;                                                                           \
-    va_start(args_ptr, message);                                                                \
-    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, message, args_ptr);         \
-    va_end(args_ptr);                                                                           \
+#define GUL_LOGGING_FUNCTION(level)                                                     \
+  void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,       \
+                     NSString *message, ...) {                                          \
+    va_list args_ptr;                                                                   \
+    va_start(args_ptr, message);                                                        \
+    GULLogBasic(GULLoggerLevel##level, service, force, messageCode, message, args_ptr); \
+    va_end(args_ptr);                                                                   \
   }
 
 GUL_LOGGING_FUNCTION(Error)
