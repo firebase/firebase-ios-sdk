@@ -19,7 +19,6 @@
 #include <utility>
 
 #include "Firestore/Source/Remote/FSTDatastore.h"
-//#include "Firestore/Source/Remote/FSTStream.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/memory/memory.h"
 
@@ -174,8 +173,6 @@ NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
                           length:slices.front().size()];
   }
 }
-
-//        BUFFERED WRITER
 
 void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
   buffer_.push_back(std::move(bytes));

@@ -28,9 +28,10 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 
@@ -84,10 +85,16 @@ class ObjcBridge {
 
 class BufferedWriter {
  public:
-  explicit BufferedWriter(WatchStream* stream) : stream_{stream} {}
+  explicit BufferedWriter(WatchStream* stream) : stream_{stream} {
+  }
 
-  void Start() { is_started_ = true; TryWrite(); }
-  void Stop() { is_started_ = false; }
+  void Start() {
+    is_started_ = true;
+    TryWrite();
+  }
+  void Stop() {
+    is_started_ = false;
+  }
   void Enqueue(grpc::ByteBuffer&& bytes);
 
   void OnSuccessfulWrite();
@@ -122,21 +129,21 @@ class StreamOperation {
   }
 
  protected:
-    StreamOp(const std::shared_ptr<WatchStream>& stream,
-        const std::shared_ptr<internal::GrpcCall>& call)
-      : stream_handle_{stream},
-  call_{call} {
+  StreamOperation(const std::shared_ptr<WatchStream>& stream,
+                  const std::shared_ptr<internal::GrpcCall>& call)
+      : stream_handle_{stream}, call_{call} {
   }
 
  private:
   virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
 
-    std::weak_ptr<WatchStream> stream_handle_;
+  std::weak_ptr<WatchStream> stream_handle_;
   std::shared_ptr<internal::GrpcCall> call_;
 };
 
 class GrpcStreamCallbacks {
-  virtual ~GrpcStreamCallbacks() {}
+  virtual ~GrpcStreamCallbacks() {
+  }
 
   virtual void OnStreamStart(bool ok) = 0;
   virtual void OnStreamRead(bool ok, const grpc::ByteBuffer& message) = 0;
@@ -144,7 +151,8 @@ class GrpcStreamCallbacks {
   virtual void OnStreamFinish(grpc::Status status) = 0;
 };
 
-class WatchStream : public GrpcStreamCallbacks, public enable_shared_from_this<WatchStream> {
+class WatchStream : public GrpcStreamCallbacks,
+                    public std::enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,

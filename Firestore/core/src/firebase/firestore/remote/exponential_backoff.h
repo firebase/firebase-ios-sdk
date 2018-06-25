@@ -98,7 +98,7 @@ class ExponentialBackoff {
  private:
   using RealSeconds = std::chrono::duration<double>;
 
-  util::AsyncQueue::Milliseconds JitterDelay() const;
+  RealSeconds JitterDelay();
   RealSeconds ClampDelay(RealSeconds delay) const;
 
   util::AsyncQueue& queue_;

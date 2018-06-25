@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/datqstore.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
@@ -40,37 +41,6 @@
 @class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
-
-class DatastoreImpl {
- public:
-  explicit DatastoreImpl(util::AsyncQueue* firestore_queue);
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(grpc::ClientContext* context,
-      const absl::string_view path);
-
-// TODO
-// DatastoreImpl::~DatastoreImpl() {
-//   grpc_queue_.Shutdown();
-//   dedicated_executor_->ExecuteBlocking([] {});
-// }
-
- private:
-  void PollGrpcQueue();
-  static std::unique_ptr<util::internal::Executor> CreateExecutor();
-
-  grpc::GenericStub WatchStream::CreateStub() const;
-
-  std::unique_ptr<util::internal::Executor> dedicated_executor_;
-  grpc::GenericStub stub_;
-  grpc::CompletionQueue grpc_queue_;
-
-  util::AsyncQueue* firestore_queue_;
-};
-
-const char* pemRootCertsPath = nullptr;
-
-}
-}
-}
 
 NS_ASSUME_NONNULL_BEGIN
 

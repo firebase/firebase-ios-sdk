@@ -17,6 +17,17 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
+#include <memory>
+
+
+#include <grpc/grpc.h>
+#include <grpcpp/completion_queue.h>
+#include <grpcpp/generic/generic_stub.h>
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
+
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -32,6 +43,33 @@ class Datastore {
   Datastore& operator=(const Datastore& other) = delete;
   Datastore& operator=(Datastore&& other) = delete;
 };
+
+class DatastoreImpl {
+ public:
+  explicit DatastoreImpl(util::AsyncQueue* firestore_queue);
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(grpc::ClientContext* context,
+      const absl::string_view path);
+
+// TODO
+// DatastoreImpl::~DatastoreImpl() {
+//   grpc_queue_.Shutdown();
+//   dedicated_executor_->ExecuteBlocking([] {});
+// }
+
+ private:
+  void PollGrpcQueue();
+  static std::unique_ptr<util::internal::Executor> CreateExecutor();
+
+  grpc::GenericStub CreateStub() const;
+
+  std::unique_ptr<util::internal::Executor> dedicated_executor_;
+  grpc::GenericStub stub_;
+  grpc::CompletionQueue grpc_queue_;
+
+  util::AsyncQueue* firestore_queue_;
+};
+
+const char* pemRootCertsPath = nullptr;
 
 }  // namespace remote
 }  // namespace firestore

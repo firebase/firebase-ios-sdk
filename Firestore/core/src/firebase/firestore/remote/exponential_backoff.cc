@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 
+#include <random>
+
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
 namespace firebase {
@@ -24,7 +26,7 @@ namespace remote {
 
 namespace chr = std::chrono;
 
-void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
+void ExponentialBackoff::BackoffAndRun(util::AsyncQueue::Operation&& operation) {
   Cancel();
 
   // First schedule the block using the current base (which may be 0 and should
@@ -32,7 +34,7 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
   const auto delay_with_jitter =
       chr::duration_cast<chr::milliseconds>(current_base_ + JitterDelay());
   if (delay_with_jitter.count() > 0) {
-    LogDebug("Backing off for %s milliseconds (base delay: %s seconds)",
+    util::LogDebug("Backing off for %s milliseconds (base delay: %s seconds)",
              delay_with_jitter.count(), current_base_.count());
   }
 
@@ -44,8 +46,8 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
   current_base_ = ClampDelay(current_base_ * backoff_factor_);
 }
 
-auto ExponentialBackoff::ClampDelay(const RealSeconds delay)
-    -> RealSeconds const {
+auto ExponentialBackoff::ClampDelay(const RealSeconds delay) const
+    -> RealSeconds {
   if (delay < initial_delay_) {
     return initial_delay_;
   }
@@ -56,7 +58,7 @@ auto ExponentialBackoff::ClampDelay(const RealSeconds delay)
 }
 
 /** Returns a random value in the range [-current_base_/2, current_base_/2] */
-auto ExponentialBackoff::JitterDelay() -> RealSeconds const {
+auto ExponentialBackoff::JitterDelay() -> RealSeconds {
   std::uniform_real_distribution<double> distribution;
   const double random_double = distribution(secure_random_);
   return (random_double - 0.5) * current_base_;
