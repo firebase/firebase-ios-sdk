@@ -26,10 +26,9 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -40,6 +39,7 @@
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 namespace firebase {
@@ -84,6 +84,10 @@ class ObjcBridge {
     return [Proto parseFromData:ToNsData(buffer) error:&error];
   }
 
+  void NotifyDelegateOnOpen();
+  void NotifyDelegateOnChange(const grpc::ByteBuffer& message);
+  void NotifyDelegateOnError(long error_code);
+
  private:
   grpc::ByteBuffer ToByteBuffer(NSData* data) const;
   NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
@@ -120,6 +124,10 @@ class BufferedWriter {
 };
 
 struct GrpcCall {
+  GrpcCall(std::unique_ptr<grpc::ClientContext>&& context,
+           std::unique_ptr<grpc::GenericClientAsyncReaderWriter>&& call)
+      : context{std::move(context)}, call{std::move(call)} {
+  }
   std::unique_ptr<grpc::ClientContext> context;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
 };
@@ -134,7 +142,7 @@ class StreamOp : public GrpcStreamOperation {
 
  protected:
   StreamOp(const std::shared_ptr<WatchStream>& stream,
-                  const std::shared_ptr<internal::GrpcCall>& call)
+           const std::shared_ptr<internal::GrpcCall>& call)
       : stream_handle_{stream}, call_{call} {
   }
 
@@ -151,7 +159,7 @@ class WatchStream : public GrpcStreamCallbacks,
                     public std::enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
-              //util::TimerId timer_id,
+              // util::TimerId timer_id,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               DatastoreImpl* datastore);
@@ -172,7 +180,8 @@ class WatchStream : public GrpcStreamCallbacks,
 
   // ClearError?
   void CancelBackoff();
-  void MarkIdle() {} // TODO
+  void MarkIdle() {
+  }  // TODO
 
  private:
   friend class internal::BufferedWriter;
@@ -194,6 +203,11 @@ class WatchStream : public GrpcStreamCallbacks,
 
   void Write(const grpc::ByteBuffer& message);
   void FinishStream();
+
+  template <typename Op, typename... Args>
+  void Execute(Args... args) {
+    Op::Execute(shared_from_this(), call_, args...);
+  }
 
   State state_{State::NotStarted};
 

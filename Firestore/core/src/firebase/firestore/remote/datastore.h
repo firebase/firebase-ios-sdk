@@ -51,6 +51,7 @@ class DatastoreImpl {
 
   // database_info_->database_id()
 
+  std::unique_ptr<grpc::ClientContext> CreateContext(const absl::string_view token);
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
       grpc::ClientContext* context, const absl::string_view path);
 

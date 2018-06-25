@@ -85,9 +85,9 @@ class StreamReadOp : public StreamOp {
 class StreamWriteOp : public StreamOp {
  public:
   static void Execute(
-                    const grpc::ByteBuffer& message,
                     const std::shared_ptr<WatchStream>& stream,
-                    const std::shared_ptr<GrpcCall>& call) {
+                    const std::shared_ptr<GrpcCall>& call,
+                    const grpc::ByteBuffer& message) {
     auto op = new StreamWriteOp{stream, call};
     call->call->Write(message, op);
   }
@@ -124,16 +124,8 @@ class StreamFinishOp : public StreamOp {
 };
 
 }
-    
-//        OBJC BRIDGE
 
-    namespace internal {
-        
-std::unique_ptr<grpc::ClientContext> ObjcBridge::CreateContext(
-    const model::DatabaseId& database_id, const absl::string_view token) const {
-  return [FSTDatastore createGrpcClientContextWithDatabaseID:&database_id
-                                                       token:token];
-}
+namespace internal {
 
 grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
@@ -176,6 +168,24 @@ NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
     return [NSData dataWithBytes:slices.front().begin()
                           length:slices.front().size()];
   }
+}
+
+void ObjcBridge::NotifyDelegateOnOpen() {
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidOpen];
+}
+
+void ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
+  auto* proto = ToProto<GCFSListenResponse>(message);
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidChange:GetWatchChange(proto)
+                 snapshotVersion:GetSnapshotVersion(proto)];
+}
+
+void ObjcBridge::NotifyDelegateOnError(long error_code) {
+  id<FSTWatchStreamDelegate> delegate = delegate_;
+  [delegate watchStreamWasInterruptedWithError:nil];  // FIXME!
+  delegate_ = nil;
 }
 
 void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
@@ -279,12 +289,12 @@ void WatchStream::ResumeStartAfterAuth(
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  auto context = datastore_->CreateContext(database_info_->database_id(), token);
-  auto bidi_stream = datastore_->-CreateGrpcCall(context_.get(),
+  auto context = datastore_->CreateContext(token);
+  auto bidi_stream = datastore_->CreateGrpcCall(context.get(),
                                    "/google.firestore.v1beta1.Firestore/Listen");
   call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
-  StreamStartOp::Execute(call_, shared_from_this());
+  Execute<StreamStartOp>();
   // TODO: set state to open here, or only upon successful completion?
   // Objective-C does it here.
 }
@@ -343,10 +353,9 @@ void WatchStream::OnStreamStart(const bool ok) {
 
   state_ = State::Open;
   buffered_writer_.Start();
-  StreamReadOp::Execute(call_, shared_from_this());
+  Execute<StreamReadOp>();
 
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
+  objc_bridge_.NotifyDelegateOnOpen();
 }
 
 void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
@@ -357,12 +366,9 @@ void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
 
   firestore_queue_->VerifyIsCurrentQueue();
 
-  auto* proto = objc_bridge_.ToProto<GCFSListenResponse>(last_read_message_);
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto)
-                 snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
+  objc_bridge_.NotifyDelegateOnChange(message);
 
-  StreamReadOp::Execute(call_, shared_from_this());
+  Execute<StreamReadOp>();
 }
 
 void WatchStream::OnStreamWrite(const bool ok) {
@@ -398,15 +404,12 @@ void WatchStream::OnStreamFinish(grpc::Status status) {
     //       (__bridge void *)self);
     backoff_.ResetToMax();
   }
-}
 
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:nil];  // FIXME
-  delegate_ = nil;
+  objc_bridge_.NotifyDelegateOnError(error);
 }
 
 void WatchStream::Write(const grpc::ByteBuffer& message) {
-  StreamWriteOp::Execute(message, call_, shared_from_this());
+  Execute<StreamWriteOp>(message);
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -441,7 +444,7 @@ void WatchStream::Stop() {
 }
 
 void WatchStream::FinishStream() {
-  StreamFinishOp::Execute(call_, shared_from_this());
+  Execute<StreamFinishOp>();
 }
 
 bool WatchStream::IsOpen() const {

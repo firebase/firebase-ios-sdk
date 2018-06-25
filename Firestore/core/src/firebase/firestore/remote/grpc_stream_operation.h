@@ -36,6 +36,7 @@ class GrpcStreamOperation {
 };
 
 class GrpcStreamCallbacks {
+public:
   virtual ~GrpcStreamCallbacks() {
   }
 

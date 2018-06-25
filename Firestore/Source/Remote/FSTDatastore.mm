@@ -52,6 +52,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include <grpcpp/create_channel.h>
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
 #include <fstream>
 #include <sstream>
@@ -66,6 +67,9 @@ using firebase::firestore::model::DocumentKey;
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+const char* const kXGoogAPIClientHeader = "x-goog-api-client";
+const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue,
                              const core::DatabaseInfo& database_info)
@@ -120,6 +124,25 @@ grpc::GenericStub DatastoreImpl::CreateStub() const {
   return grpc::GenericStub{
       grpc::CreateChannel(database_info_->host(),
                           grpc::SslCredentials(grpc::SslCredentialsOptions()))};
+}
+
+std::unique_ptr<grpc::ClientContext> CreateContext( const absl::string_view token) {
+  auto context = absl::make_unique<grpc::ClientContext>();
+
+  if (token.data()) {
+    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
+  }
+
+  const model::DatabaseId* database_id, = database_info_->database_id();
+
+  const std::string client_header = std::string{"gl-objc/ fire/"} + FIRFirestoreVersionString + " grpc/";
+  context->AddMetadata(kXGoogAPIClientHeader, client_header);
+  // This header is used to improve routing and project isolation by the backend.
+  const std::string resource_prefix =
+    std::string{"projects/"} + database_id->project_id() +
+    "/databases/" + database_id->database_id();
+  context->AddMetadata(kGoogleCloudResourcePrefix, resource_prefix);
+  return context;
 }
 
 const char* pemRootCertsPath = nullptr;
@@ -436,24 +459,6 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // This header is used to improve routing and project isolation by the backend.
   rpc.requestHeaders[kGoogleCloudResourcePrefix] =
       [FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID];
-}
-
-+ (std::unique_ptr<grpc::ClientContext>)
-createGrpcClientContextWithDatabaseID:(const DatabaseId *)databaseID
-                                token:(const absl::string_view)token {
-  auto context = absl::make_unique<grpc::ClientContext>();
-
-  if (token.data()) {
-    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
-  }
-
-  context->AddMetadata(util::MakeString(kXGoogAPIClientHeader),
-                      util::MakeString([FSTDatastore googAPIClientHeaderValue]));
-  // This header is used to improve routing and project isolation by the backend.
-  context->AddMetadata(
-      util::MakeString(kGoogleCloudResourcePrefix),
-      util::MakeString([FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID]));
-  return context;
 }
 
 @end
