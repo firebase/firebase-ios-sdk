@@ -87,7 +87,7 @@ static const NSTimeInterval kTestTokenExpirationTimeInterval = 55 * 60;
     @brief The maximum difference between time two dates (in seconds), after which they will be
         considered different.
  */
-static const NSTimeInterval kMaxDifferenceBetweenDates = 0.0001;
+static const NSTimeInterval kMaxDifferenceBetweenDates = 0.001;
 
 /** @var kFakeIsNewUSerFlag
     @brief The fake fake isNewUser flag in the response.
