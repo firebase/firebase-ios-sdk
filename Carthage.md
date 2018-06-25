@@ -41,6 +41,12 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.j
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBarcodeModelBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionFaceModelBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionLabelModelBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLVisionTextModelBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebasePerformanceBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseRemoteConfigBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.json"
@@ -61,6 +67,11 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GoogleSignIn.bundle
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GPPACLPickerResources.bundle
         - ./Carthage/Build/iOS/FirebaseInvites.framework/GINInviteResources.bundle
+    - For FirebaseMLVisionFaceModel:
+        - ./Carthage/Build/iOS/FaceDetector.framework/GoogleMVFaceDetectorResources.bundle
+    - For FirebaseMLVisionTextModel:
+        - ./Carthage/Build/iOS/TextDetector.framework/GoogleMVTextDetectorResources.bundle
+
 - Please note that you shouldn't add the Firebase frameworks to the Carthage build phase (`copy-frameworks`). The frameworks contain static libraries that are linked at build time.
 
 ## Versioning
