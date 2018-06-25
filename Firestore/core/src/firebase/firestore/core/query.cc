@@ -16,8 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 
+#include <algorithm>
+
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -26,6 +30,27 @@ namespace core {
 using model::Document;
 using model::DocumentKey;
 using model::ResourcePath;
+
+namespace {
+
+// Convert a vector of unique_ptr's to a vector of shared_ptr's
+std::vector<std::shared_ptr<core::Filter>> Convert(
+    std::vector<std::unique_ptr<core::Filter>>&& v) {
+  std::vector<std::shared_ptr<core::Filter>> result;
+  std::for_each(v.begin(), v.end(), [&](std::unique_ptr<core::Filter>& f) {
+    result.push_back(std::move(f));
+  });
+  v.clear();
+  return result;
+}
+
+}  // namespace
+
+Query::Query(ResourcePath path,
+             std::vector<std::unique_ptr<core::Filter>>&&
+                 filters /* TODO(rsgowman): other params */)
+    : path_(std::move(path)), filters_(Convert(std::move(filters))) {
+}
 
 bool Query::Matches(const Document& doc) const {
   return MatchesPath(doc) && MatchesOrderBy(doc) && MatchesFilters(doc) &&
@@ -41,9 +66,11 @@ bool Query::MatchesPath(const Document& doc) const {
   }
 }
 
-bool Query::MatchesFilters(const Document&) const {
-  // TODO(rsgowman): Implement this correctly.
-  return true;
+bool Query::MatchesFilters(const Document& doc) const {
+  return std::all_of(filters_.begin(), filters_.end(),
+                     [&](const std::shared_ptr<core::Filter>& filter) {
+                       return filter->Matches(doc);
+                     });
 }
 
 bool Query::MatchesOrderBy(const Document&) const {
@@ -54,6 +81,18 @@ bool Query::MatchesOrderBy(const Document&) const {
 bool Query::MatchesBounds(const Document&) const {
   // TODO(rsgowman): Implement this correctly.
   return true;
+}
+
+Query Query::Filter(std::unique_ptr<core::Filter> filter) const {
+  HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
+              "No filter is allowed for document query");
+
+  // TODO(rsgowman): ensure only one inequality field
+  // TODO(rsgowman): ensure first orderby must match inequality field
+
+  std::vector<std::shared_ptr<core::Filter>> updated_filter = filters_;
+  updated_filter.push_back(std::move(filter));
+  return Query(path_, updated_filter);
 }
 
 }  // namespace core

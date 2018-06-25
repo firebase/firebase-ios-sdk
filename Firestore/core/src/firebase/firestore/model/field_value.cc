@@ -34,15 +34,8 @@ namespace model {
 using Type = FieldValue::Type;
 using firebase::firestore::util::ComparisonResult;
 
-namespace {
-/**
- * This deviates from the other platforms that define TypeOrder. Since
- * we already define Type for union types, we use it together with this
- * function to achieve the equivalent order of types i.e.
- *     i) if two types are comparable, then they are of equal order;
- *    ii) otherwise, their order is the same as the order of their Type.
- */
-bool Comparable(Type lhs, Type rhs) {
+// TODO(rsgowman): Move this to avoid splitting the namespaces
+bool FieldValue::Comparable(Type lhs, Type rhs) {
   switch (lhs) {
     case Type::Integer:
     case Type::Double:
@@ -54,6 +47,8 @@ bool Comparable(Type lhs, Type rhs) {
       return lhs == rhs;
   }
 }
+
+namespace {
 
 // Makes a copy excluding the specified child, which is expected to be assigned
 // different value afterwards.
@@ -379,7 +374,7 @@ FieldValue FieldValue::ObjectValueFromMap(ObjectValue::Map&& value) {
 }
 
 bool operator<(const FieldValue& lhs, const FieldValue& rhs) {
-  if (!Comparable(lhs.type(), rhs.type())) {
+  if (!FieldValue::Comparable(lhs.type(), rhs.type())) {
     return lhs.type() < rhs.type();
   }
 
