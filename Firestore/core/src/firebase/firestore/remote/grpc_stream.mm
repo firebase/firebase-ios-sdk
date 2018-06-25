@@ -27,7 +27,9 @@ namespace firestore {
 namespace remote {
 
 using firebase::firestore::model::SnapshotVersion;
-    using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::remote::internal::GrpcCall;
+using firebase::firestore::remote::internal::StreamOp;
+using firebase::firestore::util::AsyncQueue;
 namespace chr = std::chrono;
 
 namespace {
@@ -36,13 +38,13 @@ namespace {
  * Initial backoff time after an error.
  * Set to 1s according to https://cloud.google.com/apis/design/errors.
  */
+const double kBackoffFactor = 1.5;
 const AsyncQueue::Milliseconds kBackoffInitialDelay{chr::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{chr::seconds(60)};
-const double kBackoffFactor = 1.5;
 
 }  // namespace
 
-namespace internal {
+namespace {
 
 class StreamStartOp : public StreamOp {
  public:
@@ -106,11 +108,11 @@ class StreamFinishOp : public StreamOp {
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamFinishOp{stream, call};
-    call->call->Finish(&op->status, op);
+    call->call->Finish(&op->status_, op);
   }
 
  private:
-  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+  StreamFinishOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
       : StreamOp{stream, call} {
   }
 
@@ -121,8 +123,12 @@ class StreamFinishOp : public StreamOp {
   grpc::Status status_;
 };
 
+}
+    
 //        OBJC BRIDGE
 
+    namespace internal {
+        
 std::unique_ptr<grpc::ClientContext> ObjcBridge::CreateContext(
     const model::DatabaseId& database_id, const absl::string_view token) const {
   return [FSTDatastore createGrpcClientContextWithDatabaseID:&database_id
@@ -193,7 +199,7 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  stream_->Write(buffer.back());
+  stream_->Write(buffer_.back());
   buffer_.pop_back();
 }
 
@@ -202,7 +208,7 @@ void BufferedWriter::OnSuccessfulWrite() {
   TryWrite();
 }
 
-}  // namespace internal
+}  // namespace
 
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
@@ -212,18 +218,18 @@ using firebase::firestore::model::DatabaseId;
 
 //        WATCH STREAM
 
-WatchStream::WatchStream(util::AsyncQueue* const async_queue,
+WatchStream::WatchStream(AsyncQueue* const async_queue,
                          //TimerId timer_id,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer,
                          DatastoreImpl* datastore)
-      firestore_queue_{async_queue},
+    : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
       buffered_writer_{this},
       objc_bridge_{serializer},
-      backoff_{firestore_queue_, timer_id, kBackoffInitialDelay,
-               kBackoffMaxDelay, kBackoffFactor} {
+    backoff_{firestore_queue_, util::TimerId::ListenStreamConnectionBackoff /*FIXME*/, kBackoffFactor, kBackoffInitialDelay,
+               kBackoffMaxDelay} {
 }
 
 void WatchStream::Start(id delegate) {
@@ -308,11 +314,11 @@ void WatchStream::ResumeStartFromBackoff() {
   // In order to have performed a backoff the stream must have been in an error
   // state just prior to entering the backoff state. If we weren't stopped we
   // must be in the backoff state.
-  FIREBASE_ASSERT_MESSAGE(state_ == State::Backoff,
+  FIREBASE_ASSERT_MESSAGE(state_ == State::ReconnectingWithBackoff,
                           "State should still be backoff (was %s)", state_);
 
   state_ = State::NotStarted;
-  Start(objc_bridge.get_delegate());
+  Start(objc_bridge_.get_delegate());
   FIREBASE_ASSERT_MESSAGE(IsStarted(), "Stream should have started.");
 }
 
@@ -372,7 +378,7 @@ void WatchStream::OnStreamWrite(const bool ok) {
 void WatchStream::OnStreamFinish(grpc::Status status) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  FIREBASE_ASSERT_MESSAGE(ok, "TODO");
+    // TODO: FIREBASE_ASSERT_MESSAGE(ok, "TODO");
   // FIXME
   if (status.code() == FIRFirestoreErrorCodeOK) {
     // TODO

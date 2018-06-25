@@ -175,6 +175,8 @@ class WatchStream : public GrpcStreamCallbacks,
   void MarkIdle() {} // TODO
 
  private:
+  friend class internal::BufferedWriter;
+
   enum class State {
     NotStarted,
     Auth,
@@ -195,7 +197,7 @@ class WatchStream : public GrpcStreamCallbacks,
 
   State state_{State::NotStarted};
 
-  internal::BufferedWriter buffered_writer;
+  internal::BufferedWriter buffered_writer_;
 
   std::shared_ptr<internal::GrpcCall> call_;
 

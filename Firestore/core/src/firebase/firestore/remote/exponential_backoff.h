@@ -52,7 +52,7 @@ class ExponentialBackoff {
    */
     ExponentialBackoff(util::AsyncQueue* queue,
                        util::TimerId timer_id,
-                     double backoff_factor,
+                      double backoff_factor,
                        util::AsyncQueue::Milliseconds initial_delay,
                        util::AsyncQueue::Milliseconds max_delay)
       : queue_{*queue},
