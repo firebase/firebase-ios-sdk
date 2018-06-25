@@ -724,7 +724,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)unsubscribeFromTopic:(NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
- if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+  if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
                            @"Format '%@' is deprecated. Only '%@' should be used in "
                            @"unsubscribeFromTopic.",
