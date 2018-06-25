@@ -22,14 +22,12 @@
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
 #include "absl/memory/memory.h"
 
-#include <fstream>
-#include <sstream>
-
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 using firebase::firestore::model::SnapshotVersion;
+    using firebase::firestore::util::AsyncQueue;
 namespace chr = std::chrono;
 
 namespace {
@@ -46,11 +44,11 @@ const double kBackoffFactor = 1.5;
 
 namespace internal {
 
-class StreamStartOp : public StreamOperation {
+class StreamStartOp : public StreamOp {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamStartOp{stream, call};
-    call->Start(op);
+    call->call->StartCall(op);
   }
 
  private:
@@ -59,7 +57,7 @@ class StreamStartOp : public StreamOperation {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnStart(ok);
+    stream->OnStreamStart(ok);
   }
 };
 
@@ -67,7 +65,7 @@ class StreamReadOp : public StreamOp {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamReadOp{stream, call};
-    call->Read(&op->message, op);
+    call->call->Read(&op->message, op);
   }
 
  private:
@@ -89,7 +87,7 @@ class StreamWriteOp : public StreamOp {
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamWriteOp{stream, call};
-    call->Write(message, op);
+    call->call->Write(message, op);
   }
 
  private:
@@ -108,7 +106,7 @@ class StreamFinishOp : public StreamOp {
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamFinishOp{stream, call};
-    call->Finish(&op->status, op);
+    call->call->Finish(&op->status, op);
   }
 
  private:
@@ -117,7 +115,7 @@ class StreamFinishOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnStreamFinish(ok);
+    stream->OnStreamFinish(status_);
   }
 
   grpc::Status status_;
@@ -215,12 +213,10 @@ using firebase::firestore::model::DatabaseId;
 //        WATCH STREAM
 
 WatchStream::WatchStream(util::AsyncQueue* const async_queue,
-                         TimerId timer_id,
-                         const DatabaseInfo& database_info,
+                         //TimerId timer_id,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer,
                          DatastoreImpl* datastore)
-    : database_info_{&database_info},
       firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
@@ -233,8 +229,10 @@ WatchStream::WatchStream(util::AsyncQueue* const async_queue,
 void WatchStream::Start(id delegate) {
   firestore_queue_->VerifyIsCurrentQueue();
 
+  objc_bridge_.set_delegate(delegate);
+
   if (state_ == State::GrpcError) {
-    BackoffAndTryRestarting(delegate);
+    BackoffAndTryRestarting();
     return;
   }
 
@@ -243,8 +241,6 @@ void WatchStream::Start(id delegate) {
 
   FIREBASE_ASSERT_MESSAGE(state_ == State::NotStarted, "Already started");
   state_ = State::Auth;
-  FIREBASE_ASSERT_MESSAGE(delegate_ == nil, "Delegate must be nil");
-  delegate_ = delegate;
 
   const bool do_force_refresh = false;
   credentials_provider_->GetToken(
@@ -267,8 +263,8 @@ void WatchStream::ResumeStartAfterAuth(
   }
 
   if (!maybe_token.ok()) {
-    // TODO: error handling
-    OnStreamFinish();  // FIXME
+    // FIXME
+    OnStreamFinish(maybe_token.status());
     return;
   }
 
@@ -277,7 +273,7 @@ void WatchStream::ResumeStartAfterAuth(
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  auto context = objc_bridge_.CreateContext(database_info_->database_id(), token);
+  auto context = datastore_->CreateContext(database_info_->database_id(), token);
   auto bidi_stream = datastore_->-CreateGrpcCall(context_.get(),
                                    "/google.firestore.v1beta1.Firestore/Listen");
   call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
@@ -296,11 +292,11 @@ void WatchStream::BackoffAndTryRestarting() {
                           "Should only perform backoff in an error case");
 
   backoff_.BackoffAndRun(
-      [this, delegate] { ResumeStartFromBackoff(delegate); });
+      [this] { ResumeStartFromBackoff(); });
   state_ = State::ReconnectingWithBackoff;
 }
 
-void WatchStream::ResumeStartFromBackoff(id delegate) {
+void WatchStream::ResumeStartFromBackoff() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (state_ == State::ShuttingDown) {
@@ -316,7 +312,7 @@ void WatchStream::ResumeStartFromBackoff(id delegate) {
                           "State should still be backoff (was %s)", state_);
 
   state_ = State::NotStarted;
-  Start(delegate);
+  Start(objc_bridge.get_delegate());
   FIREBASE_ASSERT_MESSAGE(IsStarted(), "Stream should have started.");
 }
 
@@ -331,7 +327,7 @@ void WatchStream::CancelBackoff() {
   backoff_.Reset();
 }
 
-void WatchStream::OnStart(const bool ok) {
+void WatchStream::OnStreamStart(const bool ok) {
   if (!ok) {
     FinishStream();
     return;
@@ -431,8 +427,7 @@ void WatchStream::Stop() {
   buffered_writer_.Stop();
 
   FinishStream();
-  // If this is an intentional close ensure we don't delay our next connection
-  // attempt.
+  // If this is an intentional close, ensure we don't delay our next connection attempt.
   backoff_.Reset(); // ???
   // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
   // *)self);
@@ -450,7 +445,7 @@ bool WatchStream::IsOpen() const {
 
 bool WatchStream::IsStarted() const {
   firestore_queue_->VerifyIsCurrentQueue();
-  const bool is_starting = (state_ == State::Auth || state_ == State::Backoff);
+  const bool is_starting = (state_ == State::Auth || state_ == State::ReconnectingWithBackoff);
   return is_starting || IsOpen();
 }
 

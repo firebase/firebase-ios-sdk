@@ -26,9 +26,9 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -59,6 +59,14 @@ class ObjcBridge {
   explicit ObjcBridge(FSTSerializerBeta* serializer) : serializer_{serializer} {
   }
 
+  void set_delegate(id delegate) {
+    delegate_ = delegate;
+  }
+
+  id get_delegate() const {
+    return delegate_;
+  }
+
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const model::DatabaseId& database_id,
       const absl::string_view token) const;
@@ -81,6 +89,7 @@ class ObjcBridge {
   NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
 
   FSTSerializerBeta* serializer_;
+  id delegate_;
 };
 
 class BufferedWriter {
@@ -115,21 +124,16 @@ struct GrpcCall {
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
 };
 
-}  // namespace internal
-
-class StreamOperation {
+class StreamOp : public GrpcStreamOperation {
  public:
-  virtual ~StreamOperation() {
-  }
-
-  void Finalize(bool ok) {
+  void Finalize(bool ok) override {
     if (auto stream = stream_handle_.lock()) {
       DoFinalize(stream.get(), ok);
     }
   }
 
  protected:
-  StreamOperation(const std::shared_ptr<WatchStream>& stream,
+  StreamOp(const std::shared_ptr<WatchStream>& stream,
                   const std::shared_ptr<internal::GrpcCall>& call)
       : stream_handle_{stream}, call_{call} {
   }
@@ -141,21 +145,13 @@ class StreamOperation {
   std::shared_ptr<internal::GrpcCall> call_;
 };
 
-class GrpcStreamCallbacks {
-  virtual ~GrpcStreamCallbacks() {
-  }
-
-  virtual void OnStreamStart(bool ok) = 0;
-  virtual void OnStreamRead(bool ok, const grpc::ByteBuffer& message) = 0;
-  virtual void OnStreamWrite(bool ok) = 0;
-  virtual void OnStreamFinish(grpc::Status status) = 0;
-};
+}  // namespace internal
 
 class WatchStream : public GrpcStreamCallbacks,
                     public std::enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
-              const core::DatabaseInfo& database_info,
+              //util::TimerId timer_id,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               DatastoreImpl* datastore);
@@ -176,6 +172,7 @@ class WatchStream : public GrpcStreamCallbacks,
 
   // ClearError?
   void CancelBackoff();
+  void MarkIdle() {} // TODO
 
  private:
   enum class State {
@@ -187,10 +184,11 @@ class WatchStream : public GrpcStreamCallbacks,
     ShuttingDown
   };
 
-  void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
+  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
 
-  void BackoffAndTryRestarting(id delegate);
-  void ResumeStartFromBackoff(id delegate);
+  void BackoffAndTryRestarting();
+  void ResumeStartFromBackoff();
+  void CloseDueToIdleness();
 
   void Write(const grpc::ByteBuffer& message);
   void FinishStream();
@@ -201,16 +199,12 @@ class WatchStream : public GrpcStreamCallbacks,
 
   std::shared_ptr<internal::GrpcCall> call_;
 
-  const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   DatastoreImpl* datastore_;
   ExponentialBackoff backoff_;
 
   internal::ObjcBridge objc_bridge_;
-
-  // FIXME
-  id delegate_;
 };
 
 }  // namespace remote

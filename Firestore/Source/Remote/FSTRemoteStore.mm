@@ -143,7 +143,6 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)start {
-  _remoteStore->Start();
   // For now, all setup is handled by enableNetwork(). We might expand on this in the future.
   [self enableNetwork];
 }
@@ -201,7 +200,7 @@ static const int kMaxPendingWrites = 10;
   if ([self isNetworkEnabled]) {
     // NOTE: We're guaranteed not to get any further events from these streams (not even a close
     // event).
-    watchStream.Stop();
+    _watchStream->Stop();
     [self.writeStream stop];
 
     [self cleanUpWatchStreamState];
@@ -239,7 +238,7 @@ static const int kMaxPendingWrites = 10;
 - (void)startWatchStream {
   FSTAssert([self shouldStartWatchStream],
             @"startWatchStream: called when shouldStartWatchStream: is false.");
-  _watchStream->StartWithDelegate(self);
+  _watchStream->Start(self);
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
@@ -292,7 +291,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && !_watchStream->isStarted() && self.listenTargets.count > 0;
+  return [self isNetworkEnabled] && !_watchStream->IsStarted() && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {

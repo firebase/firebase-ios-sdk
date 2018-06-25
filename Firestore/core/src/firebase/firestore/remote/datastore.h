@@ -19,10 +19,10 @@
 
 #include <memory>
 
-
 #include <grpc/grpc.h>
 #include <grpcpp/completion_queue.h>
 #include <grpcpp/generic/generic_stub.h>
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 
@@ -46,15 +46,19 @@ class Datastore {
 
 class DatastoreImpl {
  public:
-  explicit DatastoreImpl(util::AsyncQueue* firestore_queue);
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(grpc::ClientContext* context,
-      const absl::string_view path);
+  DatastoreImpl(util::AsyncQueue* firestore_queue,
+                const core::DatabaseInfo& database_info);
 
-// TODO
-// DatastoreImpl::~DatastoreImpl() {
-//   grpc_queue_.Shutdown();
-//   dedicated_executor_->ExecuteBlocking([] {});
-// }
+  // database_info_->database_id()
+
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
+      grpc::ClientContext* context, const absl::string_view path);
+
+  // TODO
+  // DatastoreImpl::~DatastoreImpl() {
+  //   grpc_queue_.Shutdown();
+  //   dedicated_executor_->ExecuteBlocking([] {});
+  // }
 
  private:
   void PollGrpcQueue();
@@ -67,9 +71,10 @@ class DatastoreImpl {
   grpc::CompletionQueue grpc_queue_;
 
   util::AsyncQueue* firestore_queue_;
+  const core::DatabaseInfo* database_info_;
 };
 
-const char* pemRootCertsPath = nullptr;
+extern const char* pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore

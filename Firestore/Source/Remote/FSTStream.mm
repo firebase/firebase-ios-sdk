@@ -841,7 +841,8 @@ using firebase::firestore::remote::WatchStream;
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                      credentials:(CredentialsProvider *)credentials
                       serializer:(FSTSerializerBeta *)serializer {
-  impl_ = absl::make_unique<WatchStream>([workerDispatchQueue implementation], *database, credentials, serializer);
+  impl_ = absl::make_unique<WatchStream>([workerDispatchQueue implementation], credentials, serializer, nullptr);
+  // FIXME!
   return self;
 }
 
