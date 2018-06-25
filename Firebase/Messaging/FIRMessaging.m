@@ -724,13 +724,13 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)unsubscribeFromTopic:(NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
- if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+  if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
                            @"Format '%@' is deprecated. Only '%@' should be used in "
                            @"unsubscribeFromTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
- if (!self.defaultFcmToken.length) {
+  if (!self.defaultFcmToken.length) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging012,
                            @"The unsubscription operation is suspended because you don't have a "
                            @"token. The operation will resume once you get an FCM token.");
