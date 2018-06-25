@@ -730,7 +730,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            @"unsubscribeFromTopic.",
                            topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
-  if (!self.defaultFcmToken.length) {
+ if (!self.defaultFcmToken.length) {
     FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging012,
                            @"The unsubscription operation is suspended because you don't have a "
                            @"token. The operation will resume once you get an FCM token.");
