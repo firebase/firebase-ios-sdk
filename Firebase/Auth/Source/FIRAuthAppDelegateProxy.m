@@ -205,14 +205,14 @@ static BOOL isIOS9orLater() {
   // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
   // responds to it.
   static Class applicationClass = nil;
-  if (![FIRAppEnvironmentUtil isAppExtension]) {
-    Class cls = NSClassFromString(@"UIApplication");
-    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
-      applicationClass = cls;
-    }
-  }
-  UIApplication *application = [applicationClass sharedApplication];
   dispatch_once(&onceToken, ^{
+    if (![FIRAppEnvironmentUtil isAppExtension]) {
+      Class cls = NSClassFromString(@"UIApplication");
+      if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
+        applicationClass = cls;
+      }
+    }
+    UIApplication *application = [applicationClass sharedApplication];
     sharedInstance = [[self alloc] initWithApplication:application];
   });
   return sharedInstance;
