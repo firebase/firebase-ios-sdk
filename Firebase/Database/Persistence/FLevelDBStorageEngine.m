@@ -672,7 +672,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     return [data subdataWithRange:NSMakeRange(1, data.length - 2)];
 }
 
-- (id)fixDoubleParsing:(id)value {
+- (id)fixDoubleParsing:(id)value __attribute__((no_sanitize("float-cast-overflow"))) {
     // The parser for double values in JSONSerialization at the root takes some short-cuts and delivers wrong results
     // (wrong rounding) for some double values, including 2.47. Because we use the exact bytes for hashing on the server
     // this will lead to hash mismatches. The parser of NSNumber seems to be more in line with what the server expects,
