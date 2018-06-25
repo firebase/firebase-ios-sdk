@@ -460,9 +460,6 @@ static NSString *const kRemoteFromAddress = @"from";
 }
 
 - (void)didReceiveHeartbeatAck:(GtalkHeartbeatAck *)heartbeatAck {
-#if FIRMessaging_PROBER
-  self.lastHeartbeatPingTimestamp = FIRMessagingCurrentTimestampInSeconds();
-#endif
 }
 
 - (void)didReceiveDataMessageStanza:(GtalkDataMessageStanza *)dataMessageStanza {
