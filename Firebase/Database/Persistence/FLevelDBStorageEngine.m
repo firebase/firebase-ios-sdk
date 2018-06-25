@@ -683,7 +683,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
             // The NSJSON parser returns all numbers as double values, even those that contain no exponent. To
             // make sure that the String conversion below doesn't unexpectedly reduce precision, we make sure that
             // our number is indeed not an integer.
-            if ((double)(long long)[value doubleValue] != [value doubleValue]) {
+            if ((double)(int64_t)[value doubleValue] != [value doubleValue]) {
                 NSString *doubleString = [value stringValue];
                 return [NSNumber numberWithDouble:[doubleString doubleValue]];
             } else {
