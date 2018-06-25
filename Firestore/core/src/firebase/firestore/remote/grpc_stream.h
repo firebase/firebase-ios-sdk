@@ -45,16 +45,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// close
-// error
-// state machine
-//
-// idle
-//
-// enable/disable -- make sure gRPC leaves us alone with its callbacks as soon
-//     as we close the stream.
-//
 // WRITE STREAM
+
+class WatchStream;
 
 namespace internal {
 
@@ -89,8 +82,6 @@ class ObjcBridge {
   FSTSerializerBeta* serializer_;
 };
 
-class WatchStream;
-
 class BufferedWriter {
  public:
   explicit BufferedWriter(WatchStream* stream) : stream_{stream} {}
@@ -106,17 +97,22 @@ class BufferedWriter {
 
   void TryWrite();
 
-  grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
+  WatchStream* stream_ = nullptr;
   std::vector<grpc::ByteBuffer> buffer_;
   bool has_pending_write_ = false;
   bool is_started_ = false;
 };
 
+struct GrpcCall {
+  std::unique_ptr<grpc::ClientContext> context;
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
+};
+
 }  // namespace internal
 
-class StreamOp {
+class StreamOperation {
  public:
-  virtual ~StreamOp() {
+  virtual ~StreamOperation() {
   }
 
   void Finalize(bool ok) {
@@ -126,7 +122,8 @@ class StreamOp {
   }
 
  protected:
-  StreamOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
+    StreamOp(const std::shared_ptr<WatchStream>& stream,
+        const std::shared_ptr<internal::GrpcCall>& call)
       : stream_handle_{stream},
   call_{call} {
   }
@@ -134,20 +131,20 @@ class StreamOp {
  private:
   virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
 
-  std::weak_ptr<WatchStream> stream_handle_;
-  std::shared_ptr<WatchStream> call_;
+    std::weak_ptr<WatchStream> stream_handle_;
+  std::shared_ptr<internal::GrpcCall> call_;
 };
 
-class GrpcCallbacks {
-  virtual ~GrpcCallbacks() {}
+class GrpcStreamCallbacks {
+  virtual ~GrpcStreamCallbacks() {}
 
-  virtual void OnStart(bool ok) = 0;
-  virtual void OnRead(bool ok, const grpc::ByteBuffer& message) = 0;
-  virtual void OnWrite(bool ok) = 0;
-  virtual void OnFinish(bool ok, grpc::Status status) = 0;
+  virtual void OnStreamStart(bool ok) = 0;
+  virtual void OnStreamRead(bool ok, const grpc::ByteBuffer& message) = 0;
+  virtual void OnStreamWrite(bool ok) = 0;
+  virtual void OnStreamFinish(grpc::Status status) = 0;
 };
 
-class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchStream> {
+class WatchStream : public GrpcStreamCallbacks, public enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
               const core::DatabaseInfo& database_info,
@@ -156,20 +153,18 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
               DatastoreImpl* datastore);
   ~WatchStream();
 
-  void Enable();
   void Start(id delegate);
   void Stop();
-  bool IsEnabled() const;
   bool IsStarted() const;
   bool IsOpen() const;
 
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
 
-  void OnStart(bool ok) override;
-  void OnRead(bool ok, const grpc::ByteBuffer& message) override;
-  void OnWrite(bool ok) override;
-  void OnFinish(bool ok, grpc::Status status) override;
+  void OnStreamStart(bool ok) override;
+  void OnStreamRead(bool ok, const grpc::ByteBuffer& message) override;
+  void OnStreamWrite(bool ok) override;
+  void OnStreamFinish(grpc::Status status) override;
 
   // ClearError?
   void CancelBackoff();
@@ -186,21 +181,17 @@ class WatchStream : public GrpcCallbacks, public enable_shared_from_this<WatchSt
 
   void Authenticate(const util::StatusOr<auth::Token>& maybe_token);
 
-  void PerformBackoff(id delegate);
+  void BackoffAndTryRestarting(id delegate);
   void ResumeStartFromBackoff(id delegate);
 
   void Write(const grpc::ByteBuffer& message);
   void FinishStream();
 
-  State state_{State::Initial};
+  State state_{State::NotStarted};
 
-  struct GrpcCall {
-    std::unique_ptr<grpc::ClientContext> context;
-    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
-  };
   internal::BufferedWriter buffered_writer;
 
-  std::shared_ptr<GrpcCall> call_;
+  std::shared_ptr<internal::GrpcCall> call_;
 
   const core::DatabaseInfo* database_info_;
   auth::CredentialsProvider* credentials_provider_;

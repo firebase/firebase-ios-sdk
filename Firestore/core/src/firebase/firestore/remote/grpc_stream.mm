@@ -47,10 +47,7 @@ const double kBackoffFactor = 1.5;
 
 namespace internal {
 
-// Can we eliminate state Stopped? `Stop` method should be pretty fast and make the object ready for
-// destruction.
-
-class StreamStartOp : public StreamOp {
+class StreamStartOp : public StreamOperation {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamStartOp{stream, call};
@@ -80,7 +77,7 @@ class StreamReadOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnRead(ok, message);
+    stream->OnStreamRead(ok, message);
   }
 
   grpc::ByteBuffer message;
@@ -102,7 +99,7 @@ class StreamWriteOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnWrite(ok);
+    stream->OnStreamWrite(ok);
   }
 };
 
@@ -121,7 +118,7 @@ class StreamFinishOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnFinish(ok);
+    stream->OnStreamFinish(ok);
   }
 
   grpc::Status status_;
@@ -201,7 +198,6 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  // bidi_stream_->Write(buffer_.back(), &kWriteTag);
   stream_->Write(buffer.back());
   buffer_.pop_back();
 }
@@ -240,7 +236,7 @@ WatchStream::WatchStream(util::AsyncQueue* const async_queue,
 void WatchStream::Start(id delegate) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  if (state_ == State::Error) {
+  if (state_ == State::GrpcError) {
     BackoffAndTryRestarting(delegate);
     return;
   }
@@ -248,7 +244,7 @@ void WatchStream::Start(id delegate) {
   // TODO: util::LogDebug(%@ %p start", NSStringFromClass([self class]),
   // (__bridge void *)self);
 
-  FIREBASE_ASSERT_MESSAGE(state_ == State::Initial, "Already started");
+  FIREBASE_ASSERT_MESSAGE(state_ == State::NotStarted, "Already started");
   state_ = State::Auth;
   FIREBASE_ASSERT_MESSAGE(delegate_ == nil, "Delegate must be nil");
   delegate_ = delegate;
@@ -261,15 +257,11 @@ void WatchStream::Start(id delegate) {
       });
 }
 
-// Call may be closed due to:
-// - error;
-// - idleness;
-// - network disable/reenable
 void WatchStream::ResumeStartAfterAuth(
     const util::StatusOr<Token>& maybe_token) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  if (state_ == State::Stopped) {
+  if (state_ == State::ShuttingDown) {
     // Streams can be stopped while waiting for authorization.
     return;
   } else {
@@ -279,7 +271,7 @@ void WatchStream::ResumeStartAfterAuth(
 
   if (!maybe_token.ok()) {
     // TODO: error handling
-    OnFinish();  // FIXME
+    OnStreamFinish();  // FIXME
     return;
   }
 
@@ -293,7 +285,6 @@ void WatchStream::ResumeStartAfterAuth(
                                    "/google.firestore.v1beta1.Firestore/Listen");
   call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
-  // bidi_stream_->StartCall(&kStartTag);
   StreamStartOp::Execute(call_, shared_from_this());
   // TODO: set state to open here, or only upon successful completion?
   // Objective-C does it here.
@@ -304,18 +295,18 @@ void WatchStream::BackoffAndTryRestarting() {
   // *)self);
   firestore_queue_->VerifyIsCurrentQueue();
 
-  FIREBASE_ASSERT_MESSAGE(state_ == State::Error,
+  FIREBASE_ASSERT_MESSAGE(state_ == State::GrpcError,
                           "Should only perform backoff in an error case");
 
   backoff_.BackoffAndRun(
       [this, delegate] { ResumeStartFromBackoff(delegate); });
-  state_ = State::Backoff;
+  state_ = State::ReconnectingWithBackoff;
 }
 
 void WatchStream::ResumeStartFromBackoff(id delegate) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  if (state_ == State::Stopped) {
+  if (state_ == State::ShuttingDown) {
     // We should have canceled the backoff timer when the stream was closed, but
     // just in case we make this a no-op.
     return;
@@ -327,7 +318,7 @@ void WatchStream::ResumeStartFromBackoff(id delegate) {
   FIREBASE_ASSERT_MESSAGE(state_ == State::Backoff,
                           "State should still be backoff (was %s)", state_);
 
-  state_ = State::Initial;
+  state_ = State::NotStarted;
   Start(delegate);
   FIREBASE_ASSERT_MESSAGE(IsStarted(), "Stream should have started.");
 }
@@ -339,7 +330,7 @@ void WatchStream::CancelBackoff() {
       !IsStarted(), "Can only cancel backoff after an error (was %s)", state_);
 
   // Clear the error condition.
-  state_ = State::Initial;
+  state_ = State::NotStarted;
   backoff_.Reset();
 }
 
@@ -353,14 +344,13 @@ void WatchStream::OnStart(const bool ok) {
 
   state_ = State::Open;
   buffered_writer_.Start();
-  //bidi_stream_->Read(&last_read_message_, &kReadTag);
   StreamReadOp::Execute(call_, shared_from_this());
 
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
-void WatchStream::OnRead(const bool ok, const grpc::ByteBuffer& message) {
+void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
   if (!ok) {
     FinishStream();
     return;
@@ -373,11 +363,10 @@ void WatchStream::OnRead(const bool ok, const grpc::ByteBuffer& message) {
   [delegate watchStreamDidChange:objc_bridge_.GetWatchChange(proto)
                  snapshotVersion:objc_bridge_.GetSnapshotVersion(proto)];
 
-  //bidi_stream_->Read(&last_read_message_, &kReadTag);
   StreamReadOp::Execute(call_, shared_from_this());
 }
 
-void WatchStream::OnWrite(const bool ok) {
+void WatchStream::OnStreamWrite(const bool ok) {
   if (!ok) {
     FinishStream();
     return;
@@ -387,7 +376,7 @@ void WatchStream::OnWrite(const bool ok) {
   buffered_writer_.OnSuccessfulWrite();
 }
 
-void WatchStream::OnFinish(bool ok, grpc::Status status) {
+void WatchStream::OnStreamFinish(grpc::Status status) {
   firestore_queue_->VerifyIsCurrentQueue();
 
   FIREBASE_ASSERT_MESSAGE(ok, "TODO");
@@ -397,7 +386,7 @@ void WatchStream::OnFinish(bool ok, grpc::Status status) {
     return;
   }
 
-  state_ = State::Error;
+  state_ = State::GrpcError;
   buffered_writer_.Stop();
 
   // FIXME
@@ -441,7 +430,7 @@ void WatchStream::Stop() {
   if (!IsOpen()) {
     return;
   }
-  state_ = State::Stopped;
+  state_ = State::ShuttingDown;
   buffered_writer_.Stop();
 
   FinishStream();

@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 
+#include <chrono>
+
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
@@ -48,11 +50,11 @@ class ExponentialBackoff {
    * performed. Note that jitter will still be applied, so the actual delay
    * could be as much as 1.5*maxDelay.
    */
-  ExponentialBackoff(AsyncQueue* queue,
-                     TimerId timer_id,
+    ExponentialBackoff(util::AsyncQueue* queue,
+                       util::TimerId timer_id,
                      double backoff_factor,
-                     AsyncQueue::Milliseconds initial_delay,
-                     AsyncQueue::Milliseconds max_delay)
+                       util::AsyncQueue::Milliseconds initial_delay,
+                       util::AsyncQueue::Milliseconds max_delay)
       : queue_{*queue},
         timer_id_{timer_id},
         backoff_factor_{backoff_factor},
@@ -68,7 +70,7 @@ class ExponentialBackoff {
    * subsequent ones will increase according to the backoffFactor.
    */
   void Reset() {
-    current_base_ = 0;
+      current_base_ = RealSeconds{0};
   }
 
   /**
@@ -86,7 +88,7 @@ class ExponentialBackoff {
    *
    * @param block The block to run.
    */
-  void BackoffAndRun(AsyncQueue::Operation&& operation);
+    void BackoffAndRun(util::AsyncQueue::Operation&& operation);
 
   /** Cancels any pending backoff operation scheduled via `BackoffAndRun`. */
   void Cancel() {
@@ -96,17 +98,17 @@ class ExponentialBackoff {
  private:
   using RealSeconds = std::chrono::duration<double>;
 
-  AsyncQueue::Milliseconds JitterDelay() const;
+  util::AsyncQueue::Milliseconds JitterDelay() const;
   RealSeconds ClampDelay(RealSeconds delay) const;
 
-  AsyncQueue& queue_;
-  TimerId timer_id_;
-  AsyncQueue::DelayedOperation delayed_operation_;
+  util::AsyncQueue& queue_;
+  util::TimerId timer_id_;
+  util::DelayedOperation delayed_operation_;
 
   double backoff_factor_;
   RealSeconds current_base_;
-  AsyncQueue::Milliseconds initial_delay_;
-  AsyncQueue::Milliseconds max_delay_;
+  util::AsyncQueue::Milliseconds initial_delay_;
+  util::AsyncQueue::Milliseconds max_delay_;
   util::SecureRandom secure_random_;
 };
 
