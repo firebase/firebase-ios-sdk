@@ -103,7 +103,7 @@ class ExponentialBackoff {
   util::DelayedOperation delayed_operation_;
 
   double backoff_factor_;
-  RealSeconds current_base_;
+  RealSeconds current_base_{0};
   util::AsyncQueue::Milliseconds initial_delay_;
   util::AsyncQueue::Milliseconds max_delay_;
   util::SecureRandom secure_random_;
