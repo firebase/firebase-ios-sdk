@@ -74,10 +74,10 @@ const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue,
                              const core::DatabaseInfo& database_info)
-    : dedicated_executor_{DatastoreImpl::CreateExecutor()},
-      stub_{CreateStub()},
-      firestore_queue_{firestore_queue},
-      database_info_{&database_info}
+      : firestore_queue_{firestore_queue},
+      database_info_{&database_info},
+    dedicated_executor_{DatastoreImpl::CreateExecutor()},
+      stub_{CreateStub()}
 {
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }

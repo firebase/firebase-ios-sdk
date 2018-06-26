@@ -69,12 +69,12 @@ class DatastoreImpl {
 
   grpc::GenericStub CreateStub() const;
 
+  util::AsyncQueue* firestore_queue_;
+  const core::DatabaseInfo* database_info_;
+
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
   grpc::GenericStub stub_;
   grpc::CompletionQueue grpc_queue_;
-
-  util::AsyncQueue* firestore_queue_;
-  const core::DatabaseInfo* database_info_;
 };
 
 extern const char* pemRootCertsPath;
