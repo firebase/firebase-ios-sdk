@@ -36,6 +36,8 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FIRReachabilityChecker.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
@@ -173,10 +175,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     _loggedMessageIDs = [NSMutableSet set];
     _instanceID = instanceID;
     _messagingUserDefaults = defaults;
-
-    // TODO: Remove this once the race condition with FIRApp configuring and InstanceID
-    //       is fixed. This must be fixed before Core's flag becomes public.
-    _globalAutomaticDataCollectionEnabled = YES;
+    _fcmSenderID = [FIRApp defaultApp].options.GCMSenderID;
   }
   return self;
 }
@@ -479,7 +478,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 
   // If none of above exists, we default to the global switch that comes from FIRApp.
-  return self.isGlobalAutomaticDataCollectionEnabled;
+  return [[FIRApp defaultApp] isAutomaticDataCollectionEnabled];
 }
 
 - (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
