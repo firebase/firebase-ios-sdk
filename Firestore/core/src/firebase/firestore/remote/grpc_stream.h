@@ -164,7 +164,6 @@ class WatchStream : public GrpcStreamCallbacks,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               DatastoreImpl* datastore);
-  ~WatchStream();
 
   void Start(id delegate);
   void Stop();
