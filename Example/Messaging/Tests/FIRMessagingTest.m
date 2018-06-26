@@ -18,9 +18,9 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import "FIRAppInternal.h"
-#import "FIROptionsInternal.h"
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"

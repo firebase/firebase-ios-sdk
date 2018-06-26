@@ -129,7 +129,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
                            FIRReachabilityDelegate>
 
 // FIRApp properties
-@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
@@ -175,7 +174,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     _loggedMessageIDs = [NSMutableSet set];
     _instanceID = instanceID;
     _messagingUserDefaults = defaults;
-    _fcmSenderID = [FIRApp defaultApp].options.GCMSenderID;
   }
   return self;
 }
