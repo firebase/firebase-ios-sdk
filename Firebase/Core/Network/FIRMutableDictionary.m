@@ -38,6 +38,10 @@
   return [_gulMutableDictionary objectForKey:key];
 }
 
+- (void)setObject:(id)object forKey:(id<NSCopying>)key {
+  [_gulMutableDictionary setObject:object forKey:key];
+}
+
 - (void)removeObjectForKey:(id)key {
   [_gulMutableDictionary removeObjectForKey:key];
 }

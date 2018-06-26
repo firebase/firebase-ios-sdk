@@ -17,28 +17,28 @@
 #import "GTMHTTPServer.h"
 
 #import <GoogleToolboxForMac/GTMNSData+zlib.h>
-#import <GoogleUtilities/FIRNetwork.h>
-#import <GoogleUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/GULNetwork.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
-@interface FIRNetwork ()
+@interface GULNetwork ()
 
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status;
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status;
 
 @end
 
-@interface FIRNetworkURLSession ()
+@interface GULNetworkURLSession ()
 
 - (void)maybeRemoveTempFilesAtURL:(NSURL *)tempFile expiringTime:(NSTimeInterval)expiringTime;
 
 @end
 
-@interface FIRNetworkTest : FIRTestCase <FIRNetworkReachabilityDelegate>
+@interface GULNetworkTest : FIRTestCase <GULNetworkReachabilityDelegate>
 @end
 
-@implementation FIRNetworkTest {
+@implementation GULNetworkTest {
   dispatch_queue_t _backgroundQueue;
-  FIRNetwork *_network;
+  GULNetwork *_network;
 
   /// Fake Server.
   GTMHTTPServer *_httpServer;
@@ -48,7 +48,7 @@
   // For network reachability test.
   BOOL _fakeNetworkIsReachable;
   BOOL _currentNetworkStatus;
-  FIRReachabilityStatus _fakeReachabilityStatus;
+  GULReachabilityStatus _fakeReachabilityStatus;
 }
 
 #pragma mark - Setup and teardown
@@ -66,7 +66,7 @@
   NSError *error = nil;
   XCTAssertTrue([_httpServer start:&error], @"Failed to start HTTP server: %@", error);
 
-  _network = [[FIRNetwork alloc] init];
+  _network = [[GULNetwork alloc] init];
   _backgroundQueue = dispatch_queue_create("Test queue", DISPATCH_QUEUE_SERIAL);
 
   _request = nil;
@@ -97,14 +97,14 @@
 
   // Fake scenario with connectivity.
   _fakeNetworkIsReachable = YES;
-  _fakeReachabilityStatus = kFIRReachabilityViaWifi;
+  _fakeReachabilityStatus = kGULReachabilityViaWifi;
   [_network reachability:reachabilityMock statusChanged:[reachabilityMock reachabilityStatus]];
   XCTAssertTrue([_network isNetworkConnected]);
   XCTAssertEqual(_currentNetworkStatus, _fakeNetworkIsReachable);
 
   // Fake scenario without connectivity.
   _fakeNetworkIsReachable = NO;
-  _fakeReachabilityStatus = kFIRReachabilityNotReachable;
+  _fakeReachabilityStatus = kGULReachabilityNotReachable;
   [_network reachability:reachabilityMock statusChanged:[reachabilityMock reachabilityStatus]];
   XCTAssertFalse([_network isNetworkConnected]);
   XCTAssertEqual(_currentNetworkStatus, _fakeNetworkIsReachable);
@@ -881,14 +881,14 @@
   NSError *writeError = nil;
   NSFileManager *fileManager = [NSFileManager defaultManager];
 
-  FIRNetworkURLSession *session = [[FIRNetworkURLSession alloc]
-      initWithNetworkLoggerDelegate:(id<FIRNetworkLoggerDelegate>)_network];
+  GULNetworkURLSession *session = [[GULNetworkURLSession alloc]
+      initWithNetworkLoggerDelegate:(id<GULNetworkLoggerDelegate>)_network];
   NSArray *paths =
       NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
   NSString *applicationSupportDirectory = paths.firstObject;
   NSArray *tempPathComponents = @[
-    applicationSupportDirectory, kFIRNetworkApplicationSupportSubdirectory,
-    @"FIRNetworkTemporaryDirectory"
+    applicationSupportDirectory, kGULNetworkApplicationSupportSubdirectory,
+    @"GULNetworkTemporaryDirectory"
   ];
   NSURL *folderURL = [NSURL fileURLWithPathComponents:tempPathComponents];
   [fileManager createDirectoryAtURL:folderURL
@@ -979,7 +979,7 @@
   return _fakeNetworkIsReachable;
 }
 
-- (FIRReachabilityStatus)reachabilityStatus {
+- (GULReachabilityStatus)reachabilityStatus {
   return _fakeReachabilityStatus;
 }
 

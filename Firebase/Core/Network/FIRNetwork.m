@@ -14,8 +14,10 @@
 
 #import "FIRNetwork.h"
 #import <GoogleUtilities/GULNetwork.h>
+#import <GoogleUtilities/GULNetworkMessageCode.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
-@interface FIRNetwork ()
+@interface FIRNetwork () //<GULReachabilityDelegate>
 @end
 
 @implementation FIRNetwork {
@@ -53,7 +55,7 @@
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
          completionHandler:(FIRNetworkCompletionHandler)handler {
-  return [_gulNetwork postURL:url payload:payload queue:queue usingBackgroundSession:usingBackgroundSession completionHandler handler];
+  return [_gulNetwork postURL:url payload:payload queue:queue usingBackgroundSession:usingBackgroundSession completionHandler:handler];
 }
 
 - (NSString *)getURL:(NSURL *)url
@@ -72,48 +74,49 @@
 
 /// Tells reachability delegate to call reachabilityDidChangeToStatus: to notify the network
 /// reachability has changed.
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status {
-  [_gulNetwork reachability:reachability statusChanged:status];
-}
+//- (void)reachability:(FIRReachabilityChecker *)reachability
+//       statusChanged:(FIRReachabilityStatus)status {
+//  [_gulNetwork reachability:(GULReachabilityChecker *)reachability
+//              statusChanged:(GULReachabilityStatus)status];
+//}
 
 #pragma mark - Network logger delegate
 
-- (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
-  // Explicitly check whether the delegate responds to the methods because conformsToProtocol does
-  // not work correctly even though the delegate does respond to the methods.
-  [_gulNetwork setLoggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate];
-}
+//- (void)setLoggerDelegate:(id<FIRNetworkLoggerDelegate>)loggerDelegate {
+//  // Explicitly check whether the delegate responds to the methods because conformsToProtocol does
+//  // not work correctly even though the delegate does respond to the methods.
+//  [_gulNetwork setLoggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate];
+//}
 
 #pragma mark - Private methods
 
 /// Handles network error and calls completion handler with the error.
-- (void)handleErrorWithCode:(NSInteger)code
-                      queue:(dispatch_queue_t)queue
-                withHandler:(FIRNetworkCompletionHandler)handler {
-  [_gulNetwork handleErrorWithCode:code queue:queue withHandler:handler];
-}
+//- (void)handleErrorWithCode:(NSInteger)code
+//                      queue:(dispatch_queue_t)queue
+//                withHandler:(FIRNetworkCompletionHandler)handler {
+//  [_gulNetwork handleErrorWithCode:code queue:queue withHandler:handler];
+//}
 
 #pragma mark - Network logger
 
-- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
-                        message:(NSString *)message
-                       contexts:(NSArray *)contexts {
-  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message contexts:contexts];
-}
-
-- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
-                        message:(NSString *)message
-                        context:(id)context {
-  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message context:context];
-}
-
-- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
-                        message:(NSString *)message {
-  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message];
-}
+//- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
+//                    messageCode:(GULNetworkMessageCode)messageCode
+//                        message:(NSString *)message
+//                       contexts:(NSArray *)contexts {
+//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message contexts:contexts];
+//}
+//
+//- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
+//                    messageCode:(GULNetworkMessageCode)messageCode
+//                        message:(NSString *)message
+//                        context:(id)context {
+//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message context:context];
+//}
+//
+//- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
+//                    messageCode:(GULNetworkMessageCode)messageCode
+//                        message:(NSString *)message {
+//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message];
+//}
 
 @end
