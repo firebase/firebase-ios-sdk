@@ -16,6 +16,7 @@ cc_test(
   firebase_firestore_remote_test
   SOURCES
     datastore_test.cc
+    exponential_backoff_test.cc
     serializer_test.cc
   DEPENDS
     # NB: Order is important. We need to include the ffp_libprotobuf library
