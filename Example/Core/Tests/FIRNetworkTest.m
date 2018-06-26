@@ -401,8 +401,6 @@
                                }];
 }
 
-// This test has gotten very flaky on travis. Increasing the timeout doesn't help. Perhaps,
-// related to running with sanitizers?
 - (void)testEmptyPayloadNSURLSession_POST_background {
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
   NSData *uncompressedData = [[NSData alloc] init];
