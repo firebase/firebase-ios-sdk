@@ -55,7 +55,11 @@
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
          completionHandler:(FIRNetworkCompletionHandler)handler {
-  return [_gulNetwork postURL:url payload:payload queue:queue usingBackgroundSession:usingBackgroundSession completionHandler:handler];
+  return [_gulNetwork postURL:url
+                      payload:payload
+                        queue:queue
+       usingBackgroundSession:usingBackgroundSession
+            completionHandler:handler];
 }
 
 - (NSString *)getURL:(NSURL *)url
@@ -63,7 +67,11 @@
                      queue:(dispatch_queue_t)queue
     usingBackgroundSession:(BOOL)usingBackgroundSession
          completionHandler:(FIRNetworkCompletionHandler)handler {
-  return [_gulNetwork getURL:url headers:headers queue:queue usingBackgroundSession:usingBackgroundSession completionHandler:handler];
+  return [_gulNetwork getURL:url
+                     headers:headers
+                       queue:queue
+      usingBackgroundSession:usingBackgroundSession
+           completionHandler:handler];
 }
 
 - (BOOL)hasUploadInProgress {
@@ -103,14 +111,16 @@
 //                    messageCode:(GULNetworkMessageCode)messageCode
 //                        message:(NSString *)message
 //                       contexts:(NSArray *)contexts {
-//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message contexts:contexts];
+//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message
+//  contexts:contexts];
 //}
 //
 //- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
 //                    messageCode:(GULNetworkMessageCode)messageCode
 //                        message:(NSString *)message
 //                        context:(id)context {
-//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message context:context];
+//  [_gulNetwork GULNetworkLogLevel:logLevel messageCode:messageCode message:message
+//  context:context];
 //}
 //
 //- (void)FIRNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
