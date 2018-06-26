@@ -41,7 +41,7 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
              delay_with_jitter.count(), current_base_.count());
   }
 
-  delayed_operation_ = queue_.EnqueueAfterDelay(delay_with_jitter, timer_id_,
+  delayed_operation_ = queue_->EnqueueAfterDelay(delay_with_jitter, timer_id_,
                                                 std::move(operation));
 
   // Apply backoff factor to determine next delay, but ensure it is within
