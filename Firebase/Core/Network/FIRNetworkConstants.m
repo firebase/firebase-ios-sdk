@@ -14,14 +14,14 @@
 
 #import "FIRNetworkConstants.h"
 
-//NSString *const kFIRNetworkBackgroundSessionConfigIDPrefix =
+// NSString *const kFIRNetworkBackgroundSessionConfigIDPrefix =
 //    @"com.firebase.network.background-upload";
-//NSString *const kFIRNetworkApplicationSupportSubdirectory = @"Firebase/Network";
-//NSString *const kFIRNetworkTempDirectoryName = @"GULNetworkTemporaryDirectory";
-//const NSTimeInterval kFIRNetworkTempFolderExpireTime = 60 * 60;  // 1 hour
-//const NSTimeInterval kFIRNetworkTimeOutInterval = 60;            // 1 minute.
-//NSString *const kFIRNetworkReachabilityHost = @"app-measurement.com";
-//NSString *const kFIRNetworkErrorContext = @"Context";
+// NSString *const kFIRNetworkApplicationSupportSubdirectory = @"Firebase/Network";
+// NSString *const kFIRNetworkTempDirectoryName = @"GULNetworkTemporaryDirectory";
+// const NSTimeInterval kFIRNetworkTempFolderExpireTime = 60 * 60;  // 1 hour
+// const NSTimeInterval kFIRNetworkTimeOutInterval = 60;            // 1 minute.
+// NSString *const kFIRNetworkReachabilityHost = @"app-measurement.com";
+// NSString *const kFIRNetworkErrorContext = @"Context";
 
 const int kFIRNetworkHTTPStatusOK = 200;
 const int kFIRNetworkHTTPStatusNoContent = 204;
@@ -34,6 +34,6 @@ const int kFIRNetworkHTTPStatusCodeNotFound = 404;
 const int kFIRNetworkHTTPStatusCodeCannotAcceptTraffic = 429;
 const int kFIRNetworkHTTPStatusCodeUnavailable = 503;
 
-//NSString *const kFIRNetworkErrorDomain = @"com.firebase.network.ErrorDomain";
+// NSString *const kFIRNetworkErrorDomain = @"com.firebase.network.ErrorDomain";
 //
-//GULLoggerService kFIRLoggerNetwork = @"[GULNetwork]";
+// GULLoggerService kFIRLoggerNetwork = @"[GULNetwork]";

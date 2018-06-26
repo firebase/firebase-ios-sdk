@@ -20,7 +20,7 @@
 /// Error codes in Firebase Network error domain.
 /// Note: these error codes should never change. It would make it harder to decode the errors if
 /// we inadvertently altered any of these codes in a future SDK version.
-//typedef NS_ENUM(NSInteger, GULNetworkErrorCode) {
+// typedef NS_ENUM(NSInteger, GULNetworkErrorCode) {
 //  /// Unknown error.
 //  GULNetworkErrorCodeUnknown = 0,
 //  /// Error occurs when the request URL is invalid.
@@ -38,25 +38,25 @@
 #pragma mark - Network constants
 
 ///// The prefix of the ID of the background session.
-//extern NSString *const kGULNetworkBackgroundSessionConfigIDPrefix;
+// extern NSString *const kGULNetworkBackgroundSessionConfigIDPrefix;
 //
 ///// The sub directory to store the files of data that is being uploaded in the background.
-//extern NSString *const kGULNetworkApplicationSupportSubdirectory;
+// extern NSString *const kGULNetworkApplicationSupportSubdirectory;
 //
 ///// Name of the temporary directory that stores files for background uploading.
-//extern NSString *const kGULNetworkTempDirectoryName;
+// extern NSString *const kGULNetworkTempDirectoryName;
 //
 ///// The period when the temporary uploading file can stay.
-//extern const NSTimeInterval kGULNetworkTempFolderExpireTime;
+// extern const NSTimeInterval kGULNetworkTempFolderExpireTime;
 //
 ///// The default network request timeout interval.
-//extern const NSTimeInterval kGULNetworkTimeOutInterval;
+// extern const NSTimeInterval kGULNetworkTimeOutInterval;
 //
 ///// The host to check the reachability of the network.
-//extern NSString *const kGULNetworkReachabilityHost;
+// extern NSString *const kGULNetworkReachabilityHost;
 //
 ///// The key to get the error context of the UserInfo.
-//extern NSString *const kGULNetworkErrorContext;
+// extern NSString *const kGULNetworkErrorContext;
 
 #pragma mark - Network Status Code
 
@@ -73,7 +73,7 @@ extern const int kFIRNetworkHTTPStatusCodeUnavailable;
 
 #pragma mark - Error Domain
 
-//extern NSString *const kGULNetworkErrorDomain;
+// extern NSString *const kGULNetworkErrorDomain;
 //
 ///// The logger service for GULNetwork.
-//extern GULLoggerService kGULLoggerNetwork;
+// extern GULLoggerService kGULLoggerNetwork;
