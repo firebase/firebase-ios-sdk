@@ -420,7 +420,7 @@
              [expectation fulfill];
            }];
   XCTAssertTrue(_network.hasUploadInProgress, "There must be a pending request");
-  [self waitForExpectationsWithTimeout:10
+  [self waitForExpectationsWithTimeout:20
                                handler:^(NSError *error) {
                                  if (error) {
                                    XCTFail(@"Timeout Error: %@", error);
