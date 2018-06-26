@@ -1,7 +1,7 @@
 # 2015-07-10 -- v3.0.3
-- Clean up unused `FIRMessaging_PROBER` macro.
-- Updated topic subscription warning.
-- Add a feature that queues up the topic requests when token is not available and syncs the topic when the token is generated.
+- Fixed an issue that client should suspend the topic requests when token is not available and resume the topic operation when the token is generated.
+- Corrected the deprecation warning when subscribing to or unsubscribing from an invalid topic.
+- Removed unused heart beat time stamp tracking.
 
 # 2015-06-12 -- v3.0.2
 - Added a warning message when subscribing to topics with incorrect name formats.
