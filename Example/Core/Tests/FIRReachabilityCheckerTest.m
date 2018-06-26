@@ -14,12 +14,12 @@
 
 #import "FIRTestCase.h"
 
-#import <GoogleUtilities/FIRReachabilityChecker+Internal.h>
-#import <GoogleUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/GULReachabilityChecker+Internal.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
-@interface FIRReachabilityCheckerTest : FIRTestCase <FIRReachabilityDelegate> {
+@interface GULReachabilityCheckerTest : FIRTestCase <GULReachabilityDelegate> {
  @private
-  FIRReachabilityChecker *checker_;
+  GULReachabilityChecker *checker_;
   NSMutableArray *statuses_;
   BOOL createFail_;
   BOOL setCallbackFail_;
@@ -42,7 +42,7 @@
 static NSString *const kHostname = @"www.google.com";
 static const void *kFakeReachabilityObject = (const void *)0x8badf00d;
 
-static FIRReachabilityCheckerTest *FakeReachabilityTest = nil;
+static GULReachabilityCheckerTest *FakeReachabilityTest = nil;
 
 static struct {
   int callsMade;
@@ -87,12 +87,12 @@ static void ReachabilityRelease(CFTypeRef reachability) {
   [FakeReachabilityTest releaseReachability:reachability];
 }
 
-static const struct FIRReachabilityApi kTestReachabilityApi = {
+static const struct GULReachabilityApi kTestReachabilityApi = {
     ReachabilityCreateWithName,        ReachabilitySetCallback, ReachabilityScheduleWithRunLoop,
     ReachabilityUnscheduleFromRunLoop, ReachabilityRelease,
 };
 
-@implementation FIRReachabilityCheckerTest
+@implementation GULReachabilityCheckerTest
 
 - (void)resetFakeReachability {
   FakeReachabilityTest = self;
@@ -114,7 +114,7 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   setCallbackFail_ = NO;
   scheduleUnscheduleFail_ = NO;
 
-  checker_ = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
+  checker_ = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
                                                            loggerDelegate:nil
                                                                  withHost:kHostname];
   statuses_ = [[NSMutableArray alloc] init];
@@ -180,8 +180,8 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   FakeReachability.releaseCall = ++FakeReachability.callsMade;
 }
 
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status {
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status {
   [statuses_ addObject:[NSNumber numberWithInt:(int)status]];
 }
 
@@ -192,28 +192,28 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   XCTAssertEqual([checker_ reachabilityApi], &kTestReachabilityApi, @"");
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertTrue([checker_ start], @"");
 
   XCTAssertTrue(checker_.isActive, @"");
   XCTAssertEqual([statuses_ count], (NSUInteger)0, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   FakeReachability.callback(kFakeReachabilityObject, 0, FakeReachability.callbackInfo);
 
   XCTAssertEqual([statuses_ count], (NSUInteger)1, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:0] intValue],
-                 (int)kFIRReachabilityNotReachable, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityNotReachable, @"");
+                 (int)kGULReachabilityNotReachable, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityNotReachable, @"");
 
   FakeReachability.callback(kFakeReachabilityObject, kSCNetworkReachabilityFlagsReachable,
                             FakeReachability.callbackInfo);
 
   XCTAssertEqual([statuses_ count], (NSUInteger)2, @"");
-  XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:1] intValue], (int)kFIRReachabilityViaWifi,
+  XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:1] intValue], (int)kGULReachabilityViaWifi,
                  @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityViaWifi, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityViaWifi, @"");
 
   FakeReachability.callback(
       kFakeReachabilityObject,
@@ -222,8 +222,8 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
 
   XCTAssertEqual([statuses_ count], (NSUInteger)3, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:2] intValue],
-                 (int)kFIRReachabilityNotReachable, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityNotReachable, @"");
+                 (int)kGULReachabilityNotReachable, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityNotReachable, @"");
 
 #if TARGET_OS_IOS || TARGET_OS_TV
   FakeReachability.callback(
@@ -233,22 +233,22 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
 
   XCTAssertEqual([statuses_ count], (NSUInteger)4, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:3] intValue],
-                 (int)kFIRReachabilityViaCellular, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityViaCellular, @"");
+                 (int)kGULReachabilityViaCellular, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityViaCellular, @"");
 
   FakeReachability.callback(kFakeReachabilityObject, kSCNetworkReachabilityFlagsIsWWAN,
                             FakeReachability.callbackInfo);
 
   XCTAssertEqual([statuses_ count], (NSUInteger)5, @"");
   XCTAssertEqual([(NSNumber *)[statuses_ objectAtIndex:4] intValue],
-                 (int)kFIRReachabilityNotReachable, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityNotReachable, @"");
+                 (int)kGULReachabilityNotReachable, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityNotReachable, @"");
 #endif
 
   [checker_ stop];
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertEqual(FakeReachability.callsMade, 5, @"");
 
@@ -266,17 +266,17 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   createFail_ = YES;
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertFalse([checker_ start], @"");
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   [checker_ stop];
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertEqual(FakeReachability.callsMade, 1, @"");
 
@@ -296,17 +296,17 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   setCallbackFail_ = YES;
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertFalse([checker_ start], @"");
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   [checker_ stop];
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertEqual(FakeReachability.callsMade, 3, @"");
 
@@ -326,17 +326,17 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
   scheduleUnscheduleFail_ = YES;
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertFalse([checker_ start], @"");
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   [checker_ stop];
 
   XCTAssertFalse(checker_.isActive, @"");
-  XCTAssertEqual(checker_.reachabilityStatus, kFIRReachabilityUnknown, @"");
+  XCTAssertEqual(checker_.reachabilityStatus, kGULReachabilityUnknown, @"");
 
   XCTAssertEqual(FakeReachability.callsMade, 4, @"");
 
@@ -350,14 +350,14 @@ static const struct FIRReachabilityApi kTestReachabilityApi = {
 }
 
 - (void)testBadHost {
-  XCTAssertNil([[FIRReachabilityChecker alloc]
+  XCTAssertNil([[GULReachabilityChecker alloc]
                    initWithReachabilityDelegate:self
-                                 loggerDelegate:(id<FIRNetworkLoggerDelegate>)self
+                                 loggerDelegate:(id<GULNetworkLoggerDelegate>)self
                                        withHost:nil],
                @"Creating a checker with nil hostname must fail.");
-  XCTAssertNil([[FIRReachabilityChecker alloc]
+  XCTAssertNil([[GULReachabilityChecker alloc]
                    initWithReachabilityDelegate:self
-                                 loggerDelegate:(id<FIRNetworkLoggerDelegate>)self
+                                 loggerDelegate:(id<GULNetworkLoggerDelegate>)self
                                        withHost:@""],
                @"Creating a checker with empty hostname must fail.");
 }

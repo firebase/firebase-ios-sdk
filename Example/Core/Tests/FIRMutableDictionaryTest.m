@@ -14,7 +14,7 @@
 
 #import "FIRTestCase.h"
 
-#import <GoogleUtilities/FIRMutableDictionary.h>
+#import <GoogleUtilities/GULMutableDictionary.h>
 
 const static NSString *const kKey = @"testKey1";
 const static NSString *const kValue = @"testValue1";
@@ -22,14 +22,14 @@ const static NSString *const kKey2 = @"testKey2";
 const static NSString *const kValue2 = @"testValue2";
 
 @interface FIRMutableDictionaryTest : FIRTestCase
-@property(nonatomic) FIRMutableDictionary *dictionary;
+@property(nonatomic) GULMutableDictionary *dictionary;
 @end
 
 @implementation FIRMutableDictionaryTest
 
 - (void)setUp {
   [super setUp];
-  self.dictionary = [[FIRMutableDictionary alloc] init];
+  self.dictionary = [[GULMutableDictionary alloc] init];
 }
 
 - (void)tearDown {
