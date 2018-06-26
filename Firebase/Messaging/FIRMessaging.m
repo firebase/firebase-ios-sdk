@@ -37,7 +37,6 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIROptionsInternal.h>
 #import <FirebaseCore/FIRReachabilityChecker.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
