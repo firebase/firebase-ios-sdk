@@ -1,3 +1,8 @@
+# 2015-07-10 -- v3.0.3
+- Clean up unused `FIRMessaging_PROBER` macro.
+- Updated topic subscription warning.
+- Add a feature that queues up the topic requests when token is not available and syncs the topic when the token is generated.
+
 # 2015-06-12 -- v3.0.2
 - Added a warning message when subscribing to topics with incorrect name formats.
 - Silenced a deprecation warning in FIRMessaging.
