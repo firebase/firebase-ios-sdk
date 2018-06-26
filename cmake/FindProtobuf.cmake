@@ -14,7 +14,7 @@
 
 include(FindPackageHandleStandardArgs)
 
-set(BINARY_DIR ${FIREBASE_INSTALL_DIR}/external/protobuf)
+set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/protobuf)
 
 find_path(
   PROTOBUF_INCLUDE_DIR google/protobuf/stubs/common.h

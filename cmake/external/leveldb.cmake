@@ -44,12 +44,12 @@ else()
   ExternalProject_Add(
     leveldb
 
-    DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+    DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
     DOWNLOAD_NAME leveldb-v1.20.tar.gz
     URL https://github.com/google/leveldb/archive/v1.20.tar.gz
     URL_HASH SHA256=f5abe8b5b209c2f36560b75f32ce61412f39a2922f7045ae764a2c23335b6664
 
-    PREFIX ${PROJECT_BINARY_DIR}/external/leveldb
+    PREFIX ${FIREBASE_BINARY_DIR}/external/leveldb
 
     # LevelDB's configuration is done in the Makefile
     CONFIGURE_COMMAND ""

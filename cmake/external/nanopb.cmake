@@ -16,7 +16,7 @@ include(ExternalProject)
 
 set(
   NANOPB_PROTOC_BIN
-  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
+  ${FIREBASE_BINARY_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
 )
 
 ExternalProject_Add(
@@ -24,7 +24,7 @@ ExternalProject_Add(
   DEPENDS
     protobuf
 
-  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.9.1.tar.gz
   URL_HASH SHA256=67460d0c0ad331ef4d5369ad337056d0cd2f900c94887628d287eb56c69324bc
 
