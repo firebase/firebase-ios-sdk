@@ -52,6 +52,7 @@ enable_testing()
 # does not exist yet.
 include(external/FirebaseCore)
 include(external/googletest)
+include(external/zlib)
 include(external/leveldb)
 include(external/protobuf)
 include(external/nanopb)
