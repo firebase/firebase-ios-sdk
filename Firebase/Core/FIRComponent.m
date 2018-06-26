@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import "FIRComponent.h"
+#import "Private/FIRComponent.h"
 
-#import "FIRComponentContainer.h"
-#import "FIRDependency.h"
+#import "Private/FIRComponentContainer.h"
+#import "Private/FIRDependency.h"
 
 @interface FIRComponent ()
 

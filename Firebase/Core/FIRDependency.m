@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDependency.h"
+#import "Private/FIRDependency.h"
 
 @interface FIRDependency ()
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRComponentType.h"
+#import "Private/FIRComponentType.h"
 
-#import "FIRComponentContainerInternal.h"
+#import "Private/FIRComponentContainerInternal.h"
 
 @implementation FIRComponentType
 

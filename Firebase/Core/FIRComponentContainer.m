@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#import "FIRComponentContainer.h"
+#import "Private/FIRComponentContainer.h"
 
-#import "FIRAppInternal.h"
-#import "FIRComponent.h"
-#import "FIRComponentRegistrant.h"
-#import "FIRLogger.h"
+#import "Private/FIRAppInternal.h"
+#import "Private/FIRComponent.h"
+#import "Private/FIRComponentRegistrant.h"
+#import "Private/FIRLogger.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
