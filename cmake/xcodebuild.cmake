@@ -67,7 +67,7 @@ function(xcodebuild framework)
 
     # The source directory doesn't actually matter
     SOURCE_DIR ${PROJECT_SOURCE_DIR}
-    BINARY_DIR ${PROJECT_BINARY_DIR}/Frameworks
+    INSTALL_DIR ${FIREBASE_INSTALL_DIR}/Frameworks
 
     CONFIGURE_COMMAND ""
 
@@ -77,7 +77,7 @@ function(xcodebuild framework)
         -scheme ${scheme}
         -configuration ${configuration}
         -destination ${destination}
-        CONFIGURATION_BUILD_DIR=<BINARY_DIR>
+        CONFIGURATION_BUILD_DIR=<INSTALL_DIR>
         build
         ${pipe_xcpretty}
     BUILD_ALWAYS ${BUILD_PODS}

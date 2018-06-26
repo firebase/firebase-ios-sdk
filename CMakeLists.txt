@@ -27,7 +27,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 if(APPLE)
-  # When building on the apple platform certain Objective-C++ classes bridge
+  # When building on the Apple platform certain Objective-C++ classes bridge
   # back into other Firebase Cocoapods. This requires shelling out to xcodebuild
   # to verify the built frameworks are up-to-date. You can disable this to speed
   # up the build.
