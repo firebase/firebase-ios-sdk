@@ -17,7 +17,7 @@
 #import <GoogleUtilities/GULNetworkMessageCode.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
-@interface FIRNetwork () //<GULReachabilityDelegate>
+@interface FIRNetwork ()
 @end
 
 @implementation FIRNetwork {

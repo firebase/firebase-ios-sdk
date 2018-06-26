@@ -15,7 +15,7 @@
  */
 #import <Foundation/Foundation.h>
 
-#import <GoogleUtilities/FIRLogger.h>
+#import <FirebaseCore/FIRLogger.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
 #import <dlfcn.h>
