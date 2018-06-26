@@ -55,13 +55,7 @@ class ExponentialBackoff {
                      util::TimerId timer_id,
                      double backoff_factor,
                      util::AsyncQueue::Milliseconds initial_delay,
-                     util::AsyncQueue::Milliseconds max_delay)
-      : queue_{queue},
-        timer_id_{timer_id},
-        backoff_factor_{backoff_factor},
-        initial_delay_{initial_delay},
-        max_delay_{max_delay} {
-  }
+                     util::AsyncQueue::Milliseconds max_delay);
 
   /**
    * Resets the backoff delay.
@@ -83,9 +77,9 @@ class ExponentialBackoff {
   }
 
   /**
-   * Waits for `current_base` seconds, increases the delay and runs the
-   * specified operation. If there was a pending operation waiting to be run
-   * already, it will be canceled.
+   * Waits for `current_base` seconds (which may be zero), increases the delay
+   * and runs the specified operation. If there was a pending operation waiting
+   * to be run already, it will be canceled.
    */
   void BackoffAndRun(util::AsyncQueue::Operation&& operation);
 
@@ -97,17 +91,18 @@ class ExponentialBackoff {
  private:
   using RealSeconds = std::chrono::duration<double>;
 
+  // Returns a random value in the range [-current_base_/2, current_base_/2].
   RealSeconds GetDelayWithJitter();
   RealSeconds ClampDelay(RealSeconds delay) const;
 
-  util::AsyncQueue* queue_;
-  util::TimerId timer_id_;
+  util::AsyncQueue* const queue_;
+  const util::TimerId timer_id_;
   util::DelayedOperation delayed_operation_;
 
-  double backoff_factor_;
+  const double backoff_factor_;
   RealSeconds current_base_{0};
-  util::AsyncQueue::Milliseconds initial_delay_;
-  util::AsyncQueue::Milliseconds max_delay_;
+  const util::AsyncQueue::Milliseconds initial_delay_;
+  const util::AsyncQueue::Milliseconds max_delay_;
   util::SecureRandom secure_random_;
 };
 

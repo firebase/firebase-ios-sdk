@@ -75,8 +75,8 @@ TEST_F(ExponentialBackoffTest, CanCancelOperations) {
 
 TEST_F(ExponentialBackoffTest, SequentialCallsToBackoffAndRun) {
   queue.EnqueueBlocking([&] {
-    backoff.BackoffAndRun([] { });
-    backoff.BackoffAndRun([] { });
+    backoff.BackoffAndRun([] {});
+    backoff.BackoffAndRun([] {});
     backoff.BackoffAndRun([&] { signal_finished(); });
   });
 
