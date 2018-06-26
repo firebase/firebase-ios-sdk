@@ -25,7 +25,6 @@ else()
   set(
     GIT_SUBMODULES
     third_party/boringssl
-    third_party/cares/cares
   )
 
   set(
@@ -44,6 +43,14 @@ else()
     # fields.)
     -DCMAKE_C_FLAGS=-DPB_FIELD_16BIT
     -DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
+  )
+
+
+  ## c-ares
+  list(
+    APPEND CMAKE_ARGS
+    -DgRPC_CARES_PROVIDER:STRING=package
+    -Dc-ares_DIR:PATH=${FIREBASE_INSTALL_DIR}/lib/cmake/c-ares
   )
 
 
