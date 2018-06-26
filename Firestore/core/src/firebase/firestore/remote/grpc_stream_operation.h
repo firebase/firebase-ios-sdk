@@ -23,6 +23,8 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -43,7 +45,7 @@ public:
   virtual void OnStreamStart(bool ok) = 0;
   virtual void OnStreamRead(bool ok, const grpc::ByteBuffer& message) = 0;
   virtual void OnStreamWrite(bool ok) = 0;
-  virtual void OnStreamFinish(grpc::Status status) = 0;
+  virtual void OnStreamFinish(util::Status status) = 0;
 };
 
 }  // namespace remote

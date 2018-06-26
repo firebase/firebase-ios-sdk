@@ -24,6 +24,7 @@
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -86,7 +87,7 @@ class ObjcBridge {
 
   void NotifyDelegateOnOpen();
   void NotifyDelegateOnChange(const grpc::ByteBuffer& message);
-  void NotifyDelegateOnError(long error_code);
+  void NotifyDelegateOnError(FirestoreErrorCode error_code);
 
  private:
   grpc::ByteBuffer ToByteBuffer(NSData* data) const;
@@ -176,7 +177,7 @@ class WatchStream : public GrpcStreamCallbacks,
   void OnStreamStart(bool ok) override;
   void OnStreamRead(bool ok, const grpc::ByteBuffer& message) override;
   void OnStreamWrite(bool ok) override;
-  void OnStreamFinish(grpc::Status status) override;
+  void OnStreamFinish(util::Status status) override;
 
   // ClearError?
   void CancelBackoff();

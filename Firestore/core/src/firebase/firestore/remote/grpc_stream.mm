@@ -20,6 +20,7 @@
 
 #include "Firestore/Source/Remote/FSTDatastore.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -108,7 +109,7 @@ class StreamFinishOp : public StreamOp {
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamFinishOp{stream, call};
-    call->call->Finish(&op->status_, op);
+    call->call->Finish(&op->grpc_status_, op);
   }
 
  private:
@@ -117,10 +118,15 @@ class StreamFinishOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    stream->OnStreamFinish(status_);
+    FIREBASE_ASSERT_MESSAGE(ok, "TODO");
+    const util::Status firestore_status = grpc_status_.ok() ?
+      util::Status{} :
+      util::Status{DatastoreImpl::FromGrpcErrorCode(
+          grpc_status_.error_code()), grpc_status_.error_message()};
+    stream->OnStreamFinish(firestore_status);
   }
 
-  grpc::Status status_;
+  grpc::Status grpc_status_;
 };
 
 }
@@ -182,7 +188,7 @@ void ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
                  snapshotVersion:GetSnapshotVersion(proto)];
 }
 
-void ObjcBridge::NotifyDelegateOnError(long error_code) {
+void ObjcBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamWasInterruptedWithError:nil];  // FIXME!
   delegate_ = nil;
@@ -280,7 +286,7 @@ void WatchStream::ResumeStartAfterAuth(
 
   if (!maybe_token.ok()) {
     // FIXME
-    OnStreamFinish(maybe_token.status());
+      OnStreamFinish(maybe_token.status());
     return;
   }
 
@@ -381,12 +387,10 @@ void WatchStream::OnStreamWrite(const bool ok) {
   buffered_writer_.OnSuccessfulWrite();
 }
 
-void WatchStream::OnStreamFinish(grpc::Status status) {
+void WatchStream::OnStreamFinish(const util::Status status) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-    // TODO: FIREBASE_ASSERT_MESSAGE(ok, "TODO");
-  // FIXME
-  if (status.code() == FIRFirestoreErrorCodeOK) {
+  if (status.ok()) {
     // TODO
     return;
   }
@@ -394,11 +398,8 @@ void WatchStream::OnStreamFinish(grpc::Status status) {
   state_ = State::GrpcError;
   buffered_writer_.Stop();
 
-  // FIXME
-  long error = status.code();
-
-  // FIXME
-  if (error == FIRFirestoreErrorCodeResourceExhausted) {
+  const FirestoreErrorCode error = status.code();
+  if (error == FirestoreErrorCode::ResourceExhausted) {
     // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
     // backend.", [self class],
     //       (__bridge void *)self);

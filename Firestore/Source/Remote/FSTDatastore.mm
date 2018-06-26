@@ -21,6 +21,7 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/security/credentials.h>
 
+#include <cstring>
 #include <map>
 #include <memory>
 #include <vector>
@@ -81,6 +82,12 @@ DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue,
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
+FirestoreErrorCode DatastoreImpl::FromGrpcErrorCode(grpc::StatusCode grpc_error) {
+  FIREBASE_ASSERT_MESSAGE(grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
+      "Unknown GRPC error code: %s", grpc_error);
+  return static_cast<FirestoreErrorCode>(grpc_error);
+}
+
 std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
 DatastoreImpl::CreateGrpcCall(grpc::ClientContext* context,
                               const absl::string_view path) {
@@ -126,21 +133,25 @@ grpc::GenericStub DatastoreImpl::CreateStub() const {
                           grpc::SslCredentials(grpc::SslCredentialsOptions()))};
 }
 
-std::unique_ptr<grpc::ClientContext> CreateContext( const absl::string_view token) {
+std::unique_ptr<grpc::ClientContext> DatastoreImpl::CreateContext( const absl::string_view token) {
   auto context = absl::make_unique<grpc::ClientContext>();
 
   if (token.data()) {
     context->set_credentials(grpc::AccessTokenCredentials(token.data()));
   }
 
-  const model::DatabaseId* database_id, = database_info_->database_id();
+  const model::DatabaseId database_id = database_info_->database_id();
 
-  const std::string client_header = std::string{"gl-objc/ fire/"} + FIRFirestoreVersionString + " grpc/";
+  std::string client_header{"gl-objc/ fire/"};
+  for (auto cur = FIRFirestoreVersionString; *cur != '\0'; ++cur) {
+    client_header += *cur;
+  }
+  client_header += " grpc/";
   context->AddMetadata(kXGoogAPIClientHeader, client_header);
   // This header is used to improve routing and project isolation by the backend.
   const std::string resource_prefix =
-    std::string{"projects/"} + database_id->project_id() +
-    "/databases/" + database_id->database_id();
+    std::string{"projects/"} + database_id.project_id() +
+    "/databases/" + database_id.database_id();
   context->AddMetadata(kGoogleCloudResourcePrefix, resource_prefix);
   return context;
 }

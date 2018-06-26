@@ -22,6 +22,7 @@
 #include <grpc/grpc.h>
 #include <grpcpp/completion_queue.h>
 #include <grpcpp/generic/generic_stub.h>
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -51,6 +52,7 @@ class DatastoreImpl {
 
   // database_info_->database_id()
 
+  static FirestoreErrorCode FromGrpcErrorCode(grpc::StatusCode grpc_error);
   std::unique_ptr<grpc::ClientContext> CreateContext(const absl::string_view token);
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
       grpc::ClientContext* context, const absl::string_view path);
