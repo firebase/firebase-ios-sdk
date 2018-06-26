@@ -1,7 +1,5 @@
-# v5.0.3
-- Fix an issue where JWT date timestamps weren't parsed correctly.
-
 # v5.0.2
+- Fix an issue where JWT date timestamps weren't parsed correctly.
 - Fix an issue where anonymous accounts weren't correctly promoted to
   non-anonymous when linked with passwordless email auth accounts.
 
