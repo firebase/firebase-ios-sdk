@@ -39,6 +39,7 @@ DerivedData
 # Vim
 *.swo
 *.swp
+*~
 
 # Bundler
 .bundle
