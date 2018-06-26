@@ -86,7 +86,6 @@ find_package(GRPC REQUIRED)
 
 if(APPLE)
   find_package(FirebaseCore REQUIRED)
-  find_package(GoogleUtilities REQUIRED)
 endif()
 
 enable_testing()

@@ -19,7 +19,6 @@ cc_library(
     app_testing.mm
   DEPENDS
     FirebaseCore
-    GoogleUtilities
     absl_strings
   EXCLUDE_FROM_ALL
 )

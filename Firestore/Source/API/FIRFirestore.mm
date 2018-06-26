@@ -18,8 +18,8 @@
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
-#import <GoogleUtilities/FIRLogger.h>
 
 #include <memory>
 #include <utility>

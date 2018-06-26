@@ -33,7 +33,6 @@ cc_library(
     firebase_credentials_provider_apple.mm
   DEPENDS
     FirebaseCore
-    GoogleUtilities
     firebase_firestore_auth_base
   EXCLUDE_FROM_ALL
 )
