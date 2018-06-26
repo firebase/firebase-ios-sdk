@@ -24,10 +24,9 @@ ExternalProject_Add(
 
   PREFIX ${PROJECT_BINARY_DIR}/external/googletest
 
-  # Just download the sources without building.
+  CMAKE_CACHE_ARGS
+    -DCMAKE_INSTALL_PREFIX:STRING=${FIREBASE_INSTALL_DIR}
+
   UPDATE_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
   TEST_COMMAND ""
 )

@@ -76,14 +76,14 @@ endif()
 
 ## check targets
 if(BUILD_TESTING)
-  check_target(gtest)
-  check_target(gtest_main)
-  check_target(gmock)
+  check_target(GTest::GTest)
+  check_target(GTest::Main)
+  check_target(GMock::GMock)
 
   list(APPEND ABSL_TEST_COMMON_LIBRARIES
-    gtest_main
-    gtest
-    gmock
+    GTest::GTest
+    GTest::Main
+    GMock::GMock
     ${CMAKE_THREAD_LIBS_INIT}
   )
 endif()
