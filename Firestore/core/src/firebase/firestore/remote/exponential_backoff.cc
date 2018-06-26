@@ -20,21 +20,24 @@
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::LogDebug;
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 namespace chr = std::chrono;
 
-void ExponentialBackoff::BackoffAndRun(util::AsyncQueue::Operation&& operation) {
+void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
   Cancel();
 
   // First schedule the block using the current base (which may be 0 and should
   // be honored as such).
-  const auto delay_with_jitter =
-      chr::duration_cast<chr::milliseconds>(current_base_ + JitterDelay());
+  const auto delay_with_jitter = chr::duration_cast<chr::milliseconds>(
+      current_base_ + GetDelayWithJitter());
   if (delay_with_jitter.count() > 0) {
-    util::LogDebug("Backing off for %s milliseconds (base delay: %s seconds)",
+    LogDebug("Backing off for %s milliseconds (base delay: %s seconds)",
              delay_with_jitter.count(), current_base_.count());
   }
 
@@ -46,6 +49,13 @@ void ExponentialBackoff::BackoffAndRun(util::AsyncQueue::Operation&& operation) 
   current_base_ = ClampDelay(current_base_ * backoff_factor_);
 }
 
+/** Returns a random value in the range [-current_base_/2, current_base_/2] */
+auto ExponentialBackoff::GetDelayWithJitter() -> RealSeconds {
+  std::uniform_real_distribution<double> distribution;
+  const auto random_double = distribution(secure_random_);
+  return (random_double - 0.5) * current_base_;
+}
+
 auto ExponentialBackoff::ClampDelay(const RealSeconds delay) const
     -> RealSeconds {
   if (delay < initial_delay_) {
@@ -55,13 +65,6 @@ auto ExponentialBackoff::ClampDelay(const RealSeconds delay) const
     return max_delay_;
   }
   return delay;
-}
-
-/** Returns a random value in the range [-current_base_/2, current_base_/2] */
-auto ExponentialBackoff::JitterDelay() -> RealSeconds {
-  std::uniform_real_distribution<double> distribution;
-  const double random_double = distribution(secure_random_);
-  return (random_double - 0.5) * current_base_;
 }
 
 }  // namespace remote
