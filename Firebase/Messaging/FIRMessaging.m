@@ -37,7 +37,7 @@
 #import "FIRMessagingVersionUtilities.h"
 
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#import <GoogleUtilities/FIRReachabilityChecker.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -124,7 +124,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
-                           FIRReachabilityDelegate>
+                           GULReachabilityDelegate>
 
 // FIRApp properties
 @property(nonatomic, readwrite, copy) NSString *fcmSenderID;
@@ -136,7 +136,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
-@property(nonatomic, readwrite, strong) FIRReachabilityChecker *reachability;
+@property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
@@ -204,7 +204,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   [self setupReceiver];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
-  self.reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
+  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
                                                                     loggerDelegate:nil
                                                                           withHost:hostname];
   [self.reachability start];
@@ -804,10 +804,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 }
 
-#pragma mark - FIRReachabilityDelegate
+#pragma mark - GULReachabilityDelegate
 
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status {
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status {
   [self onNetworkStatusChanged];
 }
 
@@ -825,15 +825,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)isNetworkAvailable {
-  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
-  return (status == kFIRReachabilityViaCellular || status == kFIRReachabilityViaWifi);
+  GULReachabilityStatus status = self.reachability.reachabilityStatus;
+  return (status == kGULReachabilityViaCellular || status == kGULReachabilityViaWifi);
 }
 
 - (FIRMessagingNetworkStatus)networkType {
-  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
+  GULReachabilityStatus status = self.reachability.reachabilityStatus;
   if (![self isNetworkAvailable]) {
     return kFIRMessagingReachabilityNotReachable;
-  } else if (status == kFIRReachabilityViaCellular) {
+  } else if (status == kGULReachabilityViaCellular) {
     return kFIRMessagingReachabilityReachableViaWWAN;
   } else {
     return kFIRMessagingReachabilityReachableViaWiFi;

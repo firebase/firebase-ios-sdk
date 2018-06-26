@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
-#import <GoogleUtilities/FIRLogger.h>
+#import <FirebaseCore/FIRLogger.h>
 
 #import "FIRDatabase.h"
 #import "FIRDatabase_Private.h"
