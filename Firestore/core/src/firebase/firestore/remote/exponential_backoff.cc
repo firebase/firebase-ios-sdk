@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 
 #include <random>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 

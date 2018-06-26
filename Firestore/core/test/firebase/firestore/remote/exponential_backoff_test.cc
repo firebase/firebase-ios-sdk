@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <chrono>
+#include <chrono>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
