@@ -47,10 +47,13 @@ set(
 
 enable_testing()
 
+# These are ordered by a topological sort on DEPENDS attributes. This is
+# required because CMake fails the build if you have a DEPENDS on a target that
+# does not exist yet.
 include(external/FirebaseCore)
 include(external/googletest)
 include(external/leveldb)
-include(external/grpc)
 include(external/protobuf)
 include(external/nanopb)
+include(external/grpc)
 include(external/firestore)

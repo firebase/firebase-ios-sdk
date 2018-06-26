@@ -14,10 +14,7 @@
 
 include(ExternalProject)
 
-set(
-  NANOPB_PROTOC_BIN
-  ${FIREBASE_BINARY_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
-)
+set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
 
 ExternalProject_Add(
   nanopb
@@ -32,11 +29,11 @@ ExternalProject_Add(
 
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:STRING=${FIREBASE_INSTALL_DIR}
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -Dnanopb_BUILD_GENERATOR:BOOL=ON
     -Dnanopb_PROTOC_PATH:STRING=${NANOPB_PROTOC_BIN}
 
   UPDATE_COMMAND ""
   TEST_COMMAND ""
-  INSTALL_COMMAND ""
 )

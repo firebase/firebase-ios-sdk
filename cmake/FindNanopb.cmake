@@ -18,13 +18,11 @@ set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/nanopb)
 
 find_path(
   NANOPB_INCLUDE_DIR pb.h
-  HINTS ${BINARY_DIR}/src/nanopb
 )
 
 find_library(
   NANOPB_LIBRARY
   NAMES protobuf-nanopb protobuf-nanopbd
-  HINTS ${BINARY_DIR}/src/nanopb-build
 )
 
 find_package_handle_standard_args(
