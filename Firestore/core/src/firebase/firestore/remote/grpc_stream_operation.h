@@ -35,6 +35,7 @@ class GrpcStreamOperation {
   }
 
   virtual void Finalize(bool ok) = 0;
+  virtual int generation() const = 0;
 };
 
 class GrpcStreamCallbacks {

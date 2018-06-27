@@ -42,6 +42,7 @@ namespace {
 const double kBackoffFactor = 1.5;
 const AsyncQueue::Milliseconds kBackoffInitialDelay{chr::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{chr::seconds(60)};
+const AsyncQueue::Milliseconds kIdleTimeout{chr::seconds(60)};
 
 }  // namespace
 
@@ -49,38 +50,44 @@ namespace {
 
 class StreamStartOp : public StreamOp {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
-    auto op = new StreamStartOp{stream, call};
-    std::cout << "\nOBC start\n\n";
+  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation) {
+    auto op = new StreamStartOp{stream, call, generation};
+    std::cout << "\nOBCOBC start " << call->call.get() << "\n\n";
     call->call->StartCall(op);
   }
 
  private:
-  StreamStartOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
-      : StreamOp{stream, call} {
+  StreamStartOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+      : StreamOp{stream, call, generation} {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    std::cout << "\nOBC on start\n\n";
+    if (stream->generation() != generation()) {
+      return;
+    }
+    std::cout << "\nOBCOBC on start " << call_->call.get() << "\n\n";
     stream->OnStreamStart(ok);
   }
 };
 
 class StreamReadOp : public StreamOp {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
-    auto op = new StreamReadOp{stream, call};
-    std::cout << "\nOBC read\n\n";
+  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation) {
+    auto op = new StreamReadOp{stream, call, generation};
+    std::cout << "\nOBCOBC read " << call->call.get() << "\n\n";
     call->call->Read(&op->message, op);
   }
 
  private:
-  StreamReadOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
-      : StreamOp{stream, call} {
+  StreamReadOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+      : StreamOp{stream, call, generation} {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    std::cout << "\nOBC on read\n\n";
+    if (stream->generation() != generation()) {
+      return;
+    }
+    std::cout << "\nOBCOBC on read " << call_->call.get() << "\n\n";
     stream->OnStreamRead(ok, message);
   }
 
@@ -92,19 +99,23 @@ class StreamWriteOp : public StreamOp {
   static void Execute(
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call,
+                    int generation,
                     const grpc::ByteBuffer& message) {
-    auto op = new StreamWriteOp{stream, call};
-    std::cout << "\nOBC write\n\n";
+    auto op = new StreamWriteOp{stream, call, generation};
+    std::cout << "\nOBCOBC write " << call->call.get() << "\n\n";
     call->call->Write(message, op);
   }
 
  private:
-  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
-      : StreamOp{stream, call} {
+  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+      : StreamOp{stream, call, generation} {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
-    std::cout << "\nOBC on write\n\n";
+    if (stream->generation() != generation()) {
+      return;
+    }
+    std::cout << "\nOBCOBC on write " << call_->call.get() << "\n\n";
     stream->OnStreamWrite(ok);
   }
 };
@@ -113,21 +124,25 @@ class StreamFinishOp : public StreamOp {
  public:
   static void Execute(
                     const std::shared_ptr<WatchStream>& stream,
-                    const std::shared_ptr<GrpcCall>& call) {
-    auto op = new StreamFinishOp{stream, call};
-    std::cout << "\nOBC finish\n\n";
+                    const std::shared_ptr<GrpcCall>& call,
+                    int generation) {
+    auto op = new StreamFinishOp{stream, call, generation};
+    std::cout << "\nOBCOBC finish " << call->call.get() << "\n\n";
     call->context->TryCancel();
     call->call->Finish(&op->grpc_status_, op);
   }
 
  private:
-  StreamFinishOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call)
-      : StreamOp{stream, call} {
+  StreamFinishOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+      : StreamOp{stream, call, generation} {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
+    if (stream->generation() != generation()) {
+      return;
+    }
     FIREBASE_ASSERT_MESSAGE(ok, "TODO");
-    std::cout << "\nOBC on finish\n\n";
+    std::cout << "\nOBCOBC on finish " << call_->call.get() << "\n\n";
     const util::Status firestore_status = grpc_status_.ok() ?
       util::Status{} :
       util::Status{DatastoreImpl::FromGrpcErrorCode(
@@ -260,6 +275,8 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
 void WatchStream::Start(id delegate) {
   firestore_queue_->VerifyIsCurrentQueue();
 
+  ++generation_;
+
   objc_bridge_.set_delegate(delegate);
 
   if (state_ == State::GrpcError) {
@@ -294,8 +311,7 @@ void WatchStream::ResumeStartAfterAuth(
   }
 
   if (!maybe_token.ok()) {
-    // FIXME
-      OnStreamFinish(maybe_token.status());
+    OnStreamFinish(maybe_token.status());
     return;
   }
 
@@ -358,6 +374,19 @@ void WatchStream::CancelBackoff() {
   backoff_.Reset();
 }
 
+void WatchStream::MarkIdle() {
+  firestore_queue_->VerifyIsCurrentQueue();
+  if (IsOpen() && !idleness_timer_) {
+      idleness_timer_ = firestore_queue_->EnqueueAfterDelay(kIdleTimeout, util::TimerId::ListenStreamIdle, [this] {
+        CloseDueToIdleness();
+      });
+  }
+}
+
+void WatchStream::CancelIdleCheck() {
+  idleness_timer_.Cancel();
+}
+
 void WatchStream::OnStreamStart(const bool ok) {
   if (!ok) {
     FinishStream();
@@ -401,6 +430,8 @@ void WatchStream::OnStreamFinish(const util::Status status) {
 
   if (status.ok()) {
     // TODO
+    state_ = State::ShuttingDown;
+    buffered_writer_.Stop();
     return;
   }
 
@@ -425,14 +456,14 @@ void WatchStream::Write(const grpc::ByteBuffer& message) {
 void WatchStream::WatchQuery(FSTQueryData* query) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  // [self cancelIdleCheck];
+  CancelIdleCheck();
   buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  // [self cancelIdleCheck];
+  CancelIdleCheck();
   buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(target_id));
 }
 
@@ -454,6 +485,9 @@ void WatchStream::Stop() {
 }
 
 void WatchStream::FinishStream() {
+  if (!IsOpen()) {
+      return;
+  }
   Execute<StreamFinishOp>();
 }
 
@@ -471,11 +505,13 @@ bool WatchStream::IsStarted() const {
 void WatchStream::CloseDueToIdleness() {
   firestore_queue_->VerifyIsCurrentQueue();
 
+  std::cout << "\\nnOBC idle close\n\n";
   if (IsOpen()) {
     Stop();
     // When timing out an idle stream there's no reason to force the stream into
     // backoff when it restarts.
     CancelBackoff();
+    state_ = State::NotStarted; // FIXME to distinguish from other stop cases.
   }
 }
 
