@@ -25,7 +25,7 @@ static void ReachabilityCallback(SCNetworkReachabilityRef reachability,
                                  SCNetworkReachabilityFlags flags,
                                  void *info);
 
-static const struct GULReachabilityApi kFIRDefaultReachabilityApi = {
+static const struct GULReachabilityApi kGULDefaultReachabilityApi = {
     SCNetworkReachabilityCreateWithName,
     SCNetworkReachabilitySetCallback,
     SCNetworkReachabilityScheduleWithRunLoop,
@@ -116,7 +116,7 @@ static NSString *const kGULReachabilityDisconnectedStatus = @"Disconnected";
   }
   if (self) {
     [self setReachabilityDelegate:reachabilityDelegate];
-    reachabilityApi_ = &kFIRDefaultReachabilityApi;
+    reachabilityApi_ = &kGULDefaultReachabilityApi;
     reachabilityStatus_ = kGULReachabilityUnknown;
     host_ = [host copy];
     reachability_ = nil;

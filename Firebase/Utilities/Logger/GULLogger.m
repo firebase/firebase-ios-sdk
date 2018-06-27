@@ -33,11 +33,11 @@ NSString *const kGULLoggerForceSDTERRApplicationArgument = @"-GULLoggerForceSTDE
 NSString *const kGULPersistedDebugModeKey = @"/google/utilities/debug_mode";
 
 /// ASL client facility name used by GULLogger.
-const char *kGULLoggerASLClientFacilityName = "com.firebase.app.logger";
+const char *kGULLoggerASLClientFacilityName = "com.google.utilities.app.logger";
 
 /// Keys for the number of errors and warnings logged.
-NSString *const kGULLoggerErrorCountKey = @"/google/firebase/count_of_errors_logged";
-NSString *const kGULLoggerWarningCountKey = @"/google/firebase/count_of_warnings_logged";
+NSString *const kGULLoggerErrorCountKey = @"/google/utilities/count_of_errors_logged";
+NSString *const kGULLoggerWarningCountKey = @"/google/utilities/count_of_warnings_logged";
 
 static dispatch_once_t sGULLoggerOnceToken;
 
@@ -53,7 +53,7 @@ static BOOL sGULLoggerDebugMode;
 
 // The sGULAnalyticsDebugMode flag is here to support the -GULDebugEnabled/-GULDebugDisabled
 // flags used by Analytics. Users who use those flags expect Analytics to log verbosely,
-// while the rest of Firebase logs at the default level. This flag is introduced to support
+// while other components log at the default level. This flag is introduced to support
 // that behavior.
 static BOOL sGULAnalyticsDebugMode;
 
@@ -237,9 +237,9 @@ void GULLogBasic(GULLoggerLevel level,
  * Generates the logging functions using macros.
  *
  * Calling GULLogError(kGULLoggerCore, @"I-COR000001", @"Configure %@ failed.", @"blah") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [Firebase/Core][I-COR000001] Configure blah failed.
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [{service}][I-COR000001] Configure blah failed.
  * Calling GULLogDebug(kGULLoggerCore, @"I-COR000001", @"Configure succeed.") shows:
- * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [Firebase/Core][I-COR000001] Configure succeed.
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [{service}][I-COR000001] Configure succeed.
  */
 #define GUL_LOGGING_FUNCTION(level)                                                     \
   void GULLog##level(GULLoggerService service, BOOL force, NSString *messageCode,       \

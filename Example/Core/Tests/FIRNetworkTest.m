@@ -181,7 +181,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -203,7 +203,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -367,7 +367,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -389,7 +389,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -551,7 +551,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -572,7 +572,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:NO
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -746,7 +746,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];
@@ -767,7 +767,7 @@
                        queue:_backgroundQueue
       usingBackgroundSession:YES
            completionHandler:^(NSHTTPURLResponse *response, NSData *data, NSError *error) {
-             XCTAssertEqual(error.code, FIRErrorCodeNetworkInvalidURL);
+             XCTAssertEqual(error.code, GULErrorCodeNetworkInvalidURL);
              XCTAssertFalse(_network.hasUploadInProgress, "There must be no pending request");
              [expectation fulfill];
            }];

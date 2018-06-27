@@ -24,15 +24,15 @@ typedef NS_ENUM(NSInteger, GULNetworkErrorCode) {
   /// Unknown error.
   GULNetworkErrorCodeUnknown = 0,
   /// Error occurs when the request URL is invalid.
-  FIRErrorCodeNetworkInvalidURL = 1,
+  GULErrorCodeNetworkInvalidURL = 1,
   /// Error occurs when request cannot be constructed.
-  FIRErrorCodeNetworkRequestCreation = 2,
+  GULErrorCodeNetworkRequestCreation = 2,
   /// Error occurs when payload cannot be compressed.
-  FIRErrorCodeNetworkPayloadCompression = 3,
+  GULErrorCodeNetworkPayloadCompression = 3,
   /// Error occurs when session task cannot be created.
-  FIRErrorCodeNetworkSessionTaskCreation = 4,
+  GULErrorCodeNetworkSessionTaskCreation = 4,
   /// Error occurs when there is no response.
-  FIRErrorCodeNetworkInvalidResponse = 5
+  GULErrorCodeNetworkInvalidResponse = 5
 };
 
 #pragma mark - Network constants

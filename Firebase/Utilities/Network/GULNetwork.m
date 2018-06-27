@@ -44,7 +44,7 @@ static NSString *const kGULNetworkGETRequestMethod = @"GET";
 static NSString *const kGULNetworkPOSTRequestMethod = @"POST";
 
 /// Default constant string as a prefix for network logger.
-static NSString *const kGULNetworkLogTag = @"Firebase/Network";
+static NSString *const kGULNetworkLogTag = @"Google/Utilities/Network";
 
 @interface GULNetwork () <GULReachabilityDelegate, GULNetworkLoggerDelegate>
 @end
@@ -97,7 +97,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
     usingBackgroundSession:(BOOL)usingBackgroundSession
          completionHandler:(GULNetworkCompletionHandler)handler {
   if (!url.absoluteString.length) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
+    [self handleErrorWithCode:GULErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
     return nil;
   }
 
@@ -109,7 +109,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
                                timeoutInterval:timeOutInterval];
 
   if (!request) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkSessionTaskCreation
+    [self handleErrorWithCode:GULErrorCodeNetworkSessionTaskCreation
                         queue:queue
                   withHandler:handler];
     return nil;
@@ -120,7 +120,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
   if (!compressedData || compressError) {
     if (compressError || payload.length > 0) {
       // If the payload is not empty but it fails to compress the payload, something has been wrong.
-      [self handleErrorWithCode:FIRErrorCodeNetworkPayloadCompression
+      [self handleErrorWithCode:GULErrorCodeNetworkPayloadCompression
                           queue:queue
                     withHandler:handler];
       return nil;
@@ -161,7 +161,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
                     });
                   }];
   if (!requestID) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkSessionTaskCreation
+    [self handleErrorWithCode:GULErrorCodeNetworkSessionTaskCreation
                         queue:queue
                   withHandler:handler];
     return nil;
@@ -181,7 +181,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
     usingBackgroundSession:(BOOL)usingBackgroundSession
          completionHandler:(GULNetworkCompletionHandler)handler {
   if (!url.absoluteString.length) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
+    [self handleErrorWithCode:GULErrorCodeNetworkInvalidURL queue:queue withHandler:handler];
     return nil;
   }
 
@@ -192,7 +192,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
                                timeoutInterval:timeOutInterval];
 
   if (!request) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkSessionTaskCreation
+    [self handleErrorWithCode:GULErrorCodeNetworkSessionTaskCreation
                         queue:queue
                   withHandler:handler];
     return nil;
@@ -225,7 +225,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
                  }];
 
   if (!requestID) {
-    [self handleErrorWithCode:FIRErrorCodeNetworkSessionTaskCreation
+    [self handleErrorWithCode:GULErrorCodeNetworkSessionTaskCreation
                         queue:queue
                   withHandler:handler];
     return nil;
@@ -312,7 +312,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
   }
   if (_isDebugModeEnabled || logLevel == kGULNetworkLogLevelError ||
       logLevel == kGULNetworkLogLevelWarning || logLevel == kGULNetworkLogLevelInfo) {
-    NSString *formattedMessage = FIRStringWithLogMessage(message, logLevel, contexts);
+    NSString *formattedMessage = GULStringWithLogMessage(message, logLevel, contexts);
     NSLog(@"%@", formattedMessage);
     GULLogBasic((GULLoggerLevel)logLevel, kGULLoggerNetwork, NO,
                 [NSString stringWithFormat:@"I-NET%06ld", (long)messageCode], formattedMessage,
@@ -346,7 +346,7 @@ static NSString *const kGULNetworkLogTag = @"Firebase/Network";
 }
 
 /// Returns a string for the given log level (e.g. kGULNetworkLogLevelError -> @"ERROR").
-static NSString *FIRLogLevelDescriptionFromLogLevel(GULNetworkLogLevel logLevel) {
+static NSString *GULLogLevelDescriptionFromLogLevel(GULNetworkLogLevel logLevel) {
   static NSDictionary *levelNames = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -361,7 +361,7 @@ static NSString *FIRLogLevelDescriptionFromLogLevel(GULNetworkLogLevel logLevel)
 }
 
 /// Returns a formatted string to be used for console logging.
-static NSString *FIRStringWithLogMessage(NSString *message,
+static NSString *GULStringWithLogMessage(NSString *message,
                                          GULNetworkLogLevel logLevel,
                                          NSArray *contexts) {
   if (!message) {
@@ -370,7 +370,7 @@ static NSString *FIRStringWithLogMessage(NSString *message,
     message = @"(Message was empty)";
   }
   NSMutableString *result = [[NSMutableString alloc]
-      initWithFormat:@"<%@/%@> %@", kGULNetworkLogTag, FIRLogLevelDescriptionFromLogLevel(logLevel),
+      initWithFormat:@"<%@/%@> %@", kGULNetworkLogTag, GULLogLevelDescriptionFromLogLevel(logLevel),
                      message];
 
   if (!contexts.count) {

@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 NSString *const kGULNetworkBackgroundSessionConfigIDPrefix =
-    @"com.firebase.network.background-upload";
-NSString *const kGULNetworkApplicationSupportSubdirectory = @"Firebase/Network";
+    @"com.gul.network.background-upload";
+NSString *const kGULNetworkApplicationSupportSubdirectory = @"GUL/Network";
 NSString *const kGULNetworkTempDirectoryName = @"GULNetworkTemporaryDirectory";
 const NSTimeInterval kGULNetworkTempFolderExpireTime = 60 * 60;  // 1 hour
 const NSTimeInterval kGULNetworkTimeOutInterval = 60;            // 1 minute.
@@ -36,6 +36,6 @@ const int kGULNetworkHTTPStatusCodeNotFound = 404;
 const int kGULNetworkHTTPStatusCodeCannotAcceptTraffic = 429;
 const int kGULNetworkHTTPStatusCodeUnavailable = 503;
 
-NSString *const kGULNetworkErrorDomain = @"com.firebase.network.ErrorDomain";
+NSString *const kGULNetworkErrorDomain = @"com.gul.network.ErrorDomain";
 
 GULLoggerService kGULLoggerNetwork = @"[GULNetwork]";

@@ -72,7 +72,7 @@
 + (void)handleEventsForBackgroundURLSessionID:(NSString *)sessionID
                             completionHandler:
                                 (GULNetworkSystemCompletionHandler)systemCompletionHandler {
-  // The session may not be FIRAnalytics background. Ignore those that do not have the prefix.
+  // The session may not be Analytics background. Ignore those that do not have the prefix.
   if (![sessionID hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
     return;
   }
@@ -147,7 +147,7 @@
   if (!session || !postRequestTask) {
     NSError *error = [[NSError alloc]
         initWithDomain:kGULNetworkErrorDomain
-                  code:FIRErrorCodeNetworkRequestCreation
+                  code:GULErrorCodeNetworkRequestCreation
               userInfo:@{kGULNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
@@ -189,7 +189,7 @@
   if (!session || !downloadTask) {
     NSError *error = [[NSError alloc]
         initWithDomain:kGULNetworkErrorDomain
-                  code:FIRErrorCodeNetworkRequestCreation
+                  code:GULErrorCodeNetworkRequestCreation
               userInfo:@{kGULNetworkErrorContext : @"Cannot create network session"}];
     [self callCompletionHandler:handler withResponse:nil data:nil error:error];
     return nil;
@@ -263,7 +263,7 @@
   } else if (!error) {
     error = [[NSError alloc]
         initWithDomain:kGULNetworkErrorDomain
-                  code:FIRErrorCodeNetworkInvalidResponse
+                  code:GULErrorCodeNetworkInvalidResponse
               userInfo:@{kGULNetworkErrorContext : @"Network Error: Empty network response"}];
   }
 
@@ -554,7 +554,7 @@
 }
 
 - (NSURL *)temporaryFilePathWithSessionID:(NSString *)sessionID {
-  NSString *tempName = [NSString stringWithFormat:@"FIRUpload_temp_%@", sessionID];
+  NSString *tempName = [NSString stringWithFormat:@"GULUpload_temp_%@", sessionID];
   return [_networkDirectoryURL URLByAppendingPathComponent:tempName];
 }
 
