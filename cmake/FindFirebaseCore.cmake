@@ -35,6 +35,7 @@ if(FIREBASECORE_FOUND)
 
   set(
     FIREBASECORE_LIBRARIES
+    GoogleUtilities
     ${FIREBASECORE_LIBRARY}
     "-framework Foundation"
   )
