@@ -16,8 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *const kGULNetworkBackgroundSessionConfigIDPrefix =
-    @"com.gul.network.background-upload";
+NSString *const kGULNetworkBackgroundSessionConfigIDPrefix = @"com.gul.network.background-upload";
 NSString *const kGULNetworkApplicationSupportSubdirectory = @"GUL/Network";
 NSString *const kGULNetworkTempDirectoryName = @"GULNetworkTemporaryDirectory";
 const NSTimeInterval kGULNetworkTempFolderExpireTime = 60 * 60;  // 1 hour
