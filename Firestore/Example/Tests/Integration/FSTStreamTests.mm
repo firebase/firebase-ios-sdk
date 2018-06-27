@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -141,6 +142,7 @@ using firebase::firestore::model::SnapshotVersion;
   DatabaseInfo _databaseInfo;
   EmptyCredentialsProvider _credentials;
   FSTStreamStatusDelegate *_delegate;
+  FSTDatastore *_datastore;
 
   /** Single mutation to send to the write stream. */
   NSArray<FSTMutation *> *_mutations;
@@ -171,10 +173,7 @@ using firebase::firestore::model::SnapshotVersion;
   return [datastore createWriteStream];
 }
 
-- (std::shared_ptr<firebase::firestore::remote::WatchStream>) setUpWatchStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                   workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:&_credentials];
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>) setUpWatchStreamWithDatastore:(FSTDatastore*) datastore {
   return [datastore createWatchStream];
 }
 
@@ -193,7 +192,10 @@ using firebase::firestore::model::SnapshotVersion;
 
 /** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
 - (void)testWatchStreamStopBeforeHandshake {
-  auto watchStream = [self setUpWatchStream];
+  _datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                                   workerDispatchQueue:_workerDispatchQueue
+                                                           credentials:&_credentials];
+  auto watchStream = [self setUpWatchStreamWithDatastore:_datastore];
 
   [_delegate awaitNotificationFromBlock:^{
     watchStream->Start(_delegate);
@@ -209,6 +211,7 @@ using firebase::firestore::model::SnapshotVersion;
   [_workerDispatchQueue dispatchAsync:^{
     // OBC TODO
     //[watchStream.callbackFilter writesFinishedWithError:nil];
+    watchStream->OnStreamFinish(util::Status::OK());
   }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen" ]];
