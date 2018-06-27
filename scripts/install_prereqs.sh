@@ -30,8 +30,6 @@ case "$PROJECT-$PLATFORM-$METHOD" in
 
   Firebase-*-xcodebuild)
     gem install xcpretty
-    # Delete next line after next release.
-    bundle exec pod repo add temp-specs git@github.com:paulb777/Specs.git
     bundle exec pod install --project-directory=Example --repo-update
     ;;
 
