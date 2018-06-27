@@ -51,6 +51,7 @@ class StreamStartOp : public StreamOp {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamStartOp{stream, call};
+    std::cout << "\nOBC start\n\n";
     call->call->StartCall(op);
   }
 
@@ -60,6 +61,7 @@ class StreamStartOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
+    std::cout << "\nOBC on start\n\n";
     stream->OnStreamStart(ok);
   }
 };
@@ -68,6 +70,7 @@ class StreamReadOp : public StreamOp {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamReadOp{stream, call};
+    std::cout << "\nOBC read\n\n";
     call->call->Read(&op->message, op);
   }
 
@@ -77,6 +80,7 @@ class StreamReadOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
+    std::cout << "\nOBC on read\n\n";
     stream->OnStreamRead(ok, message);
   }
 
@@ -90,6 +94,7 @@ class StreamWriteOp : public StreamOp {
                     const std::shared_ptr<GrpcCall>& call,
                     const grpc::ByteBuffer& message) {
     auto op = new StreamWriteOp{stream, call};
+    std::cout << "\nOBC write\n\n";
     call->call->Write(message, op);
   }
 
@@ -99,6 +104,7 @@ class StreamWriteOp : public StreamOp {
   }
 
   void DoFinalize(WatchStream* stream, bool ok) override {
+    std::cout << "\nOBC on write\n\n";
     stream->OnStreamWrite(ok);
   }
 };
@@ -109,6 +115,8 @@ class StreamFinishOp : public StreamOp {
                     const std::shared_ptr<WatchStream>& stream,
                     const std::shared_ptr<GrpcCall>& call) {
     auto op = new StreamFinishOp{stream, call};
+    std::cout << "\nOBC finish\n\n";
+    call->context->TryCancel();
     call->call->Finish(&op->grpc_status_, op);
   }
 
@@ -119,6 +127,7 @@ class StreamFinishOp : public StreamOp {
 
   void DoFinalize(WatchStream* stream, bool ok) override {
     FIREBASE_ASSERT_MESSAGE(ok, "TODO");
+    std::cout << "\nOBC on finish\n\n";
     const util::Status firestore_status = grpc_status_.ok() ?
       util::Status{} :
       util::Status{DatastoreImpl::FromGrpcErrorCode(

@@ -45,6 +45,25 @@ class Datastore {
   Datastore& operator=(Datastore&& other) = delete;
 };
 
+class GrpcQueue {
+  public:
+    void Shutdown() {
+      //FIREBASE_ASSERT_MESSAGE(!is_shutting_down_, "GrpcQueue cannot be shut down twice");
+      is_shutting_down_ = true;
+      impl_.Shutdown();
+    }
+
+    bool Next(void** tag, bool* ok) {
+      return impl_.Next(tag, ok);
+    }
+
+    grpc::CompletionQueue* get_impl() { return &impl_; }
+
+  private:
+  grpc::CompletionQueue impl_;
+  bool is_shutting_down_ = false;
+};
+
 class DatastoreImpl {
  public:
   DatastoreImpl(util::AsyncQueue* firestore_queue,
@@ -76,9 +95,10 @@ class DatastoreImpl {
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
   grpc::GenericStub stub_;
   grpc::CompletionQueue grpc_queue_;
+  // GrpcQueue grpc_queue_;
 };
 
-extern const char* pemRootCertsPath;
+    extern std::string pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore

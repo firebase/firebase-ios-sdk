@@ -58,6 +58,10 @@
 #include <fstream>
 #include <sstream>
 
+#include <iostream>
+#include <chrono>
+#include <thread>
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
@@ -79,12 +83,16 @@ DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue,
     dedicated_executor_{DatastoreImpl::CreateExecutor()},
       stub_{CreateStub()}
 {
+    std::cout << "\nOBC " << this << " datastore created\n\n";
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void DatastoreImpl::Shutdown() {
+  std::cout << "\nOBC " << this << " datastore start SHUTdown\n\n";
+  //std::this_thread::sleep_for(std::chrono::seconds(3));
   grpc_queue_.Shutdown();
   dedicated_executor_->ExecuteBlocking([] {});
+    std::cout << "\nOBC " << this << " datastore end SHUTdown\n\n";
 }
 
 FirestoreErrorCode DatastoreImpl::FromGrpcErrorCode(grpc::StatusCode grpc_error) {
@@ -96,6 +104,7 @@ FirestoreErrorCode DatastoreImpl::FromGrpcErrorCode(grpc::StatusCode grpc_error)
 std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
 DatastoreImpl::CreateGrpcCall(grpc::ClientContext* context,
                               const absl::string_view path) {
+  /* return stub_.PrepareCall(context, path.data(), grpc_queue_.get_impl()); */
   return stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
@@ -105,6 +114,7 @@ void DatastoreImpl::PollGrpcQueue() {
   void* tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
+      std::cout << "\nOBC " << this << " got tag\n\n";
     auto* operation = static_cast<GrpcStreamOperation*>(tag);
     firestore_queue_->Enqueue([operation, ok] {
       operation->Finalize(ok);
@@ -120,7 +130,7 @@ std::unique_ptr<util::internal::Executor> DatastoreImpl::CreateExecutor() {
 }
 
 grpc::GenericStub DatastoreImpl::CreateStub() const {
-  if (pemRootCertsPath) {
+  if (!pemRootCertsPath.empty()) {
     grpc::SslCredentialsOptions options;
     std::fstream file{pemRootCertsPath};
     std::stringstream buffer;
@@ -161,7 +171,7 @@ std::unique_ptr<grpc::ClientContext> DatastoreImpl::CreateContext( const absl::s
   return context;
 }
 
-const char* pemRootCertsPath = nullptr;
+    std::string pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore
