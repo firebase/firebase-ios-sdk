@@ -20,19 +20,25 @@
 #import <FirebaseCore/FIRAnalyticsConfiguration.h>
 
 @interface FIRAnalyticsConfigurationTest : FIRTestCase
-/// A mock for [NSNotificationCenter defaultCenter].
-@property(nonatomic, strong) id notificationCenterMock;
+/// An observer for NSNotificationCenter.
+@property(nonatomic, strong) id observerMock;
+
+@property(nonatomic, strong) NSNotificationCenter *notificationCenter;
 @end
 
 @implementation FIRAnalyticsConfigurationTest
 
 - (void)setUp {
   [super setUp];
-  _notificationCenterMock = OCMPartialMock([NSNotificationCenter defaultCenter]);
+
+  _observerMock = OCMObserverMock();
+  _notificationCenter = [NSNotificationCenter defaultCenter];
 }
 
 - (void)tearDown {
-  [_notificationCenterMock stopMocking];
+  _observerMock = nil;
+  _notificationCenter = nil;
+
   [super tearDown];
 }
 
@@ -44,49 +50,73 @@
 
 /// Test that setting the minimum session interval on the singleton fires a notification.
 - (void)testMinimumSessionIntervalNotification {
+  // Pick a value to set as the session interval and verify it's in the userInfo dictionary of the
+  // posted notification.
+  NSNumber *sessionInterval = @2601;
+
+  // Set up the expectation for the notification.
   FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
-  [config setMinimumSessionInterval:2601];
   NSString *notificationName = kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotification;
-  OCMVerify([self.notificationCenterMock postNotificationName:notificationName
-                                                       object:config
-                                                     userInfo:@{
-                                                       notificationName : @2601
-                                                     }]);
+  [self expectNotificationForObserver:self.observerMock
+                     notificationName:notificationName
+                               object:config
+                             userInfo:@{notificationName : sessionInterval}];
+
+  // Trigger the notification.
+  [config setMinimumSessionInterval:[sessionInterval integerValue]];
+
+  // Verify the observer mock.
+  OCMVerifyAll(self.observerMock);
 }
 
 /// Test that setting the minimum session timeout interval on the singleton fires a notification.
 - (void)testSessionTimeoutIntervalNotification {
+  // Pick a value to set as the timeout interval and verify it's in the userInfo dictionary of the
+  // posted notification.
+  NSNumber *timeoutInterval = @1000;
+
+  // Set up the expectation for the notification.
   FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
-  [config setSessionTimeoutInterval:1000];
   NSString *notificationName = kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification;
-  OCMVerify([self.notificationCenterMock postNotificationName:notificationName
-                                                       object:config
-                                                     userInfo:@{
-                                                       notificationName : @1000
-                                                     }]);
+  [self expectNotificationForObserver:self.observerMock
+                     notificationName:notificationName
+                               object:config
+                             userInfo:@{notificationName : timeoutInterval}];
+
+  // Trigger the notification.
+  [config setSessionTimeoutInterval:[timeoutInterval integerValue]];
+
+  /// Verify the observer mock.
+  OCMVerifyAll(self.observerMock);
 }
 
 - (void)testSettingAnalyticsCollectionEnabled {
-  // The ordering matters for these notifications.
-  [self.notificationCenterMock setExpectationOrderMatters:YES];
-
-  // Test setting to enabled.
+  // Test setting to enabled. The ordering matters for these notifications.
   FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
   NSString *notificationName = kFIRAnalyticsConfigurationSetEnabledNotification;
+  [self.notificationCenter addMockObserver:self.observerMock name:notificationName object:config];
+
+  [self.observerMock setExpectationOrderMatters:YES];
+  [[self.observerMock expect] notificationWithName:notificationName
+                                            object:config
+                                          userInfo:@{
+                                            notificationName : @YES
+                                          }];
+
+  // Test setting to enabled.
   [config setAnalyticsCollectionEnabled:YES];
-  OCMVerify([self.notificationCenterMock postNotificationName:notificationName
-                                                       object:config
-                                                     userInfo:@{
-                                                       notificationName : @YES
-                                                     }]);
+
+  // Expect the second notification.
+  [[self.observerMock expect] notificationWithName:notificationName
+                                            object:config
+                                          userInfo:@{
+                                            notificationName : @NO
+                                          }];
 
   // Test setting to disabled.
   [config setAnalyticsCollectionEnabled:NO];
-  OCMVerify([self.notificationCenterMock postNotificationName:notificationName
-                                                       object:config
-                                                     userInfo:@{
-                                                       notificationName : @NO
-                                                     }]);
+
+  OCMVerifyAll(self.observerMock);
 }
 
 - (void)testSettingAnalyticsCollectionPersistence {
@@ -112,6 +142,16 @@
                                  forKey:kFIRAPersistedConfigMeasurementEnabledStateKey]);
 
   [userDefaultsMock stopMocking];
+}
+
+#pragma mark - Private Test Helpers
+
+- (void)expectNotificationForObserver:(id)observer
+                     notificationName:(NSNotificationName)name
+                               object:(nullable id)object
+                             userInfo:(nullable NSDictionary *)userInfo {
+  [self.notificationCenter addMockObserver:self.observerMock name:name object:object];
+  [[observer expect] notificationWithName:name object:object userInfo:userInfo];
 }
 
 @end

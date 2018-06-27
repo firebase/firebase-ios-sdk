@@ -31,6 +31,8 @@ extern const char *kFIRLoggerASLClientFacilityName;
 
 extern void FIRResetLogger(void);
 
+extern void FIRSetLoggerUserDefaults(NSUserDefaults *defaults);
+
 extern aslclient getFIRLoggerClient(void);
 
 extern dispatch_queue_t getFIRClientQueue(void);
@@ -43,7 +45,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
-@property(nonatomic, strong) id userDefaultsMock;
+@property(nonatomic, strong) NSUserDefaults *defaults;
 
 @end
 
@@ -53,14 +55,15 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super setUp];
   FIRResetLogger();
 
-  // Stub NSUserDefaults for tracking the error and warning count.
-  _userDefaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+  // Stub NSUserDefaults for cleaner testing.
+  _defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.firebase.logger_test"];
+  FIRSetLoggerUserDefaults(_defaults);
 }
 
 - (void)tearDown {
   [super tearDown];
 
-  [_userDefaultsMock stopMocking];
+  _defaults = nil;
 }
 
 // Test some stable variables to make sure they weren't accidently changed.
@@ -92,8 +95,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
-  NSNumber *debugMode =
-      [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+  NSNumber *debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertNil(debugMode);
   XCTAssertFalse(getFIRLoggerDebugMode());
 
@@ -111,8 +113,7 @@ static NSString *const kMessageCode = @"I-COR000001";
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
-  NSNumber *debugMode =
-      [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+  NSNumber *debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
   XCTAssertTrue(getFIRLoggerDebugMode());
 
@@ -123,14 +124,13 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testInitializeASLForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
-  OCMStub([self.userDefaultsMock boolForKey:kFIRPersistedDebugModeKey])
-      .andReturn(debugMode.boolValue);
+  [self.defaults setBool:debugMode.boolValue forKey:kFIRPersistedDebugModeKey];
 
   // Test.
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
-  debugMode = [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+  debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
   XCTAssertTrue(getFIRLoggerDebugMode());
 }
