@@ -219,6 +219,7 @@ static const int kMaxPendingWrites = 10;
   // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
   [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+  [self.datastore shutdown];
 }
 
 - (void)userDidChange:(const User &)user {

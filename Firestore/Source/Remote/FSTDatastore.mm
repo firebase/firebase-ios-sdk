@@ -82,6 +82,11 @@ DatastoreImpl::DatastoreImpl(util::AsyncQueue* firestore_queue,
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
+void DatastoreImpl::Shutdown() {
+  grpc_queue_.Shutdown();
+  dedicated_executor_->ExecuteBlocking([] {});
+}
+
 FirestoreErrorCode DatastoreImpl::FromGrpcErrorCode(grpc::StatusCode grpc_error) {
   FIREBASE_ASSERT_MESSAGE(grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
       "Unknown GRPC error code: %s", grpc_error);
@@ -227,6 +232,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     _datastore = absl::make_unique<firebase::firestore::remote::DatastoreImpl>([_workerDispatchQueue implementation], *_databaseInfo);
   }
   return self;
+}
+
+- (void)shutdown {
+  _datastore->Shutdown();
 }
 
 - (NSString *)description {

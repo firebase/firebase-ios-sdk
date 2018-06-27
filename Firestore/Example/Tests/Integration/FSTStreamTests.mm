@@ -171,7 +171,7 @@ using firebase::firestore::model::SnapshotVersion;
   return [datastore createWriteStream];
 }
 
-- (FSTWatchStream *)setUpWatchStream {
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>) setUpWatchStream {
   FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                                    workerDispatchQueue:_workerDispatchQueue
                                                            credentials:&_credentials];
@@ -193,20 +193,21 @@ using firebase::firestore::model::SnapshotVersion;
 
 /** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
 - (void)testWatchStreamStopBeforeHandshake {
-  FSTWatchStream *watchStream = [self setUpWatchStream];
+  auto watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [watchStream startWithDelegate:_delegate];
+    watchStream->Start(_delegate);
   }];
 
   // Stop must not call watchStreamDidClose because the full implementation of the delegate could
   // attempt to restart the stream in the event it had pending watches.
   [_workerDispatchQueue dispatchAsync:^{
-    [watchStream stop];
+    watchStream->Stop();
   }];
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
+    // OBC TODO
     //[watchStream.callbackFilter writesFinishedWithError:nil];
   }];
 

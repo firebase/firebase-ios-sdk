@@ -58,6 +58,7 @@ class DatastoreImpl {
       grpc::ClientContext* context, const absl::string_view path);
 
   // TODO
+  void Shutdown();
   // DatastoreImpl::~DatastoreImpl() {
   //   grpc_queue_.Shutdown();
   //   dedicated_executor_->ExecuteBlocking([] {});

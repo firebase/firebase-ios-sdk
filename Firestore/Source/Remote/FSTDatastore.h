@@ -72,6 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;
 
+- (void)shutdown;
+
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
  * (for logging purposes).
