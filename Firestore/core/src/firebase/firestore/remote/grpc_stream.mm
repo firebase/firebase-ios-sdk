@@ -291,14 +291,18 @@ void WatchStream::Start(id delegate) {
   state_ = State::Auth;
 
   const bool do_force_refresh = false;
-  auto ugly_hack = new std::shared_ptr<WatchStream>(shared_from_this());
+  auto ugly_hack = new std::weak_ptr<WatchStream>(shared_from_this());
   credentials_provider_->GetToken(
       do_force_refresh, [this, ugly_hack](util::StatusOr<Token> maybe_token) {
-        firestore_queue_->EnqueueRelaxed(
-            [this, maybe_token, ugly_hack] {
-            ResumeStartAfterAuth(maybe_token);
-            delete ugly_hack;
+        if (auto lock = ugly_hack->lock()) {
+          firestore_queue_->EnqueueRelaxed(
+              [this, maybe_token, ugly_hack] {
+                if (auto lock = ugly_hack->lock()) {
+                  ResumeStartAfterAuth(maybe_token);
+                  delete ugly_hack;
+              }
             });
+        }
       });
 }
 
