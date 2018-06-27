@@ -291,10 +291,14 @@ void WatchStream::Start(id delegate) {
   state_ = State::Auth;
 
   const bool do_force_refresh = false;
+  auto ugly_hack = new std::shared_ptr<WatchStream>(shared_from_this());
   credentials_provider_->GetToken(
-      do_force_refresh, [this](util::StatusOr<Token> maybe_token) {
+      do_force_refresh, [this, ugly_hack](util::StatusOr<Token> maybe_token) {
         firestore_queue_->EnqueueRelaxed(
-            [this, maybe_token] { ResumeStartAfterAuth(maybe_token); });
+            [this, maybe_token, ugly_hack] {
+            ResumeStartAfterAuth(maybe_token);
+            delete ugly_hack;
+            });
       });
 }
 
@@ -473,10 +477,10 @@ void WatchStream::Stop() {
   if (!IsOpen()) {
     return;
   }
-  state_ = State::ShuttingDown;
   buffered_writer_.Stop();
-
   FinishStream();
+  state_ = State::ShuttingDown;
+    
   // If this is an intentional close, ensure we don't delay our next connection attempt.
   backoff_.Reset(); // ???
   // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
