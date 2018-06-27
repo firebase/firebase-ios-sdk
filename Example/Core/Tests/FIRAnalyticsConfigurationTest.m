@@ -50,18 +50,20 @@
 
 /// Test that setting the minimum session interval on the singleton fires a notification.
 - (void)testMinimumSessionIntervalNotification {
+  // Pick a value to set as the session interval and verify it's in the userInfo dictionary of the
+  // posted notification.
+  NSNumber *sessionInterval = @2601;
+
   // Set up the expectation for the notification.
   FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
   NSString *notificationName = kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotification;
   [self expectNotificationForObserver:self.observerMock
                      notificationName:notificationName
                                object:config
-                             userInfo:@{
-                               notificationName : @2601
-                             }];
+                             userInfo:@{notificationName : sessionInterval}];
 
   // Trigger the notification.
-  [config setMinimumSessionInterval:2601];
+  [config setMinimumSessionInterval:[sessionInterval integerValue]];
 
   // Verify the observer mock.
   OCMVerifyAll(self.observerMock);
@@ -69,18 +71,20 @@
 
 /// Test that setting the minimum session timeout interval on the singleton fires a notification.
 - (void)testSessionTimeoutIntervalNotification {
+  // Pick a value to set as the timeout interval and verify it's in the userInfo dictionary of the
+  // posted notification.
+  NSNumber *timeoutInterval = @1000;
+
   // Set up the expectation for the notification.
   FIRAnalyticsConfiguration *config = [FIRAnalyticsConfiguration sharedInstance];
   NSString *notificationName = kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification;
   [self expectNotificationForObserver:self.observerMock
                      notificationName:notificationName
                                object:config
-                             userInfo:@{
-                               notificationName : @1000
-                             }];
+                             userInfo:@{notificationName : timeoutInterval}];
 
   // Trigger the notification.
-  [config setSessionTimeoutInterval:1000];
+  [config setSessionTimeoutInterval:[timeoutInterval integerValue]];
 
   /// Verify the observer mock.
   OCMVerifyAll(self.observerMock);
