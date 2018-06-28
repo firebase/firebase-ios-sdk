@@ -1863,16 +1863,17 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForSignInWithAccessToken:kTestAccessToken
                               APIKey:kTestAPIKey
                           completion:nil];
-    NSString *kTestAPIKey2 = @"fakeAPIKey2";
-    FIRUser *user2 = [FIRAuth auth].currentUser;
-    user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc]initWithAPIKey:kTestAPIKey2];
-    OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
-      .andDispatchError2([FIRAuthErrorUtils networkErrorWithUnderlyingError:[NSError new]]);
-    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-    [[FIRAuth auth] updateCurrentUser:user2 completion:^(NSError *_Nullable error) {
-      XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
-      [expectation fulfill];
-    }];
+  NSString *kTestAPIKey2 = @"fakeAPIKey2";
+  FIRUser *user2 = [FIRAuth auth].currentUser;
+  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc]initWithAPIKey:kTestAPIKey2];
+  NSError *underlyingError = [NSError errorWithDomain:@"Test Error" code:1 userInfo:nil];
+  OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
+    .andDispatchError2([FIRAuthErrorUtils networkErrorWithUnderlyingError:underlyingError]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user2 completion:^(NSError *_Nullable error) {
+    XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
+    [expectation fulfill];
+  }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
