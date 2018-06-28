@@ -28,7 +28,6 @@ typedef enum {
 const NSString *GULReachabilityStatusString(GULReachabilityStatus status);
 
 @class GULReachabilityChecker;
-@protocol GULNetworkLoggerDelegate;
 
 /// Google Analytics iOS Reachability Checker.
 @protocol GULReachabilityDelegate
@@ -48,8 +47,6 @@ const NSString *GULReachabilityStatusString(GULReachabilityStatus status);
 @property(nonatomic, copy, readonly) NSString *host;
 /// The delegate to be notified of reachability status changes.
 @property(nonatomic, weak) id<GULReachabilityDelegate> reachabilityDelegate;
-/// The delegate to be notified to log messages.
-@property(nonatomic, weak) id<GULNetworkLoggerDelegate> loggerDelegate;
 /// `YES` if the reachability checker is active, `NO` otherwise.
 @property(nonatomic, readonly) BOOL isActive;
 
@@ -59,12 +56,9 @@ const NSString *GULReachabilityStatusString(GULReachabilityStatus status);
 /// @param reachabilityDelegate The delegate to be notified when reachability status to host
 /// changes.
 ///
-/// @param loggerDelegate The delegate to send log messages to.
-///
 /// @param host The name of the host.
 ///
 - (instancetype)initWithReachabilityDelegate:(id<GULReachabilityDelegate>)reachabilityDelegate
-                              loggerDelegate:(id<GULNetworkLoggerDelegate>)loggerDelegate
                                     withHost:(NSString *)host;
 
 - (instancetype)init NS_UNAVAILABLE;

@@ -200,7 +200,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
   self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                    loggerDelegate:nil
                                                                           withHost:hostname];
   [self.reachability start];
 

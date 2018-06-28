@@ -41,12 +41,4 @@ typedef NS_ENUM(NSInteger, GULNetworkMessageCode) {
   kGULNetworkMessageCodeURLSession016 = 901016,  // I-NET901016
   kGULNetworkMessageCodeURLSession017 = 901017,  // I-NET901017
   kGULNetworkMessageCodeURLSession018 = 901018,  // I-NET901018
-  // GULReachabilityChecker.m
-  kGULNetworkMessageCodeReachabilityChecker000 = 902000,  // I-NET902000
-  kGULNetworkMessageCodeReachabilityChecker001 = 902001,  // I-NET902001
-  kGULNetworkMessageCodeReachabilityChecker002 = 902002,  // I-NET902002
-  kGULNetworkMessageCodeReachabilityChecker003 = 902003,  // I-NET902003
-  kGULNetworkMessageCodeReachabilityChecker004 = 902004,  // I-NET902004
-  kGULNetworkMessageCodeReachabilityChecker005 = 902005,  // I-NET902005
-  kGULNetworkMessageCodeReachabilityChecker006 = 902006,  // I-NET902006
 };
