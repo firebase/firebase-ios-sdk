@@ -14,7 +14,6 @@
 
 include(ExternalProject)
 include(ExternalProjectFlags)
-include(FindZLIB)
 
 if(GRPC_ROOT)
   # If the user has supplied a GRPC_ROOT then just use it. Add an empty custom
@@ -69,21 +68,18 @@ else()
 
   ## zlib
 
-  # zlib can be built by grpc but we can avoid it on platforms that provide it
-  # by default.
-  find_package(ZLIB)
+  # cmake/external/zlib.cmake figures out whether or not to build zlib. Either
+  # way, from the gRPC build's point of view it's a package.
+  list(
+    APPEND CMAKE_ARGS
+    -DgRPC_ZLIB_PROVIDER:STRING=package
+  )
   if(ZLIB_FOUND)
+    # Propagate possible user configuration to FindZLIB.cmake in the sub-build.
     list(
       APPEND CMAKE_ARGS
-      -DgRPC_ZLIB_PROVIDER:STRING=package
       -DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}
       -DZLIB_LIBRARY=${ZLIB_LIBRARY}
-    )
-
-  else()
-    list(
-      APPEND GIT_SUBMODULES
-      third_party/zlib
     )
   endif()
 
@@ -99,6 +95,7 @@ else()
     grpc
     DEPENDS
       protobuf
+      zlib
 
     ${GRPC_GIT}
 
