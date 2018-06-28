@@ -111,6 +111,7 @@ else()
   ExternalProject_Add(
     grpc
     DEPENDS
+      cares
       protobuf
 
     ${GRPC_GIT}
