@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import "Protos/GtalkCore.pbobjc.h"
-#import <GoogleToolboxForMac/GTMDefines.h>
 
 #import "FIRMessagingClient.h"
 #import "FIRMessagingConnection.h"
@@ -374,7 +373,7 @@ static FIRMessagingProtoTag currentProtoSendTag;
 }
 
 - (void)_sendData:(NSData *)data withTag:(int8_t)tag rmqId:(NSString *)rmqId {
-  _GTMDevLog(@"FIRMessaging Socket: Send data with Tag: %d rmq: %@", tag, rmqId);
+  NSLog(@"FIRMessaging Socket: Send data with Tag: %d rmq: %@", tag, rmqId);
   if (currentProtoSendTag > 0) {
     XCTAssertEqual(tag, currentProtoSendTag);
   }

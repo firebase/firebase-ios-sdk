@@ -16,8 +16,8 @@
 
 #import "GTMHTTPServer.h"
 
-#import <GoogleToolboxForMac/GTMNSData+zlib.h>
 #import <GoogleUtilities/GULNetwork.h>
+#import <GoogleUtilities/GULNSData+zlib.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
 @interface GULNetwork ()
@@ -119,6 +119,7 @@
   XCTestExpectation *expectation = [self expectationWithDescription:@"Expect block is called"];
 
   NSData *uncompressedData = [@"Google" dataUsingEncoding:NSUTF8StringEncoding];
+
   NSURL *url =
       [NSURL URLWithString:[NSString stringWithFormat:@"http://localhost:%d/2", _httpServer.port]];
   _statusCode = 200;
@@ -946,7 +947,7 @@
 
   // Test whether the request is compressed correctly.
   NSData *requestBody = [_request body];
-  NSData *decompressedRequestData = [NSData gtm_dataByInflatingData:requestBody error:NULL];
+  NSData *decompressedRequestData = [NSData gul_dataByInflatingGzippedData:requestBody error:NULL];
   NSString *requestString =
       [[NSString alloc] initWithData:decompressedRequestData encoding:NSUTF8StringEncoding];
   XCTAssertEqualObjects(requestString, @"Google", @"Request is not compressed correctly.");

@@ -26,17 +26,6 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
   s.static_framework = true
   s.prefix_header_file = false
 
-  s.subspec 'Network' do |ns|
-    ns.source_files = 'Firebase/Utilities/Network/**/*.[mh]'
-    ns.public_header_files = 'Firebase/Utilities/Network/Private/*.h'
-    ns.private_header_files = 'Firebase/Utilities/Network/Private/*.h'
-    ns.frameworks = [
-      'SystemConfiguration'
-    ]
-    ns.dependency 'GoogleToolboxForMac/NSData+zlib', '~> 2.1'
-    ns.dependency 'GoogleUtilities/Logger'
-  end
-
   s.subspec 'Environment' do |es|
     es.source_files = 'Firebase/Utilities/Environment/third_party/*.[mh]'
     es.public_header_files = 'Firebase/Utilities/Environment/third_party/*.h'
@@ -48,5 +37,29 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
     ls.public_header_files = 'Firebase/Utilities/Logger/Private/*.h', 'Firebase/Utilities/Logger/Public/*.h'
     ls.private_header_files = 'Firebase/Utilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
+  end
+
+  s.subspec 'Network' do |ns|
+    ns.source_files = 'Firebase/Utilities/Network/**/*.[mh]'
+    ns.public_header_files = 'Firebase/Utilities/Network/Private/*.h'
+    ns.private_header_files = 'Firebase/Utilities/Network/Private/*.h'
+    ns.dependency 'GoogleUtilities/NSData+zlib'
+    ns.dependency 'GoogleUtilities/Logger'
+    ns.dependency 'GoogleUtilities/Reachability'
+  end
+
+  s.subspec 'NSData+zlib' do |ns|
+    ns.source_files = 'Firebase/Utilities/NSData+zlib/*.[mh]'
+    ns.public_header_files = 'Firebase/Utilities/Logger/NSData+zlib/GULNSData+zlib.h'
+  end
+
+  s.subspec 'Reachability' do |rs|
+    rs.source_files = 'Firebase/Utilities/Reachability/**/*.[mh]'
+    rs.public_header_files = 'Firebase/Utilities/Reachability/Private/*.h'
+    rs.private_header_files = 'Firebase/Utilities/Reachability/Private/*.h'
+    rs.frameworks = [
+      'SystemConfiguration'
+    ]
+    rs.dependency 'GoogleUtilities/Logger'
   end
 end

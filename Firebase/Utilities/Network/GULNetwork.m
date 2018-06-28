@@ -16,11 +16,10 @@
 #import "Private/GULNetworkMessageCode.h"
 
 #import <GoogleUtilities/GULLogger.h>
+#import <GoogleUtilities/GULNSData+zlib.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 #import "Private/GULMutableDictionary.h"
 #import "Private/GULNetworkConstants.h"
-#import "Private/GULReachabilityChecker.h"
-
-#import <GoogleToolboxForMac/GTMNSData+zlib.h>
 
 /// Constant string for request header Content-Encoding.
 static NSString *const kGULNetworkContentCompressionKey = @"Content-Encoding";
@@ -66,7 +65,6 @@ static NSString *const kGULNetworkLogTag = @"Google/Utilities/Network";
   if (self) {
     // Setup reachability.
     _reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                  loggerDelegate:self
                                                                         withHost:reachabilityHost];
     if (![_reachability start]) {
       return nil;
@@ -116,7 +114,7 @@ static NSString *const kGULNetworkLogTag = @"Google/Utilities/Network";
   }
 
   NSError *compressError = nil;
-  NSData *compressedData = [NSData gtm_dataByGzippingData:payload error:&compressError];
+  NSData *compressedData = [NSData gul_dataByGzippingData:payload error:&compressError];
   if (!compressedData || compressError) {
     if (compressError || payload.length > 0) {
       // If the payload is not empty but it fails to compress the payload, something has been wrong.
