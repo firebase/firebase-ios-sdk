@@ -34,6 +34,5 @@ ExternalProject_Add(
     -Dnanopb_BUILD_GENERATOR:BOOL=ON
     -Dnanopb_PROTOC_PATH:STRING=${NANOPB_PROTOC_BIN}
 
-  UPDATE_COMMAND ""
   TEST_COMMAND ""
 )

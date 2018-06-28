@@ -105,6 +105,5 @@ ExternalProject_Add(
 
   ${commands}
 
-  UPDATE_COMMAND ""
   TEST_COMMAND ""
 )
