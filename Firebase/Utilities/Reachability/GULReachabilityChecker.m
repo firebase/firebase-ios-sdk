@@ -80,8 +80,7 @@ static NSString *const kGULReachabilityDisconnectedStatus = @"Disconnected";
   if (reachabilityDelegate &&
       (![(NSObject *)reachabilityDelegate conformsToProtocol:@protocol(GULReachabilityDelegate)])) {
     GULLogError(kGULLoggerReachability, NO,
-                [NSString stringWithFormat:@"I-NET%06ld",
-                                           (long)kGULReachabilityMessageCode005],
+                [NSString stringWithFormat:@"I-NET%06ld", (long)kGULReachabilityMessageCode005],
                 @"Reachability delegate doesn't conform to Reachability protocol.");
     return;
   }

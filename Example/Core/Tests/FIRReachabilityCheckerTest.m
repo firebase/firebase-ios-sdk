@@ -14,8 +14,8 @@
 
 #import "FIRTestCase.h"
 
-#import "GULReachabilityChecker+Internal.h"
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#import "GULReachabilityChecker+Internal.h"
 
 @interface GULReachabilityCheckerTest : FIRTestCase <GULReachabilityDelegate> {
  @private
@@ -114,8 +114,7 @@ static const struct GULReachabilityApi kTestReachabilityApi = {
   setCallbackFail_ = NO;
   scheduleUnscheduleFail_ = NO;
 
-  checker_ = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                 withHost:kHostname];
+  checker_ = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self withHost:kHostname];
   statuses_ = [[NSMutableArray alloc] init];
 }
 
@@ -349,13 +348,9 @@ static const struct GULReachabilityApi kTestReachabilityApi = {
 }
 
 - (void)testBadHost {
-  XCTAssertNil([[GULReachabilityChecker alloc]
-                   initWithReachabilityDelegate:self
-                                       withHost:nil],
+  XCTAssertNil([[GULReachabilityChecker alloc] initWithReachabilityDelegate:self withHost:nil],
                @"Creating a checker with nil hostname must fail.");
-  XCTAssertNil([[GULReachabilityChecker alloc]
-                   initWithReachabilityDelegate:self
-                                       withHost:@""],
+  XCTAssertNil([[GULReachabilityChecker alloc] initWithReachabilityDelegate:self withHost:@""],
                @"Creating a checker with empty hostname must fail.");
 }
 

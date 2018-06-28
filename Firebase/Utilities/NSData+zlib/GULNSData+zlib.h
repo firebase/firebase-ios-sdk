@@ -31,7 +31,7 @@
 + (NSData *)gul_dataByGzippingData:(NSData *)data error:(NSError **)error;
 
 FOUNDATION_EXPORT NSString *const GULNSDataZlibErrorDomain;
-FOUNDATION_EXPORT NSString *const GULNSDataZlibErrorKey;  // NSNumber
+FOUNDATION_EXPORT NSString *const GULNSDataZlibErrorKey;           // NSNumber
 FOUNDATION_EXPORT NSString *const GULNSDataZlibRemainingBytesKey;  // NSNumber
 
 typedef NS_ENUM(NSInteger, GULNSDataZlibError) {

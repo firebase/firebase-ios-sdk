@@ -74,8 +74,8 @@ NSString *const GULNSDataZlibRemainingBytesKey = @"GULNSDataZlibRemainingBytesKe
     if ((retCode != Z_OK) && (retCode != Z_STREAM_END)) {
       if (error) {
         NSMutableDictionary *userInfo =
-        [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithInt:retCode]
-                                           forKey:GULNSDataZlibErrorKey];
+            [NSMutableDictionary dictionaryWithObject:[NSNumber numberWithInt:retCode]
+                                               forKey:GULNSDataZlibErrorKey];
         if (strm.msg) {
           NSString *message = [NSString stringWithUTF8String:strm.msg];
           if (message) {
@@ -101,8 +101,8 @@ NSString *const GULNSDataZlibRemainingBytesKey = @"GULNSDataZlibRemainingBytesKe
   if (strm.avail_in != 0) {
     if (error) {
       NSDictionary *userInfo =
-      [NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedInt:strm.avail_in]
-                                  forKey:GULNSDataZlibRemainingBytesKey];
+          [NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedInt:strm.avail_in]
+                                      forKey:GULNSDataZlibRemainingBytesKey];
       *error = [NSError errorWithDomain:GULNSDataZlibErrorDomain
                                    code:GULNSDataZlibErrorDataRemaining
                                userInfo:userInfo];

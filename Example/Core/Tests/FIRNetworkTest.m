@@ -16,8 +16,8 @@
 
 #import "GTMHTTPServer.h"
 
-#import <GoogleUtilities/GULNetwork.h>
 #import <GoogleUtilities/GULNSData+zlib.h>
+#import <GoogleUtilities/GULNetwork.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
 @interface GULNetwork ()

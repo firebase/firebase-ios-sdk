@@ -50,7 +50,7 @@ Firebase Utilities including Network, Environment, Logger, and Swizzling.
 
   s.subspec 'NSData+zlib' do |ns|
     ns.source_files = 'Firebase/Utilities/NSData+zlib/*.[mh]'
-    ns.public_header_files = 'Firebase/Utilities/Logger/NSData+zlib/GULNSData+zlib.h'
+    ns.public_header_files = 'Firebase/Utilities/NSData+zlib/GULNSData+zlib.h'
   end
 
   s.subspec 'Reachability' do |rs|
