@@ -96,9 +96,9 @@ static NSString *const kMessageCode = @"I-COR000001";
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
+#if MAKE_THREAD_SAFE
   NSNumber *debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
   XCTAssertNil(debugMode);
-#if MAKE_THREAD_SAFE
   XCTAssertFalse(getGULLoggerDebugMode());
 #endif
 
