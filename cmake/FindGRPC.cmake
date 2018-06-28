@@ -56,20 +56,10 @@ find_package(OpenSSL REQUIRED)
 
 ## C-Ares
 
-find_library(
-  CARES_LIBRARY
-  NAMES cares
-  HINTS ${BINARY_DIR}/src/grpc-build/third_party/cares/cares/lib
-)
-if(NOT (CARES_LIBRARY STREQUAL "CARES_LIBRARY-NOTFOUND"))
-  if (NOT TARGET c-ares::ares)
-    add_library(c-ares::ares UNKNOWN IMPORTED)
-    set_target_properties(
-      c-ares::ares PROPERTIES
-      IMPORTED_LOCATION ${CARES_LIBRARY}
-    )
-  endif()
+if(NOT c-ares_DIR)
+  set(c-ares_DIR ${FIREBASE_INSTALL_DIR}/lib/cmake/c-ares)
 endif()
+find_package(c-ares CONFIG REQUIRED)
 
 
 ## GRPC
@@ -124,7 +114,7 @@ if(GRPC_FOUND)
   if (NOT TARGET grpc::grpc)
     set(
       GRPC_LINK_LIBRARIES
-      c-ares::ares
+      c-ares::cares
       grpc::gpr
       OpenSSL::SSL
       OpenSSL::Crypto

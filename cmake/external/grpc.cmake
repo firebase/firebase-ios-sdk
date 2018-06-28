@@ -47,10 +47,14 @@ else()
 
 
   ## c-ares
+  if(NOT c-ares_DIR)
+    set(c-ares_DIR ${FIREBASE_INSTALL_DIR}/lib/cmake/c-ares)
+  endif()
+
   list(
     APPEND CMAKE_ARGS
     -DgRPC_CARES_PROVIDER:STRING=package
-    -Dc-ares_DIR:PATH=${FIREBASE_INSTALL_DIR}/lib/cmake/c-ares
+    -Dc-ares_DIR:PATH=${c-ares_DIR}
   )
 
 
