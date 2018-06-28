@@ -29,9 +29,17 @@ namespace core {
 /** Represents the internal structure of a Firestore Query. */
 class Query {
  public:
+  /**
+   * Creates and returns a new Query.
+   *
+   * @param path The path to the collection to be queried over.
+   * @return A new instance of Query.
+   */
   static Query AtPath(model::ResourcePath path) {
     return Query(std::move(path));
   }
+
+  /** Initializes a query with all of its components directly. */
   explicit Query(model::ResourcePath path /* TODO(rsgowman): other params */)
       : path_(std::move(path)) {
   }
@@ -40,6 +48,7 @@ class Query {
     return path_;
   }
 
+  /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
  private:
