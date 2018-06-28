@@ -107,7 +107,7 @@ else()
   ExternalProject_Add(
     grpc
     DEPENDS
-      cares
+      c-ares
       protobuf
       zlib
 

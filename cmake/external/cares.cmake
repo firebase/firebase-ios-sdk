@@ -15,7 +15,7 @@
 include(ExternalProject)
 
 ExternalProject_Add(
-  cares
+  c-ares
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   URL https://github.com/c-ares/c-ares/archive/cares-1_14_0.tar.gz
