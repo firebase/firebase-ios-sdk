@@ -98,7 +98,9 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Assert.
   NSNumber *debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
   XCTAssertNil(debugMode);
+#if MAKE_THREAD_SAFE
   XCTAssertFalse(getGULLoggerDebugMode());
+#endif
 
   // Stop.
   [processInfoMock stopMocking];
@@ -113,10 +115,12 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Test.
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
+
   // Assert.
   NSNumber *debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
   XCTAssertTrue(getGULLoggerDebugMode());
+#endif
 
   // Stop.
   [processInfoMock stopMocking];
@@ -133,7 +137,9 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Assert.
   debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
+#if MAKE_THREAD_SAFE
   XCTAssertTrue(getGULLoggerDebugMode());
+#endif
 }
 
 - (void)testMessageCodeFormat {
