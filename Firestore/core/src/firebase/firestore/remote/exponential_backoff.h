@@ -26,18 +26,21 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ *
+ * A helper for running delayed operations following an exponential backoff
+ * curve between attempts.
+ *
+ * The first attempt will be done immediately. After that, each retry will
+ * have a delay that is made up of a "base" delay which follows the
+ * exponential backoff curve, and a +/- <=50% "jitter" that is calculated and
+ * added to the base delay. This prevents clients from accidentally
+ * synchronizing their delays causing spikes of load to the backend.
+ *
+ */
 class ExponentialBackoff {
  public:
   /**
-   * Initializes a helper for running delayed tasks following an exponential
-   * backoff curve between attempts.
-   *
-   * The first attempt will be done immediately. After that, each retry will
-   * have a delay that is made up of a "base" delay which follows the
-   * exponential backoff curve, and a +/- <=50% "jitter" that is calculated and
-   * added to the base delay. This prevents clients from accidentally
-   * synchronizing their delays causing spikes of load to the backend.
-   *
    * @param queue The queue to run operations on.
    * @param timer_id The id to use when scheduling backoff operations on the
    *     queue.
