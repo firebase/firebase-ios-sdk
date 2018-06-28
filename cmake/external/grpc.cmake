@@ -64,17 +64,19 @@ else()
   # have checked-in protoc outputs that must match the runtime.
 
   # The location where protobuf-config.cmake will be installed varies by platform
-  if (WIN32)
-    set(PROTOBUF_CMAKE_DIR "${FIREBASE_INSTALL_DIR}/cmake")
-  else()
-    set(PROTOBUF_CMAKE_DIR "${FIREBASE_INSTALL_DIR}/lib/cmake/protobuf")
+  if(NOT Protobuf_DIR)
+    if(WIN32)
+      set(Protobuf_DIR "${FIREBASE_INSTALL_DIR}/cmake")
+    else()
+      set(Protobuf_DIR "${FIREBASE_INSTALL_DIR}/lib/cmake/protobuf")
+    endif()
   endif()
 
   list(
     APPEND CMAKE_ARGS
     -DgRPC_PROTOBUF_PROVIDER:STRING=package
     -DgRPC_PROTOBUF_PACKAGE_TYPE:STRING=CONFIG
-    -DProtobuf_DIR:PATH=${PROTOBUF_CMAKE_DIR}
+    -DProtobuf_DIR:PATH=${Protobuf_DIR}
   )
 
 
