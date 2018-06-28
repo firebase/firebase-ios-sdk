@@ -22,6 +22,7 @@
 #import "Private/FIRBundleUtil.h"
 #import "Private/FIRComponentContainerInternal.h"
 #import "Private/FIRCoreConfigurable.h"
+#import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 #import "Private/FIRVersion.h"
 
