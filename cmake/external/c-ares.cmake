@@ -14,25 +14,21 @@
 
 include(ExternalProject)
 
-set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
-
 ExternalProject_Add(
-  nanopb
-  DEPENDS
-    protobuf
+  c-ares
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.9.1.tar.gz
-  URL_HASH SHA256=67460d0c0ad331ef4d5369ad337056d0cd2f900c94887628d287eb56c69324bc
+  URL https://github.com/c-ares/c-ares/archive/cares-1_14_0.tar.gz
+  URL_HASH SHA256=62dd12f0557918f89ad6f5b759f0bf4727174ae9979499f5452c02be38d9d3e8
 
-  PREFIX ${PROJECT_BINARY_DIR}/external/nanopb
+  PREFIX ${PROJECT_BINARY_DIR}/external/cares
 
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_INSTALL_PREFIX:STRING=${FIREBASE_INSTALL_DIR}
-    -DBUILD_SHARED_LIBS:BOOL=OFF
-    -Dnanopb_BUILD_GENERATOR:BOOL=ON
-    -Dnanopb_PROTOC_PATH:STRING=${NANOPB_PROTOC_BIN}
+    -DCARES_STATIC:BOOL=ON
+    -DCARES_SHARED:BOOL=OFF
+    -DCARES_STATIC_PIC:BOOL=ON
 
   TEST_COMMAND ""
 )
