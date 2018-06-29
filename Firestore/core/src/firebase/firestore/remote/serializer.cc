@@ -73,37 +73,10 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
                              &timestamp_proto);
 }
 
-Timestamp DecodeTimestampImpl(Reader* reader) {
-  if (!reader->status().ok()) return {};
+}  // namespace
 
-  google_protobuf_Timestamp timestamp_proto =
-      google_protobuf_Timestamp_init_zero;
-  reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
-
-  // The Timestamp ctor will assert if we provide values outside the valid
-  // range. However, since we're decoding, a single corrupt byte could cause
-  // this to occur, so we'll verify the ranges before passing them in since we'd
-  // rather not abort in these situations.
-  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
-    reader->set_status(Status(
-        FirestoreErrorCode::DataLoss,
-        "Invalid message: timestamp beyond the earliest supported date"));
-    return {};
-  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
-    reader->set_status(
-        Status(FirestoreErrorCode::DataLoss,
-               "Invalid message: timestamp behond the latest supported date"));
-    return {};
-  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
-    reader->set_status(Status(
-        FirestoreErrorCode::DataLoss,
-        "Invalid message: timestamp nanos must be between 0 and 999999999"));
-    return {};
-  }
-  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
-}
-
-FieldValue DecodeFieldValueImpl(Reader* reader) {
+// TODO(rsgowman): move this to avoid splitting the anon namespace
+FieldValue Serializer::DecodeFieldValue(Reader* reader) {
   if (!reader->status().ok()) return FieldValue::NullValue();
 
   // There needs to be at least one entry in the FieldValue.
@@ -150,7 +123,7 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
         if (!reader->RequireWireType(PB_WT_STRING, tag))
           return FieldValue::NullValue();
         result = FieldValue::TimestampValue(
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl));
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
         break;
 
       case google_firestore_v1beta1_Value_map_value_tag:
@@ -180,6 +153,8 @@ FieldValue DecodeFieldValueImpl(Reader* reader) {
   return result;
 }
 
+namespace {
+
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
                                                uint32_t value_tag) {
@@ -200,7 +175,9 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
   HARD_ASSERT(tag.wire_type == PB_WT_STRING);
 
   FieldValue value =
-      reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
+      reader->ReadNestedMessage<FieldValue>([](Reader* reader) -> FieldValue {
+        return Serializer::DecodeFieldValue(reader);
+      });
 
   return ObjectValue::Map::value_type{key, value};
 }
@@ -372,7 +349,7 @@ void Serializer::EncodeFieldValue(Writer* writer,
 StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
                                                   size_t length) {
   Reader reader = Reader::Wrap(bytes, length);
-  FieldValue fv = DecodeFieldValueImpl(&reader);
+  FieldValue fv = DecodeFieldValue(&reader);
   if (reader.status().ok()) {
     return fv;
   } else {
@@ -475,7 +452,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
         read_time = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl)};
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
@@ -531,7 +508,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       case google_firestore_v1beta1_Document_create_time_tag:
         // This field is ignored by the client sdk, but we still need to extract
         // it.
-        reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl);
+        reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
       case google_firestore_v1beta1_Document_update_time_tag:
         // TODO(rsgowman): Rather than overwriting, we should instead merge with
@@ -539,7 +516,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // just two numbers which are both expected to be present, but if the
         // proto evolves that might change.
         version = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestampImpl)};
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
         break;
       default:
         // TODO(rsgowman): Error handling. (Invalid tags should fail to decode,
@@ -616,8 +593,33 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
 }
 
 Timestamp Serializer::DecodeTimestamp(nanopb::Reader* reader) {
-  // TODO(rsgowman): move DecodeTimestampImpl here and eliminate that function.
-  return DecodeTimestampImpl(reader);
+  if (!reader->status().ok()) return {};
+
+  google_protobuf_Timestamp timestamp_proto =
+      google_protobuf_Timestamp_init_zero;
+  reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
+
+  // The Timestamp ctor will assert if we provide values outside the valid
+  // range. However, since we're decoding, a single corrupt byte could cause
+  // this to occur, so we'll verify the ranges before passing them in since we'd
+  // rather not abort in these situations.
+  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp beyond the earliest supported date"));
+    return {};
+  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
+    reader->set_status(
+        Status(FirestoreErrorCode::DataLoss,
+               "Invalid message: timestamp behond the latest supported date"));
+    return {};
+  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp nanos must be between 0 and 999999999"));
+    return {};
+  }
+  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
 }  // namespace remote

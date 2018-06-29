@@ -175,6 +175,7 @@ class Serializer {
                             const model::SnapshotVersion& version);
 
   static Timestamp DecodeTimestamp(nanopb::Reader* reader);
+  static model::FieldValue DecodeFieldValue(nanopb::Reader* reader);
 
  private:
   void EncodeDocument(nanopb::Writer* writer,
