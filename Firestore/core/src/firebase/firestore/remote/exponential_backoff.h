@@ -68,7 +68,7 @@ class ExponentialBackoff {
    * subsequent ones will increase according to the `backoff_factor`.
    */
   void Reset() {
-    current_base_ = RealSeconds{0};
+    current_base_ = Milliseconds{0};
   }
 
   /**
@@ -92,20 +92,20 @@ class ExponentialBackoff {
   }
 
  private:
-  using RealSeconds = std::chrono::duration<double>;
+  using Milliseconds = util::AsyncQueue::Milliseconds;
 
   // Returns a random value in the range [-current_base_/2, current_base_/2].
-  RealSeconds GetDelayWithJitter();
-  RealSeconds ClampDelay(RealSeconds delay) const;
+  Milliseconds GetDelayWithJitter();
+  Milliseconds ClampDelay(Milliseconds delay) const;
 
   util::AsyncQueue* const queue_;
   const util::TimerId timer_id_;
   util::DelayedOperation delayed_operation_;
 
   const double backoff_factor_;
-  RealSeconds current_base_{0};
-  const util::AsyncQueue::Milliseconds initial_delay_;
-  const util::AsyncQueue::Milliseconds max_delay_;
+  Milliseconds current_base_{0};
+  const Milliseconds initial_delay_;
+  const Milliseconds max_delay_;
   util::SecureRandom secure_random_;
 };
 

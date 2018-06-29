@@ -27,21 +27,23 @@ namespace firestore {
 namespace remote {
 
 using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::TimerId;
 namespace chr = std::chrono;
 
-ExponentialBackoff::ExponentialBackoff(
-    util::AsyncQueue* const queue,
-    const util::TimerId timer_id,
-    const double backoff_factor,
-    const util::AsyncQueue::Milliseconds initial_delay,
-    const util::AsyncQueue::Milliseconds max_delay)
+ExponentialBackoff::ExponentialBackoff(AsyncQueue* const queue,
+                                       const TimerId timer_id,
+                                       const double backoff_factor,
+                                       const Milliseconds initial_delay,
+                                       const Milliseconds max_delay)
     : queue_{queue},
       timer_id_{timer_id},
       backoff_factor_{backoff_factor},
       initial_delay_{initial_delay},
       max_delay_{max_delay} {
   HARD_ASSERT(queue, "Queue can't be null");
+
   HARD_ASSERT(backoff_factor >= 1.0, "Backoff factor must be at least 1");
+
   HARD_ASSERT(initial_delay.count() >= 0, "Delays must be non-negative");
   HARD_ASSERT(max_delay.count() >= 0, "Delays must be non-negative");
   HARD_ASSERT(initial_delay <= max_delay,
@@ -53,10 +55,9 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // First schedule the block using the current base (which may be 0 and should
   // be honored as such).
-  const auto delay_with_jitter = chr::duration_cast<chr::milliseconds>(
-      current_base_ + GetDelayWithJitter());
+  const auto delay_with_jitter = current_base_ + GetDelayWithJitter();
   if (delay_with_jitter.count() > 0) {
-    LOG_DEBUG("Backing off for %s milliseconds (base delay: %s seconds)",
+    LOG_DEBUG("Backing off for %s milliseconds (base delay: %s milliseconds)",
               delay_with_jitter.count(), current_base_.count());
   }
 
@@ -65,17 +66,17 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // Apply backoff factor to determine next delay, but ensure it is within
   // bounds.
-  current_base_ = ClampDelay(current_base_ * backoff_factor_);
+  current_base_ = ClampDelay(chr::duration_cast<Milliseconds>(current_base_ * backoff_factor_));
 }
 
-ExponentialBackoff::RealSeconds ExponentialBackoff::GetDelayWithJitter() {
+ExponentialBackoff::Milliseconds ExponentialBackoff::GetDelayWithJitter() {
   std::uniform_real_distribution<double> distribution;
   const auto random_double = distribution(secure_random_);
-  return (random_double - 0.5) * current_base_;
+  return chr::duration_cast<Milliseconds>((random_double - 0.5) * current_base_);
 }
 
-ExponentialBackoff::RealSeconds ExponentialBackoff::ClampDelay(
-    const RealSeconds delay) const {
+ExponentialBackoff::Milliseconds ExponentialBackoff::ClampDelay(
+    const Milliseconds delay) const {
   if (delay < initial_delay_) {
     return initial_delay_;
   }
