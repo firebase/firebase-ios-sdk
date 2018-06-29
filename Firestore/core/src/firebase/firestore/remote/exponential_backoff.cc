@@ -66,13 +66,15 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // Apply backoff factor to determine next delay, but ensure it is within
   // bounds.
-  current_base_ = ClampDelay(chr::duration_cast<Milliseconds>(current_base_ * backoff_factor_));
+  current_base_ = ClampDelay(
+      chr::duration_cast<Milliseconds>(current_base_ * backoff_factor_));
 }
 
 ExponentialBackoff::Milliseconds ExponentialBackoff::GetDelayWithJitter() {
   std::uniform_real_distribution<double> distribution;
   const auto random_double = distribution(secure_random_);
-  return chr::duration_cast<Milliseconds>((random_double - 0.5) * current_base_);
+  return chr::duration_cast<Milliseconds>((random_double - 0.5) *
+                                          current_base_);
 }
 
 ExponentialBackoff::Milliseconds ExponentialBackoff::ClampDelay(
