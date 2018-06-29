@@ -59,7 +59,7 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline model::Document Doc(absl::string_view key, int64_t version=0) {
+inline model::Document Doc(absl::string_view key, int64_t version = 0) {
   return model::Document{model::FieldValue::ObjectValueFromMap({}), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
