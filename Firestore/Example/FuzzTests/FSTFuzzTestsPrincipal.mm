@@ -18,8 +18,10 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
+using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::Serializer;
 
 namespace {
@@ -27,7 +29,12 @@ namespace {
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  // TODO(minafarid): fuzz-test Serializer.
+  DatabaseId database_id{"project", DatabaseId::kDefault};
+  Serializer serializer(database_id);
+
+  @try {
+    serializer.DecodeFieldValue(data, size);
+  } @catch (...) {}
 }
 
 // Contains the code to be fuzzed. Called by the fuzzing library with
