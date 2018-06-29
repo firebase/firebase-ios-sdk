@@ -59,7 +59,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   _messaging = [[FIRMessaging alloc] initWithInstanceID:[FIRInstanceID instanceID]
                                            userDefaults:[NSUserDefaults standardUserDefaults]];
-
   _mockMessaging = OCMPartialMock(self.messaging);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);
   self.messaging.instanceID = _mockInstanceID;
