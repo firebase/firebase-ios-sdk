@@ -29,9 +29,9 @@ using model::Document;
 using testutil::Doc;
 
 TEST(QueryTest, MatchesBasedOnDocumentKey) {
-  Document doc1 = Doc("rooms/eros/messages/1", /*version=*/0);
-  Document doc2 = Doc("rooms/eros/messages/2", /*version=*/0);
-  Document doc3 = Doc("rooms/other/messages/1", /*version=*/0);
+  Document doc1 = Doc("rooms/eros/messages/1");
+  Document doc2 = Doc("rooms/eros/messages/2");
+  Document doc3 = Doc("rooms/other/messages/1");
 
   Query query = Query::AtPath({"rooms", "eros", "messages", "1"});
   EXPECT_TRUE(query.Matches(doc1));
@@ -40,10 +40,10 @@ TEST(QueryTest, MatchesBasedOnDocumentKey) {
 }
 
 TEST(QueryTest, MatchesShallowAncestorQuery) {
-  Document doc1 = Doc("rooms/eros/messages/1", /*version=*/0);
-  Document doc1_meta = Doc("rooms/eros/messages/1/meta/1", /*version=*/0);
-  Document doc2 = Doc("rooms/eros/messages/2", /*version=*/0);
-  Document doc3 = Doc("rooms/other/messages/1", /*version=*/0);
+  Document doc1 = Doc("rooms/eros/messages/1");
+  Document doc1_meta = Doc("rooms/eros/messages/1/meta/1");
+  Document doc2 = Doc("rooms/eros/messages/2");
+  Document doc3 = Doc("rooms/other/messages/1");
 
   Query query = Query::AtPath({"rooms", "eros", "messages"});
   EXPECT_TRUE(query.Matches(doc1));
