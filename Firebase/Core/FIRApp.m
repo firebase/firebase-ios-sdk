@@ -15,7 +15,6 @@
 #include <sys/utsname.h>
 
 #import "FIRApp.h"
-
 #import "FIRConfiguration.h"
 #import "Private/FIRAnalyticsConfiguration+Internal.h"
 #import "Private/FIRAppInternal.h"
