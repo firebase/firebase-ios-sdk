@@ -20,6 +20,7 @@
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTMutation;
 @class FSTMutationBatch;
@@ -115,9 +116,20 @@ NS_ASSUME_NONNULL_BEGIN
  * don't contain the document key at all if it's convenient.
  */
 // TODO(mcg): This should really return an NSEnumerator
-// also for b/32992024, all backing stores should really index by document key
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const firebase::firestore::model::DocumentKey &)documentKey;
+
+/**
+ * Finds all mutation batches that could @em possibly affect the given document keys. Not all
+ * mutations in a batch will necessarily affect each key, so when looping through the batches you'll
+ * need to check that the mutation itself matches the key.
+ *
+ * Note that because of this requirement implementations are free to return mutation batches that
+ * don't contain any of the given document keys at all if it's convenient.
+ */
+// TODO(mcg): This should really return an NSEnumerator
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKeys:
+    (const firebase::firestore::model::DocumentKeySet &)documentKeys;
 
 /**
  * Finds all mutation batches that could affect the results for the given query. Not all
