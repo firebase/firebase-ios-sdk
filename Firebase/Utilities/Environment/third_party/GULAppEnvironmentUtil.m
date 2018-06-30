@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <Foundation/Foundation.h>
-
 #import "GULAppEnvironmentUtil.h"
 
+#import <Foundation/Foundation.h>
 #import <dlfcn.h>
 #import <mach-o/dyld.h>
 #import <sys/utsname.h>
@@ -81,7 +80,7 @@ static NSString *const kFIRAIdentitySandboxReceiptFileName = @"sandboxReceipt";
 /// AppSync or similar to disable codesignature checks.
 ///
 /// More information at <a href="http://landonf.org/2009/02/index.html">Landon Fuller's blog</a>
-static BOOL isAppEncrypted() {
+static BOOL IsAppEncrypted() {
   const struct mach_header *executableHeader = NULL;
   for (uint32_t i = 0; i < _dyld_image_count(); i++) {
     const struct mach_header *header = _dyld_get_image_header(i);
@@ -125,7 +124,7 @@ static BOOL isAppEncrypted() {
   return NO;
 }
 
-static BOOL hasSCInfoFolder() {
+static BOOL HasSCInfoFolder() {
 #if TARGET_OS_IOS || TARGET_OS_TV
   NSString *bundlePath = [NSBundle mainBundle].bundlePath;
   NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
@@ -135,7 +134,7 @@ static BOOL hasSCInfoFolder() {
 #endif
 }
 
-static BOOL hasEmbeddedMobileProvision() {
+static BOOL HasEmbeddedMobileProvision() {
 #if TARGET_OS_IOS || TARGET_OS_TV
   return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
 #elif TARGET_OS_OSX
@@ -148,7 +147,7 @@ static BOOL hasEmbeddedMobileProvision() {
   static BOOL isEncrypted = NO;
 
   dispatch_once(&isEncryptedOnce, ^{
-    isEncrypted = isAppEncrypted();
+    isEncrypted = IsAppEncrypted();
   });
 
   if ([GULAppEnvironmentUtil isSimulator]) {
@@ -162,7 +161,7 @@ static BOOL hasEmbeddedMobileProvision() {
     return NO;
   }
 
-  if (hasSCInfoFolder()) {
+  if (HasSCInfoFolder()) {
     // When iTunes downloads a .ipa, it also gets a customized .sinf file which is added to the
     // main SC_Info directory.
     return YES;
@@ -172,7 +171,7 @@ static BOOL hasEmbeddedMobileProvision() {
   // the iTunesMetadata.plist outside of the sandbox will be rejected by Apple.
   // If the app does not contain the embedded.mobileprovision which is stripped out by Apple when
   // the app is submitted to store, then it is highly likely that it is from Apple Store.
-  return isEncrypted && !hasEmbeddedMobileProvision();
+  return isEncrypted && !HasEmbeddedMobileProvision();
 }
 
 + (BOOL)isAppStoreReceiptSandbox {

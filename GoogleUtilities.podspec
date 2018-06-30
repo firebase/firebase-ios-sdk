@@ -1,10 +1,11 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
   s.version          = '5.0.4'
-  s.summary          = 'Firebase Utilities for iOS (plus community support for macOS and tvOS)'
+  s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
-Firebase Utilities including Network, Environment, Logger, and Swizzling.
+Internal Google Utilities including Network, Reachability Environment, Logger, and Swizzling for
+other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'

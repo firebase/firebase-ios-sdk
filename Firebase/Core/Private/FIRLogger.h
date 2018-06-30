@@ -80,12 +80,6 @@ void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel);
 BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent);
 
 /**
- * Register version to include in logs.
- * (required) version
- */
-void FIRLoggerRegisterVersion(const char *version);
-
-/**
  * Logs a message to the Xcode console and the device log. If running from AppStore, will
  * not log any messages with a level higher than FIRLoggerLevelNotice to avoid log spamming.
  * (required) log level (one of the FIRLoggerLevel enum values).

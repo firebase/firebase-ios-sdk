@@ -17,6 +17,8 @@
 
 #import "FIRTestCase.h"
 
+// TODO - FIRLoggerTest should be split into a separate FIRLoggerTest and GULLoggerTest.
+// No test should include both includes.
 #import <FirebaseCore/FIRLogger.h>
 #import <GoogleUtilities/GULLogger.h>
 
@@ -32,7 +34,7 @@ extern const char *kGULLoggerASLClientFacilityName;
 
 extern void FIRResetLogger(void);
 
-extern void GULSetLoggerUserDefaults(NSUserDefaults *defaults);
+extern void FIRSetLoggerUserDefaults(NSUserDefaults *defaults);
 
 extern aslclient getGULLoggerClient(void);
 
@@ -58,7 +60,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
   // Stub NSUserDefaults for cleaner testing.
   _defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.firebase.logger_test"];
-  GULSetLoggerUserDefaults(_defaults);
+  FIRSetLoggerUserDefaults(_defaults);
 }
 
 - (void)tearDown {

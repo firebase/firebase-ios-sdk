@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,33 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef NSString *const GULLoggerService;
 
-/**
- * The key used to store the logger's error count.
- */
-extern NSString *const kGULLoggerErrorCountKey;
-
-/**
- * The key used to store the logger's warning count.
- */
-extern NSString *const kGULLoggerWarningCountKey;
-
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
 /**
  * Initialize GULLogger.
+ * (required) overrideSTDERR Override the aslOptions to ASL_OPT_STDERR.
+ * (required) forceDebugMode Force the asl level to ASL_LEVEL_DEBUG.
  */
-
-extern void GULLoggerInitializeASL(BOOL disableDebug, BOOL enableDebug, BOOL forceStderr);
-
-/**
- * Enables or disables Analytics debug mode.
- * If set to YES, the logging level for Analytics will be set to GULLoggerLevelDebug.
- * Enabling the debug mode has no effect if the app is running from App Store.
- * (required) analytics debug mode flag.
- */
-extern void GULSetAnalyticsDebugMode(BOOL analyticsDebugMode);
+extern void GULLoggerInitializeASL(BOOL overrideSTDERR, BOOL forceDebugMode);
 
 /**
  * Changes the default logging level of GULLoggerLevelNotice to a user-specified level.
@@ -63,9 +46,8 @@ extern void GULSetLoggerLevel(GULLoggerLevel loggerLevel);
 /**
  * Checks if the specified logger level is loggable given the current settings.
  * (required) log level (one of the GULLoggerLevel enum values).
- * (required) whether or not this function is called from the Analytics component.
  */
-extern BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel, BOOL analyticsComponent);
+extern BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel);
 
 /**
  * Register version to include in logs.

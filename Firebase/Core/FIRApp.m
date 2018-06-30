@@ -23,7 +23,6 @@
 #import "Private/FIRCoreConfigurable.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
-#import "Private/FIRVersion.h"
 
 #import <GoogleUtilities/GULLogger.h>
 
@@ -104,7 +103,6 @@ static FIRApp *sDefaultApp;
 static NSMutableDictionary *sLibraryVersions;
 
 + (void)configure {
-  GULLoggerRegisterVersion(FIRVersionString);
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
     [[NSNotificationCenter defaultCenter]
