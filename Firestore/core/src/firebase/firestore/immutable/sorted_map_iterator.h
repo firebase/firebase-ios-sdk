@@ -119,7 +119,9 @@ class SortedMapIterator {
   pointer get() const {
     switch (tag_) {
       case Tag::Array:
-        return array_iter_;
+        // In the Microsoft STL, std::array::iterator is not a bare pointer so
+        // this takes the address of the result of operator*().
+        return &*array_iter_;
       case Tag::Tree:
         return tree_iter_.get();
     }
