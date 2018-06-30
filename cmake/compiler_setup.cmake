@@ -102,3 +102,29 @@ if(APPLE)
     -F${FIREBASE_INSTALL_DIR}/Frameworks
   )
 endif()
+
+if(MSVC)
+  set(
+    common_flags
+
+    # Cut down on symbol cruft in windows.h
+    /DWIN32_LEAN_AND_MEAN=1
+
+    # Specify at least Windows Vista/Server 2008 (required by gRPC)
+    /D_WIN32_WINNT=0x600
+
+    # Disable warnings that can't be easily addressed or are ignored by
+    # upstream projects.
+
+    # unary minus operator applied to unsigned type, result still unsigned
+    /wd4146
+  )
+endif()
+
+foreach(flag ${common_flags} ${c_flags})
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${flag}")
+endforeach()
+
+foreach(flag ${common_flags} ${cxx_flags})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+endforeach()
