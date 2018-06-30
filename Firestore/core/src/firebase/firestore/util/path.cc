@@ -16,9 +16,40 @@
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
+#include "absl/strings/ascii.h"
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
+
+namespace {
+
+#if defined(_WIN32)  // not yet used elsewhere
+static constexpr absl::string_view::size_type npos = absl::string_view::npos;
+#endif
+
+/** Returns the given path with its leading drive letter removed. */
+inline absl::string_view StripDriveLetter(absl::string_view path) {
+#if defined(_WIN32)
+  if (path.size() >= 2 && path[1] == ':' && absl::ascii_isalpha(path[0])) {
+    return path.substr(2);
+  }
+#endif  // defined(_WIN32)
+
+  return path;
+}
+
+/** Returns true if the given character is a pathname separator. */
+inline bool IsSeparator(char c) {
+#if defined(_WIN32)
+  return c == '/' || c == '\\';
+#else
+  return c == '/';
+#endif  // defined(_WIN32)
+}
+
+}  // namespace
 
 absl::string_view Path::Basename(absl::string_view pathname) {
   size_t slash = pathname.find_last_of('/');
@@ -55,12 +86,8 @@ absl::string_view Path::Dirname(absl::string_view pathname) {
 }
 
 bool Path::IsAbsolute(absl::string_view path) {
-#if defined(_WIN32)
-#error "Handle drive letters"
-
-#else
-  return !path.empty() && path.front() == '/';
-#endif
+  path = StripDriveLetter(path);
+  return !path.empty() && IsSeparator(path.front());
 }
 
 void Path::JoinAppend(std::string* base, absl::string_view path) {
