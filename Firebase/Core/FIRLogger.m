@@ -16,8 +16,8 @@
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
-#import "Public/FIRLoggerLevel.h"
 #import "Private/FIRVersion.h"
+#import "Public/FIRLoggerLevel.h"
 
 FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
