@@ -36,6 +36,7 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 #import <GoogleUtilities/GULReachabilityChecker.h>
 
