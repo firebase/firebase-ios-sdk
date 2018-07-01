@@ -47,6 +47,9 @@ other Google CocoaPods. They're not intended for direct public usage.
     ns.dependency 'GoogleUtilities/NSData+zlib'
     ns.dependency 'GoogleUtilities/Logger'
     ns.dependency 'GoogleUtilities/Reachability'
+    ns.frameworks = [
+      'Security'
+    ]
   end
 
   s.subspec 'NSData+zlib' do |ns|
