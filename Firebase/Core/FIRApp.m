@@ -24,8 +24,6 @@
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
 
-#import <GoogleUtilities/GULLogger.h>
-
 NSString *const kFIRServiceAdMob = @"AdMob";
 NSString *const kFIRServiceAuth = @"Auth";
 NSString *const kFIRServiceAuthUI = @"AuthUI";
