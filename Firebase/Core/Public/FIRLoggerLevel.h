@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-#import <GoogleUtilities/GULLoggerLevel.h>
+// Note that importing GULLoggerLevel.h will lead to a non-modular header
+// import error.
 
 /**
  * The log levels used by internal logging.
  */
 typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
   /** Error level, matches ASL_LEVEL_ERR. */
-  FIRLoggerLevelError = GULLoggerLevelError,
+  FIRLoggerLevelError = 3,
   /** Warning level, matches ASL_LEVEL_WARNING. */
-  FIRLoggerLevelWarning = GULLoggerLevelWarning,
+  FIRLoggerLevelWarning = 4,
   /** Notice level, matches ASL_LEVEL_NOTICE. */
-  FIRLoggerLevelNotice = GULLoggerLevelNotice,
+  FIRLoggerLevelNotice = 5,
   /** Info level, matches ASL_LEVEL_NOTICE. */
-  FIRLoggerLevelInfo = GULLoggerLevelInfo,
+  FIRLoggerLevelInfo = 6,
   /** Debug level, matches ASL_LEVEL_DEBUG. */
-  FIRLoggerLevelDebug = GULLoggerLevelDebug,
+  FIRLoggerLevelDebug = 7,
   /** Minimum log level. */
   FIRLoggerLevelMin = FIRLoggerLevelError,
   /** Maximum log level. */
