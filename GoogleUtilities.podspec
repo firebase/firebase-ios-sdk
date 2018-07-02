@@ -55,6 +55,9 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.subspec 'NSData+zlib' do |ns|
     ns.source_files = 'Firebase/Utilities/NSData+zlib/*.[mh]'
     ns.public_header_files = 'Firebase/Utilities/NSData+zlib/GULNSData+zlib.h'
+    ns.libraries = [
+      'z'
+    ]
   end
 
   s.subspec 'Reachability' do |rs|
