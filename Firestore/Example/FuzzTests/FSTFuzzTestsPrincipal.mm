@@ -30,11 +30,15 @@ namespace {
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
   DatabaseId database_id{"project", DatabaseId::kDefault};
-  Serializer serializer(database_id);
+  Serializer serializer{database_id};
 
   @try {
     serializer.DecodeFieldValue(data, size);
-  } @catch (...) {}
+  } @catch (...) {
+    // Caught exceptions are ignored because the input might be malformed and
+    // the deserialization might throw an error as intended. Fuzzing focuses on
+    // runtime errors that are detected by the sanitizers.
+  }
 }
 
 // Contains the code to be fuzzed. Called by the fuzzing library with
