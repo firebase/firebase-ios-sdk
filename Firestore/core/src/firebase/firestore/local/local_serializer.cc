@@ -118,9 +118,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         // merge them (rather than using the last one.)
         no_document =
             reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
-                [&](Reader* reader) -> std::unique_ptr<model::NoDocument> {
-                  return DecodeNoDocument(reader);
-                });
+                [&](Reader* reader) { return DecodeNoDocument(reader); });
         break;
 
         break;
@@ -171,11 +169,11 @@ void LocalSerializer::EncodeDocument(Writer* writer,
 
 void LocalSerializer::EncodeNoDocument(Writer* writer,
                                        const model::NoDocument& no_doc) const {
-  // Encode Document.name
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
+  // Encode NoDocument.name
+  writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(no_doc.key()));
 
-  // Encode Document.read_time
+  // Encode NoDocument.read_time
   writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_read_time_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     rpc_serializer_.EncodeVersion(writer, no_doc.version());

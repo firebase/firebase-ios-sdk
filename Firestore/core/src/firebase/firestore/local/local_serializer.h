@@ -101,7 +101,6 @@ class LocalSerializer {
    */
   void EncodeDocument(nanopb::Writer* writer, const model::Document& doc) const;
 
-  /** Decodes a Document proto to the equivalent model. */
   void EncodeNoDocument(nanopb::Writer* writer,
                         const model::NoDocument& no_doc) const;
 
