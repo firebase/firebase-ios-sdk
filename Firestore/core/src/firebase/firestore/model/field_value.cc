@@ -34,20 +34,6 @@ namespace model {
 using Type = FieldValue::Type;
 using firebase::firestore::util::ComparisonResult;
 
-// TODO(rsgowman): Move this to avoid splitting the namespaces
-bool FieldValue::Comparable(Type lhs, Type rhs) {
-  switch (lhs) {
-    case Type::Integer:
-    case Type::Double:
-      return rhs == Type::Integer || rhs == Type::Double;
-    case Type::Timestamp:
-    case Type::ServerTimestamp:
-      return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
-    default:
-      return lhs == rhs;
-  }
-}
-
 namespace {
 
 // Makes a copy excluding the specified child, which is expected to be assigned
@@ -157,6 +143,19 @@ FieldValue& FieldValue::operator=(FieldValue&& value) {
       // We just copy over POD union types.
       *this = value;
       return *this;
+  }
+}
+
+bool FieldValue::Comparable(Type lhs, Type rhs) {
+  switch (lhs) {
+    case Type::Integer:
+    case Type::Double:
+      return rhs == Type::Integer || rhs == Type::Double;
+    case Type::Timestamp:
+    case Type::ServerTimestamp:
+      return rhs == Type::Timestamp || rhs == Type::ServerTimestamp;
+    default:
+      return lhs == rhs;
   }
 }
 
