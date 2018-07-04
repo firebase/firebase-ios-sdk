@@ -209,6 +209,8 @@ using leveldb::WriteOptions;
     return nullptr;
   }
 
+  database->CompactRange(nullptr, nullptr);
+
   return database;
 }
 
