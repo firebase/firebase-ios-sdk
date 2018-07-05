@@ -36,17 +36,18 @@ list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(SanitizerOptions)
 include(utils)
 
-find_package(GTest REQUIRED)
+
+# External packages
+if(APPLE)
+  find_package(FirebaseCore REQUIRED)
+  find_package(GoogleUtilities REQUIRED)
+endif()
 find_package(GMock REQUIRED)
+find_package(GRPC REQUIRED)
+find_package(GTest REQUIRED)
 find_package(LevelDB REQUIRED)
 find_package(Nanopb REQUIRED)
 find_package(Protobuf REQUIRED)
-find_package(GRPC REQUIRED)
-
-if(APPLE)
-  find_package(GoogleUtilities REQUIRED)
-  find_package(FirebaseCore REQUIRED)
-endif()
 
 enable_testing()
 add_subdirectory(third_party/abseil-cpp)
