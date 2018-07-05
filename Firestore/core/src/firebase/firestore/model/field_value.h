@@ -109,9 +109,9 @@ class FieldValue {
   }
 
   /**
-   * This deviates from the other platforms that define TypeOrder. Since we
-   * already define Type for union types, we use it together with this function
-   * to achieve the equivalent order of types i.e.
+   * PORTING NOTE: This deviates from the other platforms that define TypeOrder.
+   * Since we already define Type for union types, we use it together with this
+   * function to achieve the equivalent order of types i.e.
    *     i) if two types are comparable, then they are of equal order;
    *    ii) otherwise, their order is the same as the order of their Type.
    */

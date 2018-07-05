@@ -37,9 +37,7 @@ namespace {
 std::vector<std::shared_ptr<core::Filter>> Convert(
     std::vector<std::unique_ptr<core::Filter>>&& v) {
   std::vector<std::shared_ptr<core::Filter>> result;
-  std::for_each(v.begin(), v.end(), [&](std::unique_ptr<core::Filter>& f) {
-    result.push_back(std::move(f));
-  });
+  std::move(v.begin(), v.end(), std::back_inserter(result));
   v.clear();
   return result;
 }
@@ -90,9 +88,9 @@ Query Query::Filter(std::unique_ptr<core::Filter> filter) const {
   // TODO(rsgowman): ensure only one inequality field
   // TODO(rsgowman): ensure first orderby must match inequality field
 
-  std::vector<std::shared_ptr<core::Filter>> updated_filter = filters_;
-  updated_filter.push_back(std::move(filter));
-  return Query(path_, updated_filter);
+  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
+  updated_filters.push_back(std::move(filter));
+  return Query(path_, updated_filters);
 }
 
 }  // namespace core

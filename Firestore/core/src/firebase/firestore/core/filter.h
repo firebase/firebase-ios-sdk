@@ -31,7 +31,6 @@ namespace core {
 /** Interface used for all query filters. All filters are immutable. */
 class Filter {
  public:
-  /** The relational operator. */
   enum class Operator {
     LessThan,
     LessThanOrEqual,
@@ -41,15 +40,17 @@ class Filter {
   };
 
   /**
-   * Gets a Filter instance for the provided path, operator, and value.
+   * Creates a Filter instance for the provided path, operator, and value.
    *
-   * Note that if the relation operator is Equal and the value is NullValue or
+   * Note that if the relational operator is Equal and the value is NullValue or
    * NaN, then this will return the appropriate NullFilter or NaNFilter class
    * instead of a RelationFilter.
    */
   static std::unique_ptr<Filter> Create(model::FieldPath path,
                                         Operator op,
                                         model::FieldValue value);
+
+  virtual ~Filter() {};
 
   /** Returns the field the Filter operates over. */
   virtual const model::FieldPath& field() const = 0;
