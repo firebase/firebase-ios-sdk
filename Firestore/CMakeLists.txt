@@ -44,7 +44,6 @@ if(APPLE)
 endif()
 find_package(GRPC REQUIRED)
 find_package(LevelDB REQUIRED)
-find_package(Nanopb REQUIRED)
 find_package(Protobuf REQUIRED)
 
 
@@ -62,6 +61,26 @@ add_alias(GMock::GMock gmock)
 # Abseil-cpp
 add_subdirectory(
   third_party/abseil-cpp
+)
+
+
+# nanopb
+set(nanopb_BUILD_GENERATOR ON CACHE BOOL "Enable the nanopb generator")
+set(nanopb_PROTOC_PATH ${NANOPB_PROTOC_BIN} CACHE STRING "Protoc location")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/nanopb
+  ${FIREBASE_BINARY_DIR}/src/nanopb-build
+  EXCLUDE_FROM_ALL
+)
+
+target_compile_definitions(
+  protobuf-nanopb
+  PUBLIC -DPB_FIELD_16BIT
+)
+
+target_include_directories(
+  protobuf-nanopb
+  INTERFACE $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/nanopb>
 )
 
 
