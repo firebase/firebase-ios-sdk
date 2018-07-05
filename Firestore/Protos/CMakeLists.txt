@@ -55,14 +55,14 @@ cc_library(
 
 target_compile_definitions(
   firebase_firestore_protos_nanopb PUBLIC
-    -DPB_FIELD_16BIT
+  -DPB_FIELD_16BIT
 )
 
 # TODO(rsgowman): this may be worth moving into cc_library, possibly via an
 # INCLUDE_DIRS or similar.
 target_include_directories(
   firebase_firestore_protos_nanopb PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
+  ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
 )
 
 # libprotobuf based generated protos. Expected only to be used in test (as
@@ -102,10 +102,10 @@ cc_library(
 
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
+  ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
 
 set_target_properties(
   firebase_firestore_protos_libprotobuf PROPERTIES
-    COMPILE_FLAGS "-Wno-unused-parameter"
+  COMPILE_FLAGS "-Wno-unused-parameter"
 )
