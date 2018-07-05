@@ -50,7 +50,7 @@ cc_library(
     nanopb/google/type/latlng.pb.c
     nanopb/google/type/latlng.nanopb.h
   DEPENDS
-    nanopb
+    protobuf-nanopb
 )
 
 target_compile_definitions(
