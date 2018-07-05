@@ -42,13 +42,12 @@ class Query {
    * @return A new instance of Query.
    */
   static Query AtPath(model::ResourcePath path) {
-    return Query(std::move(path), std::vector<std::unique_ptr<core::Filter>>());
+    return Query(std::move(path), std::vector<core::Filter2>());
   }
 
   /** Initializes a query with all of its components directly. */
   Query(model::ResourcePath path,
-        std::vector<std::unique_ptr<core::Filter>>&&
-            filters /* TODO(rsgowman): other params */);
+        std::vector<core::Filter2> filters /* TODO(rsgowman): other params */);
 
   /** The base path of the query. */
   const model::ResourcePath& path() const {
@@ -61,15 +60,9 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query Filter(std::unique_ptr<core::Filter> filter) const;
+  Query Filter(core::Filter2 filter) const;
 
  private:
-  Query(model::ResourcePath path,
-        std::vector<std::shared_ptr<core::Filter>>
-            filters /* TODO(rsgowman): other params */)
-      : path_(std::move(path)), filters_(std::move(filters)) {
-  }
-
   bool MatchesPath(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;
@@ -77,11 +70,7 @@ class Query {
 
   const model::ResourcePath path_;
 
-  // Filters are shared across related Query instance. i.e. when you call
-  // Query::Filter(f), a new Query instance is created that contains all of the
-  // existing filters, plus the new one. (Both Query and Filter objects are
-  // immutable.) Filters are not shared across unrelated Query instances.
-  const std::vector<std::shared_ptr<core::Filter>> filters_;
+  const std::vector<core::Filter2> filters_;
 };
 
 }  // namespace core
