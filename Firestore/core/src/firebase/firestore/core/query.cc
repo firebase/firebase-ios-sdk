@@ -31,23 +31,10 @@ using model::Document;
 using model::DocumentKey;
 using model::ResourcePath;
 
-namespace {
-
-// Convert a vector of unique_ptr's to a vector of shared_ptr's
-std::vector<std::shared_ptr<core::Filter>> Convert(
-    std::vector<std::unique_ptr<core::Filter>>&& v) {
-  std::vector<std::shared_ptr<core::Filter>> result;
-  std::move(v.begin(), v.end(), std::back_inserter(result));
-  v.clear();
-  return result;
-}
-
-}  // namespace
-
-Query::Query(ResourcePath path,
-             std::vector<std::unique_ptr<core::Filter>>&&
-                 filters /* TODO(rsgowman): other params */)
-    : path_(std::move(path)), filters_(Convert(std::move(filters))) {
+Query::Query(
+    ResourcePath path,
+    std::vector<core::Filter2> filters /* TODO(rsgowman): other params */)
+    : path_(std::move(path)), filters_(std::move(filters)) {
 }
 
 bool Query::Matches(const Document& doc) const {
@@ -65,10 +52,9 @@ bool Query::MatchesPath(const Document& doc) const {
 }
 
 bool Query::MatchesFilters(const Document& doc) const {
-  return std::all_of(filters_.begin(), filters_.end(),
-                     [&](const std::shared_ptr<core::Filter>& filter) {
-                       return filter->Matches(doc);
-                     });
+  return std::all_of(
+      filters_.begin(), filters_.end(),
+      [&](const core::Filter2& filter) { return filter.Matches(doc); });
 }
 
 bool Query::MatchesOrderBy(const Document&) const {
@@ -81,14 +67,14 @@ bool Query::MatchesBounds(const Document&) const {
   return true;
 }
 
-Query Query::Filter(std::unique_ptr<core::Filter> filter) const {
+Query Query::Filter(core::Filter2 filter) const {
   HARD_ASSERT(!DocumentKey::IsDocumentKey(path_),
               "No filter is allowed for document query");
 
   // TODO(rsgowman): ensure only one inequality field
   // TODO(rsgowman): ensure first orderby must match inequality field
 
-  std::vector<std::shared_ptr<core::Filter>> updated_filters = filters_;
+  std::vector<core::Filter2> updated_filters = filters_;
   updated_filters.push_back(std::move(filter));
   return Query(path_, updated_filters);
 }

@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
@@ -61,6 +62,37 @@ class Filter {
 
   /** A unique ID identifying the filter; used when serializing queries. */
   virtual std::string canonical_id() const = 0;
+};
+
+// needs a better name. :)
+class Filter2 {
+ public:
+  static Filter2 Create(model::FieldPath path,
+                        Filter::Operator op,
+                        model::FieldValue value) {
+    return Filter2(Filter::Create(path, op, value));
+  }
+
+  /** Returns the field the Filter operates over. */
+  const model::FieldPath& field() const {
+    return impl->field();
+  }
+
+  /** Returns true if a document matches the filter. */
+  bool Matches(const model::Document& doc) const {
+    return impl->Matches(doc);
+  }
+
+  /** A unique ID identifying the filter; used when serializing queries. */
+  std::string canonical_id() const {
+    return impl->canonical_id();
+  }
+
+ private:
+  explicit Filter2(std::unique_ptr<Filter> f) : impl(std::move(f)) {
+  }
+
+  std::shared_ptr<Filter> impl;
 };
 
 }  // namespace core
