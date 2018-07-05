@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(ExternalProject)
+if(TARGET protobuf)
+  return()
+endif()
 
 # Protubuf has CMake support, but includes it in a `cmake` subdirectory, which
 # does not work with CMake's ExternalProject by default. CMake 3.7 added

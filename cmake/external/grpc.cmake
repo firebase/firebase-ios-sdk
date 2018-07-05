@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(ExternalProject)
+if(TARGET grpc)
+  return()
+endif()
+
 include(ExternalProjectFlags)
+include(external/c-ares)
+include(external/protobuf)
+include(external/zlib)
 
 if(GRPC_ROOT)
   # If the user has supplied a GRPC_ROOT then just use it. Add an empty custom

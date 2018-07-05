@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(ExternalProject)
+if(TARGET leveldb)
+  return()
+endif()
 
 if(WIN32 OR LEVELDB_ROOT)
   # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
