@@ -42,16 +42,30 @@ if(APPLE)
   find_package(FirebaseCore REQUIRED)
   find_package(GoogleUtilities REQUIRED)
 endif()
-find_package(GMock REQUIRED)
 find_package(GRPC REQUIRED)
-find_package(GTest REQUIRED)
 find_package(LevelDB REQUIRED)
 find_package(Nanopb REQUIRED)
 find_package(Protobuf REQUIRED)
 
-enable_testing()
-add_subdirectory(third_party/abseil-cpp)
 
+# Googletest
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/googletest
+  ${FIREBASE_BINARY_DIR}/src/googletest-build
+  EXCLUDE_FROM_ALL
+)
+add_alias(GTest::GTest gtest)
+add_alias(GTest::Main gtest_main)
+add_alias(GMock::GMock gmock)
+
+
+# Abseil-cpp
+add_subdirectory(
+  third_party/abseil-cpp
+)
+
+
+enable_testing()
 include(CompilerSetup)
 
 # Superbuild installed results
