@@ -317,7 +317,8 @@ static NSTimeInterval const  kLastSignInDateTimeIntervalInSeconds = 1505858583;
  */
 static const NSTimeInterval kExpectationTimeout = 2;
 
-/** @extention FIRSecureTokenService
+#if !defined(TARGET_OS_TV)
+/** @extension FIRSecureTokenService
     @brief Extends the FIRSecureTokenService class to expose one private method for testing only.
  */
 @interface FIRSecureTokenService ()
@@ -328,6 +329,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 - (BOOL)hasValidAccessToken;
 @end
+#endif
 
 /** @class FIRUserTests
     @brief Tests for @c FIRUser .
@@ -1049,6 +1051,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 /** @fn testGetIDTokenResultSuccess
     @brief Tests the flow of a successful @c getIDTokenResultWithCompletion: call.
  */
+#if !defined(TARGET_OS_TV)
 - (void)testGetIDTokenResultSuccess {
   id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
   OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
@@ -1077,6 +1080,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
+#endif
 
 /** @fn testGetIDTokenResultForcingRefreshFailure
     @brief Tests the flow successful @c getIDTokenResultForcingRefresh:completion: calls.
