@@ -518,6 +518,7 @@ static NSMutableDictionary *sLibraryVersions;
   }
 }
 
+// TODO: Remove once SDKs transition to Auth interop library.
 - (nullable NSString *)getUID {
   if (!_getUIDImplementation) {
     FIRLogWarning(kFIRLoggerCore, @"I-COR000025", @"FIRAuth getUID implementation wasn't set.");
