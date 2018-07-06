@@ -20,11 +20,7 @@
 
 #import "FIRMessagingLogger.h"
 
-#ifdef COCOAPODS
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
-#else
-#import "third_party/firebase/ios/Source/GoogleUtilities/Environment/third_party/GULAppEnvironmentUtil.h"
-#endif
 
 // Convert the macro to a string
 #define STR_EXPAND(x) #x
