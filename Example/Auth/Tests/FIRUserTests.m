@@ -18,23 +18,25 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseAuth/FirebaseAuth.h>
-
+#import "FIRAdditionalUserInfo_Internal.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthErrorUtils.h"
 #import "FIRAuthBackend.h"
 #import "FIRAuthGlobalWorkQueue.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthTokenResult.h"
+#import "FIREmailAuthProvider.h"
 #import "FIREmailLinkSignInResponse.m"
+#import "FIRFacebookAuthProvider.h"
+#import "FIRGetAccountInfoRequest.h"
+#import "FIRGetAccountInfoResponse.h"
+#import "FIRGoogleAuthProvider.h"
 #import "FIRSecureTokenService.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
-#import "FIRSignUpNewUserResponse.h"
-#import "FIRGetAccountInfoRequest.h"
-#import "FIRGetAccountInfoResponse.h"
 #import "FIRSetAccountInfoRequest.h"
 #import "FIRSetAccountInfoResponse.h"
+#import "FIRSignUpNewUserResponse.h"
 #import "FIRUser_Internal.h"
 #import "FIRUserInfo.h"
 #import "FIRUserMetadata.h"
