@@ -26,7 +26,7 @@
 #import "FIRAuthOperationType.h"
 #import "FIRAuthTokenResult.h"
 #import "FIREmailAuthProvider.h"
-#import "FIREmailLinkSignInResponse.m"
+#import "FIREmailLinkSignInResponse.h"
 #import "FIRFacebookAuthProvider.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
