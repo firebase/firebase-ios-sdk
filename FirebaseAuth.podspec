@@ -61,6 +61,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'SafariServices'
   s.framework = 'Security'
+  s.dependency 'FirebaseAuthInteroperable', '~> 0.9'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 end

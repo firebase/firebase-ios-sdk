@@ -19,8 +19,11 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentRegistrant.h>
 
 #import <FirebaseAuth/FirebaseAuth.h>
+#import <FirebaseAuthInteroperable/FirebaseAuthInterop.h>
 
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
@@ -219,6 +222,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 static const NSTimeInterval kWaitInterval = .5;
 
+/** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
+@interface FIRAuth () <FIRComponentRegistrant>
+@end
+
 /** @class FIRAuthTests
     @brief Tests for @c FIRAuth.
  */
@@ -360,6 +367,8 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Verifies that FIRApp's getUIDImplementation is correctly set by FIRAuth.
  */
 - (void)testGetUID {
+  // TODO: Remove this test once Firestore, Database, and Storage move over to the new Auth interop
+  //       library.
   FIRApp *app = [FIRApp defaultApp];
   XCTAssertNotNil(app.getUIDImplementation);
   [[FIRAuth auth] signOut:NULL];
@@ -2218,6 +2227,21 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 #endif
+
+#pragma mark - Interoperability Tests
+
+/** @fn testComponentsBeingRegistered
+ @brief Tests that Auth provides the necessary components for interoperability with other SDKs.
+ */
+- (void)testComponentsBeingRegistered {
+  // Verify that the components are registered properly. Check the count, because any time a new
+  // component is added it should be added to the test suite as well.
+  NSArray<FIRComponent *> *components = [FIRAuth componentsToRegister];
+  XCTAssertTrue(components.count == 1);
+
+  FIRComponent *component = [components firstObject];
+  XCTAssert(component.protocol == @protocol(FIRAuthInteroperable));
+}
 
 #pragma mark - Helpers
 

@@ -14,6 +14,7 @@
 
 #import "FIRTestCase.h"
 
+#import <FirebaseAuthInteroperable/FIRAuthInteroperable.h>
 #import <FirebaseCore/FIRAnalyticsConfiguration+Internal.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
@@ -754,6 +755,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Internal Methods
 
+// TODO: Remove this test once the `getUIDImplementation` block doesn't need to be set in Core.
 - (void)testAuthGetUID {
   [FIRApp configure];
 
