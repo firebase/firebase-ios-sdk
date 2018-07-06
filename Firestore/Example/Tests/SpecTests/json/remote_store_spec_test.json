@@ -91,8 +91,12 @@
             2
           ],
           "resume-token"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchRemove": {
@@ -128,8 +132,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -316,8 +324,12 @@
             2
           ],
           "resume-token"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchRemove": {
@@ -353,8 +365,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        }
       },
       {
         "watchRemove": {
@@ -390,8 +406,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        }
       },
       {
         "watchRemove": {
@@ -427,8 +447,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -519,8 +543,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {

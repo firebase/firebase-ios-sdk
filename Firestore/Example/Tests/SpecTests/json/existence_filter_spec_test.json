@@ -56,8 +56,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -86,8 +90,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       }
     ]
   },
@@ -132,8 +140,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -169,8 +181,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -236,8 +252,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -257,8 +277,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -331,8 +355,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -436,8 +464,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -517,8 +549,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -554,8 +590,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -615,8 +655,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -652,8 +696,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -755,8 +803,12 @@
             2
           ],
           "existence-filter-resume-token"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -818,8 +870,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -879,8 +935,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -916,8 +976,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -1012,8 +1076,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1059,8 +1127,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1143,8 +1215,12 @@
             2
           ],
           "resume-token-3000"
-        ],
-        "watchSnapshot": 3000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
+        },
         "expect": [
           {
             "query": {
@@ -1226,8 +1302,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1255,8 +1335,12 @@
           [
             2
           ]
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -1345,8 +1429,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1382,8 +1470,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -1443,8 +1535,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -1491,7 +1587,6 @@
           },
           "limboDocs": []
         },
-        "watchSnapshot": 3000,
         "expect": [
           {
             "query": {
