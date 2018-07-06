@@ -16,7 +16,7 @@
 
 #import "FIRAuthAppDelegateProxy.h"
 
-#import <FirebaseCore/FIRAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import <objc/runtime.h>
 
@@ -206,7 +206,7 @@ static BOOL isIOS9orLater() {
   // responds to it.
   static Class applicationClass = nil;
   dispatch_once(&onceToken, ^{
-    if (![FIRAppEnvironmentUtil isAppExtension]) {
+    if (![GULAppEnvironmentUtil isAppExtension]) {
       Class cls = NSClassFromString(@"UIApplication");
       if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
         applicationClass = cls;

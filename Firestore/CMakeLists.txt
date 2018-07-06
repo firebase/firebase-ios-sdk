@@ -85,6 +85,7 @@ find_package(Protobuf REQUIRED)
 find_package(GRPC REQUIRED)
 
 if(APPLE)
+  find_package(GoogleUtilities REQUIRED)
   find_package(FirebaseCore REQUIRED)
 endif()
 

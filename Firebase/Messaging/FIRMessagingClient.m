@@ -16,7 +16,7 @@
 
 #import "FIRMessagingClient.h"
 
-#import <FirebaseCore/FIRReachabilityChecker.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingConnection.h"
@@ -82,7 +82,7 @@ static NSUInteger FIRMessagingServerPort() {
 
 // FIRMessagingService owns these instances
 @property(nonatomic, readwrite, weak) FIRMessagingRmqManager *rmq2Manager;
-@property(nonatomic, readwrite, weak) FIRReachabilityChecker *reachability;
+@property(nonatomic, readwrite, weak) GULReachabilityChecker *reachability;
 
 @property(nonatomic, readwrite, assign) int64_t lastConnectedTimestamp;
 @property(nonatomic, readwrite, assign) int64_t lastDisconnectedTimestamp;
@@ -111,7 +111,7 @@ static NSUInteger FIRMessagingServerPort() {
 }
 
 - (instancetype)initWithDelegate:(id<FIRMessagingClientDelegate>)delegate
-                    reachability:(FIRReachabilityChecker *)reachability
+                    reachability:(GULReachabilityChecker *)reachability
                      rmq2Manager:(FIRMessagingRmqManager *)rmq2Manager {
   self = [super init];
   if (self) {
@@ -471,8 +471,8 @@ static NSUInteger FIRMessagingServerPort() {
 #pragma mark - Schedulers
 
 - (void)scheduleConnectRetry {
-  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
-  BOOL isReachable = (status == kFIRReachabilityViaWifi || status == kFIRReachabilityViaCellular);
+  GULReachabilityStatus status = self.reachability.reachabilityStatus;
+  BOOL isReachable = (status == kGULReachabilityViaWifi || status == kGULReachabilityViaCellular);
   if (!isReachable) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeClient010,
                             @"Internet not reachable when signing into MCS during a retry");
