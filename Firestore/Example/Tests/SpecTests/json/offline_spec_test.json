@@ -176,7 +176,10 @@
   "Removing all listeners delays \"Offline\" status on next listen": {
     "describeName": "Offline:",
     "itName": "Removing all listeners delays \"Offline\" status on next listen",
-    "tags": [],
+    "tags": [
+      "no-lru"
+    ],
+    "comment": "Marked as no-lru because when a listen is re-added, it gets a new target id rather than reusing one",
     "config": {
       "useGarbageCollection": true
     },
@@ -366,8 +369,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -460,8 +467,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -534,8 +545,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -569,8 +584,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/a"
@@ -673,8 +692,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        }
       },
       {
         "watchAck": [
@@ -695,8 +718,12 @@
             1
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -824,8 +851,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
