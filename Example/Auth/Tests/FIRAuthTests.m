@@ -20,32 +20,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
-#import "FIRActionCodeSettings.h"
 #import "FIRAdditionalUserInfo.h"
-#import "FIRAuth.h"
-#import "FIRAuthCredential.h"
-#import "FIRAuthDataResult.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthTokenResult.h"
-#import "FirebaseAuthVersion.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIROAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
-#import "FIRUser.h"
-#import "FIRUserInfo.h"
-#import "FIRUserMetadata.h"
-
-#if TARGET_OS_IOS
-#import "FIRAuthUIDelegate.h"
-#import "FIRPhoneAuthCredential.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthSettings.h"
-#endif
-
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthErrorUtils.h"
@@ -55,12 +30,15 @@
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
+#import "FIREmailAuthProvider.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGoogleAuthProvider.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 #import "FIRResetPasswordRequest.h"
