@@ -20,8 +20,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
-#import <FirebaseAuth/FirebaseAuth.h>
-
+#import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthErrorUtils.h"
@@ -31,12 +30,15 @@
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
+#import "FIREmailAuthProvider.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGoogleAuthProvider.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 #import "FIRResetPasswordRequest.h"
