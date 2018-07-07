@@ -20,32 +20,7 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
-// The order is strange since somehow an alphabetical sort causes tvOS link issues.
-#import "FIRActionCodeSettings.h"
-#import "FIRAdditionalUserInfo.h"
-#import "FIRAuth.h"
-#import "FIRAuthCredential.h"
-#import "FIRAuthDataResult.h"
-#import "FIRAuthErrors.h"
-#import "FIRAuthTokenResult.h"
-#import "FirebaseAuthVersion.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIROAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
-#import "FIRUser.h"
-#import "FIRUserInfo.h"
-#import "FIRUserMetadata.h"
-
-#if TARGET_OS_IOS
-#import "FIRAuthUIDelegate.h"
-#import "FIRPhoneAuthCredential.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthSettings.h"
-#endif
+#import <FirebaseAuth/FirebaseAuth.h>
 
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
