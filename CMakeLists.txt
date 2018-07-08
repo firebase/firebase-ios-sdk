@@ -15,7 +15,25 @@
 # Superbuild for Firebase
 
 cmake_minimum_required(VERSION 2.8.11)
-project(firebase C CXX)
+
+# Report AppleClang separately from Clang. Their version numbers are different.
+# https://cmake.org/cmake/help/v3.0/policy/CMP0025.html
+if(POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif()
+
+# Defer enabling any languages.
+project(firebase NONE)
+
+if(WIN32)
+  # On Windows, prefer cl over gcc if both are available. By default most of
+  # the CMake generators prefer gcc, even on Windows.
+  set(CMAKE_GENERATOR_CC cl)
+endif()
+
+enable_language(C)
+enable_language(CXX)
+
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(cc_rules)
