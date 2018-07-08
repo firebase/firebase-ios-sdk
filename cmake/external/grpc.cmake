@@ -18,47 +18,6 @@ if(TARGET grpc)
   return()
 endif()
 
-if(GRPC_ROOT)
-  # If the user has supplied a GRPC_ROOT then just use it. Add an empty custom
-  # target so that the superbuild dependencies still work.
-  add_custom_target(grpc)
-  return()
-endif()
-
-set(
-  CMAKE_ARGS
-  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-  -DBUILD_SHARED_LIBS:BOOL=OFF
-  -DgRPC_INSTALL:BOOL=OFF
-  -DgRPC_BUILD_TESTS:BOOL=OFF
-
-  # TODO(rsgowman): We're currently building nanopb twice; once via grpc, and
-  # once via nanopb. The version from grpc is the one that actually ends up
-  # being used. We need to fix this such that either:
-  #   a) we instruct grpc to use our nanopb
-  #   b) we rely on grpc's nanopb instead of using our own.
-  # For now, we'll pass in the necessary nanopb cflags into grpc. (We require
-  # 16 bit fields. Without explicitly requesting this, nanopb uses 8 bit
-  # fields.)
-  -DCMAKE_C_FLAGS=-DPB_FIELD_16BIT
-  -DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
-)
-
-
-## zlib
-
-# Use a system- or user-supplied zlib if available
-find_package(ZLIB)
-if(ZLIB_FOUND)
-  list(
-    APPEND CMAKE_ARGS
-    -DgRPC_ZLIB_PROVIDER:STRING=package
-    -DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}
-    -DZLIB_LIBRARY=${ZLIB_LIBRARY}
-  )
-endif()
-
-
 ExternalProject_Add(
   grpc-download
 
@@ -86,24 +45,11 @@ include(external/boringssl)
 include(external/c-ares)
 include(external/zlib)
 
-ExternalProject_Add(
+add_custom_target(
   grpc
   DEPENDS
     boringssl
     c-ares
     grpc-download
     zlib
-
-  PREFIX ${PROJECT_BINARY_DIR}
-  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
-
-  CMAKE_ARGS
-    ${CMAKE_ARGS}
-
-  BUILD_COMMAND
-    ${CMAKE_COMMAND} --build . --target grpc
-
-  UPDATE_COMMAND ""
-  TEST_COMMAND ""
-  INSTALL_COMMAND ""
 )
