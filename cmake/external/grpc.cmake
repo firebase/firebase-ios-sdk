@@ -14,7 +14,6 @@
 
 include(ExternalProject)
 include(external/protobuf)
-include(external/zlib)
 
 if(TARGET grpc)
   return()
@@ -71,16 +70,12 @@ list(
 
 ## zlib
 
-# cmake/external/zlib.cmake figures out whether or not to build zlib. Either
-# way, from the gRPC build's point of view it's a package.
-list(
-  APPEND CMAKE_ARGS
-  -DgRPC_ZLIB_PROVIDER:STRING=package
-)
+# Use a system- or user-supplied zlib if available
+find_package(ZLIB)
 if(ZLIB_FOUND)
-  # Propagate possible user configuration to FindZLIB.cmake in the sub-build.
   list(
     APPEND CMAKE_ARGS
+    -DgRPC_ZLIB_PROVIDER:STRING=package
     -DZLIB_INCLUDE_DIR=${ZLIB_INCLUDE_DIR}
     -DZLIB_LIBRARY=${ZLIB_LIBRARY}
   )
@@ -91,7 +86,6 @@ ExternalProject_Add(
   grpc-download
   DEPENDS
     protobuf
-    zlib
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME grpc-1.8.3.tar.gz
@@ -115,6 +109,7 @@ ExternalProject_Add(
 # these must come after the ExternalProject_Add block above.
 include(external/boringssl)
 include(external/c-ares)
+include(external/zlib)
 
 ExternalProject_Add(
   grpc
@@ -122,6 +117,7 @@ ExternalProject_Add(
     boringssl
     c-ares
     grpc-download
+    zlib
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
