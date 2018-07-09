@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Internal version of documentForKey: which allows reusing `batches`.
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key
-                         inBatches:(NSArray<FSTMutationBatch *> *)batches {
+                                    inBatches:(NSArray<FSTMutationBatch *> *)batches {
   FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:key];
   return [self localDocument:remoteDoc key:key inBatches:batches];
 }
@@ -164,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTMaybeDocument *)localDocument:(nullable FSTMaybeDocument *)document
                                          key:(const DocumentKey &)documentKey
-                            inBatches:(NSArray<FSTMutationBatch *> *)batches {
+                                   inBatches:(NSArray<FSTMutationBatch *> *)batches {
   for (FSTMutationBatch *batch in batches) {
     document = [batch applyTo:document documentKey:documentKey];
   }
@@ -191,8 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTDocumentDictionary *result = documents;
   [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
                                                  BOOL *stop) {
-    FSTMaybeDocument *mutatedDoc =
-        [self localDocument:remoteDocument key:key inBatches:batches];
+    FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key inBatches:batches];
     if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
       result = [result dictionaryByRemovingObjectForKey:key];
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
