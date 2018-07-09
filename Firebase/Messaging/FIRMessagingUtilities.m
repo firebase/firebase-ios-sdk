@@ -20,6 +20,8 @@
 
 #import "FIRMessagingLogger.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 // Convert the macro to a string
 #define STR_EXPAND(x) #x
 #define STR(x) STR_EXPAND(x)
@@ -170,4 +172,17 @@ uint64_t FIRMessagingGetFreeDiskSpaceInMB(void) {
                             @"Error in retreiving device's free memory %@", error);
     return 0;
   }
+}
+
+UIApplication *FIRMessagingUIApplication(void) {
+  static Class applicationClass = nil;
+  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+  // responds to it.
+  if (![GULAppEnvironmentUtil isAppExtension]) {
+    Class cls = NSClassFromString(@"UIApplication");
+    if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
+      applicationClass = cls;
+    }
+  }
+  return [applicationClass sharedApplication];
 }
