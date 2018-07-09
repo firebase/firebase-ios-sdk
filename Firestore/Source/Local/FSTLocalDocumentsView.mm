@@ -74,10 +74,16 @@ NS_ASSUME_NONNULL_BEGIN
   return [self localDocument:remoteDoc key:key affectingBatches:affectingBatches];
 }
 
+
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
-  FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
   NSArray<FSTMutationBatch *> *affectingBatches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
+  return [self documentsForKeys:keys batches:affectingBatches];
+}
+
+- (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys
+batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
+  FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
   for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key withAffectingBatches:affectingBatches];
@@ -163,6 +169,27 @@ NS_ASSUME_NONNULL_BEGIN
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
   results = [self localDocuments:results batches:affectingBatches];
 
+  DocumentKeySet matchingKeys;
+  for (FSTMutationBatch *batch in affectingBatches) {
+    for (FSTMutation *mutation in batch.mutations) {
+      // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
+
+      // If the key is already in the results, we can skip it.
+      if (![results containsKey:mutation.key]) {
+        matchingKeys = matchingKeys.insert(mutation.key);
+      }
+    }
+  }
+
+  // Now add in results for the matchingKeys.
+  FSTMaybeDocumentDictionary *matchingKeysDocs =
+    [self documentsForKeys:matchingKeys batches:affectingBatches];
+  [matchingKeysDocs
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
+        if ([doc isKindOfClass:[FSTDocument class]]) {
+          results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
+        }
+      }];
   // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
   // results while we're enumerating them.
   FSTDocumentDictionary *unfiltered = results;
@@ -201,7 +228,7 @@ NS_ASSUME_NONNULL_BEGIN
       }];
   NSArray<FSTMutationBatch *> *affectingBatches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
-  return localDocuments:documents batches:affectingBatches;
+  return [self localDocuments:documents batches:affectingBatches];
 }
 
 /**
