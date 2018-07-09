@@ -44,6 +44,7 @@ download_external_sources()
 
 
 # Googletest
+set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
 add_external_subdirectory(googletest)
 add_alias(GTest::GTest gtest)
 add_alias(GTest::Main gtest_main)
