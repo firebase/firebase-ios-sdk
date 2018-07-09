@@ -56,7 +56,7 @@ class DocumentKey {
   }
 
   operator FSTDocumentKey*() const {
-    return [FSTDocumentKey keyWithPath:path()];
+    return [FSTDocumentKey keyWithDocumentKey:*this];
   }
 
   NSUInteger Hash() const {

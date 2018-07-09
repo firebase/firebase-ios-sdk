@@ -102,7 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDocument *otherDoc = other;
-  return [self.key isEqual:otherDoc.key] && self.version == otherDoc.version &&
+  return self.key == otherDoc.key && self.version == otherDoc.version &&
          [self.data isEqual:otherDoc.data] && self.hasLocalMutations == otherDoc.hasLocalMutations;
 }
 
@@ -142,7 +142,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   FSTDocument *otherDoc = other;
-  return [self.key isEqual:otherDoc.key] && self.version == otherDoc.version;
+  return self.key == otherDoc.key && self.version == otherDoc.version;
 }
 
 - (NSUInteger)hash {

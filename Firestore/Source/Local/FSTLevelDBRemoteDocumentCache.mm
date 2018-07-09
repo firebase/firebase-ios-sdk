@@ -122,7 +122,7 @@ using leveldb::Status;
   }
 
   FSTMaybeDocument *maybeDocument = [self.serializer decodedMaybeDocument:proto];
-  HARD_ASSERT([maybeDocument.key isEqualToKey:documentKey],
+  HARD_ASSERT(maybeDocument.key == documentKey,
               "Read document has key (%s) instead of expected key (%s).",
               maybeDocument.key.ToString(), documentKey.ToString());
   return maybeDocument;
