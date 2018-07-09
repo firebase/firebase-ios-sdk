@@ -113,6 +113,9 @@ static int downstreamMessageID = 0;
 
   dispatch_async(dispatch_get_main_queue(), ^{
     UIApplication *application = FIRMessagingUIApplication();
+    if (!application) {
+      return;
+    }
     id<UIApplicationDelegate> appDelegate = [application delegate];
     if ([appDelegate respondsToSelector:newNotificationSelector]) {
       // Try the new remote notification callback

@@ -379,6 +379,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     return;
   }
   UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return;
+  }
   id<UIApplicationDelegate> appDelegate = application.delegate;
   SEL continueUserActivitySelector =
       @selector(application:continueUserActivity:restorationHandler:);
@@ -612,6 +615,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSString *token = self.defaultFcmToken;
   // Only on foreground connections
   UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return NO;
+  }
   UIApplicationState applicationState = application.applicationState;
   BOOL shouldBeConnected = _shouldEstablishDirectChannel &&
                            (token.length > 0) &&

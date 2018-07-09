@@ -176,6 +176,9 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return;
+  }
   [application scheduleLocalNotification:notification];
 #pragma clang diagnostic pop
 }
