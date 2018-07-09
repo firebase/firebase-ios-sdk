@@ -100,6 +100,9 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
   }
 
   UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return;
+  }
   NSObject<UIApplicationDelegate> *appDelegate = [application delegate];
   [self swizzleAppDelegateMethods:appDelegate];
 
