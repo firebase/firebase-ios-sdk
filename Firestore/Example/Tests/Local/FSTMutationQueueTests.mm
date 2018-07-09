@@ -31,11 +31,14 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::testutil::Key;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -284,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar",
+      FSTTestSetMutation(@"foi/bar",
                          @{ @"a" : @1 }),
       FSTTestSetMutation(@"foo/bar",
                          @{ @"a" : @1 }),
@@ -310,6 +313,85 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2] ];
     NSArray<FSTMutationBatch *> *matches =
         [self.mutationQueue allMutationBatchesAffectingDocumentKey:testutil::Key("foo/bar")];
+
+    XCTAssertEqualObjects(matches, expected);
+  });
+}
+
+- (void)testAllMutationBatchesAffectingDocumentKeys {
+  if ([self isTestBaseClass]) return;
+
+  self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+    NSArray<FSTMutation *> *mutations = @[
+      FSTTestSetMutation(@"fob/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestPatchMutation("foo/bar",
+                           @{ @"b" : @1 }, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"food/bar",
+                         @{ @"a" : @1 })
+    ];
+
+    // Store all the mutations.
+    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
+    for (FSTMutation *mutation in mutations) {
+      FSTMutationBatch *batch =
+          [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                  mutations:@[ mutation ]];
+      [batches addObject:batch];
+    }
+
+    DocumentKeySet keys{
+        Key("foo/bar"),
+        Key("foo/baz"),
+    };
+
+    NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2], batches[4] ];
+    NSArray<FSTMutationBatch *> *matches =
+        [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
+
+    XCTAssertEqualObjects(matches, expected);
+  });
+}
+
+- (void)testAllMutationBatchesAffectingDocumentKeys_handlesOverlap {
+  if ([self isTestBaseClass]) return;
+
+  self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
+    NSArray<FSTMutation *> *group1 = @[
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+    ];
+    FSTMutationBatch *batch1 =
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                mutations:group1];
+
+    NSArray<FSTMutation *> *group2 = @[ FSTTestSetMutation(@"food/bar", @{ @"a" : @1 }) ];
+    [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp] mutations:group2];
+
+    NSArray<FSTMutation *> *group3 = @[
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"b" : @1 }),
+    ];
+    FSTMutationBatch *batch3 =
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                mutations:group3];
+
+    DocumentKeySet keys{
+        Key("foo/bar"),
+        Key("foo/baz"),
+    };
+
+    NSArray<FSTMutationBatch *> *expected = @[ batch1, batch3 ];
+    NSArray<FSTMutationBatch *> *matches =
+        [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
 
     XCTAssertEqualObjects(matches, expected);
   });
