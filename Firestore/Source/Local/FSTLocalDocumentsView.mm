@@ -109,6 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
+/*
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
   // Query the remote documents and overlay mutations.
   // TODO(mikelehen): There may be significant overlap between the mutations affecting these
@@ -154,6 +155,26 @@ NS_ASSUME_NONNULL_BEGIN
 
   return results;
 }
+*/
+
+- (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
+  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  NSArray<FSTMutationBatch *> *affectingBatches =
+      [self.mutationQueue allMutationBatchesAffectingQuery:query];
+  results = [self localDocuments:results batches:affectingBatches];
+
+  // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
+  // results while we're enumerating them.
+  FSTDocumentDictionary *unfiltered = results;
+  [unfiltered
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
+        if (![query matchesDocument:doc]) {
+          results = [results dictionaryByRemovingObjectForKey:key];
+        }
+      }];
+
+  return results;
+}
 
 /**
  * Takes a remote document and applies local mutations to generate the local view of the
@@ -172,13 +193,6 @@ NS_ASSUME_NONNULL_BEGIN
   return document;
 }
 
-/**
- * Takes a set of remote documents and applies local mutations to generate the local view of
- * the documents.
- *
- * @param documents The base remote documents to apply mutations to.
- * @return The local view of the documents.
- */
 - (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents {
   __block DocumentKeySet keySet;
   [documents
@@ -187,7 +201,18 @@ NS_ASSUME_NONNULL_BEGIN
       }];
   NSArray<FSTMutationBatch *> *affectingBatches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
+  return localDocuments:documents batches:affectingBatches;
+}
 
+/**
+ * Takes a set of remote documents and applies local mutations to generate the local view of
+ * the documents.
+ *
+ * @param documents The base remote documents to apply mutations to.
+ * @return The local view of the documents.
+ */
+- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents
+    batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
   __block FSTDocumentDictionary *result = documents;
   [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
                                                  BOOL *stop) {
