@@ -365,8 +365,9 @@ long long getCurrentMemoryUsedInMb() {
     const long long memoryUsedAfterCommitMb = getCurrentMemoryUsedInMb();
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
     const long long memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
-    // This by its nature cannot be a precise value. A regression would be on the scale of 500Mb.
-    XCTAssertLessThan(memoryDeltaMb, 150);
+    // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
+    // 10MB in debug mode pretty consistently. A regression would be on the scale of 500Mb.
+    XCTAssertLessThan(memoryDeltaMb, 20);
 
     [expectation fulfill];
   }];

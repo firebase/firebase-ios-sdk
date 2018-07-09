@@ -109,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
   }
   FSTLimboDocumentChange *otherChange = (FSTLimboDocumentChange *)other;
-  return self.type == otherChange.type && [self.key isEqual:otherChange.key];
+  return self.type == otherChange.type && self.key == otherChange.key;
 }
 
 - (NSUInteger)hash {

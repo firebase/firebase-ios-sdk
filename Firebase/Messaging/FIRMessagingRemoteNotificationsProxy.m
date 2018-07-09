@@ -211,7 +211,7 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
 
 #pragma mark - UNNotificationCenter Swizzling
 
-- (void)swizzleUserNotificationCenterDelegate:(id)delegate {
+- (void)swizzleUserNotificationCenterDelegate:(id _Nonnull)delegate {
   if (self.currentUserNotificationCenterDelegate == delegate) {
     // Via pointer-check, compare if we have already swizzled this item.
     return;
@@ -246,7 +246,7 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
   }
 }
 
-- (void)unswizzleUserNotificationCenterDelegate:(id)delegate {
+- (void)unswizzleUserNotificationCenterDelegate:(id _Nonnull)delegate {
   if (self.currentUserNotificationCenterDelegate != delegate) {
     // We aren't swizzling this delegate, so don't do anything.
     return;
@@ -255,6 +255,10 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
       NSSelectorFromString(kUserNotificationWillPresentSelectorString);
   // Call unswizzle methods, even if the method was not implemented (it will fail gracefully).
   [self unswizzleSelector:willPresentNotificationSelector
+                  inClass:[self.currentUserNotificationCenterDelegate class]];
+  SEL didReceiveNotificationResponseSelector =
+      NSSelectorFromString(kUserNotificationDidReceiveResponseSelectorString);
+  [self unswizzleSelector:didReceiveNotificationResponseSelector
                   inClass:[self.currentUserNotificationCenterDelegate class]];
   self.currentUserNotificationCenterDelegate = nil;
   self.hasSwizzledUserNotificationDelegate = NO;

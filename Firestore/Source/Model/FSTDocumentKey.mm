@@ -21,26 +21,30 @@
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::ResourcePath;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTDocumentKey () {
-  /** The path to the document. */
-  ResourcePath _path;
+  DocumentKey _impl;
 }
 @end
 
 @implementation FSTDocumentKey
 
 + (instancetype)keyWithPath:(ResourcePath)path {
-  return [[FSTDocumentKey alloc] initWithPath:std::move(path)];
+  return [[FSTDocumentKey alloc] initWithDocumentKey:DocumentKey{path}];
+}
+
++ (instancetype)keyWithDocumentKey:(const firebase::firestore::model::DocumentKey &)documentKey {
+  return [[FSTDocumentKey alloc] initWithDocumentKey:documentKey];
 }
 
 + (instancetype)keyWithSegments:(std::initializer_list<std::string>)segments {
@@ -52,12 +56,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** Designated initializer. */
-- (instancetype)initWithPath:(ResourcePath)path {
-  HARD_ASSERT([FSTDocumentKey isDocumentKey:path], "invalid document key path: %s",
-              path.CanonicalString());
-
+- (instancetype)initWithDocumentKey:(const DocumentKey &)key {
   if (self = [super init]) {
-    _path = path;
+    _impl = key;
   }
   return self;
 }
@@ -73,11 +74,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return util::Hash(_path);
+  return _impl.Hash();
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _path.CanonicalString().c_str()];
+  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _impl.ToString().c_str()];
 }
 
 /** Implements NSCopying without actually copying because FSTDocumentKeys are immutable. */
@@ -100,11 +101,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (BOOL)isDocumentKey:(const ResourcePath &)path {
-  return path.size() % 2 == 0;
+  return DocumentKey::IsDocumentKey(path);
 }
 
 - (const ResourcePath &)path {
-  return _path;
+  return _impl.path();
 }
 
 @end
