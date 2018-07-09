@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
+// Using forward declaration to avoid circular dependency (`document_key.h` includes this header).`
 namespace firebase {
 namespace firestore {
 namespace model {
