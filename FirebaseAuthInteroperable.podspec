@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuthInteroperable'
-  s.version          = '0.9.0'
+  s.version          = '1.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC
@@ -22,7 +22,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
-  s.preserve_paths = 'README.md'
   s.source_files = 'Interoperability/Auth/**/*.h'
   s.public_header_files = 'Interoperability/Auth/Public/*.h'
 end

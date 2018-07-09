@@ -23,7 +23,7 @@
 #import <FirebaseCore/FIRComponentRegistrant.h>
 
 #import <FirebaseAuth/FirebaseAuth.h>
-#import <FirebaseAuthInteroperable/FirebaseAuthInterop.h>
+#import <FirebaseAuthInteroperable/FIRAuthInteroperable.h>
 
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"

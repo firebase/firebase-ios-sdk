@@ -1863,7 +1863,7 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
       strongSelf->_autoRefreshTokens = YES;
       [strongSelf scheduleAutoTokenRefresh];
 
-#if TARGET_OS_IOS // TODO: Is a similar mechanism needed on macOS?
+#if TARGET_OS_IOS || TARGET_OS_TV // TODO: Is a similar mechanism needed on macOS?
       strongSelf->_applicationDidBecomeActiveObserver = [[NSNotificationCenter defaultCenter]
                                                          addObserverForName:UIApplicationDidBecomeActiveNotification
                                                          object:nil
