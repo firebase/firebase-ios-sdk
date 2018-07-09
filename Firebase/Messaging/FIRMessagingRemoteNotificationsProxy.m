@@ -21,6 +21,7 @@
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
 #import "FIRMessaging_Private.h"
 
 static const BOOL kDefaultAutoRegisterEnabledValue = YES;
@@ -98,7 +99,11 @@ static NSString *kReceiveDataMessageSelectorString = @"messaging:didReceiveMessa
     return;
   }
 
-  NSObject<UIApplicationDelegate> *appDelegate = [[UIApplication sharedApplication] delegate];
+  UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return;
+  }
+  NSObject<UIApplicationDelegate> *appDelegate = [application delegate];
   [self swizzleAppDelegateMethods:appDelegate];
 
   // Add KVO listener on [UNUserNotificationCenter currentNotificationCenter]'s delegate property

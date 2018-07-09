@@ -19,8 +19,9 @@
 #import <UIKit/UIKit.h>
 
 #import "FIRMessaging.h"
-#import "FIRMessaging_Private.h"
 #import "FIRMessagingLogger.h"
+#import "FIRMessagingUtilities.h"
+#import "FIRMessaging_Private.h"
 
 static NSString *const kUpstreamMessageIDUserInfoKey = @"messageID";
 static NSString *const kUpstreamErrorUserInfoKey = @"error";
@@ -111,19 +112,23 @@ static int downstreamMessageID = 0;
   SEL oldNotificationSelector = @selector(application:didReceiveRemoteNotification:);
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    id<UIApplicationDelegate> appDelegate = [[UIApplication sharedApplication] delegate];
+    UIApplication *application = FIRMessagingUIApplication();
+    if (!application) {
+      return;
+    }
+    id<UIApplicationDelegate> appDelegate = [application delegate];
     if ([appDelegate respondsToSelector:newNotificationSelector]) {
       // Try the new remote notification callback
-      [appDelegate application:[UIApplication sharedApplication]
-  didReceiveRemoteNotification:message
-        fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
+      [appDelegate application:application
+          didReceiveRemoteNotification:message
+                fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+                }];
 
     } else if ([appDelegate respondsToSelector:oldNotificationSelector]) {
       // Try the old remote notification callback
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-      [appDelegate application:
-       [UIApplication sharedApplication] didReceiveRemoteNotification:message];
+      [appDelegate application:application didReceiveRemoteNotification:message];
 #pragma clang diagnostic pop
     } else {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeReceiver005,

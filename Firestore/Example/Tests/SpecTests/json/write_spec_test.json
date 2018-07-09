@@ -63,8 +63,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -138,8 +142,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 2000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       },
       {
         "writeAck": {
@@ -212,8 +220,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 3000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
+        }
       },
       {
         "writeAck": {
@@ -301,8 +313,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -369,8 +385,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 2000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       },
       {
         "writeAck": {
@@ -458,8 +478,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -526,8 +550,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 10000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 10000
+        }
       },
       {
         "writeAck": {
@@ -615,8 +643,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -689,8 +721,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -772,8 +808,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -846,8 +886,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 2000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       },
       {
         "watchEntity": {
@@ -870,8 +914,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
         },
-        "watchSnapshot": 3000,
         "expect": [
           {
             "query": {
@@ -1421,8 +1469,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
         },
-        "watchSnapshot": 1000,
         "expect": [
           {
             "query": {
@@ -1465,8 +1517,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1509,8 +1565,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
         },
-        "watchSnapshot": 3000,
         "expect": [
           {
             "query": {
@@ -1553,8 +1613,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 4000
         },
-        "watchSnapshot": 4000,
         "expect": [
           {
             "query": {
@@ -1597,8 +1661,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 5000
         },
-        "watchSnapshot": 5000,
         "expect": [
           {
             "query": {
@@ -1641,8 +1709,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 6000
         },
-        "watchSnapshot": 6000,
         "expect": [
           {
             "query": {
@@ -1685,8 +1757,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 7000
         },
-        "watchSnapshot": 7000,
         "expect": [
           {
             "query": {
@@ -1729,8 +1805,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 8000
         },
-        "watchSnapshot": 8000,
         "expect": [
           {
             "query": {
@@ -1773,8 +1853,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 9000
         },
-        "watchSnapshot": 9000,
         "expect": [
           {
             "query": {
@@ -1817,8 +1901,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 10000
         },
-        "watchSnapshot": 10000,
         "expect": [
           {
             "query": {
@@ -1861,8 +1949,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 11000
         },
-        "watchSnapshot": 11000,
         "expect": [
           {
             "query": {
@@ -1905,8 +1997,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 12000
         },
-        "watchSnapshot": 12000,
         "expect": [
           {
             "query": {
@@ -1949,8 +2045,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 13000
         },
-        "watchSnapshot": 13000,
         "expect": [
           {
             "query": {
@@ -1993,8 +2093,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 14000
         },
-        "watchSnapshot": 14000,
         "expect": [
           {
             "query": {
@@ -2037,8 +2141,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 15000
         },
-        "watchSnapshot": 15000,
         "expect": [
           {
             "query": {
@@ -3058,8 +3166,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -3191,8 +3303,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -3266,8 +3382,12 @@
             2
           ],
           "resume-token-500"
-        ],
-        "watchSnapshot": 500,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
         "expect": [
           {
             "query": {
@@ -3374,8 +3494,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -3456,8 +3580,12 @@
             2
           ],
           "resume-token-500"
-        ],
-        "watchSnapshot": 500,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
         "expect": [
           {
             "query": {
@@ -3573,8 +3701,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -3602,7 +3734,10 @@
   "Held writes are released when there are no queries left.": {
     "describeName": "Writes:",
     "itName": "Held writes are released when there are no queries left.",
-    "tags": [],
+    "tags": [
+      "no-lru"
+    ],
+    "comment": "This test expects a new target id for a new listen, but without eager gc, the same target id is reused",
     "config": {
       "useGarbageCollection": true
     },
@@ -3648,8 +3783,12 @@
             2
           ],
           "resume-token-500"
-        ],
-        "watchSnapshot": 500,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
         "expect": [
           {
             "query": {
@@ -4735,8 +4874,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -4862,8 +5005,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -4989,8 +5136,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -5116,8 +5267,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -5243,8 +5398,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -5370,8 +5529,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -5456,8 +5619,12 @@
             2
           ],
           "resume-token-500"
-        ],
-        "watchSnapshot": 500,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
         "expect": [
           {
             "query": {
@@ -5534,8 +5701,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 2000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       },
       {
         "writeAck": {
