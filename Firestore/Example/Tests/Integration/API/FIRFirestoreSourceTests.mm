@@ -22,6 +22,9 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
+#include <chrono>
+#include <iostream>
+
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase
 @end
 
@@ -643,6 +646,44 @@
                      [failedGetDocsCompletion fulfill];
                    }];
   [self awaitExpectations];
+}
+
+- (void)testFoo {
+  FIRCollectionReference *col = [self collectionRef];
+
+  for (int i = 0; i != 1; ++i) {
+    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *initialDocs = [[NSMutableDictionary alloc]init];
+    for (int j = 0; j != 10; ++j) {
+      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i, j];
+      initialDocs[docKey] = @{@"key1" : @"value1"};
+    };
+    [self writeAllDocuments:initialDocs toCollection:col];
+  }
+
+  // go offline for the rest of this test
+  [self disableNetwork];
+
+    /*
+  for (int i = 0; i != 100; ++i) {
+    for (int j = 0; j != 10; ++j) {
+      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i, j];
+      [[col documentWithPath:docKey] setData:@{@"key2" : @"value2"} merge:YES];
+    };
+  }
+
+  for (int i = 0; i != 100; ++i) {
+    for (int j = 0; j != 10; ++j) {
+      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i + 100, j];
+      [[col documentWithPath:docKey] setData:@{@"key2" : @"value2"} merge:YES];
+    };
+  }
+     */
+
+  for (int i = 0; i != 20 * 1000; ++i) {
+    FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+    XCTAssertTrue(result != nil);
+    //std::cout << "OBC " << i << '\n';
+  }// 20K iters: 40s/400MB
 }
 
 @end
