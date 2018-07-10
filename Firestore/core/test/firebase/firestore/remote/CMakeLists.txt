@@ -16,8 +16,10 @@ cc_test(
   firebase_firestore_remote_test
   SOURCES
     datastore_test.cc
+    exponential_backoff_test.cc
     serializer_test.cc
   DEPENDS
+    absl_base
     # NB: Order is important. We need to include the ffp_libprotobuf library
     # before ff_remote, or else we'll end up with nanopb's headers earlier in
     # the include path than libprotobuf's, which makes using libprotobuf in the
@@ -26,4 +28,5 @@ cc_test(
     # exists in both the libprotobuf path and the nanopb path.
     firebase_firestore_protos_libprotobuf
     firebase_firestore_remote
+    firebase_firestore_util_executor_std
 )

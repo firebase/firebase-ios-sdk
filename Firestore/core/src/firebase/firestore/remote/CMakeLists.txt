@@ -17,6 +17,8 @@ cc_library(
   SOURCES
     datastore.h
     datastore.cc
+    exponential_backoff.h
+    exponential_backoff.cc
     serializer.h
     serializer.cc
   DEPENDS
