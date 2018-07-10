@@ -1,4 +1,8 @@
 # Unreleased
+- [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
+  atomically add and remove elements from an array field in a document.
+- [feature] Added `whereField(arrayContains:)` query filter to find
+  documents where an array field contains a specific element.
 
 # v0.12.5
 - [changed] Internal improvements.
