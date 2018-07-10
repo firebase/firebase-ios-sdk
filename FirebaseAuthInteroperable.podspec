@@ -23,6 +23,5 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
   s.source_files = 'Interoperability/Auth/**/*.h'
-  s.public_header_files = 'Interoperability/Auth/Private/*.h'
-  s.private_header_files = 'Interoperability/Auth/Private/*.h'
+  s.public_header_files = 'Interoperability/Auth/Public/*.h'
 end
