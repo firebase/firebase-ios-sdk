@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, GULLoggerLevel) {
   GULLoggerLevelWarning = 4,
   /** Notice level, matches ASL_LEVEL_NOTICE. */
   GULLoggerLevelNotice = 5,
-  /** Info level, matches ASL_LEVEL_NOTICE. */
+  /** Info level, matches ASL_LEVEL_INFO. */
   GULLoggerLevelInfo = 6,
   /** Debug level, matches ASL_LEVEL_DEBUG. */
   GULLoggerLevelDebug = 7,
