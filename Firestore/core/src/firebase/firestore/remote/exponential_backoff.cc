@@ -30,11 +30,11 @@ using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::TimerId;
 namespace chr = std::chrono;
 
-ExponentialBackoff::ExponentialBackoff(AsyncQueue* const queue,
-                                       const TimerId timer_id,
-                                       const double backoff_factor,
-                                       const Milliseconds initial_delay,
-                                       const Milliseconds max_delay)
+ExponentialBackoff::ExponentialBackoff(AsyncQueue* queue,
+                                       TimerId timer_id,
+                                       double backoff_factor,
+                                       Milliseconds initial_delay,
+                                       Milliseconds max_delay)
     : queue_{queue},
       timer_id_{timer_id},
       backoff_factor_{backoff_factor},
@@ -55,7 +55,7 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // First schedule the block using the current base (which may be 0 and should
   // be honored as such).
-  const auto delay_with_jitter = current_base_ + GetDelayWithJitter();
+  Milliseconds delay_with_jitter = current_base_ + GetDelayWithJitter();
   if (delay_with_jitter.count() > 0) {
     LOG_DEBUG("Backing off for %s milliseconds (base delay: %s milliseconds)",
               delay_with_jitter.count(), current_base_.count());
@@ -72,13 +72,13 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
 ExponentialBackoff::Milliseconds ExponentialBackoff::GetDelayWithJitter() {
   std::uniform_real_distribution<double> distribution;
-  const auto random_double = distribution(secure_random_);
+  double random_double = distribution(secure_random_);
   return chr::duration_cast<Milliseconds>((random_double - 0.5) *
                                           current_base_);
 }
 
 ExponentialBackoff::Milliseconds ExponentialBackoff::ClampDelay(
-    const Milliseconds delay) const {
+    Milliseconds delay) const {
   if (delay < initial_delay_) {
     return initial_delay_;
   }
