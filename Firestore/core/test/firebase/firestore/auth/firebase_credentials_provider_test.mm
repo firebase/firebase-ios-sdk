@@ -16,9 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/firebase_credentials_provider_apple.h"
 
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRApp.h>
-
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainerInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -27,6 +29,53 @@
 
 #include "gtest/gtest.h"
 
+/// Testing interface for ComponentContainer (required for Auth).
+@interface FIRComponentContainer ()
+// The extra long type information in components causes clang-format to wrap in
+// a weird way, turn for the declaration.
+// clang-format off
+/// Exposed for testing, create a container directly with components and a dummy
+/// app.
+- (instancetype)initWithApp:(FIRApp*)app
+                 components:(NSDictionary<NSString*,
+                             FIRComponentCreationBlock>*)components;
+// clang-format on
+@end
+
+/// A fake class to handle Auth interaction.
+@interface FSTAuthFake : NSObject<FIRAuthInterop>
+@property(nonatomic, nullable, strong, readonly) NSString* token;
+@property(nonatomic, nullable, strong, readonly) NSString* uid;
+- (instancetype)initWithToken:(nullable NSString*)token
+                          uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+@end
+
+@implementation FSTAuthFake
+
+- (instancetype)initWithToken:(nullable NSString*)token
+                          uid:(nullable NSString*)uid {
+  self = [super init];
+  if (self) {
+    _token = [token copy];
+    _uid = [uid copy];
+  }
+  return self;
+}
+
+// FIRAuthUserIDProvider conformance.
+- (nullable NSString*)getUserID {
+  return self.uid;
+}
+
+// FIRAuthInteroperable conformance.
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh
+                  withCallback:(nonnull FIRTokenCallback)callback {
+  callback(self.token, nil);
+}
+
+@end
+
 namespace firebase {
 namespace firestore {
 namespace auth {
@@ -34,12 +83,22 @@ namespace auth {
 FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid,
                                NSString* _Nullable token) {
   FIRApp* app = testutil::AppForUnitTesting();
-  app.getUIDImplementation = ^NSString* {
-    return uid;
+
+  auto auth_provider_block =
+      ^id _Nullable(FIRComponentContainer* container, BOOL* is_cacheable) {
+    return [[FSTAuthFake alloc] initWithToken:token uid:uid];
   };
-  app.getTokenImplementation = ^(BOOL, FIRTokenCallback callback) {
-    callback(token, nil);
-  };
+
+  // Inject a new container with the Auth interoperable fake into the app.
+  NSString* auth_interoperable_key =
+      NSStringFromProtocol(@protocol(FIRAuthInterop));
+  NSDictionary* components = @{auth_interoperable_key : auth_provider_block};
+  FIRComponentContainer* container =
+      [[FIRComponentContainer alloc] initWithApp:app components:components];
+
+  // Override the existing container for the app that contains the Auth fake.
+  app.container = container;
+
   return app;
 }
 
