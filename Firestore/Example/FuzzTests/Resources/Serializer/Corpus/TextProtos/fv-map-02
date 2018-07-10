@@ -1,0 +1,10 @@
+map_value: {
+    fields: {
+        key: "a-duplicate",
+        value: {integer_value: 123}
+    }
+    fields: {
+        key: "a-duplicate",
+        value: {integer_value: 324}
+    }
+}

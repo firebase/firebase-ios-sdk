@@ -1,0 +1,33 @@
+name: "doc-02"
+fields: {
+    key: "a",
+    value: { integer_value: 99882 }
+}
+fields: {
+    key: "b"
+    value: { boolean_value: false }
+}
+fields: {
+    key: "c"
+    value: { double_value: 92.22 }
+}
+fields: {
+    key: "d"
+    value: { string_value: "92.22" }
+}
+fields: {
+    key: "e"
+    value: { array_value: {
+        values: { string_value: "hi" }
+        values: { string_value: "hello" }
+      }
+    }
+}
+fields: {
+    key: "f"
+    value: { array_value: {
+        values: { integer_value: 10 }
+        values: { integer_value: 11 }
+      }
+    }
+}
