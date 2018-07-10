@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(ExternalProject)
+include(external/protobuf)
+
 if(TARGET nanopb)
   return()
 endif()
-
-include(external/protobuf)
 
 set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
 

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(xcodebuild)
+
 if(TARGET GoogleUtilities)
   return()
 endif()
-
-include(xcodebuild)
 
 if(APPLE)
   # GoogleUtilities is only available as a CocoaPod build.

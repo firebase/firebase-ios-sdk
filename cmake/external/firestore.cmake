@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(TARGET Firestore)
-  return()
-endif()
-
+include(ExternalProject)
 include(external/FirebaseCore)
 include(external/GoogleUtilities)
 include(external/googletest)
@@ -23,6 +20,10 @@ include(external/grpc)
 include(external/leveldb)
 include(external/nanopb)
 include(external/protobuf)
+
+if(TARGET Firestore)
+  return()
+endif()
 
 ExternalProject_Add(
   Firestore

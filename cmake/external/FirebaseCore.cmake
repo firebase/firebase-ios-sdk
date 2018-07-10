@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include(xcodebuild)
+
 if(TARGET FirebaseCore)
   return()
 endif()
-
-include(xcodebuild)
 
 if(APPLE)
   # FirebaseCore is only available as a CocoaPod build.
