@@ -330,7 +330,7 @@
 // truncated), or -1 if the OS call fails.
 // TODO(varconst): move the helper function and the test into a new test target for performance
 // testing.
-std::int64_t GetCurrentMemoryUsedInMb() {
+int64_t GetCurrentMemoryUsedInMb() {
   mach_task_basic_info taskInfo;
   mach_msg_type_number_t taskInfoSize = MACH_TASK_BASIC_INFO_COUNT;
   const auto errorCode =
@@ -360,13 +360,13 @@ std::int64_t GetCurrentMemoryUsedInMb() {
         forDocument:nestedDoc];
   }
 
-  const std::int64_t memoryUsedBeforeCommitMb = GetCurrentMemoryUsedInMb();
+  const int64_t memoryUsedBeforeCommitMb = GetCurrentMemoryUsedInMb();
   XCTAssertNotEqual(memoryUsedBeforeCommitMb, -1);
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
-    const std::int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
+    const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
-    const std::int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
+    const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
     // This by its nature cannot be a precise value. In debug mode, the increase on simulator
     // seems to be around 90 MB. A regression would be on the scale of 500Mb.
     XCTAssertLessThan(memoryDeltaMb, 150);
