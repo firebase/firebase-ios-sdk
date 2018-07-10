@@ -1,7 +1,10 @@
-#!/bin/bash
+# Converts text protos to binary protos and writes the output binary protos to
+# the output folder that is specified in SCRIPT_OUTPUT_FILE_0, which is
+# retrieved from the Output Files of the Run Script Build Phase that executes
+# this script.
 
 # Directory that contains the text protos to convert to binary protos.
-text_protos_dir="$SRCROOT/FuzzTests/DC/Serializer/Corpus/TextProtos"
+text_protos_dir=${SCRIPT_INPUT_FILE_0}
 
 # Create a folder to write binary protos to. This is our corpus.
 binary_protos_dir=${SCRIPT_OUTPUT_FILE_0}

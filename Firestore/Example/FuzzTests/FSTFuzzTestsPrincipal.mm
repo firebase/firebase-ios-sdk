@@ -51,23 +51,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 int RunFuzzTestingMain() {
   // Get dictionary file path from resources and convert to a program argument.
-  NSString *pluginsDir = [[NSBundle mainBundle] builtInPlugInsPath];
-  NSString *dictLocation = @"Firestore_FuzzTests_iOS.xctest/serializer.dictionary";
-  NSString *dictPath = [pluginsDir stringByAppendingPathComponent:dictLocation];
+  NSString *pluginsPath = [[NSBundle mainBundle] builtInPlugInsPath];
+
+  NSString *dictLocation = @"Firestore_FuzzTests_iOS.xctest/FuzzingResources/Serializer/serializer.dictionary";
+  NSString *dictPath = [pluginsPath stringByAppendingPathComponent:dictLocation];
   const char *dictArg = [[NSString stringWithFormat:@"-dict=%@", dictPath]
                          UTF8String];
 
+  // Get corpus and convert to a program argument.
   NSString *corpLocation = @"FuzzTestsCorpus";
-  NSString *corpPath = [pluginsDir stringByAppendingPathComponent:corpLocation];
+  NSString *corpPath = [pluginsPath stringByAppendingPathComponent:corpLocation];
   const char *corpArg = [corpPath UTF8String];
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc.
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
-      const_cast<char *>("-runs=2"),
-      const_cast<char *>(dictArg),
-      const_cast<char *>(corpArg)  // The corpus must be the last arg.
+      const_cast<char *>(dictArg),               // Dictionary arg.
+      const_cast<char *>(corpArg)                // Corpus must be the last arg.
   };
   char **argv = program_args;
   int argc = sizeof(program_args) / sizeof(program_args[0]);
