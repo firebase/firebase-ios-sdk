@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  * We then may allow multiple failures (based on kMaxWatchStreamFailures) before we actually
  * transition to FSTOnlineStateOffline.
  */
-- (void)handleWatchStreamFailure;
+- (void)handleWatchStreamFailure:(NSError *)error;
 
 /**
  * Explicitly sets the FSTOnlineState to the specified state.

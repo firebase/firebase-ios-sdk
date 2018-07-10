@@ -13,18 +13,20 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(external/protobuf)
 
-set(
-  NANOPB_PROTOC_BIN
-  ${FIREBASE_INSTALL_DIR}/external/protobuf/src/protobuf-build/${CMAKE_CFG_INTDIR}/protoc
-)
+if(TARGET nanopb)
+  return()
+endif()
+
+set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
 
 ExternalProject_Add(
   nanopb
   DEPENDS
     protobuf
 
-  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   URL https://github.com/nanopb/nanopb/archive/nanopb-0.3.9.1.tar.gz
   URL_HASH SHA256=67460d0c0ad331ef4d5369ad337056d0cd2f900c94887628d287eb56c69324bc
 
@@ -32,11 +34,10 @@ ExternalProject_Add(
 
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DCMAKE_INSTALL_PREFIX:STRING=${FIREBASE_INSTALL_DIR}
     -DBUILD_SHARED_LIBS:BOOL=OFF
     -Dnanopb_BUILD_GENERATOR:BOOL=ON
     -Dnanopb_PROTOC_PATH:STRING=${NANOPB_PROTOC_BIN}
 
-  UPDATE_COMMAND ""
   TEST_COMMAND ""
-  INSTALL_COMMAND ""
 )

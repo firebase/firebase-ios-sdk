@@ -1,5 +1,8 @@
 # Unreleased
 
+# v0.12.5
+- [changed] Internal improvements.
+
 # v0.12.4
 - [fixed] `setData` methods taking `mergeFields:` arguments can now delete
   fields using `FieldValue.delete()`.

@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "GULAppEnvironmentUtil.h"
+
 #import <Foundation/Foundation.h>
-
-#import "FIRAppEnvironmentUtil.h"
-
 #import <dlfcn.h>
 #import <mach-o/dyld.h>
 #import <sys/utsname.h>
@@ -34,7 +33,7 @@ struct encryption_info_command {
 };
 #endif
 
-@implementation FIRAppEnvironmentUtil
+@implementation GULAppEnvironmentUtil
 
 /// A key for the Info.plist to enable or disable checking if the App Store is running in a sandbox.
 /// This will affect your data integrity when using Firebase Analytics, as it will disable some
@@ -81,7 +80,7 @@ static NSString *const kFIRAIdentitySandboxReceiptFileName = @"sandboxReceipt";
 /// AppSync or similar to disable codesignature checks.
 ///
 /// More information at <a href="http://landonf.org/2009/02/index.html">Landon Fuller's blog</a>
-static BOOL isAppEncrypted() {
+static BOOL IsAppEncrypted() {
   const struct mach_header *executableHeader = NULL;
   for (uint32_t i = 0; i < _dyld_image_count(); i++) {
     const struct mach_header *header = _dyld_get_image_header(i);
@@ -125,26 +124,44 @@ static BOOL isAppEncrypted() {
   return NO;
 }
 
+static BOOL HasSCInfoFolder() {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  NSString *bundlePath = [NSBundle mainBundle].bundlePath;
+  NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
+  return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
+#elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
+static BOOL HasEmbeddedMobileProvision() {
+#if TARGET_OS_IOS || TARGET_OS_TV
+  return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
+#elif TARGET_OS_OSX
+  return NO;
+#endif
+}
+
 + (BOOL)isFromAppStore {
   static dispatch_once_t isEncryptedOnce;
   static BOOL isEncrypted = NO;
 
   dispatch_once(&isEncryptedOnce, ^{
-    isEncrypted = isAppEncrypted();
+    isEncrypted = IsAppEncrypted();
   });
 
-  if ([FIRAppEnvironmentUtil isSimulator]) {
+  if ([GULAppEnvironmentUtil isSimulator]) {
     return NO;
   }
 
   // If an app contain the sandboxReceipt file, it means its coming from TestFlight
   // This must be checked before the SCInfo Folder check below since TestFlight apps may
   // also have an SCInfo folder.
-  if ([FIRAppEnvironmentUtil isAppStoreReceiptSandbox]) {
+  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox]) {
     return NO;
   }
 
-  if ([FIRAppEnvironmentUtil hasSCInfoFolder]) {
+  if (HasSCInfoFolder()) {
     // When iTunes downloads a .ipa, it also gets a customized .sinf file which is added to the
     // main SC_Info directory.
     return YES;
@@ -154,7 +171,7 @@ static BOOL isAppEncrypted() {
   // the iTunesMetadata.plist outside of the sandbox will be rejected by Apple.
   // If the app does not contain the embedded.mobileprovision which is stripped out by Apple when
   // the app is submitted to store, then it is highly likely that it is from Apple Store.
-  return isEncrypted && ![FIRAppEnvironmentUtil hasEmbeddedMobileProvision];
+  return isEncrypted && !HasEmbeddedMobileProvision();
 }
 
 + (BOOL)isAppStoreReceiptSandbox {
@@ -172,17 +189,9 @@ static BOOL isAppEncrypted() {
   return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
 }
 
-+ (BOOL)hasEmbeddedMobileProvision {
-#if TARGET_OS_IOS || TARGET_OS_TV
-  return [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"].length > 0;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
-}
-
 + (BOOL)isSimulator {
 #if TARGET_OS_IOS || TARGET_OS_TV
-  NSString *platform = [FIRAppEnvironmentUtil deviceModel];
+  NSString *platform = [GULAppEnvironmentUtil deviceModel];
   return [platform isEqual:@"x86_64"] || [platform isEqual:@"i386"];
 #elif TARGET_OS_OSX
   return NO;
@@ -219,18 +228,6 @@ static BOOL isAppEncrypted() {
   // Documented by <a href="https://goo.gl/RRB2Up">Apple</a>
   BOOL appExtension = [[[NSBundle mainBundle] bundlePath] hasSuffix:@".appex"];
   return appExtension;
-#elif TARGET_OS_OSX
-  return NO;
-#endif
-}
-
-#pragma mark - Helper methods
-
-+ (BOOL)hasSCInfoFolder {
-#if TARGET_OS_IOS || TARGET_OS_TV
-  NSString *bundlePath = [NSBundle mainBundle].bundlePath;
-  NSString *scInfoPath = [bundlePath stringByAppendingPathComponent:@"SC_Info"];
-  return [[NSFileManager defaultManager] fileExistsAtPath:scInfoPath];
 #elif TARGET_OS_OSX
   return NO;
 #endif

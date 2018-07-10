@@ -73,113 +73,6 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
                              &timestamp_proto);
 }
 
-Timestamp DecodeTimestamp(Reader* reader) {
-  if (!reader->status().ok()) return {};
-
-  google_protobuf_Timestamp timestamp_proto =
-      google_protobuf_Timestamp_init_zero;
-  reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
-
-  // The Timestamp ctor will assert if we provide values outside the valid
-  // range. However, since we're decoding, a single corrupt byte could cause
-  // this to occur, so we'll verify the ranges before passing them in since we'd
-  // rather not abort in these situations.
-  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
-    reader->set_status(Status(
-        FirestoreErrorCode::DataLoss,
-        "Invalid message: timestamp beyond the earliest supported date"));
-    return {};
-  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
-    reader->set_status(
-        Status(FirestoreErrorCode::DataLoss,
-               "Invalid message: timestamp behond the latest supported date"));
-    return {};
-  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
-    reader->set_status(Status(
-        FirestoreErrorCode::DataLoss,
-        "Invalid message: timestamp nanos must be between 0 and 999999999"));
-    return {};
-  }
-  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
-}
-
-FieldValue DecodeFieldValueImpl(Reader* reader) {
-  if (!reader->status().ok()) return FieldValue::NullValue();
-
-  // There needs to be at least one entry in the FieldValue.
-  if (reader->bytes_left() == 0) {
-    reader->set_status(Status(FirestoreErrorCode::DataLoss,
-                              "Input Value proto missing contents"));
-    return FieldValue::NullValue();
-  }
-
-  FieldValue result = FieldValue::NullValue();
-
-  while (reader->bytes_left()) {
-    Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return FieldValue::NullValue();
-
-    // Ensure the tag matches the wire type
-    switch (tag.field_number) {
-      case google_firestore_v1beta1_Value_null_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return FieldValue::NullValue();
-        reader->ReadNull();
-        result = FieldValue::NullValue();
-        break;
-
-      case google_firestore_v1beta1_Value_boolean_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return FieldValue::NullValue();
-        result = FieldValue::BooleanValue(reader->ReadBool());
-        break;
-
-      case google_firestore_v1beta1_Value_integer_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return FieldValue::NullValue();
-        result = FieldValue::IntegerValue(reader->ReadInteger());
-        break;
-
-      case google_firestore_v1beta1_Value_string_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return FieldValue::NullValue();
-        result = FieldValue::StringValue(reader->ReadString());
-        break;
-
-      case google_firestore_v1beta1_Value_timestamp_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return FieldValue::NullValue();
-        result = FieldValue::TimestampValue(
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
-        break;
-
-      case google_firestore_v1beta1_Value_map_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return FieldValue::NullValue();
-        // TODO(rsgowman): We should merge the existing map (if any) with the
-        // newly parsed map.
-        result = FieldValue::ObjectValueFromMap(
-            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
-        break;
-
-      case google_firestore_v1beta1_Value_double_value_tag:
-      case google_firestore_v1beta1_Value_bytes_value_tag:
-      case google_firestore_v1beta1_Value_reference_value_tag:
-      case google_firestore_v1beta1_Value_geo_point_value_tag:
-      case google_firestore_v1beta1_Value_array_value_tag:
-        // TODO(b/74243929): Implement remaining types.
-        HARD_FAIL("Unhandled message field number (tag): %i.",
-                  tag.field_number);
-
-      default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
-    }
-  }
-
-  return result;
-}
-
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
                                                uint32_t value_tag) {
@@ -200,7 +93,9 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
   HARD_ASSERT(tag.wire_type == PB_WT_STRING);
 
   FieldValue value =
-      reader->ReadNestedMessage<FieldValue>(DecodeFieldValueImpl);
+      reader->ReadNestedMessage<FieldValue>([](Reader* reader) -> FieldValue {
+        return Serializer::DecodeFieldValue(reader);
+      });
 
   return ObjectValue::Map::value_type{key, value};
 }
@@ -372,12 +267,89 @@ void Serializer::EncodeFieldValue(Writer* writer,
 StatusOr<FieldValue> Serializer::DecodeFieldValue(const uint8_t* bytes,
                                                   size_t length) {
   Reader reader = Reader::Wrap(bytes, length);
-  FieldValue fv = DecodeFieldValueImpl(&reader);
+  FieldValue fv = DecodeFieldValue(&reader);
   if (reader.status().ok()) {
     return fv;
   } else {
     return reader.status();
   }
+}
+
+FieldValue Serializer::DecodeFieldValue(Reader* reader) {
+  if (!reader->status().ok()) return FieldValue::NullValue();
+
+  // There needs to be at least one entry in the FieldValue.
+  if (reader->bytes_left() == 0) {
+    reader->set_status(Status(FirestoreErrorCode::DataLoss,
+                              "Input Value proto missing contents"));
+    return FieldValue::NullValue();
+  }
+
+  FieldValue result = FieldValue::NullValue();
+
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return FieldValue::NullValue();
+
+    // Ensure the tag matches the wire type
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Value_null_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
+        reader->ReadNull();
+        result = FieldValue::NullValue();
+        break;
+
+      case google_firestore_v1beta1_Value_boolean_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
+        result = FieldValue::BooleanValue(reader->ReadBool());
+        break;
+
+      case google_firestore_v1beta1_Value_integer_value_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return FieldValue::NullValue();
+        result = FieldValue::IntegerValue(reader->ReadInteger());
+        break;
+
+      case google_firestore_v1beta1_Value_string_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
+        result = FieldValue::StringValue(reader->ReadString());
+        break;
+
+      case google_firestore_v1beta1_Value_timestamp_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
+        result = FieldValue::TimestampValue(
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
+        break;
+
+      case google_firestore_v1beta1_Value_map_value_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return FieldValue::NullValue();
+        // TODO(rsgowman): We should merge the existing map (if any) with the
+        // newly parsed map.
+        result = FieldValue::ObjectValueFromMap(
+            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+        break;
+
+      case google_firestore_v1beta1_Value_double_value_tag:
+      case google_firestore_v1beta1_Value_bytes_value_tag:
+      case google_firestore_v1beta1_Value_reference_value_tag:
+      case google_firestore_v1beta1_Value_geo_point_value_tag:
+      case google_firestore_v1beta1_Value_array_value_tag:
+        // TODO(b/74243929): Implement remaining types.
+        HARD_FAIL("Unhandled message field number (tag): %i.",
+                  tag.field_number);
+
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
+    }
+  }
+
+  return result;
 }
 
 std::string Serializer::EncodeKey(const DocumentKey& key) const {
@@ -613,6 +585,36 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
   writer->WriteTag({PB_WT_STRING, value_tag});
   writer->WriteNestedMessage(
       [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
+}
+
+Timestamp Serializer::DecodeTimestamp(nanopb::Reader* reader) {
+  if (!reader->status().ok()) return {};
+
+  google_protobuf_Timestamp timestamp_proto =
+      google_protobuf_Timestamp_init_zero;
+  reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);
+
+  // The Timestamp ctor will assert if we provide values outside the valid
+  // range. However, since we're decoding, a single corrupt byte could cause
+  // this to occur, so we'll verify the ranges before passing them in since we'd
+  // rather not abort in these situations.
+  if (timestamp_proto.seconds < TimestampInternal::Min().seconds()) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp beyond the earliest supported date"));
+    return {};
+  } else if (TimestampInternal::Max().seconds() < timestamp_proto.seconds) {
+    reader->set_status(
+        Status(FirestoreErrorCode::DataLoss,
+               "Invalid message: timestamp behond the latest supported date"));
+    return {};
+  } else if (timestamp_proto.nanos < 0 || timestamp_proto.nanos > 999999999) {
+    reader->set_status(Status(
+        FirestoreErrorCode::DataLoss,
+        "Invalid message: timestamp nanos must be between 0 and 999999999"));
+    return {};
+  }
+  return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
 }  // namespace remote

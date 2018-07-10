@@ -65,34 +65,27 @@ set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 #
 # If you want to use this project directly in e.g. CLion, make sure you
 # configure this.
+#
+# The superbuild passes CMAKE_INSTALL_PREFIX with a value of
+# ${FIREBASE_INSTALL_DIR} which is ${PROJECT_BINARY_DIR}/opt.
 set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
+
+# Expect that the source and binary directory structures will parallel each
+# other.
+set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(utils)
 
-# Include GoogleTest directly in the build.
-set(gtest_dir ${FIREBASE_INSTALL_DIR}/external/googletest)
-add_subdirectory(
-  ${gtest_dir}/src/googletest
-  ${gtest_dir}/src/googletest-build
-  EXCLUDE_FROM_ALL
-)
-
-# Set up aliases with the same names as available via FindGTest.
-add_library(
-  GTest::GTest ALIAS gtest
-)
-
-add_library(
-  GTest::Main ALIAS gtest_main
-)
-
+find_package(GTest REQUIRED)
+find_package(GMock REQUIRED)
 find_package(LevelDB REQUIRED)
-find_package(GRPC REQUIRED)
 find_package(Nanopb REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(GRPC REQUIRED)
 
 if(APPLE)
+  find_package(GoogleUtilities REQUIRED)
   find_package(FirebaseCore REQUIRED)
 endif()
 
@@ -101,8 +94,11 @@ add_subdirectory(third_party/abseil-cpp)
 
 include(CompilerSetup)
 
+# Superbuild installed results
+include_directories(${FIREBASE_INSTALL_DIR}/include)
+
 # Generated sources will be relative to the binary directory.
-include_directories(${FIREBASE_INSTALL_DIR})
+include_directories(${FIREBASE_BINARY_DIR})
 
 # Fully qualified imports, project wide
 include_directories(${FIREBASE_SOURCE_DIR})

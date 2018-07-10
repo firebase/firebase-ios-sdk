@@ -19,10 +19,10 @@
 #import "FIRAuth_Internal.h"
 
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
-#import <FirebaseCore/FIRAppEnvironmentUtil.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import "AuthProviders/EmailPassword/FIREmailPasswordAuthCredential.h"
 #import "FIRAdditionalUserInfo_Internal.h"
@@ -443,7 +443,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     static Class applicationClass = nil;
     // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
     // responds to it.
-    if (![FIRAppEnvironmentUtil isAppExtension]) {
+    if (![GULAppEnvironmentUtil isAppExtension]) {
       Class cls = NSClassFromString(@"UIApplication");
       if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
         applicationClass = cls;
