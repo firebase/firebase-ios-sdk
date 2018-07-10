@@ -27,7 +27,7 @@ typedef NS_ENUM(NSInteger, FIRLoggerLevel) {
   FIRLoggerLevelWarning = 4,
   /** Notice level, matches ASL_LEVEL_NOTICE. */
   FIRLoggerLevelNotice = 5,
-  /** Info level, matches ASL_LEVEL_NOTICE. */
+  /** Info level, matches ASL_LEVEL_INFO. */
   FIRLoggerLevelInfo = 6,
   /** Debug level, matches ASL_LEVEL_DEBUG. */
   FIRLoggerLevelDebug = 7,
