@@ -17,6 +17,8 @@
 #import "FIRAuthAPNSTokenManager.h"
 
 #import <FirebaseCore/FIRLogger.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthGlobalWorkQueue.h"
 
@@ -137,42 +139,20 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
   NSError *error = nil;
 
-  Class envClass = NSClassFromString(@"FIRAppEnvironmentUtil");
-  SEL isSimulatorSelector = NSSelectorFromString(@"isSimulator");
-  if ([envClass respondsToSelector:isSimulatorSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isSimulatorSelector]) {
-#pragma clang diagnostic pop
-      FIRLogInfo(kFIRLoggerAuth, @"I-AUT000006",
-                 @"Assuming prod APNs token type on simulator.");
-      return defaultAppTypeProd;
-    }
+  if ([GULAppEnvironmentUtil isSimulator]) {
+    FIRLogInfo(kFIRLoggerAuth, @"I-AUT000006", @"Assuming prod APNs token type on simulator.");
+    return defaultAppTypeProd;
   }
-
-  NSString *path = [[[NSBundle mainBundle] bundlePath]
-      stringByAppendingPathComponent:@"embedded.mobileprovision"];
 
   // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
-  SEL isFromAppStoreSelector = NSSelectorFromString(@"isFromAppStore");
-  if ([envClass respondsToSelector:isFromAppStoreSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isFromAppStoreSelector]) {
-#pragma clang diagnostic pop
-      return defaultAppTypeProd;
-    }
+  if ([GULAppEnvironmentUtil isFromAppStore]) {
+    return defaultAppTypeProd;
   }
-
-  SEL isAppStoreReceiptSandboxSelector = NSSelectorFromString(@"isAppStoreReceiptSandbox");
-  if ([envClass respondsToSelector:isAppStoreReceiptSandboxSelector]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    if ([envClass performSelector:isAppStoreReceiptSandboxSelector] && !path.length) {
-#pragma clang diagnostic pop
-      // Distributed via TestFlight
-      return defaultAppTypeProd;
-    }
+  NSString *path = [[[NSBundle mainBundle] bundlePath]
+                    stringByAppendingPathComponent:@"embedded.mobileprovision"];
+  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
+    // Distributed via TestFlight
+    return defaultAppTypeProd;
   }
 
   NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];

@@ -96,4 +96,4 @@ if(APPLE)
 
     -F${FIREBASE_INSTALL_DIR}/Frameworks
   )
-endif(APPLE)
+endif()

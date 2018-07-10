@@ -56,8 +56,12 @@
             2
           ],
           "custom-query-resume-token"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -160,8 +164,12 @@
             2
           ],
           "custom-query-resume-token"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -243,8 +251,12 @@
       {
         "watchAck": [
           2
-        ],
-        "watchSnapshot": 1001
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        }
       }
     ]
   }

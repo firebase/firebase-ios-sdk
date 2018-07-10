@@ -19,6 +19,8 @@
 #import <XCTest/XCTest.h>
 #include <mach/mach.h>
 
+#include <cstdint>
+
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
@@ -328,7 +330,7 @@
 // truncated), or -1 if the OS call fails.
 // TODO(varconst): move the helper function and the test into a new test target for performance
 // testing.
-long long getCurrentMemoryUsedInMb() {
+int64_t GetCurrentMemoryUsedInMb() {
   mach_task_basic_info taskInfo;
   mach_msg_type_number_t taskInfoSize = MACH_TASK_BASIC_INFO_COUNT;
   const auto errorCode =
@@ -359,13 +361,13 @@ long long getCurrentMemoryUsedInMb() {
         forDocument:nestedDoc];
   }
 
-  const long long memoryUsedBeforeCommitMb = getCurrentMemoryUsedInMb();
+  const int64_t memoryUsedBeforeCommitMb = GetCurrentMemoryUsedInMb();
   XCTAssertNotEqual(memoryUsedBeforeCommitMb, -1);
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
-    const long long memoryUsedAfterCommitMb = getCurrentMemoryUsedInMb();
+    const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
-    const long long memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
+    const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
     // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
     // 10MB in debug mode pretty consistently. A regression would be on the scale of 500Mb.
     XCTAssertLessThan(memoryDeltaMb, 20);

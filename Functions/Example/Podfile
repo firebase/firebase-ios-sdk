@@ -4,6 +4,7 @@ target 'FirebaseFunctions_Example' do
   platform :ios, '8.0'
 
   pod 'FirebaseCore', :path => '../../'
+  pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFunctions', :path => '../../'
 
   target 'FirebaseFunctions_Tests' do

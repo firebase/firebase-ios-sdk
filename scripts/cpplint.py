@@ -416,6 +416,7 @@ _CPP_HEADERS = frozenset([
 
 _C_SYSTEM_DIRECTORIES = frozenset([
     'libkern',
+    'mach',
     'sys',
 ])
 

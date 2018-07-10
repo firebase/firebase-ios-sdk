@@ -62,21 +62,32 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key {
+  NSArray<FSTMutationBatch *> *batches =
+      [self.mutationQueue allMutationBatchesAffectingDocumentKey:key];
+  return [self documentForKey:key inBatches:batches];
+}
+
+// Internal version of documentForKey: which allows reusing `batches`.
+- (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key
+                                    inBatches:(NSArray<FSTMutationBatch *> *)batches {
   FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:key];
-  return [self localDocument:remoteDoc key:key];
+  return [self localDocument:remoteDoc key:key inBatches:batches];
 }
 
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
   FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+  NSArray<FSTMutationBatch *> *batches =
+      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
   for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
-    FSTMaybeDocument *maybeDoc = [self documentForKey:key];
+    FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
       maybeDoc = [FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()];
     }
     results = [results dictionaryBySettingObject:maybeDoc forKey:key];
   }
+
   return results;
 }
 
@@ -122,12 +133,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Now add in results for the matchingKeys.
-  for (const DocumentKey &key : matchingKeys) {
-    FSTMaybeDocument *doc = [self documentForKey:key];
-    if ([doc isKindOfClass:[FSTDocument class]]) {
-      results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
-    }
-  }
+  FSTMaybeDocumentDictionary *matchingKeysDocs = [self documentsForKeys:matchingKeys];
+  [matchingKeysDocs
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
+        if ([doc isKindOfClass:[FSTDocument class]]) {
+          results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
+        }
+      }];
 
   // Finally, filter out any documents that don't actually match the query. Note that the extra
   // reference here prevents ARC from deallocating the initial unfiltered results while we're
@@ -151,9 +163,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param documentKey The key of the document (necessary when remoteDocument is nil).
  */
 - (nullable FSTMaybeDocument *)localDocument:(nullable FSTMaybeDocument *)document
-                                         key:(const DocumentKey &)documentKey {
-  NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKey:documentKey];
+                                         key:(const DocumentKey &)documentKey
+                                   inBatches:(NSArray<FSTMutationBatch *> *)batches {
   for (FSTMutationBatch *batch in batches) {
     document = [batch applyTo:document documentKey:documentKey];
   }
@@ -169,10 +180,18 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The local view of the documents.
  */
 - (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents {
+  __block DocumentKeySet keySet;
+  [documents
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
+        keySet = keySet.insert(doc.key);
+      }];
+  NSArray<FSTMutationBatch *> *batches =
+      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
+
   __block FSTDocumentDictionary *result = documents;
   [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
                                                  BOOL *stop) {
-    FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key];
+    FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key inBatches:batches];
     if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
       result = [result dictionaryByRemovingObjectForKey:key];
     } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
