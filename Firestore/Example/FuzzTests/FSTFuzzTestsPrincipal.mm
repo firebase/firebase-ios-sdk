@@ -29,15 +29,16 @@ namespace {
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  DatabaseId database_id{"project", DatabaseId::kDefault};
-  Serializer serializer{database_id};
+  static Serializer serializer{DatabaseId("project", DatabaseId::kDefault)};
 
-  @try {
-    serializer.DecodeFieldValue(data, size);
-  } @catch (...) {
-    // Caught exceptions are ignored because the input might be malformed and
-    // the deserialization might throw an error as intended. Fuzzing focuses on
-    // runtime errors that are detected by the sanitizers.
+  @autoreleasepool {
+    @try {
+      serializer.DecodeFieldValue(data, size);
+    } @catch (...) {
+      // Caught exceptions are ignored because the input might be malformed and
+      // the deserialization might throw an error as intended. Fuzzing focuses on
+      // runtime errors that are detected by the sanitizers.
+    }
   }
 }
 
@@ -51,24 +52,24 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 int RunFuzzTestingMain() {
   // Get dictionary file path from resources and convert to a program argument.
-  NSString *pluginsPath = [[NSBundle mainBundle] builtInPlugInsPath];
+  NSString *plugins_path = [[NSBundle mainBundle] builtInPlugInsPath];
 
-  NSString *dictLocation =
+  NSString *dict_location =
       @"Firestore_FuzzTests_iOS.xctest/FuzzingResources/Serializer/serializer.dictionary";
-  NSString *dictPath = [pluginsPath stringByAppendingPathComponent:dictLocation];
-  const char *dictArg = [[NSString stringWithFormat:@"-dict=%@", dictPath] UTF8String];
+  NSString *dict_path = [plugins_path stringByAppendingPathComponent:dict_location];
+  const char *dict_arg = [[NSString stringWithFormat:@"-dict=%@", dict_path] UTF8String];
 
   // Get corpus and convert to a program argument.
-  NSString *corpusLocation = @"FuzzTestsCorpus";
-  NSString *corpusPath = [pluginsPath stringByAppendingPathComponent:corpusLocation];
-  const char *corpusArg = [corpusPath UTF8String];
+  NSString *corpus_location = @"FuzzTestsCorpus";
+  NSString *corpus_path = [plugins_path stringByAppendingPathComponent:corpus_location];
+  const char *corpus_arg = [corpus_path UTF8String];
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc.
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
-      const_cast<char *>(dictArg),               // Dictionary arg.
-      const_cast<char *>(corpusArg)              // Corpus must be the last arg.
+      const_cast<char *>(dict_arg),              // Dictionary arg.
+      const_cast<char *>(corpus_arg)             // Corpus must be the last arg.
   };
   char **argv = program_args;
   int argc = sizeof(program_args) / sizeof(program_args[0]);
