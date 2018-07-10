@@ -239,6 +239,38 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
 // clang-format on
 
 /**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, it must be an array, and the array must contain the provided value.
+ *
+ * A query can have only one arrayContains filter.
+ *
+ * @param field The name of the field containing an array to search
+ * @param value The value that must be contained in the array
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereField:(NSString *)field
+                arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
+// clang-format on
+
+/**
+ * Creates and returns a new `FIRQuery` with the additional filter that documents must contain
+ * the specified field, it must be an array, and the array must contain the provided value.
+ *
+ * A query can have only one arrayContains filter.
+ *
+ * @param path The path of the field containing an array to search
+ * @param value The value that must be contained in the array
+ *
+ * @return The created `FIRQuery`.
+ */
+// clang-format off
+- (FIRQuery *)queryWhereFieldPath:(FIRFieldPath *)path
+                    arrayContains:(id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
+// clang-format on
+
+/**
  * Creates and returns a new `FIRQuery` with the additional filter that documents must
  * satisfy the specified predicate.
  *
