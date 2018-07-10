@@ -560,7 +560,6 @@
 		DEF6C3331FBCE775005D0740 /* FIRSignUpNewUserResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315181E86C6FF0083EDBF /* FIRSignUpNewUserResponseTests.m */; };
 		DEF6C3341FBCE775005D0740 /* FIRTwitterAuthProviderTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315191E86C6FF0083EDBF /* FIRTwitterAuthProviderTests.m */; };
 		DEF6C3351FBCE775005D0740 /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
-		DEF6C3361FBCE775005D0740 /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */; };
 		DEF6C3371FBCE775005D0740 /* FIRVerifyAssertionRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151B1E86C6FF0083EDBF /* FIRVerifyAssertionRequestTests.m */; };
 		DEF6C3381FBCE775005D0740 /* FIRVerifyAssertionResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151C1E86C6FF0083EDBF /* FIRVerifyAssertionResponseTests.m */; };
 		DEF6C33B1FBCE775005D0740 /* FIRVerifyCustomTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151D1E86C6FF0083EDBF /* FIRVerifyCustomTokenRequestTests.m */; };
@@ -568,6 +567,7 @@
 		DEF6C33D1FBCE775005D0740 /* FIRVerifyPasswordRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151F1E86C6FF0083EDBF /* FIRVerifyPasswordRequestTest.m */; };
 		DEF6C33E1FBCE775005D0740 /* FIRVerifyPasswordResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315201E86C6FF0083EDBF /* FIRVerifyPasswordResponseTests.m */; };
 		DEF6C3411FBCE775005D0740 /* OCMStubRecorder+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9315241E86C6FF0083EDBF /* OCMStubRecorder+FIRAuthUnitTests.m */; };
+		DEFEF05220F3C817006AAAE2 /* FIRUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE93151A1E86C6FF0083EDBF /* FIRUserTests.m */; };
 		ED34CF4E20DC16DD000EA5D1 /* FIRComponentContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */; };
 		ED34CF4F20DC16DD000EA5D1 /* FIRComponentContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */; };
 		ED34CF5020DC16DD000EA5D1 /* FIRComponentContainerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */; };
@@ -3931,7 +3931,7 @@
 				DEF6C31E1FBCE775005D0740 /* FIRAuthUserDefaultsStorageTests.m in Sources */,
 				DEF6C3351FBCE775005D0740 /* FIRUserMetadataTests.m in Sources */,
 				DEF6C3311FBCE775005D0740 /* FIRSetAccountInfoResponseTests.m in Sources */,
-				DEF6C3361FBCE775005D0740 /* FIRUserTests.m in Sources */,
+				DEFEF05220F3C817006AAAE2 /* FIRUserTests.m in Sources */,
 				DEF6C3261FBCE775005D0740 /* FIRGetOOBConfirmationCodeRequestTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4797,6 +4797,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/macOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"${inherited}",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -4818,6 +4822,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/macOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"${inherited}",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -4887,6 +4895,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -4908,6 +4920,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/macOS/Core-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -4922,10 +4938,14 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -4942,10 +4962,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
-				HEADER_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Tests-macOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -5478,6 +5502,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "${inherited}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -5510,6 +5535,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "${inherited}";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -5898,7 +5924,11 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					FirebaseAuth,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -5938,7 +5968,11 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Auth/App/iOS/Auth-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					FirebaseAuth,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Auth-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -6267,6 +6301,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -6299,6 +6337,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Core/App/tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -6326,9 +6368,14 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -6358,9 +6405,14 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = EQHXZ8M8AV;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.google.Core-Example-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
@@ -6650,6 +6702,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"${PODS_ROOT}/Headers/Private",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -6673,6 +6726,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"${PODS_ROOT}/Headers/Private",
+					"$(SRCROOT)/../Firebase/Utilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;

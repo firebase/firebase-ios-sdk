@@ -50,6 +50,7 @@ enable_testing()
 # These are ordered by a topological sort on DEPENDS attributes. This is
 # required because CMake fails the build if you have a DEPENDS on a target that
 # does not exist yet.
+include(external/GoogleUtilities)
 include(external/FirebaseCore)
 include(external/googletest)
 include(external/zlib)

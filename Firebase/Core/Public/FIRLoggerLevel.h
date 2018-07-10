@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Note that importing GULLoggerLevel.h will lead to a non-modular header
+// import error.
+
 /**
  * The log levels used by internal logging.
  */
