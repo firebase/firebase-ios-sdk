@@ -18,6 +18,10 @@
 
 #import "FIRAuth_Internal.h"
 
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
+
 #import <FirebaseAuthInteroperable/FIRAuthInteroperable.h>
 #import <FirebaseCore/FIRAppAssociationRegistration.h>
 #import <FirebaseCore/FIRAppEnvironmentUtil.h>
@@ -68,7 +72,6 @@
 #import "FIRVerifyPhoneNumberResponse.h"
 
 #if TARGET_OS_IOS
-#import <UIKit/UIKit.h>
 #import "FIRAuthAPNSToken.h"
 #import "FIRAuthAPNSTokenManager.h"
 #import "FIRAuthAppCredentialManager.h"
