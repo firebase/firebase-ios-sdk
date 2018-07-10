@@ -54,15 +54,15 @@ bool RelationFilter::MatchesValue(const FieldValue& other) const {
 bool RelationFilter::MatchesComparison(const FieldValue& other) const {
   switch (op_) {
     case Operator::LessThan:
-      return value_ < other;
+      return other < value_;
     case Operator::LessThanOrEqual:
-      return value_ <= other;
+      return other <= value_;
     case Operator::Equal:
-      return value_ == other;
+      return other == value_;
     case Operator::GreaterThan:
-      return value_ > other;
+      return other > value_;
     case Operator::GreaterThanOrEqual:
-      return value_ >= other;
+      return other >= value_;
   }
   UNREACHABLE();
 }
