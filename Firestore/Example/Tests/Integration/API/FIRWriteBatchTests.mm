@@ -334,7 +334,7 @@ long long getCurrentMemoryUsedInMb() {
   const auto errorCode =
       task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&taskInfo, &taskInfoSize);
   if (errorCode == KERN_SUCCESS) {
-    const int bytesInMegabyte = 1000 * 1000;
+    const int bytesInMegabyte = 1024 * 1024;
     return taskInfo.resident_size / bytesInMegabyte;
   }
   return -1;
@@ -348,7 +348,8 @@ long long getCurrentMemoryUsedInMb() {
   FIRWriteBatch *batch = [mainDoc.firestore batch];
 
   // >= 500 mutations will be rejected, so use 500-1 mutations
-  for (int i = 0; i != 500 - 1; ++i) {
+  const int maxMutations = 500 - 1;
+  for (int i = 0; i != maxMutations; ++i) {
     FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
     // The exact data doesn't matter; what is important is the large number of mutations.
     [batch setData:@{
