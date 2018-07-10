@@ -13,6 +13,11 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(external/protobuf)
+
+if(TARGET nanopb)
+  return()
+endif()
 
 set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
 

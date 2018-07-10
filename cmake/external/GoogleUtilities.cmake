@@ -14,6 +14,10 @@
 
 include(xcodebuild)
 
+if(TARGET GoogleUtilities)
+  return()
+endif()
+
 if(APPLE)
   # GoogleUtilities is only available as a CocoaPod build.
   xcodebuild(GoogleUtilities)
