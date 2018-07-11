@@ -14,6 +14,8 @@
 
 # C++ Compiler setup
 
+include(compiler_id)
+
 # We use C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,15 +25,7 @@ if(CMAKE_GENERATOR STREQUAL "Ninja")
   set(NINJA ON)
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CLANG ON)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(GNU ON)
-endif()
-
-if(CLANG OR GNU)
+if(CXX_CLANG OR CXX_GNU)
   set(
     common_flags
     -Wall -Wextra -Werror
@@ -60,7 +54,7 @@ if(CLANG OR GNU)
     -Wstrict-prototypes
   )
 
-  if(CLANG)
+  if(CXX_CLANG)
     list(
       APPEND common_flags
      -Wconditional-uninitialized -Werror=return-type -Winfinite-recursion -Wmove
@@ -73,7 +67,7 @@ if(CLANG OR GNU)
 
   if(NINJA)
     # If building under Ninja, disable tty detection and force color output
-    if(CLANG OR GNU)
+    if(CXX_CLANG OR CXX_GNU)
       list(APPEND common_flags -fdiagnostics-color)
     endif()
   endif()
