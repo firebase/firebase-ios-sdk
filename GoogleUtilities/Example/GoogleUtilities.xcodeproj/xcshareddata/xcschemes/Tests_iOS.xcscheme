@@ -17,8 +17,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "6003F5AD195388D20070C39A"
-               BuildableName = "GoogleUtilities_Tests.xctest"
-               BlueprintName = "GoogleUtilities_Tests"
+               BuildableName = "Tests_iOS.xctest"
+               BlueprintName = "Tests_iOS"
                ReferencedContainer = "container:GoogleUtilities.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -27,8 +27,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleUtilities_Example.app"
-            BlueprintName = "GoogleUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleUtilities.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -50,8 +50,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleUtilities_Example.app"
-            BlueprintName = "GoogleUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleUtilities.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -68,8 +68,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "6003F589195388D20070C39A"
-            BuildableName = "GoogleUtilities_Example.app"
-            BlueprintName = "GoogleUtilities_Example"
+            BuildableName = "Example_iOS.app"
+            BlueprintName = "Example_iOS"
             ReferencedContainer = "container:GoogleUtilities.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
