@@ -16,7 +16,9 @@ Pod::Spec.new do |s|
   # other.
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    :tag => s.version.to_s
+# TODO: Remove this once it is merged in master and ready for release in M30.
+# :tag => 'AuthInterop-' + s.version.to_s
+    :tag => 'pre-AuthInterop-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
