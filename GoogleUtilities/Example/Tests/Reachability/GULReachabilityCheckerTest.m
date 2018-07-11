@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRTestCase.h"
-
 #import <GoogleUtilities/GULReachabilityChecker.h>
+
+#import <XCTest/XCTest.h>
+
 #import "GULReachabilityChecker+Internal.h"
 
-@interface GULReachabilityCheckerTest : FIRTestCase <GULReachabilityDelegate> {
+@interface GULReachabilityCheckerTest : XCTestCase <GULReachabilityDelegate> {
  @private
   GULReachabilityChecker *checker_;
   NSMutableArray *statuses_;

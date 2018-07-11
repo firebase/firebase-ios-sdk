@@ -1,0 +1,12 @@
+use_frameworks!
+
+target 'GoogleUtilities_Example' do
+  platform :ios, '8.0'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'GoogleUtilities_Tests' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end

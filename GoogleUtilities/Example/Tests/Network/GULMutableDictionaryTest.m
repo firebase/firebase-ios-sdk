@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRTestCase.h"
+#import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULMutableDictionary.h>
 
@@ -21,11 +21,11 @@ const static NSString *const kValue = @"testValue1";
 const static NSString *const kKey2 = @"testKey2";
 const static NSString *const kValue2 = @"testValue2";
 
-@interface FIRMutableDictionaryTest : FIRTestCase
+@interface GULMutableDictionaryTest : XCTestCase
 @property(nonatomic) GULMutableDictionary *dictionary;
 @end
 
-@implementation FIRMutableDictionaryTest
+@implementation GULMutableDictionaryTest
 
 - (void)setUp {
   [super setUp];
@@ -38,6 +38,7 @@ const static NSString *const kValue2 = @"testValue2";
 }
 
 - (void)testSetGetAndRemove {
+    XCTAssertNil(nil);
   XCTAssertNil([self.dictionary objectForKey:kKey]);
   [self.dictionary setObject:kValue forKey:kKey];
   XCTAssertEqual(kValue, [self.dictionary objectForKey:kKey]);
