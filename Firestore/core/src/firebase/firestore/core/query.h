@@ -42,13 +42,15 @@ class Query {
    * @return A new instance of Query.
    */
   static Query AtPath(model::ResourcePath path) {
-    return Query(std::move(path), std::vector<std::unique_ptr<core::Filter>>());
+    return Query(std::move(path), {});
   }
 
   /** Initializes a query with all of its components directly. */
   Query(model::ResourcePath path,
-        std::vector<std::unique_ptr<core::Filter>>&&
-            filters /* TODO(rsgowman): other params */);
+        std::vector<std::shared_ptr<core::Filter>>
+            filters /* TODO(rsgowman): other params */)
+      : path_(std::move(path)), filters_(std::move(filters)) {
+  }
 
   /** The base path of the query. */
   const model::ResourcePath& path() const {
@@ -61,15 +63,9 @@ class Query {
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
-  Query Filter(std::unique_ptr<core::Filter> filter) const;
+  Query Filter(std::shared_ptr<core::Filter> filter) const;
 
  private:
-  Query(model::ResourcePath path,
-        std::vector<std::shared_ptr<core::Filter>>
-            filters /* TODO(rsgowman): other params */)
-      : path_(std::move(path)), filters_(std::move(filters)) {
-  }
-
   bool MatchesPath(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;

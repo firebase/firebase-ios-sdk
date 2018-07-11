@@ -19,7 +19,6 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
-#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -28,13 +27,13 @@ namespace core {
 using model::FieldPath;
 using model::FieldValue;
 
-std::unique_ptr<Filter> Filter::Create(FieldPath path,
+std::shared_ptr<Filter> Filter::Create(FieldPath path,
                                        Operator op,
                                        FieldValue value) {
   // TODO(rsgowman): Java performs a number of checks here, and then invokes the
   // ctor of the relevant Filter subclass. Port those checks here.
-  return absl::make_unique<RelationFilter>(std::move(path), op,
-                                           std::move(value));
+  return std::make_shared<RelationFilter>(std::move(path), op,
+                                          std::move(value));
 }
 
 }  // namespace core

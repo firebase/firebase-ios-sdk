@@ -92,14 +92,14 @@ inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
   HARD_FAIL("Unknown operator: %s", s);
 }
 
-inline std::unique_ptr<core::Filter> Filter(absl::string_view key,
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             model::FieldValue value) {
   return core::Filter::Create(Field(key), OperatorFromString(op),
                               std::move(value));
 }
 
-inline std::unique_ptr<core::Filter> Filter(absl::string_view key,
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             const std::string& value) {
   return Filter(key, op, model::FieldValue::StringValue(value));

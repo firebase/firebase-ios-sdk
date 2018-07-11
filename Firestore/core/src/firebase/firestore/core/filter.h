@@ -46,7 +46,7 @@ class Filter {
    * NaN, then this will return the appropriate NullFilter or NaNFilter class
    * instead of a RelationFilter.
    */
-  static std::unique_ptr<Filter> Create(model::FieldPath path,
+  static std::shared_ptr<Filter> Create(model::FieldPath path,
                                         Operator op,
                                         model::FieldValue value);
 
