@@ -117,6 +117,15 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    - stage: test
+      osx_image: xcode8.3
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
     # Community-supported platforms
 
     - stage: test
