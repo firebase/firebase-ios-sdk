@@ -27,22 +27,22 @@ other Google CocoaPods. They're not intended for direct public usage.
   s.prefix_header_file = false
 
   s.subspec 'Environment' do |es|
-    es.source_files = 'Firebase/Utilities/Environment/third_party/*.[mh]'
-    es.public_header_files = 'Firebase/Utilities/Environment/third_party/*.h'
-    es.private_header_files = 'Firebase/Utilities/Environment/third_party/*.h'
+    es.source_files = 'GoogleUtilities/Environment/third_party/*.[mh]'
+    es.public_header_files = 'GoogleUtilities/Environment/third_party/*.h'
+    es.private_header_files = 'GoogleUtilities/Environment/third_party/*.h'
   end
 
   s.subspec 'Logger' do |ls|
-    ls.source_files = 'Firebase/Utilities/Logger/**/*.[mh]'
-    ls.public_header_files = 'Firebase/Utilities/Logger/Private/*.h', 'Firebase/Utilities/Logger/Public/*.h'
-    ls.private_header_files = 'Firebase/Utilities/Logger/Private/*.h'
+    ls.source_files = 'GoogleUtilities/Logger/**/*.[mh]'
+    ls.public_header_files = 'GoogleUtilities/Logger/Private/*.h', 'GoogleUtilities/Logger/Public/*.h'
+    ls.private_header_files = 'GoogleUtilities/Logger/Private/*.h'
     ls.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'Network' do |ns|
-    ns.source_files = 'Firebase/Utilities/Network/**/*.[mh]'
-    ns.public_header_files = 'Firebase/Utilities/Network/Private/*.h'
-    ns.private_header_files = 'Firebase/Utilities/Network/Private/*.h'
+    ns.source_files = 'GoogleUtilities/Network/**/*.[mh]'
+    ns.public_header_files = 'GoogleUtilities/Network/Private/*.h'
+    ns.private_header_files = 'GoogleUtilities/Network/Private/*.h'
     ns.dependency 'GoogleUtilities/NSData+zlib'
     ns.dependency 'GoogleUtilities/Logger'
     ns.dependency 'GoogleUtilities/Reachability'
@@ -52,17 +52,17 @@ other Google CocoaPods. They're not intended for direct public usage.
   end
 
   s.subspec 'NSData+zlib' do |ns|
-    ns.source_files = 'Firebase/Utilities/NSData+zlib/*.[mh]'
-    ns.public_header_files = 'Firebase/Utilities/NSData+zlib/GULNSData+zlib.h'
+    ns.source_files = 'GoogleUtilities/NSData+zlib/*.[mh]'
+    ns.public_header_files = 'GoogleUtilities/NSData+zlib/GULNSData+zlib.h'
     ns.libraries = [
       'z'
     ]
   end
 
   s.subspec 'Reachability' do |rs|
-    rs.source_files = 'Firebase/Utilities/Reachability/**/*.[mh]'
-    rs.public_header_files = 'Firebase/Utilities/Reachability/Private/*.h'
-    rs.private_header_files = 'Firebase/Utilities/Reachability/Private/*.h'
+    rs.source_files = 'GoogleUtilities/Reachability/**/*.[mh]'
+    rs.public_header_files = 'GoogleUtilities/Reachability/Private/*.h'
+    rs.private_header_files = 'GoogleUtilities/Reachability/Private/*.h'
     rs.frameworks = [
       'SystemConfiguration'
     ]

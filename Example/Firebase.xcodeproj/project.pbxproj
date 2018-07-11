@@ -4940,7 +4940,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -4964,7 +4964,7 @@
 				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6370,7 +6370,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6407,7 +6407,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -6702,7 +6702,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"${PODS_ROOT}/Headers/Private",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
@@ -6726,7 +6726,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"${PODS_ROOT}/Headers/Private",
-					"$(SRCROOT)/../Firebase/Utilities/Reachability",
+					"$(SRCROOT)/../GoogleUtilities/Reachability",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
