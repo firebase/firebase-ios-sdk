@@ -113,7 +113,7 @@ ExternalProject_GitSource(
 )
 
 ExternalProject_Add(
-  grpc
+  grpc-download
   DEPENDS
     c-ares
     protobuf
@@ -122,6 +122,22 @@ ExternalProject_Add(
   ${GRPC_GIT}
 
   PREFIX ${PROJECT_BINARY_DIR}
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  UPDATE_COMMAND ""
+  TEST_COMMAND ""
+  INSTALL_COMMAND ""
+)
+
+ExternalProject_Add(
+  grpc
+  DEPENDS
+    grpc-download
+
+  PREFIX ${PROJECT_BINARY_DIR}
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
 
   CMAKE_ARGS
     ${CMAKE_ARGS}
