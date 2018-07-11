@@ -38,7 +38,6 @@ const static NSString *const kValue2 = @"testValue2";
 }
 
 - (void)testSetGetAndRemove {
-    XCTAssertNil(nil);
   XCTAssertNil([self.dictionary objectForKey:kKey]);
   [self.dictionary setObject:kValue forKey:kKey];
   XCTAssertEqual(kValue, [self.dictionary objectForKey:kKey]);

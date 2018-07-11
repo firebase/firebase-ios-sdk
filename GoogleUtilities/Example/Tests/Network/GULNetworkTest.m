@@ -14,8 +14,8 @@
 
 #import "GTMHTTPServer.h"
 
-#import <XCTest/XCTest.h>
 #import <OCMock/OCMock.h>
+#import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import <GoogleUtilities/GULNetwork.h>
@@ -287,7 +287,8 @@
              [self verifyResponse:response error:error];
              [self verifyRequest];
 
-             XCTAssertFalse(self->_network.hasUploadInProgress, @"hasUploadInProgress must be false");
+             XCTAssertFalse(self->_network.hasUploadInProgress,
+                            @"hasUploadInProgress must be false");
              [expectation fulfill];
            }];
 
@@ -473,7 +474,8 @@
              [self verifyResponse:response error:error];
              [self verifyRequest];
 
-             XCTAssertFalse(self->_network.hasUploadInProgress, @"hasUploadInProgress must be false");
+             XCTAssertFalse(self->_network.hasUploadInProgress,
+                            @"hasUploadInProgress must be false");
              [expectation fulfill];
            }];
 
@@ -633,7 +635,8 @@
                  [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
-             XCTAssertFalse(self->_network.hasUploadInProgress, @"hasUploadInProgress must be false");
+             XCTAssertFalse(self->_network.hasUploadInProgress,
+                            @"hasUploadInProgress must be false");
              [expectation fulfill];
            }];
 
@@ -828,7 +831,8 @@
                  [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
              XCTAssertEqualObjects(responseBody, @"<html><body>Hello, World!</body></html>");
              XCTAssertNil(error);
-             XCTAssertFalse(self->_network.hasUploadInProgress, @"hasUploadInProgress must be false");
+             XCTAssertFalse(self->_network.hasUploadInProgress,
+                            @"hasUploadInProgress must be false");
              [expectation fulfill];
            }];
 

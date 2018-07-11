@@ -110,11 +110,11 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertNoThrow(GULLogNotice(@"my service", NO, kMessageCode, @"Message."));
   XCTAssertNoThrow(GULLogNotice(@"my service", NO, kMessageCode, @"Configure %@.", @"blah"));
 
-  XCTAssertNoThrow(GULLogInfo(@"my service", NO,kMessageCode, @"Message."));
+  XCTAssertNoThrow(GULLogInfo(@"my service", NO, kMessageCode, @"Message."));
   XCTAssertNoThrow(GULLogInfo(@"my service", NO, kMessageCode, @"Configure %@.", @"blah"));
 
   XCTAssertNoThrow(GULLogDebug(@"my service", NO, kMessageCode, @"Message."));
-  XCTAssertNoThrow(GULLogDebug(@"my service", NO,kMessageCode, @"Configure %@.", @"blah"));
+  XCTAssertNoThrow(GULLogDebug(@"my service", NO, kMessageCode, @"Configure %@.", @"blah"));
 }
 
 // asl_set_filter does not perform as expected in unit test environment with simulator. The
