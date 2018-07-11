@@ -29,7 +29,8 @@ namespace {
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  static Serializer serializer{DatabaseId("project", DatabaseId::kDefault)};
+  // The Serializer object is static to avoid initializing it every method call.
+  static Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
 
   @autoreleasepool {
     @try {
