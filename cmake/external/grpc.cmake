@@ -13,7 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/protobuf)
 
 if(TARGET grpc)
   return()
@@ -46,28 +45,6 @@ set(
 )
 
 
-## protobuf
-
-# Unlike other dependencies of gRPC, we control the protobuf version because we
-# have checked-in protoc outputs that must match the runtime.
-
-# The location where protobuf-config.cmake will be installed varies by platform
-if(NOT Protobuf_DIR)
-  if(WIN32)
-    set(Protobuf_DIR "${FIREBASE_INSTALL_DIR}/cmake")
-  else()
-    set(Protobuf_DIR "${FIREBASE_INSTALL_DIR}/lib/cmake/protobuf")
-  endif()
-endif()
-
-list(
-  APPEND CMAKE_ARGS
-  -DgRPC_PROTOBUF_PROVIDER:STRING=package
-  -DgRPC_PROTOBUF_PACKAGE_TYPE:STRING=CONFIG
-  -DProtobuf_DIR:PATH=${Protobuf_DIR}
-)
-
-
 ## zlib
 
 # Use a system- or user-supplied zlib if available
@@ -84,8 +61,6 @@ endif()
 
 ExternalProject_Add(
   grpc-download
-  DEPENDS
-    protobuf
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME grpc-1.8.3.tar.gz
