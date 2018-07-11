@@ -43,7 +43,6 @@ if(APPLE)
   find_package(GoogleUtilities REQUIRED)
 endif()
 find_package(LevelDB REQUIRED)
-find_package(Protobuf REQUIRED)
 find_package(ZLIB)
 
 
@@ -89,6 +88,12 @@ target_include_directories(
   ssl
   INTERFACE
     $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
+)
+
+add_alias(protobuf::libprotobuf libprotobuf)
+target_compile_options(
+  libprotobuf
+  PUBLIC -Wno-unused-parameter
 )
 
 if(NOT ZLIB_FOUND)

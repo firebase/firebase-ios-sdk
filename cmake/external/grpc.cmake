@@ -43,6 +43,7 @@ ExternalProject_Add(
 # these must come after the ExternalProject_Add block above.
 include(external/boringssl)
 include(external/c-ares)
+include(external/protobuf)
 include(external/zlib)
 
 add_custom_target(
@@ -51,5 +52,6 @@ add_custom_target(
     boringssl
     c-ares
     grpc-download
+    protobuf
     zlib
 )
