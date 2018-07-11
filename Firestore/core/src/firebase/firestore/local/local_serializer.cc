@@ -103,9 +103,8 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
-        result =
-            reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
-                [&](Reader* reader) { return DecodeNoDocument(reader); });
+        result = reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
+            [&](Reader* reader) { return DecodeNoDocument(reader); });
         break;
 
       default:
