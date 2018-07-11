@@ -19,6 +19,7 @@ project(firebase C CXX)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(cc_rules)
+include(compiler_id)
 include(external_rules)
 include(podspec_rules)
 include(sanitizer_options)
@@ -85,10 +86,19 @@ target_include_directories(
 )
 
 add_alias(protobuf::libprotobuf libprotobuf)
-target_compile_options(
-  libprotobuf
-  PUBLIC -Wno-unused-parameter
-)
+if(CXX_CLANG OR CXX_GNU)
+  target_compile_options(
+    libprotobuf
+    PUBLIC -Wno-unused-parameter
+  )
+endif()
+if(CXX_CLANG)
+  target_compile_options(
+    libprotobuf
+    PRIVATE -Wno-invalid-offsetof
+  )
+endif()
+
 
 if(NOT ZLIB_FOUND)
   target_include_directories(
