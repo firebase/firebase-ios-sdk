@@ -50,9 +50,13 @@ add_alias(GMock::GMock gmock)
 
 
 # Abseil-cpp
+# Force disable Abseil's tests, which don't compile under VS2017.
+set(old_build_testing ${BUILD_TESTING})
+set(BUILD_TESTING OFF CACHE BOOL "Disable Abseil tests" FORCE)
 add_subdirectory(
   Firestore/third_party/abseil-cpp
 )
+set(BUILD_TESTING ${old_build_testing} CACHE BOOL "Restore BUILD_TESTING" FORCE)
 
 
 # gRPC
