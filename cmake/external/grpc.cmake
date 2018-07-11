@@ -13,7 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(ExternalProjectFlags)
 include(external/c-ares)
 include(external/protobuf)
 include(external/zlib)
@@ -30,14 +29,10 @@ if(GRPC_ROOT)
 endif()
 
 set(
-  GIT_SUBMODULES
-  third_party/boringssl
-)
-
-set(
   CMAKE_ARGS
   -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
   -DBUILD_SHARED_LIBS:BOOL=OFF
+  -DgRPC_INSTALL:BOOL=OFF
   -DgRPC_BUILD_TESTS:BOOL=OFF
 
   # TODO(rsgowman): We're currently building nanopb twice; once via grpc, and
@@ -105,13 +100,6 @@ if(ZLIB_FOUND)
 endif()
 
 
-ExternalProject_GitSource(
-  GRPC_GIT
-  GIT_REPOSITORY "https://github.com/grpc/grpc.git"
-  GIT_TAG "v1.8.3"
-  GIT_SUBMODULES ${GIT_SUBMODULES}
-)
-
 ExternalProject_Add(
   grpc-download
   DEPENDS
@@ -119,21 +107,32 @@ ExternalProject_Add(
     protobuf
     zlib
 
-  ${GRPC_GIT}
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME grpc-1.8.3.tar.gz
+  URL https://github.com/grpc/grpc/archive/v1.8.3.tar.gz
+  URL_HASH SHA256=c14bceddc6475a09927a815811a8161cdfa7acb445262835da6bc24da9842c92
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
 
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  UPDATE_COMMAND ""
   TEST_COMMAND ""
   INSTALL_COMMAND ""
 )
 
+# gRPC depends upon these projects, so from an IWYU point of view should
+# include these files. Unfortunately gRPC's build requires these to be
+# subdirectories in its own source tree and CMake's ExternalProject download
+# step clears the source tree so these must be declared to depend upon the grpc
+# target. ExternalProject dependencies must already exist when declared so
+# these must come after the ExternalProject_Add block above.
+include(external/boringssl)
+
 ExternalProject_Add(
   grpc
   DEPENDS
+    boringssl
     grpc-download
 
   PREFIX ${PROJECT_BINARY_DIR}
