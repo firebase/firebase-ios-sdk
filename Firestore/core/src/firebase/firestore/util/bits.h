@@ -24,12 +24,12 @@
 
 #include <cstdint>
 
-class Bits_Port32_Test;
-class Bits_Port64_Test;
-
 namespace firebase {
 namespace firestore {
 namespace util {
+
+class Bits_Port32_Test;
+class Bits_Port64_Test;
 
 class Bits {
  public:
@@ -81,9 +81,9 @@ inline int Bits::Log2FloorNonZero64(uint64_t n) {
   return 63 ^ __builtin_clzll(n);
 }
 
-#elif defined(COMPILER_MSVC)
+#elif defined(_MSC_VER)
 
-inline int Bits::Log2FloorNonZero(uint32 n) {
+inline int Bits::Log2FloorNonZero(uint32_t n) {
 #ifdef _M_IX86
   _asm {
     bsr ebx, n
@@ -95,7 +95,7 @@ inline int Bits::Log2FloorNonZero(uint32 n) {
 #endif
 }
 
-inline int Bits::Log2Floor(uint32 n) {
+inline int Bits::Log2Floor(uint32_t n) {
 #ifdef _M_IX86
   _asm {
     xor ebx, ebx
@@ -120,7 +120,7 @@ inline int Bits::Log2FloorNonZero64(uint64_t n) {
   return Bits::Log2FloorNonZero64_Portable(n);
 }
 
-#else  // !__GNUC__ && !COMPILER_MSVC
+#else  // !__GNUC__ && !_MSC_VER
 
 inline int Bits::Log2Floor64(uint64_t n) {
   return Bits::Log2Floor64_Portable(n);
