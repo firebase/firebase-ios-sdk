@@ -18,7 +18,7 @@
 # folder defined by SCRIPT_INPUT_FILE_0 and the generated binary protos are
 # stored in the folder defined by SCRIPT_OUTPUT_FILE_0. Both SCRIPT_INPUT_FILE_0
 # and SCRIPT_OUTPUT_FILE_0 are defined in the Run Script Build Phase of the
-# XCode build target Firestore_FuzzTests_iOS that excecutes this script.
+# XCode build target Firestore_FuzzTests_iOS that executes this script.
 
 # Directory that contains the text protos to convert to binary protos.
 text_protos_dir="${SCRIPT_INPUT_FILE_0}"
