@@ -62,6 +62,11 @@ set(BUILD_TESTING ${old_build_testing} CACHE BOOL "Restore BUILD_TESTING" FORCE)
 
 
 # gRPC
+find_package(OpenSSL)
+if(OPENSSL_FOUND)
+  set(gRPC_SSL_PROVIDER package CACHE STRING "Use external OpenSSL")
+endif()
+
 find_package(ZLIB)
 if(ZLIB_FOUND)
   set(gRPC_ZLIB_PROVIDER package CACHE STRING "Use external ZLIB")
@@ -72,19 +77,39 @@ add_external_subdirectory(grpc)
 
 # Fix up targets included by gRPC's build
 set(external_src_dir ${FIREBASE_BINARY_DIR}/external/src)
-add_alias(OpenSSL::Crypto crypto)
-target_include_directories(
-  crypto
-  INTERFACE
-    $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
-)
 
-add_alias(OpenSSL::SSL ssl)
-target_include_directories(
-  ssl
-  INTERFACE
-    $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
-)
+if(OPENSSL_FOUND)
+  # gRPC's CMakeLists.txt does not account for finding OpenSSL in a directory
+  # that's not in the default search path.
+  target_include_directories(grpc PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+  if(CXX_CLANG OR CXX_GNU)
+    if((OPENSSL_VERSION VERSION_EQUAL "1.1.0") OR
+       (OPENSSL_VERSION VERSION_GREATER "1.1.0"))
+      # gRPC uses some features deprecated in OpenSSL 1.1.0
+      target_compile_options(
+        grpc
+        PRIVATE -Wno-deprecated-declarations
+      )
+    endif()
+  endif()
+
+else()
+  # Not using outboard OpenSSL so set up BoringSSL to look like it.
+  add_alias(OpenSSL::Crypto crypto)
+  target_include_directories(
+    crypto
+    INTERFACE
+      $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
+  )
+
+  add_alias(OpenSSL::SSL ssl)
+  target_include_directories(
+    ssl
+    INTERFACE
+      $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
+  )
+endif()
 
 add_alias(protobuf::libprotobuf libprotobuf)
 if(CXX_CLANG OR CXX_GNU)
