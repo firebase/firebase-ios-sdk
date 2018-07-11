@@ -33,9 +33,11 @@ inline absl::string_view StripDriveLetter(absl::string_view path) {
   if (path.size() >= 2 && path[1] == ':' && absl::ascii_isalpha(path[0])) {
     return path.substr(2);
   }
-#endif  // defined(_WIN32)
-
   return path;
+
+#else
+  return path;
+#endif  // defined(_WIN32)
 }
 
 /** Returns true if the given character is a pathname separator. */
