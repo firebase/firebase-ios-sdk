@@ -18,7 +18,8 @@
 # folder defined by SCRIPT_INPUT_FILE_0 and the generated binary protos are
 # stored in the folder defined by SCRIPT_OUTPUT_FILE_0. Both SCRIPT_INPUT_FILE_0
 # and SCRIPT_OUTPUT_FILE_0 are defined in the Run Script Build Phase of the
-# XCode build target Firestore_FuzzTests_iOS that executes this script.
+# XCode build target Firestore_FuzzTests_iOS that executes this script. XCode
+# defines these environment variables and makes them available to the script.
 
 # Directory that contains the text protos to convert to binary protos.
 text_protos_dir="${SCRIPT_INPUT_FILE_0}"
@@ -33,7 +34,7 @@ echo "Writing binary proto files to directory: $binary_protos_dir"
 # Run proto conversion command for each file content.
 for text_proto_file in "${text_protos_dir}"/*
 do
-  file_name="$(basename -- "${text_proto_file}")"
+  file_name="$(basename -- ${text_proto_file})"
   file_content="$(cat ${text_proto_file})"
 
   # Choose an appropriate message type depending on the prefix of the file.
@@ -56,5 +57,5 @@ do
     -I"${SRCROOT}/../../build/external/protobuf/src/protobuf/src" \
     --encode=google.firestore.v1beta1."${message_type}" \
     google/firestore/v1beta1/document.proto \
-    | tee "${binary_protos_dir}"/"${file_name}" > /dev/null
+    | tee "${binary_protos_dir}/${file_name}" > /dev/null
 done
