@@ -13,6 +13,7 @@ target 'Firestore_Example_iOS' do
   pod 'Firebase/CoreOnly', '5.4.0'
 
   pod 'FirebaseAuth', :path => '../../'
+  pod 'FirebaseAuthInterop', :path => '../../'
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
