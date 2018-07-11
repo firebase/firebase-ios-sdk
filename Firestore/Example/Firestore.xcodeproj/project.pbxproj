@@ -610,8 +610,8 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				546854A820A36867004BDBD5 /* datastore_test.cc */,
+				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
 			);
 			path = remote;
@@ -1750,7 +1750,6 @@
 				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
 				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
-				B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
 				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
@@ -1808,6 +1807,7 @@
 				B6FB468E208F9BAB00554BA2 /* executor_libdispatch_test.mm in Sources */,
 				B6FB468F208F9BAE00554BA2 /* executor_std_test.cc in Sources */,
 				B6FB4690208F9BB300554BA2 /* executor_test.cc in Sources */,
+				B6D1B68520E2AB1B00B35856 /* exponential_backoff_test.cc in Sources */,
 				549CCA5720A36E1F00BCEB75 /* field_mask_test.cc in Sources */,
 				B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */,
 				54A0352620A3AED0003E0143 /* field_transform_test.mm in Sources */,
