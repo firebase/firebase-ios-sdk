@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FIRAuthInteroperable_h
-#define FIRAuthInteroperable_h
+#ifndef FIRAuthInterop_h
+#define FIRAuthInterop_h
 
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRTokenCallback
  @brief The type of block which gets called when a token is ready.
  */
-typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
+typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error)
+    NS_SWIFT_NAME(TokenCallback);
 
 /// Common methods for Auth interoperability.
-@protocol FIRAuthInteroperable
+NS_SWIFT_NAME(AuthInterop)
+@protocol FIRAuthInterop
 
 /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback;
@@ -37,4 +39,4 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
 
 NS_ASSUME_NONNULL_END
 
-#endif /* FIRAuthInteroperable_h */
+#endif /* FIRAuthInterop_h */

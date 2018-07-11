@@ -4,7 +4,7 @@
 
 use_frameworks!
 
-pod 'FirebaseAuthInteroperable', :path => '../'
+pod 'FirebaseAuthInterop', :path => '../'
 pod 'FirebaseCore', :path => '../'
 pod 'GoogleUtilities', :path => '../'
 

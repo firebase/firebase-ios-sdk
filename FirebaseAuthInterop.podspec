@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name             = 'FirebaseAuthInteroperable'
+  s.name             = 'FirebaseAuthInterop'
   s.version          = '1.0.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
@@ -12,8 +12,8 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
-  # NOTE that these should not be used externally at the moment, this is for Firebase pods to depend
-  # on each other.
+  # NOTE that these should not be used externally, this is for Firebase pods to depend on each
+  # other.
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
     :tag => s.version.to_s
@@ -22,6 +22,6 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
-  s.source_files = 'Interoperability/Auth/**/*.h'
-  s.public_header_files = 'Interoperability/Auth/Public/*.h'
+  s.source_files = 'Interop/Auth/**/*.h'
+  s.public_header_files = 'Interop/Auth/Public/*.h'
 end

@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAuth/FirebaseAuth.h>
-#import <FirebaseAuthInteroperable/FIRAuthInteroperable.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentRegistrant.h>
@@ -2243,7 +2243,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertTrue(components.count == 1);
 
   FIRComponent *component = [components firstObject];
-  XCTAssert(component.protocol == @protocol(FIRAuthInteroperable));
+  XCTAssert(component.protocol == @protocol(FIRAuthInterop));
 }
 
 #pragma mark - Helpers
