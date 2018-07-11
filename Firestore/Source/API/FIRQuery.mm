@@ -487,7 +487,8 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     fieldValue = [self.firestore.dataConverter parsedQueryValue:value];
   }
 
-  FSTFilter *filter = [FSTFilter createWithField:fieldPath op:filterOperator value:fieldValue];
+  FSTFilter *filter =
+      [FSTFilter filterWithField:fieldPath filterOperator:filterOperator value:fieldValue];
 
   if ([filter isKindOfClass:[FSTRelationFilter class]]) {
     [self validateNewRelationFilter:(FSTRelationFilter *)filter];

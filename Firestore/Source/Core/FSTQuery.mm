@@ -70,8 +70,8 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 
 @implementation FSTFilter
 
-+ (instancetype)createWithField:(const FieldPath &)field
-                             op:(FSTRelationFilterOperator)op
++ (instancetype)filterWithField:(const FieldPath &)field
+                 filterOperator:(FSTRelationFilterOperator)op
                           value:(FSTFieldValue *)value {
   if ([value isEqual:[FSTNullValue nullValue]]) {
     if (op != FSTRelationFilterOperatorEqual) {
@@ -87,7 +87,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
     }
     return [[FSTNanFilter alloc] initWithField:field];
   } else {
-    return [FSTRelationFilter filterWithField:field filterOperator:op value:value];
+    return [[FSTRelationFilter alloc] initWithField:field filterOperator:op value:value];
   }
 }
 
@@ -137,14 +137,6 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
 @implementation FSTRelationFilter
 
 #pragma mark - Constructor methods
-
-+ (instancetype)filterWithField:(FieldPath)field
-                 filterOperator:(FSTRelationFilterOperator)filterOperator
-                          value:(FSTFieldValue *)value {
-  return [[FSTRelationFilter alloc] initWithField:std::move(field)
-                                   filterOperator:filterOperator
-                                            value:value];
-}
 
 - (instancetype)initWithField:(FieldPath)field
                filterOperator:(FSTRelationFilterOperator)filterOperator

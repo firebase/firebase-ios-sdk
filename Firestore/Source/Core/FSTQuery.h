@@ -48,8 +48,8 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * will return the appropriate FSTNullFilter or FSTNanFilter class instead of a
  * FSTRelationFilter.
  */
-+ (instancetype)createWithField:(const firebase::firestore::model::FieldPath &)field
-                             op:(FSTRelationFilterOperator)op
++ (instancetype)filterWithField:(const firebase::firestore::model::FieldPath &)field
+                 filterOperator:(FSTRelationFilterOperator)op
                           value:(FSTFieldValue *)value;
 
 /** Returns the field the Filter operates over. Abstract method. */
@@ -77,9 +77,9 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @param value A constant value to compare @a field to. The RHS of the expression.
  * @return A new instance of FSTRelationFilter.
  */
-+ (instancetype)filterWithField:(firebase::firestore::model::FieldPath)field
-                 filterOperator:(FSTRelationFilterOperator)filterOperator
-                          value:(FSTFieldValue *)value;
+- (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
+               filterOperator:(FSTRelationFilterOperator)filterOperator
+                        value:(FSTFieldValue *)value;
 
 - (instancetype)init NS_UNAVAILABLE;
 

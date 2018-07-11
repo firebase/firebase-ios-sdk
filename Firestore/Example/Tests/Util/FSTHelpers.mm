@@ -200,7 +200,7 @@ FSTFilter *FSTTestFilter(const absl::string_view field, NSString *opString, id v
 
   FSTFieldValue *data = FSTTestFieldValue(value);
 
-  return [FSTFilter createWithField:path op:op value:data];
+  return [FSTFilter filterWithField:path filterOperator:op value:data];
 }
 
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
