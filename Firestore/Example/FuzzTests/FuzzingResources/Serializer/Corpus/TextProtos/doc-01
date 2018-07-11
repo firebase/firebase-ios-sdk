@@ -1,7 +1,7 @@
 name: "doc-01"
 fields: {
     key: "a",
-    value: { string_value: "a_value" } 
+    value: { string_value: "a_value" }
 }
 fields: {
     key: "b"
