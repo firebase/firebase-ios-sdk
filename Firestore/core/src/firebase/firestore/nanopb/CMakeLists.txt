@@ -23,5 +23,5 @@ cc_library(
   DEPENDS
     firebase_firestore_util
     firebase_firestore_protos_nanopb
-    nanopb
+    protobuf-nanopb
 )

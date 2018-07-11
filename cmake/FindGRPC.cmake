@@ -15,8 +15,6 @@
 include(FindPackageHandleStandardArgs)
 include(FindZLIB)
 
-set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/grpc)
-
 ## ZLIB
 
 # the grpc ExternalProject already figures out if zlib should be built or
@@ -25,7 +23,7 @@ set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/grpc)
 find_library(
   ZLIB_LIBRARY
   NAMES z
-  HINTS ${BINARY_DIR}/src/grpc-build/third_party/zlib
+  HINTS ${FIREBASE_BINARY_DIR}/src/grpc-build/third_party/zlib
 )
 
 # If found above, the standard package will honor the ZLIB_LIBRARY variable.
@@ -36,19 +34,19 @@ find_package(ZLIB REQUIRED)
 
 find_path(
   OPENSSL_INCLUDE_DIR openssl/ssl.h
-  HINTS ${BINARY_DIR}/src/grpc/third_party/boringssl/include
+  HINTS ${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include
 )
 
 find_library(
   OPENSSL_SSL_LIBRARY
   NAMES ssl
-  HINTS ${BINARY_DIR}/src/grpc-build/third_party/boringssl/ssl
+  HINTS ${FIREBASE_BINARY_DIR}/src/grpc-build/third_party/boringssl/ssl
 )
 
 find_library(
   OPENSSL_CRYPTO_LIBRARY
   NAMES crypto
-  HINTS ${BINARY_DIR}/src/grpc-build/third_party/boringssl/crypto
+  HINTS ${FIREBASE_BINARY_DIR}/src/grpc-build/third_party/boringssl/crypto
 )
 
 find_package(OpenSSL REQUIRED)
@@ -69,7 +67,7 @@ find_path(
   HINTS
     $ENV{GRPC_ROOT}/include
     ${GRPC_ROOT}/include
-    ${BINARY_DIR}/src/grpc/include
+    ${FIREBASE_BINARY_DIR}/src/grpc/include
 )
 
 find_library(
@@ -78,7 +76,7 @@ find_library(
   HINTS
     $ENV{GRPC_ROOT}/lib
     ${GRPC_ROOT}/lib
-    ${BINARY_DIR}/src/grpc-build
+    ${FIREBASE_BINARY_DIR}/src/grpc-build
 )
 
 find_library(
@@ -87,7 +85,7 @@ find_library(
   HINTS
     $ENV{GRPC_ROOT}/lib
     ${GRPC_ROOT}/lib
-    ${BINARY_DIR}/src/grpc-build
+    ${FIREBASE_BINARY_DIR}/src/grpc-build
 )
 
 find_package_handle_standard_args(

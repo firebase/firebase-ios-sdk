@@ -121,7 +121,7 @@ ExternalProject_Add(
 
   ${GRPC_GIT}
 
-  PREFIX ${PROJECT_BINARY_DIR}/external/grpc
+  PREFIX ${PROJECT_BINARY_DIR}
 
   CMAKE_ARGS
     ${CMAKE_ARGS}

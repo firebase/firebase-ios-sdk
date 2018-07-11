@@ -14,8 +14,6 @@
 
 include(FindPackageHandleStandardArgs)
 
-set(BINARY_DIR ${FIREBASE_BINARY_DIR}/external/nanopb)
-
 find_path(
   NANOPB_INCLUDE_DIR pb.h
 )
@@ -35,10 +33,10 @@ find_package_handle_standard_args(
 if(NANOPB_FOUND)
   set(NANOPB_INCLUDE_DIRS ${NANOPB_INCLUDE_DIR})
 
-  if (NOT TARGET nanopb)
-    add_library(nanopb UNKNOWN IMPORTED)
+  if (NOT TARGET protobuf-nanopb)
+    add_library(protobuf-nanopb UNKNOWN IMPORTED)
     set_target_properties(
-      nanopb PROPERTIES
+      protobuf-nanopb PROPERTIES
       INTERFACE_INCLUDE_DIRECTORIES ${NANOPB_INCLUDE_DIRS}
       IMPORTED_LOCATION ${NANOPB_LIBRARY}
     )

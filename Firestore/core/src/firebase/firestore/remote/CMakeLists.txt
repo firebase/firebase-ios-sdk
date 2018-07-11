@@ -27,5 +27,5 @@ cc_library(
     firebase_firestore_protos_nanopb
     firebase_firestore_util
     grpc::grpc
-    nanopb
+    protobuf-nanopb
 )

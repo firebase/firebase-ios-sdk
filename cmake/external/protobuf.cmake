@@ -67,7 +67,7 @@ if(CMAKE_VERSION VERSION_LESS "3.7")
   list(
     APPEND configure
     ${cmake_args}
-    "${PROJECT_BINARY_DIR}/external/protobuf/src/protobuf/cmake"
+    "${PROJECT_BINARY_DIR}/src/protobuf/cmake"
   )
 
   # Compose BUILD_COMMAND and INSTALL_COMMAND
@@ -104,7 +104,7 @@ ExternalProject_Add(
   URL https://github.com/google/protobuf/archive/v3.5.1.1.tar.gz
   URL_HASH SHA256=56b5d9e1ab2bf4f5736c4cfba9f4981fbc6976246721e7ded5602fbaee6d6869
 
-  PREFIX ${PROJECT_BINARY_DIR}/external/protobuf
+  PREFIX ${PROJECT_BINARY_DIR}
   INSTALL_DIR ${FIREBASE_INSTALL_DIR}
 
   ${commands}

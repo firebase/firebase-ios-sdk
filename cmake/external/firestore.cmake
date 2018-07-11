@@ -38,7 +38,7 @@ ExternalProject_Add(
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
-  PREFIX ${PROJECT_BINARY_DIR}/external/Firestore
+  PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_SOURCE_DIR}/Firestore
   BINARY_DIR ${PROJECT_BINARY_DIR}/Firestore
 

@@ -29,5 +29,5 @@ cc_library(
     firebase_firestore_protos_nanopb
     firebase_firestore_remote
     firebase_firestore_util
-    nanopb
+    protobuf-nanopb
 )
