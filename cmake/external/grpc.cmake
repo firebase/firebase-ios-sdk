@@ -13,7 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/c-ares)
 include(external/protobuf)
 include(external/zlib)
 
@@ -45,18 +44,6 @@ set(
   # fields.)
   -DCMAKE_C_FLAGS=-DPB_FIELD_16BIT
   -DCMAKE_CXX_FLAGS=-DPB_FIELD_16BIT
-)
-
-
-## c-ares
-if(NOT c-ares_DIR)
-  set(c-ares_DIR ${FIREBASE_INSTALL_DIR}/lib/cmake/c-ares)
-endif()
-
-list(
-  APPEND CMAKE_ARGS
-  -DgRPC_CARES_PROVIDER:STRING=package
-  -Dc-ares_DIR:PATH=${c-ares_DIR}
 )
 
 
@@ -103,7 +90,6 @@ endif()
 ExternalProject_Add(
   grpc-download
   DEPENDS
-    c-ares
     protobuf
     zlib
 
@@ -128,11 +114,13 @@ ExternalProject_Add(
 # target. ExternalProject dependencies must already exist when declared so
 # these must come after the ExternalProject_Add block above.
 include(external/boringssl)
+include(external/c-ares)
 
 ExternalProject_Add(
   grpc
   DEPENDS
     boringssl
+    c-ares
     grpc-download
 
   PREFIX ${PROJECT_BINARY_DIR}
