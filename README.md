@@ -35,48 +35,23 @@ See
 [the Podfile Syntax Reference](https://guides.cocoapods.org/syntax/podfile.html#pod)
 for instructions and options about overriding pod source locations.
 
-#### Step-by-step Source Pod Installation Instructions
+#### Accessing Firebase Source Snapshots
 
-For iOS, copy a subset of the following lines to your Podfile:
+All of the official releases are tagged in this repo and available via CocoaPods. If you'd like
+to access a local source snapshot or unreleased branch that it is also possible via Podfile
+directives like the following:
 
+To access FirebaseFirestore via a branch:
 ```
-pod 'Firebase' # To enable Firebase module, with `@import Firebase` support
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseFunctions', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseMessaging', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
-
-For macOS and tvOS, copy a subset of the following:
-
-```
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '5.0.0'
-```
-
-1. Make sure you have at least CocoaPods version 1.4.0 - `pod --version`.
-1. Delete pods for any components you don't need, except `FirebaseCore` must always be included.
-1. Update the tags to the latest Firebase release. See the
-[release notes](https://firebase.google.com/support/release-notes/ios).
-1. Run `pod update`.
-
-#### Examples
 
 To access FirebaseMessaging via a checked out version of the firebase-ios-sdk repo do:
 
 ```
-pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 pod 'FirebaseCore', :path => '/path/to/firebase-ios-sdk'
-```
-To access via a branch:
-```
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 ```
 
 ### Carthage (iOS only)
