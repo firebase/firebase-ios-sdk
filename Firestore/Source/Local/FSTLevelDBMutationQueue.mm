@@ -364,11 +364,16 @@ using leveldb::WriteOptions;
   NSMutableArray *result = [NSMutableArray array];
   FSTLevelDBDocumentMutationKey *rowKey = [[FSTLevelDBDocumentMutationKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    // Only consider rows matching exactly the specific key of interest. Note that because we order
-    // by path first, and we order terminators before path separators, we'll encounter all the
-    // index rows for documentKey contiguously. In particular, all the rows for documentKey will
-    // occur before any rows for documents nested in a subcollection beneath documentKey so we can
-    // stop as soon as we hit any such row.
+    // Only consider rows matching exactly the specific key of interest. Index rows have this
+    // form (with markers in brackets):
+    //
+    // <User>user <Path>collection <Path>doc <BatchId>2 <Terminator>
+    // <User>user <Path>collection <Path>doc <BatchId>3 <Terminator>
+    // <User>user <Path>collection <Path>doc <Path>sub <Path>doc <BatchId>3 <Terminator>
+    //
+    // Note that Path markers sort after BatchId markers so this means that when searching for
+    // collection/doc, all the entries for it will be contiguous in the table, allowing a break
+    // after any mismatch.
     if (!absl::StartsWith(indexIterator->key(), indexPrefix) ||
         ![rowKey decodeKey:indexIterator->key()] ||
         DocumentKey{rowKey.documentKey} != documentKey) {
@@ -409,13 +414,17 @@ using leveldb::WriteOptions;
   for (const DocumentKey &documentKey : documentKeys) {
     std::string indexPrefix =
         [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:userID resourcePath:documentKey.path()];
-    indexIterator->Seek(indexPrefix);
-    for (; indexIterator->Valid(); indexIterator->Next()) {
-      // Only consider rows matching exactly the specific key of interest. Note that because we
-      // order by path first, and we order terminators before path separators, we'll encounter all
-      // the index rows for documentKey contiguously. In particular, all the rows for documentKey
-      // will occur before any rows for documents nested in a subcollection beneath documentKey so
-      // we can stop as soon as we hit any such row.
+    for (indexIterator->Seek(indexPrefix); indexIterator->Valid(); indexIterator->Next()) {
+      // Only consider rows matching exactly the specific key of interest. Index rows have this
+      // form (with markers in brackets):
+      //
+      // <User>user <Path>collection <Path>doc <BatchId>2 <Terminator>
+      // <User>user <Path>collection <Path>doc <BatchId>3 <Terminator>
+      // <User>user <Path>collection <Path>doc <Path>sub <Path>doc <BatchId>3 <Terminator>
+      //
+      // Note that Path markers sort after BatchId markers so this means that when searching for
+      // collection/doc, all the entries for it will be contiguous in the table, allowing a break
+      // after any mismatch.
       if (!absl::StartsWith(indexIterator->key(), indexPrefix) ||
           ![rowKey decodeKey:indexIterator->key()] ||
           DocumentKey{rowKey.documentKey} != documentKey) {

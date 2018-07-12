@@ -287,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar",
+      FSTTestSetMutation(@"foi/bar",
                          @{ @"a" : @1 }),
       FSTTestSetMutation(@"foo/bar",
                          @{ @"a" : @1 }),
@@ -363,8 +363,6 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
-    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-
     NSArray<FSTMutation *> *group1 = @[
       FSTTestSetMutation(@"foo/bar",
                          @{ @"a" : @1 }),

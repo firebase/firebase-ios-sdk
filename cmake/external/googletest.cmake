@@ -14,6 +14,10 @@
 
 include(ExternalProject)
 
+if(TARGET googletest)
+  return()
+endif()
+
 ExternalProject_Add(
   googletest
 

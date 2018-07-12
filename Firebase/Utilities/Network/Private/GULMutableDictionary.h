@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 /// A mutable dictionary that provides atomic accessor and mutators.
-@interface FIRMutableDictionary : NSObject
+@interface GULMutableDictionary : NSObject
 
 /// Returns an object given a key in the dictionary or nil if not found.
 - (id)objectForKey:(id)key;

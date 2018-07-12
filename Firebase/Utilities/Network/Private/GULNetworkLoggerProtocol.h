@@ -16,35 +16,36 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRLoggerLevel.h"
-#import "FIRNetworkMessageCode.h"
+#import <GoogleUtilities/GULLoggerLevel.h>
 
-/// The log levels used by FIRNetworkLogger.
-typedef NS_ENUM(NSInteger, FIRNetworkLogLevel) {
-  kFIRNetworkLogLevelError = FIRLoggerLevelError,
-  kFIRNetworkLogLevelWarning = FIRLoggerLevelWarning,
-  kFIRNetworkLogLevelInfo = FIRLoggerLevelInfo,
-  kFIRNetworkLogLevelDebug = FIRLoggerLevelDebug,
+#import "GULNetworkMessageCode.h"
+
+/// The log levels used by GULNetworkLogger.
+typedef NS_ENUM(NSInteger, GULNetworkLogLevel) {
+  kGULNetworkLogLevelError = GULLoggerLevelError,
+  kGULNetworkLogLevelWarning = GULLoggerLevelWarning,
+  kGULNetworkLogLevelInfo = GULLoggerLevelInfo,
+  kGULNetworkLogLevelDebug = GULLoggerLevelDebug,
 };
 
-@protocol FIRNetworkLoggerDelegate <NSObject>
+@protocol GULNetworkLoggerDelegate <NSObject>
 
 @required
 /// Tells the delegate to log a message with an array of contexts and the log level.
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message
                        contexts:(NSArray *)contexts;
 
 /// Tells the delegate to log a message with a context and the log level.
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message
                         context:(id)context;
 
 /// Tells the delegate to log a message with the log level.
-- (void)firNetwork_logWithLevel:(FIRNetworkLogLevel)logLevel
-                    messageCode:(FIRNetworkMessageCode)messageCode
+- (void)GULNetwork_logWithLevel:(GULNetworkLogLevel)logLevel
+                    messageCode:(GULNetworkMessageCode)messageCode
                         message:(NSString *)message;
 
 @end

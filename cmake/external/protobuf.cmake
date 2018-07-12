@@ -14,6 +14,10 @@
 
 include(ExternalProject)
 
+if(TARGET protobuf)
+  return()
+endif()
+
 # Protubuf has CMake support, but includes it in a `cmake` subdirectory, which
 # does not work with CMake's ExternalProject by default. CMake 3.7 added
 # SOURCE_SUBDIR as a means of supporting this but that's too new to require

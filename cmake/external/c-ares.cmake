@@ -14,6 +14,10 @@
 
 include(ExternalProject)
 
+if(TARGET c-ares)
+  return()
+endif()
+
 ExternalProject_Add(
   c-ares
 

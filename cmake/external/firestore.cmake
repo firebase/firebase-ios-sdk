@@ -13,15 +13,28 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(external/FirebaseCore)
+include(external/GoogleUtilities)
+include(external/googletest)
+include(external/grpc)
+include(external/leveldb)
+include(external/nanopb)
+include(external/protobuf)
+
+if(TARGET Firestore)
+  return()
+endif()
 
 ExternalProject_Add(
   Firestore
   DEPENDS
     FirebaseCore
+    GoogleUtilities
     googletest
-    leveldb
     grpc
+    leveldb
     nanopb
+    protobuf
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.

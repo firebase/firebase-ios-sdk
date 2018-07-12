@@ -21,8 +21,9 @@ options=(
   'Copyright [0-9]{4}.*Google'
 )
 
-git grep "${options[@]}" \
-    -- '*.'{c,cc,h,js,m,mm,py,rb,sh,swift} \
+git grep "${options[@]}" -- \
+    '*.'{c,cc,cmake,h,js,m,mm,py,rb,sh,swift} \
+    CMakeLists.txt '**/CMakeLists.txt' \
     ':(exclude)**/third_party/**'
 if [[ $? == 0 ]]; then
   echo "ERROR: Missing copyright notices in the files above. Please fix."
