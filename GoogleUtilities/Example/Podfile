@@ -10,3 +10,14 @@ target 'Example_iOS' do
     pod 'OCMock'
   end
 end
+
+target 'Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
