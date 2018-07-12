@@ -31,11 +31,6 @@
 		DEC9781B20F6D39500014E20 /* GULMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977D520F68C3300014E20 /* GULMutableDictionaryTest.m */; };
 		DEC9781C20F6D39500014E20 /* GULNetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977D620F68C3300014E20 /* GULNetworkTest.m */; };
 		DEC9781D20F6D39900014E20 /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977DC20F68FE100014E20 /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		DEC9784B20F6D5D800014E20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9784A20F6D5D800014E20 /* AppDelegate.m */; };
-		DEC9784E20F6D5D800014E20 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9784D20F6D5D800014E20 /* ViewController.m */; };
-		DEC9785120F6D5D800014E20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEC9784F20F6D5D800014E20 /* Main.storyboard */; };
-		DEC9785320F6D5DA00014E20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEC9785220F6D5DA00014E20 /* Assets.xcassets */; };
-		DEC9785620F6D5DA00014E20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9785520F6D5DA00014E20 /* main.m */; };
 		DEC9786820F6D65B00014E20 /* GULLoggerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977DF20F6A7A700014E20 /* GULLoggerTest.m */; };
 		DEC9786920F6D66300014E20 /* GTMHTTPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977DC20F68FE100014E20 /* GTMHTTPServer.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		DEC9786A20F6D66300014E20 /* GULMutableDictionaryTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC977D520F68C3300014E20 /* GULMutableDictionaryTest.m */; };
@@ -46,6 +41,11 @@
 		DEC9787920F6DE7200014E20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9787420F6DE7200014E20 /* main.m */; };
 		DEC9787A20F6DE7200014E20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9787520F6DE7200014E20 /* AppDelegate.m */; };
 		DEC9787B20F6DE7200014E20 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9787620F6DE7200014E20 /* ViewController.m */; };
+		DEC9788520F6E1E000014E20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DEC9787E20F6E1DF00014E20 /* Assets.xcassets */; };
+		DEC9788620F6E1E000014E20 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9787F20F6E1DF00014E20 /* ViewController.m */; };
+		DEC9788720F6E1E000014E20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEC9788020F6E1DF00014E20 /* Main.storyboard */; };
+		DEC9788820F6E1E000014E20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788120F6E1DF00014E20 /* main.m */; };
+		DEC9788920F6E1E000014E20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788220F6E1DF00014E20 /* AppDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,14 +100,6 @@
 		DEC977F920F6D0E900014E20 /* Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEC9780B20F6D0EA00014E20 /* Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEC9784720F6D5D800014E20 /* Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEC9784920F6D5D800014E20 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		DEC9784A20F6D5D800014E20 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DEC9784C20F6D5D800014E20 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		DEC9784D20F6D5D800014E20 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		DEC9785020F6D5D800014E20 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		DEC9785220F6D5DA00014E20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		DEC9785420F6D5DA00014E20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DEC9785520F6D5DA00014E20 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEC9785B20F6D5DA00014E20 /* Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEC9786F20F6DE7200014E20 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DEC9787020F6DE7200014E20 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
@@ -116,6 +108,14 @@
 		DEC9787420F6DE7200014E20 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEC9787520F6DE7200014E20 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		DEC9787620F6DE7200014E20 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		DEC9787D20F6E1DF00014E20 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		DEC9787E20F6E1DF00014E20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DEC9787F20F6E1DF00014E20 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		DEC9788020F6E1DF00014E20 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		DEC9788120F6E1DF00014E20 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DEC9788220F6E1DF00014E20 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		DEC9788320F6E1DF00014E20 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEC9788420F6E1DF00014E20 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		E0A8D570636E99E7C3396DF8 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		F1F2A7C03C10A3A03F9502B8 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -175,10 +175,10 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
-				DEC9786E20F6DE7200014E20 /* macOS */,
-				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				DEC977E220F6ACDA00014E20 /* iOS */,
-				DEC9784820F6D5D800014E20 /* tvOS */,
+				DEC9786E20F6DE7200014E20 /* macOS */,
+				DEC9787C20F6E1DF00014E20 /* tvOS */,
+				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F5B5195388D20070C39A /* Tests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
@@ -298,21 +298,6 @@
 			path = iOS;
 			sourceTree = "<group>";
 		};
-		DEC9784820F6D5D800014E20 /* tvOS */ = {
-			isa = PBXGroup;
-			children = (
-				DEC9784920F6D5D800014E20 /* AppDelegate.h */,
-				DEC9784A20F6D5D800014E20 /* AppDelegate.m */,
-				DEC9784C20F6D5D800014E20 /* ViewController.h */,
-				DEC9784D20F6D5D800014E20 /* ViewController.m */,
-				DEC9784F20F6D5D800014E20 /* Main.storyboard */,
-				DEC9785220F6D5DA00014E20 /* Assets.xcassets */,
-				DEC9785420F6D5DA00014E20 /* Info.plist */,
-				DEC9785520F6D5DA00014E20 /* main.m */,
-			);
-			path = tvOS;
-			sourceTree = "<group>";
-		};
 		DEC9786E20F6DE7200014E20 /* macOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -325,6 +310,21 @@
 				DEC9787620F6DE7200014E20 /* ViewController.m */,
 			);
 			path = macOS;
+			sourceTree = "<group>";
+		};
+		DEC9787C20F6E1DF00014E20 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				DEC9787D20F6E1DF00014E20 /* AppDelegate.h */,
+				DEC9787E20F6E1DF00014E20 /* Assets.xcassets */,
+				DEC9787F20F6E1DF00014E20 /* ViewController.m */,
+				DEC9788020F6E1DF00014E20 /* Main.storyboard */,
+				DEC9788120F6E1DF00014E20 /* main.m */,
+				DEC9788220F6E1DF00014E20 /* AppDelegate.m */,
+				DEC9788320F6E1DF00014E20 /* Info.plist */,
+				DEC9788420F6E1DF00014E20 /* ViewController.h */,
+			);
+			path = tvOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -528,8 +528,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEC9785320F6D5DA00014E20 /* Assets.xcassets in Resources */,
-				DEC9785120F6D5D800014E20 /* Main.storyboard in Resources */,
+				DEC9788520F6E1E000014E20 /* Assets.xcassets in Resources */,
+				DEC9788720F6E1E000014E20 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,9 +593,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DEC9784E20F6D5D800014E20 /* ViewController.m in Sources */,
-				DEC9785620F6D5DA00014E20 /* main.m in Sources */,
-				DEC9784B20F6D5D800014E20 /* AppDelegate.m in Sources */,
+				DEC9788820F6E1E000014E20 /* main.m in Sources */,
+				DEC9788620F6E1E000014E20 /* ViewController.m in Sources */,
+				DEC9788920F6E1E000014E20 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -645,14 +645,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				DEC977E820F6ACDA00014E20 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		DEC9784F20F6D5D800014E20 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DEC9785020F6D5D800014E20 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
