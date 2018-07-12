@@ -46,7 +46,7 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-*)
-      check_changes '^(Firebase|Functions|Example)'
+      check_changes '^(Firebase|Functions|GoogleUtilities|Example)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
