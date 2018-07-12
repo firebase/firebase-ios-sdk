@@ -25,6 +25,15 @@
 #include <chrono>
 #include <iostream>
 
+using namespace std::chrono;
+using tp = high_resolution_clock::time_point;
+void log(tp& from, const std::string& tag) {
+  auto to = high_resolution_clock::now();
+  auto elapsed = duration_cast<milliseconds>(to - from);
+  std::cout << "OBC " << tag << " : " << elapsed.count() << "s\n";
+  from = high_resolution_clock::now();
+}
+
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase
 @end
 
@@ -649,19 +658,31 @@
 }
 
 - (void)testFoo {
-  FIRCollectionReference *col = [self collectionRef];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testFoo"];
 
-  for (int i = 0; i != 1; ++i) {
-    NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *initialDocs = [[NSMutableDictionary alloc]init];
-    for (int j = 0; j != 10; ++j) {
-      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i, j];
-      initialDocs[docKey] = @{@"key1" : @"value1"};
-    };
-    [self writeAllDocuments:initialDocs toCollection:col];
+  FIRDocumentReference *mainDoc = [self documentRef];
+  FIRWriteBatch *batch = [mainDoc.firestore batch];
+  FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
+
+  // >500 mutations will be rejected, so use 500 mutations
+  for (int i = 0; i != 500; ++i) {
+    FIRDocumentReference *nestedDoc = [col documentWithAutoID];
+    [batch setData:@{
+      @"a" : @"foo",
+      @"b" : @"bar",
+    }
+        forDocument:nestedDoc];
   }
 
   // go offline for the rest of this test
   [self disableNetwork];
+
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    [expectation fulfill];
+  }];
+
+  [self awaitExpectations];
 
     /*
   for (int i = 0; i != 100; ++i) {
@@ -679,8 +700,10 @@
   }
      */
 
-  for (int i = 0; i != 20 * 1000; ++i) {
+  auto time = high_resolution_clock::now();
+  for (int i = 0; i != 1; ++i) {
     FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+    log(time, "query");
     XCTAssertTrue(result != nil);
     //std::cout << "OBC " << i << '\n';
   }// 20K iters: 40s/400MB

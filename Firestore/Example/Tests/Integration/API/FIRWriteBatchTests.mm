@@ -27,6 +27,9 @@
 @interface FIRWriteBatchTests : FSTIntegrationTestCase
 @end
 
+#include <chrono>
+#include <iostream>
+
 @implementation FIRWriteBatchTests
 
 - (void)testSupportEmptyBatches {

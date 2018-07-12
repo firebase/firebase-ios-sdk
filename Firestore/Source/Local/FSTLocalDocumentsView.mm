@@ -74,18 +74,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [self localDocument:remoteDoc key:key inBatches:batches];
 }
 
-
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
-  NSArray<FSTMutationBatch *> *affectingBatches =
+  NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
-  return [self documentsForKeys:keys batches:affectingBatches];
+  return [self documentsForKeys:keys inBatches:matchingBatches];
 }
 
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys
-batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
+    inBatches:(NSArray<FSTMutationBatch*>*)batches {
   FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
-  NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
   for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
@@ -167,12 +164,12 @@ batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-  NSArray<FSTMutationBatch *> *affectingBatches =
+  NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
-  results = [self localDocuments:results batches:affectingBatches];
+  results = [self localDocuments:results inBatches:matchingBatches];
 
   DocumentKeySet matchingKeys;
-  for (FSTMutationBatch *batch in affectingBatches) {
+  for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
       // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
 
@@ -185,7 +182,7 @@ batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
 
   // Now add in results for the matchingKeys.
   FSTMaybeDocumentDictionary *matchingKeysDocs =
-    [self documentsForKeys:matchingKeys batches:affectingBatches];
+    [self documentsForKeys:matchingKeys inBatches:matchingBatches];
   [matchingKeysDocs
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
         if ([doc isKindOfClass:[FSTDocument class]]) {
@@ -201,7 +198,6 @@ batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
           results = [results dictionaryByRemovingObjectForKey:key];
         }
       }];
-
   return results;
 }
 
@@ -222,17 +218,6 @@ batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
   return document;
 }
 
-- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents {
-  __block DocumentKeySet keySet;
-  [documents
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-        keySet = keySet.insert(doc.key);
-      }];
-  NSArray<FSTMutationBatch *> *affectingBatches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
-  return [self localDocuments:documents batches:affectingBatches];
-}
-
 /**
  * Takes a set of remote documents and applies local mutations to generate the local view of
  * the documents.
@@ -249,6 +234,11 @@ batches:(NSArray<FSTMutationBatch*>*)affectingBatches {
   NSArray<FSTMutationBatch *> *batches =
       [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
 
+  return [self localDocuments:documents inBatches:batches];
+}
+
+- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents
+inBatches:(NSArray<FSTMutationBatch*>*)batches {
   __block FSTDocumentDictionary *result = documents;
   [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
                                                  BOOL *stop) {
