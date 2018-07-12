@@ -30,7 +30,7 @@ using tp = high_resolution_clock::time_point;
 void log(tp& from, const std::string& tag) {
   auto to = high_resolution_clock::now();
   auto elapsed = duration_cast<milliseconds>(to - from);
-  std::cout << "OBC " << tag << " : " << elapsed.count() << "s\n";
+  std::cout << "OBC " << tag << " : " << elapsed.count() << "ms\n";
   from = high_resolution_clock::now();
 }
 
@@ -676,13 +676,14 @@ void log(tp& from, const std::string& tag) {
   }
 
   // go offline for the rest of this test
-  [self disableNetwork];
 
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     [expectation fulfill];
   }];
 
   [self awaitExpectations];
+    std::cout << "OBC disabling network\n";
+    [self disableNetwork];
 
     /*
   for (int i = 0; i != 100; ++i) {
@@ -701,12 +702,15 @@ void log(tp& from, const std::string& tag) {
      */
 
   auto time = high_resolution_clock::now();
-  for (int i = 0; i != 1; ++i) {
+    const auto start = time;
+  for (int i = 0; i != 100; ++i) {
     FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
     log(time, "query");
     XCTAssertTrue(result != nil);
     //std::cout << "OBC " << i << '\n';
-  }// 20K iters: 40s/400MB
+  }
+    auto bad = start;
+    log(bad, "end");
 }
 
 @end
