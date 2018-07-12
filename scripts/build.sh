@@ -170,7 +170,7 @@ case "$product-$method-$platform" in
 
     RunXcodebuild \
         -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
-        -scheme "Tests_$platform" \
+        -scheme "Example_$platform" \
         "${xcb_flags[@]}" \
         build \
         test
