@@ -287,20 +287,19 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *baseQuery = FSTTestQuery("collection");
   FSTDocument *doc1 = FSTTestDoc("collection/doc", 0, @{ @"tags" : @[ @"foo", @1, @YES ] }, NO);
 
-  NSArray<id<FSTFilter>> *matchingFilters =
-      @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
+  NSArray<FSTFilter *> *matchingFilters = @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
 
-  NSArray<id<FSTFilter>> *nonMatchingFilters = @[
+  NSArray<FSTFilter *> *nonMatchingFilters = @[
     FSTTestFilter("tags", @"==", @"foo"),
     FSTTestFilter("tags", @"==", @[ @"foo", @1 ]),
     FSTTestFilter("tags", @"==", @[ @"foo", @YES, @1 ]),
   ];
 
-  for (id<FSTFilter> filter in matchingFilters) {
+  for (FSTFilter *filter in matchingFilters) {
     XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 
-  for (id<FSTFilter> filter in nonMatchingFilters) {
+  for (FSTFilter *filter in nonMatchingFilters) {
     XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 }
@@ -311,7 +310,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTTestDoc("collection/doc", 0,
                  @{ @"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)} }, NO);
 
-  NSArray<id<FSTFilter>> *matchingFilters = @[
+  NSArray<FSTFilter *> *matchingFilters = @[
     FSTTestFilter("tags", @"==",
                   @{ @"foo" : @"foo",
                      @"a" : @0,
@@ -325,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTTestFilter("tags.foo", @"==", @"foo")
   ];
 
-  NSArray<id<FSTFilter>> *nonMatchingFilters = @[
+  NSArray<FSTFilter *> *nonMatchingFilters = @[
     FSTTestFilter("tags", @"==", @"foo"), FSTTestFilter("tags", @"==", @{
       @"foo" : @"foo",
       @"a" : @0,
@@ -333,11 +332,11 @@ NS_ASSUME_NONNULL_BEGIN
     })
   ];
 
-  for (id<FSTFilter> filter in matchingFilters) {
+  for (FSTFilter *filter in matchingFilters) {
     XCTAssertTrue([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 
-  for (id<FSTFilter> filter in nonMatchingFilters) {
+  for (FSTFilter *filter in nonMatchingFilters) {
     XCTAssertFalse([[baseQuery queryByAddingFilter:filter] matchesDocument:doc1]);
   }
 }

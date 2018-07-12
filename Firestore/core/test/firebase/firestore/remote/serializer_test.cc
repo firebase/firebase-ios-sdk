@@ -161,7 +161,7 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
-  v1beta1::Value ValueProto(nullptr_t) {
+  v1beta1::Value ValueProto(std::nullptr_t) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::NullValue());
     v1beta1::Value proto;
