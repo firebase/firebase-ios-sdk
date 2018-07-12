@@ -154,7 +154,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 #pragma mark - FIRComponentLifecycleMaintainer
 
 - (void)appWillBeDeleted:(FIRApp *)app {
-  // TODO: Clean up any resources assocated with the instances in the `instances` dictionary.
+  // Stop any actions and clean up resources since instances of Firestore associated with this app
+  // will be removed. Currently does not do anything.
 }
 
 @end
