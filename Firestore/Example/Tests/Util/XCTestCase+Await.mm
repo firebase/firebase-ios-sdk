@@ -20,7 +20,7 @@
 
 // TODO(b/72864027): Reduce this to 10 seconds again once we've resolved issues with Query
 // Conformance Tests flakiness or gotten answers from GRPC about reconnect delays.
-static const double kExpectationWaitSeconds = 25.0;
+static const double kExpectationWaitSeconds = 625.0;
 
 @implementation XCTestCase (Await)
 

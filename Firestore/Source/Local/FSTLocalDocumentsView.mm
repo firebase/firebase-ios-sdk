@@ -114,55 +114,56 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-/*
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  // Query the remote documents and overlay mutations.
-  // TODO(mikelehen): There may be significant overlap between the mutations affecting these
-  // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
-  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-  results = [self localDocuments:results];
+  const auto old = false;
+  if (old) {
+    // Query the remote documents and overlay mutations.
+    // TODO(mikelehen): There may be significant overlap between the mutations affecting these
+    // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
+    __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+    results = [self localDocuments:results];
 
-  // Now use the mutation queue to discover any other documents that may match the query after
-  // applying mutations.
-  DocumentKeySet matchingKeys;
-  NSArray<FSTMutationBatch *> *matchingMutationBatches =
-      [self.mutationQueue allMutationBatchesAffectingQuery:query];
-  for (FSTMutationBatch *batch in matchingMutationBatches) {
-    for (FSTMutation *mutation in batch.mutations) {
-      // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
+    // Now use the mutation queue to discover any other documents that may match the query after
+    // applying mutations.
+    DocumentKeySet matchingKeys;
+    NSArray<FSTMutationBatch *> *matchingMutationBatches =
+        [self.mutationQueue allMutationBatchesAffectingQuery:query];
+    for (FSTMutationBatch *batch in matchingMutationBatches) {
+      for (FSTMutation *mutation in batch.mutations) {
+        // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
 
-      // If the key is already in the results, we can skip it.
-      if (![results containsKey:mutation.key]) {
-        matchingKeys = matchingKeys.insert(mutation.key);
+        // If the key is already in the results, we can skip it.
+        if (![results containsKey:mutation.key]) {
+          matchingKeys = matchingKeys.insert(mutation.key);
+        }
       }
     }
+
+    // Now add in results for the matchingKeys.
+    FSTMaybeDocumentDictionary *matchingKeysDocs = [self documentsForKeys:matchingKeys];
+    [matchingKeysDocs
+        enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
+          if ([doc isKindOfClass:[FSTDocument class]]) {
+            results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
+          }
+        }];
+
+    // Finally, filter out any documents that don't actually match the query. Note that the extra
+    // reference here prevents ARC from deallocating the initial unfiltered results while we're
+    // enumerating them.
+    FSTDocumentDictionary *unfiltered = results;
+    [unfiltered
+        enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
+          if (![query matchesDocument:doc]) {
+            results = [results dictionaryByRemovingObjectForKey:key];
+          }
+        }];
+
+    return results;
   }
 
-  // Now add in results for the matchingKeys.
-  FSTMaybeDocumentDictionary *matchingKeysDocs = [self documentsForKeys:matchingKeys];
-  [matchingKeysDocs
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        if ([doc isKindOfClass:[FSTDocument class]]) {
-          results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
-        }
-      }];
 
-  // Finally, filter out any documents that don't actually match the query. Note that the extra
-  // reference here prevents ARC from deallocating the initial unfiltered results while we're
-  // enumerating them.
-  FSTDocumentDictionary *unfiltered = results;
-  [unfiltered
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-        if (![query matchesDocument:doc]) {
-          results = [results dictionaryByRemovingObjectForKey:key];
-        }
-      }];
 
-  return results;
-}
-*/
-
-- (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
@@ -257,3 +258,4 @@ inBatches:(NSArray<FSTMutationBatch*>*)batches {
 @end
 
 NS_ASSUME_NONNULL_END
+

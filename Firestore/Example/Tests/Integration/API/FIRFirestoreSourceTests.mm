@@ -660,50 +660,41 @@ void log(tp& from, const std::string& tag) {
 - (void)testFoo {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testFoo"];
+    FIRDocumentReference *mainDoc = [self documentRef];
+    FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
 
-  FIRDocumentReference *mainDoc = [self documentRef];
-  FIRWriteBatch *batch = [mainDoc.firestore batch];
-  FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
-
-  // >500 mutations will be rejected, so use 500 mutations
-  for (int i = 0; i != 500; ++i) {
-    FIRDocumentReference *nestedDoc = [col documentWithAutoID];
-    [batch setData:@{
-      @"a" : @"foo",
-      @"b" : @"bar",
+    int numBatches = 10;
+  for (int i = 0; i != numBatches; ++i) {
+    FIRWriteBatch *batch = [mainDoc.firestore batch];
+    
+    // >500 mutations will be rejected, so use 500 mutations
+    for (int i = 0; i != 500; ++i) {
+      FIRDocumentReference *nestedDoc = [col documentWithAutoID];
+      [batch setData:@{
+        @"a" : @"foo",
+          @"b" : @"bar",
+      }
+forDocument:nestedDoc];
     }
-        forDocument:nestedDoc];
-  }
 
   // go offline for the rest of this test
 
   [batch commitWithCompletion:^(NSError *_Nullable error) {
+      
+    if (i == numBatches - 1)
     [expectation fulfill];
   }];
+  }
 
   [self awaitExpectations];
-    std::cout << "OBC disabling network\n";
-    [self disableNetwork];
 
-    /*
-  for (int i = 0; i != 100; ++i) {
-    for (int j = 0; j != 10; ++j) {
-      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i, j];
-      [[col documentWithPath:docKey] setData:@{@"key2" : @"value2"} merge:YES];
-    };
-  }
+  std::cout << "OBC disabling network\n";
+  [self disableNetwork];
 
-  for (int i = 0; i != 100; ++i) {
-    for (int j = 0; j != 10; ++j) {
-      NSString* docKey = [NSString stringWithFormat:@"doc%d.%d", i + 100, j];
-      [[col documentWithPath:docKey] setData:@{@"key2" : @"value2"} merge:YES];
-    };
-  }
-     */
 
   auto time = high_resolution_clock::now();
     const auto start = time;
-  for (int i = 0; i != 100; ++i) {
+  for (int i = 0; i != 1; ++i) {
     FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
     log(time, "query");
     XCTAssertTrue(result != nil);
