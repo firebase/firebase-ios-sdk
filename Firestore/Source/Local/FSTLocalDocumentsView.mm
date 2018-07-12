@@ -111,9 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
   // Query the remote documents and overlay mutations.
-  // TODO(mikelehen): There may be significant overlap between the mutations affecting these
-  // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
-__block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
   results = [self localDocuments:results inBatches:matchingBatches];
