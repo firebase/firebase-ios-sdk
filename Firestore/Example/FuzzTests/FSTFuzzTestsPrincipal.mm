@@ -29,8 +29,7 @@ namespace {
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  // The Serializer object is static to avoid initializing it every method call.
-  static Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
+  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
 
   @autoreleasepool {
     @try {
@@ -66,7 +65,9 @@ int RunFuzzTestingMain() {
   const char *corpus_arg = [corpus_path UTF8String];
 
   // Arguments to libFuzzer main() function should be added to this array,
-  // e.g., dictionaries, corpus, number of runs, jobs, etc.
+  // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
+  // libFuzzer expects the non-const argument 'char ***argv' and it does not
+  // modify it throughout the method.
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
       const_cast<char *>(dict_arg),              // Dictionary arg.
