@@ -168,7 +168,6 @@ case "$product-$method-$platform" in
         build \
         test
 
-  Firebase-xcodebuild-*)
     RunXcodebuild \
         -workspace 'Example/Firebase.xcworkspace' \
         -scheme "Core_Example_$platform" \
