@@ -34,7 +34,7 @@ set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(SanitizerOptions)
-include(utils)
+include(cc_rules)
 
 
 # External packages
