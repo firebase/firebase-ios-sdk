@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-#import <Cocoa/Cocoa.h>
+#import "ViewController.h"
 
-int main(int argc, const char* argv[]) {
-  return NSApplicationMain(argc, argv);
+@implementation ViewController
+
+- (void)viewDidLoad {
+  [super viewDidLoad];
+
+  // Do any additional setup after loading the view.
 }
+
+- (void)setRepresentedObject:(id)representedObject {
+  [super setRepresentedObject:representedObject];
+
+  // Update the view, if already loaded.
+}
+
+@end

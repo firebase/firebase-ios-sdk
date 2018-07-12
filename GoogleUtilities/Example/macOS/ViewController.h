@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-int main(int argc, const char* argv[]) {
-  return NSApplicationMain(argc, argv);
-}
+@interface ViewController : NSViewController
+
+@end
