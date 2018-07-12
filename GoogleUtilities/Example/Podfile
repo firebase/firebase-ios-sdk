@@ -21,3 +21,14 @@ target 'Example_macOS' do
     pod 'OCMock'
   end
 end
+
+target 'Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
