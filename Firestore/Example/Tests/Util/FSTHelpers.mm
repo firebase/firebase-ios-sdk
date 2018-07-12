@@ -179,7 +179,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path) {
   return [FSTQuery queryWithPath:testutil::Resource(path)];
 }
 
-id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
+FSTFilter *FSTTestFilter(const absl::string_view field, NSString *opString, id value) {
   const FieldPath path = testutil::Field(field);
   FSTRelationFilterOperator op;
   if ([opString isEqualToString:@"<"]) {
@@ -199,15 +199,8 @@ id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *opString, i
   }
 
   FSTFieldValue *data = FSTTestFieldValue(value);
-  if ([data isEqual:[FSTDoubleValue nanValue]]) {
-    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with NAN.");
-    return [[FSTNanFilter alloc] initWithField:path];
-  } else if ([data isEqual:[FSTNullValue nullValue]]) {
-    HARD_ASSERT(op == FSTRelationFilterOperatorEqual, "Must use == with Null.");
-    return [[FSTNullFilter alloc] initWithField:path];
-  } else {
-    return [FSTRelationFilter filterWithField:path filterOperator:op value:data];
-  }
+
+  return [FSTFilter filterWithField:path filterOperator:op value:data];
 }
 
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction) {
