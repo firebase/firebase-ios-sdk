@@ -31,7 +31,7 @@ Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
 }
 
 Tag Reader::ReadTag() {
-  Tag tag{};
+  Tag tag;
   if (!status_.ok()) return tag;
 
   bool eof;
