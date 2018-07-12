@@ -37,9 +37,8 @@ for instructions and options about overriding pod source locations.
 
 #### Accessing Firebase Source Snapshots
 
-All of the official releases are tagged in this repo and available via CocoaPods. If you'd like
-to access a local source snapshot or unreleased branch that it is also possible via Podfile
-directives like the following:
+All of the official releases are tagged in this repo and available via CocoaPods. To access a local
+source snapshot or unreleased branch, use Podfile directives like the following:
 
 To access FirebaseFirestore via a branch:
 ```
