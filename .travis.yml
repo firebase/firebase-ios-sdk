@@ -88,6 +88,7 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
+        - ./scripts/if_changed.sh bundle exec pod lib lint GoogleUtilities.podspec --use-libraries
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries $ALT_SOURCES
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries $ALT_SOURCES
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries $ALT_SOURCES

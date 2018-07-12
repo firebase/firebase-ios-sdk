@@ -168,6 +168,13 @@ case "$product-$method-$platform" in
         build \
         test
 
+    RunXcodebuild \
+        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
+        -scheme "Tests_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     if [[ $platform == 'iOS' ]]; then
       RunXcodebuild \
           -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
