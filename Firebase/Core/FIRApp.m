@@ -166,7 +166,7 @@ static NSMutableDictionary *sLibraryVersions;
   if ([name isEqualToString:kFIRDefaultAppName]) {
     [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be __FIRAPP_DEFAULT."];
   }
-  for (NSInteger charIndex = 0; charIndex < name.length; charIndex++) {
+  for (NSUInteger charIndex = 0; charIndex < name.length; charIndex++) {
     char character = [name characterAtIndex:charIndex];
     if (!((character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') ||
           (character >= '0' && character <= '9') || character == '_' || character == '-')) {
