@@ -173,6 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
       if (mutation.key.path().PopLast() != query.path) {
+      //if (!query.path.IsPrefixOf(mutation.key.path())) {
         // keys can't change through mutation, so don't bother tracking documents that can't
         // possibly match
         continue;
