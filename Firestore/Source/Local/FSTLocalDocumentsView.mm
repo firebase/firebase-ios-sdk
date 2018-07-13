@@ -111,17 +111,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
   // Query the remote documents and overlay mutations.
-  // TODO(mikelehen): There may be significant overlap between the mutations affecting these
-  // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-  results = [self localDocuments:results];
-
-  // Now use the mutation queue to discover any other documents that may match the query after
-  // applying mutations.
-  DocumentKeySet matchingKeys;
-  NSArray<FSTMutationBatch *> *matchingMutationBatches =
+  NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
-  for (FSTMutationBatch *batch in matchingMutationBatches) {
+  results = [self localDocuments:results inBatches:matchingBatches];
+
+  DocumentKeySet matchingKeys;
+  for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
       // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
 
@@ -133,17 +129,16 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Now add in results for the matchingKeys.
-  FSTMaybeDocumentDictionary *matchingKeysDocs = [self documentsForKeys:matchingKeys];
+  FSTMaybeDocumentDictionary *matchingKeysDocs =
+    [self documentsForKeys:matchingKeys inBatches:matchingBatches];
   [matchingKeysDocs
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
         if ([doc isKindOfClass:[FSTDocument class]]) {
           results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
         }
       }];
-
-  // Finally, filter out any documents that don't actually match the query. Note that the extra
-  // reference here prevents ARC from deallocating the initial unfiltered results while we're
-  // enumerating them.
+  // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
+  // results while we're enumerating them.
   FSTDocumentDictionary *unfiltered = results;
   [unfiltered
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
@@ -151,7 +146,6 @@ NS_ASSUME_NONNULL_BEGIN
           results = [results dictionaryByRemovingObjectForKey:key];
         }
       }];
-
   return results;
 }
 
