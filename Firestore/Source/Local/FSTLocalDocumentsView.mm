@@ -118,75 +118,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  const auto old = false;
-  if (old) {
-    // Query the remote documents and overlay mutations.
-    // TODO(mikelehen): There may be significant overlap between the mutations affecting these
-    // remote documents and the allMutationBatchesAffectingQuery mutations. Consider optimizing.
-    __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-    results = [self localDocuments:results];
-
-    // Now use the mutation queue to discover any other documents that may match the query after
-    // applying mutations.
-    DocumentKeySet matchingKeys;
-    NSArray<FSTMutationBatch *> *matchingMutationBatches =
-        [self.mutationQueue allMutationBatchesAffectingQuery:query];
-    for (FSTMutationBatch *batch in matchingMutationBatches) {
-      for (FSTMutation *mutation in batch.mutations) {
-        // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
-
-        // If the key is already in the results, we can skip it.
-        if (![results containsKey:mutation.key]) {
-          matchingKeys = matchingKeys.insert(mutation.key);
-        }
-      }
-    }
-
-    // Now add in results for the matchingKeys.
-    FSTMaybeDocumentDictionary *matchingKeysDocs = [self documentsForKeys:matchingKeys];
-    [matchingKeysDocs
-        enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-          if ([doc isKindOfClass:[FSTDocument class]]) {
-            results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
-          }
-        }];
-
-    // Finally, filter out any documents that don't actually match the query. Note that the extra
-    // reference here prevents ARC from deallocating the initial unfiltered results while we're
-    // enumerating them.
-    FSTDocumentDictionary *unfiltered = results;
-    [unfiltered
-        enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-          if (![query matchesDocument:doc]) {
-            results = [results dictionaryByRemovingObjectForKey:key];
-          }
-        }];
-
-    return results;
-  }
-
-
-
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-  /*
-  using firebase::firestore::immutable::SortedMap;
-  //__block SortedMap<DocumentKey, FSTDocument*> map;
-  __block std::map<DocumentKey, FSTDocument*> map;
-  [results
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-    //map = map.insert(key, doc);
-      map[key] = doc;
-  }];
-  */
-
-
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 
   for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
       if (mutation.key.path().PopLast() != query.path) {
-      //if (!query.path.IsPrefixOf(mutation.key.path())) {
         // keys can't change through mutation, so don't bother tracking documents that can't
         // possibly match
         continue;
@@ -204,40 +142,8 @@ NS_ASSUME_NONNULL_BEGIN
       } else {
         HARD_FAIL("Unknown document: %s", mutatedDoc);
       }
-
-      /*
-      const auto& key = mutation.key;
-      FSTMaybeDocument *baseDoc = nil;
-      auto found = map.find(key);
-      if (found != map.end()) {
-        baseDoc = found->second;
-      }
-
-      FSTMaybeDocument *mutatedDoc =
-        [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
-
-      if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-        //map = map.erase(key);
-        map.erase(key);
-      } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-        //map = map.insert(key, (FSTDocument*)mutatedDoc);
-        map[key] = (FSTDocument*)mutatedDoc;
-      } else {
-        HARD_FAIL("Unknown document: %s", mutatedDoc);
-      }
-      */
     }
   }
-
-
-    /*
-  FSTDocumentDictionary *to_return = [FSTDocumentDictionary documentDictionary];
-  for (const auto& entry : map) {
-    if ([query matchesDocument:entry.second]) {
-      to_return = [to_return dictionaryBySettingObject: entry.second forKey: entry.first];
-    }
-  }
-  */
 
   // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
   // results while we're enumerating them.
@@ -250,7 +156,6 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 
   return results;
-  //  return to_return;
 }
 
 /**
@@ -270,45 +175,6 @@ NS_ASSUME_NONNULL_BEGIN
   return document;
 }
 
-/**
- * Takes a set of remote documents and applies local mutations to generate the local view of
- * the documents.
- *
- * @param documents The base remote documents to apply mutations to.
- * @return The local view of the documents.
- */
-- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents {
-  __block DocumentKeySet keySet;
-  [documents
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
-        keySet = keySet.insert(doc.key);
-      }];
-  NSArray<FSTMutationBatch *> *batches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keySet];
-
-  return [self localDocuments:documents inBatches:batches];
-}
-
-- (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents
-inBatches:(NSArray<FSTMutationBatch*>*)batches {
-  __block FSTDocumentDictionary *result = documents;
-
-  [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
-                                                 BOOL *stop) {
-    FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key inBatches:batches];
-    if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-      result = [result dictionaryByRemovingObjectForKey:key];
-    } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-      result = [result dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
-    } else {
-      HARD_FAIL("Unknown document: %s", mutatedDoc);
-    }
-  }];
-
-  return result;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
-

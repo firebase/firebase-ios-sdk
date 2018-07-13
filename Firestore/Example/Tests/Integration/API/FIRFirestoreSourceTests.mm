@@ -667,7 +667,8 @@ void log(tp& from, const std::string& tag) {
     FIRDocumentReference *mainDoc = [self documentRef];
     FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
 
-    int numBatches = 50;
+    //int numBatches = 50;
+    int numBatches = 1;
   for (int i = 0; i != numBatches; ++i) {
     FIRWriteBatch *batch = [mainDoc.firestore batch];
     
