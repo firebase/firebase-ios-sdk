@@ -19,7 +19,7 @@
 #import <mach-o/dyld.h>
 #import <sys/utsname.h>
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
 #endif
 
@@ -216,11 +216,18 @@ static BOOL HasEmbeddedMobileProvision() {
 }
 
 + (NSString *)systemVersion {
-  #if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS
   return [UIDevice currentDevice].systemVersion;
-  #elif TARGET_OS_OSX
-  return [NSProcessInfo processInfo].operatingSystemVersionString;
-  #endif
+#elif TARGET_OS_OSX || TARGET_OS_TV
+  // Assemble the systemVersion, excluding the patch version if it's 0.
+  NSOperatingSystemVersion osVersion = [NSProcessInfo processInfo].operatingSystemVersion;
+  NSMutableString *versionString = [[NSMutableString alloc]
+      initWithFormat:@"%ld.%ld", (long)osVersion.majorVersion, (long)osVersion.minorVersion];
+  if (osVersion.patchVersion != 0) {
+    [versionString appendFormat:@".%ld", (long)osVersion.patchVersion];
+  }
+  return versionString;
+#endif
 }
 
 + (BOOL)isAppExtension {

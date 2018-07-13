@@ -38,6 +38,9 @@
   [_processInfoMock stopMocking];
 }
 
+// Remove the #if when iOS can remove iOS 7 support and also use processInfo instead of UIKit.
+#if TARGET_OS_OSX || TARGET_OS_TV
+
 - (void)testSystemVersionInfoMajorOnly {
   NSOperatingSystemVersion osTen = {.majorVersion = 10, .minorVersion = 0, .patchVersion = 0};
   OCMStub([self.processInfoMock operatingSystemVersion]).andReturn(osTen);
@@ -58,5 +61,6 @@
 
   XCTAssertTrue([[GULAppEnvironmentUtil systemVersion] isEqualToString:@"10.2.1"]);
 }
+#endif
 
 @end
