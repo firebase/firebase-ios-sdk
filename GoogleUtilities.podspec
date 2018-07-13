@@ -19,7 +19,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 #    :tag => 'Utilities-' + s.version.to_s
     :tag => 'pre-5.3-' + s.version.to_s
   }
-  s.ios.deployment_target = '7.0'
+  s.ios.deployment_target = '6.0'
   s.osx.deployment_target = '10.10'
   s.tvos.deployment_target = '10.0'
 
