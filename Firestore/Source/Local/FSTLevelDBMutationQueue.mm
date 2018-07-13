@@ -38,8 +38,6 @@
 #include "leveldb/db.h"
 #include "leveldb/write_batch.h"
 
-#include <iostream>
-
 NS_ASSUME_NONNULL_BEGIN
 
 namespace util = firebase::firestore::util;
@@ -349,8 +347,6 @@ using leveldb::WriteOptions;
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const DocumentKey &)documentKey {
-  std::cout << "OBC allMutationBatchesAffectingDocumentKey\n";
-
   NSString *userID = self.userID;
 
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
@@ -407,8 +403,6 @@ using leveldb::WriteOptions;
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKeys:
     (const DocumentKeySet &)documentKeys {
-  std::cout << "OBC allMutationBatchesAffectingDocumentKeys plural\n";
-
   NSString *userID = self.userID;
 
   // Take a pass through the document keys and collect the set of unique mutation batchIDs that
@@ -445,8 +439,6 @@ using leveldb::WriteOptions;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
-  std::cout << "OBC allMutationBatchesAffectingQuery\n";
-
   HARD_ASSERT(![query isDocumentQuery], "Document queries shouldn't go down this path");
   NSString *userID = self.userID;
 
