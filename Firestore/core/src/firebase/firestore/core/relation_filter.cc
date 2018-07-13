@@ -67,7 +67,7 @@ bool RelationFilter::MatchesComparison(const FieldValue& other) const {
   UNREACHABLE();
 }
 
-std::string RelationFilter::canonical_id() const {
+std::string RelationFilter::CanonicalId() const {
   // TODO(rsgowman): Port this
   abort();
 }

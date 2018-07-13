@@ -41,7 +41,7 @@ class RelationFilter : public Filter {
 
   bool Matches(const model::Document& doc) const override;
 
-  std::string canonical_id() const override;
+  std::string CanonicalId() const override;
 
  private:
   bool MatchesValue(const model::FieldValue& other) const;

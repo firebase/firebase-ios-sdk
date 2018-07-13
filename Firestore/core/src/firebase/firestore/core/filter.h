@@ -60,7 +60,7 @@ class Filter {
   virtual bool Matches(const model::Document& doc) const = 0;
 
   /** A unique ID identifying the filter; used when serializing queries. */
-  virtual std::string canonical_id() const = 0;
+  virtual std::string CanonicalId() const = 0;
 };
 
 }  // namespace core
