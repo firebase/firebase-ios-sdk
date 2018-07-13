@@ -27,21 +27,6 @@
 @interface FIRWriteBatchTests : FSTIntegrationTestCase
 @end
 
-#include <chrono>
-#include <iostream>
-
-namespace {
-using namespace std::chrono;
-using tp = high_resolution_clock::time_point;
-
-void log(tp& from, const std::string& tag) {
-  auto to = high_resolution_clock::now();
-  auto elapsed = duration_cast<milliseconds>(to - from);
-  std::cout << "OBC " << tag << " : " << elapsed.count() << "ms\n";
-  from = high_resolution_clock::now();
-}
-}
-
 @implementation FIRWriteBatchTests
 
 - (void)testSupportEmptyBatches {
@@ -361,27 +346,22 @@ int64_t GetCurrentMemoryUsedInMb() {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testReasonableMemoryUsageForLotsOfMutations"];
 
-    auto time = high_resolution_clock::now();
+  FIRDocumentReference *mainDoc = [self documentRef];
+  FIRWriteBatch *batch = [mainDoc.firestore batch];
 
-  int batches = 1;
-  for (int iter = 0; iter != batches; ++iter) {
-    FIRDocumentReference *mainDoc = [self documentRef];
-    FIRWriteBatch *batch = [mainDoc.firestore batch];
-
-    for (int i = 0; i != 500; ++i) {
-      FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
-      // The exact data doesn't matter; what is important is the large number of mutations.
-      [batch setData:@{
-        @"a" : @"foo",
-        @"b" : @"bar",
-      }
-          forDocument:nestedDoc];
+  // >= 500 mutations will be rejected, so use 500-1 mutations
+  for (int i = 0; i != 500 - 1; ++i) {
+    FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
+    // The exact data doesn't matter; what is important is the large number of mutations.
+    [batch setData:@{
+      @"a" : @"foo",
+      @"b" : @"bar",
     }
+        forDocument:nestedDoc];
+  }
 
   const int64_t memoryUsedBeforeCommitMb = GetCurrentMemoryUsedInMb();
   XCTAssertNotEqual(memoryUsedBeforeCommitMb, -1);
-
-
   [batch commitWithCompletion:^(NSError *_Nullable error) {
     XCTAssertNil(error);
     const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
@@ -391,14 +371,9 @@ int64_t GetCurrentMemoryUsedInMb() {
     // seems to be around 90 MB. A regression would be on the scale of 500Mb.
     XCTAssertLessThan(memoryDeltaMb, 150);
 
-    if (iter == batches - 1)
-      [expectation fulfill];
+    [expectation fulfill];
   }];
-  }
-
-  
   [self awaitExpectations];
-  log(time, "end");
 }
 
 @end
