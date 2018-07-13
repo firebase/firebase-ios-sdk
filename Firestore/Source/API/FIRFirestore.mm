@@ -16,13 +16,9 @@
 
 #import "FIRFirestore.h"
 
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
-#import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
@@ -35,6 +31,7 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
+#import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
@@ -65,104 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
-#pragma mark - Interop Instance Provider
-
-// This protocol is used in the interop registration process to register an instance provider for
-// individual FIRApps.
-@protocol FSTFirestoreMultiDBProvider
-
-/// Cached instances of Firestore objects.
-@property(nonatomic, strong) NSMutableDictionary<NSString *, FIRFirestore *> *instances;
-
-/// Default method for retrieving a Firestore instance, or creating one if it doesn't exist.
-- (FIRFirestore *)firestoreForDatabase:(NSString *)database;
-
-@end
-
-/// A concrete implementation for FSTInstanceProvider to create Firestore instances.
-@interface FSTFirestoreMultiDBComponent
-    : NSObject <FSTFirestoreMultiDBProvider, FIRComponentLifecycleMaintainer>
-
-/// The FIRApp that instances will be set up with.
-@property(nonatomic, weak, readonly) FIRApp *app;
-
-/// Cached instances of Firestore objects.
-@property(nonatomic, strong) NSMutableDictionary<NSString *, FIRFirestore *> *instances;
-
-/// Default method for retrieving a Firestore instance, or creating one if it doesn't exist.
-- (FIRFirestore *)firestoreForDatabase:(NSString *)database;
-
-/// Default initializer.
-- (instancetype)initWithApp:(FIRApp *)app NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
-
-@implementation FSTFirestoreMultiDBComponent
-
-// Explicitly @synthesize because instances is part of the FSTInstanceProvider protocol.
-@synthesize instances = _instances;
-
-#pragma mark - Initialization
-
-- (instancetype)initWithApp:(FIRApp *)app {
-  self = [super init];
-  if (self) {
-    _instances = [[NSMutableDictionary alloc] init];
-
-    HARD_ASSERT(app, "Cannot initialize Firestore with a nil FIRApp.");
-    _app = app;
-  }
-  return self;
-}
-
-#pragma mark - FSTInstanceProvider Conformance
-
-- (FIRFirestore *)firestoreForDatabase:(NSString *)database {
-  if (!database) {
-    FSTThrowInvalidArgument(@"database identifier may not be nil.");
-  }
-
-  NSString *key = [NSString stringWithFormat:@"%@|%@", self.app.name, database];
-
-  // Get the component from the container
-  @synchronized(self.instances) {
-    FIRFirestore *firestore = _instances[key];
-    if (!firestore) {
-      FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-          queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
-
-      std::unique_ptr<CredentialsProvider> credentials_provider =
-          absl::make_unique<FirebaseCredentialsProvider>(self.app);
-
-      NSString *persistenceKey = self.app.name;
-      NSString *projectID = self.app.options.projectID;
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                 database:util::MakeStringView(database)
-                                           persistenceKey:persistenceKey
-                                      credentialsProvider:std::move(credentials_provider)
-                                      workerDispatchQueue:workerDispatchQueue
-                                              firebaseApp:self.app];
-      _instances[key] = firestore;
-    }
-
-    return firestore;
-  }
-}
-
-#pragma mark - FIRComponentLifecycleMaintainer
-
-- (void)appWillBeDeleted:(FIRApp *)app {
-  // Stop any actions and clean up resources since instances of Firestore associated with this app
-  // will be removed. Currently does not do anything.
-}
-
-@end
-
 #pragma mark - FIRFirestore
 
-@interface FIRFirestore () <FIRComponentRegistrant> {
+@interface FIRFirestore () {
   /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
   DatabaseId _databaseID;
   std::unique_ptr<CredentialsProvider> _credentialsProvider;
@@ -251,36 +153,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         DatabaseId::kDefault);
   }
 
-  // Note: If the key format changes, please change the code that detects FIRApps being deleted
-  // contained in +initialize. It checks for the app's name followed by a | character.
-  NSString *key = [NSString stringWithFormat:@"%@|%@", app.name, database];
-
-  NSMutableDictionary<NSString *, FIRFirestore *> *instances = self.instances;
-  @synchronized(instances) {
-    FIRFirestore *firestore = instances[key];
-    if (!firestore) {
-      NSString *projectID = app.options.projectID;
-      HARD_ASSERT(projectID, "FirebaseOptions.projectID cannot be nil.");
-
-      FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-          queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
-
-      std::unique_ptr<CredentialsProvider> credentials_provider =
-          absl::make_unique<FirebaseCredentialsProvider>(app);
-
-      NSString *persistenceKey = app.name;
-
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                 database:util::MakeStringView(database)
-                                           persistenceKey:persistenceKey
-                                      credentialsProvider:std::move(credentials_provider)
-                                      workerDispatchQueue:workerDispatchQueue
-                                              firebaseApp:app];
-      instances[key] = firestore;
-    }
-
-    return firestore;
-  }
+  id<FSTFirestoreMultiDBProvider> provider =
+      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
+  return [provider firestoreForDatabase:database];
 }
 
 - (instancetype)initWithProjectID:(const absl::string_view)projectID
@@ -503,30 +378,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 
 - (const DatabaseId *)databaseID {
   return &_databaseID;
-}
-
-#pragma mark - Object Lifecycle
-
-+ (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self];
-}
-
-#pragma mark - Interoperability
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *auth =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
-  FIRComponent *firestoreProvider = [FIRComponent
-      componentWithProtocol:@protocol(FSTFirestoreMultiDBProvider)
-        instantiationTiming:FIRInstantiationTimingLazy
-               dependencies:@[ auth ]
-              creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-                FSTFirestoreMultiDBComponent *multiDBComponent =
-                    [[FSTFirestoreMultiDBComponent alloc] initWithApp:container.app];
-                *isCacheable = YES;
-                return multiDBComponent;
-              }];
-  return @[ firestoreProvider ];
 }
 
 @end
