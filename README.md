@@ -151,7 +151,7 @@ actively developed primarily for iOS. While we can catch basic unit test issues 
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
-For installation instructions, see [above](README.md#accessing-firebase-source-snapshots). 
+For installation instructions, see [above](README.md#accessing-firebase-source-snapshots).
 
 Note that the Firebase pod is not available for macOS and tvOS. Install a selection of the
 `FirebaseAuth`, `FirebaseCore`, `FirebaseDatabase` and `FirebaseStorage` CocoaPods.
