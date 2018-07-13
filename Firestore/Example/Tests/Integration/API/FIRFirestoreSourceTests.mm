@@ -22,22 +22,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
-#include <chrono>
-#include <iostream>
-
-namespace {
-
-using namespace std::chrono;
-using tp = high_resolution_clock::time_point;
-
-void log(tp& from, const std::string& tag) {
-  auto to = high_resolution_clock::now();
-  auto elapsed = duration_cast<milliseconds>(to - from);
-  std::cout << "OBC " << tag << " : " << elapsed.count() << "ms\n";
-  from = high_resolution_clock::now();
-}
-}
-
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase
 @end
 
@@ -661,52 +645,40 @@ void log(tp& from, const std::string& tag) {
   [self awaitExpectations];
 }
 
-- (void)testFoo {
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"testFoo"];
-    FIRDocumentReference *mainDoc = [self documentRef];
-    FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
+- (void)testPerformanceForGetCollectionOfflineWithManyDocuments {
+  // TODO(varconst): turn it into a proper performance test once Google Benchmark library is added
+  // to the project.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"allDocsWritten"];
+  FIRDocumentReference *mainDoc = [self documentRef];
+  FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
 
-    //int numBatches = 50;
-    int numBatches = 1;
-  for (int i = 0; i != numBatches; ++i) {
+  int totalBatches = 1;
+  for (int batchNum = 0; batchNum != totalBatches; ++batchNum) {
     FIRWriteBatch *batch = [mainDoc.firestore batch];
-    
-    // >500 mutations will be rejected, so use 500 mutations
-    for (int i = 0; i != 500; ++i) {
-      FIRDocumentReference *nestedDoc = [col documentWithAutoID];
+
+    int maxMutationsInBatch = 500;
+    for (int i = 0; i != maxMutationsInBatch; ++i) {
+      FIRDocumentReference *docInCollection = [col documentWithAutoID];
       [batch setData:@{
         @"a" : @"foo",
           @"b" : @"bar",
       }
-forDocument:nestedDoc];
+forDocument:docInCollection];
     }
 
-  // go offline for the rest of this test
-
   [batch commitWithCompletion:^(NSError *_Nullable error) {
-      
-    if (i == numBatches - 1)
+    if (batchNum == totalBatches - 1)
     [expectation fulfill];
   }];
   }
 
   [self awaitExpectations];
 
-  std::cout << "OBC disabling network\n";
+  // Go offline to make sure everything is read locally.
   [self disableNetwork];
 
-
-  auto time = high_resolution_clock::now();
-    const auto start = time;
-  for (int i = 0; i != 1; ++i) {
-    FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
-    log(time, "query");
-    XCTAssertTrue(result != nil);
-    //std::cout << "OBC " << i << '\n';
-  }
-    auto bad = start;
-    log(bad, "end");
+  FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
+  XCTAssertTrue(result != nil);
 }
 
 @end
