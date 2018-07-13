@@ -445,7 +445,10 @@
   if ([NSURLSessionConfiguration
           respondsToSelector:@selector(backgroundSessionConfigurationWithIdentifier:)]) {
     // Running on iOS 8+/OS X 10.10+.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
     return [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier:sessionID];
+#pragma clang diagnostic pop
   } else {
     // Running on iOS 7/OS X 10.9.
     return [NSURLSessionConfiguration backgroundSessionConfiguration:sessionID];
