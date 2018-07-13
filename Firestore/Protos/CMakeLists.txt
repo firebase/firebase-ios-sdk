@@ -53,13 +53,6 @@ cc_library(
     protobuf-nanopb
 )
 
-target_compile_definitions(
-  firebase_firestore_protos_nanopb
-  PUBLIC -DPB_FIELD_16BIT
-)
-
-# TODO(rsgowman): this may be worth moving into cc_library, possibly via an
-# INCLUDE_DIRS or similar.
 target_include_directories(
   firebase_firestore_protos_nanopb
   PUBLIC ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb

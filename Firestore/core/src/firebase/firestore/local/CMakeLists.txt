@@ -22,6 +22,9 @@ cc_library(
     local_serializer.h
     local_serializer.cc
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    protobuf-nanopb
+
     LevelDB::LevelDB
     absl_strings
     firebase_firestore_model
@@ -29,5 +32,4 @@ cc_library(
     firebase_firestore_protos_nanopb
     firebase_firestore_remote
     firebase_firestore_util
-    protobuf-nanopb
 )

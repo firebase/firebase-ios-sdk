@@ -42,16 +42,49 @@ if(APPLE)
   find_package(FirebaseCore REQUIRED)
   find_package(GoogleUtilities REQUIRED)
 endif()
-find_package(GMock REQUIRED)
 find_package(GRPC REQUIRED)
-find_package(GTest REQUIRED)
 find_package(LevelDB REQUIRED)
-find_package(Nanopb REQUIRED)
 find_package(Protobuf REQUIRED)
 
-enable_testing()
-add_subdirectory(third_party/abseil-cpp)
 
+# Googletest
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/googletest
+  ${FIREBASE_BINARY_DIR}/src/googletest-build
+  EXCLUDE_FROM_ALL
+)
+add_alias(GTest::GTest gtest)
+add_alias(GTest::Main gtest_main)
+add_alias(GMock::GMock gmock)
+
+
+# Abseil-cpp
+add_subdirectory(
+  third_party/abseil-cpp
+)
+
+
+# nanopb
+set(nanopb_BUILD_GENERATOR ON CACHE BOOL "Enable the nanopb generator")
+set(nanopb_PROTOC_PATH ${NANOPB_PROTOC_BIN} CACHE STRING "Protoc location")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/nanopb
+  ${FIREBASE_BINARY_DIR}/src/nanopb-build
+  EXCLUDE_FROM_ALL
+)
+
+target_compile_definitions(
+  protobuf-nanopb
+  PUBLIC -DPB_FIELD_16BIT
+)
+
+target_include_directories(
+  protobuf-nanopb
+  INTERFACE $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/nanopb>
+)
+
+
+enable_testing()
 include(CompilerSetup)
 
 # Superbuild installed results
