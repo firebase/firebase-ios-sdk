@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 #include <iostream>
+#include <map>
 
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
@@ -167,6 +168,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  /*
+  using firebase::firestore::immutable::SortedMap;
+  //__block SortedMap<DocumentKey, FSTDocument*> map;
+  __block std::map<DocumentKey, FSTDocument*> map;
+  [results
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
+    //map = map.insert(key, doc);
+      map[key] = doc;
+  }];
+  */
+
+
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 
@@ -191,8 +204,40 @@ NS_ASSUME_NONNULL_BEGIN
       } else {
         HARD_FAIL("Unknown document: %s", mutatedDoc);
       }
+
+      /*
+      const auto& key = mutation.key;
+      FSTMaybeDocument *baseDoc = nil;
+      auto found = map.find(key);
+      if (found != map.end()) {
+        baseDoc = found->second;
+      }
+
+      FSTMaybeDocument *mutatedDoc =
+        [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
+
+      if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
+        //map = map.erase(key);
+        map.erase(key);
+      } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
+        //map = map.insert(key, (FSTDocument*)mutatedDoc);
+        map[key] = (FSTDocument*)mutatedDoc;
+      } else {
+        HARD_FAIL("Unknown document: %s", mutatedDoc);
+      }
+      */
     }
   }
+
+
+    /*
+  FSTDocumentDictionary *to_return = [FSTDocumentDictionary documentDictionary];
+  for (const auto& entry : map) {
+    if ([query matchesDocument:entry.second]) {
+      to_return = [to_return dictionaryBySettingObject: entry.second forKey: entry.first];
+    }
+  }
+  */
 
   // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
   // results while we're enumerating them.
@@ -205,6 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 
   return results;
+  //  return to_return;
 }
 
 /**
