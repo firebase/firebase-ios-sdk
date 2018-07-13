@@ -84,7 +84,7 @@ case "$platform" in
   iOS)
     xcb_flags=(
       -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 8 Plus'
+      -destination 'platform=iOS Simulator,name=iPhone 7'
     )
     ;;
 
@@ -164,6 +164,13 @@ case "$product-$method-$platform" in
     RunXcodebuild \
         -workspace 'Example/Firebase.xcworkspace' \
         -scheme "AllUnitTests_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
+        -scheme "Example_$platform" \
         "${xcb_flags[@]}" \
         build \
         test

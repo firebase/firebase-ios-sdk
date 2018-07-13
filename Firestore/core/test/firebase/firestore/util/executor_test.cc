@@ -115,6 +115,30 @@ TEST_P(ExecutorTest, DelayedOperationIsValidAfterTheOperationHasRun) {
   EXPECT_NO_THROW(delayed_operation.Cancel());
 }
 
+TEST_P(ExecutorTest, CancelingEmptyDelayedOperationIsValid) {
+  DelayedOperation delayed_operation;
+  EXPECT_NO_THROW(delayed_operation.Cancel());
+}
+
+TEST_P(ExecutorTest, DoubleCancelingDelayedOperationIsValid) {
+  std::string steps;
+
+  executor->Execute([&] {
+    DelayedOperation delayed_operation = Schedule(
+        executor.get(), Executor::Milliseconds(1), [&steps] { steps += '1'; });
+    Schedule(executor.get(), Executor::Milliseconds(5), [&] {
+      steps += '2';
+      signal_finished();
+    });
+
+    delayed_operation.Cancel();
+    delayed_operation.Cancel();
+  });
+
+  EXPECT_TRUE(WaitForTestToFinish());
+  EXPECT_EQ(steps, "2");
+}
+
 TEST_P(ExecutorTest, IsCurrentExecutor) {
   EXPECT_FALSE(executor->IsCurrentExecutor());
   EXPECT_NE(executor->Name(), executor->CurrentExecutorName());

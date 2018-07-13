@@ -336,7 +336,7 @@ int64_t GetCurrentMemoryUsedInMb() {
   const auto errorCode =
       task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&taskInfo, &taskInfoSize);
   if (errorCode == KERN_SUCCESS) {
-    const int bytesInMegabyte = 1000 * 1000;
+    const int bytesInMegabyte = 1024 * 1024;
     return taskInfo.resident_size / bytesInMegabyte;
   }
   return -1;
@@ -349,8 +349,9 @@ int64_t GetCurrentMemoryUsedInMb() {
   FIRDocumentReference *mainDoc = [self documentRef];
   FIRWriteBatch *batch = [mainDoc.firestore batch];
 
-  // >= 500 mutations will be rejected, so use 500-1 mutations
-  for (int i = 0; i != 500 - 1; ++i) {
+  // > 500 mutations will be rejected.
+  const int maxMutations = 500;
+  for (int i = 0; i != maxMutations; ++i) {
     FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
     // The exact data doesn't matter; what is important is the large number of mutations.
     [batch setData:@{
@@ -367,9 +368,9 @@ int64_t GetCurrentMemoryUsedInMb() {
     const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
     XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
     const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
-    // This by its nature cannot be a precise value. In debug mode, the increase on simulator
-    // seems to be around 90 MB. A regression would be on the scale of 500Mb.
-    XCTAssertLessThan(memoryDeltaMb, 150);
+    // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
+    // 10MB in debug mode pretty consistently. A regression would be on the scale of 500Mb.
+    XCTAssertLessThan(memoryDeltaMb, 20);
 
     [expectation fulfill];
   }];

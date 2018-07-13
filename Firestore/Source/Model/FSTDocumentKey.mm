@@ -33,7 +33,9 @@ using firebase::firestore::model::DocumentKey;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTDocumentKey () {
-  DocumentKey _impl;
+  // Forward most of the logic to the C++ implementation until FSTDocumentKey usages are completely
+  // migrated.
+  DocumentKey _delegate;
 }
 @end
 
@@ -58,7 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** Designated initializer. */
 - (instancetype)initWithDocumentKey:(const DocumentKey &)key {
   if (self = [super init]) {
-    _impl = key;
+    _delegate = key;
   }
   return self;
 }
@@ -74,11 +76,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  return _impl.Hash();
+  return _delegate.Hash();
 }
 
 - (NSString *)description {
-  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _impl.ToString().c_str()];
+  return [NSString stringWithFormat:@"<FSTDocumentKey: %s>", _delegate.ToString().c_str()];
 }
 
 /** Implements NSCopying without actually copying because FSTDocumentKeys are immutable. */
@@ -105,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (const ResourcePath &)path {
-  return _impl.path();
+  return _delegate.path();
 }
 
 @end

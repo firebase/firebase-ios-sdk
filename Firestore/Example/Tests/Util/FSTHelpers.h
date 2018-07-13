@@ -34,6 +34,7 @@
 @class FSTDocumentKeyReference;
 @class FSTDocumentSet;
 @class FSTFieldValue;
+@class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
@@ -46,7 +47,6 @@
 @class FSTView;
 @class FSTViewSnapshot;
 @class FSTObjectValue;
-@protocol FSTFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -242,7 +242,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path);
  * A convenience method to create a FSTFilter using a string representation for both field
  * and operator (<, <=, ==, >=, >, array_contains).
  */
-id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
+FSTFilter *FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);

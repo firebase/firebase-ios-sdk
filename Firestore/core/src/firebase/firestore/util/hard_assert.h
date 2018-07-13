@@ -21,6 +21,12 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
+#if defined(_MSC_VER)
+#define FIRESTORE_FUNCTION_NAME __FUNCSIG__
+#else
+#define FIRESTORE_FUNCTION_NAME __PRETTY_FUNCTION__
+#endif
+
 /**
  * Fails the current function if the given condition is false.
  *
@@ -30,14 +36,14 @@
  * @param format (optional) A format string suitable for util::StringFormat.
  * @param ... format arguments to pass to util::StringFormat.
  */
-#define HARD_ASSERT(condition, ...)                                       \
-  do {                                                                    \
-    if (!(condition)) {                                                   \
-      std::string _message =                                              \
-          firebase::firestore::util::StringFormat(__VA_ARGS__);           \
-      firebase::firestore::util::internal::Fail(                          \
-          __FILE__, __PRETTY_FUNCTION__, __LINE__, _message, #condition); \
-    }                                                                     \
+#define HARD_ASSERT(condition, ...)                                           \
+  do {                                                                        \
+    if (!(condition)) {                                                       \
+      std::string _message =                                                  \
+          firebase::firestore::util::StringFormat(__VA_ARGS__);               \
+      firebase::firestore::util::internal::Fail(                              \
+          __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, _message, #condition); \
+    }                                                                         \
   } while (0)
 
 /**
@@ -48,12 +54,12 @@
  * @param format A format string suitable for util::StringFormat.
  * @param ... format arguments to pass to util::StringFormat.
  */
-#define HARD_FAIL(...)                                                       \
-  do {                                                                       \
-    std::string _failure =                                                   \
-        firebase::firestore::util::StringFormat(__VA_ARGS__);                \
-    firebase::firestore::util::internal::Fail(__FILE__, __PRETTY_FUNCTION__, \
-                                              __LINE__, _failure);           \
+#define HARD_FAIL(...)                                          \
+  do {                                                          \
+    std::string _failure =                                      \
+        firebase::firestore::util::StringFormat(__VA_ARGS__);   \
+    firebase::firestore::util::internal::Fail(                  \
+        __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, _failure); \
   } while (0)
 
 /**

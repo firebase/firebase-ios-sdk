@@ -17,8 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_H_
 
+#include <memory>
 #include <utility>
+#include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
@@ -26,7 +29,10 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/** Represents the internal structure of a Firestore Query. */
+/**
+ * Represents the internal structure of a Firestore Query. Query instances are
+ * immutable.
+ */
 class Query {
  public:
   /**
@@ -36,20 +42,28 @@ class Query {
    * @return A new instance of Query.
    */
   static Query AtPath(model::ResourcePath path) {
-    return Query(std::move(path));
+    return Query(std::move(path), {});
   }
 
   /** Initializes a query with all of its components directly. */
-  explicit Query(model::ResourcePath path /* TODO(rsgowman): other params */)
-      : path_(std::move(path)) {
+  Query(model::ResourcePath path,
+        std::vector<std::shared_ptr<core::Filter>>
+            filters /* TODO(rsgowman): other params */)
+      : path_(std::move(path)), filters_(std::move(filters)) {
   }
 
+  /** The base path of the query. */
   const model::ResourcePath& path() const {
     return path_;
   }
 
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
+
+  /**
+   * Returns a copy of this Query object with the additional specified filter.
+   */
+  Query Filter(std::shared_ptr<core::Filter> filter) const;
 
  private:
   bool MatchesPath(const model::Document& doc) const;
@@ -58,6 +72,12 @@ class Query {
   bool MatchesBounds(const model::Document& doc) const;
 
   const model::ResourcePath path_;
+
+  // Filters are shared across related Query instance. i.e. when you call
+  // Query::Filter(f), a new Query instance is created that contains all of the
+  // existing filters, plus the new one. (Both Query and Filter objects are
+  // immutable.) Filters are not shared across unrelated Query instances.
+  const std::vector<std::shared_ptr<core::Filter>> filters_;
 };
 
 }  // namespace core

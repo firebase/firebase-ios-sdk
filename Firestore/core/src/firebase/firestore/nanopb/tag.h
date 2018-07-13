@@ -32,8 +32,14 @@ namespace nanopb {
  * google_firestore_v1beta1_Document_name_tag.
  */
 struct Tag {
-  pb_wire_type_t wire_type;
-  uint32_t field_number;
+  Tag() {
+  }
+
+  Tag(pb_wire_type_t w, uint32_t f) : wire_type{w}, field_number{f} {
+  }
+
+  pb_wire_type_t wire_type = PB_WT_VARINT;
+  uint32_t field_number = 0u;
 };
 
 }  // namespace nanopb

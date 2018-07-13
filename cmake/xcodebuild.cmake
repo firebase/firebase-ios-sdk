@@ -63,7 +63,7 @@ function(xcodebuild framework)
     ${framework}
     DEPENDS ${xcb_DEPENDS}
 
-    PREFIX ${PROJECT_BINARY_DIR}/external/${framework}
+    PREFIX ${PROJECT_BINARY_DIR}
 
     # The source directory doesn't actually matter
     SOURCE_DIR ${PROJECT_SOURCE_DIR}
