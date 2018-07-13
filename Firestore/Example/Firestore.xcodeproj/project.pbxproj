@@ -918,9 +918,9 @@
 		6EDD3B5D20BF24A700C33877 /* FuzzTests */ = {
 			isa = PBXGroup;
 			children = (
-				6ED6DEA120F5502700FC6076 /* FuzzingResources */,
 				6EDD3B5E20BF24D000C33877 /* FSTFuzzTestsPrincipal.mm */,
 				6EDD3B5C20BF247500C33877 /* Firestore_FuzzTests_iOS-Info.plist */,
+				6ED6DEA120F5502700FC6076 /* FuzzingResources */,
 			);
 			path = FuzzTests;
 			sourceTree = "<group>";
