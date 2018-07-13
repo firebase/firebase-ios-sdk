@@ -25,13 +25,17 @@
 #include <chrono>
 #include <iostream>
 
+namespace {
+
 using namespace std::chrono;
 using tp = high_resolution_clock::time_point;
+
 void log(tp& from, const std::string& tag) {
   auto to = high_resolution_clock::now();
   auto elapsed = duration_cast<milliseconds>(to - from);
   std::cout << "OBC " << tag << " : " << elapsed.count() << "ms\n";
   from = high_resolution_clock::now();
+}
 }
 
 @interface FIRFirestoreSourceTests : FSTIntegrationTestCase

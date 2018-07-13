@@ -29,6 +29,8 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+#include <iostream>
+
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -167,29 +169,30 @@ NS_ASSUME_NONNULL_BEGIN
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
-  results = [self localDocuments:results inBatches:matchingBatches];
 
-  DocumentKeySet matchingKeys;
   for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
-      // TODO(mikelehen): PERF: Check if this mutation actually affects the query to reduce work.
+      if (mutation.key.path().PopLast() != query.path) {
+        // keys can't change through mutation, so don't bother tracking documents that can't
+        // possibly match
+        continue;
+      }
 
-      // If the key is already in the results, we can skip it.
-      if (![results containsKey:mutation.key]) {
-        matchingKeys = matchingKeys.insert(mutation.key);
+      FSTDocumentKey* key = static_cast<FSTDocumentKey*>(mutation.key);
+      FSTMaybeDocument *baseDoc = results[key];
+      FSTMaybeDocument *mutatedDoc =
+        [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
+
+      if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
+        results = [results dictionaryByRemovingObjectForKey:mutation.key];
+      } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
+        results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:mutation.key];
+      } else {
+        HARD_FAIL("Unknown document: %s", mutatedDoc);
       }
     }
   }
 
-  // Now add in results for the matchingKeys.
-  FSTMaybeDocumentDictionary *matchingKeysDocs =
-    [self documentsForKeys:matchingKeys inBatches:matchingBatches];
-  [matchingKeysDocs
-      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
-        if ([doc isKindOfClass:[FSTDocument class]]) {
-          results = [results dictionaryBySettingObject:(FSTDocument *)doc forKey:key];
-        }
-      }];
   // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
   // results while we're enumerating them.
   FSTDocumentDictionary *unfiltered = results;
@@ -199,6 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
           results = [results dictionaryByRemovingObjectForKey:key];
         }
       }];
+
   return results;
 }
 
@@ -241,6 +245,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocumentDictionary *)localDocuments:(FSTDocumentDictionary *)documents
 inBatches:(NSArray<FSTMutationBatch*>*)batches {
   __block FSTDocumentDictionary *result = documents;
+
   [documents enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *remoteDocument,
                                                  BOOL *stop) {
     FSTMaybeDocument *mutatedDoc = [self localDocument:remoteDocument key:key inBatches:batches];
@@ -252,6 +257,7 @@ inBatches:(NSArray<FSTMutationBatch*>*)batches {
       HARD_FAIL("Unknown document: %s", mutatedDoc);
     }
   }];
+
   return result;
 }
 
