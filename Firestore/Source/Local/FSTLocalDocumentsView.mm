@@ -79,14 +79,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
-  NSArray<FSTMutationBatch *> *matchingBatches =
-      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
-  return [self documentsForKeys:keys inBatches:matchingBatches];
-}
-
-- (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys
-                                       inBatches:(NSArray<FSTMutationBatch *> *)batches {
   FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
+  NSArray<FSTMutationBatch *> *batches =
+      [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
   for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
     FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
@@ -119,19 +114,23 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
+  // Get the remote documents in the state in which the backend last acknowledged them.
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
+  // Get locally persisted mutation batches.
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 
+  // Overlay mutations on top of the remote docs, and create docs that haven't yet been written to
+  // the backend.
   for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
+      // Only process documents belonging to the collection.
       if (mutation.key.path().PopLast() != query.path) {
-        // keys can't change through mutation, so don't bother tracking documents that can't
-        // possibly match
         continue;
       }
 
       FSTDocumentKey *key = static_cast<FSTDocumentKey *>(mutation.key);
+      // baseDoc may be nil for the documents that weren't yet written to the backend.
       FSTMaybeDocument *baseDoc = results[key];
       FSTMaybeDocument *mutatedDoc =
           [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
@@ -146,8 +145,9 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
 
-  // Note that the extra reference here prevents ARC from deallocating the initial unfiltered
-  // results while we're enumerating them.
+  // Finally, filter out any documents that don't actually match the query. Note that the extra
+  // reference here prevents ARC from deallocating the initial unfiltered results while we're
+  // enumerating them.
   FSTDocumentDictionary *unfiltered = results;
   [unfiltered
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTDocument *doc, BOOL *stop) {
