@@ -29,9 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-#include <iostream>
-#include <map>
-
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
@@ -73,8 +70,12 @@ NS_ASSUME_NONNULL_BEGIN
 // Internal version of documentForKey: which allows reusing `batches`.
 - (nullable FSTMaybeDocument *)documentForKey:(const DocumentKey &)key
                                     inBatches:(NSArray<FSTMutationBatch *> *)batches {
-  FSTMaybeDocument *_Nullable remoteDoc = [self.remoteDocumentCache entryForKey:key];
-  return [self localDocument:remoteDoc key:key inBatches:batches];
+  FSTMaybeDocument *_Nullable document = [self.remoteDocumentCache entryForKey:key];
+  for (FSTMutationBatch *batch in batches) {
+    document = [batch applyTo:document documentKey:key];
+  }
+
+  return document;
 }
 
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys {
@@ -136,9 +137,9 @@ NS_ASSUME_NONNULL_BEGIN
         [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
 
       if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-        results = [results dictionaryByRemovingObjectForKey:mutation.key];
+        results = [results dictionaryByRemovingObjectForKey:key];
       } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
-        results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:mutation.key];
+        results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
       } else {
         HARD_FAIL("Unknown document: %s", mutatedDoc);
       }
@@ -156,23 +157,6 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 
   return results;
-}
-
-/**
- * Takes a remote document and applies local mutations to generate the local view of the
- * document.
- *
- * @param document The base remote document to apply mutations to.
- * @param documentKey The key of the document (necessary when remoteDocument is nil).
- */
-- (nullable FSTMaybeDocument *)localDocument:(nullable FSTMaybeDocument *)document
-                                         key:(const DocumentKey &)documentKey
-                                   inBatches:(NSArray<FSTMutationBatch *> *)batches {
-  for (FSTMutationBatch *batch in batches) {
-    document = [batch applyTo:document documentKey:documentKey];
-  }
-
-  return document;
 }
 
 @end
