@@ -645,39 +645,4 @@
   [self awaitExpectations];
 }
 
-- (void)testPerformanceForGetCollectionOfflineWithManyDocuments {
-  // TODO(varconst): turn it into a proper performance test once Google Benchmark library is added
-  // to the project.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"allDocsWritten"];
-  FIRDocumentReference *mainDoc = [self documentRef];
-  FIRCollectionReference *col = [mainDoc collectionWithPath:@"nested"];
-
-  int totalBatches = 1;
-  for (int batchNum = 0; batchNum != totalBatches; ++batchNum) {
-    FIRWriteBatch *batch = [mainDoc.firestore batch];
-
-    int maxMutationsInBatch = 500;
-    for (int i = 0; i != maxMutationsInBatch; ++i) {
-      FIRDocumentReference *docInCollection = [col documentWithAutoID];
-      [batch setData:@{
-        @"a" : @"foo",
-        @"b" : @"bar",
-      }
-          forDocument:docInCollection];
-    }
-
-    [batch commitWithCompletion:^(NSError *_Nullable error) {
-      if (batchNum == totalBatches - 1) [expectation fulfill];
-    }];
-  }
-
-  [self awaitExpectations];
-
-  // Go offline to make sure everything is read locally.
-  [self disableNetwork];
-
-  FIRQuerySnapshot *result = [self readDocumentSetForRef:col];
-  XCTAssertTrue(result != nil);
-}
-
 @end
