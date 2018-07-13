@@ -661,15 +661,14 @@
       FIRDocumentReference *docInCollection = [col documentWithAutoID];
       [batch setData:@{
         @"a" : @"foo",
-          @"b" : @"bar",
+        @"b" : @"bar",
       }
-forDocument:docInCollection];
+          forDocument:docInCollection];
     }
 
-  [batch commitWithCompletion:^(NSError *_Nullable error) {
-    if (batchNum == totalBatches - 1)
-    [expectation fulfill];
-  }];
+    [batch commitWithCompletion:^(NSError *_Nullable error) {
+      if (batchNum == totalBatches - 1) [expectation fulfill];
+    }];
   }
 
   [self awaitExpectations];

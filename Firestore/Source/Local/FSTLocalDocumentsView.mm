@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTMaybeDocumentDictionary *)documentsForKeys:(const DocumentKeySet &)keys
-    inBatches:(NSArray<FSTMutationBatch*>*)batches {
+                                       inBatches:(NSArray<FSTMutationBatch *> *)batches {
   FSTMaybeDocumentDictionary *results = [FSTMaybeDocumentDictionary maybeDocumentDictionary];
   for (const DocumentKey &key : keys) {
     // TODO(mikelehen): PERF: Consider fetching all remote documents at once rather than one-by-one.
@@ -131,10 +131,10 @@ NS_ASSUME_NONNULL_BEGIN
         continue;
       }
 
-      FSTDocumentKey* key = static_cast<FSTDocumentKey*>(mutation.key);
+      FSTDocumentKey *key = static_cast<FSTDocumentKey *>(mutation.key);
       FSTMaybeDocument *baseDoc = results[key];
       FSTMaybeDocument *mutatedDoc =
-        [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
+          [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
 
       if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
         results = [results dictionaryByRemovingObjectForKey:key];
