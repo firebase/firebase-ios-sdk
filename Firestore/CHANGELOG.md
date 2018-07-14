@@ -4,6 +4,10 @@
 - [feature] Added `whereField(arrayContains:)` query filter to find
   documents where an array field contains a specific element.
 - [fixed] Fixed compilation with older Xcode versions (#1517).
+- [fixed] Fixed performance issue when trying to commit a write batch with many
+  mutations (~500) would take unreasonable amount of time and consume 1GB of
+  memory. Committing several write batches with many mutations now shouldn't
+  significantly increase memory consumption.
 
 # v0.12.5
 - [changed] Internal improvements.
