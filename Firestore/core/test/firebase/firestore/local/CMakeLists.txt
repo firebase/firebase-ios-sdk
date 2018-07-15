@@ -12,10 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(HAVE_LEVELDB)
+  cc_test(
+    firebase_firestore_local_persistence_leveldb_test
+    SOURCES
+      leveldb_key_test.cc
+    DEPENDS
+      firebase_firestore_local_persistence_leveldb
+  )
+endif()
+
 cc_test(
   firebase_firestore_local_test
   SOURCES
-    leveldb_key_test.cc
     local_serializer_test.cc
   DEPENDS
     firebase_firestore_local
