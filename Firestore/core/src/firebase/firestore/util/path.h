@@ -26,12 +26,66 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-struct Path {
+/**
+ * An immutable native pathname string. Paths can be absolute or relative.
+ *
+ * Paths internally maintain their filesystem-native encoding.
+ */
+class Path {
+ public:
+#if defined(_WIN32)
+  using char_type = wchar_t;
+  using string_type = std::wstring;
+
+  static constexpr char_type kPreferredSeparator = L'\\';
+#else
+  using char_type = char;
+  using string_type = std::string;
+
+  static constexpr char_type kPreferredSeparator = '/';
+#endif  // defined(_WIN32)
+
+  static constexpr size_t npos = static_cast<size_t>(-1);
+
+  /**
+   * Creates a new Path from a UTF-8-encoded pathname.
+   */
+  static Path FromUtf8(absl::string_view utf8_pathname);
+
+#if defined(_WIN32)
+  /**
+   * Creates a new Path from a UTF-16-encoded pathname.
+   */
+  // absl::wstring_view does not exist :-(.
+  static Path FromUtf16(wchar_t* begin, size_t size);
+#endif
+
+  Path() {
+  }
+
+  const string_type& native_value() const {
+    return pathname_;
+  }
+
+  const char_type* c_str() const {
+    return pathname_.c_str();
+  }
+
+  size_t size() const {
+    return pathname_.size();
+  }
+
+#if defined(_WIN32)
+  std::string ToString() const;
+#else
+  const std::string& ToString() const;
+#endif  // defined(_WIN32)
+
   /**
    * Returns the unqualified trailing part of the pathname, e.g. "c" for
    * "/a/b/c".
    */
-  static absl::string_view Basename(absl::string_view pathname);
+  Path Basename() const;
 
   /**
    * Returns the parent directory name, e.g. "/a/b" for "/a/b/c".
@@ -45,12 +99,12 @@ struct Path {
    *   * Presently only UNIX style paths are supported (but compilation
    *     intentionally fails on Windows to prompt implementation there).
    */
-  static absl::string_view Dirname(absl::string_view pathname);
+  Path Dirname() const;
 
   /**
    * Returns true if the given `pathname` is an absolute path.
    */
-  static bool IsAbsolute(absl::string_view pathname);
+  bool IsAbsolute() const;
 
   /**
    * Returns the paths separated by path separators.
@@ -59,39 +113,66 @@ struct Path {
    *     value. Otherwise the first argument is copied.
    * @param paths The rest of the path segments.
    */
-  template <typename S1, typename... SA>
-  static std::string Join(S1&& base, const SA&... paths) {
-    std::string result{std::forward<S1>(base)};
-    JoinAppend(&result, paths...);
-    return result;
+  template <typename... P>
+  Path Append(const P&... paths) const {
+    return Join(*this, paths...);
+  }
+
+  /**
+   * Returns a Path consisting of `*this` followed by a separator followed by
+   * the path segment in the given `path` buffer.
+   */
+  Path AppendUtf8(absl::string_view path) const;
+  Path AppendUtf8(const char* path, size_t size) const {
+    return AppendUtf8(absl::string_view{path, size});
   }
 
   /**
    * Returns the paths separated by path separators.
+   *
+   * @param base If base is of type std::string&& the result is moved from this
+   *     value. Otherwise the first argument is copied.
+   * @param paths The rest of the path segments.
    */
-  static std::string Join() {
-    return {};
+  template <typename P1, typename... PA>
+  static Path Join(P1&& base, const PA&... paths) {
+    Path result{std::forward<P1>(base)};
+    result.MutableAppend(paths...);
+    return result;
+  }
+
+  friend bool operator==(const Path& lhs, const Path& rhs) {
+    return lhs.pathname_ == rhs.pathname_;
+  }
+  friend bool operator!=(const Path& lhs, const Path& rhs) {
+    return !(lhs == rhs);
   }
 
  private:
+  explicit Path(string_type&& native_pathname)
+      : pathname_{std::move(native_pathname)} {
+  }
+
   /**
-   * Joins the given base path with a suffix. If `path` is relative, appends it
-   * to the given base path. If `path` is absolute, replaces `base`.
+   * Joins the given base path with a UTF-8 encoded suffix. If `path` is
+   * relative, appends it to the given base path. If `path` is absolute,
+   * replaces `base`.
    */
-  static void JoinAppend(std::string* base, absl::string_view path);
+  void MutableAppend(const Path& path);
 
-  template <typename... S>
-  static void JoinAppend(std::string* base,
-                         absl::string_view path,
-                         const S&... rest) {
-    JoinAppend(base, path);
-    JoinAppend(base, rest...);
+  template <typename... P>
+  void MutableAppend(const Path& path, const P&... rest) {
+    MutableAppend(path);
+    MutableAppend(rest...);
   }
 
-  static void JoinAppend(std::string* base) {
+  static void MutableAppend() {
     // Recursive base case; nothing to do.
-    (void)base;
   }
+
+  void MutableAppend(const char_type* path, size_t size);
+
+  string_type pathname_;
 };
 
 }  // namespace util

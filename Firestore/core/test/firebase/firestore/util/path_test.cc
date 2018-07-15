@@ -58,9 +58,14 @@ namespace util {
 //   * POSIX is more complicated than we need
 //   * std::filesystem is still too experimental (as of 2018-06-05)
 
-#define EXPECT_BASENAME_EQ(expected, source)                  \
-  do {                                                        \
-    EXPECT_EQ(std::string{expected}, Path::Basename(source)); \
+#define EXPECT_PATH_EQ(expected, actual)         \
+  do {                                           \
+    EXPECT_EQ(Path::FromUtf8(expected), actual); \
+  } while (0)
+
+#define EXPECT_BASENAME_EQ(expected, source)                     \
+  do {                                                           \
+    EXPECT_PATH_EQ(expected, Path::FromUtf8(source).Basename()); \
   } while (0)
 
 TEST(Path, Basename_NoSeparator) {
@@ -118,9 +123,9 @@ TEST(Path, Basename_RelativePath) {
   EXPECT_BASENAME_EQ("b", "a//.//b");
 }
 
-#define EXPECT_DIRNAME_EQ(expected, source)                  \
-  do {                                                       \
-    EXPECT_EQ(std::string{expected}, Path::Dirname(source)); \
+#define EXPECT_DIRNAME_EQ(expected, source)                                \
+  do {                                                                     \
+    EXPECT_EQ(Path::FromUtf8(expected), Path::FromUtf8(source).Dirname()); \
   } while (0)
 
 TEST(Path, Dirname_NoSeparator) {
@@ -184,55 +189,51 @@ TEST(Path, Dirname_RelativePath) {
 }
 
 TEST(Path, IsAbsolute) {
-  EXPECT_FALSE(Path::IsAbsolute(""));
-  EXPECT_TRUE(Path::IsAbsolute("/"));
-  EXPECT_TRUE(Path::IsAbsolute("//"));
-  EXPECT_TRUE(Path::IsAbsolute("/foo"));
-  EXPECT_FALSE(Path::IsAbsolute("foo"));
-  EXPECT_FALSE(Path::IsAbsolute("foo/bar"));
+  EXPECT_FALSE(Path::FromUtf8("").IsAbsolute());
+  EXPECT_TRUE(Path::FromUtf8("/").IsAbsolute());
+  EXPECT_TRUE(Path::FromUtf8("//").IsAbsolute());
+  EXPECT_TRUE(Path::FromUtf8("/foo").IsAbsolute());
+  EXPECT_FALSE(Path::FromUtf8("foo").IsAbsolute());
+  EXPECT_FALSE(Path::FromUtf8("foo/bar").IsAbsolute());
+}
+
+template <typename... P>
+Path JoinUtf8(const P&... paths) {
+  return Path::Join(Path::FromUtf8(paths)...);
 }
 
 TEST(Path, Join_Absolute) {
-  EXPECT_EQ("/", Path::Join("/"));
+  EXPECT_PATH_EQ("/", JoinUtf8("/"));
 
-  EXPECT_EQ("/", Path::Join("", "/"));
-  EXPECT_EQ("/", Path::Join("a", "/"));
-  EXPECT_EQ("/b", Path::Join("a", "/b"));
+  EXPECT_PATH_EQ("/", JoinUtf8("", "/"));
+  EXPECT_PATH_EQ("/", JoinUtf8("a", "/"));
+  EXPECT_PATH_EQ("/b", JoinUtf8("a", "/b"));
 
   // Alternate root names should be preserved.
-  EXPECT_EQ("//", Path::Join("a", "//"));
-  EXPECT_EQ("//b", Path::Join("a", "//b"));
-  EXPECT_EQ("///b///", Path::Join("a", "///b///"));
+  EXPECT_PATH_EQ("//", JoinUtf8("a", "//"));
+  EXPECT_PATH_EQ("//b", JoinUtf8("a", "//b"));
+  EXPECT_PATH_EQ("///b///", JoinUtf8("a", "///b///"));
 
-  EXPECT_EQ("/", Path::Join("/", "/"));
-  EXPECT_EQ("/b", Path::Join("/", "/b"));
-  EXPECT_EQ("//b", Path::Join("//host/a", "//b"));
-  EXPECT_EQ("//b", Path::Join("//host/a/", "//b"));
+  EXPECT_PATH_EQ("/", JoinUtf8("/", "/"));
+  EXPECT_PATH_EQ("/b", JoinUtf8("/", "/b"));
+  EXPECT_PATH_EQ("//b", JoinUtf8("//host/a", "//b"));
+  EXPECT_PATH_EQ("//b", JoinUtf8("//host/a/", "//b"));
 
-  EXPECT_EQ("/", Path::Join("/", ""));
-  EXPECT_EQ("/a", Path::Join("/", "a"));
-  EXPECT_EQ("/a/b/c", Path::Join("/", "a", "b", "c"));
-  EXPECT_EQ("/a/", Path::Join("/", "a/"));
-  EXPECT_EQ("/.", Path::Join("/", "."));
-  EXPECT_EQ("/..", Path::Join("/", ".."));
+  EXPECT_PATH_EQ("/", JoinUtf8("/", ""));
+  EXPECT_PATH_EQ("/a", JoinUtf8("/", "a"));
+  EXPECT_PATH_EQ("/a/b/c", JoinUtf8("/", "a", "b", "c"));
+  EXPECT_PATH_EQ("/a/", JoinUtf8("/", "a/"));
+  EXPECT_PATH_EQ("/.", JoinUtf8("/", "."));
+  EXPECT_PATH_EQ("/..", JoinUtf8("/", ".."));
 }
 
 TEST(Path, Join_Relative) {
-  EXPECT_EQ("", Path::Join(""));
+  EXPECT_PATH_EQ("", JoinUtf8(""));
 
-  EXPECT_EQ("", Path::Join("", "", "", ""));
-  EXPECT_EQ("a/b/c", Path::Join("a/b", "c"));
-  EXPECT_EQ("/c/d", Path::Join("a/b", "/c", "d"));
-  EXPECT_EQ("/c/d", Path::Join("a/b/", "/c", "d"));
-}
-
-TEST(Path, Join_Types) {
-  EXPECT_EQ("a/b", Path::Join(absl::string_view{"a"}, "b"));
-  EXPECT_EQ("a/b", Path::Join(std::string{"a"}, "b"));
-
-  std::string a_string{"a"};
-  EXPECT_EQ("a/b", Path::Join(a_string, "b"));
-  EXPECT_EQ("a", a_string);
+  EXPECT_PATH_EQ("", JoinUtf8("", "", "", ""));
+  EXPECT_PATH_EQ("a/b/c", JoinUtf8("a/b", "c"));
+  EXPECT_PATH_EQ("/c/d", JoinUtf8("a/b", "/c", "d"));
+  EXPECT_PATH_EQ("/c/d", JoinUtf8("a/b/", "/c", "d"));
 }
 
 }  // namespace util
