@@ -33,7 +33,7 @@ set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
-include(SanitizerOptions)
+include(sanitizer_options)
 include(cc_rules)
 include(podspec_rules)
 
@@ -132,7 +132,7 @@ target_include_directories(
 
 
 enable_testing()
-include(CompilerSetup)
+include(compiler_setup)
 
 # Firebase packages
 podspec_framework(
