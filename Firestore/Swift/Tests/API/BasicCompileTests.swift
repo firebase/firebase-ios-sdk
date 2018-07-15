@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 
-import Foundation
+// These aren't tests in the usual sense--they just verify that the Objective-C to Swift translation
+// results in the right names.
 
+import Foundation
+import XCTest
 import FirebaseFirestore
+
+class BasicCompileTests: XCTestCase {
+  func testCompiled() {
+    XCTAssertTrue(true)
+  }
+}
 
 func main() {
   let db = initializeDb()

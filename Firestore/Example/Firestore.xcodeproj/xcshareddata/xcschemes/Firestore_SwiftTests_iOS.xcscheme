@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0940"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DE0761E31F2FE611003233AF"
-               BuildableName = "SwiftBuildTest.app"
-               BlueprintName = "SwiftBuildTest"
+               BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+               BuildableName = "Firestore_SwiftTests_iOS.xctest"
+               BlueprintName = "Firestore_SwiftTests_iOS"
                ReferencedContainer = "container:Firestore.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,13 +28,23 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+               BuildableName = "Firestore_SwiftTests_iOS.xctest"
+               BlueprintName = "Firestore_SwiftTests_iOS"
+               ReferencedContainer = "container:Firestore.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE0761E31F2FE611003233AF"
-            BuildableName = "SwiftBuildTest.app"
-            BlueprintName = "SwiftBuildTest"
+            BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+            BuildableName = "Firestore_SwiftTests_iOS.xctest"
+            BlueprintName = "Firestore_SwiftTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -51,16 +61,15 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE0761E31F2FE611003233AF"
-            BuildableName = "SwiftBuildTest.app"
-            BlueprintName = "SwiftBuildTest"
+            BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+            BuildableName = "Firestore_SwiftTests_iOS.xctest"
+            BlueprintName = "Firestore_SwiftTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -70,16 +79,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "DE0761E31F2FE611003233AF"
-            BuildableName = "SwiftBuildTest.app"
-            BlueprintName = "SwiftBuildTest"
+            BlueprintIdentifier = "54C9EDF02040E16300A969CD"
+            BuildableName = "Firestore_SwiftTests_iOS.xctest"
+            BlueprintName = "Firestore_SwiftTests_iOS"
             ReferencedContainer = "container:Firestore.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
