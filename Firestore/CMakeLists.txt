@@ -12,30 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 2.8.11)
-project(firestore C CXX)
-
-set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
-
-# CMAKE_INSTALL_PREFIX should be passed in to this build so that it can find
-# outputs of the superbuild. This is handled automatically if run via the
-# superbuild (i.e. by invoking cmake on the directory above this).
-#
-# If you want to use this project directly in e.g. CLion, make sure you
-# configure this.
-#
-# The superbuild passes CMAKE_INSTALL_PREFIX with a value of
-# ${FIREBASE_INSTALL_DIR} which is ${PROJECT_BINARY_DIR}/opt.
-set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
-
-# Expect that the source and binary directory structures will parallel each
-# other.
-set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
-
-list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
-include(sanitizer_options)
 include(cc_rules)
-include(external_rules)
 include(podspec_rules)
 
 
@@ -62,18 +39,19 @@ set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
 add_external_subdirectory(grpc)
 
 # Fix up targets included by gRPC's build
+set(external_src_dir ${FIREBASE_BINARY_DIR}/external/src)
 add_alias(OpenSSL::Crypto crypto)
 target_include_directories(
   crypto
   INTERFACE
-    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
+    $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
 )
 
 add_alias(OpenSSL::SSL ssl)
 target_include_directories(
   ssl
   INTERFACE
-    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
+    $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/boringssl/include>
 )
 
 add_alias(protobuf::libprotobuf libprotobuf)
@@ -85,8 +63,7 @@ target_compile_options(
 if(NOT ZLIB_FOUND)
   target_include_directories(
     zlibstatic
-    INTERFACE
-      $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/zlib>
+    INTERFACE $<BUILD_INTERFACE:${external_src_dir}/grpc/third_party/zlib>
   )
 endif()
 
@@ -111,7 +88,7 @@ target_compile_definitions(
 
 target_include_directories(
   protobuf-nanopb
-  INTERFACE $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/nanopb>
+  INTERFACE $<BUILD_INTERFACE:${external_src_dir}/nanopb>
 )
 
 

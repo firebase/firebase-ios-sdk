@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,23 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Superbuild for Firebase
+cmake_minimum_required(VERSION 3.1)
+project(Firebase-download C CXX)
 
-cmake_minimum_required(VERSION 2.8.11)
-project(firebase C CXX)
-
-list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
-include(external_rules)
-include(sanitizer_options)
-
-# If no build type is specified, make it a debug build
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug)
-endif()
-
-set(FIREBASE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR})
-set(FIREBASE_INSTALL_DIR ${PROJECT_BINARY_DIR}/opt)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 set(
   FIREBASE_DOWNLOAD_DIR
@@ -36,8 +23,8 @@ set(
   CACHE PATH "Where to store downloaded files"
 )
 
-download_external_sources()
-
-enable_testing()
-
-add_subdirectory(Firestore)
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
