@@ -13,13 +13,12 @@
 // limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
-#import "FIRTestCase.h"
-
-@interface GULAppEnvironmentUtilTest : FIRTestCase
+@interface GULAppEnvironmentUtilTest : XCTestCase
 
 @property(nonatomic) id processInfoMock;
 
@@ -38,6 +37,9 @@
 
   [_processInfoMock stopMocking];
 }
+
+// Remove the #if when iOS can remove iOS 7 support and also use processInfo instead of UIKit.
+#if TARGET_OS_OSX || TARGET_OS_TV
 
 - (void)testSystemVersionInfoMajorOnly {
   NSOperatingSystemVersion osTen = {.majorVersion = 10, .minorVersion = 0, .patchVersion = 0};
@@ -59,5 +61,6 @@
 
   XCTAssertTrue([[GULAppEnvironmentUtil systemVersion] isEqualToString:@"10.2.1"]);
 }
+#endif
 
 @end

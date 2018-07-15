@@ -89,6 +89,10 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
+        # For GoogleUtilities, allow warnings for iOS 6 but not iOS 7.
+        - ./scripts/if_cron.sh bundle exec pod lib lint GoogleUtilities.podspec --use-libraries --allow-warnings
+        - ./scripts/if_cron.sh sed -i -e "s/s.ios.deployment_target = '6.0'/s.ios.deployment_target = '7.0'/" GoogleUtilities.podspec
+        - ./scripts/if_cron.sh bundle exec pod lib lint GoogleUtilities.podspec --use-libraries
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries $ALT_SOURCES
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries $ALT_SOURCES
         - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuthInterop.podspec --use-libraries $ALT_SOURCES

@@ -89,3 +89,15 @@ function(add_objc_flags target)
     )
   endif()
 endfunction()
+
+# add_alias(alias_target actual_target)
+#
+# Adds a library alias target `alias_target` if it does not already exist,
+# aliasing to the given `actual_target` target. This allows library dependencies
+# to be specified uniformly in terms of the targets found in various
+# find_package modules even if the library is being built internally.
+function(add_alias ALIAS_TARGET ACTUAL_TARGET)
+  if(NOT TARGET ${ALIAS_TARGET})
+    add_library(${ALIAS_TARGET} ALIAS ${ACTUAL_TARGET})
+  endif()
+endfunction()
