@@ -45,5 +45,6 @@ target 'Firestore_Example_iOS' do
     inherit! :search_paths
 
     pod 'LibFuzzer', :podspec => 'LibFuzzer.podspec'
+    pod '!ProtoCompiler'
   end
 end
