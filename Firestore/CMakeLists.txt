@@ -144,14 +144,5 @@ podspec_framework(
   ${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec
 )
 
-# Superbuild installed results
-include_directories(${FIREBASE_INSTALL_DIR}/include)
-
-# Generated sources will be relative to the binary directory.
-include_directories(${FIREBASE_BINARY_DIR})
-
-# Fully qualified imports, project wide
-include_directories(${FIREBASE_SOURCE_DIR})
-
 add_subdirectory(core)
 add_subdirectory(Protos)

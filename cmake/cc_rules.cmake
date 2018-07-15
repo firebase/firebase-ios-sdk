@@ -26,16 +26,15 @@ function(cc_library name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
-  add_library(
-    ${name}
-    ${ccl_SOURCES}
-  )
+  add_library(${name} ${ccl_SOURCES})
   add_objc_flags(${name} ccl)
-  target_link_libraries(
+  target_include_directories(
     ${name}
     PUBLIC
-    ${ccl_DEPENDS}
+    ${FIREBASE_SOURCE_DIR}
+    ${FIREBASE_BINARY_DIR}
   )
+  target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
   if(ccl_EXCLUDE_FROM_ALL)
     set_property(
@@ -64,6 +63,7 @@ function(cc_test name)
   add_objc_flags(${name} cct)
   add_test(${name} ${name})
 
+  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} ${cct_DEPENDS})
 endfunction()
 
