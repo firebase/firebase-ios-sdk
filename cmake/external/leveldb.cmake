@@ -18,60 +18,30 @@ if(TARGET leveldb)
   return()
 endif()
 
-if(WIN32 OR LEVELDB_ROOT)
-  # If the user has supplied a LEVELDB_ROOT then just use it. Add an empty
-  # custom target so that the superbuild depdendencies don't all have to be
-  # conditional.
+if(WIN32)
+  # Unfortunately, LevelDB does not build on Windows (yet). See:
   #
-  # Also, unfortunately, LevelDB does not build on Windows (yet)
-  # See:
-  #   https://github.com/google/leveldb/issues/363
-  #   https://github.com/google/leveldb/issues/466
+  #   * https://github.com/google/leveldb/issues/363
+  #   * https://github.com/google/leveldb/issues/466
   add_custom_target(leveldb)
   return()
 endif()
 
-
-# Clean up warning output to reduce noise in the build
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-  set(
-    LEVELDB_CXX_FLAGS "\
-      -Wno-deprecated-declarations"
-  )
-endif()
-
-# Map CMake compiler configuration down onto the leveldb Makefile
-set(
-  LEVELDB_OPT "\
-    $<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}> \
-    $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>"
-)
+# CMake support was added after the 1.20 release
+set(commit 6caf73ad9dae0ee91873bcb39554537b85163770)  # master@{2018-07-14}
 
 ExternalProject_Add(
   leveldb
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME leveldb-v1.20.tar.gz
-  URL https://github.com/google/leveldb/archive/v1.20.tar.gz
-  URL_HASH SHA256=f5abe8b5b209c2f36560b75f32ce61412f39a2922f7045ae764a2c23335b6664
+  DOWNLOAD_NAME leveldb-${commit}.tar.gz
+  URL https://github.com/google/leveldb/archive/${commit}.tar.gz
+  URL_HASH SHA256=255e3283556aff81e337a951c5f5579f5b98b63d5f345db9e97a1f7563f54f9e
 
-  PREFIX ${FIREBASE_BINARY_DIR}
+  PREFIX ${PROJECT_BINARY_DIR}
 
-  # LevelDB's configuration is done in the Makefile
   CONFIGURE_COMMAND ""
-
-  # The Makefile-based build of leveldb does not support building
-  # out-of-source.
-  BUILD_IN_SOURCE ON
-
-  # Only build the leveldb library skipping the tools and in-memory
-  # implementation we don't use.
-  BUILD_COMMAND
-    env CXXFLAGS=${LEVELDB_CXX_FLAGS} OPT=${LEVELDB_OPT}
-      make -j out-static/libleveldb.a
-
-  INSTALL_DIR ${FIREBASE_INSTALL_DIR}
-
-  INSTALL_COMMAND ""
-  TEST_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
 )
