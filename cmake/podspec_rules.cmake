@@ -37,16 +37,15 @@ macro(podspec_framework PODSPEC_FILE)
 
     # Get CMake to automatically re-run if the generation script or the podspec
     # source changes.
-    configure_file(
-      ${FIREBASE_SOURCE_DIR}/cmake/podspec_cmake.rb
-      ${CMAKE_CURRENT_BINARY_DIR}/podspec_cmake.rb.stamp
+    set_property(
+      DIRECTORY APPEND PROPERTY
+      CMAKE_CONFIGURE_DEPENDS ${FIREBASE_SOURCE_DIR}/cmake/podspec_cmake.rb
+    )
+    set_property(
+      DIRECTORY APPEND PROPERTY
+      CMAKE_CONFIGURE_DEPENDS ${PODSPEC_FILE}
     )
 
-    get_filename_component(_podspec_basename ${PODSPEC_FILE} NAME)
-    configure_file(
-      ${PODSPEC_FILE}
-      ${CMAKE_CURRENT_BINARY_DIR}/${_podspec_basename}.stamp
-    )
     include(${CMAKE_CURRENT_BINARY_DIR}/${_properties_file})
   endif()
 endmacro()

@@ -39,7 +39,7 @@ end
 
 # A CMake command, like add_library. The command name is stored in the first
 # argument.
-class Command
+class CMakeCommand
   # Create the command with its initial identifying arguments.
   def initialize(*args)
     @args = args
@@ -83,10 +83,10 @@ end
 class Framework
   def initialize(name)
     @name = name
-    @add_library = Command.new('add_library', @name, 'STATIC')
+    @add_library = CMakeCommand.new('add_library', @name, 'STATIC')
     @add_library.allow_missing_args()
 
-    @public_headers = Command.new(
+    @public_headers = CMakeCommand.new(
       'set_property', 'TARGET', @name, 'PROPERTY', 'PUBLIC_HEADER')
 
     @properties = []
@@ -118,7 +118,7 @@ class Framework
   # Sets a target-level CMake property on the library target that declares the
   # framework.
   def set_property(property, *values)
-    command = Command.new('set_property', 'TARGET', @name, 'PROPERTY', property)
+    command = CMakeCommand.new('set_property', 'TARGET', @name, 'PROPERTY', property)
     command.add_args(values)
     @properties.push(command)
   end
@@ -172,7 +172,7 @@ class Framework
     key = key_args.join('|')
     command = @extras[key]
     if command.nil?
-      command = Command.new(*key_args)
+      command = CMakeCommand.new(*key_args)
       @extras[key] = command
     end
     return command
@@ -275,7 +275,7 @@ class CMakeGenerator
   def add_headers(files, sources)
     # CMake-built frameworks don't have a notion of private headers, but they
     # also don't have a notion of umbrella headers, so all framework headers
-    # need to be accessed by name. This means that jump dumping all the private
+    # need to be accessed by name. This means that just dumping all the private
     # and public headers into what CMake considers the public headers makes
     # everything work as we expect.
     headers = [
