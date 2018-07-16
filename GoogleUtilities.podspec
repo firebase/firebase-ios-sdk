@@ -8,7 +8,7 @@ Internal Google Utilities including Network, Reachability Environment, Logger, a
 other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
-  s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/GoogleUtilities'
+  s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleUtilities'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
