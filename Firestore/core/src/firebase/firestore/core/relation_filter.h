@@ -35,7 +35,7 @@ class RelationFilter : public Filter {
    * Creates a new filter that compares fields and values. Only intended to be
    * called from Filter::Create().
    */
-  RelationFilter(model::FieldPath field, Operator op, model::FieldValue value);
+  RelationFilter(model::FieldPath field, Operator op, model::FieldValue value_rhs);
 
   const model::FieldPath& field() const override;
 
@@ -49,7 +49,7 @@ class RelationFilter : public Filter {
 
   const model::FieldPath field_;
   const Operator op_;
-  const model::FieldValue value_;
+  const model::FieldValue value_rhs_;
 };
 
 }  // namespace core
