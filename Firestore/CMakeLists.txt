@@ -34,14 +34,11 @@ set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(SanitizerOptions)
-include(utils)
+include(cc_rules)
+include(podspec_rules)
 
 
 # External packages
-if(APPLE)
-  find_package(FirebaseCore REQUIRED)
-  find_package(GoogleUtilities REQUIRED)
-endif()
 find_package(LevelDB REQUIRED)
 find_package(ZLIB)
 
@@ -127,6 +124,16 @@ target_include_directories(
 
 enable_testing()
 include(CompilerSetup)
+
+# Firebase packages
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
+  SPECS Logger
+)
+
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec
+)
 
 # Superbuild installed results
 include_directories(${FIREBASE_INSTALL_DIR}/include)
