@@ -37,10 +37,6 @@ target 'Firestore_Example_iOS' do
     pod 'FirebaseFirestoreSwift', :path => '../../'
   end
 
-  target 'SwiftBuildTest' do
-    platform :ios, '8.0'
-  end
-
   target 'Firestore_FuzzTests_iOS' do
     inherit! :search_paths
 
