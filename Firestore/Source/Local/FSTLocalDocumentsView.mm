@@ -114,18 +114,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTDocumentDictionary *)documentsMatchingCollectionQuery:(FSTQuery *)query {
-  // Get the remote documents in the state in which the backend last acknowledged them.
   __block FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
   // Get locally persisted mutation batches.
   NSArray<FSTMutationBatch *> *matchingBatches =
       [self.mutationQueue allMutationBatchesAffectingQuery:query];
 
-  // Overlay mutations on top of the remote docs, and create docs that haven't yet been written to
-  // the backend.
   for (FSTMutationBatch *batch in matchingBatches) {
     for (FSTMutation *mutation in batch.mutations) {
       // Only process documents belonging to the collection.
-      if (mutation.key.path().PopLast() != query.path) {
+      if (!query.path.IsImmediateParentOf(mutation.key.path())) {
         continue;
       }
 
