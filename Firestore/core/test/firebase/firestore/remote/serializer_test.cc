@@ -392,16 +392,16 @@ TEST_F(SerializerTest, EncodesString) {
       "",
       "a",
       "abc def",
-      "æ",
+      u8"æ",
       // Note: Each one of the three embedded universal character names
       // (\u-escaped) maps to three chars, so the total length of the string
       // literal is 10 (ignoring the terminating null), and the resulting string
       // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
       // size of 10 must be added, or else std::string will see the \0 at the
       // start and assume that's the end of the string.
-      {"\0\ud7ff\ue000\uffff", 10},
+      {u8"\0\ud7ff\ue000\uffff", 10},
       {"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
-      "(╯°□°）╯︵ ┻━┻",
+      u8"(╯°□°）╯︵ ┻━┻",
   };
 
   for (const std::string& string_value : cases) {
