@@ -4,7 +4,7 @@
 
 The GoogleUtilities pod is a set of utilities organized into CocoaPods subspecs.
 See the [podspec](../GoogleUtilities.podspec) for a summary of what utilities
-are currently included. They're used by Firebase and other Google products. 
+are currently included. They're used by Firebase and other Google products.
 
 Direct usage by non-Google products and CocoaPods is **NOT** currently
 recommended or supported.
