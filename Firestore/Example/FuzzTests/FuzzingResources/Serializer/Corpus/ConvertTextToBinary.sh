@@ -49,13 +49,10 @@ for text_proto_file in "${text_protos_dir}"/*; do
   fi
 
   # Run the conversion.
-  # TODO(minafarid): This conversion relies on protoc as built by the cmake
-  # build. Switch this to using a pod dependency of protoc.
   echo "Converting file: ${file_name} (type: ${message_type})"
   echo "${file_content}" \
-    | "${SRCROOT}/../../build/external/protobuf/src/protobuf-build/src/protoc" \
+    | "${SRCROOT}/Pods/!ProtoCompiler/protoc" \
     -I"${SRCROOT}/../../Firestore/Protos/protos" \
-    -I"${SRCROOT}/../../build/external/protobuf/src/protobuf/src" \
     --encode=google.firestore.v1beta1."${message_type}" \
     google/firestore/v1beta1/document.proto > "${binary_protos_dir}/${file_name}"
 done

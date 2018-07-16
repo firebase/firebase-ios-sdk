@@ -97,8 +97,3 @@ target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
-
-set_target_properties(
-  firebase_firestore_protos_libprotobuf
-  PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter"
-)

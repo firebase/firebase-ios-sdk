@@ -13,8 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/FirebaseCore)
-include(external/GoogleUtilities)
 include(external/googletest)
 include(external/grpc)
 include(external/leveldb)
@@ -28,8 +26,6 @@ endif()
 ExternalProject_Add(
   Firestore
   DEPENDS
-    FirebaseCore
-    GoogleUtilities
     googletest
     grpc
     leveldb
