@@ -22,8 +22,9 @@ require 'set'
 PLATFORM = :osx
 
 def usage()
+  script = File.basename($0)
   STDERR.puts <<~EOF
-  USAGE: podspec_cmake.rb podspec cmake-file [subspecs...]
+  USAGE: #{script} podspec cmake-file [subspecs...]
   EOF
 end
 
@@ -124,9 +125,9 @@ class Framework
 
   # Adds target-level preprocessor definitions.
   #
-  # Params:
-  # +type+:: PUBLIC, PRIVATE, or INTERFACE
-  # +values:: C preprocessor defintion arguments starting with -D
+  # Args:
+  # - type: PUBLIC, PRIVATE, or INTERFACE
+  # - values: C preprocessor defintion arguments starting with -D
   def compile_definitions(type, *values)
     extra_command('target_compile_definitions', @name, type)
       .add_args(values)
@@ -134,9 +135,9 @@ class Framework
 
   # Adds target-level compile-time include path for the preprocessor.
   #
-  # Params:
-  # +type+:: PUBLIC, PRIVATE, or INTERFACE
-  # +values:: directory names, not including a leading -I flag
+  # Args:
+  # - type: PUBLIC, PRIVATE, or INTERFACE
+  # - values: directory names, not including a leading -I flag
   def include_directories(type, *dirs)
     extra_command('target_include_directories', @name, type)
       .add_args(dirs)
@@ -146,9 +147,9 @@ class Framework
   # definitions or include directories. Link-time options should be added via
   # lib_libraries.
   #
-  # Params:
-  # +type+:: PUBLIC, PRIVATE, or INTERFACE
-  # +values:: compiler flags, e.g. -fno-autolink
+  # Args:
+  # - type: PUBLIC, PRIVATE, or INTERFACE
+  # - values: compiler flags, e.g. -fno-autolink
   def compile_options(type, *values)
     extra_command('target_compile_options', @name, type)
       .add_args(values)
@@ -158,9 +159,9 @@ class Framework
   # interprets any quoted string that starts with "-" as an option and anything
   # else as a library target to depend upon.
   #
-  # Params:
-  # +type+:: PUBLIC, PRIVATE, or INTERFACE
-  # +values:: compiler flags, e.g. -fno-autolink
+  # Args:
+  # - type: PUBLIC, PRIVATE, or INTERFACE
+  # - values: compiler flags, e.g. -fno-autolink
   def link_libraries(type, *dirs)
     extra_command('target_link_libraries', @name, type)
       .add_args(dirs)
@@ -186,11 +187,11 @@ class CMakeGenerator
   # Initializes the generator with the given root Pod::Spec and the binary
   # directory for the current CMake configuration.
   #
-  # Params:
-  # +spec+:: A root specification, the name of which becomes the name of the
+  # Args:
+  # - spec: A root specification, the name of which becomes the name of the
   #   Framework.
-  # +path_list+:: A Pod::Sandbox::PathList used to cache file operations.
-  # +cmake_binary_dir+:: A directory in which additional files may be written.
+  # - path_list: A Pod::Sandbox::PathList used to cache file operations.
+  # - cmake_binary_dir: A directory in which additional files may be written.
   def initialize(spec, path_list, cmake_binary_dir)
     @target = Framework.new(spec.name)
 
@@ -217,8 +218,8 @@ class CMakeGenerator
   # Cocoapods subspecs are not independent libraries--they contribute sources
   # and dependencies to a final single Framework.
   #
-  # Params:
-  # +spec+:: A root or subspec that contributes to the final state of the of the
+  # Args:
+  # - spec: A root or subspec that contributes to the final state of the of the
   #   Framework.
   def add_framework(spec)
     spec = spec.consumer(PLATFORM)
@@ -331,10 +332,10 @@ class CMakeGenerator
   # CMake. This translates OTHER_CFLAGS, GCC_PREPROCESSOR_DEFINITIONS, and
   # HEADER_SEARCH_PATHS.
   #
-  # Params:
-  # +type+:: PUBLIC for +pod_user_xcconfig+ or PRIVATE for
+  # Args:
+  # - type: PUBLIC for +pod_user_xcconfig+ or PRIVATE for
   #   +pod_target_xcconfig+.
-  # +xcconfig+:: the hash of xcconfig values.
+  # - xcconfig: the hash of xcconfig values.
   def add_xcconfig(type, xcconfig)
     if xcconfig.empty?
       return
@@ -365,10 +366,10 @@ end
 # Processes a podspec file, translating all the specs within it into cmake file
 # describing how to build it.
 #
-# Params:
-# +podspec_file+:: The filename of the podspec to use as a source.
-# +cmake_file+:: The filename of the cmake script to produce.
-# +req_subspecs+:: Which subspecs to include. If empty, all subspecs are
+# Args:
+# - podspec_file: The filename of the podspec to use as a source.
+# - cmake_file: The filename of the cmake script to produce.
+# - req_subspecs: Which subspecs to include. If empty, all subspecs are
 #   included (which corresponds to CocoaPods behavior. The default_subspec
 #   property is not handled.
 def process(podspec_file, cmake_file, *req_subspecs)
