@@ -27,7 +27,9 @@ namespace core {
 using model::FieldPath;
 using model::FieldValue;
 
-RelationFilter::RelationFilter(FieldPath field, Operator op, FieldValue value_rhs)
+RelationFilter::RelationFilter(FieldPath field,
+                               Operator op,
+                               FieldValue value_rhs)
     : field_(std::move(field)), op_(op), value_rhs_(std::move(value_rhs)) {
 }
 
