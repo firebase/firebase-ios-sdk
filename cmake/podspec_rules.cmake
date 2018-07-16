@@ -29,6 +29,7 @@ macro(podspec_framework PODSPEC_FILE)
 
     execute_process(
       COMMAND
+        bundle exec
         ${FIREBASE_SOURCE_DIR}/cmake/podspec_cmake.rb
         ${PODSPEC_FILE}
         ${CMAKE_CURRENT_BINARY_DIR}/${_properties_file}
