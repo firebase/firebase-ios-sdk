@@ -27,7 +27,8 @@ using firebase::firestore::remote::Serializer;
 
 namespace {
 
-// A list of targets to fuzz test.
+// A list of targets to fuzz test. Should be kept in sync with the method
+// GetFuzzingTarget().
 enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
@@ -59,10 +60,15 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 
 // Retrieves the fuzzing target from the FUZZING_TARGET environment variable.
 // Default target is NONE if the environment variable is empty, not set, or
-// could not be interpretted.
+// could not be interpreted. Should be kept in sync with FuzzingTarget.
 FuzzingTarget GetFuzzingTarget() {
   NSString *fuzzing_target_env =
       [[[NSProcessInfo processInfo] environment] objectForKey:@"FUZZING_TARGET"];
+
+  if (fuzzing_target_env == nil || [fuzzing_target_env length] == 0) {
+    LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
+    return NONE;
+  }
 
   if ([@"NONE" isEqualToString:fuzzing_target_env]) {
     return NONE;
@@ -72,11 +78,8 @@ FuzzingTarget GetFuzzingTarget() {
     return SERIALIZER;
   }
 
-  if ([fuzzing_target_env length] == 0) {
-    LOG_WARN("No value provided in FUZZING_TARGET environment variable.");
-  } else {
-    LOG_WARN("Invalid fuzzing target: %s", fuzzing_target_env);
-  }
+  // Value did not match any target.
+  LOG_WARN("Invalid fuzzing target: %s", fuzzing_target_env);
 
   // Default is NONE.
   return NONE;
