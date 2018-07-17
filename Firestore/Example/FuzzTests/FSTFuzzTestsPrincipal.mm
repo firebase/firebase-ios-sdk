@@ -18,12 +18,11 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "FuzzingTargets/FSTFuzzTestTargets.h"
+
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
-using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::Serializer;
+namespace fuzzing = firebase::firestore::fuzzing;
 
 namespace {
 
@@ -36,26 +35,10 @@ enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
 // We write crashes to the temporary directory that is available to the iOS app.
 NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 
-// Fuzz-test the deserialization process in Firestore. The Serializer reads raw
-// bytes and converts them to a model object.
-void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
-
-  @autoreleasepool {
-    @try {
-      serializer.DecodeFieldValue(data, size);
-    } @catch (...) {
-      // Caught exceptions are ignored because the input might be malformed and
-      // the deserialization might throw an error as intended. Fuzzing focuses on
-      // runtime errors that are detected by the sanitizers.
-    }
-  }
-}
-
 // Contains the code to be fuzzed. Called by the fuzzing library with
 // different argument values for `data` and `size`.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  FuzzTestDeserialization(data, size);
+  fuzzing::FuzzTestDeserialization(data, size);
   return 0;
 }
 
@@ -105,9 +88,8 @@ int RunFuzzTestingMain() {
   // Set the dictionary and corpus locations according to the fuzzing target.
   switch (fuzzing_target) {
     case SERIALIZER:
-      dict_location =
-          [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
-      corpus_location = @"FuzzTestsCorpus";
+      dict_location = fuzzing::GetSerializerDictionaryLocation(resources_location);
+      corpus_location = fuzzing::GetSerializerCorpusLocation(resources_location);
       break;
 
     case NONE:
