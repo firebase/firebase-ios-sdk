@@ -21,19 +21,14 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::Serializer;
-using firebase::firestore::util::StringFormat;
 
 namespace {
 
 // A list of targets to fuzz test.
-enum FuzzingTarget {
-  NONE = 0,
-  SERIALIZER = 1
-};
+enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
@@ -66,8 +61,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 // Default target is NONE if the environment variable is empty, not set, or
 // could not be interpretted.
 FuzzingTarget GetFuzzingTarget() {
-  NSString *fuzzing_target_env = [[[NSProcessInfo processInfo] environment]
-                                  objectForKey:@"FUZZING_TARGET"];
+  NSString *fuzzing_target_env =
+      [[[NSProcessInfo processInfo] environment] objectForKey:@"FUZZING_TARGET"];
 
   if ([@"NONE" isEqualToString:fuzzing_target_env]) {
     return NONE;
@@ -106,7 +101,8 @@ int RunFuzzTestingMain() {
   // Set the dictionary and corpus locations according to the fuzzing target.
   switch (fuzzing_target) {
     case SERIALIZER:
-      dict_location = [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
+      dict_location =
+          [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
       corpus_location = @"FuzzTestsCorpus";
       break;
 
@@ -126,9 +122,8 @@ int RunFuzzTestingMain() {
   const char *corpus_arg = [corpus_path UTF8String];
 
   // The directory in which libFuzzer writes crashing inputs.
-  std::string prefix_arg = StringFormat("-artifact_prefix=%s", kCrashingInputsDirectory);
-  NSLog(@"prfix= %s", prefix_arg.c_str());
-  return 1;
+  const char *prefix_arg =
+      [[NSString stringWithFormat:@"-artifact_prefix=%s", kCrashingInputsDirectory] UTF8String];
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
@@ -136,7 +131,7 @@ int RunFuzzTestingMain() {
   // modify it throughout the method.
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
-      const_cast<char *>(prefix_arg.c_str()),    // Crashing inputs directory.
+      const_cast<char *>(prefix_arg),            // Crashing inputs directory.
       const_cast<char *>(dict_arg),              // Dictionary arg.
       const_cast<char *>(corpus_arg)             // Corpus must be the last arg.
   };
