@@ -49,7 +49,7 @@ bool RelationFilter::Matches(const model::Document& doc) const {
 
 bool RelationFilter::MatchesValue(const FieldValue& other) const {
   // Only compare types with matching backend order (such as double and int).
-  return FieldValue::Comparable(value_rhs_.type(), other.type()) &&
+  return FieldValue::Comparable(other.type(), value_rhs_.type()) &&
          MatchesComparison(other);
 }
 
