@@ -4,6 +4,12 @@
 - [feature] Added `whereField(arrayContains:)` query filter to find
   documents where an array field contains a specific element.
 - [fixed] Fixed compilation with older Xcode versions (#1517).
+- [fixed] Fixed a performance issue where large write batches with hundreds of
+  changes would take a long time to read and write and consume excessive memory.
+  Large write batches should now see no penalty.
+- [fixed] Fixed a performance issue where adding a listener for a large
+  (thousands of documents) collection would take a long time in offline mode
+  (#1477).
 
 # v0.12.5
 - [changed] Internal improvements.
