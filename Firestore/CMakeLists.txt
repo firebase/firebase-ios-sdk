@@ -145,7 +145,8 @@ podspec_framework(
 file(
   WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
   "// generated file for header-only CMake support.
-  void FirebaseAuthInteropFakeSymbol() {}
+  __attribute__((unused))
+  static void FirebaseAuthInteropFakeSymbol() {}
   "
 )
 target_sources(
