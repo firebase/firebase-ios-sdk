@@ -33,7 +33,8 @@ enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
-const char *kCrashingInputsDirectory = "/tmp/CrashingInputs/";
+// We write crashes to the temporary directory that is available to the iOS app.
+NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
@@ -87,7 +88,7 @@ FuzzingTarget GetFuzzingTarget() {
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 // Uses GetFuzzingTarget() to get the fuzzing target and sets libFuzzer's args
-// accordingly. Writes any crashes to a /CrashingInputs folder.
+// accordingly.
 int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
@@ -126,7 +127,7 @@ int RunFuzzTestingMain() {
 
   // The directory in which libFuzzer writes crashing inputs.
   const char *prefix_arg =
-      [[NSString stringWithFormat:@"-artifact_prefix=%s", kCrashingInputsDirectory] UTF8String];
+      [[@"-artifact_prefix=" stringByAppendingString:kCrashingInputsDirectory] UTF8String];
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
