@@ -4,6 +4,10 @@ This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
 FirebaseFunctions, FirebaseMessaging and FirebaseStorage.
 
+The repository also includes GoogleUtilities source. The
+[GoogleUtilities](GoogleUtilities/README.md) pod is
+a set of utilities used by Firebase and other Google products.
+
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).

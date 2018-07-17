@@ -34,17 +34,8 @@ set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(SanitizerOptions)
-include(utils)
-
-
-# External packages
-if(APPLE)
-  find_package(FirebaseCore REQUIRED)
-  find_package(GoogleUtilities REQUIRED)
-endif()
-find_package(GRPC REQUIRED)
-find_package(LevelDB REQUIRED)
-find_package(Protobuf REQUIRED)
+include(cc_rules)
+include(podspec_rules)
 
 
 # Googletest
@@ -62,6 +53,62 @@ add_alias(GMock::GMock gmock)
 add_subdirectory(
   third_party/abseil-cpp
 )
+
+
+# gRPC
+find_package(ZLIB)
+if(ZLIB_FOUND)
+  set(gRPC_ZLIB_PROVIDER package CACHE STRING "Use external ZLIB")
+endif()
+
+set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/grpc
+  ${FIREBASE_BINARY_DIR}/src/grpc-build
+  EXCLUDE_FROM_ALL
+)
+
+# Fix up targets included by gRPC's build
+add_alias(OpenSSL::Crypto crypto)
+target_include_directories(
+  crypto
+  INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
+)
+
+add_alias(OpenSSL::SSL ssl)
+target_include_directories(
+  ssl
+  INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
+)
+
+add_alias(protobuf::libprotobuf libprotobuf)
+target_compile_options(
+  libprotobuf
+  PUBLIC -Wno-unused-parameter
+)
+
+if(NOT ZLIB_FOUND)
+  target_include_directories(
+    zlibstatic
+    INTERFACE
+      $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/zlib>
+  )
+endif()
+
+
+# LevelDB
+set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/leveldb
+  ${FIREBASE_BINARY_DIR}/src/leveldb-build
+  EXCLUDE_FROM_ALL
+)
+
+add_alias(LevelDB::LevelDB leveldb)
 
 
 # nanopb
@@ -86,6 +133,16 @@ target_include_directories(
 
 enable_testing()
 include(CompilerSetup)
+
+# Firebase packages
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
+  SPECS Logger
+)
+
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec
+)
 
 # Superbuild installed results
 include_directories(${FIREBASE_INSTALL_DIR}/include)
