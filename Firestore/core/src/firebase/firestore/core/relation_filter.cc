@@ -27,8 +27,10 @@ namespace core {
 using model::FieldPath;
 using model::FieldValue;
 
-RelationFilter::RelationFilter(FieldPath field, Operator op, FieldValue value)
-    : field_(std::move(field)), op_(op), value_(std::move(value)) {
+RelationFilter::RelationFilter(FieldPath field,
+                               Operator op,
+                               FieldValue value_rhs)
+    : field_(std::move(field)), op_(op), value_rhs_(std::move(value_rhs)) {
 }
 
 const FieldPath& RelationFilter::field() const {
@@ -47,22 +49,22 @@ bool RelationFilter::Matches(const model::Document& doc) const {
 
 bool RelationFilter::MatchesValue(const FieldValue& other) const {
   // Only compare types with matching backend order (such as double and int).
-  return FieldValue::Comparable(value_.type(), other.type()) &&
+  return FieldValue::Comparable(other.type(), value_rhs_.type()) &&
          MatchesComparison(other);
 }
 
 bool RelationFilter::MatchesComparison(const FieldValue& other) const {
   switch (op_) {
     case Operator::LessThan:
-      return value_ < other;
+      return other < value_rhs_;
     case Operator::LessThanOrEqual:
-      return value_ <= other;
+      return other <= value_rhs_;
     case Operator::Equal:
-      return value_ == other;
+      return other == value_rhs_;
     case Operator::GreaterThan:
-      return value_ > other;
+      return other > value_rhs_;
     case Operator::GreaterThanOrEqual:
-      return value_ >= other;
+      return other >= value_rhs_;
   }
   UNREACHABLE();
 }

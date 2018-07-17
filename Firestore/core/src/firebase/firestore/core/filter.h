@@ -48,7 +48,7 @@ class Filter {
    */
   static std::shared_ptr<Filter> Create(model::FieldPath path,
                                         Operator op,
-                                        model::FieldValue value);
+                                        model::FieldValue value_rhs);
 
   virtual ~Filter() {
   }
