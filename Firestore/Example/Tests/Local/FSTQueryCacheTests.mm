@@ -19,9 +19,9 @@
 #include <set>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Util/FSTClasses.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/third_party/Immutable/Tests/FSTImmutableSortedSet+Testing.h"
@@ -50,6 +50,10 @@ NS_ASSUME_NONNULL_BEGIN
   _previousSequenceNumber = 1000;
   _previousTargetID = 500;
   _previousSnapshotVersion = 100;
+}
+
+- (void)tearDown {
+  [self.persistence shutdown];
 }
 
 /**
@@ -229,41 +233,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertFalse([self.queryCache containsKey:key1]);
     XCTAssertFalse([self.queryCache containsKey:key2]);
     XCTAssertFalse([self.queryCache containsKey:key3]);
-  });
-}
-
-- (void)testRemoveEmitsGarbageEvents {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence.run("testRemoveEmitsGarbageEvents", [&]() {
-    FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-    [garbageCollector addGarbageSource:self.queryCache];
-    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
-
-    FSTQueryData *rooms = [self queryDataWithQuery:FSTTestQuery("rooms")];
-    DocumentKey room1 = testutil::Key("rooms/bar");
-    DocumentKey room2 = testutil::Key("rooms/foo");
-    [self.queryCache addQueryData:rooms];
-    [self addMatchingKey:room1 forTargetID:rooms.targetID];
-    [self addMatchingKey:room2 forTargetID:rooms.targetID];
-
-    FSTQueryData *halls = [self queryDataWithQuery:FSTTestQuery("halls")];
-    DocumentKey hall1 = testutil::Key("halls/bar");
-    DocumentKey hall2 = testutil::Key("halls/foo");
-    [self.queryCache addQueryData:halls];
-    [self addMatchingKey:hall1 forTargetID:halls.targetID];
-    [self addMatchingKey:hall2 forTargetID:halls.targetID];
-
-    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({}));
-
-    [self removeMatchingKey:room1 forTargetID:rooms.targetID];
-    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room1}));
-
-    [self.queryCache removeQueryData:rooms];
-    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({room2}));
-
-    [self.queryCache removeMatchingKeysForTargetID:halls.targetID];
-    XCTAssertEqual([garbageCollector collectGarbage], std::set<DocumentKey>({hall1, hall2}));
   });
 }
 

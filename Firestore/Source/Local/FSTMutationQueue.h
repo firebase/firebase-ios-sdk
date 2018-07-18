@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
@@ -32,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTMutationQueue
 
 /** A queue of mutations to apply to the remote store. */
-@protocol FSTMutationQueue <NSObject, FSTGarbageSource>
+@protocol FSTMutationQueue <NSObject>
 
 /**
  * Starts the mutation queue, performing any initial reads that might be required to establish

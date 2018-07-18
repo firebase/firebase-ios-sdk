@@ -167,6 +167,10 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 + (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
                                        targets:(NSArray<FSTBoxedTargetID *> *)targets;
 
++ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
+                                  limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets;
+
 /**
  * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
  * each of the given targets, where each target has not seen any previous document.
@@ -293,6 +297,12 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber 
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *updatedInTargets,
                                          NSArray<NSNumber *> *removedFromTargets);
+
+/** Creates a remote event with changes to a document. Allows for identifying limbo targets */
+FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
+                                                         NSArray<NSNumber *> *updatedInTargets,
+                                                         NSArray<NSNumber *> *removedFromTargets,
+                                                         NSArray<NSNumber *> *limboTargets);
 
 /** Creates a test view changes. */
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,

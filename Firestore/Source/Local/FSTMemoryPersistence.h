@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +28,31 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTMemoryPersistence : NSObject <FSTPersistence>
 
-+ (instancetype)persistence;
++ (instancetype)persistenceWithEagerGC;
+
++ (instancetype)persistenceWithLRUGC;
+
+@end
+
+/**
+ * Provides the eager GC implementation for memory persistence.
+ */
+@interface FSTMemoryEagerReferenceDelegate : NSObject <FSTReferenceDelegate, FSTTransactional>
+
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
+
+@end
+
+/**
+ * Provides the LRU GC implementation for memory persistence.
+ */
+@interface FSTMemoryLRUReferenceDelegate
+    : NSObject <FSTReferenceDelegate, FSTLRUDelegate, FSTTransactional>
+
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
+
+- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
+                        document:(const firebase::firestore::model::DocumentKey &)key;
 
 @end
 

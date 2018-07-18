@@ -40,7 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (FSTLevelDB *)levelDBPersistence;
 
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
-+ (FSTMemoryPersistence *)memoryPersistence;
++ (FSTMemoryPersistence *)eagerGCMemoryPersistence;
+
++ (FSTMemoryPersistence *)lruMemoryPersistence;
 @end
 
 NS_ASSUME_NONNULL_END
