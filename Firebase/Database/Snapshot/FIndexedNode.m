@@ -79,7 +79,7 @@ static FImmutableSortedSet *FALLBACK_INDEX;
         if ([self.index isEqual:[FKeyIndex keyIndex]]) {
             self.indexed = [FIndexedNode fallbackIndex];
         } else {
-            __block BOOL sawChild;
+            __block BOOL sawChild = NO;
             [self.node enumerateChildrenUsingBlock:^(NSString *key, id<FNode> node, BOOL *stop) {
                 sawChild = sawChild || [self.index isDefinedOn:node];
                 *stop = sawChild;

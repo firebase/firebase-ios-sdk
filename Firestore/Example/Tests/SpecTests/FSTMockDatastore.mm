@@ -138,7 +138,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Helper methods.
 
-- (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(const SnapshotVersion &)snap {
+- (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(SnapshotVersion)snap {
   if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
     FSTWatchTargetChange *targetChange = (FSTWatchTargetChange *)change;
     if (targetChange.cause) {
@@ -151,6 +151,11 @@ NS_ASSUME_NONNULL_BEGIN
         }
         [self.activeTargets removeObjectForKey:targetID];
       }
+    }
+    if ([targetChange.targetIDs count] != 0) {
+      // If the list of target IDs is not empty, we reset the snapshot version to NONE as
+      // done in `FSTSerializerBeta.versionFromListenResponse:`.
+      snap = SnapshotVersion::None();
     }
   }
   [self.delegate watchStreamDidChange:change snapshotVersion:snap];

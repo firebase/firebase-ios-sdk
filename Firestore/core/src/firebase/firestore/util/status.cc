@@ -100,18 +100,24 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(EISNAM)
     case EISNAM:  // Is a named type file
 #endif
-    case ENOTBLK:    // Block device required
-    case ENOTCONN:   // The socket is not connected
-    case EPIPE:      // Broken pipe
+#if defined(ENOTBLK)
+    case ENOTBLK:  // Block device required
+#endif
+    case ENOTCONN:  // The socket is not connected
+    case EPIPE:     // Broken pipe
+#if defined(ESHUTDOWN)
     case ESHUTDOWN:  // Cannot send after transport endpoint shutdown
-    case ETXTBSY:    // Text file busy
+#endif
+    case ETXTBSY:  // Text file busy
 #if defined(EUNATCH)
     case EUNATCH:  // Protocol driver not attached
 #endif
       return FirestoreErrorCode::FailedPrecondition;
 
-    case ENOSPC:   // No space left on device
-    case EDQUOT:   // Disk quota exceeded
+    case ENOSPC:  // No space left on device
+#if defined(EDQUOT)
+    case EDQUOT:  // Disk quota exceeded
+#endif
     case EMFILE:   // Too many open files
     case EMLINK:   // Too many links
     case ENFILE:   // Too many open files in system
@@ -119,7 +125,9 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case ENODATA:  // No message is available on the STREAM read queue
     case ENOMEM:   // Not enough space
     case ENOSR:    // No STREAM resources
-    case EUSERS:   // Too many users
+#if defined(EUSERS)
+    case EUSERS:  // Too many users
+#endif
       return FirestoreErrorCode::ResourceExhausted;
 
 #if defined(ECHRNG)
@@ -133,13 +141,17 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
 #if defined(ENOPKG)
     case ENOPKG:  // Package not installed
 #endif
-    case ENOSYS:           // Function not implemented
-    case ENOTSUP:          // Operation not supported
-    case EAFNOSUPPORT:     // Address family not supported
-    case EPFNOSUPPORT:     // Protocol family not supported
+    case ENOSYS:        // Function not implemented
+    case ENOTSUP:       // Operation not supported
+    case EAFNOSUPPORT:  // Address family not supported
+#if defined(EPFNOSUPPORT)
+    case EPFNOSUPPORT:  // Protocol family not supported
+#endif
     case EPROTONOSUPPORT:  // Protocol not supported
+#if defined(ESOCKTNOSUPPORT)
     case ESOCKTNOSUPPORT:  // Socket type not supported
-    case EXDEV:            // Improper link
+#endif
+    case EXDEV:  // Improper link
       return FirestoreErrorCode::Unimplemented;
 
     case EAGAIN:  // Resource temporarily unavailable
@@ -150,7 +162,9 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
     case ECONNABORTED:  // Connection aborted
     case ECONNRESET:    // Connection reset
     case EINTR:         // Interrupted function call
-    case EHOSTDOWN:     // Host is down
+#if defined(EHOSTDOWN)
+    case EHOSTDOWN:  // Host is down
+#endif
     case EHOSTUNREACH:  // Host is unreachable
     case ENETDOWN:      // Network is down
     case ENETRESET:     // Connection aborted by network
@@ -163,7 +177,9 @@ static FirestoreErrorCode CodeForErrno(int errno_code) {
       return FirestoreErrorCode::Unavailable;
 
     case EDEADLK:  // Resource deadlock avoided
-    case ESTALE:   // Stale file handle
+#if defined(ESTALE)
+    case ESTALE:  // Stale file handle
+#endif
       return FirestoreErrorCode::Aborted;
 
     case ECANCELED:  // Operation cancelled

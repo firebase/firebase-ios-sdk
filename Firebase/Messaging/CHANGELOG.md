@@ -1,4 +1,13 @@
-# 2015-06-12 -- v3.0.2
+# Unreleased
+- Fixed an issue where Messaging wouldn't properly unswizzle swizzled delegate
+  methods. (#1481)
+
+# 2018-07-10 -- v3.0.3
+- Fixed an issue that client should suspend the topic requests when token is not available and resume the topic operation when the token is generated.
+- Corrected the deprecation warning when subscribing to or unsubscribing from an invalid topic. (#1397)
+- Removed unused heart beat time stamp tracking.
+
+# 2018-06-12 -- v3.0.2
 - Added a warning message when subscribing to topics with incorrect name formats.
 - Silenced a deprecation warning in FIRMessaging.
 

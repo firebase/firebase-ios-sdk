@@ -323,11 +323,15 @@ static const int kMaxPendingWrites = 10;
               "enabled");
 
   [self cleanUpWatchStreamState];
-  [self.onlineStateTracker handleWatchStreamFailure];
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
   if ([self shouldStartWatchStream]) {
+    if (error) {
+      // There should generally be an error if the watch stream was closed when it's still needed,
+      // but it's not quite worth asserting.
+      [self.onlineStateTracker handleWatchStreamFailure:error];
+    }
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online

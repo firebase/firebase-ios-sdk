@@ -1,0 +1,34 @@
+use_frameworks!
+
+target 'Example_iOS' do
+  platform :ios, '8.0'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'Tests_iOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Example_macOS' do
+  platform :osx, '10.10'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'Tests_macOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end
+
+target 'Example_tvOS' do
+  platform :tvos, '10.0'
+
+  pod 'GoogleUtilities', :path => '../../'
+
+  target 'Tests_tvOS' do
+    inherit! :search_paths
+    pod 'OCMock'
+  end
+end

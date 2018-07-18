@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 
+#include <set>
+
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -28,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -242,6 +245,28 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKeys:
+    (const DocumentKeySet &)documentKeys {
+  // First find the set of affected batch IDs.
+  __block std::set<FSTBatchID> batchIDs;
+  for (const DocumentKey &key : documentKeys) {
+    FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:key ID:0];
+
+    FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
+      if (![key isEqualToKey:reference.key]) {
+        *stop = YES;
+        return;
+      }
+
+      batchIDs.insert(reference.ID);
+    };
+
+    [self.batchesByDocumentKey enumerateObjectsFrom:start to:nil usingBlock:block];
+  }
+
+  return [self allMutationBatchesWithBatchIDs:batchIDs];
+}
+
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingQuery:(FSTQuery *)query {
   // Use the query path as a prefix for testing if a document matches the query.
   const ResourcePath &prefix = query.path;
@@ -258,8 +283,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
       [[FSTDocumentReference alloc] initWithKey:DocumentKey{startPath} ID:0];
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
-  __block FSTImmutableSortedSet<NSNumber *> *uniqueBatchIDs =
-      [FSTImmutableSortedSet setWithComparator:NumberComparator];
+  __block std::set<FSTBatchID> uniqueBatchIDs;
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
     const ResourcePath &rowKeyPath = reference.key.path();
     if (!prefix.IsPrefixOf(rowKeyPath)) {
@@ -274,19 +298,26 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
       return;
     }
 
-    uniqueBatchIDs = [uniqueBatchIDs setByAddingObject:@(reference.ID)];
+    uniqueBatchIDs.insert(reference.ID);
   };
   [self.batchesByDocumentKey enumerateObjectsFrom:start to:nil usingBlock:block];
 
-  // Construct an array of matching batches, sorted by batchID to ensure that multiple mutations
-  // affecting the same document key are applied in order.
+  return [self allMutationBatchesWithBatchIDs:uniqueBatchIDs];
+}
+
+/**
+ * Constructs an array of matching batches, sorted by batchID to ensure that multiple mutations
+ * affecting the same document key are applied in order.
+ */
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesWithBatchIDs:
+    (const std::set<FSTBatchID> &)batchIDs {
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
-  [uniqueBatchIDs enumerateObjectsUsingBlock:^(NSNumber *batchID, BOOL *stop) {
-    FSTMutationBatch *batch = [self lookupMutationBatch:[batchID intValue]];
+  for (FSTBatchID batchID : batchIDs) {
+    FSTMutationBatch *batch = [self lookupMutationBatch:batchID];
     if (batch) {
       [result addObject:batch];
     }
-  }];
+  };
 
   return result;
 }

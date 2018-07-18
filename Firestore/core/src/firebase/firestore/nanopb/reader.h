@@ -58,6 +58,16 @@ class Reader {
   Tag ReadTag();
 
   /**
+   * Ensures the specified tag is of the specified type. If not, then
+   * Reader::status() will return a non-ok value (with the code set to
+   * FirestoreErrorCode::DataLoss).
+   *
+   * @return Convenience indicator for success. (If false, then status() will
+   * return a non-ok value.)
+   */
+  bool RequireWireType(pb_wire_type_t wire_type, Tag tag);
+
+  /**
    * Reads a nanopb message from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode() method. If we didn't

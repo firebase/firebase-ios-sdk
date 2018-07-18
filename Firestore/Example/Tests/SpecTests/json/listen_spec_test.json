@@ -2,7 +2,9 @@
   "Contents of query are cleared when listen is removed.": {
     "describeName": "Listens:",
     "itName": "Contents of query are cleared when listen is removed.",
-    "tags": ["no-lru"],
+    "tags": [
+      "no-lru"
+    ],
     "comment": "Explicitly tests eager GC behavior",
     "config": {
       "useGarbageCollection": true
@@ -57,8 +59,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -175,8 +181,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -213,8 +223,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -374,8 +388,12 @@
       {
         "watchAck": [
           6
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -477,8 +495,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -560,7 +582,7 @@
   "Does not raise event for initial document delete": {
     "describeName": "Listens:",
     "itName": "Does not raise event for initial document delete",
-    "tags": [""],
+    "tags": [],
     "config": {
       "useGarbageCollection": true
     },
@@ -604,8 +626,12 @@
           "removedTargets": [
             2
           ]
-        },
-        "watchSnapshot": 1000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchCurrent": [
@@ -613,8 +639,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -834,8 +864,12 @@
             4
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -917,8 +951,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -955,8 +993,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1069,8 +1111,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchEntity": {
@@ -1086,8 +1132,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1160,8 +1210,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1198,8 +1252,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1299,8 +1357,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchEntity": {
@@ -1316,8 +1378,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1403,8 +1469,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1532,8 +1602,12 @@
             4
           ],
           "resume-token-4000"
-        ],
-        "watchSnapshot": 4000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 4000
+        },
         "expect": [
           {
             "query": {
@@ -1639,8 +1713,12 @@
             2
           ],
           "resume-token-5000"
-        ],
-        "watchSnapshot": 5000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 5000
+        },
         "expect": [
           {
             "query": {
@@ -1749,8 +1827,12 @@
             4
           ],
           "resume-token-6000"
-        ],
-        "watchSnapshot": 6000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 6000
+        },
         "expect": [
           {
             "query": {
@@ -1824,8 +1906,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1910,8 +1996,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -2000,8 +2090,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -2168,8 +2262,12 @@
             4
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -2314,8 +2412,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -2426,8 +2528,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -2509,8 +2615,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -2560,8 +2670,12 @@
           "targets": [
             2
           ]
-        },
-        "watchSnapshot": 2000
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
       },
       {
         "watchRemove": {
@@ -2664,8 +2778,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
         },
-        "watchSnapshot": 1000,
         "expect": [
           {
             "query": {
@@ -2694,8 +2812,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -2761,6 +2883,230 @@
             ],
             "errorCode": 0,
             "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Persists resume token sent with target": {
+    "describeName": "Listens:",
+    "itName": "Persists resume token sent with target",
+    "tags": [
+      "exclusive"
+    ],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              2000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000,
+          "targetIds": [
+            2
+          ],
+          "resumeToken": "resume-token-2000"
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                2000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-2000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                2000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-3000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
             "hasPendingWrites": false
           }
         ]

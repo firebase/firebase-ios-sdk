@@ -15,48 +15,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(firestore C CXX)
 
-option(WITH_ASAN "Build with Address Sanitizer" OFF)
-# TODO(varconst): msan
-# Memory sanitizer is more complicated:
-# - it requires all dependencies to be compiled with msan enabled (see
-#   https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo);
-# - AppleClang doesn't support it.
-option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
-option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
-
-macro(add_to_compile_and_link_flags flag)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
-endmacro()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  if(WITH_ASAN)
-    add_to_compile_and_link_flags("-fsanitize=address")
-  endif()
-
-  if(WITH_TSAN)
-    if(WITH_ASAN OR WITH_UBSAN)
-      message(FATAL_ERROR "Cannot combine TSan with other santizers")
-    endif()
-    add_to_compile_and_link_flags("-fsanitize=thread")
-  endif()
-
-  if(WITH_UBSAN)
-    add_to_compile_and_link_flags("-fsanitize=undefined")
-  endif()
-
-  if (WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
-    # Recommended to "get nicer stack traces in error messages"
-    # TODO(varconst): double-check that TSan actually needs this flag (it's
-    # explicitly recommended in the docs for ASan and UBSan)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
-  endif()
-else()
-  if(WITH_ASAN OR WITH_TSAN OR WITH_UBSAN)
-    message(FATAL_ERROR "Only Clang and GCC support sanitizers")
-  endif()
-endif()
-
 set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
 # CMAKE_INSTALL_PREFIX should be passed in to this build so that it can find
@@ -65,44 +23,152 @@ set(FIREBASE_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 #
 # If you want to use this project directly in e.g. CLion, make sure you
 # configure this.
+#
+# The superbuild passes CMAKE_INSTALL_PREFIX with a value of
+# ${FIREBASE_INSTALL_DIR} which is ${PROJECT_BINARY_DIR}/opt.
 set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 
-list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
-include(utils)
+# Expect that the source and binary directory structures will parallel each
+# other.
+set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
-# Include GoogleTest directly in the build.
-set(gtest_dir ${FIREBASE_INSTALL_DIR}/external/googletest)
+list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
+include(SanitizerOptions)
+include(cc_rules)
+include(podspec_rules)
+
+
+# Googletest
 add_subdirectory(
-  ${gtest_dir}/src/googletest
-  ${gtest_dir}/src/googletest-build
+  ${FIREBASE_BINARY_DIR}/src/googletest
+  ${FIREBASE_BINARY_DIR}/src/googletest-build
+  EXCLUDE_FROM_ALL
+)
+add_alias(GTest::GTest gtest)
+add_alias(GTest::Main gtest_main)
+add_alias(GMock::GMock gmock)
+
+
+# Abseil-cpp
+add_subdirectory(
+  third_party/abseil-cpp
+)
+
+
+# gRPC
+find_package(ZLIB)
+if(ZLIB_FOUND)
+  set(gRPC_ZLIB_PROVIDER package CACHE STRING "Use external ZLIB")
+endif()
+
+set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/grpc
+  ${FIREBASE_BINARY_DIR}/src/grpc-build
   EXCLUDE_FROM_ALL
 )
 
-# Set up aliases with the same names as available via FindGTest.
-add_library(
-  GTest::GTest ALIAS gtest
+# Fix up targets included by gRPC's build
+add_alias(OpenSSL::Crypto crypto)
+target_include_directories(
+  crypto
+  INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
 )
 
-add_library(
-  GTest::Main ALIAS gtest_main
+add_alias(OpenSSL::SSL ssl)
+target_include_directories(
+  ssl
+  INTERFACE
+    $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/boringssl/include>
 )
 
-find_package(LevelDB REQUIRED)
-find_package(GRPC REQUIRED)
-find_package(Nanopb REQUIRED)
-find_package(Protobuf REQUIRED)
+add_alias(protobuf::libprotobuf libprotobuf)
+target_compile_options(
+  libprotobuf
+  PUBLIC -Wno-unused-parameter
+)
 
-if(APPLE)
-  find_package(FirebaseCore REQUIRED)
+if(NOT ZLIB_FOUND)
+  target_include_directories(
+    zlibstatic
+    INTERFACE
+      $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/grpc/third_party/zlib>
+  )
 endif()
 
-enable_testing()
-add_subdirectory(third_party/abseil-cpp)
 
+# LevelDB
+set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/leveldb
+  ${FIREBASE_BINARY_DIR}/src/leveldb-build
+  EXCLUDE_FROM_ALL
+)
+
+add_alias(LevelDB::LevelDB leveldb)
+
+
+# nanopb
+set(nanopb_BUILD_GENERATOR ON CACHE BOOL "Enable the nanopb generator")
+set(nanopb_PROTOC_PATH ${NANOPB_PROTOC_BIN} CACHE STRING "Protoc location")
+add_subdirectory(
+  ${FIREBASE_BINARY_DIR}/src/nanopb
+  ${FIREBASE_BINARY_DIR}/src/nanopb-build
+  EXCLUDE_FROM_ALL
+)
+
+target_compile_definitions(
+  protobuf-nanopb
+  PUBLIC -DPB_FIELD_16BIT
+)
+
+target_include_directories(
+  protobuf-nanopb
+  INTERFACE $<BUILD_INTERFACE:${FIREBASE_BINARY_DIR}/src/nanopb>
+)
+
+
+enable_testing()
 include(CompilerSetup)
 
+# Firebase packages
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/GoogleUtilities.podspec
+  SPECS Logger
+)
+
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec
+)
+
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/FirebaseAuthInterop.podspec
+)
+
+# FirebaseAuthInterop has no source files but CMake can't build frameworks that don't
+# have sources. Generate an inconsequential source file so that the library can
+# be linked.
+file(
+  WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
+  "// generated file for header-only CMake support.
+  __attribute__((unused))
+  static void FirebaseAuthInteropFakeSymbol() {}
+  "
+)
+target_sources(
+  FirebaseAuthInterop
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
+)
+
+
+# Superbuild installed results
+include_directories(${FIREBASE_INSTALL_DIR}/include)
+
 # Generated sources will be relative to the binary directory.
-include_directories(${FIREBASE_INSTALL_DIR})
+include_directories(${FIREBASE_BINARY_DIR})
 
 # Fully qualified imports, project wide
 include_directories(${FIREBASE_SOURCE_DIR})

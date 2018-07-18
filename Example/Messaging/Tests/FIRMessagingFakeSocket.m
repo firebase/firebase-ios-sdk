@@ -18,7 +18,6 @@
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
-#import <GoogleToolboxForMac/GTMDefines.h>
 
 @interface FIRMessagingSecureSocket() <NSStreamDelegate>
 
@@ -78,7 +77,7 @@
 }
 
 - (void)openStream:(NSStream *)stream {
-  _GTMDevAssert(stream, @"Cannot open nil stream");
+  NSAssert(stream, @"Cannot open nil stream");
   if (stream) {
     stream.delegate = self;
     [stream scheduleInRunLoop:self.runLoop forMode:NSDefaultRunLoopMode];

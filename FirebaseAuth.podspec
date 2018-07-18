@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '5.0.1'
+  s.version          = '5.0.2'
   s.summary          = 'The official iOS client for Firebase Authentication (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -61,6 +61,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'SafariServices'
   s.framework = 'Security'
+  s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
 end

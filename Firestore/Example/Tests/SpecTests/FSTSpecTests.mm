@@ -186,25 +186,25 @@ NSString *const kNoLRUTag = @"no-lru";
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
 }
 
-- (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateAdded
                                   targetIDs:ackedTargets
                                       cause:nil];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchCurrent:(NSArray<id> *)currentSpec snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
   NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
                                   targetIDs:currentTargets
                                 resumeToken:resumeToken];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchRemove:(NSDictionary *)watchRemoveSpec snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchRemove:(NSDictionary *)watchRemoveSpec {
   NSError *error = nil;
   NSDictionary *cause = watchRemoveSpec[@"cause"];
   if (cause) {
@@ -218,19 +218,16 @@ NSString *const kNoLRUTag = @"no-lru";
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateRemoved
                                   targetIDs:watchRemoveSpec[@"targetIds"]
                                       cause:error];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   // Unlike web, the FSTMockDatastore detects a watch removal with cause and will remove active
   // targets
 }
 
-- (void)doWatchEntity:(NSDictionary *)watchEntity snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchEntity:(NSDictionary *)watchEntity {
   if (watchEntity[@"docs"]) {
     HARD_ASSERT(!watchEntity[@"doc"], "Exactly one of |doc| or |docs| needs to be set.");
-    int count = 0;
     NSArray *docs = watchEntity[@"docs"];
     for (NSDictionary *doc in docs) {
-      count++;
-      bool isLast = (count == docs.count);
       NSMutableDictionary *watchSpec = [NSMutableDictionary dictionary];
       watchSpec[@"doc"] = doc;
       if (watchEntity[@"targets"]) {
@@ -239,11 +236,7 @@ NSString *const kNoLRUTag = @"no-lru";
       if (watchEntity[@"removedTargets"]) {
         watchSpec[@"removedTargets"] = watchEntity[@"removedTargets"];
       }
-      NSNumber *_Nullable version = nil;
-      if (isLast) {
-        version = watchSnapshot;
-      }
-      [self doWatchEntity:watchSpec snapshot:version];
+      [self doWatchEntity:watchSpec];
     }
   } else if (watchEntity[@"doc"]) {
     NSArray *docSpec = watchEntity[@"doc"];
@@ -262,7 +255,7 @@ NSString *const kNoLRUTag = @"no-lru";
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
                                                      documentKey:doc.key
                                                         document:doc];
-    [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+    [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     FSTDocumentKey *docKey = FSTTestDocKey(watchEntity[@"key"]);
     FSTWatchChange *change =
@@ -270,13 +263,13 @@ NSString *const kNoLRUTag = @"no-lru";
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
                                                      documentKey:docKey
                                                         document:nil];
-    [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+    [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchFilter:(NSArray *)watchFilter {
   NSArray<NSNumber *> *targets = watchFilter[0];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
@@ -286,15 +279,29 @@ NSString *const kNoLRUTag = @"no-lru";
   FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:keyCount];
   FSTExistenceFilterWatchChange *change =
       [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchReset:(NSArray<NSNumber *> *)watchReset snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchReset:(NSArray<NSNumber *> *)watchReset {
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
                                   targetIDs:watchReset
                                       cause:nil];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
+}
+
+- (void)doWatchSnapshot:(NSDictionary *)watchSnapshot {
+  // The client will only respond to watchSnapshots if they are on a target change with an empty
+  // set of target IDs.
+  NSArray<NSNumber *> *targetIDs =
+      watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
+  NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
+  FSTWatchTargetChange *change =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateNoChange
+                                  targetIDs:targetIDs
+                                resumeToken:resumeToken];
+  [self.driver receiveWatchChange:change
+                  snapshotVersion:[self parseVersion:watchSnapshot[@"version"]]];
 }
 
 - (void)doWatchStreamClose:(NSDictionary *)closeSpec {
@@ -406,17 +413,19 @@ NSString *const kNoLRUTag = @"no-lru";
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
   } else if (step[@"watchAck"]) {
-    [self doWatchAck:step[@"watchAck"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchAck:step[@"watchAck"]];
   } else if (step[@"watchCurrent"]) {
-    [self doWatchCurrent:step[@"watchCurrent"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchCurrent:step[@"watchCurrent"]];
   } else if (step[@"watchRemove"]) {
-    [self doWatchRemove:step[@"watchRemove"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchRemove:step[@"watchRemove"]];
   } else if (step[@"watchEntity"]) {
-    [self doWatchEntity:step[@"watchEntity"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchEntity:step[@"watchEntity"]];
   } else if (step[@"watchFilter"]) {
-    [self doWatchFilter:step[@"watchFilter"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchFilter:step[@"watchFilter"]];
   } else if (step[@"watchReset"]) {
-    [self doWatchReset:step[@"watchReset"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchReset:step[@"watchReset"]];
+  } else if (step[@"watchSnapshot"]) {
+    [self doWatchSnapshot:step[@"watchSnapshot"]];
   } else if (step[@"watchStreamClose"]) {
     [self doWatchStreamClose:step[@"watchStreamClose"]];
   } else if (step[@"watchProto"]) {

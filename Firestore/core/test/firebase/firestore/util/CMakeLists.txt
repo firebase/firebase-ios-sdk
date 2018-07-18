@@ -137,7 +137,7 @@ cc_test(
     absl_base
     absl_strings
     firebase_firestore_util
-    gmock
+    GMock::GMock
 )
 
 if(APPLE)

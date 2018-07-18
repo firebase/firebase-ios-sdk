@@ -20,7 +20,6 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -293,8 +292,7 @@
                         ]));
 }
 
-// TODO(array-features): Enable once backend support lands.
-- (void)xtestArrayContainsQueries {
+- (void)testArrayContainsQueries {
   NSDictionary *testDocs = @{
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
@@ -310,23 +308,6 @@
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
                           @{ @"array" : @[ @42 ] },
                           @{ @"array" : @[ @"a", @42, @"c" ] },
-                          @{ @"array" : @[ @42 ],
-                             @"array2" : @[ @"bingo" ] }
-                        ]));
-
-  // Search for "array" to contain both @42 and "a".
-  snapshot = [self readDocumentSetForRef:[[collection queryWhereField:@"array" arrayContains:@42]
-                                             queryWhereField:@"array"
-                                               arrayContains:@"a"]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{ @"array" : @[ @"a", @42, @"c" ] },
-                        ]));
-
-  // Search two different array fields ("array" contains 42 and "array2" contains "bingo").
-  snapshot = [self readDocumentSetForRef:[[collection queryWhereField:@"array" arrayContains:@42]
-                                             queryWhereField:@"array2"
-                                               arrayContains:@"bingo"]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
                           @{ @"array" : @[ @42 ],
                              @"array2" : @[ @"bingo" ] }
                         ]));

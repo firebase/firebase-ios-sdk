@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -76,11 +77,11 @@ class SortedSet {
     return map_.size();
   }
 
-  SortedSet insert(const K& key) const {
+  ABSL_MUST_USE_RESULT SortedSet insert(const K& key) const {
     return SortedSet{map_.insert(key, {})};
   }
 
-  SortedSet erase(const K& key) const {
+  ABSL_MUST_USE_RESULT SortedSet erase(const K& key) const {
     return SortedSet{map_.erase(key)};
   }
 
