@@ -45,7 +45,8 @@ enum class QueryPurpose {
  * An immutable set of metadata that the store will need to keep track of for
  * each query.
  */
-struct QueryData {
+class QueryData {
+ public:
   /**
    * Creates a new QueryData with the given values.
    *
@@ -72,22 +73,43 @@ struct QueryData {
   // TODO(rsgowman): Define once WatchStream::EmptyResumeToken exists.
   //QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
 
+  const core::Query& query() const {
+    return query_;
+  }
+
+  int target_id() const {
+    return target_id_;
+  }
+
+  QueryPurpose purpose() const {
+    return purpose_;
+  }
+
+  const model::SnapshotVersion& snapshot_version() const {
+    return snapshot_version_;
+  }
+
+  const std::vector<uint8_t>& resume_token() const {
+    return resume_token_;
+  }
+
   QueryData Copy(const model::SnapshotVersion& snapshot_version,
                  const std::vector<uint8_t>& resume_token) const;
 
-  const core::Query& query;
-  const int target_id;
-  const QueryPurpose purpose;
-  const model::SnapshotVersion& snapshot_version;
-  const std::vector<uint8_t>& resume_token;
+ private:
+  const core::Query& query_;
+  const int target_id_;
+  const QueryPurpose purpose_;
+  const model::SnapshotVersion& snapshot_version_;
+  const std::vector<uint8_t>& resume_token_;
 };
 
 inline bool operator==(const QueryData& lhs, const QueryData& rhs) {
-  return lhs.query == rhs.query
-      && lhs.target_id == rhs.target_id
-      && lhs.purpose == rhs.purpose
-      && lhs.snapshot_version == rhs.snapshot_version
-      && lhs.resume_token == rhs.resume_token;
+  return lhs.query() == rhs.query()
+      && lhs.target_id() == rhs.target_id()
+      && lhs.purpose() == rhs.purpose()
+      && lhs.snapshot_version() == rhs.snapshot_version()
+      && lhs.resume_token() == rhs.resume_token();
 }
 
 inline bool operator!=(const QueryData& lhs, const QueryData& rhs) {
