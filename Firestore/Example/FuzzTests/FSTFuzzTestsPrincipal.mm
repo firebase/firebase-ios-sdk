@@ -28,7 +28,7 @@ namespace {
 
 // A list of targets to fuzz test. Should be kept in sync with the method
 // GetFuzzingTarget().
-enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
+enum FuzzingTarget { NONE = 0, SERIALIZER, FIELDPATH };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
@@ -53,6 +53,10 @@ FuzzingTarget GetFuzzingTarget() {
 
   if ([@"SERIALIZER" isEqualToString:fuzzing_target_env]) {
     return SERIALIZER;
+  }
+
+  if ([@"FIELDPATH" isEqualToString:fuzzing_target_env]) {
+    return FIELDPATH;
   }
 
   // Value did not match any target.
@@ -92,6 +96,12 @@ int RunFuzzTestingMain() {
       dict_location = fuzzing::GetSerializerDictionaryLocation(resources_location);
       corpus_location = fuzzing::GetSerializerCorpusLocation(resources_location);
       llvm_fuzzer_test_one_input_method = fuzzing::FuzzTestDeserialization;
+      break;
+
+    case FIELDPATH:
+      dict_location = fuzzing::GetFieldPathDictionaryLocation(resources_location);
+      corpus_location = fuzzing::GetFieldPathCorpusLocation(resources_location);
+      llvm_fuzzer_test_one_input_method = fuzzing::FuzzTestFieldPath;
       break;
 
     case NONE:

@@ -31,6 +31,14 @@ NSString *GetSerializerDictionaryLocation(NSString *resources_location);
 // case because we generate its binary protos during the build process.
 NSString *GetSerializerCorpusLocation(NSString *resources_location);
 
+// Fuzz-test creating FIRFieldPath objects.
+int FuzzTestFieldPath(const uint8_t *data, size_t size);
+
+NSString *GetFieldPathDictionaryLocation(NSString *resources_location);
+
+NSString *GetFieldPathCorpusLocation(NSString *resources_location);
+
+
 }  // namespace fuzzing
 }  // namespace firestore
 }  // namespace firebase
