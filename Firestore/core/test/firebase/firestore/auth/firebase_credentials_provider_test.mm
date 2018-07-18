@@ -108,7 +108,7 @@ FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
 
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = AppWithFakeUid(nil);
-
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:<#(nullable NSString *)#> uid:<#(nullable NSString *)#>]
   FirebaseCredentialsProvider credentials_provider(app);
   credentials_provider.GetToken([](util::StatusOr<Token> result) {
     EXPECT_TRUE(result.ok());

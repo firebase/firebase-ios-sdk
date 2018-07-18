@@ -17,7 +17,7 @@
 #import "FSTFirestoreComponent.h"
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
-#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRComponentRegistrant.h>
@@ -70,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSString *key = [NSString stringWithFormat:@"%@|%@", self.app.name, database];
 
-  // Get the component from the container
+  // Get the component from the container.
   @synchronized(self.instances) {
     FIRFirestore *firestore = _instances[key];
     if (!firestore) {
@@ -78,8 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
+      id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       std::unique_ptr<CredentialsProvider> credentials_provider =
-          absl::make_unique<FirebaseCredentialsProvider>(self.app);
+          absl::make_unique<FirebaseCredentialsProvider>(self.app, auth);
 
       NSString *persistenceKey = self.app.name;
       NSString *projectID = self.app.options.projectID;

@@ -33,9 +33,8 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app) {
-  id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, app.container);
-  contents_ = std::make_shared<Contents>(app, User::FromUid([auth getUserID]));
+FirebaseCredentialsProvider::FirebaseCredentialsProvider(FIRApp* app, id<FIRAuthInterop> auth) {
+  contents_ = std::make_shared<Contents>(app, auth, User::FromUid([auth getUserID]));
   std::weak_ptr<Contents> weak_contents = contents_;
 
   auth_listener_handle_ = [[NSNotificationCenter defaultCenter]
@@ -123,10 +122,8 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
         }
       };
 
-  id<FIRAuthInterop> auth =
-      FIR_COMPONENT(FIRAuthInterop, contents_->app.container);
-  [auth getTokenForcingRefresh:contents_->force_refresh
-                  withCallback:get_token_callback];
+  [contents_->auth getTokenForcingRefresh:contents_->force_refresh
+                             withCallback:get_token_callback];
   contents_->force_refresh = false;
 }
 
