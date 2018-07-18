@@ -111,6 +111,12 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
   return Filter(key, op, model::FieldValue::IntegerValue(value));
 }
 
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            double value) {
+  return Filter(key, op, model::FieldValue::DoubleValue(value));
+}
+
 // Add a non-inline function to make this library buildable.
 // TODO(zxu123): remove once there is non-inline function.
 void dummy();
