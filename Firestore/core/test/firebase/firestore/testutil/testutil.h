@@ -113,7 +113,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
-                                            float value) {
+                                            double value) {
   return Filter(key, op, model::FieldValue::DoubleValue(value));
 }
 
