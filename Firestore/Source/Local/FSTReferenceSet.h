@@ -65,7 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Checks to see if there are any references to a document with the given key.
  */
-- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey&)key;
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
 
 @end
 
