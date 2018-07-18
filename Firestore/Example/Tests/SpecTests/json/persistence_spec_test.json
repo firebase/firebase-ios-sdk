@@ -196,8 +196,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -331,8 +335,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -697,8 +705,12 @@
             2
           ],
           "resume-token-500"
-        ],
-        "watchSnapshot": 500,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
         "expect": [
           {
             "query": {

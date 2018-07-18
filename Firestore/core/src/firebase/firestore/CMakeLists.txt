@@ -18,6 +18,7 @@ cc_library(
   SOURCES
     geo_point.cc
     timestamp.cc
+    timestamp_internal.h
   DEPENDS
     firebase_firestore_util
 )

@@ -127,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (self) {
     _state = state;
     _targetIDs = targetIDs;
-    _resumeToken = resumeToken;
+    _resumeToken = [resumeToken copy];
     _cause = cause;
   }
   return self;

@@ -18,9 +18,9 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 @class FSTDocumentSet;
 @class FSTDocumentViewChangeSet;
@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
+- (const firebase::firestore::model::DocumentKeySet &)mutatedKeys;
+
 /** The new set of docs that should be in the view. */
 @property(nonatomic, strong, readonly) FSTDocumentSet *documentSet;
 
@@ -49,8 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
  * and there needs to be another pass based on the local cache.
  */
 @property(nonatomic, assign, readonly) BOOL needsRefill;
-
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *mutatedKeys;
 
 @end
 
@@ -97,7 +97,8 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-              remoteDocuments:(FSTDocumentKeySet *)remoteDocuments NS_DESIGNATED_INITIALIZER;
+              remoteDocuments:(firebase::firestore::model::DocumentKeySet)remoteDocuments
+    NS_DESIGNATED_INITIALIZER;
 
 /**
  * Iterates over a set of doc changes, applies the query limit, and computes what the new results
@@ -152,7 +153,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
  * The set of remote documents that the server has told us belongs to the target associated with
  * this view.
  */
-@property(nonatomic, strong, readonly) FSTDocumentKeySet *syncedDocuments;
+- (const firebase::firestore::model::DocumentKeySet &)syncedDocuments;
 
 @end
 

@@ -17,6 +17,8 @@
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
+
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "FIRMessaging.h"
@@ -44,6 +46,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 @property(nonatomic, readwrite, strong) id mockMessaging;
 @property(nonatomic, readwrite, strong) id mockInstanceID;
+@property(nonatomic, readwrite, strong) id mockFirebaseApp;
 
 @end
 
@@ -51,6 +54,9 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
+  _mockFirebaseApp = OCMClassMock([FIRApp class]);
+  OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
+
   _messaging = [[FIRMessaging alloc] initWithInstanceID:[FIRInstanceID instanceID]
                                            userDefaults:[NSUserDefaults standardUserDefaults]];
   _mockMessaging = OCMPartialMock(self.messaging);
@@ -63,6 +69,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 - (void)tearDown {
   [_mockMessaging stopMocking];
   [_mockInstanceID stopMocking];
+  [_mockFirebaseApp stopMocking];
   [super tearDown];
 }
 
@@ -73,6 +80,46 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   // Now set the flag should overwrite Info.plist value.
   _messaging.autoInitEnabled = YES;
   XCTAssertTrue(_messaging.isAutoInitEnabled);
+}
+
+- (void)testAutoInitEnableFlagOverrideGlobalTrue {
+  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+
+  self.messaging.autoInitEnabled = NO;
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableFlagOverrideGlobalFalse {
+  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+
+  self.messaging.autoInitEnabled = NO;
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableGlobalDefaultTrue {
+  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+
+  XCTAssertTrue(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
+}
+
+- (void)testAutoInitEnableGlobalDefaultFalse {
+  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(NO);
+  id bundleMock = OCMPartialMock([NSBundle mainBundle]);
+  OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
+
+  XCTAssertFalse(self.messaging.isAutoInitEnabled);
+  [bundleMock stopMocking];
 }
 
 #pragma mark - Direct Channel Establishment Testing

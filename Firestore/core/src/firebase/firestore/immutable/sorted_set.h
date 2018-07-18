@@ -23,8 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map_base.h"
 #include "Firestore/core/src/firebase/firestore/util/comparison.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,6 +62,13 @@ class SortedSet {
   explicit SortedSet(M&& map) : map_{std::move(map)} {
   }
 
+  SortedSet(std::initializer_list<value_type> entries, const C& comparator = {})
+      : map_{comparator} {
+    for (auto&& value : entries) {
+      map_ = map_.insert(value, {});
+    }
+  }
+
   bool empty() const {
     return map_.empty();
   }
@@ -69,11 +77,11 @@ class SortedSet {
     return map_.size();
   }
 
-  SortedSet insert(const K& key) const {
+  ABSL_MUST_USE_RESULT SortedSet insert(const K& key) const {
     return SortedSet{map_.insert(key, {})};
   }
 
-  SortedSet erase(const K& key) const {
+  ABSL_MUST_USE_RESULT SortedSet erase(const K& key) const {
     return SortedSet{map_.erase(key)};
   }
 
@@ -124,7 +132,14 @@ class SortedSet {
   }
 
   friend bool operator==(const SortedSet& lhs, const SortedSet& rhs) {
-    return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+    if (lhs.size() != rhs.size()) {
+      return false;
+    }
+    return std::equal(lhs.begin(), lhs.end(), rhs.begin());
+  }
+
+  friend bool operator!=(const SortedSet& lhs, const SortedSet& rhs) {
+    return !(lhs == rhs);
   }
 
  private:

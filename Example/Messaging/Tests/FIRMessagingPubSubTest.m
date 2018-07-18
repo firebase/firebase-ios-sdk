@@ -78,4 +78,13 @@ static NSString *const kTopicName = @"topic-Name";
   XCTAssertTrue([FIRMessagingPubSub isValidTopicWithPrefix:topic]);
 }
 
+- (void)testRemoveTopicPrefix {
+    NSString *topic = [NSString stringWithFormat:@"/topics/%@", kTopicName];
+    topic = [FIRMessagingPubSub removePrefixFromTopic:topic];
+    XCTAssertEqualObjects(topic, kTopicName);
+    // if the topic doesn't have the prefix, should return topic itself.
+    topic = [FIRMessagingPubSub removePrefixFromTopic:kTopicName];
+    XCTAssertEqualObjects(topic, kTopicName);
+}
+
 @end

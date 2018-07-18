@@ -4,6 +4,10 @@ This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
 FirebaseFunctions, FirebaseMessaging and FirebaseStorage.
 
+The repository also includes GoogleUtilities source. The
+[GoogleUtilities](GoogleUtilities/README.md) pod is
+a set of utilities used by Firebase and other Google products.
+
 Firebase is an app development platform with tools to help you build, grow and
 monetize your app. More information about Firebase can be found at
 [https://firebase.google.com](https://firebase.google.com).
@@ -11,20 +15,23 @@ monetize your app. More information about Firebase can be found at
 ## Installation
 
 See the three subsections for details about three different installation methods.
-1. [Officially supported binary pods](README.md#binary-pods-ios-only)
-1. [Community supported source pods](README.md#source-pods-ios-macos-tvos)
+1. [Standard pod install](README.md#standard-pod-install)
+1. [Installing from the GitHub repo](README.md#installing-from-github)
 1. [Experimental Carthage](README.md#carthage-ios-only)
 
-### Binary pods (iOS only)
+### Standard pod install
 
 Go to
 [https://firebase.google.com/docs/ios/setup](https://firebase.google.com/docs/ios/setup).
 
-### Source pods (iOS, macOS, tvOS)
+### Installing from GitHub
 
-While the official Firebase release remains a binary framework distribution,
-in the future, we plan to switch to a source CocoaPod distribution for the
-Firebase open source components.
+For releases starting with 5.0.0, the source for each release is also deployed
+to CocoaPods master and available via standard
+[CocoaPods Podfile syntax](https://guides.cocoapods.org/syntax/podfile.html#pod).
+
+These instructions can be used to access the Firebase repo at other branches,
+tags, or commits.
 
 #### Background
 
@@ -32,59 +39,22 @@ See
 [the Podfile Syntax Reference](https://guides.cocoapods.org/syntax/podfile.html#pod)
 for instructions and options about overriding pod source locations.
 
-#### Step-by-step Source Pod Installation Instructions
+#### Accessing Firebase Source Snapshots
 
-For iOS, copy a subset of the following lines to your Podfile:
+All of the official releases are tagged in this repo and available via CocoaPods. To access a local
+source snapshot or unreleased branch, use Podfile directives like the following:
 
+To access FirebaseFirestore via a branch:
 ```
-pod 'Firebase' # To enable Firebase module, with `@import Firebase` support
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseFunctions', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseMessaging', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
 ```
-
-For macOS and tvOS, copy a subset of the following:
-
-```
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseAuth', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseDatabase', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-pod 'FirebaseStorage', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :tag => '4.11.0'
-```
-
-1. Make sure you have at least CocoaPods version 1.4.0 - `pod --version`.
-1. Delete pods for any components you don't need, except `FirebaseCore` must always be included.
-1. Update the tags to the latest Firebase release. See the
-[release notes](https://firebase.google.com/support/release-notes/ios).
-1. Run `pod update`.
-
-#### Static library usage
-
-If your Podfile does not include *use_frameworks!*, you need to workaround
-a build issue with the FirebaseAnalytics umbrella header. Delete the first four lines
-of `Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`
-or copy [patch/FirebaseAnalytics.h](patch/FirebaseAnalytics.h) to
-`Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.framework/Headers/FirebaseAnalytics.h`.
-See the `post_install` phase of [Example/Podfile](Example/Podfile) for an example
-of applying the workaround automatically - make sure you correct the path of
-`patch/FirebaseAnalytics.h`.
-
-#### Examples
 
 To access FirebaseMessaging via a checked out version of the firebase-ios-sdk repo do:
 
 ```
-pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 pod 'FirebaseCore', :path => '/path/to/firebase-ios-sdk'
-```
-To access via a branch:
-```
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 ```
 
 ### Carthage (iOS only)
@@ -185,7 +155,10 @@ actively developed primarily for iOS. While we can catch basic unit test issues 
 may be some changes where the SDK no longer works as expected on macOS or tvOS. If you encounter
 this, please [file an issue](https://github.com/firebase/firebase-ios-sdk/issues).
 
-For installation instructions, see [above](README.md#step-by-step-source-pod-installation-instructions).
+For installation instructions, see [above](README.md#accessing-firebase-source-snapshots).
+
+Note that the Firebase pod is not available for macOS and tvOS. Install a selection of the
+`FirebaseAuth`, `FirebaseCore`, `FirebaseDatabase` and `FirebaseStorage` CocoaPods.
 
 ## Roadmap
 

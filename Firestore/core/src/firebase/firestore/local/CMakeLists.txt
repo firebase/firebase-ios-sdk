@@ -17,9 +17,19 @@ cc_library(
   SOURCES
     leveldb_key.h
     leveldb_key.cc
+    leveldb_transaction.h
+    leveldb_transaction.cc
+    local_serializer.h
+    local_serializer.cc
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    protobuf-nanopb
+
     LevelDB::LevelDB
     absl_strings
     firebase_firestore_model
+    firebase_firestore_nanopb
+    firebase_firestore_protos_nanopb
+    firebase_firestore_remote
     firebase_firestore_util
 )

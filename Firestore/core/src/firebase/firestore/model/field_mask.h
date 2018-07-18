@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace firebase {
 namespace firestore {
@@ -86,11 +87,7 @@ class FieldMask {
   }
 
   NSUInteger Hash() const {
-    NSUInteger hashResult = 0;
-    for (const FieldPath& field : fields_) {
-      hashResult = hashResult * 31u + field.Hash();
-    }
-    return hashResult;
+    return util::Hash(fields_);
   }
 #endif
 

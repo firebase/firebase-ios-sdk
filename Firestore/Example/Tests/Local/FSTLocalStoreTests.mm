@@ -46,16 +46,9 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/** Creates a document version dictionary mapping the document in @a mutation to @a version. */
-FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
-                                                   FSTTestSnapshotVersion version) {
-  FSTDocumentVersionDictionary *result = [FSTDocumentVersionDictionary documentVersionDictionary];
-  result = [result dictionaryBySettingObject:testutil::Version(version) forKey:mutation.key];
-  return result;
-}
 
 @interface FSTLocalStoreTests ()
 
@@ -230,8 +223,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTMutationBatch *batch = [[FSTMutationBatch alloc] initWithBatchID:1
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ set1, set2 ]];
-  FSTDocumentKeySet *keys = [batch keys];
-  XCTAssertEqual(keys.count, 2);
+  DocumentKeySet keys = [batch keys];
+  XCTAssertEqual(keys.size(), 2u);
 }
 
 - (void)testHandlesSetMutation {
@@ -616,8 +609,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
+                                                 @[ @(targetID) ])];
   [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO));
 
@@ -710,8 +703,8 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTQuery *query = FSTTestQuery("foo");
   FSTTargetID targetID = [self allocateQuery:query];
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
-                                                  @[ @(targetID) ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
+                                                 @[ @(targetID) ])];
   [self writeMutation:FSTTestSetMutation(@"foo/baz", @{@"foo" : @"baz"})];
   [self collectGarbage];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
@@ -812,21 +805,19 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   FSTBoxedTargetID *targetID = @(queryData.targetID);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
-  FSTWatchChange *watchChange =
+  FSTWatchTargetChange *watchChange =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
                                   targetIDs:@[ targetID ]
                                 resumeToken:resumeToken];
   NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listens =
       [NSMutableDictionary dictionary];
   listens[targetID] = queryData;
-  NSMutableDictionary<FSTBoxedTargetID *, NSNumber *> *pendingResponses =
-      [NSMutableDictionary dictionary];
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:testutil::Version(1000)
-                                                  listenTargets:listens
-                                         pendingTargetResponses:pendingResponses];
-  [aggregator addWatchChanges:@[ watchChange ]];
-  FSTRemoteEvent *remoteEvent = [aggregator remoteEvent];
+  FSTWatchChangeAggregator *aggregator = [[FSTWatchChangeAggregator alloc]
+      initWithTargetMetadataProvider:[FSTTestTargetMetadataProvider
+                                         providerWithSingleResultForKey:testutil::Key("foo/bar")
+                                                                targets:@[ targetID ]]];
+  [aggregator handleTargetChange:watchChange];
+  FSTRemoteEvent *remoteEvent = [aggregator remoteEventAtSnapshotVersion:testutil::Version(1000)];
   [self applyRemoteEvent:remoteEvent];
 
   // Stop listening so that the query should become inactive (but persistent)
@@ -849,20 +840,21 @@ FSTDocumentVersionDictionary *FSTVersionDictionary(FSTMutation *mutation,
   [self allocateQuery:query];
   FSTAssertTargetID(2);
 
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
-  [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
-                                                  @[ @2 ], @[])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/baz", 10, @{@"a" : @"b"}, NO),
+                                                 @[ @2 ])];
+  [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 20, @{@"a" : @"b"}, NO),
+                                                 @[ @2 ])];
 
   [self.localStore locallyWriteMutations:@[ FSTTestSetMutation(@"foo/bonk", @{@"a" : @"b"}) ]];
 
-  FSTDocumentKeySet *keys = [self.localStore remoteDocumentKeysForTarget:2];
-  FSTAssertEqualSets(keys, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz") ]));
+  DocumentKeySet keys = [self.localStore remoteDocumentKeysForTarget:2];
+  DocumentKeySet expected{testutil::Key("foo/bar"), testutil::Key("foo/baz")};
+  XCTAssertEqual(keys, expected);
 
   [self restartWithNoopGarbageCollector];
 
   keys = [self.localStore remoteDocumentKeysForTarget:2];
-  FSTAssertEqualSets(keys, (@[ FSTTestDocKey(@"foo/bar"), FSTTestDocKey(@"foo/baz") ]));
+  XCTAssertEqual(keys, (DocumentKeySet{testutil::Key("foo/bar"), testutil::Key("foo/baz")}));
 }
 
 @end

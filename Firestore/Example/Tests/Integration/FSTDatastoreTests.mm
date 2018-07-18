@@ -33,7 +33,6 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -42,12 +41,14 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
@@ -118,7 +119,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
-  FSTFail(@"Not implemented");
+  HARD_FAIL("Not implemented");
+}
+
+- (DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+  return DocumentKeySet{};
 }
 
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
@@ -129,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
-  FSTFail(@"Not implemented");
+  HARD_FAIL("Not implemented");
 }
 
 @end

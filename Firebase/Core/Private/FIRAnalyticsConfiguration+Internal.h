@@ -37,3 +37,13 @@ static NSString *const kFIRAnalyticsConfigurationSetMinimumSessionIntervalNotifi
     @"FIRAnalyticsConfigurationSetMinimumSessionIntervalNotification";
 static NSString *const kFIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification =
     @"FIRAnalyticsConfigurationSetSessionTimeoutIntervalNotification";
+
+@interface FIRAnalyticsConfiguration (Internal)
+
+/// Sets whether analytics collection is enabled for this app on this device, and a flag to persist
+/// the value or not. The setting should not be persisted if being set by the global data collection
+/// flag.
+- (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled
+                       persistSetting:(BOOL)shouldPersist;
+
+@end

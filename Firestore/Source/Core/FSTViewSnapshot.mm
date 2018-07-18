@@ -19,10 +19,10 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTImmutableSortedDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
 
@@ -154,8 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
     // Removed -> Modified
     // Metadata -> Added
     // Removed -> Metadata
-    FSTFail(@"Unsupported combination of changes: %ld after %ld", (long)change.type,
-            (long)oldChange.type);
+    HARD_FAIL("Unsupported combination of changes: %s after %s", change.type, oldChange.type);
   }
 }
 

@@ -125,7 +125,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(decoded.batchID, model.batchID);
   XCTAssertEqualObjects(decoded.localWriteTime, model.localWriteTime);
   XCTAssertEqualObjects(decoded.mutations, model.mutations);
-  XCTAssertEqualObjects([decoded keys], [model keys]);
+  XCTAssertEqual([decoded keys], [model keys]);
 }
 
 - (void)testEncodesDocumentAsMaybeDocument {

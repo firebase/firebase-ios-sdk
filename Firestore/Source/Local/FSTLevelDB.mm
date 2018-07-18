@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include <memory>
+#include <utility>
 
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
@@ -24,13 +25,12 @@
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 #include "leveldb/db.h"
@@ -61,6 +61,7 @@ using leveldb::WriteOptions;
 
 @implementation FSTLevelDB {
   std::unique_ptr<LevelDbTransaction> _transaction;
+  std::unique_ptr<leveldb::DB> _ptr;
   FSTTransactionRunner _transactionRunner;
 }
 
@@ -81,6 +82,10 @@ using leveldb::WriteOptions;
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (leveldb::DB *)ptr {
+  return _ptr.get();
 }
 
 - (const FSTTransactionRunner &)run {
@@ -115,10 +120,10 @@ using leveldb::WriteOptions;
   // projectIDs are DNS-compatible names and cannot contain dots so there's
   // no danger of collisions.
   NSString *directory = documentsDirectory;
-  directory = [directory
-      stringByAppendingPathComponent:util::WrapNSStringNoCopy(databaseInfo.persistence_key())];
+  directory =
+      [directory stringByAppendingPathComponent:util::WrapNSString(databaseInfo.persistence_key())];
 
-  NSString *segment = util::WrapNSStringNoCopy(databaseInfo.database_id().project_id());
+  NSString *segment = util::WrapNSString(databaseInfo.database_id().project_id());
   if (!databaseInfo.database_id().IsDefaultDatabase()) {
     segment = [NSString
         stringWithFormat:@"%@.%s", segment, databaseInfo.database_id().database_id().c_str()];
@@ -133,7 +138,7 @@ using leveldb::WriteOptions;
 #pragma mark - Startup
 
 - (BOOL)start:(NSError **)error {
-  FSTAssert(!self.isStarted, @"FSTLevelDB double-started!");
+  HARD_ASSERT(!self.isStarted, "FSTLevelDB double-started!");
   self.started = YES;
   NSString *directory = self.directory;
   if (![self ensureDirectory:directory error:error]) {
@@ -208,7 +213,7 @@ using leveldb::WriteOptions;
 }
 
 - (LevelDbTransaction *)currentTransaction {
-  FSTAssert(_transaction != nullptr, @"Attempting to access transaction before one has started");
+  HARD_ASSERT(_transaction != nullptr, "Attempting to access transaction before one has started");
   return _transaction.get();
 }
 
@@ -227,20 +232,24 @@ using leveldb::WriteOptions;
 }
 
 - (void)startTransaction:(absl::string_view)label {
-  FSTAssert(_transaction == nullptr, @"Starting a transaction while one is already outstanding");
+  HARD_ASSERT(_transaction == nullptr, "Starting a transaction while one is already outstanding");
   _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
 }
 
 - (void)commitTransaction {
-  FSTAssert(_transaction != nullptr, @"Committing a transaction before one is started");
+  HARD_ASSERT(_transaction != nullptr, "Committing a transaction before one is started");
   _transaction->Commit();
   _transaction.reset();
 }
 
 - (void)shutdown {
-  FSTAssert(self.isStarted, @"FSTLevelDB shutdown without start!");
+  HARD_ASSERT(self.isStarted, "FSTLevelDB shutdown without start!");
   self.started = NO;
   _ptr.reset();
+}
+
+- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
+  return nil;
 }
 
 #pragma mark - Error and Status

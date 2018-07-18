@@ -16,9 +16,10 @@
 
 #import "Firestore/Source/Remote/FSTOnlineStateTracker.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,21 +75,19 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
   if (self.watchStreamFailures == 0) {
     [self setAndBroadcastState:FSTOnlineStateUnknown];
 
-    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer shouldn't be started yet");
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer shouldn't be started yet");
     self.onlineStateTimer = [self.queue
         dispatchAfterDelay:kOnlineStateTimeout
                    timerID:FSTTimerIDOnlineStateTimeout
                      block:^{
                        self.onlineStateTimer = nil;
-                       FSTAssert(
+                       HARD_ASSERT(
                            self.state == FSTOnlineStateUnknown,
-                           @"Timer should be canceled if we transitioned to a different state.");
-                       FSTLog(
-                           @"Watch stream didn't reach Online or Offline within %f seconds. "
-                           @"Considering "
-                            "client offline.",
-                           kOnlineStateTimeout);
-                       [self logClientOfflineWarningIfNecessary];
+                           "Timer should be canceled if we transitioned to a different state.");
+                       [self logClientOfflineWarningIfNecessaryWithReason:
+                                 [NSString
+                                     stringWithFormat:@"Backend didn't respond within %f seconds.",
+                                                      kOnlineStateTimeout]];
                        [self setAndBroadcastState:FSTOnlineStateOffline];
 
                        // NOTE: handleWatchStreamFailure will continue to increment
@@ -98,19 +97,21 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
   }
 }
 
-- (void)handleWatchStreamFailure {
+- (void)handleWatchStreamFailure:(NSError *)error {
   if (self.state == FSTOnlineStateOnline) {
     [self setAndBroadcastState:FSTOnlineStateUnknown];
 
     // To get to FSTOnlineStateOnline, updateState: must have been called which would have reset
     // our heuristics.
-    FSTAssert(self.watchStreamFailures == 0, @"watchStreamFailures must be 0");
-    FSTAssert(!self.onlineStateTimer, @"onlineStateTimer must be nil");
+    HARD_ASSERT(self.watchStreamFailures == 0, "watchStreamFailures must be 0");
+    HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer must be nil");
   } else {
     self.watchStreamFailures++;
     if (self.watchStreamFailures >= kMaxWatchStreamFailures) {
       [self clearOnlineStateTimer];
-      [self logClientOfflineWarningIfNecessary];
+      [self logClientOfflineWarningIfNecessaryWithReason:
+                [NSString stringWithFormat:@"Connection failed %d times. Most recent error: %@",
+                                           kMaxWatchStreamFailures, error]];
       [self setAndBroadcastState:FSTOnlineStateOffline];
     }
   }
@@ -136,10 +137,18 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
   }
 }
 
-- (void)logClientOfflineWarningIfNecessary {
+- (void)logClientOfflineWarningIfNecessaryWithReason:(NSString *)reason {
+  NSString *message = [NSString
+      stringWithFormat:
+          @"Could not reach Cloud Firestore backend. %@\n This typically indicates that your "
+          @"device does not have a healthy Internet connection at the moment. The client will "
+          @"operate in offline mode until it is able to successfully connect to the backend.",
+          reason];
   if (self.shouldWarnClientIsOffline) {
-    FSTWarn(@"Could not reach Firestore backend.");
+    LOG_WARN("%s", message);
     self.shouldWarnClientIsOffline = NO;
+  } else {
+    LOG_DEBUG("%s", message);
   }
 }
 

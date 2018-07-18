@@ -24,11 +24,12 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,24 +41,30 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
                           changeSet:(FSTDocumentViewChangeSet *)changeSet
                         needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(FSTDocumentKeySet *)mutatedKeys NS_DESIGNATED_INITIALIZER;
+                        mutatedKeys:(DocumentKeySet)mutatedKeys NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FSTViewDocumentChanges
+@implementation FSTViewDocumentChanges {
+  DocumentKeySet _mutatedKeys;
+}
 
 - (instancetype)initWithDocumentSet:(FSTDocumentSet *)documentSet
                           changeSet:(FSTDocumentViewChangeSet *)changeSet
                         needsRefill:(BOOL)needsRefill
-                        mutatedKeys:(FSTDocumentKeySet *)mutatedKeys {
+                        mutatedKeys:(DocumentKeySet)mutatedKeys {
   self = [super init];
   if (self) {
     _documentSet = documentSet;
     _changeSet = changeSet;
     _needsRefill = needsRefill;
-    _mutatedKeys = mutatedKeys;
+    _mutatedKeys = std::move(mutatedKeys);
   }
   return self;
+}
+
+- (const DocumentKeySet &)mutatedKeys {
+  return _mutatedKeys;
 }
 
 @end
@@ -102,7 +109,7 @@ NS_ASSUME_NONNULL_BEGIN
     return NO;
   }
   FSTLimboDocumentChange *otherChange = (FSTLimboDocumentChange *)other;
-  return self.type == otherChange.type && [self.key isEqual:otherChange.key];
+  return self.type == otherChange.type && self.key == otherChange.key;
 }
 
 - (NSUInteger)hash {
@@ -165,30 +172,31 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
 @property(nonatomic, strong) FSTDocumentSet *documentSet;
 
-/** Documents included in the remote target. */
-@property(nonatomic, strong) FSTDocumentKeySet *syncedDocuments;
-
-/** Documents in the view but not in the remote target */
-@property(nonatomic, strong) FSTDocumentKeySet *limboDocuments;
-
-/** Document Keys that have local changes. */
-@property(nonatomic, strong) FSTDocumentKeySet *mutatedKeys;
-
 @end
 
-@implementation FSTView
+@implementation FSTView {
+  /** Documents included in the remote target. */
+  DocumentKeySet _syncedDocuments;
 
-- (instancetype)initWithQuery:(FSTQuery *)query
-              remoteDocuments:(nonnull FSTDocumentKeySet *)remoteDocuments {
+  /** Documents in the view but not in the remote target */
+  DocumentKeySet _limboDocuments;
+
+  /** Document Keys that have local changes. */
+  DocumentKeySet _mutatedKeys;
+}
+
+- (instancetype)initWithQuery:(FSTQuery *)query remoteDocuments:(DocumentKeySet)remoteDocuments {
   self = [super init];
   if (self) {
     _query = query;
     _documentSet = [FSTDocumentSet documentSetWithComparator:query.comparator];
-    _syncedDocuments = remoteDocuments;
-    _limboDocuments = [FSTDocumentKeySet keySet];
-    _mutatedKeys = [FSTDocumentKeySet keySet];
+    _syncedDocuments = std::move(remoteDocuments);
   }
   return self;
+}
+
+- (const DocumentKeySet &)syncedDocuments {
+  return _syncedDocuments;
 }
 
 - (FSTViewDocumentChanges *)computeChangesWithDocuments:(FSTMaybeDocumentDictionary *)docChanges {
@@ -202,8 +210,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       previousChanges ? previousChanges.changeSet : [FSTDocumentViewChangeSet changeSet];
   FSTDocumentSet *oldDocumentSet = previousChanges ? previousChanges.documentSet : self.documentSet;
 
-  __block FSTDocumentKeySet *newMutatedKeys =
-      previousChanges ? previousChanges.mutatedKeys : self.mutatedKeys;
+  __block DocumentKeySet newMutatedKeys =
+      previousChanges ? previousChanges.mutatedKeys : _mutatedKeys;
   __block FSTDocumentSet *newDocumentSet = oldDocumentSet;
   __block BOOL needsRefill = NO;
 
@@ -227,8 +235,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
       newDoc = (FSTDocument *)maybeNewDoc;
     }
     if (newDoc) {
-      FSTAssert([key isEqual:newDoc.key], @"Mismatching key in document changes: %@ != %s", key,
-                newDoc.key.ToString().c_str());
+      HARD_ASSERT([key isEqual:newDoc.key], "Mismatching key in document changes: %s != %s", key,
+                  newDoc.key.ToString());
       if (![self.query matchesDocument:newDoc]) {
         newDoc = nil;
       }
@@ -236,13 +244,13 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     if (newDoc) {
       newDocumentSet = [newDocumentSet documentSetByAddingDocument:newDoc];
       if (newDoc.hasLocalMutations) {
-        newMutatedKeys = [newMutatedKeys setByAddingObject:key];
+        newMutatedKeys = newMutatedKeys.insert(key);
       } else {
-        newMutatedKeys = [newMutatedKeys setByRemovingObject:key];
+        newMutatedKeys = newMutatedKeys.erase(key);
       }
     } else {
       newDocumentSet = [newDocumentSet documentSetByRemovingKey:key];
-      newMutatedKeys = [newMutatedKeys setByRemovingObject:key];
+      newMutatedKeys = newMutatedKeys.erase(key);
     }
 
     // Calculate change
@@ -292,8 +300,8 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     }
   }
 
-  FSTAssert(!needsRefill || !previousChanges,
-            @"View was refilled using docs that themselves needed refilling.");
+  HARD_ASSERT(!needsRefill || !previousChanges,
+              "View was refilled using docs that themselves needed refilling.");
 
   return [[FSTViewDocumentChanges alloc] initWithDocumentSet:newDocumentSet
                                                    changeSet:changeSet
@@ -307,11 +315,11 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 
 - (FSTViewChange *)applyChangesToDocuments:(FSTViewDocumentChanges *)docChanges
                               targetChange:(nullable FSTTargetChange *)targetChange {
-  FSTAssert(!docChanges.needsRefill, @"Cannot apply changes that need a refill");
+  HARD_ASSERT(!docChanges.needsRefill, "Cannot apply changes that need a refill");
 
   FSTDocumentSet *oldDocuments = self.documentSet;
   self.documentSet = docChanges.documentSet;
-  self.mutatedKeys = docChanges.mutatedKeys;
+  _mutatedKeys = docChanges.mutatedKeys;
 
   // Sort changes based on type and query comparator.
   NSArray<FSTDocumentViewChange *> *changes = [docChanges.changeSet changes];
@@ -325,7 +333,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   }];
   [self applyTargetChange:targetChange];
   NSArray<FSTLimboDocumentChange *> *limboChanges = [self updateLimboDocuments];
-  BOOL synced = self.limboDocuments.count == 0 && self.isCurrent;
+  BOOL synced = _limboDocuments.empty() && self.isCurrent;
   FSTSyncState newSyncState = synced ? FSTSyncStateSynced : FSTSyncStateLocal;
   BOOL syncStateChanged = newSyncState != self.syncState;
   self.syncState = newSyncState;
@@ -340,7 +348,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                                   oldDocuments:oldDocuments
                                documentChanges:changes
                                      fromCache:newSyncState == FSTSyncStateLocal
-                              hasPendingWrites:!docChanges.mutatedKeys.isEmpty
+                              hasPendingWrites:!docChanges.mutatedKeys.empty()
                               syncStateChanged:syncStateChanged];
 
     return [FSTViewChange changeWithSnapshot:snapshot limboChanges:limboChanges];
@@ -358,7 +366,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
                                           initWithDocumentSet:self.documentSet
                                                     changeSet:[FSTDocumentViewChangeSet changeSet]
                                                   needsRefill:NO
-                                                  mutatedKeys:self.mutatedKeys]];
+                                                  mutatedKeys:_mutatedKeys]];
   } else {
     // No effect, just return a no-op FSTViewChange.
     return [[FSTViewChange alloc] initWithSnapshot:nil limboChanges:@[]];
@@ -370,7 +378,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
 /** Returns whether the doc for the given key should be in limbo. */
 - (BOOL)shouldBeLimboDocumentKey:(const DocumentKey &)key {
   // If the remote end says it's part of this query, it's not in limbo.
-  if ([self.syncedDocuments containsObject:key]) {
+  if (_syncedDocuments.contains(key)) {
     return NO;
   }
   // The local store doesn't think it's a result, so it shouldn't be in limbo.
@@ -393,30 +401,18 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
  */
 - (void)applyTargetChange:(nullable FSTTargetChange *)targetChange {
   if (targetChange) {
-    FSTTargetMapping *targetMapping = targetChange.mapping;
-    if ([targetMapping isKindOfClass:[FSTResetMapping class]]) {
-      self.syncedDocuments = ((FSTResetMapping *)targetMapping).documents;
-    } else if ([targetMapping isKindOfClass:[FSTUpdateMapping class]]) {
-      [((FSTUpdateMapping *)targetMapping).addedDocuments
-          enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-            self.syncedDocuments = [self.syncedDocuments setByAddingObject:key];
-          }];
-      [((FSTUpdateMapping *)targetMapping).removedDocuments
-          enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-            self.syncedDocuments = [self.syncedDocuments setByRemovingObject:key];
-          }];
+    for (const DocumentKey &key : targetChange.addedDocuments) {
+      _syncedDocuments = _syncedDocuments.insert(key);
+    }
+    for (const DocumentKey &key : targetChange.modifiedDocuments) {
+      HARD_ASSERT(_syncedDocuments.find(key) != _syncedDocuments.end(),
+                  "Modified document %s not found in view.", key.ToString());
+    }
+    for (const DocumentKey &key : targetChange.removedDocuments) {
+      _syncedDocuments = _syncedDocuments.erase(key);
     }
 
-    switch (targetChange.currentStatusUpdate) {
-      case FSTCurrentStatusUpdateMarkCurrent:
-        self.current = YES;
-        break;
-      case FSTCurrentStatusUpdateMarkNotCurrent:
-        self.current = NO;
-        break;
-      case FSTCurrentStatusUpdateNone:
-        break;
-    }
+    self.current = targetChange.current;
   }
 }
 
@@ -428,29 +424,29 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
   }
 
   // TODO(klimt): Do this incrementally so that it's not quadratic when updating many documents.
-  FSTDocumentKeySet *oldLimboDocuments = self.limboDocuments;
-  self.limboDocuments = [FSTDocumentKeySet keySet];
+  DocumentKeySet oldLimboDocuments = std::move(_limboDocuments);
+  _limboDocuments = DocumentKeySet{};
   for (FSTDocument *doc in self.documentSet.documentEnumerator) {
     if ([self shouldBeLimboDocumentKey:doc.key]) {
-      self.limboDocuments = [self.limboDocuments setByAddingObject:doc.key];
+      _limboDocuments = _limboDocuments.insert(doc.key);
     }
   }
 
   // Diff the new limbo docs with the old limbo docs.
   NSMutableArray<FSTLimboDocumentChange *> *changes =
-      [NSMutableArray arrayWithCapacity:(oldLimboDocuments.count + self.limboDocuments.count)];
-  [oldLimboDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    if (![self.limboDocuments containsObject:key]) {
+      [NSMutableArray arrayWithCapacity:(oldLimboDocuments.size() + _limboDocuments.size())];
+  for (const DocumentKey &key : oldLimboDocuments) {
+    if (!_limboDocuments.contains(key)) {
       [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved
                                                             key:key]];
     }
-  }];
-  [self.limboDocuments enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
-    if (![oldLimboDocuments containsObject:key]) {
+  }
+  for (const DocumentKey &key : _limboDocuments) {
+    if (!oldLimboDocuments.contains(key)) {
       [changes addObject:[FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded
                                                             key:key]];
     }
-  }];
+  }
   return changes;
 }
 
@@ -470,7 +466,7 @@ static inline int DocumentViewChangeTypePosition(FSTDocumentViewChangeType chang
       // equivalently.
       return 2;
     default:
-      FSTCFail(@"Unknown FSTDocumentViewChangeType %lu", (unsigned long)changeType);
+      HARD_FAIL("Unknown FSTDocumentViewChangeType %s", changeType);
   }
 }
 

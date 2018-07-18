@@ -2,7 +2,10 @@
   "Contents of query are cleared when listen is removed.": {
     "describeName": "Listens:",
     "itName": "Contents of query are cleared when listen is removed.",
-    "tags": [],
+    "tags": [
+      "no-lru"
+    ],
+    "comment": "Explicitly tests eager GC behavior",
     "config": {
       "useGarbageCollection": true
     },
@@ -56,8 +59,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -174,8 +181,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -212,8 +223,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -232,6 +247,181 @@
             ],
             "errorCode": 0,
             "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Doesn't raise events for empty target": {
+    "describeName": "Listens:",
+    "itName": "Doesn't raise events for empty target",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection1",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection2",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "userListen": [
+          6,
+          {
+            "path": "collection3",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection1",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "4": {
+              "query": {
+                "path": "collection2",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            },
+            "6": {
+              "query": {
+                "path": "collection3",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection2/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            4
+          ]
+        }
+      },
+      {
+        "watchAck": [
+          6
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection1",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          },
+          {
+            "query": {
+              "path": "collection2",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection2/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
             "hasPendingWrites": false
           }
         ]
@@ -305,8 +495,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -379,6 +573,87 @@
             ],
             "errorCode": 0,
             "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Does not raise event for initial document delete": {
+    "describeName": "Listens:",
+    "itName": "Does not raise event for initial document delete",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              null
+            ]
+          ],
+          "removedTargets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
             "hasPendingWrites": false
           }
         ]
@@ -589,8 +864,12 @@
             4
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -672,8 +951,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -710,8 +993,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -824,8 +1111,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchEntity": {
@@ -841,8 +1132,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -915,8 +1210,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -953,8 +1252,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1054,8 +1357,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        }
       },
       {
         "watchEntity": {
@@ -1071,8 +1378,12 @@
           "targets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
         },
-        "watchSnapshot": 2000,
         "expect": [
           {
             "query": {
@@ -1158,8 +1469,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1287,8 +1602,12 @@
             4
           ],
           "resume-token-4000"
-        ],
-        "watchSnapshot": 4000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 4000
+        },
         "expect": [
           {
             "query": {
@@ -1394,8 +1713,12 @@
             2
           ],
           "resume-token-5000"
-        ],
-        "watchSnapshot": 5000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 5000
+        },
         "expect": [
           {
             "query": {
@@ -1504,8 +1827,12 @@
             4
           ],
           "resume-token-6000"
-        ],
-        "watchSnapshot": 6000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 6000
+        },
         "expect": [
           {
             "query": {
@@ -1579,8 +1906,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -1665,8 +1996,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -1683,6 +2018,1093 @@
                 }
               ]
             ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Synthesizes deletes for missing document": {
+    "describeName": "Listens:",
+    "itName": "Synthesizes deletes for missing document",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ],
+            [
+              "collection/b",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ],
+              [
+                "collection/b",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ],
+              [
+                "collection/b",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "4": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchAck": [
+          4
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            4
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          4,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            4
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/b",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Re-opens target without existence filter": {
+    "describeName": "Listens:",
+    "itName": "Re-opens target without existence filter",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              2000,
+              null
+            ]
+          ],
+          "removedTargets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Ignores update from inactive target": {
+    "describeName": "Listens:",
+    "itName": "Ignores update from inactive target",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/b",
+              2000,
+              {
+                "key": "b"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Does not synthesize deletes for previously acked documents": {
+    "describeName": "Listens:",
+    "itName": "Does not synthesize deletes for previously acked documents",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-2000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Persists resume token sent with target": {
+    "describeName": "Listens:",
+    "itName": "Persists resume token sent with target",
+    "tags": [
+      "exclusive"
+    ],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              2000,
+              {
+                "key": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000,
+          "targetIds": [
+            2
+          ],
+          "resumeToken": "resume-token-2000"
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                2000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-2000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                2000,
+                {
+                  "key": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-3000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
             "errorCode": 0,
             "fromCache": false,
             "hasPendingWrites": false

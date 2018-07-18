@@ -21,7 +21,8 @@
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if (change.type == FSTDocumentViewChangeTypeRemoved) {
     return FIRDocumentChangeTypeRemoved;
   } else {
-    FSTFail(@"Unknown FSTDocumentViewChange: %ld", (long)change.type);
+    HARD_FAIL("Unknown FSTDocumentViewChange: %s", change.type);
   }
 }
 
@@ -64,11 +65,11 @@ NS_ASSUME_NONNULL_BEGIN
                                               documentKey:change.document.key
                                                  document:change.document
                                                 fromCache:snapshot.isFromCache];
-      FSTAssert(change.type == FSTDocumentViewChangeTypeAdded,
-                @"Invalid event type for first snapshot");
-      FSTAssert(!lastDocument ||
-                    snapshot.query.comparator(lastDocument, change.document) == NSOrderedAscending,
-                @"Got added events in wrong order");
+      HARD_ASSERT(change.type == FSTDocumentViewChangeTypeAdded,
+                  "Invalid event type for first snapshot");
+      HARD_ASSERT(!lastDocument || snapshot.query.comparator(lastDocument, change.document) ==
+                                       NSOrderedAscending,
+                  "Got added events in wrong order");
       [changes addObject:[[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeAdded
                                                         document:document
                                                         oldIndex:NSNotFound
@@ -95,7 +96,7 @@ NS_ASSUME_NONNULL_BEGIN
       NSUInteger newIndex = NSNotFound;
       if (change.type != FSTDocumentViewChangeTypeAdded) {
         oldIndex = [indexTracker indexOfKey:change.document.key];
-        FSTAssert(oldIndex != NSNotFound, @"Index for document not found");
+        HARD_ASSERT(oldIndex != NSNotFound, "Index for document not found");
         indexTracker = [indexTracker documentSetByRemovingKey:change.document.key];
       }
       if (change.type != FSTDocumentViewChangeTypeRemoved) {

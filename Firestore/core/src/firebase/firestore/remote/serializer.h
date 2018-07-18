@@ -19,16 +19,30 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
+#include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/base/attributes.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class LocalSerializer;
+}
+
 namespace remote {
 
 /**
@@ -46,23 +60,16 @@ namespace remote {
 // interpret." Adjust for C++.
 class Serializer {
  public:
-  Serializer() {
+  /**
+   * @param database_id Must remain valid for the lifetime of this Serializer
+   * object.
+   */
+  explicit Serializer(const firebase::firestore::model::DatabaseId& database_id)
+      : database_id_(database_id) {
   }
-  // TODO(rsgowman): We eventually need the DatabaseId, but can't add it just
-  // yet since it's not used yet (which travis complains about). So for now,
-  // we'll create a parameterless ctor (above) that likely won't exist in the
-  // final version of this class.
-  ///**
-  // * @param database_id Must remain valid for the lifetime of this Serializer
-  // * object.
-  // */
-  // explicit Serializer(const firebase::firestore::model::DatabaseId&
-  // database_id)
-  //    : database_id_(database_id) {
-  //}
 
   /**
-   * Converts the FieldValue model passed into bytes.
+   * @brief Converts the FieldValue model passed into bytes.
    *
    * @param field_value the model to convert.
    * @param[out] out_bytes A buffer to place the output. The bytes will be
@@ -101,9 +108,94 @@ class Serializer {
     return DecodeFieldValue(bytes.data(), bytes.size());
   }
 
+  /**
+   * Encodes the given document key as a fully qualified name. This includes the
+   * databaseId associated with this Serializer and the key path.
+   */
+  std::string EncodeKey(
+      const firebase::firestore::model::DocumentKey& key) const;
+
+  /**
+   * Decodes the given document key from a fully qualified name.
+   */
+  firebase::firestore::model::DocumentKey DecodeKey(
+      absl::string_view name) const;
+
+  /**
+   * @brief Converts the Document (i.e. key/value) into bytes.
+   *
+   * @param[out] out_bytes A buffer to place the output. The bytes will be
+   * appended to this vector.
+   * @return A Status, which if not ok(), indicates what went wrong. Note that
+   * errors during encoding generally indicate a serious/fatal error.
+   */
+  // TODO(rsgowman): Similar to above, if we never support any output except to
+  // a vector, it may make sense to have Serializer own the vector and provide
+  // an accessor rather than asking the user to create it first.
+  util::Status EncodeDocument(
+      const firebase::firestore::model::DocumentKey& key,
+      const firebase::firestore::model::ObjectValue& value,
+      std::vector<uint8_t>* out_bytes) const;
+
+  /**
+   * @brief Converts from bytes to the model Document format.
+   *
+   * @param bytes The bytes to convert. These bytes must represent a
+   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
+   * be used by this conversion.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
+   */
+  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+      const uint8_t* bytes, size_t length) const;
+
+  /**
+   * @brief Converts from bytes to the model Document format.
+   *
+   * @param bytes The bytes to convert. These bytes must represent a
+   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
+   * be used by this conversion.
+   * @return The model equivalent of the bytes or a Status indicating
+   * what went wrong.
+   */
+  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+      const std::vector<uint8_t>& bytes) const {
+    return DecodeMaybeDocument(bytes.data(), bytes.size());
+  }
+
+  std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
+
+  static void EncodeObjectMap(nanopb::Writer* writer,
+                              const model::ObjectValue::Map& object_value_map,
+                              uint32_t map_tag,
+                              uint32_t key_tag,
+                              uint32_t value_tag);
+
+  static void EncodeVersion(nanopb::Writer* writer,
+                            const model::SnapshotVersion& version);
+
+  static Timestamp DecodeTimestamp(nanopb::Reader* reader);
+  static model::FieldValue DecodeFieldValue(nanopb::Reader* reader);
+
  private:
-  // TODO(rsgowman): We don't need the database_id_ yet (but will eventually).
-  // model::DatabaseId* database_id_;
+  void EncodeDocument(nanopb::Writer* writer,
+                      const model::DocumentKey& key,
+                      const model::ObjectValue& object_value) const;
+  std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
+      nanopb::Reader* reader) const;
+
+  static void EncodeMapValue(nanopb::Writer* writer,
+                             const model::ObjectValue& object_value);
+
+  static void EncodeFieldsEntry(nanopb::Writer* writer,
+                                const model::ObjectValue::Map::value_type& kv,
+                                uint32_t key_tag,
+                                uint32_t value_tag);
+
+  static void EncodeFieldValue(nanopb::Writer* writer,
+                               const model::FieldValue& field_value);
+
+  const firebase::firestore::model::DatabaseId& database_id_;
 };
 
 }  // namespace remote

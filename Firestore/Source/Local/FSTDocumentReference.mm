@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTDocumentReference *reference = (FSTDocumentReference *)other;
 
-  return [self.key isEqualToKey:reference.key] && self.ID == reference.ID;
+  return self.key == reference.key && self.ID == reference.ID;
 }
 
 - (NSUInteger)hash {

@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -26,7 +26,7 @@ User::User() : is_authenticated_(false) {
 }
 
 User::User(const absl::string_view uid) : uid_(uid), is_authenticated_(true) {
-  FIREBASE_ASSERT(!uid.empty());
+  HARD_ASSERT(!uid.empty());
 }
 
 const User& User::Unauthenticated() {

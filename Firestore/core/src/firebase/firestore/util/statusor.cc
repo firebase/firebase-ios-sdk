@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -24,15 +25,14 @@ namespace internal_statusor {
 void Helper::HandleInvalidStatusCtorArg(Status* status) {
   const char* kMessage =
       "An OK status is not a valid constructor argument to StatusOr<T>";
-  FIREBASE_DEV_ASSERT_MESSAGE(false, kMessage);
+  HARD_FAIL("%s", kMessage);
   // Fall back to Internal for non-debug builds
   *status = Status(FirestoreErrorCode::Internal, kMessage);
 }
 
 void Helper::Crash(const Status& status) {
-  FIREBASE_ASSERT_MESSAGE(
-      false, "Attempting to fetch value instead of handling error ",
-      status.ToString().c_str());
+  HARD_FAIL("Attempting to fetch value instead of handling error %s",
+            status.ToString());
 }
 
 }  // namespace internal_statusor

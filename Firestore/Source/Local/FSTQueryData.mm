@@ -82,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSUInteger result = [self.query hash];
   result = result * 31 + self.targetID;
   result = result * 31 + self.purpose;
-  result = result * 31 + [self.snapshotVersion hash];
+  result = result * 31 + self.snapshotVersion.Hash();
   result = result * 31 + [self.resumeToken hash];
   return result;
 }

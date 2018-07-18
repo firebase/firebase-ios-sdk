@@ -19,7 +19,8 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
-#import "Firestore/Source/Util/FSTAssert.h"
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init {
-  FSTFail(@"FSTListenOptions init not supported");
+  HARD_FAIL("FSTListenOptions init not supported");
   return nil;
 }
 
@@ -116,8 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot {
-  FSTAssert(snapshot.documentChanges.count > 0 || snapshot.syncStateChanged,
-            @"We got a new snapshot with no changes?");
+  HARD_ASSERT(snapshot.documentChanges.count > 0 || snapshot.syncStateChanged,
+              "We got a new snapshot with no changes?");
 
   if (!self.options.includeDocumentMetadataChanges) {
     // Remove the metadata-only changes.
@@ -161,8 +162,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)shouldRaiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot
                                onlineState:(FSTOnlineState)onlineState {
-  FSTAssert(!self.raisedInitialEvent,
-            @"Determining whether to raise initial event, but already had first event.");
+  HARD_ASSERT(!self.raisedInitialEvent,
+              "Determining whether to raise initial event, but already had first event.");
 
   // Always raise the first event when we're synced
   if (!snapshot.fromCache) {
@@ -175,7 +176,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
   if (self.options.waitForSyncWhenOnline && maybeOnline) {
-    FSTAssert(snapshot.fromCache, @"Waiting for sync, but snapshot is not from cache.");
+    HARD_ASSERT(snapshot.fromCache, "Waiting for sync, but snapshot is not from cache.");
     return NO;
   }
 
@@ -203,7 +204,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)raiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot {
-  FSTAssert(!self.raisedInitialEvent, @"Trying to raise initial events for second time");
+  HARD_ASSERT(!self.raisedInitialEvent, "Trying to raise initial events for second time");
   snapshot = [[FSTViewSnapshot alloc]
          initWithQuery:snapshot.query
              documents:snapshot.documents

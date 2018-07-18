@@ -17,44 +17,65 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_LOG_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_LOG_H_
 
-#include <cstdarg>
+#include <string>
+
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-/// @brief Levels used when logging messages.
+// Levels used when logging messages.
 enum LogLevel {
-  /// Verbose Log Level
-  kLogLevelVerbose = 0,
-  /// Debug Log Level
+  // Debug Log Level
   kLogLevelDebug,
-  /// Info Log Level
-  kLogLevelInfo,
-  /// Warning Log Level
+  // Warning Log Level
   kLogLevelWarning,
-  /// Error Log Level
-  kLogLevelError,
 };
 
-// Common log methods.
+// Log a message if kLogLevelDebug is enabled. Arguments are not evaluated if
+// logging is disabled.
+//
+// @param format A format string suitable for use with `util::StringFormat`
+// @param ... C++ variadic arguments that match the format string. Not C
+//     varargs.
+#define LOG_DEBUG(...)                                         \
+  do {                                                         \
+    namespace _util = firebase::firestore::util;               \
+    if (_util::LogIsLoggable(_util::kLogLevelDebug)) {         \
+      std::string _message = _util::StringFormat(__VA_ARGS__); \
+      _util::LogMessage(_util::kLogLevelDebug, _message);      \
+    }                                                          \
+  } while (0)
+
+// Log a message if kLogLevelWarn is enabled (it is by default). Arguments are
+// not evaluated if logging is disabled.
+//
+// @param format A format string suitable for use with `util::StringFormat`
+// @param ... C++ variadic arguments that match the format string. Not C
+//     varargs.
+#define LOG_WARN(...)                                          \
+  do {                                                         \
+    namespace _util = firebase::firestore::util;               \
+    if (_util::LogIsLoggable(_util::kLogLevelWarning)) {       \
+      std::string _message = _util::StringFormat(__VA_ARGS__); \
+      _util::LogMessage(_util::kLogLevelWarning, _message);    \
+    }                                                          \
+  } while (0)
+
+// Tests to see if the given log level is loggable.
+bool LogIsLoggable(LogLevel level);
+
+// Is debug logging enabled?
+inline bool LogIsDebugEnabled() {
+  return LogIsLoggable(kLogLevelDebug);
+}
 
 // All messages at or above the specified log level value are displayed.
 void LogSetLevel(LogLevel level);
-// Get the currently set log level.
-LogLevel LogGetLevel();
-// Log a debug message to the system log.
-void LogDebug(const char* format, ...);
-// Log an info message to the system log.
-void LogInfo(const char* format, ...);
-// Log a warning to the system log.
-void LogWarning(const char* format, ...);
-// Log an error to the system log.
-void LogError(const char* format, ...);
-// Log a firebase message (implemented by the platform specific logger).
-void LogMessageV(LogLevel log_level, const char* format, va_list args);
-// Log a firebase message via LogMessageV().
-void LogMessage(LogLevel log_level, const char* format, ...);
+
+// Log a message at the given level.
+void LogMessage(LogLevel log_level, const std::string& message);
 
 }  // namespace util
 }  // namespace firestore

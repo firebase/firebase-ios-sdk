@@ -16,17 +16,29 @@
 
 #import <Foundation/Foundation.h>
 
+#include <unordered_map>
+
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
-#import "Firestore/Source/Model/FSTDocumentVersionDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTMutation;
 @class FIRTimestamp;
 @class FSTMutationResult;
 @class FSTMutationBatchResult;
+
+namespace firebase {
+namespace firestore {
+namespace model {
+
+// TODO(wilhuff): make this type a member of MutationBatchResult once that's a C++ class.
+using DocumentVersionMap = std::unordered_map<DocumentKey, SnapshotVersion, DocumentKeyHash>;
+
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -85,7 +97,7 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 - (FSTMutationBatch *)toTombstone;
 
 /** Returns the set of unique keys referenced by all mutations in the batch. */
-- (FSTDocumentKeySet *)keys;
+- (firebase::firestore::model::DocumentKeySet)keys;
 
 @property(nonatomic, assign, readonly) FSTBatchID batchID;
 @property(nonatomic, strong, readonly) FIRTimestamp *localWriteTime;
@@ -115,7 +127,8 @@ extern const FSTBatchID kFSTBatchIDUnknown;
 @property(nonatomic, strong, readonly) FSTMutationBatch *batch;
 @property(nonatomic, strong, readonly) NSArray<FSTMutationResult *> *mutationResults;
 @property(nonatomic, strong, readonly, nullable) NSData *streamToken;
-@property(nonatomic, strong, readonly) FSTDocumentVersionDictionary *docVersions;
+
+- (const firebase::firestore::model::DocumentVersionMap &)docVersions;
 
 @end
 

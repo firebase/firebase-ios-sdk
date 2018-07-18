@@ -18,10 +18,10 @@
 
 #include <random>
 
-#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
-
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
+
+#include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/secure_random.h"
 
 using firebase::firestore::util::SecureRandom;
 
@@ -71,8 +71,7 @@ using firebase::firestore::util::SecureRandom;
   // First schedule the block using the current base (which may be 0 and should be honored as such).
   NSTimeInterval delayWithJitter = _currentBase + [self jitterDelay];
   if (_currentBase > 0) {
-    FSTLog(@"Backing off for %.2f seconds (base delay: %.2f seconds)", delayWithJitter,
-           _currentBase);
+    LOG_DEBUG("Backing off for %s seconds (base delay: %s seconds)", delayWithJitter, _currentBase);
   }
 
   self.timerCallback =

@@ -31,9 +31,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbrpc.h"
 
@@ -43,6 +41,8 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -130,8 +130,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   } else if ([error.domain isEqualToString:FIRFirestoreErrorDomain]) {
     return error;
   } else if ([error.domain isEqualToString:kGRPCErrorDomain]) {
-    FSTAssert(error.code >= GRPCErrorCodeCancelled && error.code <= GRPCErrorCodeUnauthenticated,
-              @"Unknown GRPC error code: %ld", (long)error.code);
+    HARD_ASSERT(error.code >= GRPCErrorCodeCancelled && error.code <= GRPCErrorCodeUnauthenticated,
+                "Unknown GRPC error code: %s", error.code);
     return
         [NSError errorWithDomain:FIRFirestoreErrorDomain code:error.code userInfo:error.userInfo];
   } else {
@@ -142,14 +142,14 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 }
 
 + (BOOL)isAbortedError:(NSError *)error {
-  FSTAssert([error.domain isEqualToString:FIRFirestoreErrorDomain],
-            @"isAbortedError: only works with errors emitted by FSTDatastore.");
+  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
+              "isAbortedError: only works with errors emitted by FSTDatastore.");
   return error.code == FIRFirestoreErrorCodeAborted;
 }
 
 + (BOOL)isPermanentWriteError:(NSError *)error {
-  FSTAssert([error.domain isEqualToString:FIRFirestoreErrorDomain],
-            @"isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
+  HARD_ASSERT([error.domain isEqualToString:FIRFirestoreErrorDomain],
+              "isPerminanteWriteError: only works with errors emitted by FSTDatastore.");
   switch (error.code) {
     case FIRFirestoreErrorCodeCancelled:
     case FIRFirestoreErrorCodeUnknown:
@@ -157,10 +157,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeResourceExhausted:
     case FIRFirestoreErrorCodeInternal:
     case FIRFirestoreErrorCodeUnavailable:
+    // Unauthenticated means something went wrong with our token and we need to retry with new
+    // credentials which will happen automatically.
     case FIRFirestoreErrorCodeUnauthenticated:
-      // Unauthenticated means something went wrong with our token and we need
-      // to retry with new credentials which will happen automatically.
-      // TODO(b/37325376): Give up after second unauthenticated error.
       return NO;
     case FIRFirestoreErrorCodeInvalidArgument:
     case FIRFirestoreErrorCodeNotFound:
@@ -174,6 +173,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     case FIRFirestoreErrorCodeOutOfRange:
     case FIRFirestoreErrorCodeUnimplemented:
     case FIRFirestoreErrorCodeDataLoss:
+      return YES;
     default:
       return YES;
   }
@@ -185,7 +185,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   // version as a macro, so it would be hardcoded based on version we have at compile time of
   // the Firestore library, rather than the version available at runtime/at compile time by the
   // user of the library.
-  return [NSString stringWithFormat:@"gl-objc/ fire/%s grpc/", FirebaseFirestoreVersionString];
+  return [NSString stringWithFormat:@"gl-objc/ fire/%s grpc/", FIRFirestoreVersionString];
 }
 
 /** Returns the string to be used as google-cloud-resource-prefix header value. */
@@ -217,8 +217,8 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 /** Logs the (whitelisted) headers returned for an GRPCProtoCall RPC. */
 + (void)logHeadersForRPC:(GRPCProtoCall *)rpc RPCName:(NSString *)rpcName {
   if ([FIRFirestore isLoggingEnabled]) {
-    FSTLog(@"RPC %@ returned headers (whitelisted): %@", rpcName,
-           [FSTDatastore extractWhiteListedHeaders:rpc.responseHeaders]);
+    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpcName,
+              [FSTDatastore extractWhiteListedHeaders:rpc.responseHeaders]);
   }
 }
 
@@ -239,7 +239,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                        handler:^(GCFSCommitResponse *response, NSError *_Nullable error) {
                          error = [FSTDatastore firestoreErrorForError:error];
                          [self.workerDispatchQueue dispatchAsync:^{
-                           FSTLog(@"RPC CommitRequest completed. Error: %@", error);
+                           if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                             self->_credentials->InvalidateToken();
+                           }
+                           LOG_DEBUG("RPC CommitRequest completed. Error: %s", error);
                            [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
                            completion(error);
                          }];
@@ -272,7 +275,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                error = [FSTDatastore firestoreErrorForError:error];
                                [self.workerDispatchQueue dispatchAsync:^{
                                  if (error) {
-                                   FSTLog(@"RPC BatchGetDocuments completed. Error: %@", error);
+                                   LOG_DEBUG("RPC BatchGetDocuments completed. Error: %s", error);
+                                   if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
+                                     self->_credentials->InvalidateToken();
+                                   }
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);
                                    return;
@@ -285,9 +291,9 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                    closure->results.insert({doc.key, doc});
                                  } else {
                                    // Streaming response is done, call completion
-                                   FSTLog(@"RPC BatchGetDocuments completed successfully.");
+                                   LOG_DEBUG("RPC BatchGetDocuments completed successfully.");
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
-                                   FSTAssert(!response, @"Got response after done.");
+                                   HARD_ASSERT(!response, "Got response after done.");
                                    NSMutableArray<FSTMaybeDocument *> *docs =
                                        [NSMutableArray arrayWithCapacity:closure->results.size()];
                                    for (auto &&entry : closure->results) {
@@ -310,25 +316,21 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 - (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
                 errorHandler:(FSTVoidErrorBlock)errorHandler {
-  // TODO(mikelehen): We should force a refresh if the previous RPC failed due to an expired token,
-  // but I'm not sure how to detect that right now. http://b/32762461
-  _credentials->GetToken(
-      /*force_refresh=*/false, [self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
-        [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-          if (!result.ok()) {
-            errorHandler(util::MakeNSError(result.status()));
-          } else {
-            GRPCProtoCall *rpc = rpcFactory();
-            const Token &token = result.ValueOrDie();
-            [FSTDatastore
-                prepareHeadersForRPC:rpc
-                          databaseID:&self.databaseInfo->database_id()
-                               token:(token.user().is_authenticated() ? token.token()
-                                                                      : absl::string_view())];
-            [rpc start];
-          }
-        }];
-      });
+  _credentials->GetToken([self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
+    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
+      if (!result.ok()) {
+        errorHandler(util::MakeNSError(result.status()));
+      } else {
+        GRPCProtoCall *rpc = rpcFactory();
+        const Token &token = result.ValueOrDie();
+        [FSTDatastore prepareHeadersForRPC:rpc
+                                databaseID:&self.databaseInfo->database_id()
+                                     token:(token.user().is_authenticated() ? token.token()
+                                                                            : absl::string_view())];
+        [rpc start];
+      }
+    }];
+  });
 }
 
 - (FSTWatchStream *)createWatchStream {

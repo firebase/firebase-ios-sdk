@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/bits.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,7 +34,7 @@ int Bits::Log2Floor_Portable(uint32_t n) {
       log += shift;
     }
   }
-  FIREBASE_ASSERT(value == 1);
+  HARD_ASSERT(value == 1);
   return log;
 }
 

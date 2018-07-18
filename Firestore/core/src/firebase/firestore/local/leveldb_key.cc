@@ -534,7 +534,7 @@ class Writer {
     OrderedCode::WriteString(&dest_, value);
   }
 
-  std::string dest_{};
+  std::string dest_;
 };
 
 }  // namespace

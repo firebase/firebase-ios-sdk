@@ -21,8 +21,9 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/base/macros.h"
 #include "absl/strings/match.h"
 #include "leveldb/write_batch.h"
 
@@ -80,8 +81,8 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 
   FSTPBTargetGlobal *targetGlobal =
       [FSTLevelDBQueryCache readTargetMetadataWithTransaction:transaction];
-  FSTCAssert(targetGlobal != nil,
-             @"We should have a metadata row as it was added in an earlier migration");
+  HARD_ASSERT(targetGlobal != nil,
+              "We should have a metadata row as it was added in an earlier migration");
   targetGlobal.targetCount = count;
   transaction->Put([FSTLevelDBTargetGlobalKey key], targetGlobal);
 }
@@ -108,11 +109,11 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
   switch (currentVersion) {
     case 0:
       EnsureTargetGlobal(transaction);
-      // Fallthrough
+      ABSL_FALLTHROUGH_INTENDED;
     case 1:
       // We're now guaranteed that the target global exists. We can safely add a count to it.
       AddTargetCount(transaction);
-      // Fallthrough
+      ABSL_FALLTHROUGH_INTENDED;
     default:
       if (currentVersion < kSchemaVersion) {
         SaveVersion(kSchemaVersion, transaction);

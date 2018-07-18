@@ -23,7 +23,7 @@ if(APPLE)
   cc_test(
     firebase_firestore_util_log_apple_test
     SOURCES
-      assert_test.cc
+      hard_assert_test.cc
       log_test.cc
     DEPENDS
       firebase_firestore_util_log_apple
@@ -33,7 +33,7 @@ endif(APPLE)
 cc_test(
   firebase_firestore_util_log_stdio_test
   SOURCES
-    assert_test.cc
+    hard_assert_test.cc
     log_test.cc
   DEPENDS
     firebase_firestore_util_log_stdio
@@ -61,6 +61,60 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
+## executors
+
+cc_test(
+  firebase_firestore_util_executor_std_test
+  SOURCES
+    executor_test.h
+    executor_test.cc
+    executor_std_test.cc
+    async_tests_util.h
+  DEPENDS
+    firebase_firestore_util_executor_std
+)
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_executor_libdispatch_test
+    SOURCES
+      executor_test.h
+      executor_test.cc
+      executor_libdispatch_test.mm
+      async_tests_util.h
+    DEPENDS
+      firebase_firestore_util_executor_libdispatch
+  )
+endif()
+
+## async queue
+
+cc_test(
+  firebase_firestore_util_async_queue_std_test
+  SOURCES
+    async_queue_test.h
+    async_queue_test.cc
+    async_queue_std_test.cc
+    async_tests_util.h
+  DEPENDS
+    firebase_firestore_util_executor_std
+    firebase_firestore_util
+)
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_async_queue_libdispatch_test
+    SOURCES
+      async_queue_test.h
+      async_queue_test.cc
+      async_queue_libdispatch_test.mm
+      async_tests_util.h
+    DEPENDS
+    firebase_firestore_util_executor_libdispatch
+    firebase_firestore_util
+  )
+endif()
+
 ## main library
 
 cc_test(
@@ -72,14 +126,25 @@ cc_test(
     hashing_test.cc
     iterator_adaptors_test.cc
     ordered_code_test.cc
+    path_test.cc
     status_test.cc
     status_test_util.h
     statusor_test.cc
-    string_printf_test.cc
+    strerror_test.cc
+    string_format_test.cc
     string_util_test.cc
   DEPENDS
     absl_base
     absl_strings
     firebase_firestore_util
-    gmock
+    GMock::GMock
 )
+
+if(APPLE)
+  target_sources(
+    firebase_firestore_util_test
+    PUBLIC
+      string_format_apple_test.mm
+      type_traits_apple_test.mm
+  )
+endif()

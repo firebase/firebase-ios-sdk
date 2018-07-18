@@ -111,6 +111,7 @@ esac
 xcb_flags+=(
   ONLY_ACTIVE_ARCH=YES
   CODE_SIGNING_REQUIRED=NO
+  CODE_SIGNING_ALLOWED=YES
 )
 
 # TODO(varconst): --warn-unused-vars - right now, it makes the log overflow on
@@ -119,6 +120,10 @@ cmake_options=(
   -Wdeprecated
   --warn-uninitialized
 )
+
+xcode_version=$(xcodebuild -version | head -n 1)
+xcode_version="${xcode_version/Xcode /}"
+xcode_major="${xcode_version/.*/}"
 
 if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
@@ -167,6 +172,13 @@ case "$product-$method-$platform" in
         build \
         test
 
+    RunXcodebuild \
+        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
+        -scheme "Example_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     if [[ $platform == 'iOS' ]]; then
       RunXcodebuild \
           -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
@@ -179,10 +191,6 @@ case "$product-$method-$platform" in
       cd Example
       sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
       pod update --no-repo-update
-      # Workarounds for https://github.com/CocoaPods/CocoaPods/issues/7592.
-      # Remove when updating to CocoaPods 1.5.1
-      sed -i -e 's/-l"FirebaseMessaging"//' "Pods/Target Support Files/Pods-Messaging_Tests_iOS/Pods-Messaging_Tests_iOS.debug.xcconfig"
-      sed -i -e 's/-l"FirebaseAuth-iOS" -l"FirebaseCore-iOS"//' "Pods/Target Support Files/Pods-Auth_Tests_iOS/Pods-Auth_Tests_iOS.debug.xcconfig"
       cd ..
       RunXcodebuild \
           -workspace 'Example/Firebase.xcworkspace' \
@@ -212,9 +220,19 @@ case "$product-$method-$platform" in
         build \
         test
 
+    # Firestore_SwiftTests_iOS require Swift 4, which needs Xcode 9
+    if [[ "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_SwiftTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+    fi
+
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme 'SwiftBuildTest' \
+        -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build
     ;;

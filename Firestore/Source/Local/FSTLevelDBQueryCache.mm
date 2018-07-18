@@ -26,10 +26,10 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -41,6 +41,7 @@ using firebase::firestore::model::SnapshotVersion;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
+using firebase::firestore::model::DocumentKeySet;
 
 @interface FSTLevelDBQueryCache ()
 
@@ -69,8 +70,7 @@ using leveldb::Status;
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -79,21 +79,20 @@ using leveldb::Status;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
 }
 
-+ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(std::shared_ptr<DB>)db {
++ (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(DB *)db {
   std::string key = [FSTLevelDBTargetGlobalKey key];
   std::string value;
   Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);
   if (status.IsNotFound()) {
     return nil;
   } else if (!status.ok()) {
-    FSTFail(@"metadataForKey: failed loading key %s with status: %s", key.c_str(),
-            status.ToString().c_str());
+    HARD_FAIL("metadataForKey: failed loading key %s with status: %s", key, status.ToString());
   }
 
   NSData *data =
@@ -102,7 +101,7 @@ using leveldb::Status;
   NSError *error;
   FSTPBTargetGlobal *proto = [FSTPBTargetGlobal parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTargetGlobal failed to parse: %@", error);
+    HARD_FAIL("FSTPBTargetGlobal failed to parse: %s", error);
   }
 
   return proto;
@@ -110,7 +109,7 @@ using leveldb::Status;
 
 - (instancetype)initWithDB:(FSTLevelDB *)db serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
-    FSTAssert(db, @"db must not be NULL");
+    HARD_ASSERT(db, "db must not be NULL");
     _db = db;
     _serializer = serializer;
   }
@@ -120,9 +119,9 @@ using leveldb::Status;
 - (void)start {
   // TODO(gsoltis): switch this usage of ptr to currentTransaction
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.ptr];
-  FSTAssert(
+  HARD_ASSERT(
       metadata != nil,
-      @"Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
+      "Found nil metadata, expected schema to be at version 0 which ensures metadata existence");
   _lastRemoteSnapshotVersion = [self.serializer decodedVersion:metadata.lastRemoteSnapshotVersion];
 
   self.metadata = metadata;
@@ -223,7 +222,7 @@ using leveldb::Status;
   NSError *error;
   FSTPBTarget *proto = [FSTPBTarget parseFromData:data error:&error];
   if (!proto) {
-    FSTFail(@"FSTPBTarget failed to parse: %@", error);
+    HARD_FAIL("FSTPBTarget failed to parse: %s", error);
   }
 
   return [self.serializer decodedQueryData:proto];
@@ -262,9 +261,9 @@ using leveldb::Status;
       if (targetIterator->Valid()) {
         foundKeyDescription = [FSTLevelDBKey descriptionForKey:targetIterator->key()];
       }
-      FSTFail(
-          @"Dangling query-target reference found: "
-          @"%@ points to %@; seeking there found %@",
+      HARD_FAIL(
+          "Dangling query-target reference found: "
+          "%s points to %s; seeking there found %s",
           [FSTLevelDBKey descriptionForKey:indexItererator->key()],
           [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
     }
@@ -282,30 +281,30 @@ using leveldb::Status;
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
   std::string emptyBuffer;
 
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *documentKey, BOOL *stop) {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Put(
-        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:documentKey],
-        emptyBuffer);
+        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID],
-        emptyBuffer);
-  }];
+        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
+    [self->_db.referenceDelegate addReference:key target:targetID];
+  };
 }
 
-- (void)removeMatchingKeys:(FSTDocumentKeySet *)keys forTargetID:(FSTTargetID)targetID {
-  [keys enumerateObjectsUsingBlock:^(FSTDocumentKey *key, BOOL *stop) {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
+  for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
+    [self->_db.referenceDelegate removeReference:key target:targetID];
     [self.garbageCollector addPotentialGarbageKey:key];
-  }];
+  }
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
@@ -331,12 +330,12 @@ using leveldb::Status;
   }
 }
 
-- (FSTDocumentKeySet *)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
-  FSTDocumentKeySet *result = [FSTDocumentKeySet keySet];
+  DocumentKeySet result;
   FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
   for (; indexIterator->Valid(); indexIterator->Next()) {
     absl::string_view indexKey = indexIterator->key();
@@ -346,7 +345,7 @@ using leveldb::Status;
       break;
     }
 
-    result = [result setByAddingObject:rowKey.documentKey];
+    result = result.insert(rowKey.documentKey);
   }
 
   return result;

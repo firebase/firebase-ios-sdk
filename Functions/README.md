@@ -1,10 +1,22 @@
 # Cloud Functions for Firebase iOS SDK
 
-## To run unit tests
+## Development
+
+Follow the subsequent instructions to develop, debug, unit test, and
+integration test FirebaseFunctions:
+
+```
+$ git clone git@github.com:firebase/firebase-ios-sdk.git
+$ cd firebase-ios-sdk/Functions/Example
+$ pod update
+$ open FirebaseFunctions.xcworkspace
+```
+
+### Running Unit Tests
 
 Choose the FirebaseFunctions_Tests scheme and press Command-u.
 
-## To run integration tests
+## Running Integration Tests
 
 Before running the integration tests, you'll need to start a backend emulator
 for them to talk to.

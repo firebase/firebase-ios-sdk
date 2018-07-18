@@ -1,4 +1,490 @@
 {
+  "Existence filter match": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter match",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/1",
+              1000,
+              {
+                "v": 1
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/1",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ],
+          "collection/1"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        }
+      }
+    ]
+  },
+  "Existence filter match after pending update": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter match after pending update",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/1",
+              2000,
+              {
+                "v": 2
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ],
+          "collection/1"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/1",
+                2000,
+                {
+                  "v": 2
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Existence filter with empty target": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter with empty target",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ],
+          "collection/1"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Existence filter ignored with pending target": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter ignored with pending target",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": false
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/1",
+              2000,
+              {
+                "v": 2
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/1",
+                2000,
+                {
+                  "v": 2
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/1",
+                2000,
+                {
+                  "v": 2
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ]
+        ]
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-2000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
   "Existence filter mismatch triggers re-run of query": {
     "describeName": "Existence Filters:",
     "itName": "Existence filter mismatch triggers re-run of query",
@@ -63,8 +549,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -100,8 +590,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -161,8 +655,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -198,8 +696,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -301,8 +803,12 @@
             2
           ],
           "existence-filter-resume-token"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -364,8 +870,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -425,8 +935,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -462,8 +976,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -490,6 +1008,352 @@
                 1000,
                 {
                   "v": 2
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Existence filter handled at global snapshot": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter handled at global snapshot",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/1",
+              1000,
+              {
+                "v": 1
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/1",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ],
+          "collection/1",
+          "collection/2"
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/3",
+              3000,
+              {
+                "v": 3
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/3",
+                3000,
+                {
+                  "v": 3
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchRemove": {
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/1",
+              1000,
+              {
+                "v": 1
+              }
+            ],
+            [
+              "collection/2",
+              2000,
+              {
+                "v": 2
+              }
+            ],
+            [
+              "collection/3",
+              3000,
+              {
+                "v": 3
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-3000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 3000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/2",
+                2000,
+                {
+                  "v": 2
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      }
+    ]
+  },
+  "Existence filter synthesizes deletes": {
+    "describeName": "Existence Filters:",
+    "itName": "Existence filter synthesizes deletes",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true
+    },
+    "steps": [
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection/a",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection/a",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "v": 1
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "watchFilter": [
+          [
+            2
+          ]
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection/a",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "v": 1
                 }
               ]
             ],
@@ -565,8 +1429,12 @@
             2
           ],
           "resume-token-1000"
-        ],
-        "watchSnapshot": 1000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
         "expect": [
           {
             "query": {
@@ -602,8 +1470,12 @@
             2
           ],
           "collection/1"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "expect": [
           {
             "query": {
@@ -663,8 +1535,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/2"
@@ -711,7 +1587,6 @@
           },
           "limboDocs": []
         },
-        "watchSnapshot": 3000,
         "expect": [
           {
             "query": {

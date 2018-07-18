@@ -16,13 +16,13 @@
 
 #import "FIRMessagingRmqManager.h"
 
-#import "Protos/GtalkCore.pbobjc.h"
-#import "sqlite3.h"
+#import <sqlite3.h>
 
 #import "FIRMessagingDefines.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingRmq2PersistentStore.h"
 #import "FIRMessagingUtilities.h"
+#import "Protos/GtalkCore.pbobjc.h"
 
 #ifndef _FIRMessagingRmqLogAndExit
 #define _FIRMessagingRmqLogAndExit(stmt, return_value)   \

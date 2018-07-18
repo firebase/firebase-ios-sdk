@@ -280,7 +280,7 @@ BOOL ReadDocumentKey(Slice *contents, FSTDocumentKey *__strong *result) {
   Slice completeSegments = *contents;
 
   std::string segment;
-  std::vector<std::string> path_segments{};
+  std::vector<std::string> path_segments;
   for (;;) {
     // Advance a temporary slice to avoid advancing contents into the next key component which may
     // not be a path segment.

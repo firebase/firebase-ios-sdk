@@ -18,6 +18,8 @@
 
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FSTDispatchQueue;
@@ -28,9 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTAsyncQueryListener : NSObject
 
-- (instancetype)initWithDispatchQueue:(FSTDispatchQueue *)dispatchQueue
-                      snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler
-    NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithExecutor:(firebase::firestore::util::internal::Executor*)executor
+                 snapshotHandler:(FSTViewSnapshotHandler)snapshotHandler NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 

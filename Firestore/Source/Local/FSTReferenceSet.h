@@ -18,7 +18,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTGarbageCollector.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,13 +48,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addReferenceToKey:(const firebase::firestore::model::DocumentKey &)key forID:(int)ID;
 
 /** Add references to the given document keys for the given ID. */
-- (void)addReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;
+- (void)addReferencesToKeys:(const firebase::firestore::model::DocumentKeySet &)keys forID:(int)ID;
 
 /** Removes a reference to the given document key for the given ID. */
 - (void)removeReferenceToKey:(const firebase::firestore::model::DocumentKey &)key forID:(int)ID;
 
 /** Removes references to the given document keys for the given ID. */
-- (void)removeReferencesToKeys:(FSTDocumentKeySet *)keys forID:(int)ID;
+- (void)removeReferencesToKeys:(const firebase::firestore::model::DocumentKeySet &)keys
+                         forID:(int)ID;
 
 /** Clears all references with a given ID. Calls -removeReferenceToKey: for each key removed. */
 - (void)removeReferencesForID:(int)ID;
@@ -62,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAllReferences;
 
 /** Returns all of the document keys that have had references added for the given ID. */
-- (FSTDocumentKeySet *)referencedKeysForID:(int)ID;
+- (firebase::firestore::model::DocumentKeySet)referencedKeysForID:(int)ID;
 
 @end
 

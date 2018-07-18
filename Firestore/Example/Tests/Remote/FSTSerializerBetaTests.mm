@@ -476,7 +476,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesRelationFilter {
-  FSTRelationFilter *input = FSTTestFilter("item.part.top", @"==", @"food");
+  FSTRelationFilter *input = (FSTRelationFilter *)FSTTestFilter("item.part.top", @"==", @"food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];
@@ -488,7 +488,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesArrayContainsFilter {
-  FSTRelationFilter *input = FSTTestFilter("item.tags", @"array_contains", @"food");
+  FSTRelationFilter *input =
+      (FSTRelationFilter *)FSTTestFilter("item.tags", @"array_contains", @"food");
   GCFSStructuredQuery_Filter *actual = [self.serializer encodedRelationFilter:input];
 
   GCFSStructuredQuery_Filter *expected = [GCFSStructuredQuery_Filter message];

@@ -16,6 +16,8 @@
 
 #import "FIRAuthAppDelegateProxy.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #import <objc/runtime.h>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -200,8 +202,18 @@ static BOOL isIOS9orLater() {
 + (nullable instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static FIRAuthAppDelegateProxy *_Nullable sharedInstance;
+  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+  // responds to it.
+  static Class applicationClass = nil;
   dispatch_once(&onceToken, ^{
-    sharedInstance = [[self alloc] initWithApplication:[UIApplication sharedApplication]];
+    if (![GULAppEnvironmentUtil isAppExtension]) {
+      Class cls = NSClassFromString(@"UIApplication");
+      if (cls && [cls respondsToSelector:NSSelectorFromString(@"sharedApplication")]) {
+        applicationClass = cls;
+      }
+    }
+    UIApplication *application = [applicationClass sharedApplication];
+    sharedInstance = [[self alloc] initWithApplication:application];
   });
   return sharedInstance;
 }

@@ -130,7 +130,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"Created account with email and password."];
   [auth createUserWithEmail:kTestingEmailToCreateUser
                    password:@"password"
-                 completion:^(FIRUser *user, NSError *error) {
+                 completion:^(FIRAuthDataResult *result, NSError *error) {
                    if (error) {
                      NSLog(@"createUserWithEmail has error: %@", error);
                    }
@@ -163,7 +163,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"Created account with email and password."];
   [auth createUserWithEmail:kTestingEmailToCreateUser
                    password:@"password"
-                 completion:^(FIRUser *user, NSError *error) {
+                 completion:^(FIRAuthDataResult *user, NSError *error) {
                    apiError = error;
                    [expectation fulfill];
                  }];
@@ -240,7 +240,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"Signed in existing account with email and password."];
   [auth signInWithEmail:kExistingTestingEmailToSignIn
                password:@"password"
-             completion:^(FIRUser *user, NSError *error) {
+             completion:^(FIRAuthDataResult *user, NSError *error) {
                if (error) {
                  NSLog(@"Signing in existing account has error: %@", error);
                }
@@ -277,7 +277,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
 
   [auth signInWithCustomToken:customToken
-                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                      if (error) {
                        NSLog(@"Valid token sign in error: %@", error);
                      }
@@ -314,7 +314,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
 
   __block NSError *apiError;
   [auth signInWithCustomToken:customToken
-                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                      if (error) {
                        apiError = error;
                      }
@@ -349,7 +349,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"CustomAuthToken sign-in finished."];
   __block NSError *rpcError;
   [auth signInWithCustomToken:customToken
-                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
                      if (error) {
                        rpcError = error;
                      }
@@ -390,7 +390,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
       [self expectationWithDescription:@"Invalid CustomAuthToken sign-in finished."];
 
   [auth signInWithCustomToken:kInvalidCustomToken
-                   completion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+                   completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
 
                      XCTAssertEqualObjects(error.localizedDescription, kInvalidTokenErrorMessage);
                      [expectation fulfill];
@@ -583,7 +583,7 @@ static NSTimeInterval const kExpectationsTimeout = 10;
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Anonymousy sign-in finished."];
-  [auth signInAnonymouslyWithCompletion:^(FIRUser *user, NSError *error) {
+  [auth signInAnonymouslyWithCompletion:^(FIRAuthDataResult *result, NSError *error) {
     if (error) {
       NSLog(@"Anonymousy sign in error: %@", error);
     }

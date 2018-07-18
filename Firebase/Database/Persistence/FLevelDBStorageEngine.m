@@ -672,7 +672,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
     return [data subdataWithRange:NSMakeRange(1, data.length - 2)];
 }
 
-- (id)fixDoubleParsing:(id)value {
+- (id)fixDoubleParsing:(id)value __attribute__((no_sanitize("float-cast-overflow"))) {
     // The parser for double values in JSONSerialization at the root takes some short-cuts and delivers wrong results
     // (wrong rounding) for some double values, including 2.47. Because we use the exact bytes for hashing on the server
     // this will lead to hash mismatches. The parser of NSNumber seems to be more in line with what the server expects,
@@ -683,7 +683,7 @@ static NSString* trackedQueryKeysKey(NSUInteger trackedQueryId, NSString *key) {
             // The NSJSON parser returns all numbers as double values, even those that contain no exponent. To
             // make sure that the String conversion below doesn't unexpectedly reduce precision, we make sure that
             // our number is indeed not an integer.
-            if ((double)(long long)[value doubleValue] != [value doubleValue]) {
+            if ((double)(int64_t)[value doubleValue] != [value doubleValue]) {
                 NSString *doubleString = [value stringValue];
                 return [NSNumber numberWithDouble:[doubleString doubleValue]];
             } else {

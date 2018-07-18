@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,9 +27,8 @@ namespace model {
 namespace {
 
 void AssertValidPath(const ResourcePath& path) {
-  FIREBASE_ASSERT_MESSAGE(DocumentKey::IsDocumentKey(path),
-                          "invalid document key path: %s",
-                          path.CanonicalString().c_str());
+  HARD_ASSERT(DocumentKey::IsDocumentKey(path), "invalid document key path: %s",
+              path.CanonicalString());
 }
 
 }  // namespace

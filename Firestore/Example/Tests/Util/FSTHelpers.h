@@ -16,12 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#include <map>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
-#import "Firestore/Source/Model/FSTDocumentKeySet.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -35,6 +34,7 @@
 @class FSTDocumentKeyReference;
 @class FSTDocumentSet;
 @class FSTFieldValue;
+@class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
@@ -47,7 +47,6 @@
 @class FSTView;
 @class FSTViewSnapshot;
 @class FSTObjectValue;
-@protocol FSTFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -149,6 +148,42 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
     XCTAssertTrue(didThrow, ##__VA_ARGS__);                             \
   } while (0)
 
+/**
+ * An implementation of FSTTargetMetadataProvider that provides controlled access to the
+ * `FSTTargetMetadataProvider` callbacks. Any target accessed via these callbacks must be
+ * registered beforehand via the factory methods or via `setSyncedKeys:forQueryData:`.
+ */
+@interface FSTTestTargetMetadataProvider : NSObject <FSTTargetMetadataProvider>
+
+/**
+ * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
+ * each of the given targets, where each target has previously seen query results containing just
+ * the given documentKey.
+ *
+ * Internally this means that the `remoteKeysForTarget` callback for these targets will return just
+ * the documentKey and that the provided targets will be returned as active from the
+ * `queryDataForTarget` target.
+ */
++ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                       targets:(NSArray<FSTBoxedTargetID *> *)targets;
+
+/**
+ * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
+ * each of the given targets, where each target has not seen any previous document.
+ *
+ * Internally this means that the `remoteKeysForTarget` callback for these targets will return an
+ * empty set of document keys and that the provided targets will be returned as active from the
+ * `queryDataForTarget` target.
+ */
++ (instancetype)providerWithEmptyResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                      targets:(NSArray<FSTBoxedTargetID *> *)targets;
+
+/** Sets or replaces the local state for the provided query data. */
+- (void)setSyncedKeys:(firebase::firestore::model::DocumentKeySet)keys
+         forQueryData:(FSTQueryData *)queryData;
+
+@end
+
 /** Creates a new FIRTimestamp from components. Note that year, month, and day are all one-based. */
 FIRTimestamp *FSTTestTimestamp(int year, int month, int day, int hour, int minute, int second);
 
@@ -181,9 +216,6 @@ FSTObjectValue *FSTTestObjectValue(NSDictionary<NSString *, id> *data);
 /** A convenience method for creating document keys for tests. */
 FSTDocumentKey *FSTTestDocKey(NSString *path);
 
-/** A convenience method for creating a document key set for tests. */
-FSTDocumentKeySet *FSTTestDocKeySet(NSArray<FSTDocumentKey *> *keys);
-
 /** Allow tests to just use an int literal for versions. */
 typedef int64_t FSTTestSnapshotVersion;
 
@@ -210,7 +242,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path);
  * A convenience method to create a FSTFilter using a string representation for both field
  * and operator (<, <=, ==, >=, >, array_contains).
  */
-id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
+FSTFilter *FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
@@ -254,6 +286,9 @@ FSTDeleteMutation *FSTTestDeleteMutation(NSString *path);
 /** Converts a list of documents to a sorted map. */
 FSTMaybeDocumentDictionary *FSTTestDocUpdates(NSArray<FSTMaybeDocument *> *docs);
 
+/** Creates a remote event that inserts a new document. */
+FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber *> *addedToTargets);
+
 /** Creates a remote event with changes to a document. */
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *updatedInTargets,
@@ -263,6 +298,19 @@ FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
 FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
+
+/** Creates a test target change that acks all 'docs' and  marks the target as CURRENT  */
+FSTTargetChange *FSTTestTargetChangeAckDocuments(firebase::firestore::model::DocumentKeySet docs);
+
+/** Creates a test target change that marks the target as CURRENT  */
+FSTTargetChange *FSTTestTargetChangeMarkCurrent();
+
+/** Creates a test target change. */
+FSTTargetChange *FSTTestTargetChange(firebase::firestore::model::DocumentKeySet added,
+                                     firebase::firestore::model::DocumentKeySet modified,
+                                     firebase::firestore::model::DocumentKeySet removed,
+                                     NSData *resumeToken,
+                                     BOOL current);
 
 /** Creates a resume token to match the given snapshot version. */
 NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion watchSnapshot);

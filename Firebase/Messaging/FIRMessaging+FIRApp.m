@@ -26,12 +26,6 @@
 #import "FIRMessagingVersionUtilities.h"
 #import "FIRMessaging_Private.h"
 
-@interface FIRMessaging ()
-
-@property(nonatomic, readwrite, strong) NSString *fcmSenderID;
-
-@end
-
 @implementation FIRMessaging (FIRApp)
 
 + (void)load {
@@ -58,21 +52,6 @@
 }
 
 - (void)configureMessaging:(FIRApp *)app {
-  FIROptions *options = app.options;
-  NSError *error;
-  if (!options.GCMSenderID.length) {
-    error =
-        [FIRApp errorForSubspecConfigurationFailureWithDomain:kFirebaseCloudMessagingErrorDomain
-                                                    errorCode:FIRErrorCodeCloudMessagingFailed
-                                                      service:kFIRServiceMessaging
-                                                       reason:@"Google Sender ID must not be nil"
-                                                              @" or empty."];
-    [self exitApp:app withError:error];
-    return;
-  }
-
-  self.fcmSenderID = [options.GCMSenderID copy];
-
   // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
   if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
     NSString *docsURLString = @"https://firebase.google.com/docs/cloud-messaging/ios/client"
