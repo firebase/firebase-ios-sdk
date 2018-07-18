@@ -2892,9 +2892,7 @@
   "Persists resume token sent with target": {
     "describeName": "Listens:",
     "itName": "Persists resume token sent with target",
-    "tags": [
-      "exclusive"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": false
     },

@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
       FSTMaybeDocument *mutatedDoc =
           [mutation applyTo:baseDoc baseDocument:baseDoc localWriteTime:batch.localWriteTime];
 
-      if ([mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
+      if (!mutatedDoc || [mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
         results = [results dictionaryByRemovingObjectForKey:key];
       } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
         results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
