@@ -74,7 +74,7 @@ class QueryData {
   //QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
 
   const core::Query& query() const {
-    return query_;
+    return *query_;
   }
 
   int target_id() const {
@@ -86,22 +86,22 @@ class QueryData {
   }
 
   const model::SnapshotVersion& snapshot_version() const {
-    return snapshot_version_;
+    return *snapshot_version_;
   }
 
   const std::vector<uint8_t>& resume_token() const {
-    return resume_token_;
+    return *resume_token_;
   }
 
   QueryData Copy(const model::SnapshotVersion& snapshot_version,
                  const std::vector<uint8_t>& resume_token) const;
 
  private:
-  const core::Query& query_;
+  const core::Query* query_;
   int target_id_;
   QueryPurpose purpose_;
-  const model::SnapshotVersion& snapshot_version_;
-  const std::vector<uint8_t>& resume_token_;
+  const model::SnapshotVersion* snapshot_version_;
+  const std::vector<uint8_t>* resume_token_;
 };
 
 inline bool operator==(const QueryData& lhs, const QueryData& rhs) {
