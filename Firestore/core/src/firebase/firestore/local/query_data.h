@@ -98,8 +98,8 @@ class QueryData {
 
  private:
   const core::Query& query_;
-  const int target_id_;
-  const QueryPurpose purpose_;
+  int target_id_;
+  QueryPurpose purpose_;
   const model::SnapshotVersion& snapshot_version_;
   const std::vector<uint8_t>& resume_token_;
 };
