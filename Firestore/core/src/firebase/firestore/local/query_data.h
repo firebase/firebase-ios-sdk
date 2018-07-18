@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_DATA_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_DATA_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_DATA_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_DATA_H_
 
 #include <cstdint>
 #include <vector>
@@ -71,7 +71,7 @@ class QueryData {
    * time.
    */
   // TODO(rsgowman): Define once WatchStream::EmptyResumeToken exists.
-  //QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
+  // QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
 
   const core::Query& query() const {
     return *query_;
@@ -105,11 +105,10 @@ class QueryData {
 };
 
 inline bool operator==(const QueryData& lhs, const QueryData& rhs) {
-  return lhs.query() == rhs.query()
-      && lhs.target_id() == rhs.target_id()
-      && lhs.purpose() == rhs.purpose()
-      && lhs.snapshot_version() == rhs.snapshot_version()
-      && lhs.resume_token() == rhs.resume_token();
+  return lhs.query() == rhs.query() && lhs.target_id() == rhs.target_id() &&
+         lhs.purpose() == rhs.purpose() &&
+         lhs.snapshot_version() == rhs.snapshot_version() &&
+         lhs.resume_token() == rhs.resume_token();
 }
 
 inline bool operator!=(const QueryData& lhs, const QueryData& rhs) {
@@ -120,4 +119,4 @@ inline bool operator!=(const QueryData& lhs, const QueryData& rhs) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_CORE_QUERY_DATA_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_QUERY_DATA_H_

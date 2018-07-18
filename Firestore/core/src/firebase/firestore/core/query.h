@@ -87,8 +87,7 @@ inline bool operator==(const Query& lhs, const Query& rhs) {
   // TODO(rsgowman): check orderby (once it exists)
   // TODO(rsgowman): check startat (once it exists)
   // TODO(rsgowman): check endat (once it exists)
-  return lhs.path() == rhs.path()
-      && lhs.filters_ == rhs.filters_;
+  return lhs.path() == rhs.path() && lhs.filters_ == rhs.filters_;
 }
 
 inline bool operator!=(const Query& lhs, const Query& rhs) {
