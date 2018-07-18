@@ -35,13 +35,6 @@ enum FuzzingTarget { NONE = 0, SERIALIZER = 1 };
 // We write crashes to the temporary directory that is available to the iOS app.
 NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 
-// Contains the code to be fuzzed. Called by the fuzzing library with
-// different argument values for `data` and `size`.
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  fuzzing::FuzzTestDeserialization(data, size);
-  return 0;
-}
-
 // Retrieves the fuzzing target from the FUZZING_TARGET environment variable.
 // Default target is NONE if the environment variable is empty, not set, or
 // could not be interpreted. Should be kept in sync with FuzzingTarget.
@@ -71,7 +64,8 @@ FuzzingTarget GetFuzzingTarget() {
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 // Uses GetFuzzingTarget() to get the fuzzing target and sets libFuzzer's args
-// accordingly.
+// accordingly. It alsos calls an appropriate LLVMFuzzerTestOneInput-like method
+// for the defined target.
 int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
@@ -85,11 +79,19 @@ int RunFuzzTestingMain() {
   // The corpus location for the fuzzing target.
   NSString *corpus_location;
 
+  // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. This variable
+  // holds a pointer to the fuzzing method that is called by the fuzzing driver
+  // thousands of times with different inputs. Any method assigned to this
+  // variable must have the same signature as LLVMFuzzerTestOneInput: returns an
+  // int and takes two parameters: (const uint8_t *Data, size_t Size).
+  fuzzer::UserCallback llvm_fuzzer_test_one_input_method;
+
   // Set the dictionary and corpus locations according to the fuzzing target.
   switch (fuzzing_target) {
     case SERIALIZER:
       dict_location = fuzzing::GetSerializerDictionaryLocation(resources_location);
       corpus_location = fuzzing::GetSerializerCorpusLocation(resources_location);
+      llvm_fuzzer_test_one_input_method = fuzzing::FuzzTestDeserialization;
       break;
 
     case NONE:
@@ -125,7 +127,7 @@ int RunFuzzTestingMain() {
   int argc = sizeof(program_args) / sizeof(program_args[0]);
 
   // Start fuzzing using libFuzzer's driver.
-  return fuzzer::FuzzerDriver(&argc, &argv, LLVMFuzzerTestOneInput);
+  return fuzzer::FuzzerDriver(&argc, &argv, llvm_fuzzer_test_one_input_method);
 }
 
 }  // namespace

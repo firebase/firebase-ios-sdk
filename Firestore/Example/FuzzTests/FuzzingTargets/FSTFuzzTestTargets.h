@@ -23,7 +23,7 @@ namespace fuzzing {
 
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
-void FuzzTestDeserialization(const uint8_t *data, size_t size);
+int FuzzTestDeserialization(const uint8_t *data, size_t size);
 
 NSString *GetSerializerDictionaryLocation(NSString *resources_location);
 

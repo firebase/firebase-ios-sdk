@@ -24,7 +24,7 @@
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::Serializer;
 
-void firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, size_t size) {
+int firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, size_t size) {
   Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
 
   @autoreleasepool {
@@ -36,9 +36,12 @@ void firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, 
       // runtime errors that are detected by the sanitizers.
     }
   }
+
+  return 0;
 }
 
-NSString *firebase::firestore::fuzzing::GetSerializerDictionaryLocation(NSString *resources_location) {
+NSString *firebase::firestore::fuzzing::GetSerializerDictionaryLocation(
+    NSString *resources_location) {
   return [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
 }
 
