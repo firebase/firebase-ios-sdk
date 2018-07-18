@@ -23,6 +23,7 @@
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/base/macros.h"
 #include "absl/strings/match.h"
 #include "leveldb/write_batch.h"
 
@@ -108,11 +109,11 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
   switch (currentVersion) {
     case 0:
       EnsureTargetGlobal(transaction);
-      // Fallthrough
+      ABSL_FALLTHROUGH_INTENDED;
     case 1:
       // We're now guaranteed that the target global exists. We can safely add a count to it.
       AddTargetCount(transaction);
-      // Fallthrough
+      ABSL_FALLTHROUGH_INTENDED;
     default:
       if (currentVersion < kSchemaVersion) {
         SaveVersion(kSchemaVersion, transaction);
