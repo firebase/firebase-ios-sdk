@@ -27,7 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace local {
 
-/** An enumeration fo the different purposes we have for queries. */
+/** An enumeration for the different purposes we have for queries. */
 enum class QueryPurpose {
   /** A regular, normal query. */
   kListen,
