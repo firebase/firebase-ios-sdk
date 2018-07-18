@@ -28,11 +28,11 @@ QueryData::QueryData(const Query& query,
                      QueryPurpose purpose,
                      const SnapshotVersion& snapshot_version,
                      const std::vector<uint8_t>& resume_token)
-    : query_(query),
-      target_id_(target_id),
-      purpose_(purpose),
-      snapshot_version_(snapshot_version),
-      resume_token_(resume_token) {
+    : query(query),
+      target_id(target_id),
+      purpose(purpose),
+      snapshot_version(snapshot_version),
+      resume_token(resume_token) {
 }
 
 // TODO(rsgowman): Implement once WatchStream::EmptyResumeToken exists.
@@ -48,8 +48,7 @@ QueryData::QueryData(const Query& query, int target_id, QueryPurpose purpose)
 
 QueryData QueryData::Copy(const SnapshotVersion& snapshot_version,
                           const std::vector<uint8_t>& resume_token) const {
-  return QueryData(query_, target_id_, purpose_, snapshot_version,
-                   resume_token);
+  return QueryData(query, target_id, purpose, snapshot_version, resume_token);
 }
 
 }  // namespace local
