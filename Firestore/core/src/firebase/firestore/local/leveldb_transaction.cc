@@ -219,6 +219,12 @@ void LevelDbTransaction::Commit() {
               ToString(), status.ToString());
 }
 
+void LevelDbTransaction::Reuse() {
+  mutations_.clear();
+  deletions_.clear();
+  version_ = 0;
+}
+
 std::string LevelDbTransaction::ToString() {
   std::string dest("<LevelDbTransaction " + label_ + ": ");
   int64_t changes = deletions_.size() + mutations_.size();

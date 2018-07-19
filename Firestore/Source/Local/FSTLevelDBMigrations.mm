@@ -88,46 +88,31 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 }
 
 /**
- * A class representing all migrations to prepare the LevelDB database for use.
- *
- * TODO(wilhuff): All the migrations should really be a part of this but to minimize the scope of
- * this change for now it's constrained to just the new one.
+ * Deletes everything in the database that has the given prefix.
  */
-class LevelDbSchema {
- public:
-  explicit LevelDbSchema(leveldb::DB *db) : db_{db} {
-  }
-
-  void DropQueryCache();
-
- private:
-  void DeleteEverythingWithPrefix(const std::string &prefix);
-
-  leveldb::DB *db_;
-  std::unique_ptr<LevelDbTransaction> transaction_;
-};
-
-void LevelDbSchema::DropQueryCache() {
-  transaction_ = absl::make_unique<LevelDbTransaction>(db_, "Drop Query Cache");
-
-  DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix]);
-  DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix]);
-  DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix]);
-
-  transaction_->Commit();
-}
-
-void LevelDbSchema::DeleteEverythingWithPrefix(const std::string &prefix) {
-  LevelDbTransaction reader(db_, "Reader");
+static void DeleteEverythingWithPrefix(const std::string &prefix, LevelDbTransaction *transaction) {
+  LevelDbTransaction reader(transaction->database(), "Reader");
   auto it = reader.NewIterator();
 
   for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix); it->Next()) {
-    if (transaction_->changed_keys() >= 1000) {
-      transaction_->Commit();
-      transaction_ = absl::make_unique<LevelDbTransaction>(db_, "Drop Query Cache");
+    if (transaction->changed_keys() >= 1000) {
+      transaction->Commit();
+      transaction->Reuse();
     }
-    transaction_->Delete(it->key());
+    transaction->Delete(it->key());
   }
+}
+
+/**
+ * Drops the contents of the query cache. This prevents a device with a cache corrupted by
+ * https://github.com/firebase/firebase-ios-sdk/issues/1548 from issuing a resume token for
+ * the first query after upgrading. Without a resume token the server will re-send the entire
+ * query results, healing the cache.
+ */
+static void DropQueryCache(LevelDbTransaction *transaction) {
+  DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix], transaction);
+  DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix], transaction);
+  DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix], transaction);
 }
 
 @implementation FSTLevelDBMigrations
@@ -167,8 +152,7 @@ void LevelDbSchema::DeleteEverythingWithPrefix(const std::string &prefix) {
     case 2:
       if (upToVersion < 2) break;
       if (currentVersion != 0) {
-        LevelDbSchema schema{transaction->database()};
-        schema.DropQueryCache();
+        DropQueryCache(transaction);
       }
       ABSL_FALLTHROUGH_INTENDED;
     default:
