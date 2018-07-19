@@ -144,10 +144,6 @@ class LevelDbTransaction {
    */
   static const leveldb::WriteOptions& DefaultWriteOptions();
 
-  leveldb::DB* database() const {
-    return db_;
-  }
-
   size_t changed_keys() const {
     return mutations_.size() + deletions_.size();
   }
