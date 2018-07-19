@@ -2092,7 +2092,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
@@ -2176,7 +2176,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
@@ -2385,7 +2385,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
@@ -2470,7 +2470,7 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(inherited)\"",
+					"$(inherited)",
 					"\"${PODS_ROOT}/../../..\"",
 					"\"${PODS_ROOT}/../../../Firestore/third_party/abseil-cpp\"",
 					"\"${PODS_ROOT}/GoogleTest/googlemock/include\"",
