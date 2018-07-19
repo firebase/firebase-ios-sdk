@@ -411,7 +411,6 @@
 		54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = array_sorted_map_test.cc; sourceTree = "<group>"; };
 		5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CAE131920FFFED600BE9A4A /* Firestore_Benchmarks_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Benchmarks_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		5CAE131B20FFFED600BE9A4A /* Firestore_Benchmarks_iOS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Firestore_Benchmarks_iOS.m; sourceTree = "<group>"; };
 		5CAE131D20FFFED600BE9A4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* Firestore_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -726,7 +725,6 @@
 		5CAE131A20FFFED600BE9A4A /* Firestore_Benchmarks_iOS */ = {
 			isa = PBXGroup;
 			children = (
-				5CAE131B20FFFED600BE9A4A /* Firestore_Benchmarks_iOS.m */,
 				5CAE131D20FFFED600BE9A4A /* Info.plist */,
 				132E3BB3D5C42282B4ACFB20 /* FSTLevelDBBenchmarkTests.mm */,
 			);
@@ -1335,6 +1333,7 @@
 					};
 					5CAE131820FFFED600BE9A4A = {
 						CreatedOnToolsVersion = 9.3.1;
+						DevelopmentTeam = EQHXZ8M8AV;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 6003F589195388D20070C39A;
 					};
