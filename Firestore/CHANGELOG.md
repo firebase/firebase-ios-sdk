@@ -1,5 +1,10 @@
 # Unreleased
 
+# v0.12.6
+- [fixed] Fixed an issue where queries returned fewer results than they should,
+  caused by documents that were cached as deleted when they should not have
+  been (#1548).
+
 # v0.12.5
 - [changed] Internal improvements.
 
