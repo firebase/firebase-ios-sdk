@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import <GoogleUtilities/GULRuntimeStateHelper.h>
 
@@ -46,7 +46,7 @@
   Method dummyMethod = class_getInstanceMethod([self class], @selector(dummyMethod));
   IMP originalIMP = method_getImplementation(dummyMethod);
   NSString *originalIMPString = [NSString stringWithFormat:@"%p", originalIMP];
-  IMP newIMP = imp_implementationWithBlock((NSString *) ^(id _self) {
+  IMP newIMP = imp_implementationWithBlock((NSString *)^(id _self) {
     return @"Goodbye!";
   });
   method_setImplementation(dummyMethod, newIMP);
@@ -72,8 +72,9 @@
       }
     }
   }
-  XCTAssertTrue(found, @"One of the classdiffs should contain the address of the original IMP of "
-                        "the method that was modified above");
+  XCTAssertTrue(found,
+                @"One of the classdiffs should contain the address of the original IMP of "
+                 "the method that was modified above");
 }
 
 #pragma mark - Helper methods

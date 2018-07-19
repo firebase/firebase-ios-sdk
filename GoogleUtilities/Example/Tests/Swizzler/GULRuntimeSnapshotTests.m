@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import <GoogleUtilities/GULRuntimeDiff.h>
 #import <GoogleUtilities/GULRuntimeSnapshot.h>

@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import <GoogleUtilities/GULSwizzler.h>
 #import <GoogleUtilities/GULOriginalIMPConvenienceMacros.h>
+#import <GoogleUtilities/GULSwizzler.h>
 
 @interface TestObject : NSObject
 
@@ -70,7 +69,7 @@
 - (void)testOriginalImpInstanceMethod {
   Method method = class_getInstanceMethod([NSObject class], @selector(description));
   IMP originalImp = method_getImplementation(method);
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -91,12 +90,10 @@
 - (void)testCurrentImplementationReturnsDifferentIMPsForClassAndInstanceMethod {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP descriptionClassIMP = [GULSwizzler currentImplementationForClass:aClass
-                                                              selector:aSelector
-                                                       isClassSelector:NO];
-  IMP descriptionInstanceIMP = [GULSwizzler currentImplementationForClass:aClass
-                                                                 selector:aSelector
-                                                          isClassSelector:YES];
+  IMP descriptionClassIMP =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  IMP descriptionInstanceIMP =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:YES];
   XCTAssertNotEqual(descriptionClassIMP, descriptionInstanceIMP);
 }
 
@@ -106,12 +103,10 @@
 - (void)testCurrentImplementationReturnsSameIMPsWhenNotSwizzledBetweenInvocations {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP descriptionClassIMPOne = [GULSwizzler currentImplementationForClass:aClass
-                                                                 selector:aSelector
-                                                          isClassSelector:NO];
-  IMP descriptionClassIMPTwo = [GULSwizzler currentImplementationForClass:aClass
-                                                                 selector:aSelector
-                                                          isClassSelector:NO];
+  IMP descriptionClassIMPOne =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  IMP descriptionClassIMPTwo =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
   XCTAssertEqual(descriptionClassIMPOne, descriptionClassIMPTwo);
 }
 
@@ -121,19 +116,17 @@
 - (void)testCurrentImplementationReturnsDifferentIMPsWhenSwizzledBetweenInvocations {
   Class aClass = [NSObject class];
   SEL aSelector = @selector(description);
-  IMP originalIMP = [GULSwizzler currentImplementationForClass:aClass
-                                                      selector:aSelector
-                                               isClassSelector:NO];
-  NSString *(^newImplementation)(id) = ^NSString *(id _self) {
+  IMP originalIMP =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
+  NSString * (^newImplementation)(id) = ^NSString *(id _self) {
     return @"nonsense";
   };
   [GULSwizzler swizzleClass:aClass
                    selector:aSelector
             isClassSelector:NO
                   withBlock:newImplementation];
-  IMP newIMP = [GULSwizzler currentImplementationForClass:aClass
-                                                 selector:aSelector
-                                          isClassSelector:NO];
+  IMP newIMP =
+      [GULSwizzler currentImplementationForClass:aClass selector:aSelector isClassSelector:NO];
   XCTAssertNotEqual(newIMP, originalIMP);
   [GULSwizzler unswizzleClass:aClass selector:aSelector isClassSelector:NO];
 }
@@ -143,13 +136,10 @@
   SEL selector = @selector(description);
   Class aClass = [NSObject class];
   id newDescription = ^NSString *(id object) {
-    IMP originalImp = [GULSwizzler originalImplementationForClass:aClass
-                                                         selector:selector
-                                                  isClassSelector:NO];
-    NSString *originalDescription = GUL_INVOKE_ORIGINAL_IMP0(object,
-                                                             selector,
-                                                             NSString *,
-                                                             originalImp);
+    IMP originalImp =
+        [GULSwizzler originalImplementationForClass:aClass selector:selector isClassSelector:NO];
+    NSString *originalDescription =
+        GUL_INVOKE_ORIGINAL_IMP0(object, selector, NSString *, originalImp);
 
     return [originalDescription stringByAppendingString:@"SWIZZLED!"];
   };
@@ -165,7 +155,7 @@
 - (void)testOriginalImpClassMethod {
   Method method = class_getInstanceMethod([NSObject class], @selector(description));
   IMP originalImp = method_getImplementation(method);
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -189,7 +179,7 @@
   IMP instanceImp = method_getImplementation(instanceMethod);
   IMP classImp = method_getImplementation(classMethod);
 
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return @"nonsense";
   };
 
@@ -218,7 +208,7 @@
 /** Tests swizzling an instance method. */
 - (void)testSwizzleInstanceMethod {
   NSString *swizzledDescription = @"Not what you expected!";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -234,7 +224,7 @@
 /** Tests swizzling a class method. */
 - (void)testSwizzleClassMethod {
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -251,7 +241,7 @@
   NSObject *object = [[NSObject alloc] init];
   NSString *originalDescription = [object description];
   NSString *swizzledDescription = @"Swizzled description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -270,7 +260,7 @@
 - (void)testUnswizzleClassMethod {
   NSString *originalDescription = [NSObject description];
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -286,7 +276,7 @@
 /** Tests swizzling a class method doesn't swizzle an instance method of the same name. */
 - (void)testSwizzlingAClassMethodDoesntSwizzleAnInstanceMethod {
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -302,7 +292,7 @@
 /** Tests swizzling an instance method doesn't swizzle a class method of the same name. */
 - (void)testSwizzlingAnInstanceMethodDoesntSwizzleAClassMethod {
   NSString *swizzledDescription = @"Not what you expected!";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -320,7 +310,7 @@
 - (void)testSwizzlingSuperclassInstanceMethod {
   NSObject *generalObject = [[NSObject alloc] init];
   BOOL generalObjectIsProxyValue = [generalObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !generalObjectIsProxyValue;
   };
 
@@ -335,7 +325,7 @@
 /** Tests swizzling a superclass's class method. */
 - (void)testSwizzlingSuperclassClassMethod {
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -354,7 +344,7 @@
   TestObject *testObject = [[TestObject alloc] init];
   NSString *originalDescription = [testObject description];
   NSString *swizzledDescription = [originalDescription stringByAppendingString:@"SWIZZLED!"];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -374,9 +364,12 @@
   Class testClass = [NSURL class];
   SEL testSelector = @selector(description);
   IMP baseImp = class_getMethodImplementation(testClass, testSelector);
-  [GULSwizzler swizzleClass:testClass selector:testSelector isClassSelector:NO withBlock:^{
-    return @"Swizzled Description";
-  }];
+  [GULSwizzler swizzleClass:testClass
+                   selector:testSelector
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Description";
+                  }];
   IMP origImp = [GULSwizzler originalImplementationForClass:testClass
                                                    selector:testSelector
                                             isClassSelector:NO];
@@ -388,17 +381,23 @@
 - (void)testSwizzleMultiple {
   Class testClass = [NSURL class];
   SEL testSelector = @selector(description);
-  [GULSwizzler swizzleClass:testClass selector:testSelector isClassSelector:NO withBlock:^{
-    return @"Swizzled Description";
-  }];
+  [GULSwizzler swizzleClass:testClass
+                   selector:testSelector
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Description";
+                  }];
   IMP origImp = [GULSwizzler originalImplementationForClass:testClass
                                                    selector:testSelector
                                             isClassSelector:NO];
   Class testClass2 = [NSURLRequest class];
   SEL testSelector2 = @selector(debugDescription);
-  [GULSwizzler swizzleClass:testClass2 selector:testSelector2 isClassSelector:NO withBlock:^{
-    return @"Swizzled Debug Description";
-  }];
+  [GULSwizzler swizzleClass:testClass2
+                   selector:testSelector2
+            isClassSelector:NO
+                  withBlock:^{
+                    return @"Swizzled Debug Description";
+                  }];
   IMP origImp2 = [GULSwizzler originalImplementationForClass:testClass2
                                                     selector:testSelector2
                                              isClassSelector:NO];
@@ -414,13 +413,13 @@
   Class testClass = [TestObject class];
   SEL selectorOne = @selector(description);
   SEL selectorTwo = @selector(descriptionThatSays:);
-  NSString *(^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
+  NSString * (^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
     return @"SWIZZLED!";
   };
-  NSString *(^newImplementationDescriptionThatSays)(TestObject *, NSString *) =
+  NSString * (^newImplementationDescriptionThatSays)(TestObject *, NSString *) =
       ^NSString *(TestObject *_self, NSString *something) {
-        return [something stringByAppendingString:@"SWIZZLED!"];
-      };
+    return [something stringByAppendingString:@"SWIZZLED!"];
+  };
   [GULSwizzler swizzleClass:testClass
                    selector:selectorOne
             isClassSelector:NO
@@ -443,11 +442,11 @@
   Class testClass = [TestObject class];
   SEL selectorOne = @selector(description);
   SEL selectorTwo = @selector(descriptionThatSays:);
-  NSString *(^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
+  NSString * (^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
     return @"SWIZZLED!";
   };
-  NSString *(^newImplementationDescriptionThatSays)(TestObject *, NSString *) =
-  ^NSString *(TestObject *_self, NSString *something) {
+  NSString * (^newImplementationDescriptionThatSays)(TestObject *, NSString *) =
+      ^NSString *(TestObject *_self, NSString *something) {
     return [something stringByAppendingString:@"SWIZZLED!"];
   };
   [GULSwizzler swizzleClass:testClass
@@ -472,7 +471,7 @@
 - (void)testSwizzlingInstanceMethodIsEffectiveOnMultipleInstancesOfSameClass {
   Class testClass = [TestObject class];
   SEL selector = @selector(description);
-  NSString *(^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
+  NSString * (^newImplementationDescription)(id, SEL) = ^NSString *(id _self, SEL cmd) {
     return @"SWIZZLED!";
   };
   [GULSwizzler swizzleClass:testClass
@@ -493,7 +492,7 @@
 - (void)testSwizzlingClassMethodThatCallsSuper {
   NSString *originalDescription = [TestObject description];
   NSString *swizzledDescription = @"Swizzled class description";
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -514,7 +513,7 @@
 - (void)testSwizzlingAnInheritedInstanceMethodDoesntAffectTheIMPOfItsSuperclass {
   NSObject *generalObject = [[NSObject alloc] init];
   BOOL originalGeneralObjectValue = [generalObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !originalGeneralObjectValue;
   };
 
@@ -534,7 +533,7 @@
 - (void)testSwizzlingADeeperInheritedInstanceMethodDoesntAffectTheIMPOfItsSuperclass {
   TestObject *testObject = [[TestObject alloc] init];
   BOOL originalTestObjectValue = [testObject isProxy];
-  BOOL(^newImplementation)() = ^BOOL() {
+  BOOL (^newImplementation)() = ^BOOL() {
     return !originalTestObjectValue;
   };
 
@@ -555,9 +554,9 @@
  */
 - (void)testSwizzlingAnInheritedClassMethodDoesntAffectTheIMPOfItsSuperclass {
   // Fun fact, this won't work on +new. Swizzling +new causes a retain to not be placed correctly.
-  NSString  *originalDescription = [TestObject description];
+  NSString *originalDescription = [TestObject description];
   NSString *swizzledDescription = [originalDescription stringByAppendingString:@"SWIZZLED!"];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -580,7 +579,7 @@
 - (void)testSwizzlingADeeperInheritedClassMethodDoesntAffectTheIMPOfItsSuperclass {
   NSString *originalDescription = [TestObjectSubclass description];
   NSString *swizzledDescription = [originalDescription stringByAppendingString:@"SWIZZLED!"];
-  NSString *(^newImplementation)() = ^NSString *() {
+  NSString * (^newImplementation)() = ^NSString *() {
     return swizzledDescription;
   };
 
@@ -602,8 +601,8 @@
 /** Tests invoking an original instance IMP that takes one argument. */
 - (void)testInvokingOriginalInstanceIMPWithOneArgument {
   TestObject *testObject = [[TestObject alloc] init];
-  NSString *(^replacingBlock)(TestObject *, NSString *) = ^NSString *(TestObject *_self,
-                                                                      NSString *something) {
+  NSString * (^replacingBlock)(TestObject *, NSString *) =
+      ^NSString *(TestObject *_self, NSString *something) {
     return [something stringByAppendingString:@"SWIZZLED!"];
   };
 
@@ -616,18 +615,15 @@
   IMP originalIMP = [GULSwizzler originalImplementationForClass:[TestObject class]
                                                        selector:swizzledSelector
                                                 isClassSelector:NO];
-  NSString *originalDescriptionThatSaysSomething = GUL_INVOKE_ORIGINAL_IMP1(testObject,
-                                                                            swizzledSelector,
-                                                                            NSString *,
-                                                                            originalIMP,
-                                                                            @"something");
+  NSString *originalDescriptionThatSaysSomething =
+      GUL_INVOKE_ORIGINAL_IMP1(testObject, swizzledSelector, NSString *, originalIMP, @"something");
   XCTAssertEqualObjects(originalDescriptionThatSaysSomething, @"instance:something");
   [GULSwizzler unswizzleClass:[TestObject class] selector:swizzledSelector isClassSelector:NO];
 }
 
 /** Tests invoking an original class IMP that takes one argument. */
 - (void)testInvokingOriginalClassIMPWithOneArgument {
-  NSString *(^replacingBlock)(id, NSString *) = ^NSString *(id _self, NSString *something) {
+  NSString * (^replacingBlock)(id, NSString *) = ^NSString *(id _self, NSString *something) {
     return [something stringByAppendingString:@"SWIZZLED!"];
   };
 
@@ -640,11 +636,8 @@
   IMP originalIMP = [GULSwizzler originalImplementationForClass:[TestObject class]
                                                        selector:swizzledSelector
                                                 isClassSelector:YES];
-  NSString *originalDescriptionThatSaysSomething = GUL_INVOKE_ORIGINAL_IMP1([TestObject class],
-                                                                            swizzledSelector,
-                                                                            NSString *,
-                                                                            originalIMP,
-                                                                            @"something");
+  NSString *originalDescriptionThatSaysSomething = GUL_INVOKE_ORIGINAL_IMP1(
+      [TestObject class], swizzledSelector, NSString *, originalIMP, @"something");
   XCTAssertEqualObjects(originalDescriptionThatSaysSomething, @"class:something");
   [GULSwizzler unswizzleClass:[TestObject class] selector:swizzledSelector isClassSelector:YES];
 }
@@ -771,7 +764,6 @@
                   withBlock:replacingBlock1];
 
   XCTAssertEqualObjects([TestObject descriptionThatSays:@"something"], @"somethingSWIZZLED!");
-
 
   IMP previouslySwizzledIMP = [GULSwizzler currentImplementationForClass:swizzledClass
                                                                 selector:swizzledSelector

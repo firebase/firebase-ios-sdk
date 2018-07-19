@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GULAppDelegateSwizzler_Private.h"
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import "GULAppDelegateSwizzler_Private.h"
 
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
@@ -41,7 +41,7 @@ static NSString *const kGULGoogleAppDelegateProxyEnabledPlistKey =
  *  App Delegate Swizzler's behavior.
  */
 @interface GULTestAppDelegate : UIResponder <UIApplicationDelegate> {
- @public // Because we want to access the ivars from outside the class like obj->ivar for testing.
+ @public  // Because we want to access the ivars from outside the class like obj->ivar for testing.
   /** YES if the application:openURL:options: was called on an instance, NO otherwise. */
   BOOL _isOpenURLOptionsMethodCalled;
 

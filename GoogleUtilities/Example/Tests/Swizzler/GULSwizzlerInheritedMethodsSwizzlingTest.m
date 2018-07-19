@@ -42,7 +42,7 @@
 // inheritance chains up.
 - (NSString *)description {
   return [NSString stringWithFormat:@"Method implemented in PollutedTestObject, invoked on: %@",
-              NSStringFromClass([self class])];
+                                    NSStringFromClass([self class])];
 }
 
 @end
@@ -110,15 +110,15 @@
   NSString *swizzledPollutedTestObjectSubclassSubclassDescription =
       [originalPollutedTestObjectSubclassSubclassDescription stringByAppendingString:@"SWIZZLED!"];
 
-  NSString *(^newImplementationPollutedTestObject)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObject)() = ^NSString *(id _self) {
     return swizzledPollutedTestObjectDescription;
   };
 
-  NSString *(^newImplementationPollutedTestObjectSubclass)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObjectSubclass)() = ^NSString *(id _self) {
     return swizzledPollutedTestObjectSubclassDescription;
   };
 
-  NSString *(^newImplementationPollutedTestObjectSubclassSubclass)() = ^NSString *(id _self) {
+  NSString * (^newImplementationPollutedTestObjectSubclassSubclass)() = ^NSString *(id _self) {
     return swizzledPollutedTestObjectSubclassSubclassDescription;
   };
 
@@ -130,8 +130,7 @@
                    selector:swizzledSelector
             isClassSelector:NO
                   withBlock:newImplementationPollutedTestObject];
-  XCTAssertEqualObjects([pollutedTestObject description],
-                        swizzledPollutedTestObjectDescription);
+  XCTAssertEqualObjects([pollutedTestObject description], swizzledPollutedTestObjectDescription);
   XCTAssertEqualObjects([pollutedTestObjectSubclass description],
                         swizzledPollutedTestObjectDescription);
   XCTAssertEqualObjects([pollutedTestObjectSubclassSubclass description],
@@ -163,22 +162,19 @@
                         originalPollutedTestObjectSubclassSubclassDescription);
   XCTAssertEqualObjects([pollutedTestObjectSubclass description],
                         swizzledPollutedTestObjectSubclassDescription);
-  XCTAssertEqualObjects([pollutedTestObject description],
-                        swizzledPollutedTestObjectDescription);
+  XCTAssertEqualObjects([pollutedTestObject description], swizzledPollutedTestObjectDescription);
 
   [GULSwizzler unswizzleClass:[PollutedTestObjectSubclass class]
                      selector:swizzledSelector
               isClassSelector:NO];
   XCTAssertEqualObjects([pollutedTestObjectSubclass description],
                         originalPollutedTestObjectSubclassDescription);
-  XCTAssertEqualObjects([pollutedTestObject description],
-                        swizzledPollutedTestObjectDescription);
+  XCTAssertEqualObjects([pollutedTestObject description], swizzledPollutedTestObjectDescription);
 
   [GULSwizzler unswizzleClass:[PollutedTestObject class]
                      selector:swizzledSelector
               isClassSelector:NO];
-  XCTAssertEqualObjects([pollutedTestObject description],
-                        originalPollutedTestObjectDescription);
+  XCTAssertEqualObjects([pollutedTestObject description], originalPollutedTestObjectDescription);
 
   // This part of the test shows how 'unswizzling' still maintains a polluted runtime and
   // demonstrates the limitations of unswizzling due to the absence of class_removeMethod in ObjC.
@@ -189,8 +185,7 @@
                    selector:swizzledSelector
             isClassSelector:NO
                   withBlock:newImplementationPollutedTestObject];
-  XCTAssertEqualObjects([pollutedTestObject description],
-                        swizzledPollutedTestObjectDescription);
+  XCTAssertEqualObjects([pollutedTestObject description], swizzledPollutedTestObjectDescription);
   XCTAssertEqualObjects([pollutedTestObjectSubclass description],
                         originalPollutedTestObjectSubclassDescription);
   XCTAssertEqualObjects([pollutedTestObjectSubclassSubclass description],

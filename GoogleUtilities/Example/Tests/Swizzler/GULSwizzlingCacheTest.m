@@ -149,8 +149,7 @@
                                          withSelector:swizzledSelector];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] != NULL);
-  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP],
-                 originalIMP,
+  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP], originalIMP,
                  @"New to original IMP cache was not correctly poplated.");
 
   [[GULSwizzlingCache sharedInstance] clearCacheForSwizzledIMP:newIMP
@@ -158,11 +157,9 @@
                                                         aClass:swizzledClass];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] == NULL);
-  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP],
-                 newIMP,
+  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP], newIMP,
                  @"New to original IMP cache was not cleared.");
 }
-
 
 - (void)testClearingCacheForOneIMPDoesNotImpactOtherIMPs {
   Class swizzledClass = [NSObject class];
@@ -178,8 +175,7 @@
                                          withSelector:swizzledSelector];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] != NULL);
-  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP],
-                 originalIMP,
+  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP], originalIMP,
                  @"New to original IMP cache was not correctly populated.");
 
   Class swizzledClass2 = [NSString class];
@@ -200,13 +196,11 @@
                                                         aClass:swizzledClass];
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass
                                                      withSelector:swizzledSelector] == NULL);
-  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP],
-                 newIMP,
+  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP], newIMP,
                  @"New to original IMP cache was not cleared.");
   XCTAssert([[GULSwizzlingCache sharedInstance] cachedIMPForClass:swizzledClass2
                                                      withSelector:swizzledSelector2] != NULL);
-  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP2],
-                 originalIMP2,
+  XCTAssertEqual([[GULSwizzlingCache sharedInstance] originalIMPOfCurrentIMP:newIMP2], originalIMP2,
                  @"New to original IMP cache was cleared when it shouldn't have.");
 }
 

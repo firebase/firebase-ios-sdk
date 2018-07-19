@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <objc/runtime.h>
 #import <XCTest/XCTest.h>
+#import <objc/runtime.h>
 
 #import <GoogleUtilities/GULRuntimeClassDiff.h>
 #import <GoogleUtilities/GULRuntimeClassSnapshot.h>
@@ -91,13 +91,11 @@ static NSString *dynamicClassBacking;
   [snapshot1 capture];
 
   // Reference:
-  objc_property_attribute_t type = { "T", "@\"NSString\"" };
-  objc_property_attribute_t ownership = { "C", "" };
-  objc_property_attribute_t backingivar  = { "V", "dynamicClassBacking" };
-  objc_property_attribute_t attributes[] = { type, ownership, backingivar };
-  class_addProperty(GULRuntimeClassSnapshotTestClassMetaClass,
-                    "dynamicClassProperty",
-                    attributes,
+  objc_property_attribute_t type = {"T", "@\"NSString\""};
+  objc_property_attribute_t ownership = {"C", ""};
+  objc_property_attribute_t backingivar = {"V", "dynamicClassBacking"};
+  objc_property_attribute_t attributes[] = {type, ownership, backingivar};
+  class_addProperty(GULRuntimeClassSnapshotTestClassMetaClass, "dynamicClassProperty", attributes,
                     3);
 
   GULRuntimeClassSnapshot *snapshot2 =
@@ -118,10 +116,10 @@ static NSString *dynamicClassBacking;
   [snapshot1 capture];
 
   // Reference:
-  objc_property_attribute_t type = { "T", "@\"NSString\"" };
-  objc_property_attribute_t ownership = { "C", "" };
-  objc_property_attribute_t backingivar  = { "V", "_dynamicPropertyIvar" };
-  objc_property_attribute_t attributes[] = { type, ownership, backingivar };
+  objc_property_attribute_t type = {"T", "@\"NSString\""};
+  objc_property_attribute_t ownership = {"C", ""};
+  objc_property_attribute_t backingivar = {"V", "_dynamicPropertyIvar"};
+  objc_property_attribute_t attributes[] = {type, ownership, backingivar};
   class_addProperty(GULRuntimeClassSnapshotTestClassClass, "dynamicProperty", attributes, 3);
 
   GULRuntimeClassSnapshot *snapshot2 =
