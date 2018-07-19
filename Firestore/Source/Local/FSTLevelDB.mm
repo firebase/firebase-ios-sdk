@@ -150,9 +150,7 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
-  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
-  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
-  transaction.Commit();
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_ptr.get()];
   return YES;
 }
 
