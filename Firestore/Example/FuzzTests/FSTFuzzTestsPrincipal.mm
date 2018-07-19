@@ -72,10 +72,9 @@ FuzzingTarget GetFuzzingTarget() {
     return FuzzingTarget::kNone;
   }
 
-  // Convert fuzzing_target_env to an std::string after verifying it is not null
-  // and match to a fuzzing target.
+  // Convert fuzzing_target_env to std::string after verifying it is not null.
   std::string fuzzing_target{fuzzing_target_env};
-  if (fuzzing_target.size() == 0) {
+  if (fuzzing_target.empty()) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
