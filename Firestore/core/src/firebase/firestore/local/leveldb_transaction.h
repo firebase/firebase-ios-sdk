@@ -193,15 +193,9 @@ class LevelDbTransaction {
 
   /**
    * Commits the transaction. All pending changes are written. The transaction
-   * can be reused after calling this method by calling `Reuse()`.
+   * should not be used after calling this method.
    */
   void Commit();
-
-  /**
-   * After committing, resets the state of this transaction object so that it
-   * can be used again.
-   */
-  void Reuse();
 
   std::string ToString();
 
