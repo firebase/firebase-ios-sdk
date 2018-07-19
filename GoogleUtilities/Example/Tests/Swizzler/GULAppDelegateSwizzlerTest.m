@@ -670,7 +670,7 @@ static BOOL gRespondsToHandleBackgroundSession;
  * the Google flag is not present. */
 - (void)testAppProxyPlistFlag_FirebaseEnabled {
   // Set proxy enabled to YES.
-  NSDictionary *mainDictionary = @{kGULFirebaseAppDelegateProxyEnabledPlistKey : @(YES)};
+  NSDictionary *mainDictionary = @{ kGULFirebaseAppDelegateProxyEnabledPlistKey : @(YES) };
   id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
   [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
 
@@ -682,7 +682,7 @@ static BOOL gRespondsToHandleBackgroundSession;
  * Firebase flag is not present. */
 - (void)testAppProxyPlistFlag_GoogleEnabled {
   // Set proxy enabled to YES.
-  NSDictionary *mainDictionary = @{kGULGoogleAppDelegateProxyEnabledPlistKey : @(YES)};
+  NSDictionary *mainDictionary = @{ kGULGoogleAppDelegateProxyEnabledPlistKey : @(YES) };
   id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
   [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
 
@@ -718,7 +718,7 @@ static BOOL gRespondsToHandleBackgroundSession;
  * flag is not present. */
 - (void)testAppProxyPlist_FirebaseDisableFlag {
   // Set proxy enabled to NO.
-  NSDictionary *mainDictionary = @{kGULFirebaseAppDelegateProxyEnabledPlistKey : @(NO)};
+  NSDictionary *mainDictionary = @{ kGULFirebaseAppDelegateProxyEnabledPlistKey : @(NO) };
   id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
   [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
 
@@ -730,7 +730,7 @@ static BOOL gRespondsToHandleBackgroundSession;
  * flag is not present. */
 - (void)testAppProxyPlist_GoogleDisableFlag {
   // Set proxy enabled to NO.
-  NSDictionary *mainDictionary = @{kGULGoogleAppDelegateProxyEnabledPlistKey : @(NO)};
+  NSDictionary *mainDictionary = @{ kGULGoogleAppDelegateProxyEnabledPlistKey : @(NO) };
   id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
   [[[mainBundleMock expect] andReturn:mainDictionary] infoDictionary];
 
@@ -786,7 +786,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that the App Delegate is not proxied when it is disabled. */
 - (void)testAppDelegateIsNotProxiedWhenDisabled {
   // Set proxy enabled to NO.
-  NSDictionary *mainDictionary = @{kGULFirebaseAppDelegateProxyEnabledPlistKey : @(NO)};
+  NSDictionary *mainDictionary = @{ kGULFirebaseAppDelegateProxyEnabledPlistKey : @(NO) };
   id mainBundleMock = OCMPartialMock([NSBundle mainBundle]);
   [[[mainBundleMock stub] andReturn:mainDictionary] infoDictionary];
   XCTAssertFalse([GULAppDelegateSwizzler isAppDelegateProxyEnabled]);
