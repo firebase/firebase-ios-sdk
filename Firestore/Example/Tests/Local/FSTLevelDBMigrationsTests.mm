@@ -142,6 +142,7 @@ using leveldb::Status;
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID]};
 
+  // Keys that should not be modified by the dropping the query cache
   std::string preservedKeys[] = {[self dummyKeyForTable:"targetA"],
                                  [FSTLevelDBMutationQueueKey keyWithUserID:userID],
                                  [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID]};
@@ -154,7 +155,6 @@ using leveldb::Status;
     for (const std::string &key : targetKeys) {
       transaction.Put(key, "target");
     }
-
     for (const std::string &key : preservedKeys) {
       transaction.Put(key, "preserved");
     }
@@ -168,7 +168,6 @@ using leveldb::Status;
     for (const std::string &key : targetKeys) {
       ASSERT_NOT_FOUND(transaction, key);
     }
-
     for (const std::string &key : preservedKeys) {
       ASSERT_FOUND(transaction, key);
     }
