@@ -123,12 +123,16 @@ using leveldb::Status;
       [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key1],
       [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key2],
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID]};
+      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID],
+      [FSTLevelDBQueryTargetKey keyWithCanonicalID:"foo.bar.baz" targetID:targetID],
+  };
 
   // Keys that should not be modified by the dropping the query cache
-  std::string preservedKeys[] = {[self dummyKeyForTable:"targetA"],
-                                 [FSTLevelDBMutationQueueKey keyWithUserID:userID],
-                                 [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID]};
+  std::string preservedKeys[] = {
+      [self dummyKeyForTable:"targetA"],
+      [FSTLevelDBMutationQueueKey keyWithUserID:userID],
+      [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID],
+  };
 
   [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
   {
