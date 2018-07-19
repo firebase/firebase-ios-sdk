@@ -119,8 +119,9 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /** Tracks a limbo resolution. */
 class LimboResolution {
  public:
-  LimboResolution() : key{DocumentKey()} {
+  LimboResolution() {
   }
+
   explicit LimboResolution(const DocumentKey &key) : key{key} {
   }
 
@@ -131,7 +132,7 @@ class LimboResolution {
    * ultimately used by FSTWatchChangeAggregator to decide whether it needs to manufacture a delete
    * event for the target once the target is CURRENT.
    */
-  bool documentReceived;
+  bool document_received = false;
 };
 
 #pragma mark - FSTSyncEngine
@@ -326,14 +327,14 @@ class LimboResolution {
                   "Limbo resolution for single document contains multiple changes.");
 
       if (change.addedDocuments.size() > 0) {
-        limboResolution.documentReceived = true;
+        limboResolution.document_received = true;
       } else if (change.modifiedDocuments.size() > 0) {
-        HARD_ASSERT(limboResolution.documentReceived,
+        HARD_ASSERT(limboResolution.document_received,
                     "Received change for limbo target document without add.");
       } else if (change.removedDocuments.size() > 0) {
-        HARD_ASSERT(limboResolution.documentReceived,
+        HARD_ASSERT(limboResolution.document_received,
                     "Received remove for limbo target document without add.");
-        limboResolution.documentReceived = false;
+        limboResolution.document_received = false;
       } else {
         // This was probably just a CURRENT targetChange or similar.
       }
@@ -536,7 +537,7 @@ class LimboResolution {
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
-    _limboResolutionsByTarget[limboTargetID] = LimboResolution{key};
+    _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
     [self.remoteStore listenToTargetWithQueryData:queryData];
     _limboTargetsByKey[key] = limboTargetID;
   }
@@ -573,7 +574,7 @@ class LimboResolution {
 
 - (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
   const auto iter = _limboResolutionsByTarget.find([targetId intValue]);
-  if (iter != _limboResolutionsByTarget.end() && iter->second.documentReceived) {
+  if (iter != _limboResolutionsByTarget.end() && iter->second.document_received) {
     return DocumentKeySet{iter->second.key};
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[targetId];
