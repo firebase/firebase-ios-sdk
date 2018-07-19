@@ -63,7 +63,7 @@ static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *tra
   transaction->Put(key, version_string);
 }
 
-static void DeleteEverythingWithPrefix(const std::string &prefix, leveldb::DB* db) {
+static void DeleteEverythingWithPrefix(const std::string &prefix, leveldb::DB *db) {
   bool more_deletes = true;
   while (more_deletes) {
     LevelDbTransaction transaction(db, "Delete everything with prefix");
@@ -83,7 +83,7 @@ static void DeleteEverythingWithPrefix(const std::string &prefix, leveldb::DB* d
 }
 
 /** Migration 3. */
-static void ClearQueryCache(leveldb::DB* db) {
+static void ClearQueryCache(leveldb::DB *db) {
   DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix], db);
   DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix], db);
   DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix], db);

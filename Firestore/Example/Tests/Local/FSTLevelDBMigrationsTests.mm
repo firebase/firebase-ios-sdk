@@ -90,7 +90,8 @@ using leveldb::Status;
     [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get()];
 
     LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber after");
-    FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+    FSTLevelDBSchemaVersion actual =
+        [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
     XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
   }
 }
@@ -183,7 +184,6 @@ using leveldb::Status;
     XCTAssertEqual(found_keys, std::vector<std::string>{});
   }
 }
-
 
 /**
  * Creates the name of a dummy entry to make sure the iteration is correctly bounded.
