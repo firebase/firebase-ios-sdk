@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
+#include <cstdint>
 
 #include "benchmark/benchmark.h"
 
@@ -32,24 +33,26 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
 
-// Pre-existing document size
-static const int kDocumentSize = 1024 * 2;  // 2 kb
+namespace {
 
-static std::string DocumentData() {
+// Pre-existing document size
+const int kDocumentSize = 1024 * 2;  // 2 kb
+
+std::string DocumentData() {
   return std::string(kDocumentSize, 'a');
 }
 
-static std::string UpdatedDocumentData(int documentSize) {
+std::string UpdatedDocumentData(int64_t documentSize) {
   return std::string(documentSize, 'b');
 }
 
-static NSString *LevelDBDir() {
-  NSError *error;
+NSString *LevelDBDir() {
   NSFileManager *files = [NSFileManager defaultManager];
   NSString *dir =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
+          [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
   if ([files fileExistsAtPath:dir]) {
     // Delete the directory first to ensure isolation between runs.
+    NSError *error;
     BOOL success = [files removeItemAtPath:dir error:&error];
     if (!success) {
       [NSException raise:NSInternalInconsistencyException
@@ -59,14 +62,14 @@ static NSString *LevelDBDir() {
   return dir;
 }
 
-static FSTLevelDB *LevelDBPersistence() {
+FSTLevelDB *LevelDBPersistence() {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"p", "d"};
 
   NSString *dir = LevelDBDir();
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
-      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+          [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
   NSError *error;
   BOOL success = [db start:&error];
@@ -78,20 +81,22 @@ static FSTLevelDB *LevelDBPersistence() {
   return db;
 }
 
+}  // namespace
+
 class LevelDBFixture : public benchmark::Fixture {
-  virtual void SetUp(benchmark::State &state) {
-    _db = LevelDBPersistence();
+  void SetUp(benchmark::State &state) override {
+    db_ = LevelDBPersistence();
     FillDB();
   }
 
-  virtual void TearDown(benchmark::State &state) {
-    _db = nil;
+  void TearDown(benchmark::State &state) override {
+    db_ = nil;
   }
 
   void FillDB() {
-    LevelDbTransaction txn(_db.ptr, "benchmark");
+    LevelDbTransaction txn(db_.ptr, "benchmark");
 
-    for (int i = 0; i < _numDocuments; i++) {
+    for (int i = 0; i < numDocuments_; i++) {
       FSTDocumentKey *docKey =
           [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
       std::string docKeyString = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:docKey];
@@ -100,22 +105,22 @@ class LevelDBFixture : public benchmark::Fixture {
     }
     txn.Commit();
     // Force a write to disk to simulate startup situation
-    _db.ptr->CompactRange(NULL, NULL);
+    db_.ptr->CompactRange(NULL, NULL);
   }
 
  protected:
   void WriteIndex(LevelDbTransaction &txn, FSTDocumentKey *docKey) {
-    txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:_targetID],
-            _emptyBuffer);
-    txn.Put([FSTLevelDBTargetDocumentKey keyWithTargetID:_targetID documentKey:docKey],
-            _emptyBuffer);
+    // Arbitrary target ID
+    FSTTargetID targetID = 1;
+    txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:targetID],
+            emptyBuffer_);
+    txn.Put([FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:docKey],
+            emptyBuffer_);
   }
 
-  FSTLevelDB *_db;
-  // Arbitrary target ID
-  FSTTargetID _targetID = 1;
-  int _numDocuments = 10;
-  std::string _emptyBuffer;
+  FSTLevelDB *db_;
+  int numDocuments_ = 10;
+  std::string emptyBuffer_;
 };
 
 // Plan: write a bunch of key/value pairs w/ empty strings (index entries)
@@ -123,12 +128,12 @@ class LevelDBFixture : public benchmark::Fixture {
 // In each test, either overwrite index entries and documents, or just documents
 
 BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
-  bool writeIndexes = (bool)state.range(0);
+  bool writeIndexes = static_cast<bool>(state.range(0));
   int64_t documentSize = state.range(1);
   int64_t docsToUpdate = state.range(2);
-  std::string documentUpdate = UpdatedDocumentData((int)documentSize);
-  for (auto _ : state) {
-    LevelDbTransaction txn(_db.ptr, "benchmark");
+  std::string documentUpdate = UpdatedDocumentData(documentSize);
+  for (const auto& _ : state) {
+    LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
       FSTDocumentKey *docKey =
           [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
