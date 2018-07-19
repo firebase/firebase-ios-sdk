@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/match.h"
-#include "absl/strings/str_cat.h"
 #include "leveldb/db.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
@@ -72,47 +71,27 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  LevelDbTransaction transaction(_db.get(), "testAddsTargetGlobal");
-  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
-  transaction.Commit();
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get()];
+
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
 }
 
 - (void)testSetsVersionNumber {
-  LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber");
-  FSTLevelDBSchemaVersion initial =
-      [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
-  XCTAssertEqual(0, initial, "No version should be equivalent to 0");
-
-  // Pick an arbitrary high migration number and migrate to it.
-  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
-  FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
-  XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
-}
-
-- (void)testCountsQueries {
-  NSUInteger expected = 50;
   {
-    // Setup some targets to be counted in the migration.
-    LevelDbTransaction transaction(_db.get(), "testCountsQueries setup");
-    for (int i = 0; i < expected; i++) {
-      std::string key = [FSTLevelDBTargetKey keyWithTargetID:i];
-      transaction.Put(key, "dummy");
-    }
-    // Add a dummy entry after the targets to make sure the iteration is correctly bounded.
-    // Use a table that would sort logically right after that table 'target'.
-    std::string dummyKey = [self dummyKeyForTable:"targetA"];
-    transaction.Put(dummyKey, "dummy");
-    transaction.Commit();
+    LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber before");
+    FSTLevelDBSchemaVersion initial =
+        [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+    XCTAssertEqual(0, initial, "No version should be equivalent to 0");
   }
 
   {
-    LevelDbTransaction transaction(_db.get(), "testCountsQueries");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
-    transaction.Commit();
-    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
-    XCTAssertEqual(expected, metadata.targetCount, @"Failed to count all of the targets we added");
+    // Pick an arbitrary high migration number and migrate to it.
+    [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get()];
+
+    LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber after");
+    FSTLevelDBSchemaVersion actual = [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+    XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
   }
 }
 
@@ -150,11 +129,10 @@ using leveldb::Status;
                                  [FSTLevelDBMutationQueueKey keyWithUserID:userID],
                                  [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID]};
 
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
   {
     // Setup some targets to be counted in the migration.
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCache setup");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:1];
-
     for (const std::string &key : targetKeys) {
       transaction.Put(key, "target");
     }
@@ -164,37 +142,34 @@ using leveldb::Status;
     transaction.Commit();
   }
 
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:3];
   {
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCache");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:2];
-
     for (const std::string &key : targetKeys) {
       ASSERT_NOT_FOUND(transaction, key);
     }
     for (const std::string &key : preservedKeys) {
       ASSERT_FOUND(transaction, key);
     }
+
+    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+    XCTAssertNotNil(metadata, @"Metadata should have been added");
+    XCTAssertEqual(metadata.targetCount, 0);
   }
 }
 
 - (void)testDropsTheQueryCacheWithThousandsOfEntries {
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
   {
-    // Setup some targets to be counted in the migration.
+    // Setup some targets to be destroyed.
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries setup");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:1];
-
     for (int i = 0; i < 10000; ++i) {
       transaction.Put([FSTLevelDBTargetKey keyWithTargetID:i], "");
     }
     transaction.Commit();
   }
 
-  {
-    LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries");
-    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:2];
-    transaction.Commit();
-  }
-
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:3];
   {
     LevelDbTransaction transaction(_db.get(), "Verify");
     std::string prefix = [FSTLevelDBTargetKey keyPrefix];
