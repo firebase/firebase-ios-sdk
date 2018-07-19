@@ -52,6 +52,16 @@
 		DEC9788720F6E1E000014E20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEC9788020F6E1DF00014E20 /* Main.storyboard */; };
 		DEC9788820F6E1E000014E20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788120F6E1DF00014E20 /* main.m */; };
 		DEC9788920F6E1E000014E20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788220F6E1DF00014E20 /* AppDelegate.m */; };
+		EFBE67FA2101401100E756A7 /* GULSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F02101401100E756A7 /* GULSwizzlerTest.m */; };
+		EFBE67FB2101401100E756A7 /* GULSwizzlingCacheTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F12101401100E756A7 /* GULSwizzlingCacheTest.m */; };
+		EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F22101401100E756A7 /* GULRuntimeClassDiffTests.m */; };
+		EFBE67FD2101401100E756A7 /* GULObjectSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F32101401100E756A7 /* GULObjectSwizzlerTest.m */; };
+		EFBE67FE2101401100E756A7 /* GULRuntimeClassSnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F42101401100E756A7 /* GULRuntimeClassSnapshotTests.m */; };
+		EFBE67FF2101401100E756A7 /* GULRuntimeDiffTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F52101401100E756A7 /* GULRuntimeDiffTests.m */; };
+		EFBE68002101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F62101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m */; };
+		EFBE68012101401100E756A7 /* GULRuntimeStateHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F72101401100E756A7 /* GULRuntimeStateHelperTests.m */; };
+		EFBE68022101401100E756A7 /* GULRuntimeSnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F82101401100E756A7 /* GULRuntimeSnapshotTests.m */; };
+		EFBE68032101401100E756A7 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -140,6 +150,16 @@
 		E43A7063D2ACD961727588B9 /* Pods-Example_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example_macOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Example_macOS/Pods-Example_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		E55C4A6ECA233E2DCF0DBB80 /* Pods-Tests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tests_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Tests_tvOS/Pods-Tests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ECE5AB40C464E70BF24B16F5 /* Pods-Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Example_iOS/Pods-Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		EFBE67F02101401100E756A7 /* GULSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlerTest.m; sourceTree = "<group>"; };
+		EFBE67F12101401100E756A7 /* GULSwizzlingCacheTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlingCacheTest.m; sourceTree = "<group>"; };
+		EFBE67F22101401100E756A7 /* GULRuntimeClassDiffTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeClassDiffTests.m; sourceTree = "<group>"; };
+		EFBE67F32101401100E756A7 /* GULObjectSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULObjectSwizzlerTest.m; sourceTree = "<group>"; };
+		EFBE67F42101401100E756A7 /* GULRuntimeClassSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeClassSnapshotTests.m; sourceTree = "<group>"; };
+		EFBE67F52101401100E756A7 /* GULRuntimeDiffTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeDiffTests.m; sourceTree = "<group>"; };
+		EFBE67F62101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlerInheritedMethodsSwizzlingTest.m; sourceTree = "<group>"; };
+		EFBE67F72101401100E756A7 /* GULRuntimeStateHelperTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeStateHelperTests.m; sourceTree = "<group>"; };
+		EFBE67F82101401100E756A7 /* GULRuntimeSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeSnapshotTests.m; sourceTree = "<group>"; };
+		EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULAppDelegateSwizzlerTest.m; sourceTree = "<group>"; };
 		F1F2A7C03C10A3A03F9502B8 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		F7C23FBCB4F9AAFE354B0793 /* Pods_Tests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -268,6 +288,7 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				EFBE67EF2101401100E756A7 /* Swizzler */,
 				DEC977DE20F6A7A700014E20 /* Logger */,
 				DEC977D420F68C3300014E20 /* Network */,
 				DEC977D220F68C3300014E20 /* Reachability */,
@@ -381,6 +402,23 @@
 				DEC9788420F6E1DF00014E20 /* ViewController.h */,
 			);
 			path = tvOS;
+			sourceTree = "<group>";
+		};
+		EFBE67EF2101401100E756A7 /* Swizzler */ = {
+			isa = PBXGroup;
+			children = (
+				EFBE67F02101401100E756A7 /* GULSwizzlerTest.m */,
+				EFBE67F12101401100E756A7 /* GULSwizzlingCacheTest.m */,
+				EFBE67F22101401100E756A7 /* GULRuntimeClassDiffTests.m */,
+				EFBE67F32101401100E756A7 /* GULObjectSwizzlerTest.m */,
+				EFBE67F42101401100E756A7 /* GULRuntimeClassSnapshotTests.m */,
+				EFBE67F52101401100E756A7 /* GULRuntimeDiffTests.m */,
+				EFBE67F62101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m */,
+				EFBE67F72101401100E756A7 /* GULRuntimeStateHelperTests.m */,
+				EFBE67F82101401100E756A7 /* GULRuntimeSnapshotTests.m */,
+				EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */,
+			);
+			path = Swizzler;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -844,12 +882,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EFBE67FF2101401100E756A7 /* GULRuntimeDiffTests.m in Sources */,
 				DEC977DD20F68FE100014E20 /* GTMHTTPServer.m in Sources */,
+				EFBE68022101401100E756A7 /* GULRuntimeSnapshotTests.m in Sources */,
+				EFBE68002101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m in Sources */,
+				EFBE68012101401100E756A7 /* GULRuntimeStateHelperTests.m in Sources */,
+				EFBE68032101401100E756A7 /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC977D820F68C3300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DEC977E120F6A7C100014E20 /* GULLoggerTest.m in Sources */,
 				DEC977D920F68C3300014E20 /* GULNetworkTest.m in Sources */,
+				EFBE67FA2101401100E756A7 /* GULSwizzlerTest.m in Sources */,
+				EFBE67FD2101401100E756A7 /* GULObjectSwizzlerTest.m in Sources */,
+				EFBE67FE2101401100E756A7 /* GULRuntimeClassSnapshotTests.m in Sources */,
+				EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */,
 				DE5CF98E20F686310063FFDD /* GULAppEnvironmentUtilTest.m in Sources */,
 				DEC977D720F68C3300014E20 /* GULReachabilityCheckerTest.m in Sources */,
+				EFBE67FB2101401100E756A7 /* GULSwizzlingCacheTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
