@@ -24,16 +24,16 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/macros.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 #include "leveldb/write_batch.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 // Current version of the schema defined in this file.
-static FSTLevelDBSchemaVersion kSchemaVersion = 2;
+static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
 using firebase::firestore::local::LevelDbTransaction;
-using leveldb::DB;
 using leveldb::Iterator;
 using leveldb::Status;
 using leveldb::Slice;
@@ -87,6 +87,49 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
   transaction->Put([FSTLevelDBTargetGlobalKey key], targetGlobal);
 }
 
+/**
+ * A class representing all migrations to prepare the LevelDB database for use.
+ *
+ * TODO(wilhuff): All the migrations should really be a part of this but to minimize the scope of
+ * this change for now it's constrained to just the new one.
+ */
+class LevelDbSchema {
+ public:
+  explicit LevelDbSchema(leveldb::DB *db) : db_{db} {
+  }
+
+  void DropQueryCache();
+
+ private:
+  void DeleteEverythingWithPrefix(const std::string &prefix);
+
+  leveldb::DB *db_;
+  std::unique_ptr<LevelDbTransaction> transaction_;
+};
+
+void LevelDbSchema::DropQueryCache() {
+  transaction_ = absl::make_unique<LevelDbTransaction>(db_, "Drop Query Cache");
+
+  DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix]);
+  DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix]);
+  DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix]);
+
+  transaction_->Commit();
+}
+
+void LevelDbSchema::DeleteEverythingWithPrefix(const std::string &prefix) {
+  LevelDbTransaction reader(db_, "Reader");
+  auto it = reader.NewIterator();
+
+  for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix); it->Next()) {
+    if (transaction_->changed_keys() >= 1000) {
+      transaction_->Commit();
+      transaction_ = absl::make_unique<LevelDbTransaction>(db_, "Drop Query Cache");
+    }
+    transaction_->Delete(it->key());
+  }
+}
+
 @implementation FSTLevelDBMigrations
 
 + (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
@@ -102,22 +145,37 @@ static void AddTargetCount(LevelDbTransaction *transaction) {
 }
 
 + (void)runMigrationsWithTransaction:(firebase::firestore::local::LevelDbTransaction *)transaction {
+  [self runMigrationsWithTransaction:transaction upToVersion:kSchemaVersion];
+}
+
++ (void)runMigrationsWithTransaction:(firebase::firestore::local::LevelDbTransaction *)transaction
+                         upToVersion:(FSTLevelDBSchemaVersion)upToVersion {
   FSTLevelDBSchemaVersion currentVersion = [self schemaVersionWithTransaction:transaction];
   // Each case in this switch statement intentionally falls through. This lets us
   // start at the current schema version and apply any migrations that have not yet
   // been applied, to bring us up to current, as defined by the kSchemaVersion constant.
   switch (currentVersion) {
     case 0:
+      if (upToVersion < 0) break;
       EnsureTargetGlobal(transaction);
       ABSL_FALLTHROUGH_INTENDED;
     case 1:
       // We're now guaranteed that the target global exists. We can safely add a count to it.
+      if (upToVersion < 1) break;
       AddTargetCount(transaction);
       ABSL_FALLTHROUGH_INTENDED;
-    default:
-      if (currentVersion < kSchemaVersion) {
-        SaveVersion(kSchemaVersion, transaction);
+    case 2:
+      if (upToVersion < 2) break;
+      if (currentVersion != 0) {
+        LevelDbSchema schema{transaction->database()};
+        schema.DropQueryCache();
       }
+      ABSL_FALLTHROUGH_INTENDED;
+    default:
+      break;
+  }
+  if (currentVersion < upToVersion) {
+    SaveVersion(upToVersion, transaction);
   }
 }
 
