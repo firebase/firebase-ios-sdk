@@ -52,7 +52,7 @@ NSString *const kFIRGoogleAppIDKey = @"FIRGoogleAppIDKey";
 NSString *const kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat =
     @"/google/firebase/global_data_collection_enabled:%@";
 NSString *const kFIRGlobalAppDataCollectionEnabledPlistKey =
-    @"FirebaseAutomaticDataCollectionEnabled";
+    @"FirebaseDataCollectionDefaultEnabled";
 
 NSString *const kFIRAppDiagnosticsNotification = @"FIRAppDiagnosticsNotification";
 
@@ -353,10 +353,10 @@ static NSMutableDictionary *sLibraryVersions;
   return [_options copy];
 }
 
-- (void)setAutomaticDataCollectionEnabled:(BOOL)automaticDataCollectionEnabled {
+- (void)setDataCollectionDefaultEnabled:(BOOL)dataCollectionDefaultEnabled {
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
-  [[NSUserDefaults standardUserDefaults] setBool:automaticDataCollectionEnabled forKey:key];
+  [[NSUserDefaults standardUserDefaults] setBool:dataCollectionDefaultEnabled forKey:key];
 
   // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
   // within FIROptions and change the Analytics value if necessary. Analytics only works with the
@@ -372,11 +372,11 @@ static NSMutableDictionary *sLibraryVersions;
 
   // The Analytics flag has not been explicitly set, so update with the value being set.
   [[FIRAnalyticsConfiguration sharedInstance]
-      setAnalyticsCollectionEnabled:automaticDataCollectionEnabled
+      setAnalyticsCollectionEnabled:dataCollectionDefaultEnabled
                      persistSetting:NO];
 }
 
-- (BOOL)isAutomaticDataCollectionEnabled {
+- (BOOL)isDataCollectionDefaultEnabled {
   // Check if it's been manually set before in code, and use that as the higher priority value.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
   if (defaultsObject) {
@@ -749,7 +749,7 @@ static NSMutableDictionary *sLibraryVersions;
                         version:(NSString *)version
                           error:(NSError *)error {
   // If the user has manually turned off data collection, return and don't send logs.
-  if (![self isAutomaticDataCollectionEnabled]) {
+  if (![self isDataCollectionDefaultEnabled]) {
     return;
   }
 

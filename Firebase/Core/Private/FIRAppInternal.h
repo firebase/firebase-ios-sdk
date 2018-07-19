@@ -222,12 +222,12 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  *          CONFORM TO THIS PREFERENCE. DO NOT RELY ON IT.
  *
  * Gets or sets whether automatic data collection is enabled for all products. Defaults to `YES`
- * unless `FirebaseAutomaticDataCollectionEnabled` is set to `NO` in your app's Info.plist. This
- * value is persisted across runs of the app so that it can be set once when users have consented to
+ * unless `FirebaseDataCollectionDefaultEnabled` is set to `NO` in your app's Info.plist. This value
+ * is persisted across runs of the app so that it can be set once when users have consented to
  * collection.
  */
-@property(nonatomic, readwrite, getter=isAutomaticDataCollectionEnabled)
-    BOOL automaticDataCollectionEnabled;
+@property(nonatomic, readwrite, getter=isDataCollectionDefaultEnabled)
+    BOOL dataCollectionDefaultEnabled;
 
 @end
 
