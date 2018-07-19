@@ -67,19 +67,25 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 FuzzingTarget GetFuzzingTarget() {
   char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
 
-  if (fuzzing_target_env == NULL || strlen(fuzzing_target_env) == 0) {
+  if (fuzzing_target_env == nullptr) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
 
-  if (strcmp("NONE", fuzzing_target_env) == 0) {
+  // Convert fuzzing_target_env to an std::string after verifying it is not null
+  // and match to a fuzzing target.
+  std::string fuzzing_target{fuzzing_target_env};
+  if (fuzzing_target.size() == 0) {
+    LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
-  if (strcmp("SERIALIZER", fuzzing_target_env) == 0) {
+  if (fuzzing_target == "NONE") {
+    return FuzzingTarget::kNone;
+  }
+  if (fuzzing_target == "SERIALIZER") {
     return FuzzingTarget::kSerializer;
   }
-  // Value did not match any target.
-  LOG_WARN("Invalid fuzzing target: %s", std::string{fuzzing_target_env});
+  LOG_WARN("Invalid fuzzing target: %s", fuzzing_target);
   return FuzzingTarget::kNone;
 }
 
