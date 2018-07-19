@@ -17,19 +17,26 @@
 #ifndef FSTFuzzTestSerializer_h
 #define FSTFuzzTestSerializer_h
 
+#import <Foundation/Foundation.h>
+
 namespace firebase {
 namespace firestore {
 namespace fuzzing {
 
+// Returns the location of the Serializer dictionary file.
+inline NSString *GetSerializerDictionaryLocation(NSString *resources_location) {
+  return [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
+}
+
+// Returns the location of the Serializer corpus. This corpus is a special
+// case because we generate its binary protos during the build process.
+inline NSString *GetSerializerCorpusLocation(NSString *resources_location) {
+  return @"FuzzTestsCorpus";
+}
+
 // Fuzz-test the deserialization process in Firestore. The Serializer reads raw
 // bytes and converts them to a model object.
 int FuzzTestDeserialization(const uint8_t *data, size_t size);
-
-NSString *GetSerializerDictionaryLocation(NSString *resources_location);
-
-// The location where the Serializer corpus is stored. This corpus is a special
-// case because we generate its binary protos during the build process.
-NSString *GetSerializerCorpusLocation(NSString *resources_location);
 
 }  // namespace fuzzing
 }  // namespace firestore

@@ -39,12 +39,3 @@ int firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, s
 
   return 0;
 }
-
-NSString *firebase::firestore::fuzzing::GetSerializerDictionaryLocation(
-    NSString *resources_location) {
-  return [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
-}
-
-NSString *firebase::firestore::fuzzing::GetSerializerCorpusLocation(NSString *resources_location) {
-  return @"FuzzTestsCorpus";
-}
