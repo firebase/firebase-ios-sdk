@@ -19,7 +19,6 @@
 #import "Private/GULSwizzledObject.h"
 
 @implementation GULObjectSwizzler {
-
   // The swizzled object.
   __weak id _swizzledObject;
 
@@ -82,9 +81,8 @@
     if (swizzledObject) {
       _swizzledObject = swizzledObject;
       _originalClass = [swizzledObject class];
-      NSString *newClassName = [NSString stringWithFormat:@"fir_%p_%@",
-                                swizzledObject,
-                                NSStringFromClass(_originalClass)];
+      NSString *newClassName = [NSString
+          stringWithFormat:@"fir_%p_%@", swizzledObject, NSStringFromClass(_originalClass)];
       _generatedClass = objc_allocateClassPair(_originalClass, newClassName.UTF8String, 0);
       NSAssert(_generatedClass, @"Wasn't able to allocate the class pair.");
     } else {
@@ -94,19 +92,15 @@
   return self;
 }
 
-- (void)copySelector:(SEL)selector
-           fromClass:(Class)aClass
-     isClassSelector:(BOOL)isClassSelector {
+- (void)copySelector:(SEL)selector fromClass:(Class)aClass isClassSelector:(BOOL)isClassSelector {
   NSAssert(_generatedClass, @"This object has already been unswizzled.");
-  Method method = isClassSelector ? class_getClassMethod(aClass, selector) :
-  class_getInstanceMethod(aClass, selector);
+  Method method = isClassSelector ? class_getClassMethod(aClass, selector)
+                                  : class_getInstanceMethod(aClass, selector);
   Class targetClass = isClassSelector ? object_getClass(_generatedClass) : _generatedClass;
   IMP implementation = method_getImplementation(method);
   const char *typeEncoding = method_getTypeEncoding(method);
   BOOL success = class_addMethod(targetClass, selector, implementation, typeEncoding);
-  NSAssert(success,
-           @"Unable to add selector %@ to class %@",
-           NSStringFromSelector(selector),
+  NSAssert(success, @"Unable to add selector %@ to class %@", NSStringFromSelector(selector),
            NSStringFromClass(targetClass));
 }
 
@@ -115,10 +109,7 @@
                        association:(GUL_ASSOCIATION)association {
   __strong id swizzledObject = _swizzledObject;
   if (swizzledObject) {
-    [[self class] setAssociatedObject:swizzledObject
-                                  key:key
-                                value:value
-                          association:association];
+    [[self class] setAssociatedObject:swizzledObject key:key value:value association:association];
   }
 }
 

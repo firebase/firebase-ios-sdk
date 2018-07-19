@@ -36,7 +36,10 @@
  *  @param aClass The class that we're swizzling.
  *  @param selector The selector we're swizzling.
  */
-- (void)cacheCurrentIMP:(IMP)currentIMP forNewIMP:(IMP)newIMP forClass:(Class)aClass withSelector:(SEL)selector;
+- (void)cacheCurrentIMP:(IMP)currentIMP
+              forNewIMP:(IMP)newIMP
+               forClass:(Class)aClass
+           withSelector:(SEL)selector;
 
 /** Returns the cached IMP that would be invoked with the class and selector combo had we
  *  never swizzled.

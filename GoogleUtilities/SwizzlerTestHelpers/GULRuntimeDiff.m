@@ -25,7 +25,7 @@
 FOUNDATION_STATIC_INLINE
 BOOL IsEqual(NSSet *firstSet, NSSet *secondSet) {
   return ((!firstSet || firstSet.count == 0) && (!secondSet || secondSet.count == 0)) ||
-      [firstSet isEqualToSet:secondSet];
+         [firstSet isEqualToSet:secondSet];
 }
 
 @implementation GULRuntimeDiff
@@ -37,8 +37,8 @@ BOOL IsEqual(NSSet *firstSet, NSSet *secondSet) {
 - (BOOL)isEqual:(id)object {
   GULRuntimeDiff *otherObject = (GULRuntimeDiff *)object;
   return IsEqual(_addedClasses, otherObject->_addedClasses) &&
-      IsEqual(_removedClasses, otherObject->_removedClasses) &&
-      IsEqual(_classDiffs, otherObject->_classDiffs);
+         IsEqual(_removedClasses, otherObject->_removedClasses) &&
+         IsEqual(_classDiffs, otherObject->_classDiffs);
 }
 
 - (NSString *)description {

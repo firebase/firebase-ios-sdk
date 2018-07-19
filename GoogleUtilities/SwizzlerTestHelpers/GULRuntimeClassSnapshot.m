@@ -130,14 +130,11 @@
     NSString *methodString = NSStringFromSelector(method_getName(method));
     [_instanceSelectors addObject:methodString];
     IMP imp = method_getImplementation(method);
-    NSString *impString = [NSString stringWithFormat:@"%p -[%@ %@]",
-                                                     imp,
-                                                     NSStringFromClass(_aClass),
-                                                     methodString];
+    NSString *impString =
+        [NSString stringWithFormat:@"%p -[%@ %@]", imp, NSStringFromClass(_aClass), methodString];
     NSAssert(![_imps containsObject:impString],
              @"This IMP/method combination has already been captured: %@:%@",
-             NSStringFromClass(_aClass),
-             impString);
+             NSStringFromClass(_aClass), impString);
     [_imps addObject:impString];
     _runningHash ^= [impString hash];
   }
@@ -151,14 +148,11 @@
     NSString *methodString = NSStringFromSelector(method_getName(method));
     [_classSelectors addObject:methodString];
     IMP imp = method_getImplementation(method);
-    NSString *impString = [NSString stringWithFormat:@"%p +[%@ %@]",
-                                                     imp,
-                                                     NSStringFromClass(_metaclass),
-                                                     methodString];
+    NSString *impString = [NSString
+        stringWithFormat:@"%p +[%@ %@]", imp, NSStringFromClass(_metaclass), methodString];
     NSAssert(![_imps containsObject:impString],
              @"This IMP/method combination has already been captured: %@:%@",
-             NSStringFromClass(_aClass),
-             impString);
+             NSStringFromClass(_aClass), impString);
     [_imps addObject:impString];
     _runningHash ^= [impString hash];
   }
@@ -175,16 +169,16 @@
 - (void)computeDiffOfProperties:(GULRuntimeClassSnapshot *)otherClassSnapshot
                   withClassDiff:(GULRuntimeClassDiff *)classDiff {
   if ([_classProperties hash] != [otherClassSnapshot->_classProperties hash]) {
-    classDiff.addedClassProperties = [otherClassSnapshot->_classProperties objectsPassingTest:
-                                      ^BOOL(NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-                                        return ![_classProperties containsObject:obj];
-                                      }];
+    classDiff.addedClassProperties = [otherClassSnapshot->_classProperties
+        objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+          return ![_classProperties containsObject:obj];
+        }];
   }
   if ([_instanceProperties hash] != [otherClassSnapshot->_instanceProperties hash]) {
-    classDiff.addedInstanceProperties = [otherClassSnapshot->_instanceProperties objectsPassingTest:
-                                         ^BOOL(NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-                                           return ![_instanceProperties containsObject:obj];
-                                         }];
+    classDiff.addedInstanceProperties = [otherClassSnapshot->_instanceProperties
+        objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+          return ![_instanceProperties containsObject:obj];
+        }];
   }
 }
 
@@ -194,25 +188,25 @@
  *  @param classDiff The diff object to modify.
  */
 - (void)computeDiffOfSelectorsAndImps:(GULRuntimeClassSnapshot *)otherClassSnapshot
-                    withClassDiff:(GULRuntimeClassDiff *)classDiff {
+                        withClassDiff:(GULRuntimeClassDiff *)classDiff {
   if ([_classSelectors hash] != [otherClassSnapshot->_classSelectors hash]) {
-    classDiff.addedClassSelectors = [otherClassSnapshot->_classSelectors objectsPassingTest:
-                                     ^BOOL(NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-                                       return ![_classSelectors containsObject:obj];
-                                     }];
+    classDiff.addedClassSelectors = [otherClassSnapshot->_classSelectors
+        objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+          return ![_classSelectors containsObject:obj];
+        }];
   }
   if ([_instanceSelectors hash] != [otherClassSnapshot->_instanceSelectors hash]) {
-    classDiff.addedInstanceSelectors = [otherClassSnapshot->_instanceSelectors objectsPassingTest:
-                                        ^BOOL(NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-                                          return ![_instanceSelectors containsObject:obj];
-                                        }];
+    classDiff.addedInstanceSelectors = [otherClassSnapshot->_instanceSelectors
+        objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+          return ![_instanceSelectors containsObject:obj];
+        }];
   }
 
   // modifiedImps contains the prior IMP address, not the current IMP address.
-  classDiff.modifiedImps = [_imps objectsPassingTest:^BOOL(NSString * _Nonnull obj,
-                                                           BOOL * _Nonnull stop) {
-    return ![otherClassSnapshot->_imps containsObject:obj];
-  }];
+  classDiff.modifiedImps =
+      [_imps objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
+        return ![otherClassSnapshot->_imps containsObject:obj];
+      }];
 }
 
 @end

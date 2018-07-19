@@ -23,28 +23,24 @@
 FOUNDATION_STATIC_INLINE
 BOOL IsEqual(NSSet *firstSet, NSSet *secondSet) {
   return ((!firstSet || firstSet.count == 0) && (!secondSet || secondSet.count == 0)) ||
-      [firstSet isEqualToSet:secondSet];
+         [firstSet isEqualToSet:secondSet];
 }
 
 @implementation GULRuntimeClassDiff
 
 - (NSUInteger)hash {
-  return [_aClass hash] ^
-      [_addedClassProperties hash] ^
-      [_addedInstanceProperties hash] ^
-      [_addedClassSelectors hash] ^
-      [_addedInstanceSelectors hash] ^
-      [_modifiedImps hash];
+  return [_aClass hash] ^ [_addedClassProperties hash] ^ [_addedInstanceProperties hash] ^
+         [_addedClassSelectors hash] ^ [_addedInstanceSelectors hash] ^ [_modifiedImps hash];
 }
 
 - (BOOL)isEqual:(id)object {
   GULRuntimeClassDiff *otherObject = (GULRuntimeClassDiff *)object;
   return _aClass == otherObject->_aClass &&
-      IsEqual(_addedClassProperties, otherObject->_addedClassProperties) &&
-      IsEqual(_addedInstanceProperties, otherObject->_addedInstanceProperties) &&
-      IsEqual(_addedClassSelectors, otherObject->_addedClassSelectors) &&
-      IsEqual(_addedInstanceSelectors, otherObject->_addedInstanceSelectors) &&
-      IsEqual(_modifiedImps,  otherObject->_modifiedImps);
+         IsEqual(_addedClassProperties, otherObject->_addedClassProperties) &&
+         IsEqual(_addedInstanceProperties, otherObject->_addedInstanceProperties) &&
+         IsEqual(_addedClassSelectors, otherObject->_addedClassSelectors) &&
+         IsEqual(_addedInstanceSelectors, otherObject->_addedInstanceSelectors) &&
+         IsEqual(_modifiedImps, otherObject->_modifiedImps);
 }
 
 - (NSString *)description {

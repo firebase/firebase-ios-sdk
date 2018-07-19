@@ -109,9 +109,7 @@ typedef OBJC_ENUM(uintptr_t, GUL_ASSOCIATION){
  *  @param isClassSelector A BOOL specifying whether the selector is a class or
  * instance selector.
  */
-- (void)copySelector:(SEL)selector
-           fromClass:(Class)aClass
-     isClassSelector:(BOOL)isClassSelector;
+- (void)copySelector:(SEL)selector fromClass:(Class)aClass isClassSelector:(BOOL)isClassSelector;
 
 /** Swizzles the object, changing its class to the generated class. Registers
  *  the class pair. */

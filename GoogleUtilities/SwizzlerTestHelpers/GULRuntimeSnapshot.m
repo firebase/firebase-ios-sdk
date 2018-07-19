@@ -22,7 +22,7 @@
 
 @implementation GULRuntimeSnapshot {
   /** The set of tracked classes. */
-  NSSet<Class> * __nullable _classes;
+  NSSet<Class> *__nullable _classes;
 
   /** The class snapshots for each tracked class. */
   NSMutableDictionary<NSString *, GULRuntimeClassSnapshot *> *_classSnapshots;
@@ -91,36 +91,36 @@
   NSSet *setTwo = [NSSet setWithArray:[otherSnapshot->_classSnapshots allKeys]];
 
   // All items contained within setOne, but not in setTwo.
-  NSSet *removedClasses = [setOne filteredSetUsingPredicate:[NSPredicate predicateWithBlock:
-                           ^BOOL(id _Nullable evaluatedObject,
-                                 NSDictionary<NSString *,
-                                 id> * _Nullable bindings) {
-                              return ![setTwo containsObject:evaluatedObject];
-                            }]];
+  NSSet *removedClasses = [setOne
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 id _Nullable evaluatedObject,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return ![setTwo containsObject:evaluatedObject];
+      }]];
 
   // All items contained within setTwo, but not in setOne.
-  NSSet *addedClasses = [setTwo filteredSetUsingPredicate:[NSPredicate predicateWithBlock:
-                         ^BOOL(id _Nullable evaluatedObject,
-                               NSDictionary<NSString *,
-                               id> * _Nullable bindings) {
-                           return ![setOne containsObject:evaluatedObject];
-                         }]];
+  NSSet *addedClasses = [setTwo
+      filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(
+                                                 id _Nullable evaluatedObject,
+                                                 NSDictionary<NSString *, id> *_Nullable bindings) {
+        return ![setOne containsObject:evaluatedObject];
+      }]];
   runtimeDiff.removedClasses = removedClasses;
   runtimeDiff.addedClasses = addedClasses;
 
   NSMutableSet<GULRuntimeClassDiff *> *classDiffs = [[NSMutableSet alloc] init];
-  [_classSnapshots enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key,
-                                                       GULRuntimeClassSnapshot * _Nonnull obj,
-                                                       BOOL * _Nonnull stop) {
-    GULRuntimeClassSnapshot *classSnapshot = _classSnapshots[key];
-    GULRuntimeClassSnapshot *otherClassSnapshot = otherSnapshot->_classSnapshots[key];
-    GULRuntimeClassDiff *classDiff = [classSnapshot diff:otherClassSnapshot];
-    if ([classDiff hash]) {
-      NSAssert(![classDiffs containsObject:classDiff],
-               @"An equivalent class diff has already been stored.");
-      [classDiffs addObject:classDiff];
-    }
-  }];
+  [_classSnapshots
+      enumerateKeysAndObjectsUsingBlock:^(
+          NSString *_Nonnull key, GULRuntimeClassSnapshot *_Nonnull obj, BOOL *_Nonnull stop) {
+        GULRuntimeClassSnapshot *classSnapshot = _classSnapshots[key];
+        GULRuntimeClassSnapshot *otherClassSnapshot = otherSnapshot->_classSnapshots[key];
+        GULRuntimeClassDiff *classDiff = [classSnapshot diff:otherClassSnapshot];
+        if ([classDiff hash]) {
+          NSAssert(![classDiffs containsObject:classDiff],
+                   @"An equivalent class diff has already been stored.");
+          [classDiffs addObject:classDiff];
+        }
+      }];
   runtimeDiff.classDiffs = classDiffs;
   return runtimeDiff;
 }

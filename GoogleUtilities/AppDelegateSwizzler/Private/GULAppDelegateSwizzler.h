@@ -46,8 +46,8 @@ typedef NSString *const GULAppDelegateInterceptorID;
  *  registering your interceptor. This method is safe to call multiple times (but it only proxies
  *  the app delegate once).
  */
-+ (void)proxyOriginalDelegate
-    NS_EXTENSION_UNAVAILABLE("App delegate proxy doesn't support extensions.");
++ (void)proxyOriginalDelegate NS_EXTENSION_UNAVAILABLE(
+    "App delegate proxy doesn't support extensions.");
 
 /** Indicates whether app delegate proxy is explicitly disabled or enabled. Enabled by default.
  *
