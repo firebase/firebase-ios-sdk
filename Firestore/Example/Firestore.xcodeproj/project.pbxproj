@@ -1726,8 +1726,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */,
 				544A20EE20F6C10C004E52CD /* BasicCompileTests.swift in Sources */,
+				5495EB032040E90200EBA509 /* CodableGeoPointTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
