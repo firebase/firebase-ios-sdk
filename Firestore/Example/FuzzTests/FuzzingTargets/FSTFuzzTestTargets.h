@@ -34,4 +34,5 @@ NSString *GetSerializerCorpusLocation(NSString *resources_location);
 }  // namespace fuzzing
 }  // namespace firestore
 }  // namespace firebase
+
 #endif /* FSTFuzzTestSerializer_h */
