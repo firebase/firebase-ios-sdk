@@ -48,7 +48,7 @@ Google's C++ benchmark framework.
       'src/*.cc',
       'include/benchmark/*.h'
   ]
-
+  
   s.pod_target_xcconfig = {
       'HEADER_SEARCH_PATHS' =>
         '"${PODS_ROOT}/GoogleBenchmark/include" "${PODS_ROOT}/GoogleBenchmark/src"'

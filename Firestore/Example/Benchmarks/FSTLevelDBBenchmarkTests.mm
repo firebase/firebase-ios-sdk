@@ -15,7 +15,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "../../../../../../../Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework/Headers/XCTest.h"
+#import <XCTest/XCTest.h>
 
 #include "benchmark/benchmark.h"
 

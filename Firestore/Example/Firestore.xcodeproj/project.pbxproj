@@ -722,13 +722,13 @@
 			path = immutable;
 			sourceTree = "<group>";
 		};
-		5CAE131A20FFFED600BE9A4A /* Firestore_Benchmarks_iOS */ = {
+		5CAE131A20FFFED600BE9A4A /* Benchmarks */ = {
 			isa = PBXGroup;
 			children = (
 				5CAE131D20FFFED600BE9A4A /* Info.plist */,
 				132E3BB3D5C42282B4ACFB20 /* FSTLevelDBBenchmarkTests.mm */,
 			);
-			path = Firestore_Benchmarks_iOS;
+			path = Benchmarks;
 			sourceTree = "<group>";
 		};
 		6003F581195388D10070C39A = {
@@ -741,7 +741,7 @@
 				6003F5B5195388D20070C39A /* Tests */,
 				54764FAC1FAA0C390085E60A /* CoreTests */,
 				54C9EDF22040E16300A969CD /* SwiftTests */,
-				5CAE131A20FFFED600BE9A4A /* Firestore_Benchmarks_iOS */,
+				5CAE131A20FFFED600BE9A4A /* Benchmarks */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				AAEA2A72CFD1FA5AD34462F7 /* Pods */,
@@ -2100,7 +2100,7 @@
 					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
-				INFOPLIST_FILE = Firestore_Benchmarks_iOS/Info.plist;
+				INFOPLIST_FILE = Benchmarks/Info.plist;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-iquote",
@@ -2184,7 +2184,7 @@
 					"\"${PODS_ROOT}/../../../Firestore/Protos/cpp\"",
 					"\"${PODS_ROOT}/ProtobufCpp/src\"",
 				);
-				INFOPLIST_FILE = Firestore_Benchmarks_iOS/Info.plist;
+				INFOPLIST_FILE = Benchmarks/Info.plist;
 				OTHER_CFLAGS = (
 					"$(inherited)",
 					"-iquote",
