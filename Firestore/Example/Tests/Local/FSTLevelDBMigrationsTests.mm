@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
@@ -29,6 +30,8 @@
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
+#include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
 #include "leveldb/db.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
@@ -173,6 +176,39 @@ using leveldb::Status;
     }
   }
 }
+
+- (void)testDropsTheQueryCacheWithThousandsOfEntries {
+  {
+    // Setup some targets to be counted in the migration.
+    LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries setup");
+    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:1];
+
+    for (int i = 0; i < 10000; ++i) {
+      transaction.Put([FSTLevelDBTargetKey keyWithTargetID:i], "");
+    }
+    transaction.Commit();
+  }
+
+  {
+    LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries");
+    [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction upToVersion:2];
+    transaction.Commit();
+  }
+
+  {
+    LevelDbTransaction transaction(_db.get(), "Verify");
+    std::string prefix = [FSTLevelDBTargetKey keyPrefix];
+
+    auto it = transaction.NewIterator();
+    std::vector<std::string> found_keys;
+    for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix); it->Next()) {
+      found_keys.push_back(std::string{it->key()});
+    }
+
+    XCTAssertEqual(found_keys, std::vector<std::string>{});
+  }
+}
+
 
 /**
  * Creates the name of a dummy entry to make sure the iteration is correctly bounded.
