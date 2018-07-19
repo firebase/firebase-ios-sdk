@@ -54,7 +54,7 @@ else
       ;;
 
     Firestore-cmake)
-      check_changes '^Firestore/(core|third_party)'
+      check_changes '^(Firestore/(core|third_party)|cmake)'
       ;;
 
     *)
