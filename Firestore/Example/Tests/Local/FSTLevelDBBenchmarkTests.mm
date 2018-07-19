@@ -17,18 +17,20 @@
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #include "benchmark/benchmark.h"
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
+#import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::model::DatabaseId;
 
 // Pre-existing document size
 static const int kDocumentSize = 1024 * 2;  // 2 kb
@@ -41,9 +43,44 @@ static std::string UpdatedDocumentData(int documentSize) {
   return std::string(documentSize, 'b');
 }
 
+static NSString *LevelDBDir() {
+  NSError *error;
+  NSFileManager *files = [NSFileManager defaultManager];
+  NSString *dir =
+      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
+  if ([files fileExistsAtPath:dir]) {
+    // Delete the directory first to ensure isolation between runs.
+    BOOL success = [files removeItemAtPath:dir error:&error];
+    if (!success) {
+      [NSException raise:NSInternalInconsistencyException
+                  format:@"Failed to clean up leveldb path %@: %@", dir, error];
+    }
+  }
+  return dir;
+}
+
+static FSTLevelDB *LevelDBPersistence() {
+  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
+  static DatabaseId database_id{"p", "d"};
+
+  NSString *dir = LevelDBDir();
+  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
+  FSTLocalSerializer *serializer =
+      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+  NSError *error;
+  BOOL success = [db start:&error];
+  if (!success) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Failed to create leveldb path %@: %@", dir, error];
+  }
+
+  return db;
+}
+
 class LevelDBFixture : public benchmark::Fixture {
   virtual void SetUp(benchmark::State &state) {
-    _db = [FSTPersistenceTestHelpers levelDBPersistence];
+    _db = LevelDBPersistence();
     FillDB();
   }
 
@@ -52,7 +89,7 @@ class LevelDBFixture : public benchmark::Fixture {
   }
 
   void FillDB() {
-    LevelDbTransaction txn(_db.ptr.get(), "benchmark");
+    LevelDbTransaction txn(_db.ptr, "benchmark");
 
     for (int i = 0; i < _numDocuments; i++) {
       FSTDocumentKey *docKey =
@@ -91,7 +128,7 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
   int64_t docsToUpdate = state.range(2);
   std::string documentUpdate = UpdatedDocumentData((int)documentSize);
   for (auto _ : state) {
-    LevelDbTransaction txn(_db.ptr.get(), "benchmark");
+    LevelDbTransaction txn(_db.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
       FSTDocumentKey *docKey =
           [FSTDocumentKey keyWithPathString:[NSString stringWithFormat:@"docs/doc_%i", i]];
@@ -130,14 +167,12 @@ BENCHMARK_REGISTER_F(LevelDBFixture, RemoteEvent)
 
 - (void)testRunBenchmarks {
   // Enable to run benchmarks.
-  if (false) {
-    char *argv[3] = {const_cast<char *>("Benchmarks"),
-                     const_cast<char *>("--benchmark_out=/tmp/leveldb_benchmark"),
-                     const_cast<char *>("--benchmark_out_format=csv")};
-    int argc = 3;
-    benchmark::Initialize(&argc, argv);
-    benchmark::RunSpecifiedBenchmarks();
-  }
+  char *argv[3] = {const_cast<char *>("Benchmarks"),
+                   const_cast<char *>("--benchmark_out=/tmp/leveldb_benchmark"),
+                   const_cast<char *>("--benchmark_out_format=csv")};
+  int argc = 3;
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
 }
 
 @end

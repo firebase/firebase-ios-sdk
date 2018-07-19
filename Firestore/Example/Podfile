@@ -32,6 +32,12 @@ target 'Firestore_Example_iOS' do
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
   end
 
+  target 'Firestore_Benchmarks_iOS' do
+    inherit! :search_paths
+
+    pod 'GoogleBenchmark', :podspec => 'Tests/GoogleBenchmark/GoogleBenchmark.podspec'
+  end
+
   target 'Firestore_IntegrationTests_iOS' do
     inherit! :search_paths
 
