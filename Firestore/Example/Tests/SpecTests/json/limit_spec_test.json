@@ -65,8 +65,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -127,8 +131,12 @@
           "removedTargets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1002
         },
-        "watchSnapshot": 1002,
         "expect": [
           {
             "query": {
@@ -229,8 +237,12 @@
             2
           ],
           "resume-token-1002"
-        ],
-        "watchSnapshot": 1002,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1002
+        },
         "expect": [
           {
             "query": {
@@ -295,8 +307,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/a"
@@ -346,8 +362,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -462,8 +482,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -516,8 +540,12 @@
           "removedTargets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1002
         },
-        "watchSnapshot": 1002,
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -701,8 +729,12 @@
             4
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -783,8 +815,12 @@
           "removedTargets": [
             2
           ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "version": 1002
         },
-        "watchSnapshot": 1002,
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
@@ -928,8 +964,12 @@
             2
           ],
           "resume-token-1001"
-        ],
-        "watchSnapshot": 1001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1001
+        },
         "expect": [
           {
             "query": {
@@ -1081,8 +1121,12 @@
             4
           ],
           "resume-token-1005"
-        ],
-        "watchSnapshot": 1005,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 1005
+        },
         "expect": [
           {
             "query": {
@@ -1160,8 +1204,12 @@
             2
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/a",
@@ -1228,8 +1276,12 @@
             1
           ],
           "resume-token-2000"
-        ],
-        "watchSnapshot": 2000,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/b",
@@ -1340,8 +1392,12 @@
             3
           ],
           "resume-token-2001"
-        ],
-        "watchSnapshot": 2001,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2001
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/c",
@@ -1452,8 +1508,12 @@
             5
           ],
           "resume-token-2002"
-        ],
-        "watchSnapshot": 2002,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2002
+        },
         "stateExpect": {
           "limboDocs": [
             "collection/d"
@@ -1555,8 +1615,12 @@
             7
           ],
           "resume-token-2003"
-        ],
-        "watchSnapshot": 2003,
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "version": 2003
+        },
         "stateExpect": {
           "limboDocs": [],
           "activeTargets": {
