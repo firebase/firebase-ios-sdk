@@ -49,7 +49,7 @@ std::string UpdatedDocumentData(int64_t documentSize) {
 NSString *LevelDBDir() {
   NSFileManager *files = [NSFileManager defaultManager];
   NSString *dir =
-          [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
+      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
   if ([files fileExistsAtPath:dir]) {
     // Delete the directory first to ensure isolation between runs.
     NSError *error;
@@ -69,7 +69,7 @@ FSTLevelDB *LevelDBPersistence() {
   NSString *dir = LevelDBDir();
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
-          [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
   NSError *error;
   BOOL success = [db start:&error];
@@ -132,7 +132,7 @@ BENCHMARK_DEFINE_F(LevelDBFixture, RemoteEvent)(benchmark::State &state) {
   int64_t documentSize = state.range(1);
   int64_t docsToUpdate = state.range(2);
   std::string documentUpdate = UpdatedDocumentData(documentSize);
-  for (const auto& _ : state) {
+  for (const auto &_ : state) {
     LevelDbTransaction txn(db_.ptr, "benchmark");
     for (int i = 0; i < docsToUpdate; i++) {
       FSTDocumentKey *docKey =
