@@ -55,7 +55,6 @@
 		EFBE68002101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F62101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m */; };
 		EFBE68012101401100E756A7 /* GULRuntimeStateHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F72101401100E756A7 /* GULRuntimeStateHelperTests.m */; };
 		EFBE68022101401100E756A7 /* GULRuntimeSnapshotTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F82101401100E756A7 /* GULRuntimeSnapshotTests.m */; };
-		EFBE68032101401100E756A7 /* GULAppDelegateSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F92101401100E756A7 /* GULAppDelegateSwizzlerTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -600,7 +599,6 @@
 				EFBE68022101401100E756A7 /* GULRuntimeSnapshotTests.m in Sources */,
 				EFBE68002101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m in Sources */,
 				EFBE68012101401100E756A7 /* GULRuntimeStateHelperTests.m in Sources */,
-				EFBE68032101401100E756A7 /* GULAppDelegateSwizzlerTest.m in Sources */,
 				DEC977D820F68C3300014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DEC977E120F6A7C100014E20 /* GULLoggerTest.m in Sources */,
 				DEC977D920F68C3300014E20 /* GULNetworkTest.m in Sources */,
