@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifdef GUL_APP_DELEGATE_TESTING
+
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 
@@ -50,3 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
+

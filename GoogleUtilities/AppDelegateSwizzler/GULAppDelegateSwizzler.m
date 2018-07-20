@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if TARGET_OS_IOS
+
 #import "Private/GULAppDelegateSwizzler.h"
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
@@ -703,3 +705,5 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #endif  // GUL_APP_DELEGATE_TESTING
 
 @end
+
+#endif // TARGET_OS_IOS
