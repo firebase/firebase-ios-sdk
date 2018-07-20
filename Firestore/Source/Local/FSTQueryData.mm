@@ -74,13 +74,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *other = (FSTQueryData *)object;
   return [self.query isEqual:other.query] && self.targetID == other.targetID &&
-         self.purpose == other.purpose && self.snapshotVersion == other.snapshotVersion &&
-         [self.resumeToken isEqual:other.resumeToken];
+          self.sequenceNumber == other.sequenceNumber && self.purpose == other.purpose &&
+          self.snapshotVersion == other.snapshotVersion && [self.resumeToken isEqual:other.resumeToken];
 }
 
 - (NSUInteger)hash {
   NSUInteger result = [self.query hash];
   result = result * 31 + self.targetID;
+  result = result * 31 + static_cast<NSUInteger>(self.sequenceNumber);
   result = result * 31 + self.purpose;
   result = result * 31 + self.snapshotVersion.Hash();
   result = result * 31 + [self.resumeToken hash];
