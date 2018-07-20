@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "GULSwizzledObject.h"
-#import "GULObjectSwizzler.h"
+#import "Private/GULSwizzledObject.h"
+#import "Private/GULObjectSwizzler.h"
 
 NSString *kSwizzlerAssociatedObjectKey = @"gul_objectSwizzler";
 
