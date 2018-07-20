@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
-          [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
 
   FSTLevelDB *db1 = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
@@ -105,12 +105,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLevelDB *db2 = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
   [db2 start:&error];
   XCTAssertNil(error);
-  FSTLevelDBQueryCache *queryCache2 = db2.run("verify sequence number", [&]() -> FSTLevelDBQueryCache * {
-    // We should remember the previous sequence number, and the next transaction should
-    // have a higher one.
-    XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
-    return [db2 queryCache];
-  });
+  FSTLevelDBQueryCache *queryCache2 =
+      db2.run("verify sequence number", [&]() -> FSTLevelDBQueryCache * {
+        // We should remember the previous sequence number, and the next transaction should
+        // have a higher one.
+        XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
+        return [db2 queryCache];
+      });
 
   XCTAssertEqual(lastTargetId, queryCache2.highestTargetID);
   XCTAssertEqual(lastVersion, queryCache2.lastRemoteSnapshotVersion);
