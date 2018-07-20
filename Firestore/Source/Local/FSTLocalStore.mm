@@ -115,7 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start {
   [self startMutationQueue];
-  [self startQueryCache];
+  FSTTargetID targetID = [self.queryCache highestTargetID];
+  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
 }
 
 - (void)startMutationQueue {
@@ -140,13 +141,6 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
   });
-}
-
-- (void)startQueryCache {
-  [self.queryCache start];
-
-  FSTTargetID targetID = [self.queryCache highestTargetID];
-  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
 }
 
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {

@@ -53,6 +53,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDB:(FSTLevelDB *)db
                 serializer:(FSTLocalSerializer *)serializer NS_DESIGNATED_INITIALIZER;
 
+/** Starts the query cache up. */
+- (void)start;
+
 - (void)enumerateOrphanedDocumentsUsingBlock:
     (void (^)(const firebase::firestore::model::DocumentKey &docKey,
               FSTListenSequenceNumber sequenceNumber,

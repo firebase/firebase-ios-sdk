@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence = [FSTPersistenceTestHelpers eagerGCMemoryPersistence];
   self.queryCache = [self.persistence queryCache];
-  [self.queryCache start];
 }
 
 - (void)tearDown {
