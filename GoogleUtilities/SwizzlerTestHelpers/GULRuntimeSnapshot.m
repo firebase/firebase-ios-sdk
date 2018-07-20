@@ -112,7 +112,7 @@
   [_classSnapshots
       enumerateKeysAndObjectsUsingBlock:^(
           NSString *_Nonnull key, GULRuntimeClassSnapshot *_Nonnull obj, BOOL *_Nonnull stop) {
-        GULRuntimeClassSnapshot *classSnapshot = _classSnapshots[key];
+        GULRuntimeClassSnapshot *classSnapshot = self->_classSnapshots[key];
         GULRuntimeClassSnapshot *otherClassSnapshot = otherSnapshot->_classSnapshots[key];
         GULRuntimeClassDiff *classDiff = [classSnapshot diff:otherClassSnapshot];
         if ([classDiff hash]) {

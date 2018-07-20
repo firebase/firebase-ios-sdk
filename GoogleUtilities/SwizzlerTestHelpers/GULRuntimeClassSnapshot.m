@@ -171,13 +171,13 @@
   if ([_classProperties hash] != [otherClassSnapshot->_classProperties hash]) {
     classDiff.addedClassProperties = [otherClassSnapshot->_classProperties
         objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-          return ![_classProperties containsObject:obj];
+          return ![self->_classProperties containsObject:obj];
         }];
   }
   if ([_instanceProperties hash] != [otherClassSnapshot->_instanceProperties hash]) {
     classDiff.addedInstanceProperties = [otherClassSnapshot->_instanceProperties
         objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-          return ![_instanceProperties containsObject:obj];
+          return ![self->_instanceProperties containsObject:obj];
         }];
   }
 }
@@ -192,13 +192,13 @@
   if ([_classSelectors hash] != [otherClassSnapshot->_classSelectors hash]) {
     classDiff.addedClassSelectors = [otherClassSnapshot->_classSelectors
         objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-          return ![_classSelectors containsObject:obj];
+          return ![self->_classSelectors containsObject:obj];
         }];
   }
   if ([_instanceSelectors hash] != [otherClassSnapshot->_instanceSelectors hash]) {
     classDiff.addedInstanceSelectors = [otherClassSnapshot->_instanceSelectors
         objectsPassingTest:^BOOL(NSString *_Nonnull obj, BOOL *_Nonnull stop) {
-          return ![_instanceSelectors containsObject:obj];
+          return ![self->_instanceSelectors containsObject:obj];
         }];
   }
 

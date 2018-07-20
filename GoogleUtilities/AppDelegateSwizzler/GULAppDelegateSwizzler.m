@@ -29,8 +29,11 @@ typedef BOOL (*GULRealOpenURLSourceApplicationAnnotationIMP)(
 typedef BOOL (*GULRealOpenURLOptionsIMP)(
     id, SEL, UIApplication *, NSURL *, NSDictionary<NSString *, id> *);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 typedef void (*GULRealHandleEventsForBackgroundURLSessionIMP)(
     id, SEL, UIApplication *, NSString *, void (^)());
+#pragma clang diagnostic pop
 
 typedef BOOL (*GULRealContinueUserActivityIMP)(
     id, SEL, UIApplication *, NSUserActivity *, void (^)(NSArray *restorableObjects));
@@ -531,6 +534,9 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
   __block BOOL returnedValue = NO;
   SEL methodSelector = @selector(application:openURL:options:);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
   [GULAppDelegateSwizzler
       notifyInterceptorsWithMethodSelector:methodSelector
                                   callback:^(id<UIApplicationDelegate> interceptor) {
@@ -538,6 +544,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
                                                                       openURL:url
                                                                       options:options];
                                   }];
+#pragma clang diagnostic pop
   if (openURLOptionsIMP) {
     returnedValue |= openURLOptionsIMP(self, methodSelector, application, url, options);
   }
@@ -576,9 +583,12 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 #pragma mark - [Donor Methods] Network overridden handler methods
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 - (void)application:(UIApplication *)application
     handleEventsForBackgroundURLSession:(NSString *)identifier
                       completionHandler:(void (^)())completionHandler {
+#pragma clang diagnostic pop
   NSValue *handleBackgroundSessionPointer =
       objc_getAssociatedObject(self, &kGULHandleBackgroundSessionIMPKey);
   GULRealHandleEventsForBackgroundURLSessionIMP handleBackgroundSessionIMP =
