@@ -21,6 +21,8 @@ cc_library(
     leveldb_transaction.cc
     local_serializer.h
     local_serializer.cc
+    query_data.cc
+    query_data.h
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb

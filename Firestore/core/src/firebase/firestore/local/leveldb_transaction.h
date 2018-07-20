@@ -144,6 +144,10 @@ class LevelDbTransaction {
    */
   static const leveldb::WriteOptions& DefaultWriteOptions();
 
+  size_t changed_keys() const {
+    return mutations_.size() + deletions_.size();
+  }
+
   /**
    * Remove the database entry (if any) for "key".  It is not an error if "key"
    * did not exist in the database.

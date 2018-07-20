@@ -16,11 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTFuzzTestTargets.h"
+#import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
-int firebase::firestore::fuzzing::FuzzTestFieldPath(const uint8_t *data, size_t size) {
+namespace firebase {
+namespace firestore {
+namespace fuzzing {
+
+int FuzzTestFieldPath(const uint8_t *data, size_t size) {
   @autoreleasepool {
     // Convert the raw bytes to a string with UTF-8 format.
     NSData *d = [NSData dataWithBytes:data length:size];
@@ -43,10 +47,6 @@ int firebase::firestore::fuzzing::FuzzTestFieldPath(const uint8_t *data, size_t 
   return 0;
 }
 
-NSString *firebase::firestore::fuzzing::GetFieldPathDictionaryLocation(NSString *resources_location) {
-  return [resources_location stringByAppendingPathComponent:@"FieldPath/fieldpath.dictionary"];
-}
-
-NSString *firebase::firestore::fuzzing::GetFieldPathCorpusLocation(NSString *resources_location) {
-  return [resources_location stringByAppendingPathComponent:@"FieldPath/Corpus"];
-}
+}  // namespace fuzzing
+}  // namespace firestore
+}  // namespace firebase

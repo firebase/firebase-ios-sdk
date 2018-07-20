@@ -18,17 +18,20 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
-#include "FuzzingTargets/FSTFuzzTestTargets.h"
+#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
+#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+using firebase::firestore::util::MakeString;
 namespace fuzzing = firebase::firestore::fuzzing;
 
 namespace {
 
 // A list of targets to fuzz test. Should be kept in sync with the method
 // GetFuzzingTarget().
-enum FuzzingTarget { NONE = 0, SERIALIZER, FIELDPATH };
+enum class FuzzingTarget { kNone, kSerializer, kFieldPath };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
@@ -36,75 +39,70 @@ enum FuzzingTarget { NONE = 0, SERIALIZER, FIELDPATH };
 NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 
 // Retrieves the fuzzing target from the FUZZING_TARGET environment variable.
-// Default target is NONE if the environment variable is empty, not set, or
+// Default target is kNone if the environment variable is empty, not set, or
 // could not be interpreted. Should be kept in sync with FuzzingTarget.
 FuzzingTarget GetFuzzingTarget() {
-  NSString *fuzzing_target_env =
-      [[[NSProcessInfo processInfo] environment] objectForKey:@"FUZZING_TARGET"];
+  char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
 
-  if (fuzzing_target_env == nil || [fuzzing_target_env length] == 0) {
+  if (fuzzing_target_env == nullptr) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
-    return NONE;
+    return FuzzingTarget::kNone;
   }
 
-  if ([@"NONE" isEqualToString:fuzzing_target_env]) {
-    return NONE;
+  // Convert fuzzing_target_env to std::string after verifying it is not null.
+  std::string fuzzing_target{fuzzing_target_env};
+  if (fuzzing_target.empty()) {
+    LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
+    return FuzzingTarget::kNone;
   }
-
-  if ([@"SERIALIZER" isEqualToString:fuzzing_target_env]) {
-    return SERIALIZER;
+  if (fuzzing_target == "NONE") {
+    return FuzzingTarget::kNone;
   }
-
-  if ([@"FIELDPATH" isEqualToString:fuzzing_target_env]) {
-    return FIELDPATH;
+  if (fuzzing_target == "SERIALIZER") {
+    return FuzzingTarget::kSerializer;
   }
-
-  // Value did not match any target.
-  LOG_WARN("Invalid fuzzing target: %s", fuzzing_target_env);
-
-  // Default is NONE.
-  return NONE;
+  if (fuzzing_target == "FIELDPATH") {
+    return FuzzingTarget::kFieldPath;
+  }
+  LOG_WARN("Invalid fuzzing target: %s", fuzzing_target);
+  return FuzzingTarget::kNone;
 }
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 // Uses GetFuzzingTarget() to get the fuzzing target and sets libFuzzer's args
-// accordingly. It alsos calls an appropriate LLVMFuzzerTestOneInput-like method
+// accordingly. It also calls an appropriate LLVMFuzzerTestOneInput-like method
 // for the defined target.
 int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
-
   // All fuzzing resources.
   NSString *resources_location = @"Firestore_FuzzTests_iOS.xctest/FuzzingResources";
-
   // The dictionary location for the fuzzing target.
   NSString *dict_location;
-
   // The corpus location for the fuzzing target.
   NSString *corpus_location;
 
   // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. This variable
-  // holds a pointer to the fuzzing method that is called by the fuzzing driver
-  // thousands of times with different inputs. Any method assigned to this
-  // variable must have the same signature as LLVMFuzzerTestOneInput: returns an
-  // int and takes two parameters: (const uint8_t *Data, size_t Size).
-  fuzzer::UserCallback llvm_fuzzer_test_one_input_method;
+  // holds a pointer to the fuzzing method that is called repeatedly by the
+  // fuzzing driver with different inputs. Any method assigned to this variable
+  // must have the same signature as LLVMFuzzerTestOneInput: int(const uint8_t*, size_t).
+  fuzzer::UserCallback fuzzer_function;
 
   // Set the dictionary and corpus locations according to the fuzzing target.
   switch (fuzzing_target) {
-    case SERIALIZER:
+    case FuzzingTarget::kSerializer:
       dict_location = fuzzing::GetSerializerDictionaryLocation(resources_location);
-      corpus_location = fuzzing::GetSerializerCorpusLocation(resources_location);
-      llvm_fuzzer_test_one_input_method = fuzzing::FuzzTestDeserialization;
+      corpus_location = fuzzing::GetSerializerCorpusLocation();
+      fuzzer_function = fuzzing::FuzzTestDeserialization;
       break;
 
-    case FIELDPATH:
+    case FuzzingTarget::kFieldPath:
       dict_location = fuzzing::GetFieldPathDictionaryLocation(resources_location);
       corpus_location = fuzzing::GetFieldPathCorpusLocation(resources_location);
-      llvm_fuzzer_test_one_input_method = fuzzing::FuzzTestFieldPath;
+      fuzzer_function = fuzzing::FuzzTestFieldPath;
       break;
 
-    case NONE:
+    case FuzzingTarget::kNone:
     default:
       LOG_WARN("Not going to run fuzzing, exiting!");
       return 0;
@@ -114,14 +112,13 @@ int RunFuzzTestingMain() {
   NSString *plugins_path = [[NSBundle mainBundle] builtInPlugInsPath];
 
   NSString *dict_path = [plugins_path stringByAppendingPathComponent:dict_location];
-  const char *dict_arg = [[NSString stringWithFormat:@"-dict=%@", dict_path] UTF8String];
+  std::string dict_arg = std::string("-dict=") + MakeString(dict_path);
 
   NSString *corpus_path = [plugins_path stringByAppendingPathComponent:corpus_location];
-  const char *corpus_arg = [corpus_path UTF8String];
+  std::string corpus_arg = MakeString(corpus_path);
 
   // The directory in which libFuzzer writes crashing inputs.
-  const char *prefix_arg =
-      [[@"-artifact_prefix=" stringByAppendingString:kCrashingInputsDirectory] UTF8String];
+  std::string prefix_arg = std::string("-artifact_prefix=") + MakeString(kCrashingInputsDirectory);
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
@@ -129,15 +126,15 @@ int RunFuzzTestingMain() {
   // modify it throughout the method.
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
-      const_cast<char *>(prefix_arg),            // Crashing inputs directory.
-      const_cast<char *>(dict_arg),              // Dictionary arg.
-      const_cast<char *>(corpus_arg)             // Corpus must be the last arg.
+      const_cast<char *>(prefix_arg.c_str()),    // Crashing inputs directory.
+      const_cast<char *>(dict_arg.c_str()),      // Dictionary arg.
+      const_cast<char *>(corpus_arg.c_str())     // Corpus must be the last arg.
   };
   char **argv = program_args;
   int argc = sizeof(program_args) / sizeof(program_args[0]);
 
   // Start fuzzing using libFuzzer's driver.
-  return fuzzer::FuzzerDriver(&argc, &argv, llvm_fuzzer_test_one_input_method);
+  return fuzzer::FuzzerDriver(&argc, &argv, fuzzer_function);
 }
 
 }  // namespace

@@ -66,6 +66,8 @@ class Query {
   Query Filter(std::shared_ptr<core::Filter> filter) const;
 
  private:
+  friend bool operator==(const Query& lhs, const Query& rhs);
+
   bool MatchesPath(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;
@@ -79,6 +81,18 @@ class Query {
   // immutable.) Filters are not shared across unrelated Query instances.
   const std::vector<std::shared_ptr<core::Filter>> filters_;
 };
+
+inline bool operator==(const Query& lhs, const Query& rhs) {
+  // TODO(rsgowman): check limit (once it exists)
+  // TODO(rsgowman): check orderby (once it exists)
+  // TODO(rsgowman): check startat (once it exists)
+  // TODO(rsgowman): check endat (once it exists)
+  return lhs.path() == rhs.path() && lhs.filters_ == rhs.filters_;
+}
+
+inline bool operator!=(const Query& lhs, const Query& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace core
 }  // namespace firestore

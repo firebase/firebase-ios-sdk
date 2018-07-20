@@ -14,32 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef FSTFuzzTestSerializer_h
-#define FSTFuzzTestSerializer_h
+#ifndef FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTFIELDPATH_H_
+#define FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTFIELDPATH_H_
+
+#import <Foundation/Foundation.h>
 
 namespace firebase {
 namespace firestore {
 namespace fuzzing {
 
-// Fuzz-test the deserialization process in Firestore. The Serializer reads raw
-// bytes and converts them to a model object.
-int FuzzTestDeserialization(const uint8_t *data, size_t size);
+// Returns the location of the FieldPath dictionary file.
+inline NSString *GetFieldPathDictionaryLocation(NSString *resources_location) {
+  return [resources_location stringByAppendingPathComponent:@"FieldPath/fieldpath.dictionary"];
+}
 
-NSString *GetSerializerDictionaryLocation(NSString *resources_location);
-
-// The location where the Serializer corpus is stored. This corpus is a special
-// case because we generate its binary protos during the build process.
-NSString *GetSerializerCorpusLocation(NSString *resources_location);
+inline NSString *GetFieldPathCorpusLocation(NSString *resources_location) {
+  return [resources_location stringByAppendingPathComponent:@"FieldPath/Corpus"];
+}
 
 // Fuzz-test creating FIRFieldPath objects.
 int FuzzTestFieldPath(const uint8_t *data, size_t size);
 
-NSString *GetFieldPathDictionaryLocation(NSString *resources_location);
-
-NSString *GetFieldPathCorpusLocation(NSString *resources_location);
-
-
 }  // namespace fuzzing
 }  // namespace firestore
 }  // namespace firebase
-#endif /* FSTFuzzTestSerializer_h */
+
+#endif  // FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTFIELDPATH_H_
