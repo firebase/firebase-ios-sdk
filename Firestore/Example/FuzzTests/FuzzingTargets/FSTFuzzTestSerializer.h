@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FSTFuzzTestSerializer_h
-#define FSTFuzzTestSerializer_h
+#ifndef FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTSERIALIZER_H_
+#define FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTSERIALIZER_H_
 
 #import <Foundation/Foundation.h>
 
@@ -30,7 +30,7 @@ inline NSString *GetSerializerDictionaryLocation(NSString *resources_location) {
 
 // Returns the location of the Serializer corpus. This corpus is a special
 // case because we generate its binary protos during the build process.
-inline NSString *GetSerializerCorpusLocation(NSString *resources_location) {
+inline NSString *GetSerializerCorpusLocation() {
   return @"FuzzTestsCorpus";
 }
 
@@ -42,4 +42,4 @@ int FuzzTestDeserialization(const uint8_t *data, size_t size);
 }  // namespace firestore
 }  // namespace firebase
 
-#endif /* FSTFuzzTestSerializer_h */
+#endif  // FIRESTORE_EXAMPLE_FUZZTESTS_FUZZINGTARGETS_FSTFUZZTESTSERIALIZER_H_

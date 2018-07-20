@@ -445,7 +445,7 @@
 		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTFuzzTestSerializer.mm; sourceTree = "<group>"; };
-		6EA39FDF20FE824E008D461F /* FSTFuzzTestTargets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTFuzzTestTargets.h; sourceTree = "<group>"; };
+		6EA39FDF20FE824E008D461F /* FSTFuzzTestSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FSTFuzzTestSerializer.h; sourceTree = "<group>"; };
 		6ED6DEA120F5502700FC6076 /* FuzzingResources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = FuzzingResources; sourceTree = "<group>"; };
 		6EDD3B5B20BF247500C33877 /* Firestore_FuzzTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_FuzzTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6EDD3B5C20BF247500C33877 /* Firestore_FuzzTests_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Firestore_FuzzTests_iOS-Info.plist"; sourceTree = "<group>"; };
@@ -907,7 +907,7 @@
 			isa = PBXGroup;
 			children = (
 				6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */,
-				6EA39FDF20FE824E008D461F /* FSTFuzzTestTargets.h */,
+				6EA39FDF20FE824E008D461F /* FSTFuzzTestSerializer.h */,
 			);
 			path = FuzzingTargets;
 			sourceTree = "<group>";

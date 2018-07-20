@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTFuzzTestTargets.h"
+#import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -24,7 +24,11 @@
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::Serializer;
 
-int firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, size_t size) {
+namespace firebase {
+namespace firestore {
+namespace fuzzing {
+
+int FuzzTestDeserialization(const uint8_t *data, size_t size) {
   Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
 
   @autoreleasepool {
@@ -39,3 +43,7 @@ int firebase::firestore::fuzzing::FuzzTestDeserialization(const uint8_t *data, s
 
   return 0;
 }
+
+}  // namespace fuzzing
+}  // namespace firestore
+}  // namespace firebase
