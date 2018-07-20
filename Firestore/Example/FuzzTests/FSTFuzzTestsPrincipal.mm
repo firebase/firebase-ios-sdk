@@ -82,10 +82,10 @@ int RunFuzzTestingMain() {
   // The corpus location for the fuzzing target.
   NSString *corpus_location;
 
-  // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. This variable
-  // holds a pointer to the fuzzing method that is called repeatedly by the
-  // fuzzing driver with different inputs. Any method assigned to this variable
-  // must have the same signature as LLVMFuzzerTestOneInput: int(const uint8_t*, size_t).
+  // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. Holds a pointer
+  // to the fuzzing method that is called repeatedly by the fuzzing driver with
+  // different inputs. Any method assigned to this variable must have the same
+  // signature as LLVMFuzzerTestOneInput: int(const uint8_t*, size_t).
   fuzzer::UserCallback fuzzer_function;
 
   // Set the dictionary and corpus locations according to the fuzzing target.
