@@ -11,6 +11,12 @@
   (thousands of documents) collection would take a long time in offline mode
   (#1477).
 
+# v0.12.6
+- [fixed] Fixed an issue where queries returned fewer results than they should,
+  caused by documents that were cached as deleted when they should not have
+  been (#1548). Some cache data is cleared and so clients may use extra
+  bandwidth the first time they launch with this version of the SDK.
+
 # v0.12.5
 - [changed] Internal improvements.
 
