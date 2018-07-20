@@ -32,17 +32,26 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     @try {
       NSArray *str_arr1 = [NSArray arrayWithObjects:str, nil];
       [[FIRFieldPath alloc] initWithFields:str_arr1];
-    } @catch (...) {}
+    } @catch (...) {
+      // Caught exceptions are ignored because they are not what we are after in
+      // fuzz testing.
+    }
 
     @try {
       NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
       NSArray *str_arr2 = [str componentsSeparatedByCharactersInSet:set];
       [[FIRFieldPath alloc] initWithFields:str_arr2];
-    } @catch (...) {}
+    } @catch (...) {
+      // Caught exceptions are ignored because they are not what we are after in
+      // fuzz testing.
+    }
 
     @try {
       [FIRFieldPath pathWithDotSeparatedString:str];
-    } @catch (...) {}
+    } @catch (...) {
+      // Caught exceptions are ignored because they are not what we are after in
+      // fuzz testing.
+    }
   }
   return 0;
 }

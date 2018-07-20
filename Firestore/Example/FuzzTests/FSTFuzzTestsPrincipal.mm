@@ -18,8 +18,8 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
-#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
+#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
