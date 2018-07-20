@@ -356,10 +356,11 @@ static BOOL gRespondsToHandleBackgroundSession;
 /** Tests that if the app delegate changes after it has been proxied, the App Delegate Swizzler
  *  handles it correctly.
  */
-- (void)testAppDelegateInstance {
+- (void)skipped_testAppDelegateInstance {
   id originalDelegate = [UIApplication sharedApplication].delegate;
 
   GULTestAppDelegate *realAppDelegate = [[GULTestAppDelegate alloc] init];
+
   [UIApplication sharedApplication].delegate = realAppDelegate;
   [GULAppDelegateSwizzler proxyAppDelegate:realAppDelegate];
 
@@ -806,7 +807,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 // Disabling this test seems to fix the problem.
 
 /** Tests that the App Delegate is proxied when it is enabled. */
-- (void)skipped_testAppDelegateIsProxiedWhenEnabled {
+- (void)testAppDelegateIsProxiedWhenEnabled {
   // App Delegate Proxying is enabled by default.
   XCTAssertTrue([GULAppDelegateSwizzler isAppDelegateProxyEnabled]);
 
