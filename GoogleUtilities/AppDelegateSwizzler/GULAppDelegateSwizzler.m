@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import "TargetConditionals.h"
+
 #if TARGET_OS_IOS
 
-#import "Private/GULAppDelegateSwizzler.h"
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 #import "../Common/GULLoggerCodes.h"
 #import "Internal/GULAppDelegateSwizzler_Private.h"
+#import "Private/GULAppDelegateSwizzler.h"
 
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
@@ -706,4 +708,4 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 @end
 
-#endif // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS
