@@ -24,10 +24,10 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace {
+
 using firebase::firestore::util::MakeString;
 namespace fuzzing = firebase::firestore::fuzzing;
-
-namespace {
 
 // A list of targets to fuzz test. Should be kept in sync with the method
 // GetFuzzingTarget().
