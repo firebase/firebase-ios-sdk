@@ -28,7 +28,7 @@ namespace util {
 
 struct HasHashMember {
   size_t Hash() const {
-    return 42;
+    return 42u;
   }
 };
 
@@ -66,22 +66,23 @@ TEST(HashingTest, StringView) {
   // that, but that requires an explicit specialization. Since we're only
   // defining this for compatibility with Objective-C and not really sensitive
   // to performance or hash quality here, this is good enough.
-  size_t expected = 'a';
-  expected = 31u * expected + 1;
+  size_t expected = std::hash<unsigned char>{}('a');
+  expected = 31u * expected + std::hash<size_t>{}(1);
   ASSERT_EQ(expected, Hash(absl::string_view{"a"}));
 }
 
 TEST(HashingTest, SizeT) {
-  ASSERT_EQ(42u, Hash(size_t{42u}));
+  size_t expected = std::hash<size_t>{}(42u);
+  ASSERT_EQ(expected, Hash(size_t{42u}));
 }
 
 TEST(HashingTest, Array) {
   int values[] = {0, 1, 2};
 
-  size_t expected = 0;
-  expected = 31 * expected + 1;
-  expected = 31 * expected + 2;
-  expected = 31 * expected + 3;  // length of array
+  size_t expected = std::hash<int>{}(0);
+  expected = 31u * expected + std::hash<int>{}(1);
+  expected = 31u * expected + std::hash<int>{}(2);
+  expected = 31u * expected + std::hash<size_t>{}(3);  // length of array
   ASSERT_EQ(expected, Hash(values));
 }
 
@@ -91,7 +92,10 @@ TEST(HashingTest, HasHashMember) {
 
 TEST(HashingTest, RangeOfStdHashable) {
   std::vector<int> values{42};
-  ASSERT_EQ(31u * 42u + 1, Hash(values));
+
+  size_t expected = std::hash<int>{}(42);
+  expected = 31u * expected + std::hash<size_t>{}(1);  // length of array
+  ASSERT_EQ(expected, Hash(values));
 
   std::vector<int> values_leading_zero{0, 42};
   std::vector<int> values_trailing_zero{42, 0};
@@ -103,18 +107,30 @@ TEST(HashingTest, RangeOfStdHashable) {
 
 TEST(HashingTest, RangeOfHashMember) {
   std::vector<HasHashMember> values{HasHashMember{}};
-  ASSERT_EQ(31u * 42u + 1, Hash(values));
+
+  // We trust the underlying Hash() member to do its thing, so unlike the other
+  // examples, the 42u here is not run through std::hash<size_t>{}().
+  size_t expected = 42u;
+  expected = 31u * expected + std::hash<size_t>{}(1);  // length of array
+  ASSERT_EQ(expected, Hash(values));
 }
 
 TEST(HashingTest, Composite) {
   // Verify the result ends up as if hand-rolled
-  EXPECT_EQ(1u, Hash(1));
-  EXPECT_EQ(31u, Hash(1, 0));
-  EXPECT_EQ(31u * 31u, Hash(1, 0, 0));
+  EXPECT_EQ(std::hash<int>{}(1), Hash(1));
 
-  size_t expected = Hash(1);
-  expected = 31 * expected + Hash(2);
-  expected = 31 * expected + Hash(3);
+  size_t expected = std::hash<int>{}(1);
+  expected = 31 * expected + std::hash<int>{}(0);
+  EXPECT_EQ(expected, Hash(1, 0));
+
+  expected = std::hash<int>{}(1);
+  expected = 31 * expected + std::hash<int>{}(0);
+  expected = 31 * expected + std::hash<int>{}(0);
+  EXPECT_EQ(expected, Hash(1, 0, 0));
+
+  expected = Hash(1);
+  expected = 31u * expected + Hash(2);
+  expected = 31u * expected + Hash(3);
   EXPECT_EQ(expected, Hash(1, 2, 3));
 }
 

@@ -23,9 +23,20 @@ namespace firestore {
 namespace util {
 
 TEST(StrErrorTest, ValidErrorCode) {
+#if defined(_MSC_VER)
+#pragma warning(push)
+  // strerror is unsafe generally, but it's used here as the simplest possible
+  // reference implementation.
+#pragma warning(disable : 4996)
+#endif
+
   errno = EAGAIN;
   EXPECT_EQ(StrError(EINTR), strerror(EINTR));
   EXPECT_EQ(errno, EAGAIN);
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 }
 
 TEST(StrErrorTest, InvalidErrorCode) {

@@ -84,7 +84,7 @@ case "$platform" in
   iOS)
     xcb_flags=(
       -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 8 Plus'
+      -destination 'platform=iOS Simulator,name=iPhone 7'
     )
     ;;
 
@@ -120,6 +120,10 @@ cmake_options=(
   -Wdeprecated
   --warn-uninitialized
 )
+
+xcode_version=$(xcodebuild -version | head -n 1)
+xcode_version="${xcode_version/Xcode /}"
+xcode_major="${xcode_version/.*/}"
 
 if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
@@ -168,6 +172,13 @@ case "$product-$method-$platform" in
         build \
         test
 
+    RunXcodebuild \
+        -workspace 'GoogleUtilities/Example/GoogleUtilities.xcworkspace' \
+        -scheme "Example_$platform" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
     if [[ $platform == 'iOS' ]]; then
       RunXcodebuild \
           -workspace 'Functions/Example/FirebaseFunctions.xcworkspace' \
@@ -209,15 +220,19 @@ case "$product-$method-$platform" in
         build \
         test
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_IntegrationTests_$platform" \
-        "${xcb_flags[@]}" \
-        build
+    # Firestore_SwiftTests_iOS require Swift 4, which needs Xcode 9
+    if [[ "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_SwiftTests_$platform" \
+          "${xcb_flags[@]}" \
+          build \
+          test
+    fi
 
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme 'SwiftBuildTest' \
+        -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build
     ;;

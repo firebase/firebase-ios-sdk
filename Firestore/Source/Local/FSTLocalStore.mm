@@ -268,6 +268,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
     id<FSTQueryCache> queryCache = self.queryCache;
 
+    DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
       FSTTargetID targetID = entry.first;
       FSTBoxedTargetID *boxedTargetID = @(targetID);
@@ -277,6 +278,21 @@ NS_ASSUME_NONNULL_BEGIN
       FSTQueryData *queryData = self.targetIDs[boxedTargetID];
       if (!queryData) {
         continue;
+      }
+
+      // When a global snapshot contains updates (either add or modify) we can completely trust
+      // these updates as authoritative and blindly apply them to our cache (as a defensive measure
+      // to promote self-healing in the unfortunate case that our cache is ever somehow corrupted /
+      // out-of-sync).
+      //
+      // If the document is only updated while removing it from a target then watch isn't obligated
+      // to send the absolute latest version: it can send the first version that caused the document
+      // not to match.
+      for (const DocumentKey &key : change.addedDocuments) {
+        authoritativeUpdates = authoritativeUpdates.insert(key);
+      }
+      for (const DocumentKey &key : change.modifiedDocuments) {
+        authoritativeUpdates = authoritativeUpdates.insert(key);
       }
 
       [queryCache removeMatchingKeys:change.removedDocuments forTargetID:targetID];
@@ -303,11 +319,12 @@ NS_ASSUME_NONNULL_BEGIN
       FSTMaybeDocument *doc = kv.second;
       changedDocKeys = changedDocKeys.insert(key);
       FSTMaybeDocument *existingDoc = [self.remoteDocumentCache entryForKey:key];
-      // Make sure we don't apply an old document version to the remote cache, though we
-      // make an exception for SnapshotVersion::None() which can happen for manufactured
-      // events (e.g. in the case of a limbo document resolution failing).
-      if (!existingDoc || SnapshotVersion{doc.version} == SnapshotVersion::None() ||
-          SnapshotVersion{doc.version} >= SnapshotVersion{existingDoc.version}) {
+
+      // If a document update isn't authoritative, make sure we don't apply an old document version
+      // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
+      // manufactured events (e.g. in the case of a limbo document resolution failing).
+      if (!existingDoc || doc.version == SnapshotVersion::None() ||
+          authoritativeUpdates.contains(doc.key) || doc.version >= existingDoc.version) {
         [self.remoteDocumentCache addEntry:doc];
       } else {
         LOG_DEBUG(

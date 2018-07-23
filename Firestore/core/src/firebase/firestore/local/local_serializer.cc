@@ -79,11 +79,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
 
-  // Initialize MaybeDocument fields to their default values. (Due to the
-  // 'oneof' in MaybeDocument, only one of 'no_document' or 'document' should
-  // ever be set.)
-  std::unique_ptr<model::NoDocument> no_document;
-  std::unique_ptr<model::Document> document;
+  std::unique_ptr<model::MaybeDocument> result;
 
   while (reader->bytes_left()) {
     Tag tag = reader->ReadTag();
@@ -94,33 +90,21 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
       case firestore_client_MaybeDocument_document_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
 
-        // 'no_document' and 'document' are part of a oneof. The proto docs
-        // claim that if both are set on the wire, the last one wins.
-        no_document = nullptr;
-
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
-        document = reader->ReadNestedMessage<std::unique_ptr<model::Document>>(
+        result = reader->ReadNestedMessage<std::unique_ptr<model::Document>>(
             [&](Reader* reader) -> std::unique_ptr<model::Document> {
               return rpc_serializer_.DecodeDocument(reader);
             });
-
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
 
-        // 'no_document' and 'document' are part of a oneof. The proto docs
-        // claim that if both are set on the wire, the last one wins.
-        document = nullptr;
-
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
-        no_document =
-            reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
-                [&](Reader* reader) { return DecodeNoDocument(reader); });
-        break;
-
+        result = reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
+            [&](Reader* reader) { return DecodeNoDocument(reader); });
         break;
 
       default:
@@ -129,16 +113,12 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     }
   }
 
-  if (no_document) {
-    return no_document;
-  } else if (document) {
-    return document;
-  } else {
+  if (!result) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Invalid MaybeDocument message: Neither "
                               "'no_document' nor 'document' fields set."));
-    return nullptr;
   }
+  return result;
 }
 
 void LocalSerializer::EncodeDocument(Writer* writer,

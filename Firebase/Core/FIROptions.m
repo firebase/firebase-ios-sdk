@@ -43,7 +43,7 @@ NSString *const kFIRIsSignInEnabled = @"IS_SIGNIN_ENABLED";
 NSString *const kFIRLibraryVersionID =
     @"5"     // Major version (one or more digits)
     @"00"    // Minor version (exactly 2 digits)
-    @"05"    // Build number (exactly 2 digits)
+    @"06"    // Build number (exactly 2 digits)
     @"000";  // Fixed "000"
 // Plist file name.
 NSString *const kServiceInfoFileName = @"GoogleService-Info";
@@ -385,7 +385,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     }
 
     // Fall back to the default app's collection switch when the key is not in the dictionary.
-    return [FIRApp defaultApp].automaticDataCollectionEnabled;
+    return [FIRApp defaultApp].isDataCollectionDefaultEnabled;
   }
   return [value boolValue];
 }

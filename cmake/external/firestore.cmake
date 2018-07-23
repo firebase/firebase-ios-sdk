@@ -13,8 +13,6 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/FirebaseCore)
-include(external/GoogleUtilities)
 include(external/googletest)
 include(external/grpc)
 include(external/leveldb)
@@ -28,8 +26,6 @@ endif()
 ExternalProject_Add(
   Firestore
   DEPENDS
-    FirebaseCore
-    GoogleUtilities
     googletest
     grpc
     leveldb
@@ -38,7 +34,7 @@ ExternalProject_Add(
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
-  PREFIX ${PROJECT_BINARY_DIR}/external/Firestore
+  PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_SOURCE_DIR}/Firestore
   BINARY_DIR ${PROJECT_BINARY_DIR}/Firestore
 

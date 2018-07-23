@@ -8,8 +8,7 @@ Internal Google Utilities including Network, Reachability Environment, Logger, a
 other Google CocoaPods. They're not intended for direct public usage.
                        DESC
 
-# TODO update homepage link with GoogleUtilities is moved to another repo.
-  s.homepage         = 'https://github.com/firebase/firebase-ios-sdk'
+  s.homepage         = 'https://github.com/firebase/firebase-ios-sdk/tree/master/GoogleUtilities'
   s.license          = { :type => 'Apache', :file => 'LICENSE' }
   s.authors          = 'Google, Inc.'
 
@@ -67,5 +66,29 @@ other Google CocoaPods. They're not intended for direct public usage.
       'SystemConfiguration'
     ]
     rs.dependency 'GoogleUtilities/Logger'
+  end
+
+  s.subspec 'AppDelegateSwizzler' do |adss|
+    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.dependency 'GoogleUtilities/Logger'
+    adss.dependency 'GoogleUtilities/Network'
+  end
+
+  s.subspec 'ISASwizzler' do |iss|
+    iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    iss.private_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
+  end
+
+  s.subspec 'MethodSwizzler' do |mss|
+    mss.source_files = 'GoogleUtilities/MethodSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    mss.private_header_files = 'GoogleUtilities/MethodSwizzler/Private/*.h'
+    mss.dependency 'GoogleUtilities/Logger'
+  end
+
+  s.subspec 'SwizzlerTestHelpers' do |sths|
+    sths.source_files = 'GoogleUtilities/SwizzlerTestHelpers/*.[hm]'
+    sths.private_header_files = 'GoogleUtilities/SwizzlerTestHelpers/*.h'
   end
 end
