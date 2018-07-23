@@ -61,6 +61,20 @@ using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
+// Aliases for nanopb's equivalent of google::firestore::v1beta1. This shorten
+// the symbols and allows them to fit on one line.
+namespace v1beta1 {
+
+constexpr uint32_t StructuredQuery_CollectionSelector_collection_id_tag =
+    // NOLINTNEXTLINE(whitespace/line_length)
+    google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag;
+
+constexpr uint32_t StructuredQuery_CollectionSelector_all_descendants_tag =
+    // NOLINTNEXTLINE(whitespace/line_length)
+    google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag;
+
+}  // namespace v1beta1
+
 // TODO(rsgowman): Move this down below the anon namespace
 void Serializer::EncodeTimestamp(Writer* writer,
                                  const Timestamp& timestamp_value) {
@@ -228,12 +242,12 @@ StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
     Tag tag = reader->ReadTag();
     if (!reader->status().ok()) return StructuredQuery::CollectionSelector{};
     switch (tag.field_number) {
-      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag:  // NOLINT(whitespace/line_length)
+      case v1beta1::StructuredQuery_CollectionSelector_collection_id_tag:
         if (!reader->RequireWireType(PB_WT_STRING, tag))
           return StructuredQuery::CollectionSelector{};
         collection_selector.collection_id = reader->ReadString();
         break;
-      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag:  // NOLINT(whitespace/line_length)
+      case v1beta1::StructuredQuery_CollectionSelector_all_descendants_tag:
         if (!reader->RequireWireType(PB_WT_VARINT, tag))
           return StructuredQuery::CollectionSelector{};
         collection_selector.all_descendants = reader->ReadBool();
@@ -634,7 +648,7 @@ void Serializer::EncodeQueryTarget(Writer* writer,
       writer->WriteNestedMessage([&](Writer* writer) {
         writer->WriteTag(
             {PB_WT_STRING,
-             google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag});  // NOLINT(whitespace/line_length)
+             v1beta1::StructuredQuery_CollectionSelector_collection_id_tag});
         writer->WriteString(collection_id);
       });
     }
