@@ -69,6 +69,11 @@ class Query {
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
 
+  /** Returns true if this Query is for a specific document. */
+  bool IsDocumentQuery() const {
+    return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
+  }
+
   /**
    * Returns a copy of this Query object with the additional specified filter.
    */
