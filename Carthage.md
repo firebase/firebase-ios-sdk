@@ -74,6 +74,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 
 - Please note that you shouldn't add the Firebase frameworks to the Carthage build phase (`copy-frameworks`). The frameworks contain static libraries that are linked at build time.
 
+- Some additional libraries/frameworks may be needed depending on which Firebase frameworks you use, for example: libc++.tbd, sqlite3.tbd, StoreKit.framework, etc. For more information, [go here](https://github.com/firebase/firebase-ios-sdk/issues/9#issuecomment-387947163).
+
 ## Versioning
 
 Unlike the CocoaPods distribution, the Carthage distribution is like the
