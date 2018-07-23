@@ -15,6 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#include <cstddef>
+#include <cstdint>
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
