@@ -31,23 +31,27 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // Convert the raw bytes to a string with UTF-8 format.
     NSData *d = [NSData dataWithBytes:data length:size];
     NSString *str = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+
+    // Fuzz test creating a FieldPath from a signle string.
     @try {
-      NSArray *str_arr1 = [NSArray arrayWithObjects:str, nil];
-      [[FIRFieldPath alloc] initWithFields:str_arr1];
+      NSArray *str_arr = [NSArray arrayWithObjects:str, nil];
+      [[FIRFieldPath alloc] initWithFields:str_arr];
     } @catch (...) {
       // Caught exceptions are ignored because they are not what we are after in
       // fuzz testing.
     }
 
+    // Split the string into an array. Use " .,/-" as separators.
     @try {
       NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
-      NSArray *str_arr2 = [str componentsSeparatedByCharactersInSet:set];
-      [[FIRFieldPath alloc] initWithFields:str_arr2];
+      NSArray *str_arr = [str componentsSeparatedByCharactersInSet:set];
+      [[FIRFieldPath alloc] initWithFields:str_arr];
     } @catch (...) {
       // Caught exceptions are ignored because they are not what we are after in
       // fuzz testing.
     }
 
+    // Treat the string as a dot-separated string and create a FieldPath object.
     @try {
       [FIRFieldPath pathWithDotSeparatedString:str];
     } @catch (...) {
