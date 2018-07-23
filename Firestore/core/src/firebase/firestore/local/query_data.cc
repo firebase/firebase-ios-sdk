@@ -23,16 +23,16 @@ namespace local {
 using core::Query;
 using model::SnapshotVersion;
 
-QueryData::QueryData(const Query& query,
+QueryData::QueryData(Query&& query,
                      int target_id,
                      QueryPurpose purpose,
-                     const SnapshotVersion& snapshot_version,
-                     const std::vector<uint8_t>& resume_token)
-    : query_(&query),
+                     SnapshotVersion&& snapshot_version,
+                     std::vector<uint8_t>&& resume_token)
+    : query_(std::move(query)),
       target_id_(target_id),
       purpose_(purpose),
-      snapshot_version_(&snapshot_version),
-      resume_token_(&resume_token) {
+      snapshot_version_(std::move(snapshot_version)),
+      resume_token_(std::move(resume_token)) {
 }
 
 // TODO(rsgowman): Implement once WatchStream::EmptyResumeToken exists.
@@ -46,10 +46,9 @@ QueryData::QueryData(const Query& query, int target_id, QueryPurpose purpose)
 }
 */
 
-QueryData QueryData::Copy(const SnapshotVersion& snapshot_version,
-                          const std::vector<uint8_t>& resume_token) const {
-  return QueryData(*query_, target_id_, purpose_, snapshot_version,
-                   resume_token);
+QueryData QueryData::Copy(SnapshotVersion&& snapshot_version,
+                          std::vector<uint8_t>&& resume_token) const {
+  return QueryData(Query(query_), target_id_, purpose_, std::move(snapshot_version), std::move(resume_token));
 }
 
 }  // namespace local
