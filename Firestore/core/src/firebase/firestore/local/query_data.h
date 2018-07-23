@@ -73,6 +73,21 @@ class QueryData {
   // TODO(rsgowman): Define once WatchStream::EmptyResumeToken exists.
   // QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
 
+  /**
+   * Constructs an invalid QueryData. Reading any properties of the returned
+   * value is undefined; you must reassign to this instance before it will
+   * become useful.
+   *
+   * This exists to allow QueryData to work with stl containers.
+   */
+  QueryData();
+
+  /**
+   * Constructs an invalid QueryData. Reading any properties of the returned
+   * value is undefined.
+   */
+  static QueryData Invalid();
+
   const core::Query& query() const {
     return query_;
   }

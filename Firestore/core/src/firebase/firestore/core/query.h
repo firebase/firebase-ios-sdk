@@ -45,6 +45,10 @@ class Query {
     return Query(std::move(path), {});
   }
 
+  static Query Invalid() {
+    return Query::AtPath(model::ResourcePath::Empty());
+  }
+
   /** Initializes a query with all of its components directly. */
   Query(model::ResourcePath path,
         std::vector<std::shared_ptr<core::Filter>>
@@ -76,13 +80,13 @@ class Query {
   bool MatchesOrderBy(const model::Document& doc) const;
   bool MatchesBounds(const model::Document& doc) const;
 
-  const model::ResourcePath path_;
+  model::ResourcePath path_;
 
   // Filters are shared across related Query instance. i.e. when you call
   // Query::Filter(f), a new Query instance is created that contains all of the
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
-  const std::vector<std::shared_ptr<core::Filter>> filters_;
+  std::vector<std::shared_ptr<core::Filter>> filters_;
 };
 
 inline bool operator==(const Query& lhs, const Query& rhs) {

@@ -46,6 +46,13 @@ QueryData::QueryData(const Query& query, int target_id, QueryPurpose purpose)
 }
 */
 
+QueryData::QueryData() : query_(Query::Invalid()), target_id_(-1), purpose_(QueryPurpose::kListen), snapshot_version_(SnapshotVersion::None()), resume_token_({}) {
+}
+
+QueryData QueryData::Invalid() {
+  return QueryData();
+}
+
 QueryData QueryData::Copy(SnapshotVersion&& snapshot_version,
                           std::vector<uint8_t>&& resume_token) const {
   return QueryData(Query(query_), target_id_, purpose_, std::move(snapshot_version), std::move(resume_token));
