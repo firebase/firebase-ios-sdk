@@ -228,12 +228,12 @@ StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
     Tag tag = reader->ReadTag();
     if (!reader->status().ok()) return StructuredQuery::CollectionSelector{};
     switch (tag.field_number) {
-      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag:
+      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag:  // NOLINT(whitespace/line_length)
         if (!reader->RequireWireType(PB_WT_STRING, tag))
           return StructuredQuery::CollectionSelector{};
         collection_selector.collection_id = reader->ReadString();
         break;
-      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag:
+      case google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag:  // NOLINT(whitespace/line_length)
         if (!reader->RequireWireType(PB_WT_VARINT, tag))
           return StructuredQuery::CollectionSelector{};
         collection_selector.all_descendants = reader->ReadBool();
@@ -634,7 +634,7 @@ void Serializer::EncodeQueryTarget(Writer* writer,
       writer->WriteNestedMessage([&](Writer* writer) {
         writer->WriteTag(
             {PB_WT_STRING,
-             google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag});
+             google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag});  // NOLINT(whitespace/line_length)
         writer->WriteString(collection_id);
       });
     }
