@@ -18,16 +18,15 @@
 
 #include "LibFuzzer/FuzzerDefs.h"
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
+
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
-using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::Serializer;
-using firebase::firestore::util::MakeString;
-
 namespace {
+
+using firebase::firestore::util::MakeString;
+namespace fuzzing = firebase::firestore::fuzzing;
 
 // A list of targets to fuzz test. Should be kept in sync with the method
 // GetFuzzingTarget().
@@ -37,29 +36,6 @@ enum class FuzzingTarget { kNone, kSerializer };
 // end because libFuzzer prepends this path to the crashing input file name.
 // We write crashes to the temporary directory that is available to the iOS app.
 NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
-
-// Fuzz-test the deserialization process in Firestore. The Serializer reads raw
-// bytes and converts them to a model object.
-void FuzzTestDeserialization(const uint8_t *data, size_t size) {
-  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
-
-  @autoreleasepool {
-    @try {
-      serializer.DecodeFieldValue(data, size);
-    } @catch (...) {
-      // Caught exceptions are ignored because the input might be malformed and
-      // the deserialization might throw an error as intended. Fuzzing focuses on
-      // runtime errors that are detected by the sanitizers.
-    }
-  }
-}
-
-// Contains the code to be fuzzed. Called by the fuzzing library with
-// different argument values for `data` and `size`.
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  FuzzTestDeserialization(data, size);
-  return 0;
-}
 
 // Retrieves the fuzzing target from the FUZZING_TARGET environment variable.
 // Default target is kNone if the environment variable is empty, not set, or
@@ -90,7 +66,8 @@ FuzzingTarget GetFuzzingTarget() {
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
 // Uses GetFuzzingTarget() to get the fuzzing target and sets libFuzzer's args
-// accordingly.
+// accordingly. It also calls an appropriate LLVMFuzzerTestOneInput-like method
+// for the defined target.
 int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
@@ -101,12 +78,18 @@ int RunFuzzTestingMain() {
   // The corpus location for the fuzzing target.
   NSString *corpus_location;
 
+  // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. Holds a pointer
+  // to the fuzzing method that is called repeatedly by the fuzzing driver with
+  // different inputs. Any method assigned to this variable must have the same
+  // signature as LLVMFuzzerTestOneInput: int(const uint8_t*, size_t).
+  fuzzer::UserCallback fuzzer_function;
+
   // Set the dictionary and corpus locations according to the fuzzing target.
   switch (fuzzing_target) {
     case FuzzingTarget::kSerializer:
-      dict_location =
-          [resources_location stringByAppendingPathComponent:@"Serializer/serializer.dictionary"];
-      corpus_location = @"FuzzTestsCorpus";
+      dict_location = fuzzing::GetSerializerDictionaryLocation(resources_location);
+      corpus_location = fuzzing::GetSerializerCorpusLocation();
+      fuzzer_function = fuzzing::FuzzTestDeserialization;
       break;
 
     case FuzzingTarget::kNone:
@@ -141,7 +124,7 @@ int RunFuzzTestingMain() {
   int argc = sizeof(program_args) / sizeof(program_args[0]);
 
   // Start fuzzing using libFuzzer's driver.
-  return fuzzer::FuzzerDriver(&argc, &argv, LLVMFuzzerTestOneInput);
+  return fuzzer::FuzzerDriver(&argc, &argv, fuzzer_function);
 }
 
 }  // namespace
