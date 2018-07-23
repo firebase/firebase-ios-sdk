@@ -79,6 +79,7 @@ class Writer {
   void WriteInteger(std::int64_t integer_value);
 
   void WriteString(const std::string& string_value);
+  void WriteBytes(const std::vector<uint8_t>& bytes);
 
   /**
    * Writes a message and its length.

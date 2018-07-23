@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
@@ -81,6 +82,8 @@ class Reader {
   std::int64_t ReadInteger();
 
   std::string ReadString();
+
+  std::vector<uint8_t> ReadBytes();
 
   /**
    * Reads a message and its length.
