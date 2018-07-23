@@ -385,7 +385,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     }
 
     // Fall back to the default app's collection switch when the key is not in the dictionary.
-    return [FIRApp defaultApp].automaticDataCollectionEnabled;
+    return [FIRApp defaultApp].isDataCollectionDefaultEnabled;
   }
   return [value boolValue];
 }

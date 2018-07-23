@@ -477,7 +477,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 
   // If none of above exists, we default to the global switch that comes from FIRApp.
-  return [[FIRApp defaultApp] isAutomaticDataCollectionEnabled];
+  return [[FIRApp defaultApp] isDataCollectionDefaultEnabled];
 }
 
 - (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
