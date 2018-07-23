@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 
+#include <utility>
+
 namespace firebase {
 namespace firestore {
 namespace local {
@@ -46,7 +48,12 @@ QueryData::QueryData(const Query& query, int target_id, QueryPurpose purpose)
 }
 */
 
-QueryData::QueryData() : query_(Query::Invalid()), target_id_(-1), purpose_(QueryPurpose::kListen), snapshot_version_(SnapshotVersion::None()), resume_token_({}) {
+QueryData::QueryData()
+    : query_(Query::Invalid()),
+      target_id_(-1),
+      purpose_(QueryPurpose::kListen),
+      snapshot_version_(SnapshotVersion::None()),
+      resume_token_({}) {
 }
 
 QueryData QueryData::Invalid() {
@@ -55,7 +62,8 @@ QueryData QueryData::Invalid() {
 
 QueryData QueryData::Copy(SnapshotVersion&& snapshot_version,
                           std::vector<uint8_t>&& resume_token) const {
-  return QueryData(Query(query_), target_id_, purpose_, std::move(snapshot_version), std::move(resume_token));
+  return QueryData(Query(query_), target_id_, purpose_,
+                   std::move(snapshot_version), std::move(resume_token));
 }
 
 }  // namespace local

@@ -211,22 +211,28 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
                                               version);
 }
 
-util::Status LocalSerializer::EncodeQueryData(const QueryData& query_data, std::vector<uint8_t>* out_bytes) const {
-  HARD_ASSERT(QueryPurpose::kListen == query_data.purpose(), "Only queries with purpose %s may be stored, got %s", QueryPurpose::kListen, query_data.purpose());
+util::Status LocalSerializer::EncodeQueryData(
+    const QueryData& query_data, std::vector<uint8_t>* out_bytes) const {
+  HARD_ASSERT(QueryPurpose::kListen == query_data.purpose(),
+              "Only queries with purpose %s may be stored, got %s",
+              QueryPurpose::kListen, query_data.purpose());
   Writer writer = Writer::Wrap(out_bytes);
   EncodeQueryData(&writer, query_data);
   return writer.status();
 }
 
-void LocalSerializer::EncodeQueryData(Writer* writer, const QueryData& query_data) const {
+void LocalSerializer::EncodeQueryData(Writer* writer,
+                                      const QueryData& query_data) const {
   if (!writer->status().ok()) return;
 
   writer->WriteTag({PB_WT_VARINT, firestore_client_Target_target_id_tag});
   writer->WriteInteger(query_data.target_id());
 
-  writer->WriteTag({PB_WT_STRING, firestore_client_Target_snapshot_version_tag});
+  writer->WriteTag(
+      {PB_WT_STRING, firestore_client_Target_snapshot_version_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
-    rpc_serializer_.EncodeTimestamp(writer, query_data.snapshot_version().timestamp());
+    rpc_serializer_.EncodeTimestamp(writer,
+                                    query_data.snapshot_version().timestamp());
   });
 
   writer->WriteTag({PB_WT_STRING, firestore_client_Target_resume_token_tag});
@@ -276,30 +282,36 @@ QueryData LocalSerializer::DecodeQueryData(Reader* reader) const {
 
     switch (tag.field_number) {
       case firestore_client_Target_target_id_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return QueryData::Invalid();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return QueryData::Invalid();
         target_id = reader->ReadInteger();
         break;
 
       case firestore_client_Target_snapshot_version_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return QueryData::Invalid();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return QueryData::Invalid();
         version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp)};
         break;
 
       case firestore_client_Target_resume_token_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return QueryData::Invalid();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return QueryData::Invalid();
         resume_token = reader->ReadBytes();
         break;
 
       case firestore_client_Target_query_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return QueryData::Invalid();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return QueryData::Invalid();
         // TODO(rsgowman): Clear 'documents' field (since query and documents
         // are part of a 'oneof').
-        query = reader->ReadNestedMessage<Query>(rpc_serializer_.DecodeQueryTarget);
+        query =
+            reader->ReadNestedMessage<Query>(rpc_serializer_.DecodeQueryTarget);
         break;
 
       case firestore_client_Target_documents_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return QueryData::Invalid();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return QueryData::Invalid();
         // Clear 'query' field (since query and documents are part of a 'oneof')
         query = Query::Invalid();
         // TODO(rsgowman): Implement.
@@ -312,7 +324,8 @@ QueryData LocalSerializer::DecodeQueryData(Reader* reader) const {
     }
   }
 
-  return QueryData(std::move(query), target_id, QueryPurpose::kListen, std::move(version), std::move(resume_token));
+  return QueryData(std::move(query), target_id, QueryPurpose::kListen,
+                   std::move(version), std::move(resume_token));
 }
 
 }  // namespace local

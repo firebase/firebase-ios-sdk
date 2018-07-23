@@ -65,7 +65,8 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(const firebase::firestore::model::DatabaseId& database_id);
+  explicit Serializer(
+      const firebase::firestore::model::DatabaseId& database_id);
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
@@ -171,9 +172,8 @@ class Serializer {
    * @return A Status, which if not ok(), indicates what went wrong. Note that
    * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeQueryTarget(
-      const core::Query& query,
-      std::vector<uint8_t>* out_bytes) const;
+  util::Status EncodeQueryTarget(const core::Query& query,
+                                 std::vector<uint8_t>* out_bytes) const;
 
   std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 
@@ -186,11 +186,13 @@ class Serializer {
   static void EncodeVersion(nanopb::Writer* writer,
                             const model::SnapshotVersion& version);
 
-  static void EncodeTimestamp(nanopb::Writer* writer, const Timestamp& timestamp_value);
+  static void EncodeTimestamp(nanopb::Writer* writer,
+                              const Timestamp& timestamp_value);
   static Timestamp DecodeTimestamp(nanopb::Reader* reader);
   static model::FieldValue DecodeFieldValue(nanopb::Reader* reader);
 
-  void EncodeQueryTarget(nanopb::Writer* writer, const core::Query& query) const;
+  void EncodeQueryTarget(nanopb::Writer* writer,
+                         const core::Query& query) const;
   static core::Query DecodeQueryTarget(nanopb::Reader* reader);
 
  private:
@@ -211,8 +213,8 @@ class Serializer {
   static void EncodeFieldValue(nanopb::Writer* writer,
                                const model::FieldValue& field_value);
 
-
-  void EncodeQueryPath(nanopb::Writer* writer, const model::ResourcePath& path) const;
+  void EncodeQueryPath(nanopb::Writer* writer,
+                       const model::ResourcePath& path) const;
   std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
   const model::DatabaseId& database_id_;

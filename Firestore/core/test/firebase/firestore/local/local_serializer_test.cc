@@ -37,6 +37,7 @@ namespace local {
 
 namespace v1beta1 = google::firestore::v1beta1;
 using core::Query;
+using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
@@ -48,7 +49,6 @@ using testutil::Doc;
 using testutil::Query;
 using util::Status;
 using util::StatusOr;
-using ::google::protobuf::util::MessageDifferencer;
 
 // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
 #define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
@@ -156,9 +156,8 @@ class LocalSerializerTest : public ::testing::Test {
     return bytes;
   }
 
-  void ExpectSerializationRoundTrip(
-      const QueryData& query_data,
-      const ::firestore::client::Target& proto) {
+  void ExpectSerializationRoundTrip(const QueryData& query_data,
+                                    const ::firestore::client::Target& proto) {
     std::vector<uint8_t> bytes = EncodeQueryData(&serializer, query_data);
     ::firestore::client::Target actual_proto;
     bool ok = actual_proto.ParseFromArray(bytes.data(),
@@ -168,19 +167,22 @@ class LocalSerializerTest : public ::testing::Test {
   }
 
   void ExpectDeserializationRoundTrip(
-      const QueryData& query_data,
-      const ::firestore::client::Target& proto) {
+      const QueryData& query_data, const ::firestore::client::Target& proto) {
     std::vector<uint8_t> bytes(proto.ByteSizeLong());
-    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
+    bool status =
+        proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
-    StatusOr<QueryData> actual_query_data_status = serializer.DecodeQueryData(bytes);
+    StatusOr<QueryData> actual_query_data_status =
+        serializer.DecodeQueryData(bytes);
     EXPECT_OK(actual_query_data_status);
-    QueryData actual_query_data = std::move(actual_query_data_status).ValueOrDie();
+    QueryData actual_query_data =
+        std::move(actual_query_data_status).ValueOrDie();
 
     EXPECT_EQ(query_data, actual_query_data);
   }
 
-  std::vector<uint8_t> EncodeQueryData(local::LocalSerializer* serializer, const QueryData& query_data) {
+  std::vector<uint8_t> EncodeQueryData(local::LocalSerializer* serializer,
+                                       const QueryData& query_data) {
     std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
     Status status = serializer->EncodeQueryData(query_data, &bytes);
@@ -222,14 +224,18 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   SnapshotVersion version = testutil::Version(1039);
   std::vector<uint8_t> resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, QueryPurpose::kListen, SnapshotVersion(version), std::vector<uint8_t>(resume_token));
+  QueryData query_data(core::Query(query), target_id, QueryPurpose::kListen,
+                       SnapshotVersion(version),
+                       std::vector<uint8_t>(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.
   std::vector<uint8_t> query_target_bytes;
-  util::Status status = remote_serializer.EncodeQueryTarget(query_data.query(), &query_target_bytes);
+  util::Status status = remote_serializer.EncodeQueryTarget(
+      query_data.query(), &query_target_bytes);
   EXPECT_OK(status);
   v1beta1::Target::QueryTarget queryTargetProto;
-  bool ok = queryTargetProto.ParseFromArray(query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));
+  bool ok = queryTargetProto.ParseFromArray(
+      query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));
   EXPECT_TRUE(ok);
 
   ::firestore::client::Target expected;
@@ -238,7 +244,8 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1beta1::Target::QueryTarget* query_proto = expected.mutable_query();
   query_proto->set_parent(queryTargetProto.parent());
-  *query_proto->mutable_structured_query() = queryTargetProto.structured_query();
+  *query_proto->mutable_structured_query() =
+      queryTargetProto.structured_query();
 
   ExpectRoundTrip(query_data, expected);
 }

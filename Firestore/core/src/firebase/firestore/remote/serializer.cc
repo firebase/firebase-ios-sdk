@@ -61,9 +61,9 @@ using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
-
 // TODO(rsgowman): Move this down below the anon namespace
-void Serializer::EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
+void Serializer::EncodeTimestamp(Writer* writer,
+                                 const Timestamp& timestamp_value) {
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
   timestamp_proto.seconds = timestamp_value.seconds();
@@ -229,11 +229,13 @@ StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
     if (!reader->status().ok()) return StructuredQuery::CollectionSelector{};
     switch (tag.field_number) {
       case google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return StructuredQuery::CollectionSelector{};
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return StructuredQuery::CollectionSelector{};
         collection_selector.collection_id = reader->ReadString();
         break;
       case google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return StructuredQuery::CollectionSelector{};
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return StructuredQuery::CollectionSelector{};
         collection_selector.all_descendants = reader->ReadBool();
         break;
       default:
@@ -252,8 +254,11 @@ StructuredQuery DecodeStructuredQuery(Reader* reader) {
     if (!reader->status().ok()) return StructuredQuery{};
     switch (tag.field_number) {
       case google_firestore_v1beta1_StructuredQuery_from_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return StructuredQuery{};
-        query.from.push_back(reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(DecodeCollectionSelector));
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return StructuredQuery{};
+        query.from.push_back(
+            reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
+                DecodeCollectionSelector));
         break;
       // TODO(rsgowman): decode other fields
       default:
@@ -266,8 +271,10 @@ StructuredQuery DecodeStructuredQuery(Reader* reader) {
 
 }  // namespace
 
-Serializer::Serializer(const firebase::firestore::model::DatabaseId& database_id)
-    : database_id_(database_id), database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
+Serializer::Serializer(
+    const firebase::firestore::model::DatabaseId& database_id)
+    : database_id_(database_id),
+      database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
 }
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
@@ -590,36 +597,44 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 }
 
 util::Status Serializer::EncodeQueryTarget(
-    const core::Query& query,
-    std::vector<uint8_t>* out_bytes) const {
+    const core::Query& query, std::vector<uint8_t>* out_bytes) const {
   Writer writer = Writer::Wrap(out_bytes);
   EncodeQueryTarget(&writer, query);
   return writer.status();
 }
 
-void Serializer::EncodeQueryTarget(Writer* writer, const core::Query& query) const {
+void Serializer::EncodeQueryTarget(Writer* writer,
+                                   const core::Query& query) const {
   if (!writer->status().ok()) return;
 
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
   if (query.path().empty()) {
-    writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+    writer->WriteTag(
+        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
     writer->WriteString(EncodeQueryPath(ResourcePath::Empty()));
   } else {
     ResourcePath path = query.path();
-    HARD_ASSERT(path.size() % 2 != 0, "Document queries with filters are not supported.");
-    writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+    HARD_ASSERT(path.size() % 2 != 0,
+                "Document queries with filters are not supported.");
+    writer->WriteTag(
+        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
     writer->WriteString(EncodeQueryPath(path.PopLast()));
 
     collection_id = path.last_segment();
   }
 
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_structured_query_tag});
+  writer->WriteTag(
+      {PB_WT_STRING,
+       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     if (!collection_id.empty()) {
-      writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_from_tag});
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_from_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
-        writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag});
+        writer->WriteTag(
+            {PB_WT_STRING,
+             google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag});
         writer->WriteString(collection_id);
       });
     }
@@ -659,13 +674,16 @@ Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
     if (!reader->status().ok()) return Query::Invalid();
     switch (tag.field_number) {
       case google_firestore_v1beta1_Target_QueryTarget_parent_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return Query::Invalid();
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return Query::Invalid();
         path = DecodeQueryPath(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag: {
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return Query::Invalid();
-        query = reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return Query::Invalid();
+        query =
+            reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
         break;
       }
     }
@@ -673,7 +691,9 @@ Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
 
   int from_count = query.from.size();
   if (from_count > 0) {
-    HARD_ASSERT(from_count == 1, "StructuredQuery.from with more than one collection is not supported.");
+    HARD_ASSERT(
+        from_count == 1,
+        "StructuredQuery.from with more than one collection is not supported.");
 
     path = path.Append(query.from[0].collection_id);
   }

@@ -113,7 +113,8 @@ class LocalSerializer {
    * @return The QueryData equivalent of the bytes or a Status indicating what
    * went wrong.
    */
-  util::StatusOr<QueryData> DecodeQueryData(const uint8_t* bytes, size_t length) const;
+  util::StatusOr<QueryData> DecodeQueryData(const uint8_t* bytes,
+                                            size_t length) const;
 
   /**
    * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
@@ -124,7 +125,8 @@ class LocalSerializer {
    * @return The QueryData equivalent of the bytes or a Status indicating what
    * went wrong.
    */
-  util::StatusOr<QueryData> DecodeQueryData(const std::vector<uint8_t>& bytes) const {
+  util::StatusOr<QueryData> DecodeQueryData(
+      const std::vector<uint8_t>& bytes) const {
     return DecodeQueryData(bytes.data(), bytes.size());
   }
 
@@ -147,7 +149,8 @@ class LocalSerializer {
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
       nanopb::Reader* reader) const;
 
-  void EncodeQueryData(nanopb::Writer* writer, const QueryData& query_data) const;
+  void EncodeQueryData(nanopb::Writer* writer,
+                       const QueryData& query_data) const;
   QueryData DecodeQueryData(nanopb::Reader* reader) const;
 
   const remote::Serializer& rpc_serializer_;

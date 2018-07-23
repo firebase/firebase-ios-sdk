@@ -108,9 +108,9 @@ void Writer::WriteString(const std::string& string_value) {
 void Writer::WriteBytes(const std::vector<uint8_t>& bytes) {
   if (!status_.ok()) return;
 
-  if (!pb_encode_string(
-          &stream_, reinterpret_cast<const pb_byte_t*>(bytes.data()),
-          bytes.size())) {
+  if (!pb_encode_string(&stream_,
+                        reinterpret_cast<const pb_byte_t*>(bytes.data()),
+                        bytes.size())) {
     HARD_FAIL(PB_GET_ERROR(&stream_));
   }
 }

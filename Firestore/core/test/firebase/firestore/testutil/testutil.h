@@ -123,7 +123,7 @@ inline core::Query Query(absl::string_view path) {
   return core::Query::AtPath(Resource(path));
 }
 
-inline std::vector<uint8_t> ResumeToken(long snapshot_version) {
+inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
   if (snapshot_version == 0) {
     // TODO(rsgowman): The other platforms return null here, though I'm not sure
     // if they ever rely on that. I suspect it'd be sufficient to return '{}'.
@@ -132,7 +132,8 @@ inline std::vector<uint8_t> ResumeToken(long snapshot_version) {
     abort();
   }
 
-  std::string snapshot_string = std::string("snapshot-") + std::to_string(snapshot_version);
+  std::string snapshot_string =
+      std::string("snapshot-") + std::to_string(snapshot_version);
   std::vector<uint8_t> result;
   result.insert(result.end(), snapshot_string.begin(), snapshot_string.end());
   return result;
