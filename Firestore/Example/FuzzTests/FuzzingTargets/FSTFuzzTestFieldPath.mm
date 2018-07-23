@@ -20,7 +20,7 @@
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
-#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/Public/FIRFieldPath.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,7 +32,7 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     NSData *d = [NSData dataWithBytes:data length:size];
     NSString *str = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
 
-    // Fuzz test creating a FieldPath from a signle string.
+    // Fuzz test creating a FieldPath from an array with a single string.
     @try {
       NSArray *str_arr = [NSArray arrayWithObjects:str, nil];
       [[FIRFieldPath alloc] initWithFields:str_arr];
@@ -41,7 +41,7 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
       // fuzz testing.
     }
 
-    // Split the string into an array. Use " .,/-" as separators.
+    // Split the string into an array using " .,/-" as separators.
     @try {
       NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
       NSArray *str_arr = [str componentsSeparatedByCharactersInSet:set];
@@ -51,9 +51,10 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
       // fuzz testing.
     }
 
-    // Treat the string as a dot-separated string and create a FieldPath object.
+    // Try to parse the bytes as a string array and use it for initialization.
     @try {
-      [FIRFieldPath pathWithDotSeparatedString:str];
+      NSArray *str_arr = [NSKeyedUnarchiver unarchiveObjectWithData:d];
+      [[FIRFieldPath alloc] initWithFields:str_arr];
     } @catch (...) {
       // Caught exceptions are ignored because they are not what we are after in
       // fuzz testing.
