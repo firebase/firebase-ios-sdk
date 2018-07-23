@@ -33,31 +33,33 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     NSString *str = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
 
     // Fuzz test creating a FieldPath from an array with a single string.
+    NSArray *str_arr1 = [NSArray arrayWithObjects:str, nil];
     @try {
-      NSArray *str_arr = [NSArray arrayWithObjects:str, nil];
-      [[FIRFieldPath alloc] initWithFields:str_arr];
+      [[FIRFieldPath alloc] initWithFields:str_arr1];
     } @catch (...) {
       // Caught exceptions are ignored because they are not what we are after in
       // fuzz testing.
     }
 
     // Split the string into an array using " .,/-" as separators.
+    NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
+    NSArray *str_arr2 = [str componentsSeparatedByCharactersInSet:set];
     @try {
-      NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
-      NSArray *str_arr = [str componentsSeparatedByCharactersInSet:set];
-      [[FIRFieldPath alloc] initWithFields:str_arr];
+      [[FIRFieldPath alloc] initWithFields:str_arr2];
     } @catch (...) {
-      // Caught exceptions are ignored because they are not what we are after in
-      // fuzz testing.
+      // Ignore caught exceptions.
     }
 
     // Try to parse the bytes as a string array and use it for initialization.
+    // NSJSONReadingMutableContainers specifies that arrays and dictionaries are
+    // created as mutable objects. Returns nil if there is a parsing error.
+    NSArray *str_arr3 = [NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingMutableContainers error:nil];
     @try {
-      NSArray *str_arr = [NSKeyedUnarchiver unarchiveObjectWithData:d];
-      [[FIRFieldPath alloc] initWithFields:str_arr];
+      if (str_arr3) {
+        [[FIRFieldPath alloc] initWithFields:str_arr3];
+      }
     } @catch (...) {
-      // Caught exceptions are ignored because they are not what we are after in
-      // fuzz testing.
+      // Ignore caught exceptions.
     }
   }
   return 0;
