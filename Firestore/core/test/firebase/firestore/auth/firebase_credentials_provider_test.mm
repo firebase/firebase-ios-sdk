@@ -46,6 +46,7 @@
 @interface FSTAuthFake : NSObject<FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;
 @property(nonatomic, nullable, strong, readonly) NSString* uid;
+@property(nonatomic, readonly) BOOL forceRefreshTriggered;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
@@ -59,18 +60,20 @@
   if (self) {
     _token = [token copy];
     _uid = [uid copy];
+    _forceRefreshTriggered = NO;
   }
   return self;
 }
 
-// FIRAuthUserIDProvider conformance.
+// FIRAuthInterop conformance.
+
 - (nullable NSString*)getUserID {
   return self.uid;
 }
 
-// FIRAuthInteroperable conformance.
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
                   withCallback:(nonnull FIRTokenCallback)callback {
+  _forceRefreshTriggered = forceRefresh;
   callback(self.token, nil);
 }
 
@@ -80,36 +83,10 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-FIRApp* AppWithFakeUidAndToken(NSString* _Nullable uid,
-                               NSString* _Nullable token) {
-  FIRApp* app = testutil::AppForUnitTesting();
-
-  auto auth_provider_block =
-      ^id _Nullable(FIRComponentContainer* container, BOOL* is_cacheable) {
-    return [[FSTAuthFake alloc] initWithToken:token uid:uid];
-  };
-
-  // Inject a new container with the Auth interoperable fake into the app.
-  NSString* auth_interoperable_key =
-      NSStringFromProtocol(@protocol(FIRAuthInterop));
-  NSDictionary* components = @{auth_interoperable_key : auth_provider_block};
-  FIRComponentContainer* container =
-      [[FIRComponentContainer alloc] initWithApp:app components:components];
-
-  // Override the existing container for the app that contains the Auth fake.
-  app.container = container;
-
-  return app;
-}
-
-FIRApp* AppWithFakeUid(NSString* _Nullable uid) {
-  return AppWithFakeUidAndToken(uid, uid == nil ? nil : @"default token");
-}
-
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
-  FIRApp* app = AppWithFakeUid(nil);
-  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:<#(nullable NSString *)#> uid:<#(nullable NSString *)#>]
-  FirebaseCredentialsProvider credentials_provider(app);
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:nil uid:nil];
+  FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.GetToken([](util::StatusOr<Token> result) {
     EXPECT_TRUE(result.ok());
     const Token& token = result.ValueOrDie();
@@ -121,9 +98,10 @@ TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
 }
 
 TEST(FirebaseCredentialsProviderTest, GetToken) {
-  FIRApp* app = AppWithFakeUidAndToken(@"fake uid", @"token for fake uid");
-
-  FirebaseCredentialsProvider credentials_provider(app);
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth =
+      [[FSTAuthFake alloc] initWithToken:@"token for fake uid" uid:@"fake uid"];
+  FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.GetToken([](util::StatusOr<Token> result) {
     EXPECT_TRUE(result.ok());
     const Token& token = result.ValueOrDie();
@@ -135,9 +113,10 @@ TEST(FirebaseCredentialsProviderTest, GetToken) {
 }
 
 TEST(FirebaseCredentialsProviderTest, SetListener) {
-  FIRApp* app = AppWithFakeUid(@"fake uid");
-
-  FirebaseCredentialsProvider credentials_provider(app);
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth =
+      [[FSTAuthFake alloc] initWithToken:@"default token" uid:@"fake uid"];
+  FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.SetUserChangeListener([](User user) {
     EXPECT_EQ("fake uid", user.uid());
     EXPECT_TRUE(user.is_authenticated());
@@ -146,28 +125,15 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
   credentials_provider.SetUserChangeListener(nullptr);
 }
 
-FIRApp* FakeAppExpectingForceRefreshToken(NSString* _Nullable uid,
-                                          NSString* _Nullable token) {
-  FIRApp* app = testutil::AppForUnitTesting();
-  app.getUIDImplementation = ^NSString* {
-    return uid;
-  };
-  app.getTokenImplementation =
-      ^(BOOL force_refresh, FIRTokenCallback callback) {
-        EXPECT_TRUE(force_refresh);
-        callback(token, nil);
-      };
-  return app;
-}
-
 TEST(FirebaseCredentialsProviderTest, InvalidateToken) {
-  FIRApp* app =
-      FakeAppExpectingForceRefreshToken(@"fake uid", @"token for fake uid");
-
-  FirebaseCredentialsProvider credentials_provider{app};
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth =
+      [[FSTAuthFake alloc] initWithToken:@"token for fake uid" uid:@"fake uid"];
+  FirebaseCredentialsProvider credentials_provider(app, auth);
   credentials_provider.InvalidateToken();
-  credentials_provider.GetToken([](util::StatusOr<Token> result) {
+  credentials_provider.GetToken([&auth](util::StatusOr<Token> result) {
     EXPECT_TRUE(result.ok());
+    EXPECT_TRUE(auth.forceRefreshTriggered);
     const Token& token = result.ValueOrDie();
     EXPECT_EQ("token for fake uid", token.token());
     EXPECT_EQ("fake uid", token.user().uid());
