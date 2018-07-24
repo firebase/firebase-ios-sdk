@@ -39,6 +39,7 @@ typedef void (*GULRealHandleEventsForBackgroundURLSessionIMP)(
     id, SEL, UIApplication *, NSString *, void (^)());
 #pragma clang diagnostic pop
 
+// This is needed to for the library to be warning free on iOS versions < 8.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 typedef BOOL (*GULRealContinueUserActivityIMP)(
@@ -542,6 +543,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   __block BOOL returnedValue = NO;
   SEL methodSelector = @selector(application:openURL:options:);
 
+// This is needed to for the library to be warning free on iOS versions < 9.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   [GULAppDelegateSwizzler
@@ -619,6 +621,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 #pragma mark - [Donor Methods] User Activities overridden handler methods
 
+// This is needed to for the library to be warning free on iOS versions < 8.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability"
 - (BOOL)application:(UIApplication *)application
