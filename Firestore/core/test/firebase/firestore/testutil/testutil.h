@@ -134,9 +134,7 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
 
   std::string snapshot_string =
       std::string("snapshot-") + std::to_string(snapshot_version);
-  std::vector<uint8_t> result;
-  result.insert(result.end(), snapshot_string.begin(), snapshot_string.end());
-  return result;
+  return {snapshot_string.begin(), snapshot_string.end()};
 }
 
 // Add a non-inline function to make this library buildable.

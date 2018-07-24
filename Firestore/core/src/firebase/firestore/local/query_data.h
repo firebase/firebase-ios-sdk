@@ -75,15 +75,6 @@ class QueryData {
 
   /**
    * Constructs an invalid QueryData. Reading any properties of the returned
-   * value is undefined; you must reassign to this instance before it will
-   * become useful.
-   *
-   * This exists to allow QueryData to work with stl containers.
-   */
-  QueryData();
-
-  /**
-   * Constructs an invalid QueryData. Reading any properties of the returned
    * value is undefined.
    */
   static QueryData Invalid();

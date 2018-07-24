@@ -271,7 +271,7 @@ util::StatusOr<QueryData> LocalSerializer::DecodeQueryData(
 QueryData LocalSerializer::DecodeQueryData(Reader* reader) const {
   if (!reader->status().ok()) return QueryData::Invalid();
 
-  int64_t target_id;
+  int64_t target_id = 0;
   SnapshotVersion version = SnapshotVersion::None();
   std::vector<uint8_t> resume_token;
   Query query = Query::Invalid();
