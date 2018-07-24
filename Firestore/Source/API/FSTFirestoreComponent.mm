@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FSTFirestoreComponent.h"
+#import "Firestore/Source/API/FSTFirestoreComponent.h"
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
@@ -25,6 +25,7 @@
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
+#include <utility>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
