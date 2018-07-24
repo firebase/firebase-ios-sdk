@@ -1,4 +1,5 @@
-# Unreleased
+# 2018-07-31 -- v3.1.0
+- Added function to support grobal data flag
 - Fixed an issue where Messaging wouldn't properly unswizzle swizzled delegate
   methods. (#1481)
 
