@@ -114,6 +114,27 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 @end
 
+#pragma mark - LimboResolution
+
+/** Tracks a limbo resolution. */
+class LimboResolution {
+ public:
+  LimboResolution() {
+  }
+
+  explicit LimboResolution(const DocumentKey &key) : key{key} {
+  }
+
+  DocumentKey key;
+
+  /**
+   * Set to true once we've received a document. This is used in remoteKeysForTarget and
+   * ultimately used by FSTWatchChangeAggregator to decide whether it needs to manufacture a delete
+   * event for the target once the target is CURRENT.
+   */
+  bool document_received = false;
+};
+
 #pragma mark - FSTSyncEngine
 
 @interface FSTSyncEngine ()
@@ -151,8 +172,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
    */
   std::map<DocumentKey, TargetId> _limboTargetsByKey;
 
-  /** The inverse of _limboTargetsByKey, a map of TargetId to the key of the limbo doc. */
-  std::map<TargetId, DocumentKey> _limboKeysByTarget;
+  /**
+   * Basically the inverse of limboTargetsByKey, a map of target ID to a LimboResolution (which
+   * includes the DocumentKey as well as whether we've received a document for the target).
+   */
+  std::map<TargetId, LimboResolution> _limboResolutionsByTarget;
 
   User _currentUser;
 }
@@ -287,6 +311,35 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
+  // Update `receivedDocument` as appropriate for any limbo targets.
+  for (const auto &entry : remoteEvent.targetChanges) {
+    FSTTargetID targetID = entry.first;
+    FSTTargetChange *change = entry.second;
+    const auto iter = _limboResolutionsByTarget.find(targetID);
+    if (iter != _limboResolutionsByTarget.end()) {
+      LimboResolution &limboResolution = iter->second;
+      // Since this is a limbo resolution lookup, it's for a single document and it could be
+      // added, modified, or removed, but not a combination.
+      HARD_ASSERT(change.addedDocuments.size() + change.modifiedDocuments.size() +
+                          change.removedDocuments.size() <=
+                      1,
+                  "Limbo resolution for single document contains multiple changes.");
+
+      if (change.addedDocuments.size() > 0) {
+        limboResolution.document_received = true;
+      } else if (change.modifiedDocuments.size() > 0) {
+        HARD_ASSERT(limboResolution.document_received,
+                    "Received change for limbo target document without add.");
+      } else if (change.removedDocuments.size() > 0) {
+        HARD_ASSERT(limboResolution.document_received,
+                    "Received remove for limbo target document without add.");
+        limboResolution.document_received = false;
+      } else {
+        // This was probably just a CURRENT targetChange or similar.
+      }
+    }
+  }
+
   FSTMaybeDocumentDictionary *changes = [self.localStore applyRemoteEvent:remoteEvent];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
@@ -309,13 +362,13 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
 
-  const auto iter = _limboKeysByTarget.find(targetID);
-  if (iter != _limboKeysByTarget.end()) {
-    const DocumentKey limboKey = iter->second;
+  const auto iter = _limboResolutionsByTarget.find(targetID);
+  if (iter != _limboResolutionsByTarget.end()) {
+    const DocumentKey limboKey = iter->second.key;
     // Since this query failed, we won't want to manually unlisten to it.
     // So go ahead and remove it from bookkeeping.
     _limboTargetsByKey.erase(limboKey);
-    _limboKeysByTarget.erase(targetID);
+    _limboResolutionsByTarget.erase(targetID);
 
     // TODO(dimond): Retry on transient errors?
 
@@ -482,7 +535,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
-    _limboKeysByTarget[limboTargetID] = key;
+    _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
     [self.remoteStore listenToTargetWithQueryData:queryData];
     _limboTargetsByKey[key] = limboTargetID;
   }
@@ -497,7 +550,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   TargetId limboTargetID = iter->second;
   [self.remoteStore stopListeningToTargetID:limboTargetID];
   _limboTargetsByKey.erase(key);
-  _limboKeysByTarget.erase(limboTargetID);
+  _limboResolutionsByTarget.erase(limboTargetID);
 }
 
 // Used for testing
@@ -518,8 +571,13 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 }
 
 - (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
-  FSTQueryView *queryView = self.queryViewsByTarget[targetId];
-  return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
+  const auto iter = _limboResolutionsByTarget.find([targetId intValue]);
+  if (iter != _limboResolutionsByTarget.end() && iter->second.document_received) {
+    return DocumentKeySet{iter->second.key};
+  } else {
+    FSTQueryView *queryView = self.queryViewsByTarget[targetId];
+    return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
+  }
 }
 
 @end

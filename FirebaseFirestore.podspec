@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.12.5'
+  s.version          = '0.12.6'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -70,9 +70,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
   }
 
+  # Generate a version of the config.h header suitable for building with
+  # CocoaPods.
   s.prepare_command = <<-CMD
-    # Generate a version of the config.h header suitable for building with
-    # CocoaPods.
     sed '/^#cmakedefine/ d' \
         Firestore/core/src/firebase/firestore/util/config.h.in > \
         Firestore/core/src/firebase/firestore/util/config.h

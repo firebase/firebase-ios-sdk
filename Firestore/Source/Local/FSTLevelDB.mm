@@ -348,8 +348,8 @@ using leveldb::WriteOptions;
     return NO;
   }
   _ptr.reset(database);
+  [FSTLevelDBMigrations runMigrationsWithDatabase:_ptr.get()];
   LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
-  [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   _users = [FSTLevelDB collectUserSet:&transaction];
   transaction.Commit();
   [_queryCache start];
