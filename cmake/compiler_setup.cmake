@@ -19,6 +19,10 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(CMAKE_GENERATOR STREQUAL "Ninja")
+  set(NINJA ON)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CLANG ON)
 endif()
@@ -65,6 +69,13 @@ if(CLANG OR GNU)
      # Options added to match apple recommended project settings
      -Wcomma
     )
+  endif()
+
+  if(NINJA)
+    # If building under Ninja, disable tty detection and force color output
+    if(CLANG OR GNU)
+      list(APPEND common_flags -fdiagnostics-color)
+    endif()
   endif()
 
   foreach(flag ${common_flags} ${c_flags})

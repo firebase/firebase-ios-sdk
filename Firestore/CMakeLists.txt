@@ -33,17 +33,14 @@ set(FIREBASE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX})
 set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
-include(SanitizerOptions)
+include(sanitizer_options)
 include(cc_rules)
+include(external_rules)
 include(podspec_rules)
 
 
 # Googletest
-add_subdirectory(
-  ${FIREBASE_BINARY_DIR}/src/googletest
-  ${FIREBASE_BINARY_DIR}/src/googletest-build
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(googletest)
 add_alias(GTest::GTest gtest)
 add_alias(GTest::Main gtest_main)
 add_alias(GMock::GMock gmock)
@@ -62,11 +59,7 @@ if(ZLIB_FOUND)
 endif()
 
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
-add_subdirectory(
-  ${FIREBASE_BINARY_DIR}/src/grpc
-  ${FIREBASE_BINARY_DIR}/src/grpc-build
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(grpc)
 
 # Fix up targets included by gRPC's build
 add_alias(OpenSSL::Crypto crypto)
@@ -102,23 +95,14 @@ endif()
 set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
 set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
-add_subdirectory(
-  ${FIREBASE_BINARY_DIR}/src/leveldb
-  ${FIREBASE_BINARY_DIR}/src/leveldb-build
-  EXCLUDE_FROM_ALL
-)
-
+add_external_subdirectory(leveldb)
 add_alias(LevelDB::LevelDB leveldb)
 
 
 # nanopb
 set(nanopb_BUILD_GENERATOR ON CACHE BOOL "Enable the nanopb generator")
 set(nanopb_PROTOC_PATH ${NANOPB_PROTOC_BIN} CACHE STRING "Protoc location")
-add_subdirectory(
-  ${FIREBASE_BINARY_DIR}/src/nanopb
-  ${FIREBASE_BINARY_DIR}/src/nanopb-build
-  EXCLUDE_FROM_ALL
-)
+add_external_subdirectory(nanopb)
 
 target_compile_definitions(
   protobuf-nanopb
@@ -132,7 +116,7 @@ target_include_directories(
 
 
 enable_testing()
-include(CompilerSetup)
+include(compiler_setup)
 
 # Firebase packages
 podspec_framework(
@@ -165,15 +149,5 @@ if(APPLE)
   )
 endif()
 
-
-# Superbuild installed results
-include_directories(${FIREBASE_INSTALL_DIR}/include)
-
-# Generated sources will be relative to the binary directory.
-include_directories(${FIREBASE_BINARY_DIR})
-
-# Fully qualified imports, project wide
-include_directories(${FIREBASE_SOURCE_DIR})
-
-add_subdirectory(core)
 add_subdirectory(Protos)
+add_subdirectory(core)
