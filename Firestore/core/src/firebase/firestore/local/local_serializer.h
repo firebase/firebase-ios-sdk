@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
@@ -88,6 +89,47 @@ class LocalSerializer {
     return DecodeMaybeDocument(bytes.data(), bytes.size());
   }
 
+  /**
+   * @brief Encodes a QueryData to the equivalent bytes, representing a
+   * ::firestore::proto::Target, for local storage.
+   *
+   * @param[out] out_bytes A buffer to place the output. The bytes will be
+   * appended to this vector.
+   * @return A Status, which if not ok(), indicates what went wrong. Note that
+   * errors during encoding generally indicate a serious/fatal error.
+   */
+  // TODO(rsgowman): If we never support any output except to a vector, it may
+  // make sense to have LocalSerializer own the vector and provide an accessor
+  // rather than asking the user to create it first.
+  util::Status EncodeQueryData(const QueryData& query_data,
+                               std::vector<uint8_t>* out_bytes) const;
+
+  /**
+   * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
+   * equivalent QueryData.
+   *
+   * @param bytes The bytes to convert. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
+   * @return The QueryData equivalent of the bytes or a Status indicating what
+   * went wrong.
+   */
+  util::StatusOr<QueryData> DecodeQueryData(const uint8_t* bytes,
+                                            size_t length) const;
+
+  /**
+   * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
+   * equivalent QueryData.
+   *
+   * @param bytes The bytes to convert. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
+   * @return The QueryData equivalent of the bytes or a Status indicating what
+   * went wrong.
+   */
+  util::StatusOr<QueryData> DecodeQueryData(
+      const std::vector<uint8_t>& bytes) const {
+    return DecodeQueryData(bytes.data(), bytes.size());
+  }
+
  private:
   void EncodeMaybeDocument(nanopb::Writer* writer,
                            const model::MaybeDocument& maybe_doc) const;
@@ -106,6 +148,10 @@ class LocalSerializer {
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
       nanopb::Reader* reader) const;
+
+  void EncodeQueryData(nanopb::Writer* writer,
+                       const QueryData& query_data) const;
+  QueryData DecodeQueryData(nanopb::Reader* reader) const;
 
   const remote::Serializer& rpc_serializer_;
 };
