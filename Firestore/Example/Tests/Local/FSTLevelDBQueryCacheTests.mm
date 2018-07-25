@@ -67,13 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
 
   FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
-  NSError *error;
-  [db1 start:&error];
-  XCTAssertNil(error);
-  FSTLevelDBQueryCache *queryCache = db1.run("setup first db", [&]() -> FSTLevelDBQueryCache * {
-    FSTLevelDBQueryCache *queryCache = [db1 queryCache];
-    return queryCache;
-  });
+  FSTLevelDBQueryCache *queryCache = [db1 queryCache];
 
   XCTAssertEqual(0, queryCache.highestListenSequenceNumber);
   XCTAssertEqual(0, queryCache.highestTargetID);
@@ -98,16 +92,13 @@ NS_ASSUME_NONNULL_BEGIN
   db1 = nil;
 
   FSTLevelDB *db2 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
-  [db2 start:&error];
-  XCTAssertNil(error);
-  FSTLevelDBQueryCache *queryCache2 =
-      db2.run("verify sequence number", [&]() -> FSTLevelDBQueryCache * {
-        // We should remember the previous sequence number, and the next transaction should
-        // have a higher one.
-        XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
-        return [db2 queryCache];
-      });
+  db2.run("verify sequence number", [&]() {
+    // We should remember the previous sequence number, and the next transaction should
+    // have a higher one.
+    XCTAssertGreaterThan(db2.currentSequenceNumber, minimumSequenceNumber);
+  });
 
+  FSTLevelDBQueryCache *queryCache2 = [db2 queryCache];
   XCTAssertEqual(lastTargetId, queryCache2.highestTargetID);
   XCTAssertEqual(lastVersion, queryCache2.lastRemoteSnapshotVersion);
 
