@@ -29,19 +29,6 @@
 
 #include "gtest/gtest.h"
 
-/// Testing interface for ComponentContainer (required for Auth).
-@interface FIRComponentContainer ()
-// The extra long type information in components causes clang-format to wrap in
-// a weird way, turn for the declaration.
-// clang-format off
-/// Exposed for testing, create a container directly with components and a dummy
-/// app.
-- (instancetype)initWithApp:(FIRApp*)app
-                 components:(NSDictionary<NSString*,
-                             FIRComponentCreationBlock>*)components;
-// clang-format on
-@end
-
 /// A fake class to handle Auth interaction.
 @interface FSTAuthFake : NSObject<FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;

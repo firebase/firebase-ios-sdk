@@ -75,9 +75,12 @@ NS_ASSUME_NONNULL_BEGIN
   @synchronized(self.instances) {
     FIRFirestore *firestore = _instances[key];
     if (!firestore) {
-      // Question for Gil: Do we want to key based on app name as well here?
+      std::string queue_name{"com.google.firebase.firestore"};
+      if (!self.app.isDefaultApp) {
+        absl::StrAppend(&queue_name, ".", util::MakeStringView(self.app.name));
+      }
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-          queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
+          queueWith:dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL)];
 
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
       std::unique_ptr<CredentialsProvider> credentials_provider =
