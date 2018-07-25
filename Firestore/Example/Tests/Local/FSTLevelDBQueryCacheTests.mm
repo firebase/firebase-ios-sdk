@@ -64,14 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence shutdown];
   self.persistence = nil;
 
-  DatabaseId database_id{"p", "d"};
-
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
-  FSTLocalSerializer *serializer =
-      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
   NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
 
-  FSTLevelDB *db1 = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+  FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
   NSError *error;
   [db1 start:&error];
   XCTAssertNil(error);
@@ -102,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
   [db1 shutdown];
   db1 = nil;
 
-  FSTLevelDB *db2 = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+  FSTLevelDB *db2 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
   [db2 start:&error];
   XCTAssertNil(error);
   FSTLevelDBQueryCache *queryCache2 =

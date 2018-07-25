@@ -39,6 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (FSTLevelDB *)levelDBPersistence;
 
+/**
+ * Creates and starts a new FSTLevelDB instance for testing. Does not delete any data
+ * present in the given directory. As a consequence, the resulting databse is not guaranteed
+ * to be empty.
+ */
++ (FSTLevelDB *)levelDBPersistenceWithDir:(NSString *)dir;
+
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence;
 
