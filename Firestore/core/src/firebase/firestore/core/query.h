@@ -45,6 +45,10 @@ class Query {
     return Query(std::move(path), {});
   }
 
+  static Query Invalid() {
+    return Query::AtPath(model::ResourcePath::Empty());
+  }
+
   /** Initializes a query with all of its components directly. */
   Query(model::ResourcePath path,
         std::vector<std::shared_ptr<core::Filter>>
@@ -57,8 +61,18 @@ class Query {
     return path_;
   }
 
+  /** The filters on the documents returned by the query. */
+  const std::vector<std::shared_ptr<core::Filter>>& filters() const {
+    return filters_;
+  }
+
   /** Returns true if the document matches the constraints of this query. */
   bool Matches(const model::Document& doc) const;
+
+  /** Returns true if this Query is for a specific document. */
+  bool IsDocumentQuery() const {
+    return model::DocumentKey::IsDocumentKey(path_) && filters_.empty();
+  }
 
   /**
    * Returns a copy of this Query object with the additional specified filter.
@@ -66,20 +80,18 @@ class Query {
   Query Filter(std::shared_ptr<core::Filter> filter) const;
 
  private:
-  friend bool operator==(const Query& lhs, const Query& rhs);
-
   bool MatchesPath(const model::Document& doc) const;
   bool MatchesFilters(const model::Document& doc) const;
   bool MatchesOrderBy(const model::Document& doc) const;
   bool MatchesBounds(const model::Document& doc) const;
 
-  const model::ResourcePath path_;
+  model::ResourcePath path_;
 
   // Filters are shared across related Query instance. i.e. when you call
   // Query::Filter(f), a new Query instance is created that contains all of the
   // existing filters, plus the new one. (Both Query and Filter objects are
   // immutable.) Filters are not shared across unrelated Query instances.
-  const std::vector<std::shared_ptr<core::Filter>> filters_;
+  std::vector<std::shared_ptr<core::Filter>> filters_;
 };
 
 inline bool operator==(const Query& lhs, const Query& rhs) {
@@ -87,7 +99,7 @@ inline bool operator==(const Query& lhs, const Query& rhs) {
   // TODO(rsgowman): check orderby (once it exists)
   // TODO(rsgowman): check startat (once it exists)
   // TODO(rsgowman): check endat (once it exists)
-  return lhs.path() == rhs.path() && lhs.filters_ == rhs.filters_;
+  return lhs.path() == rhs.path() && lhs.filters() == rhs.filters();
 }
 
 inline bool operator!=(const Query& lhs, const Query& rhs) {

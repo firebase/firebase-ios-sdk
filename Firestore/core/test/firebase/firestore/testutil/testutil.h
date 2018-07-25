@@ -22,8 +22,10 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -115,6 +117,24 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             double value) {
   return Filter(key, op, model::FieldValue::DoubleValue(value));
+}
+
+inline core::Query Query(absl::string_view path) {
+  return core::Query::AtPath(Resource(path));
+}
+
+inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
+  if (snapshot_version == 0) {
+    // TODO(rsgowman): The other platforms return null here, though I'm not sure
+    // if they ever rely on that. I suspect it'd be sufficient to return '{}'.
+    // But for now, we'll just abort() until we hit a test case that actually
+    // makes use of this.
+    abort();
+  }
+
+  std::string snapshot_string =
+      std::string("snapshot-") + std::to_string(snapshot_version);
+  return {snapshot_string.begin(), snapshot_string.end()};
 }
 
 // Add a non-inline function to make this library buildable.

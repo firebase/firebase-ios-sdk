@@ -60,11 +60,11 @@ class QueryData {
    *     data that matches the query. The resume token essentially identifies a
    *     point in time from which the server should resume sending results.
    */
-  QueryData(const core::Query& query,
+  QueryData(core::Query&& query,
             int target_id,
             QueryPurpose purpose,
-            const model::SnapshotVersion& snapshot_version,
-            const std::vector<uint8_t>& resume_token);
+            model::SnapshotVersion&& snapshot_version,
+            std::vector<uint8_t>&& resume_token);
 
   /**
    * Convenience constructor for use when creating a QueryData for the first
@@ -73,8 +73,14 @@ class QueryData {
   // TODO(rsgowman): Define once WatchStream::EmptyResumeToken exists.
   // QueryData(const core::Query& query, int target_id, QueryPurpose purpose);
 
+  /**
+   * Constructs an invalid QueryData. Reading any properties of the returned
+   * value is undefined.
+   */
+  static QueryData Invalid();
+
   const core::Query& query() const {
-    return *query_;
+    return query_;
   }
 
   int target_id() const {
@@ -86,22 +92,22 @@ class QueryData {
   }
 
   const model::SnapshotVersion& snapshot_version() const {
-    return *snapshot_version_;
+    return snapshot_version_;
   }
 
   const std::vector<uint8_t>& resume_token() const {
-    return *resume_token_;
+    return resume_token_;
   }
 
-  QueryData Copy(const model::SnapshotVersion& snapshot_version,
-                 const std::vector<uint8_t>& resume_token) const;
+  QueryData Copy(model::SnapshotVersion&& snapshot_version,
+                 std::vector<uint8_t>&& resume_token) const;
 
  private:
-  const core::Query* query_;
+  const core::Query query_;
   int target_id_;
   QueryPurpose purpose_;
-  const model::SnapshotVersion* snapshot_version_;
-  const std::vector<uint8_t>* resume_token_;
+  const model::SnapshotVersion snapshot_version_;
+  const std::vector<uint8_t> resume_token_;
 };
 
 inline bool operator==(const QueryData& lhs, const QueryData& rhs) {
