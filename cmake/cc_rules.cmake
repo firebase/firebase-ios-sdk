@@ -20,7 +20,8 @@ include(CMakeParseArguments)
 #   DEPENDS libraries...
 # )
 #
-# Defines a new library target with the given target name, sources, and dependencies.
+# Defines a new library target with the given target name, sources, and
+# dependencies.
 function(cc_library name)
   set(flag EXCLUDE_FROM_ALL)
   set(multi DEPENDS SOURCES)
@@ -31,8 +32,10 @@ function(cc_library name)
   target_include_directories(
     ${name}
     PUBLIC
-    ${FIREBASE_SOURCE_DIR}
+    # Put the binary dir first so that the generated config.h trumps any one
+    # generated statically by a Cocoapods-based build in the same source tree.
     ${FIREBASE_BINARY_DIR}
+    ${FIREBASE_SOURCE_DIR}
   )
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
