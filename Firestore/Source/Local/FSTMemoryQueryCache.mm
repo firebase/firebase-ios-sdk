@@ -66,10 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTQueryCache implementation
 #pragma mark Query tracking
 
-- (void)start {
-  // Nothing to do.
-}
-
 - (FSTTargetID)highestTargetID {
   return _highestTargetID;
 }

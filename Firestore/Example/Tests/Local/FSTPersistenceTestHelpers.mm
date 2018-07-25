@@ -46,11 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
   return dir;
 }
 
-+ (FSTLevelDB *)levelDBPersistence {
++ (FSTLevelDB *)levelDBPersistenceWithDir:(NSString *)dir {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"p", "d"};
 
-  NSString *dir = [self levelDBDir];
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
@@ -63,6 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return db;
+}
+
++ (FSTLevelDB *)levelDBPersistence {
+  return [self levelDBPersistenceWithDir:[self levelDBDir]];
 }
 
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence {

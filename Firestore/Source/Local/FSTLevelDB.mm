@@ -75,6 +75,8 @@ using leveldb::WriteOptions;
 
 - (void)transactionWillCommit;
 
+- (void)start;
+
 @end
 
 @implementation FSTLevelDBLRUDelegate {
@@ -93,10 +95,13 @@ using leveldb::WriteOptions;
         [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache] delegate:self];
     _db = persistence;
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
-    FSTListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
-    _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
   }
   return self;
+}
+
+- (void)start {
+  FSTListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
+  _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
 }
 
 - (void)transactionWillStart {
@@ -347,6 +352,8 @@ using leveldb::WriteOptions;
   [FSTLevelDBMigrations runMigrationsWithTransaction:&transaction];
   _users = [FSTLevelDB collectUserSet:&transaction];
   transaction.Commit();
+  [_queryCache start];
+  [_referenceDelegate start];
   return YES;
 }
 

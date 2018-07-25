@@ -82,7 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
   _initialSequenceNumber = _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
-    [_queryCache start];
     [_mutationQueue start];
     _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
     return _persistence.currentSequenceNumber;

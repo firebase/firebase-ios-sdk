@@ -291,13 +291,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache removeQueryData:query3];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
   });
-
-  // Verify that the highestTargetID even survives restarts.
-  self.persistence.run("testHighestListenSequenceNumber restart", [&]() {
-    self.queryCache = [self.persistence queryCache];
-    [self.queryCache start];
-    XCTAssertEqual([self.queryCache highestListenSequenceNumber], 100);
-  });
 }
 
 - (void)testHighestTargetID {
@@ -343,13 +336,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache removeQueryData:query3];
     XCTAssertEqual([self.queryCache highestTargetID], 42);
   });
-
-  // Verify that the highestTargetID even survives restarts.
-  self.persistence.run("testHighestTargetID restart", [&]() {
-    self.queryCache = [self.persistence queryCache];
-    [self.queryCache start];
-    XCTAssertEqual([self.queryCache highestTargetID], 42);
-  });
 }
 
 - (void)testLastRemoteSnapshotVersion {
@@ -360,13 +346,6 @@ NS_ASSUME_NONNULL_BEGIN
 
     // Can set the snapshot version.
     [self.queryCache setLastRemoteSnapshotVersion:testutil::Version(42)];
-    XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
-  });
-
-  // Snapshot version persists restarts.
-  self.queryCache = [self.persistence queryCache];
-  self.persistence.run("testLastRemoteSnapshotVersion restart", [&]() {
-    [self.queryCache start];
     XCTAssertEqual([self.queryCache lastRemoteSnapshotVersion], testutil::Version(42));
   });
 }
