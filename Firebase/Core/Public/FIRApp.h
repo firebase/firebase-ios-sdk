@@ -113,6 +113,15 @@ NS_SWIFT_NAME(FirebaseApp)
  */
 @property(nonatomic, copy, readonly) FIROptions *options;
 
+/**
+ * Gets or sets whether automatic data collection is enabled for all products. Defaults to `YES`
+ * unless `FirebaseDataCollectionDefaultEnabled` is set to `NO` in your app's Info.plist. This value
+ * is persisted across runs of the app so that it can be set once when users have consented to
+ * collection.
+ */
+@property(nonatomic, readwrite, getter=isDataCollectionDefaultEnabled)
+    BOOL dataCollectionDefaultEnabled;
+
 @end
 
 NS_ASSUME_NONNULL_END
