@@ -17,6 +17,7 @@
 #import "Private/FIRErrors.h"
 #import "Private/FIRLogger.h"
 #import "Private/FIROptionsInternal.h"
+#import "Private/FIRVersion.h"
 
 // Keys for the strings in the plist file.
 NSString *const kFIRAPIKey = @"API_KEY";
@@ -108,6 +109,12 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 #pragma mark - Private class methods
+
++ (void)load {
+  // Call FIRLogger to make sure it gets initialized with Firebase's extra
+  // requirements before GULLogger gets called somewhere else.
+  FIRLogInfo(kFIRLoggerCore, @"I-COR000031", @"Initializing Firebase version %s", FIRVersionString);
+}
 
 + (void)initialize {
   // Report FirebaseCore version for useragent string
