@@ -83,7 +83,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAutoInitEnableFlagOverrideGlobalTrue {
-  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   id bundleMock = OCMPartialMock([NSBundle mainBundle]);
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
   XCTAssertTrue(self.messaging.isAutoInitEnabled);
@@ -94,7 +94,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAutoInitEnableFlagOverrideGlobalFalse {
-  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   id bundleMock = OCMPartialMock([NSBundle mainBundle]);
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
   XCTAssertTrue(self.messaging.isAutoInitEnabled);
@@ -105,7 +105,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAutoInitEnableGlobalDefaultTrue {
-  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(YES);
+  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(YES);
   id bundleMock = OCMPartialMock([NSBundle mainBundle]);
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
 
@@ -114,7 +114,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 }
 
 - (void)testAutoInitEnableGlobalDefaultFalse {
-  OCMStub([_mockFirebaseApp isAutomaticDataCollectionEnabled]).andReturn(NO);
+  OCMStub([_mockFirebaseApp isDataCollectionDefaultEnabled]).andReturn(NO);
   id bundleMock = OCMPartialMock([NSBundle mainBundle]);
   OCMStub([bundleMock objectForInfoDictionaryKey:kFIRMessagingPlistAutoInitEnabled]).andReturn(nil);
 

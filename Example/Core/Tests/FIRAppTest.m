@@ -586,7 +586,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionPlistSetEnabled {
@@ -596,7 +596,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionPlistSetDisabled {
@@ -606,7 +606,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(nil);
 
-  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedEnabled {
@@ -616,7 +616,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
-  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserSpecifiedDisabled {
@@ -626,7 +626,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
-  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenEnabled {
@@ -636,7 +636,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@YES);
 
-  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionUserOverriddenDisabled {
@@ -646,7 +646,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
-  XCTAssertFalse([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertFalse([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionWriteToDefaults {
@@ -654,12 +654,12 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp configure];
 
   FIRApp *app = [FIRApp defaultApp];
-  app.automaticDataCollectionEnabled = YES;
+  app.dataCollectionDefaultEnabled = YES;
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
   OCMVerify([defaultsMock setObject:@YES forKey:key]);
 
-  [FIRApp defaultApp].automaticDataCollectionEnabled = NO;
+  [FIRApp defaultApp].dataCollectionDefaultEnabled = NO;
   OCMVerify([defaultsMock setObject:@NO forKey:key]);
 
   [defaultsMock stopMocking];
@@ -669,8 +669,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Configure and disable data collection for the default FIRApp.
   [FIRApp configure];
   FIRApp *app = [FIRApp defaultApp];
-  app.automaticDataCollectionEnabled = NO;
-  XCTAssertFalse(app.isAutomaticDataCollectionEnabled);
+  app.dataCollectionDefaultEnabled = NO;
+  XCTAssertFalse(app.isDataCollectionDefaultEnabled);
 
   // Delete the app, and verify that the switch was reset.
   XCTestExpectation *deleteFinished =
@@ -686,7 +686,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   // Set up the default app again, and check the data collection flag.
   [FIRApp configure];
-  XCTAssertTrue([FIRApp defaultApp].isAutomaticDataCollectionEnabled);
+  XCTAssertTrue([FIRApp defaultApp].isDataCollectionDefaultEnabled);
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSent {
@@ -728,10 +728,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
 
   // Ensure Analytics is set after the global flag is set.
-  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:YES];
+  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:YES];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:YES persistSetting:NO]);
 
-  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:NO];
+  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:NO];
   OCMVerify([configurationMock setAnalyticsCollectionEnabled:NO persistSetting:NO]);
 }
 
@@ -745,10 +745,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(YES);
 
   // Reject any changes to Analytics when the data collection changes.
-  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:YES];
+  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:YES];
   OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 
-  [[FIRApp defaultApp] setAutomaticDataCollectionEnabled:NO];
+  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:NO];
   OCMReject([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
 }
 

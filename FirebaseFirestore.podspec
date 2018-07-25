@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.12.5'
+  s.version          = '0.12.6'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -47,6 +47,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
+  s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'gRPC-ProtoRPC', '~> 1.0'
   s.dependency 'leveldb-library', '~> 1.18'
@@ -70,9 +71,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"',
   }
 
+  # Generate a version of the config.h header suitable for building with
+  # CocoaPods.
   s.prepare_command = <<-CMD
-    # Generate a version of the config.h header suitable for building with
-    # CocoaPods.
     sed '/^#cmakedefine/ d' \
         Firestore/core/src/firebase/firestore/util/config.h.in > \
         Firestore/core/src/firebase/firestore/util/config.h

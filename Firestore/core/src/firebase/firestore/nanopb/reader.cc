@@ -146,6 +146,13 @@ std::string Reader::ReadString() {
   return result;
 }
 
+std::vector<uint8_t> Reader::ReadBytes() {
+  std::string bytes = ReadString();
+  if (!status_.ok()) return {};
+
+  return std::vector<uint8_t>(bytes.begin(), bytes.end());
+}
+
 void Reader::SkipField(const Tag& tag) {
   if (!status_.ok()) return;
 

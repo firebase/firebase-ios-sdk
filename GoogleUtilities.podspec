@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '5.0.5'
+  s.version          = '5.1.0'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -14,9 +14,7 @@ other Google CocoaPods. They're not intended for direct public usage.
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-# Undo comment before release.
-#    :tag => 'Utilities-' + s.version.to_s
-    :tag => 'pre-5.3-' + s.version.to_s
+    :tag => 'Utilities-' + s.version.to_s
   }
   s.ios.deployment_target = '6.0'
   s.osx.deployment_target = '10.10'
@@ -66,5 +64,29 @@ other Google CocoaPods. They're not intended for direct public usage.
       'SystemConfiguration'
     ]
     rs.dependency 'GoogleUtilities/Logger'
+  end
+
+  s.subspec 'AppDelegateSwizzler' do |adss|
+    adss.source_files = 'GoogleUtilities/AppDelegateSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    adss.public_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
+    adss.dependency 'GoogleUtilities/Logger'
+    adss.dependency 'GoogleUtilities/Network'
+  end
+
+  s.subspec 'ISASwizzler' do |iss|
+    iss.source_files = 'GoogleUtilities/ISASwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    iss.private_header_files = 'GoogleUtilities/ISASwizzler/Private/*.h'
+  end
+
+  s.subspec 'MethodSwizzler' do |mss|
+    mss.source_files = 'GoogleUtilities/MethodSwizzler/**/*.[mh]', 'GoogleUtilities/Common/*.h'
+    mss.private_header_files = 'GoogleUtilities/MethodSwizzler/Private/*.h'
+    mss.dependency 'GoogleUtilities/Logger'
+  end
+
+  s.subspec 'SwizzlerTestHelpers' do |sths|
+    sths.source_files = 'GoogleUtilities/SwizzlerTestHelpers/*.[hm]'
+    sths.private_header_files = 'GoogleUtilities/SwizzlerTestHelpers/*.h'
   end
 end

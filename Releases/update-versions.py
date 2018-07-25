@@ -55,6 +55,12 @@ def SetupArguments():
       action='store_true',
       help='Update the tags only')
 
+  parser.add_argument(
+      '--base_branch',
+      dest='base_branch',
+      default='master',
+      help='Base branch for new release')
+
   args = parser.parse_args()
   return args
 
@@ -88,13 +94,13 @@ def GetVersionData(git_root, version):
     sys.exit('Missing version file:{}'.format(json_file))
 
 
-def CreateReleaseBranch(release_branch):
+def CreateReleaseBranch(release_branch, base_branch):
   """Create and push the release branch.
 
   Args:
     release_branch: the name of the git release branch.
   """
-  os.system('git checkout master')
+  os.system('git checkout {}'.format(base_branch))
   os.system('git pull')
   os.system('git checkout -b {}'.format(release_branch))
   LogOrRun('git push origin {}'.format(release_branch))
@@ -233,7 +239,7 @@ def UpdateVersions():
     return
 
   release_branch = 'release-{}'.format(args.version)
-  CreateReleaseBranch(release_branch)
+  CreateReleaseBranch(release_branch, args.base_branch)
   UpdateFIROptions(git_root, version_data)
   UpdatePodSpecs(git_root, version_data, args.version)
   UpdatePodfiles(git_root, args.version)

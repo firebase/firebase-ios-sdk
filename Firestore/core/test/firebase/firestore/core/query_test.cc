@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 
+#include <cmath>
+
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
@@ -29,6 +31,7 @@ namespace core {
 
 using model::Document;
 using model::FieldValue;
+using model::ResourcePath;
 using testutil::Doc;
 using testutil::Filter;
 
@@ -65,6 +68,55 @@ TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
                     .Filter(Filter("text", "==", "msg1"));
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));
+}
+
+TEST(QueryTest, PrimitiveValueFilter) {
+  Query query1 = Query::AtPath(ResourcePath::FromString("collection"))
+                     .Filter(Filter("sort", ">=", 2));
+  Query query2 = Query::AtPath(ResourcePath::FromString("collection"))
+                     .Filter(Filter("sort", "<=", 2));
+
+  Document doc1 =
+      Doc("collection/1", 0, {{"sort", FieldValue::IntegerValue(1)}});
+  Document doc2 =
+      Doc("collection/2", 0, {{"sort", FieldValue::IntegerValue(2)}});
+  Document doc3 =
+      Doc("collection/3", 0, {{"sort", FieldValue::IntegerValue(3)}});
+  Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::FalseValue()}});
+  Document doc5 =
+      Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
+
+  EXPECT_FALSE(query1.Matches(doc1));
+  EXPECT_TRUE(query1.Matches(doc2));
+  EXPECT_TRUE(query1.Matches(doc3));
+  EXPECT_FALSE(query1.Matches(doc4));
+  EXPECT_FALSE(query1.Matches(doc5));
+
+  EXPECT_TRUE(query2.Matches(doc1));
+  EXPECT_TRUE(query2.Matches(doc2));
+  EXPECT_FALSE(query2.Matches(doc3));
+  EXPECT_FALSE(query2.Matches(doc4));
+  EXPECT_FALSE(query2.Matches(doc5));
+}
+
+TEST(QueryTest, NanFilter) {
+  Query query = Query::AtPath(ResourcePath::FromString("collection"))
+                    .Filter(Filter("sort", "==", NAN));
+
+  Document doc1 = Doc("collection/1", 0, {{"sort", FieldValue::NanValue()}});
+  Document doc2 =
+      Doc("collection/2", 0, {{"sort", FieldValue::IntegerValue(2)}});
+  Document doc3 =
+      Doc("collection/3", 0, {{"sort", FieldValue::DoubleValue(3.1)}});
+  Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::FalseValue()}});
+  Document doc5 =
+      Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
+
+  EXPECT_TRUE(query.Matches(doc1));
+  EXPECT_FALSE(query.Matches(doc2));
+  EXPECT_FALSE(query.Matches(doc3));
+  EXPECT_FALSE(query.Matches(doc4));
+  EXPECT_FALSE(query.Matches(doc5));
 }
 
 }  // namespace core

@@ -128,5 +128,26 @@ podspec_framework(
   ${FIREBASE_SOURCE_DIR}/FirebaseCore.podspec
 )
 
-add_subdirectory(core)
+podspec_framework(
+  ${FIREBASE_SOURCE_DIR}/FirebaseAuthInterop.podspec
+)
+
+if(APPLE)
+  # FirebaseAuthInterop has no source files but CMake can't build frameworks
+  # that don't have sources. Generate an inconsequential source file so that
+  # the library can be linked.
+  file(
+    WRITE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
+    "// generated file for header-only CMake support.
+    __attribute__((unused))
+    static void FirebaseAuthInteropFakeSymbol() {}
+    "
+  )
+  target_sources(
+    FirebaseAuthInterop
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/FirebaseAuthInteropDummy.c
+  )
+endif()
+
 add_subdirectory(Protos)
+add_subdirectory(core)

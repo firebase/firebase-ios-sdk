@@ -1,9 +1,23 @@
 # Unreleased
+
+# v0.13.0
 - [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
   atomically add and remove elements from an array field in a document.
 - [feature] Added `whereField(arrayContains:)` query filter to find
   documents where an array field contains a specific element.
 - [fixed] Fixed compilation with older Xcode versions (#1517).
+- [fixed] Fixed a performance issue where large write batches with hundreds of
+  changes would take a long time to read and write and consume excessive memory.
+  Large write batches should now see no penalty.
+- [fixed] Fixed a performance issue where adding a listener for a large
+  (thousands of documents) collection would take a long time in offline mode
+  (#1477).
+
+# v0.12.6
+- [fixed] Fixed an issue where queries returned fewer results than they should,
+  caused by documents that were cached as deleted when they should not have
+  been (#1548). Some cache data is cleared and so clients may use extra
+  bandwidth the first time they launch with this version of the SDK.
 
 # v0.12.5
 - [changed] Internal improvements.

@@ -29,11 +29,11 @@ using model::FieldValue;
 
 std::shared_ptr<Filter> Filter::Create(FieldPath path,
                                        Operator op,
-                                       FieldValue value) {
+                                       FieldValue value_rhs) {
   // TODO(rsgowman): Java performs a number of checks here, and then invokes the
   // ctor of the relevant Filter subclass. Port those checks here.
   return std::make_shared<RelationFilter>(std::move(path), op,
-                                          std::move(value));
+                                          std::move(value_rhs));
 }
 
 }  // namespace core

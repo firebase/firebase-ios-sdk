@@ -49,6 +49,10 @@ class ResourcePath : public impl::BasePath<ResourcePath> {
    */
   static ResourcePath FromString(absl::string_view path);
 
+  static ResourcePath Empty() {
+    return ResourcePath{};
+  }
+
   /** Returns a standardized string representation of this path. */
   std::string CanonicalString() const;
 

@@ -1,6 +1,8 @@
-# Unreleased
+# 2018-07-31 -- v3.1.0
+- Added support for global Firebase data collection flag. (#1219)
 - Fixed an issue where Messaging wouldn't properly unswizzle swizzled delegate
   methods. (#1481)
+- Fixed an issue that Messaging doesn't compile inside app extension. (#1503)
 
 # 2018-07-10 -- v3.0.3
 - Fixed an issue that client should suspend the topic requests when token is not available and resume the topic operation when the token is generated.

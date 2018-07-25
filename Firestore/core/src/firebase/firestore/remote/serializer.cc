@@ -45,6 +45,7 @@ namespace remote {
 
 using firebase::Timestamp;
 using firebase::TimestampInternal;
+using firebase::firestore::core::Query;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::Document;
 using firebase::firestore::model::DocumentKey;
@@ -60,11 +61,23 @@ using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StatusOr;
 
-namespace {
+// Aliases for nanopb's equivalent of google::firestore::v1beta1. This shorten
+// the symbols and allows them to fit on one line.
+namespace v1beta1 {
 
-ObjectValue::Map DecodeMapValue(Reader* reader);
+constexpr uint32_t StructuredQuery_CollectionSelector_collection_id_tag =
+    // NOLINTNEXTLINE(whitespace/line_length)
+    google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag;
 
-void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
+constexpr uint32_t StructuredQuery_CollectionSelector_all_descendants_tag =
+    // NOLINTNEXTLINE(whitespace/line_length)
+    google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag;
+
+}  // namespace v1beta1
+
+// TODO(rsgowman): Move this down below the anon namespace
+void Serializer::EncodeTimestamp(Writer* writer,
+                                 const Timestamp& timestamp_value) {
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
   timestamp_proto.seconds = timestamp_value.seconds();
@@ -72,6 +85,25 @@ void EncodeTimestamp(Writer* writer, const Timestamp& timestamp_value) {
   writer->WriteNanopbMessage(google_protobuf_Timestamp_fields,
                              &timestamp_proto);
 }
+
+namespace {
+
+ObjectValue::Map DecodeMapValue(Reader* reader);
+
+// There's no f:f::model equivalent of StructuredQuery, so we'll create our
+// own struct for decoding. We could use nanopb's struct, but it's slightly
+// inconvenient since it's a fixed size (so uses callbacks to represent
+// strings, repeated fields, etc.)
+struct StructuredQuery {
+  struct CollectionSelector {
+    std::string collection_id;
+    bool all_descendants;
+  };
+  // TODO(rsgowman): other submessages
+
+  std::vector<CollectionSelector> from;
+  // TODO(rsgowman): other fields
+};
 
 ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
                                                uint32_t key_tag,
@@ -204,7 +236,60 @@ ResourcePath ExtractLocalPathFromResourceName(
   return resource_name.PopFirst(5);
 }
 
+StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
+  StructuredQuery::CollectionSelector collection_selector{};
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return StructuredQuery::CollectionSelector{};
+    switch (tag.field_number) {
+      case v1beta1::StructuredQuery_CollectionSelector_collection_id_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return StructuredQuery::CollectionSelector{};
+        collection_selector.collection_id = reader->ReadString();
+        break;
+      case v1beta1::StructuredQuery_CollectionSelector_all_descendants_tag:
+        if (!reader->RequireWireType(PB_WT_VARINT, tag))
+          return StructuredQuery::CollectionSelector{};
+        collection_selector.all_descendants = reader->ReadBool();
+        break;
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
+    }
+  }
+  return collection_selector;
+}
+
+StructuredQuery DecodeStructuredQuery(Reader* reader) {
+  StructuredQuery query{};
+
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return StructuredQuery{};
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_StructuredQuery_from_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return StructuredQuery{};
+        query.from.push_back(
+            reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
+                DecodeCollectionSelector));
+        break;
+      // TODO(rsgowman): decode other fields
+      default:
+        // Unknown tag. According to the proto spec, we need to ignore these.
+        reader->SkipField(tag);
+    }
+  }
+  return query;
+}
+
 }  // namespace
+
+Serializer::Serializer(
+    const firebase::firestore::model::DatabaseId& database_id)
+    : database_id_(database_id),
+      database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
+}
 
 Status Serializer::EncodeFieldValue(const FieldValue& field_value,
                                     std::vector<uint8_t>* out_bytes) {
@@ -523,6 +608,126 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   return absl::make_unique<Document>(
       FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name), version,
       /*has_local_modifications=*/false);
+}
+
+util::Status Serializer::EncodeQueryTarget(
+    const core::Query& query, std::vector<uint8_t>* out_bytes) const {
+  Writer writer = Writer::Wrap(out_bytes);
+  EncodeQueryTarget(&writer, query);
+  return writer.status();
+}
+
+void Serializer::EncodeQueryTarget(Writer* writer,
+                                   const core::Query& query) const {
+  if (!writer->status().ok()) return;
+
+  // Dissect the path into parent, collection_id and optional key filter.
+  std::string collection_id;
+  if (query.path().empty()) {
+    writer->WriteTag(
+        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+    writer->WriteString(EncodeQueryPath(ResourcePath::Empty()));
+  } else {
+    ResourcePath path = query.path();
+    HARD_ASSERT(path.size() % 2 != 0,
+                "Document queries with filters are not supported.");
+    writer->WriteTag(
+        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
+    writer->WriteString(EncodeQueryPath(path.PopLast()));
+
+    collection_id = path.last_segment();
+  }
+
+  writer->WriteTag(
+      {PB_WT_STRING,
+       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag});
+  writer->WriteNestedMessage([&](Writer* writer) {
+    if (!collection_id.empty()) {
+      writer->WriteTag(
+          {PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_from_tag});
+      writer->WriteNestedMessage([&](Writer* writer) {
+        writer->WriteTag(
+            {PB_WT_STRING,
+             v1beta1::StructuredQuery_CollectionSelector_collection_id_tag});
+        writer->WriteString(collection_id);
+      });
+    }
+
+    // Encode the filters.
+    if (!query.filters().empty()) {
+      // TODO(rsgowman): Implement
+      abort();
+    }
+
+    // TODO(rsgowman): Encode the orders.
+    // TODO(rsgowman): Encode the limit.
+    // TODO(rsgowman): Encode the startat.
+    // TODO(rsgowman): Encode the endat.
+  });
+}
+
+ResourcePath DecodeQueryPath(absl::string_view name) {
+  ResourcePath resource = DecodeResourceName(name);
+  if (resource.size() == 4) {
+    // Path missing the trailing documents path segment, indicating an empty
+    // path.
+    return ResourcePath::Empty();
+  } else {
+    return ExtractLocalPathFromResourceName(resource);
+  }
+}
+
+Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
+  if (!reader->status().ok()) return Query::Invalid();
+
+  ResourcePath path = ResourcePath::Empty();
+  StructuredQuery query{};
+
+  while (reader->bytes_left()) {
+    Tag tag = reader->ReadTag();
+    if (!reader->status().ok()) return Query::Invalid();
+    switch (tag.field_number) {
+      case google_firestore_v1beta1_Target_QueryTarget_parent_tag:
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return Query::Invalid();
+        path = DecodeQueryPath(reader->ReadString());
+        break;
+
+      case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag: {
+        if (!reader->RequireWireType(PB_WT_STRING, tag))
+          return Query::Invalid();
+        query =
+            reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
+        break;
+      }
+    }
+  }
+
+  int from_count = query.from.size();
+  if (from_count > 0) {
+    HARD_ASSERT(
+        from_count == 1,
+        "StructuredQuery.from with more than one collection is not supported.");
+
+    path = path.Append(query.from[0].collection_id);
+  }
+
+  // TODO(rsgowman): Dencode the filters.
+  // TODO(rsgowman): Dencode the orders.
+  // TODO(rsgowman): Dencode the limit.
+  // TODO(rsgowman): Dencode the startat.
+  // TODO(rsgowman): Dencode the endat.
+
+  return Query(path, {});
+}
+
+std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {
+  if (path.empty()) {
+    // If the path is empty, the backend requires we leave off the /documents at
+    // the end.
+    return database_name_;
+  }
+  return EncodeResourceName(database_id_, path);
 }
 
 void Serializer::EncodeMapValue(Writer* writer,
