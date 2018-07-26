@@ -29,7 +29,7 @@ extern NSString *const kFIRDisableDebugModeApplicationArgument;
 extern NSString *const kFIREnableDebugModeApplicationArgument;
 
 /// Key for the debug mode bit in NSUserDefaults.
-NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
+extern NSString *const kFIRPersistedDebugModeKey;
 
 extern const char *kGULLoggerASLClientFacilityName;
 
