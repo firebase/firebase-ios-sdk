@@ -29,7 +29,7 @@ extern NSString *const kFIRDisableDebugModeApplicationArgument;
 extern NSString *const kFIREnableDebugModeApplicationArgument;
 
 /// Key for the debug mode bit in NSUserDefaults.
-NSString *const kGULPersistedDebugModeKey = @"/google/utilities/debug_mode";
+NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
 
 extern const char *kGULLoggerASLClientFacilityName;
 
@@ -100,7 +100,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
   // Assert.
 #if MAKE_THREAD_SAFE
-  NSNumber *debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
+  NSNumber *debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertNil(debugMode);
   XCTAssertFalse(getGULLoggerDebugMode());
 #endif
@@ -132,17 +132,14 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testInitializeASLForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
-  [self.defaults setBool:debugMode.boolValue forKey:kGULPersistedDebugModeKey];
+  [self.defaults setBool:debugMode.boolValue forKey:kFIRPersistedDebugModeKey];
 
   // Test.
-  FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
+  GULLogError(@"my service", NO, kMessageCode, @"Some error.");
 
   // Assert.
-  debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
+  debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
-#if MAKE_THREAD_SAFE
-  XCTAssertTrue(getGULLoggerDebugMode());
-#endif
 }
 
 - (void)testMessageCodeFormat {
