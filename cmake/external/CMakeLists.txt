@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,5 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Protos)
-add_subdirectory(core)
+cmake_minimum_required(VERSION 3.1)
+project(Firebase-download C CXX)
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+set(
+  FIREBASE_DOWNLOAD_DIR
+  ${PROJECT_BINARY_DIR}/downloads
+  CACHE PATH "Where to store downloaded files"
+)
+
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
