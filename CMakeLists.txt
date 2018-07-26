@@ -20,6 +20,7 @@ project(firebase C CXX)
 option(WITH_ASAN "Build with Address Sanitizer" OFF)
 option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
 option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
+option(FUZZING "Build with Fuzz Testing flags" OFF)
 
 # If no build type is specified, make it a debug build
 if(NOT CMAKE_BUILD_TYPE)
