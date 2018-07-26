@@ -79,7 +79,7 @@ void GULLoggerInitializeASL(void) {
 }
 
 void GULLoggerEnableSTDERR(void) {
-  asl_add_log_file(sGULLoggerClient, ASL_OPT_STDERR);
+  asl_add_log_file(sGULLoggerClient, STDERR_FILENO);
 }
 
 void GULLoggerForceDebug(void) {
