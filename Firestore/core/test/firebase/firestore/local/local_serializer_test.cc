@@ -151,7 +151,6 @@ class LocalSerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
     serializer->EncodeMaybeDocument(&writer, maybe_doc);
-    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -186,7 +185,6 @@ class LocalSerializerTest : public ::testing::Test {
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
     Writer writer = Writer::Wrap(&bytes);
     serializer->EncodeQueryData(&writer, query_data);
-    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -232,7 +230,6 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   std::vector<uint8_t> query_target_bytes;
   Writer writer = Writer::Wrap(&query_target_bytes);
   remote_serializer.EncodeQueryTarget(&writer, query_data.query());
-  EXPECT_OK(writer.status());
   v1beta1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));

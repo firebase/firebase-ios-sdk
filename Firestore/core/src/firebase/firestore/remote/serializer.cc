@@ -579,8 +579,6 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
 void Serializer::EncodeQueryTarget(Writer* writer,
                                    const core::Query& query) const {
-  if (!writer->status().ok()) return;
-
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
   if (query.path().empty()) {

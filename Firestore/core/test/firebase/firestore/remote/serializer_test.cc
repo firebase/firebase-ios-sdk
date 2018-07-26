@@ -181,7 +181,6 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
     serializer->EncodeFieldValue(&writer, fv);
-    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -191,7 +190,6 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
     serializer->EncodeDocument(&writer, key, value.object_value());
-    EXPECT_OK(writer.status());
     return bytes;
   }
 

@@ -193,8 +193,6 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
                                       const QueryData& query_data) const {
-  if (!writer->status().ok()) return;
-
   writer->WriteTag({PB_WT_VARINT, firestore_client_Target_target_id_tag});
   writer->WriteInteger(query_data.target_id());
 
