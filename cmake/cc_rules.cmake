@@ -70,6 +70,24 @@ function(cc_test name)
   target_link_libraries(${name} ${cct_DEPENDS})
 endfunction()
 
+# cc_binary(
+#   target
+#   SOURCES sources...
+#   DEPENDS libraries...
+# )
+#
+# Defines a new executable target with the given target name, sources, and
+# dependencies.
+function(cc_binary name)
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
+
+  add_executable(${name} ${ccb_SOURCES})
+
+  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
+  target_link_libraries(${name} ${ccb_DEPENDS})
+endfunction()
+
 # add_objc_flags(target sources...)
 #
 # Adds OBJC_FLAGS to the compile options of the given target if any of the

@@ -34,6 +34,7 @@ set(FIREBASE_BINARY_DIR ${PROJECT_BINARY_DIR}/..)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${FIREBASE_SOURCE_DIR}/cmake)
 include(sanitizer_options)
+include(fuzzing_options)
 include(cc_rules)
 include(external_rules)
 include(podspec_rules)

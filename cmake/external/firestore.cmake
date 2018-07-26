@@ -18,6 +18,7 @@ include(external/grpc)
 include(external/leveldb)
 include(external/nanopb)
 include(external/protobuf)
+include(external/libfuzzer)
 
 if(TARGET Firestore)
   return()
@@ -31,6 +32,7 @@ ExternalProject_Add(
     leveldb
     nanopb
     protobuf
+    libfuzzer
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
@@ -44,6 +46,7 @@ ExternalProject_Add(
     -DWITH_ASAN:BOOL=${WITH_ASAN}
     -DWITH_TSAN:BOOL=${WITH_TSAN}
     -DWITH_UBSAN:BOOL=${WITH_UBSAN}
+    -DFUZZING:BOOL=${FUZZING}
 
   BUILD_ALWAYS ON
 
