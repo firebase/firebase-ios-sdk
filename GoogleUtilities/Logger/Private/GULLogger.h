@@ -31,10 +31,18 @@ extern "C" {
 
 /**
  * Initialize GULLogger.
- * (required) overrideSTDERR Override the aslOptions to ASL_OPT_STDERR.
- * (required) forceDebugMode Force the asl level to ASL_LEVEL_DEBUG.
  */
-extern void GULLoggerInitializeASL(BOOL overrideSTDERR, BOOL forceDebugMode);
+extern void GULLoggerInitializeASL(void);
+
+/**
+ * Override log level to Debug.
+ */
+void GULLoggerForceDebug(void);
+
+/**
+ * Turn on logging to STDERR.
+ */
+extern void GULLoggerEnableSTDERR(void);
 
 /**
  * Changes the default logging level of GULLoggerLevelNotice to a user-specified level.

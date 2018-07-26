@@ -28,7 +28,8 @@
 extern NSString *const kFIRDisableDebugModeApplicationArgument;
 extern NSString *const kFIREnableDebugModeApplicationArgument;
 
-extern NSString *const kGULPersistedDebugModeKey;
+/// Key for the debug mode bit in NSUserDefaults.
+NSString *const kGULPersistedDebugModeKey = @"/google/utilities/debug_mode";
 
 extern const char *kGULLoggerASLClientFacilityName;
 
