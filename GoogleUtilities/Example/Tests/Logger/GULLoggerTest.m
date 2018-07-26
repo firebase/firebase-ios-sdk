@@ -22,8 +22,6 @@
 
 #import <asl.h>
 
-extern NSString *const kGULPersistedDebugModeKey;
-
 extern const char *kGULLoggerASLClientFacilityName;
 
 extern void GULResetLogger(void);
@@ -58,19 +56,6 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super tearDown];
 
   _defaults = nil;
-}
-
-- (void)testInitializeASLForDebugModeWithUserDefaults {
-  // Stub.
-  NSNumber *debugMode = @YES;
-  [self.defaults setBool:debugMode.boolValue forKey:kGULPersistedDebugModeKey];
-
-  // Test.
-  GULLogError(@"my service", NO, kMessageCode, @"Some error.");
-
-  // Assert.
-  debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
-  XCTAssertTrue(debugMode.boolValue);
 }
 
 - (void)testMessageCodeFormat {
