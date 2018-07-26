@@ -19,9 +19,6 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "Public/GULLoggerLevel.h"
 
-/// Key for the debug mode bit in NSUserDefaults.
-NSString *const kGULPersistedDebugModeKey = @"/google/utilities/debug_mode";
-
 /// ASL client facility name used by GULLogger.
 const char *kGULLoggerASLClientFacilityName = "com.google.utilities.logger";
 
@@ -46,7 +43,7 @@ static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 #endif
 
-void GULLoggerInitializeASL(BOOL overrideSTDERR, BOOL forceDebugMode) {
+void GULLoggerInitializeASL(void) {
   dispatch_once(&sGULLoggerOnceToken, ^{
     NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
     uint32_t aslOptions = ASL_OPT_STDERR;
@@ -62,39 +59,35 @@ void GULLoggerInitializeASL(BOOL overrideSTDERR, BOOL forceDebugMode) {
     }
 #endif  // TARGET_OS_SIMULATOR
 
-    // Override the aslOptions to ASL_OPT_STDERR if the override argument is passed in.
-    if (overrideSTDERR) {
-      aslOptions = ASL_OPT_STDERR;
-    }
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
     // Initialize the ASL client handle.
     sGULLoggerClient = asl_open(NULL, kGULLoggerASLClientFacilityName, aslOptions);
-    sGULLoggerDebugMode = forceDebugMode;
     sGULLoggerMaximumLevel = GULLoggerLevelNotice;
 
-    if (forceDebugMode) {
-      asl_set_filter(sGULLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));
-    } else {
-      // Set the filter used by system/device log. Initialize in default mode.
-      asl_set_filter(sGULLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
-    }
-
-    // We should disable debug mode if we are running from App Store.
-    if (sGULLoggerDebugMode && [GULAppEnvironmentUtil isFromAppStore]) {
-      sGULLoggerDebugMode = NO;
-    }
+    // Set the filter used by system/device log. Initialize in default mode.
+    asl_set_filter(sGULLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
 
     sGULClientQueue = dispatch_queue_create("GULLoggingClientQueue", DISPATCH_QUEUE_SERIAL);
     dispatch_set_target_queue(sGULClientQueue,
                               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
-
 #ifdef DEBUG
     sMessageCodeRegex =
         [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern options:0 error:NULL];
 #endif
   });
+}
+
+void GULLoggerEnableSTDERR(void) {
+  asl_add_log_file(sGULLoggerClient, ASL_OPT_STDERR);
+}
+
+void GULLoggerForceDebug(void) {
+  // We should enable debug mode if we're not running from App Store.
+  if (![GULAppEnvironmentUtil isFromAppStore]) {
+    sGULLoggerDebugMode = YES;
+    GULSetLoggerLevel(GULLoggerLevelDebug);
+  }
 }
 
 void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
@@ -103,7 +96,7 @@ void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
                 (long)loggerLevel);
     return;
   }
-  GULLoggerInitializeASL(NO, NO);
+  GULLoggerInitializeASL();
   // We should not raise the logger level if we are running from App Store.
   if (loggerLevel >= GULLoggerLevelNotice && [GULAppEnvironmentUtil isFromAppStore]) {
     return;
@@ -119,7 +112,7 @@ void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
  * Check if the level is high enough to be loggable.
  */
 __attribute__((no_sanitize("thread"))) BOOL GULIsLoggableLevel(GULLoggerLevel loggerLevel) {
-  GULLoggerInitializeASL(NO, NO);
+  GULLoggerInitializeASL();
   if (sGULLoggerDebugMode) {
     return YES;
   }
@@ -154,7 +147,7 @@ void GULLogBasic(GULLoggerLevel level,
                  NSString *messageCode,
                  NSString *message,
                  va_list args_ptr) {
-  GULLoggerInitializeASL(NO, NO);
+  GULLoggerInitializeASL();
   if (!(level <= sGULLoggerMaximumLevel || sGULLoggerDebugMode || forceLog)) {
     return;
   }
