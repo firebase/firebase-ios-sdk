@@ -88,7 +88,6 @@ void GULLoggerForceDebug(void) {
     sGULLoggerDebugMode = YES;
     GULSetLoggerLevel(GULLoggerLevelDebug);
   }
-
 }
 
 void GULSetLoggerLevel(GULLoggerLevel loggerLevel) {
