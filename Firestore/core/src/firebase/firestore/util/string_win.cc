@@ -100,7 +100,7 @@ std::string LastErrorMessage(DWORD last_error) {
       FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
           FORMAT_MESSAGE_IGNORE_INSERTS,
       nullptr, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      (wchar_t*)&error_text, 0, nullptr);
+      reinterpret_cast<wchar_t*>(&error_text), 0, nullptr);
   std::string formatted;
   if (output_len == 0 || error_text == nullptr) {
     formatted = util::StringFormat(

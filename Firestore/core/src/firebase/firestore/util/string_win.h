@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_WIN_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_WIN_H_
+
 #if defined(_WIN32)
 #include <windows.h>
 #endif
@@ -51,3 +54,5 @@ std::string LastErrorMessage(DWORD last_error);
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_WIN_H_
