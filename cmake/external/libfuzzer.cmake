@@ -32,8 +32,7 @@ ExternalProject_Add(
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME libfuzzer
-  SVN_REPOSITORY "http://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer"
-  SVN_REVISION -r "338160"
+  SVN_REPOSITORY "https://llvm.org/svn/llvm-project/compiler-rt/tags/RELEASE_601/final/lib/fuzzer"
   LOG_DOWNLOAD FALSE    # Do not print SVN checkout messages.
 
   PREFIX ${PROJECT_BINARY_DIR}

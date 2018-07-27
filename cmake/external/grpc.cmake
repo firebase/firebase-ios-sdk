@@ -41,10 +41,10 @@ ExternalProject_Add(
 # step clears the source tree so these must be declared to depend upon the grpc
 # target. ExternalProject dependencies must already exist when declared so
 # these must come after the ExternalProject_Add block above.
-include(external/boringssl)
-include(external/c-ares)
-include(external/protobuf)
-include(external/zlib)
+include(boringssl)
+include(c-ares)
+include(protobuf)
+include(zlib)
 
 add_custom_target(
   grpc

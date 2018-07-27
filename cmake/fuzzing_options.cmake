@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-option(FUZZING "Build for Fuzz Testing (local fuzzing and on OSS Fuzz)" OFF)
+# Add fuzz testing options to the current build.
+
+include(compiler_id)
+
+option(FUZZING "Build for Fuzz Testing (local fuzzing and OSS Fuzz)" OFF)
 
 # If fuzzing is enabled, multiple compile and linking flags must be set.
 # These flags are set according to the compiler kind.
@@ -27,14 +31,14 @@ if(FUZZING)
   # coverage level (trace-pc). This flag has different values in Clang and GNU.
   # Other values, such as trace-cmp, can be used to trace data flow. See the
   # official documentation for the compiler flags.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  if(CXX_CLANG)
     # TODO(minafarid): Check the version of Clang. Clang versions >= 5.0 should
     # have libFuzzer by default.
     set(fuzzing_flags -fsanitize-coverage=trace-pc-guard)
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  elseif(CXX_GNU)
     set(fuzzing_flags -fsanitize-coverage=trace-pc)
   else()
-    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER_ID} does not support fuzzing.")
+    message(FATAL_ERROR "Only Clang and GCC support fuzzing.")
   endif()
 
   foreach(flag ${fuzzing_flags})

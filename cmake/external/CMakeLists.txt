@@ -12,22 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(HAVE_LEVELDB)
-  cc_test(
-    firebase_firestore_local_persistence_leveldb_test
-    SOURCES
-      leveldb_key_test.cc
-    DEPENDS
-      firebase_firestore_local_persistence_leveldb
-  )
-endif()
+cmake_minimum_required(VERSION 3.1)
+project(Firebase-download C CXX)
 
-cc_test(
-  firebase_firestore_local_test
-  SOURCES
-    local_serializer_test.cc
-  DEPENDS
-    firebase_firestore_local
-    firebase_firestore_model
-    firebase_firestore_protos_libprotobuf
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+set(
+  FIREBASE_DOWNLOAD_DIR
+  ${PROJECT_BINARY_DIR}/downloads
+  CACHE PATH "Where to store downloaded files"
 )
+
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
