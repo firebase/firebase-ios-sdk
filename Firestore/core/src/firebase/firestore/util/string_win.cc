@@ -44,7 +44,7 @@ std::wstring Utf8ToNative(absl::string_view input) {
   if (output_len == 0) {
     DWORD error = ::GetLastError();
     HARD_FAIL("Utf8ToNative failed with code %s: %s", error,
-              ::LastErrorMessage(error));
+              LastErrorMessage(error));
   }
   HARD_ASSERT(output_len > 0);
 
@@ -78,7 +78,7 @@ std::string NativeToUtf8(const wchar_t* input, size_t input_size) {
   if (output_len == 0) {
     DWORD error = ::GetLastError();
     HARD_FAIL("NativeToUtf8 failed with code %s: %s", error,
-              ::LastErrorMessage(error));
+              LastErrorMessage(error));
   }
   HARD_ASSERT(output_len > 0);
 
