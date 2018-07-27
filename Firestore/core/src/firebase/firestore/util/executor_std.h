@@ -93,8 +93,9 @@ class Schedule {
       // To minimize busy waiting, sleep until either the nearest entry in the
       // future either changes, or else becomes due.
       const auto until = scheduled_.front().due;
-      cv_.wait_until(lock, until,
-                     [this, until] { return scheduled_.front().due != until; });
+      cv_.wait_until(lock, until, [this, until] {
+        return scheduled_.empty() || scheduled_.front().due != until;
+      });
       // There are 3 possibilities why `wait_until` has returned:
       // - `wait_until` has timed out, in which case the current time is at
       //   least `until`, so there must be an overdue entry;
@@ -102,8 +103,9 @@ class Schedule {
       //   either overdue (in which case `HasDueLocked` will break the cycle),
       //   or else `until` must be reevaluated (on the next iteration of the
       //   loop);
-      // - `until` entry has been removed. This means `until` has to be
-      //   reevaluated, similar to #2.
+      // - `until` entry has been removed (including the case where the queue
+      //   has become empty). This means `until` has to be reevaluated, similar
+      //   to #2.
 
       if (HasDueLocked()) {
         return ExtractLocked(scheduled_.begin());
