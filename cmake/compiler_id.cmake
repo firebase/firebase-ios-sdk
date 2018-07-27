@@ -12,22 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(HAVE_LEVELDB)
-  cc_test(
-    firebase_firestore_local_persistence_leveldb_test
-    SOURCES
-      leveldb_key_test.cc
-    DEPENDS
-      firebase_firestore_local_persistence_leveldb
-  )
+# Adds cheap tests for various compilers
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CXX_CLANG TRUE)
 endif()
 
-cc_test(
-  firebase_firestore_local_test
-  SOURCES
-    local_serializer_test.cc
-  DEPENDS
-    firebase_firestore_local
-    firebase_firestore_model
-    firebase_firestore_protos_libprotobuf
-)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CXX_GNU TRUE)
+endif()
