@@ -340,7 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)startTransaction:(__unused absl::string_view)label {
-  _orphaned = absl::make_unique<std::unordered_set<DocumentKey, DocumentKeyHash> >();
+  _orphaned = absl::make_unique<std::unordered_set<DocumentKey, DocumentKeyHash>>();
 }
 
 - (BOOL)mutationQueuesContainKey:(const DocumentKey &)key {
