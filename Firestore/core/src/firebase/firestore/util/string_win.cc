@@ -20,6 +20,7 @@
 #include <windows.h>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace firebase {
@@ -94,27 +95,27 @@ std::string NativeToUtf8(const wchar_t* input, size_t input_size) {
 }
 
 std::string LastErrorMessage(DWORD last_error) {
+  // Preallocate a buffer sufficiently large to receive any message. Since we're
+  // not asking for inserts this is already way too big.
+  size_t size = 16 * 1024;
+  auto error_text = absl::make_unique<wchar_t[]>(size);
+
   // output_len excludes the trailing null.
-  wchar_t* error_text = nullptr;
   DWORD output_len = ::FormatMessageW(
-      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
-          FORMAT_MESSAGE_IGNORE_INSERTS,
-      nullptr, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      reinterpret_cast<wchar_t*>(&error_text), 0, nullptr);
-  std::string formatted;
-  if (output_len == 0 || error_text == nullptr) {
-    formatted = util::StringFormat(
+      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+      last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), error_text.get(),
+      size, nullptr);
+  if (output_len == 0) {
+    DWORD format_error = ::GetLastError();
+    return util::StringFormat(
         "error %s; unknown error %s while getting error text", last_error,
-        output_len);
-  } else {
-    formatted = NativeToUtf8(error_text, output_len);
-    if (absl::EndsWith(formatted, "\r\n")) {
-      formatted.resize(formatted.size() - 2);
-    }
+        format_error);
   }
 
-  ::LocalFree(error_text);
-  error_text = nullptr;
+  std::string formatted = NativeToUtf8(error_text.get(), output_len);
+  if (absl::EndsWith(formatted, "\r\n")) {
+    formatted.resize(formatted.size() - 2);
+  }
   return formatted;
 }
 
