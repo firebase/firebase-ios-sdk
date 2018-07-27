@@ -61,7 +61,11 @@ TEST(StringWindowsTest, InvalidUtf8) {
 }
 
 TEST(StringWindowsTest, LastErrorMessage) {
-  EXPECT_EQ(std::string{"The parameter is incorrect."}, LastErrorMessage(0x57));
+  LANGID default_langid = ::GetUserDefaultUILanguage();
+  if (PRIMARYLANGID(default_langid) == LANG_ENGLISH) {
+    EXPECT_EQ(std::string{"The parameter is incorrect."},
+              LastErrorMessage(ERROR_INVALID_PARAMETER));
+  }
 }
 
 #endif  // defined(_WIN32)
