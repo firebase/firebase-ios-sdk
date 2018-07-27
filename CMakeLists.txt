@@ -19,6 +19,7 @@ project(firebase C CXX)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${PROJECT_SOURCE_DIR}/cmake)
 include(cc_rules)
+include(compiler_id)
 include(external_rules)
 include(podspec_rules)
 include(sanitizer_options)
@@ -43,6 +44,7 @@ download_external_sources()
 
 
 # Googletest
+set(gtest_force_shared_crt ON CACHE BOOL "Use shared run-time")
 add_external_subdirectory(googletest)
 add_alias(GTest::GTest gtest)
 add_alias(GTest::Main gtest_main)
@@ -50,9 +52,13 @@ add_alias(GMock::GMock gmock)
 
 
 # Abseil-cpp
+# Force disable Abseil's tests, which don't compile under VS2017.
+set(old_build_testing ${BUILD_TESTING})
+set(BUILD_TESTING OFF CACHE BOOL "Disable Abseil tests" FORCE)
 add_subdirectory(
   Firestore/third_party/abseil-cpp
 )
+set(BUILD_TESTING ${old_build_testing} CACHE BOOL "Restore BUILD_TESTING" FORCE)
 
 
 # gRPC
@@ -81,10 +87,19 @@ target_include_directories(
 )
 
 add_alias(protobuf::libprotobuf libprotobuf)
-target_compile_options(
-  libprotobuf
-  PUBLIC -Wno-unused-parameter
-)
+if(CXX_CLANG OR CXX_GNU)
+  target_compile_options(
+    libprotobuf
+    PUBLIC -Wno-unused-parameter
+  )
+endif()
+if(CXX_CLANG)
+  target_compile_options(
+    libprotobuf
+    PRIVATE -Wno-invalid-offsetof
+  )
+endif()
+
 
 if(NOT ZLIB_FOUND)
   target_include_directories(
@@ -95,11 +110,16 @@ endif()
 
 
 # LevelDB
-set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
-set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
-set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
-add_external_subdirectory(leveldb)
-add_alias(LevelDB::LevelDB leveldb)
+if(NOT WIN32)
+  set(HAVE_LEVELDB ON)
+endif()
+if(HAVE_LEVELDB)
+  set(LEVELDB_BUILD_TESTS OFF CACHE BOOL "Firestore disabled")
+  set(LEVELDB_BUILD_BENCHMARKS OFF CACHE BOOL "Firestore disabled")
+  set(LEVELDB_INSTALL OFF CACHE BOOL "Firestore disabled")
+  add_external_subdirectory(leveldb)
+  add_alias(LevelDB::LevelDB leveldb)
+endif()
 
 
 # nanopb

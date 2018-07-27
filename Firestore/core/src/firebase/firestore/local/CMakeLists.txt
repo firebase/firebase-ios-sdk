@@ -12,13 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(HAVE_LEVELDB)
+  cc_library(
+    firebase_firestore_local_persistence_leveldb
+    SOURCES
+      leveldb_key.h
+      leveldb_key.cc
+      leveldb_transaction.h
+      leveldb_transaction.cc
+    DEPENDS
+      LevelDB::LevelDB
+      absl_strings
+      firebase_firestore_model
+      firebase_firestore_util
+    EXCLUDE_FROM_ALL
+  )
+
+  set(
+    FIREBASE_FIRESTORE_LOCAL_PERSISTENCE
+    firebase_firestore_local_persistence_leveldb
+  )
+endif()
+
 cc_library(
   firebase_firestore_local
   SOURCES
-    leveldb_key.h
-    leveldb_key.cc
-    leveldb_transaction.h
-    leveldb_transaction.cc
     local_serializer.h
     local_serializer.cc
     query_data.cc
@@ -27,7 +45,7 @@ cc_library(
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb
 
-    LevelDB::LevelDB
+    ${FIREBASE_FIRESTORE_LOCAL_PERSISTENCE}
     absl_strings
     firebase_firestore_model
     firebase_firestore_nanopb
