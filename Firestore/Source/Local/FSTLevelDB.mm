@@ -20,25 +20,37 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
+#import "Firestore/Source/Core/FSTListenSequence.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
+#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
+#import "Firestore/Source/Local/FSTReferenceSet.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/string_util.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 #include "leveldb/db.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ResourcePath;
+using util::OrderedCode;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,6 +62,166 @@ using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
+
+/**
+ * Provides LRU functionality for leveldb persistence.
+ *
+ * Although this could implement FSTTransactional, it doesn't because it is not directly tied to
+ * a transaction runner, it just happens to be called from FSTLevelDB, which is FSTTransactional.
+ */
+@interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+
+- (void)transactionWillStart;
+
+- (void)transactionWillCommit;
+
+- (void)start;
+
+@end
+
+@implementation FSTLevelDBLRUDelegate {
+  FSTLRUGarbageCollector *_gc;
+  // This delegate should have the same lifetime as the persistence layer, but mark as
+  // weak to avoid retain cycle.
+  __weak FSTLevelDB *_db;
+  FSTReferenceSet *_additionalReferences;
+  FSTListenSequenceNumber _currentSequenceNumber;
+  FSTListenSequence *_listenSequence;
+}
+
+- (instancetype)initWithPersistence:(FSTLevelDB *)persistence {
+  if (self = [super init]) {
+    _gc =
+        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache] delegate:self];
+    _db = persistence;
+    _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+  }
+  return self;
+}
+
+- (void)start {
+  FSTListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
+  _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
+}
+
+- (void)transactionWillStart {
+  HARD_ASSERT(_currentSequenceNumber == kFSTListenSequenceNumberInvalid,
+              "Previous sequence number is still in effect");
+  _currentSequenceNumber = [_listenSequence next];
+}
+
+- (void)transactionWillCommit {
+  _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
+}
+
+- (FSTListenSequenceNumber)currentSequenceNumber {
+  HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
+              "Asking for a sequence number outside of a transaction");
+  return _currentSequenceNumber;
+}
+
+- (void)addInMemoryPins:(FSTReferenceSet *)set {
+  // We should be able to assert that _additionalReferences is nil, but due to restarts in spec
+  // tests it would fail.
+  _additionalReferences = set;
+}
+
+- (void)removeTarget:(FSTQueryData *)queryData {
+  FSTQueryData *updated =
+      [queryData queryDataByReplacingSnapshotVersion:queryData.snapshotVersion
+                                         resumeToken:queryData.resumeToken
+                                      sequenceNumber:[self currentSequenceNumber]];
+  [_db.queryCache updateQueryData:updated];
+}
+
+- (void)addReference:(const DocumentKey &)key {
+  [self writeSentinelForKey:key];
+}
+
+- (void)removeReference:(const DocumentKey &)key {
+  [self writeSentinelForKey:key];
+}
+
+- (BOOL)mutationQueuesContainKey:(const DocumentKey &)docKey {
+  const std::set<std::string> &users = _db.users;
+  const ResourcePath &path = docKey.path();
+  std::string buffer;
+  auto it = _db.currentTransaction->NewIterator();
+  // For each user, if there is any batch that contains this document in any batch, we know it's
+  // pinned.
+  for (auto user = users.begin(); user != users.end(); ++user) {
+    std::string mutationKey =
+        [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:*user resourcePath:path];
+    it->Seek(mutationKey);
+    if (it->Valid() && absl::StartsWith(it->key(), mutationKey)) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
+- (BOOL)isPinned:(const DocumentKey &)docKey {
+  if ([_additionalReferences containsKey:docKey]) {
+    return YES;
+  }
+  if ([self mutationQueuesContainKey:docKey]) {
+    return YES;
+  }
+  return NO;
+}
+
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
+  FSTLevelDBQueryCache *queryCache = _db.queryCache;
+  [queryCache enumerateTargetsUsingBlock:block];
+}
+
+- (void)enumerateMutationsUsingBlock:
+    (void (^)(const DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+  FSTLevelDBQueryCache *queryCache = _db.queryCache;
+  [queryCache enumerateOrphanedDocumentsUsingBlock:block];
+}
+
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+  FSTLevelDBQueryCache *queryCache = _db.queryCache;
+  __block int count = 0;
+  [queryCache enumerateOrphanedDocumentsUsingBlock:^(
+                  const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+    if (sequenceNumber <= upperBound) {
+      if (![self isPinned:docKey]) {
+        count++;
+        [self->_db.remoteDocumentCache removeEntryForKey:docKey];
+      }
+    }
+  }];
+  return count;
+}
+
+- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+  FSTLevelDBQueryCache *queryCache = _db.queryCache;
+  return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
+}
+
+- (FSTLRUGarbageCollector *)gc {
+  return _gc;
+}
+
+- (void)writeSentinelForKey:(const DocumentKey &)key {
+  std::string encodedSequenceNumber;
+  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
+  std::string sentinelKey = [FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key];
+  _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
+}
+
+- (void)removeMutationReference:(const DocumentKey &)key {
+  [self writeSentinelForKey:key];
+}
+
+- (void)limboDocumentUpdated:(const DocumentKey &)key {
+  [self writeSentinelForKey:key];
+}
+
+@end
 
 @interface FSTLevelDB ()
 
@@ -63,6 +235,9 @@ using leveldb::WriteOptions;
   std::unique_ptr<LevelDbTransaction> _transaction;
   std::unique_ptr<leveldb::DB> _ptr;
   FSTTransactionRunner _transactionRunner;
+  FSTLevelDBLRUDelegate *_referenceDelegate;
+  FSTLevelDBQueryCache *_queryCache;
+  std::set<std::string> _users;
 }
 
 /**
@@ -74,14 +249,37 @@ using leveldb::WriteOptions;
   return options;
 }
 
++ (std::set<std::string>)collectUserSet:(LevelDbTransaction *)transaction {
+  std::set<std::string> users;
+
+  std::string tablePrefix = [FSTLevelDBMutationKey keyPrefix];
+  auto it = transaction->NewIterator();
+  it->Seek(tablePrefix);
+  FSTLevelDBMutationKey *rowKey = [[FSTLevelDBMutationKey alloc] init];
+  while (it->Valid() && absl::StartsWith(it->key(), tablePrefix) && [rowKey decodeKey:it->key()]) {
+    users.insert(rowKey.userID);
+
+    auto userEnd = [FSTLevelDBMutationKey keyPrefixWithUserID:rowKey.userID];
+    userEnd = util::PrefixSuccessor(userEnd);
+    it->Seek(userEnd);
+  }
+  return users;
+}
+
 - (instancetype)initWithDirectory:(NSString *)directory
                        serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _directory = [directory copy];
     _serializer = serializer;
+    _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
+    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self];
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (const std::set<std::string> &)users {
+  return _users;
 }
 
 - (leveldb::DB *)ptr {
@@ -151,6 +349,11 @@ using leveldb::WriteOptions;
   }
   _ptr.reset(database);
   [FSTLevelDBMigrations runMigrationsWithDatabase:_ptr.get()];
+  LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
+  _users = [FSTLevelDB collectUserSet:&transaction];
+  transaction.Commit();
+  [_queryCache start];
+  [_referenceDelegate start];
   return YES;
 }
 
@@ -218,11 +421,12 @@ using leveldb::WriteOptions;
 #pragma mark - Persistence Factory methods
 
 - (id<FSTMutationQueue>)mutationQueueForUser:(const User &)user {
+  _users.insert(user.uid());
   return [FSTLevelDBMutationQueue mutationQueueWithUser:user db:self serializer:self.serializer];
 }
 
 - (id<FSTQueryCache>)queryCache {
-  return [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
+  return _queryCache;
 }
 
 - (id<FSTRemoteDocumentCache>)remoteDocumentCache {
@@ -232,10 +436,12 @@ using leveldb::WriteOptions;
 - (void)startTransaction:(absl::string_view)label {
   HARD_ASSERT(_transaction == nullptr, "Starting a transaction while one is already outstanding");
   _transaction = absl::make_unique<LevelDbTransaction>(_ptr.get(), label);
+  [_referenceDelegate transactionWillStart];
 }
 
 - (void)commitTransaction {
   HARD_ASSERT(_transaction != nullptr, "Committing a transaction before one is started");
+  [_referenceDelegate transactionWillCommit];
   _transaction->Commit();
   _transaction.reset();
 }
@@ -246,8 +452,12 @@ using leveldb::WriteOptions;
   _ptr.reset();
 }
 
-- (_Nullable id<FSTReferenceDelegate>)referenceDelegate {
-  return nil;
+- (id<FSTReferenceDelegate>)referenceDelegate {
+  return _referenceDelegate;
+}
+
+- (FSTListenSequenceNumber)currentSequenceNumber {
+  return [_referenceDelegate currentSequenceNumber];
 }
 
 #pragma mark - Error and Status

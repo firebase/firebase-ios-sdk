@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Local/FSTMutationQueue.h"
+#import <Firestore/Source/Local/FSTLevelDB.h>
+#import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
+#import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FSTMemoryMutationQueue : NSObject <FSTMutationQueue>
+@interface FSTLevelDBLRUGarbageCollectorTests : FSTLRUGarbageCollectorTests
+@end
 
-- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence NS_DESIGNATED_INITIALIZER;
+@implementation FSTLevelDBLRUGarbageCollectorTests
 
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- * Checks to see if there are any references to a document with the given key.
- */
-- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
+- (id<FSTPersistence>)newPersistence {
+  return [FSTPersistenceTestHelpers levelDBPersistence];
+}
 
 @end
 

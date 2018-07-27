@@ -373,13 +373,11 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   }
 
   // Remove entries from the index too.
-  id<FSTGarbageCollector> garbageCollector = self.garbageCollector;
   FSTImmutableSortedSet<FSTDocumentReference *> *references = self.batchesByDocumentKey;
   for (FSTMutationBatch *batch in batches) {
     FSTBatchID batchID = batch.batchID;
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
-      [garbageCollector addPotentialGarbageKey:key];
       [_persistence.referenceDelegate removeMutationReference:key];
 
       FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];

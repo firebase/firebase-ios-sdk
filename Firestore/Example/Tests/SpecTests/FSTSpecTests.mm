@@ -24,8 +24,6 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
-#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -66,42 +64,36 @@ static NSString *const kExclusiveTag = @"exclusive";
 // to temporarily diverge.
 static NSString *const kNoIOSTag = @"no-ios";
 
+NSString *const kNoLRUTag = @"no-lru";
+
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
 // Some config info for the currently running spec; used when restarting the driver (for doRestart).
-@property(nonatomic, assign) BOOL GCEnabled;
 @property(nonatomic, strong) id<FSTPersistence> driverPersistence;
 @end
 
 @implementation FSTSpecTests
 
-- (id<FSTPersistence>)persistence {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Store persistence / GCEnabled so we can re-use it in doRestart.
-  self.driverPersistence = [self persistence];
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  self.GCEnabled = [GCEnabled boolValue];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector];
+  self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
 }
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
   [self.driverPersistence shutdown];
-}
-
-/**
- * Creates the appropriate garbage collector for the test configuration: an eager collector if
- * GC is enabled or a no-op collector otherwise.
- */
-- (id<FSTGarbageCollector>)garbageCollector {
-  return self.GCEnabled ? [[FSTEagerGarbageCollector alloc] init]
-                        : [[FSTNoOpGarbageCollector alloc] init];
 }
 
 /**
@@ -404,7 +396,6 @@ static NSString *const kNoIOSTag = @"no-ios";
   // re-create FSTMemoryPersistence without losing all persisted state).
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
@@ -700,11 +691,18 @@ static NSString *const kNoIOSTag = @"no-ios";
         runTest = NO;
       }
       if (runTest) {
+        runTest = [self shouldRunWithTags:tags];
+      }
+      if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
       } else {
         NSLog(@"  [SKIPPED] Spec test: %@", name);
+        NSString *comment = testDescription[@"comment"];
+        if (comment) {
+          NSLog(@"    %@", comment);
+        }
       }
     }];
   }

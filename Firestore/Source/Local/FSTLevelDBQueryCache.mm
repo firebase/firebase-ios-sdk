@@ -30,11 +30,13 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
@@ -42,6 +44,18 @@ using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
 using firebase::firestore::model::DocumentKeySet;
+
+namespace {
+
+FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
+  FSTListenSequenceNumber decoded;
+  absl::string_view tmp(slice.data(), slice.size());
+  if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
+    HARD_FAIL("Failed to read sequence number from a sentinel row");
+  }
+  return decoded;
+}
+}  // namespace
 
 @interface FSTLevelDBQueryCache ()
 
@@ -148,6 +162,52 @@ using firebase::firestore::model::DocumentKeySet;
   _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
+  // Enumerate all targets, give their sequence numbers.
+  std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
+  auto it = _db.currentTransaction->NewIterator();
+  it->Seek(targetPrefix);
+  BOOL stop = NO;
+  for (; !stop && it->Valid() && absl::StartsWith(it->key(), targetPrefix); it->Next()) {
+    FSTQueryData *target = [self decodedTarget:it->value()];
+    block(target, &stop);
+  }
+}
+
+- (void)enumerateOrphanedDocumentsUsingBlock:
+    (void (^)(const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+  std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
+  auto it = _db.currentTransaction->NewIterator();
+  it->Seek(documentTargetPrefix);
+  FSTListenSequenceNumber nextToReport = 0;
+  DocumentKey keyToReport;
+  FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
+  BOOL stop = NO;
+  for (; !stop && it->Valid() && absl::StartsWith(it->key(), documentTargetPrefix); it->Next()) {
+    [key decodeKey:it->key()];
+    if (FSTTargetIDIsSentinel(key.targetID)) {
+      // if nextToReport is non-zero, report it, this is a new key so the last one
+      // must be not be a member of any targets.
+      if (nextToReport != 0) {
+        block(keyToReport, nextToReport, &stop);
+      }
+      // set nextToReport to be this sequence number. It's the next one we might
+      // report, if we don't find any targets for this document.
+      nextToReport = ReadSequenceNumber(it->value());
+      keyToReport = key.documentKey;
+    } else {
+      // set nextToReport to be 0, we know we don't need to report this one since
+      // we found a target for it.
+      nextToReport = 0;
+    }
+  }
+  // if not stop and nextToReport is non-zero, report it. We didn't find any targets for
+  // that document, and we weren't asked to stop.
+  if (!stop && nextToReport != 0) {
+    block(keyToReport, nextToReport, &stop);
+  }
+}
+
 - (void)saveQueryData:(FSTQueryData *)queryData {
   FSTTargetID targetID = queryData.targetID;
   std::string key = [FSTLevelDBTargetKey keyWithTargetID:targetID];
@@ -206,6 +266,22 @@ using firebase::firestore::model::DocumentKeySet;
   _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
 }
 
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+  int count = 0;
+  std::string targetPrefix = [FSTLevelDBTargetKey keyPrefix];
+  auto it = _db.currentTransaction->NewIterator();
+  it->Seek(targetPrefix);
+  for (; it->Valid() && absl::StartsWith(it->key(), targetPrefix); it->Next()) {
+    FSTQueryData *queryData = [self decodedTarget:it->value()];
+    if (queryData.sequenceNumber <= sequenceNumber && !liveQueries[@(queryData.targetID)]) {
+      [self removeQueryData:queryData];
+      count++;
+    }
+  }
+  return count;
+}
+
 - (int32_t)count {
   return self.metadata.targetCount;
 }
@@ -214,7 +290,7 @@ using firebase::firestore::model::DocumentKeySet;
  * Parses the given bytes as an FSTPBTarget protocol buffer and then converts to the equivalent
  * query data.
  */
-- (FSTQueryData *)decodeTarget:(absl::string_view)encoded {
+- (FSTQueryData *)decodedTarget:(absl::string_view)encoded {
   NSData *data = [[NSData alloc] initWithBytesNoCopy:(void *)encoded.data()
                                               length:encoded.size()
                                         freeWhenDone:NO];
@@ -270,7 +346,7 @@ using firebase::firestore::model::DocumentKeySet;
 
     // Finally after finding a potential match, check that the query is actually equal to the
     // requested query.
-    FSTQueryData *target = [self decodeTarget:targetIterator->value()];
+    FSTQueryData *target = [self decodedTarget:targetIterator->value()];
     if ([target.query isEqual:query]) {
       return target;
     }
@@ -292,7 +368,7 @@ using firebase::firestore::model::DocumentKeySet;
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
-    [self->_db.referenceDelegate addReference:key target:targetID];
+    [self->_db.referenceDelegate addReference:key];
   };
 }
 
@@ -302,8 +378,7 @@ using firebase::firestore::model::DocumentKeySet;
         [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
-    [self->_db.referenceDelegate removeReference:key target:targetID];
-    [self.garbageCollector addPotentialGarbageKey:key];
+    [self->_db.referenceDelegate removeReference:key];
   }
 }
 
@@ -326,7 +401,6 @@ using firebase::firestore::model::DocumentKeySet;
     _db.currentTransaction->Delete(indexKey);
     _db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
-    [self.garbageCollector addPotentialGarbageKey:documentKey];
   }
 }
 
@@ -351,16 +425,18 @@ using firebase::firestore::model::DocumentKeySet;
   return result;
 }
 
-#pragma mark - FSTGarbageSource implementation
-
 - (BOOL)containsKey:(const DocumentKey &)key {
+  // ignore sentinel rows when determining if a key belongs to a target. Sentinel row just says the
+  // document exists, not that it's a member of any particular target.
   std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path()];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
-  if (indexIterator->Valid()) {
+  for (; indexIterator->Valid() && absl::StartsWith(indexIterator->key(), indexPrefix);
+       indexIterator->Next()) {
     FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && DocumentKey{rowKey.documentKey} == key) {
+    if ([rowKey decodeKey:indexIterator->key()] && !FSTTargetIDIsSentinel(rowKey.targetID) &&
+        DocumentKey{rowKey.documentKey} == key) {
       return YES;
     }
   }
