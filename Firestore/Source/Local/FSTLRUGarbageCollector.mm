@@ -32,7 +32,7 @@ const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
  */
 class RollingSequenceNumberBuffer {
  public:
-  explicit RollingSequenceNumberBuffer(NSUInteger max_elements)
+  explicit RollingSequenceNumberBuffer(size_t max_elements)
       : max_elements_(max_elements), queue_(std::priority_queue<FSTListenSequenceNumber>()) {
   }
 
@@ -56,13 +56,13 @@ class RollingSequenceNumberBuffer {
     return queue_.top();
   }
 
-  std::size_t size() const {
+  size_t size() const {
     return queue_.size();
   }
 
  private:
   std::priority_queue<FSTListenSequenceNumber> queue_;
-  const NSUInteger max_elements_;
+  const size_t max_elements_;
 };
 
 @interface FSTLRUGarbageCollector ()

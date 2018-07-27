@@ -50,11 +50,10 @@ namespace {
 FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   FSTListenSequenceNumber decoded;
   absl::string_view tmp(slice.data(), slice.size());
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
-    return decoded;
-  } else {
+  if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
     HARD_FAIL("Failed to read sequence number from a sentinel row");
   }
+  return decoded;
 }
 }  // namespace
 

@@ -274,7 +274,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @implementation FSTMemoryEagerReferenceDelegate {
-  std::unique_ptr<std::unordered_set<DocumentKey, DocumentKeyHash> > _orphaned;
+  std::unique_ptr<std::unordered_set<DocumentKey, DocumentKeyHash>> _orphaned;
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTMemoryPersistence *_persistence;
@@ -301,7 +301,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeTarget:(FSTQueryData *)queryData {
   for (const DocumentKey &docKey :
        [_persistence.queryCache matchingKeysForTargetID:queryData.targetID]) {
-    self->_orphaned->insert(docKey);
+    _orphaned->insert(docKey);
   }
   [_persistence.queryCache removeQueryData:queryData];
 }
