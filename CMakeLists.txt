@@ -21,6 +21,9 @@ option(WITH_ASAN "Build with Address Sanitizer" OFF)
 option(WITH_TSAN "Build with Thread Sanitizer (mutually exculsive with other sanitizers)" OFF)
 option(WITH_UBSAN "Build with Undefined Behavior sanitizer" OFF)
 option(FUZZING "Build with Fuzz Testing flags" OFF)
+option(OSS_FUZZ "Build for OSS Fuzz Environment" OFF)
+option(OSS_FUZZING_ENGINE STRING "Fuzzing engine provided by OSS Fuzz")
+#option(OSS_FLAGS "" STRING "Flags provided by OSS Fuzz Environment")
 
 # If no build type is specified, make it a debug build
 if(NOT CMAKE_BUILD_TYPE)

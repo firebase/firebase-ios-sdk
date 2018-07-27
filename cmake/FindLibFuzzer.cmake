@@ -14,26 +14,43 @@
 
 # Automatically looks for lib{LIBRARY_NAME}.a, therefore we search for "Fuzzer"
 # in the directory in which we have the libFuzzer.a file.
-find_library(
-  LIBFUZZER_LIBRARY
-  NAMES Fuzzer
-  HINTS
-    ${FIREBASE_BINARY_DIR}/src/libfuzzer
-)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  libfuzzer
-  DEFAULT_MSG
-  LIBFUZZER_LIBRARY
-)
-
-if(LIBFUZZER_FOUND)
-  if (NOT TARGET LibFuzzer)
+message(WARNING "@@@@ FindLibFuzzer.cmake")
+if(OSS_FUZZ)
+  message(WARNING "@@@@  OSS_FUZZING_ENGINE = ${OSS_FUZZING_ENGINE}")
+  message(WARNING "@@@@  LIB_FUZZING_ENGINE = ${LIB_FUZZING_ENGINE}")
+  if(NOT TARGET LibFuzzer)
+    message(WARNING "@@@@ Importing location = ${OSS_FUZZING_ENGINE}")
     add_library(LibFuzzer STATIC IMPORTED)
     set_target_properties(
       LibFuzzer PROPERTIES
-      IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
+      IMPORTED_LOCATION ${OSS_FUZZING_ENGINE}
     )
   endif()
-endif(LIBFUZZER_FOUND)
+else() # Look for libFuzzer.a that was manually built.
+  message(WARNING "@@@@ Looking for libFuzzer.a that was manually built")
+  find_library(
+    LIBFUZZER_LIBRARY
+    NAMES Fuzzer
+    HINTS
+      ${FIREBASE_BINARY_DIR}/src/libfuzzer
+  )
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(
+    libfuzzer
+    DEFAULT_MSG
+    LIBFUZZER_LIBRARY
+  )
+  message(WARNING "@@@@ LibFuzzer found? = 4{LIBFUZZER_FOUND}")
+  if(LIBFUZZER_FOUND)
+    if (NOT TARGET LibFuzzer)
+      add_library(LibFuzzer STATIC IMPORTED)
+      set_target_properties(
+        LibFuzzer PROPERTIES
+        IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
+      )
+    endif()
+  else()
+    message(FATAL_ERROR "@@@@ LibFuzzer could not be found")
+  endif(LIBFUZZER_FOUND)
+endif()

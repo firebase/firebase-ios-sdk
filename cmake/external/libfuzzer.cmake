@@ -23,6 +23,18 @@
 # A better way is to write our own CMake file that builds libFuzzer.
 include(ExternalProject)
 
+if(OSS_FUZZ)
+  ExternalProject_Add(
+    libfuzzer
+    DOWNLOAD_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    TEST_COMMAND ""
+  )
+  return()
+endif()
+
 if(TARGET libfuzzer)
   return()
 endif()

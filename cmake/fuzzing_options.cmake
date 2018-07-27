@@ -14,21 +14,27 @@
 
 # Adds fuzzing options to the current build.
 option(FUZZING "Build with Fuzz Testing flags" OFF)
+option(OSS_FUZZ "Build for OSS Fuzz Environment" OFF)
+option(OSS_FUZZING_ENGINE STRING "Fuzzing engine provided by OSS Fuzz")
+#option(OSS_FLAGS "" STRING "Flags provided by OSS Fuzz Environment")
 
-# If fuzzing is enabled, multiple compile and linking flags must be set.
-# These flags are set according to the compiler kind.
 if(FUZZING)
+  # If fuzzing is enabled, multiple compile and linking flags must be set.
+  # These flags are set according to the compiler kind.
+
   # Fuzzing must be accompanied by WITH_ASAN=ON.
   if(NOT WITH_ASAN)
     message(FATAL_ERROR "Fuzzing requires WITH_ASAN=ON.")
   endif()
 
+  if(OSS_FUZZ)
+    set(fuzzing_flags ${CXXFLAGS})
   # Set the flag to enable code coverage instrumentation. Fuzzing engines use
   # code coverage as a metric to guide the fuzzing. We use the basic code
   # coverage level (trace-pc). This flag has different values in CLANG and GNU.
   # Other values, such as trace-cmp, can be used to trace data flow. See the
   # official documentation for the compiler flags.
-  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     # TODO(minafarid): Check the version of CLANG. CLANG versions >= 5.0 should
     # have libFuzzer by default.
     set(fuzzing_flags -fsanitize-coverage=trace-pc-guard)

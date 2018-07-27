@@ -16,11 +16,18 @@
 # discovered because we do not use CMake to build it.
 find_package(LibFuzzer REQUIRED)
 
+
+if(OSS_FUZZ)
+  set(AVAILABLE_FUZZING_LIBRARY FuzzingLibrary)
+else()
+  set(AVAILABLE_FUZZING_LIBRARY LibFuzzer)
+endif()
+
 cc_binary(
-  firebase_firestore_fuzzing_serializer
+    firebase_firestore_fuzzing_serializer
   SOURCES
     fuzz_test_serializer.cc
   DEPENDS
-    LibFuzzer
+    LibFuzzer #${AVAILABLE_FUZZING_LIBRARY}
     firebase_firestore_remote
 )
