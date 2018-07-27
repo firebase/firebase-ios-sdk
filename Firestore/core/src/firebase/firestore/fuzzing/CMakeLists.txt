@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This call executes FindLibFuzzer.cmake script. LibFuzzer is not automatically
-# discovered because we do not use CMake to build it.
+if(NOT FUZZING)
+  return()
+endif()
+
+# TODO(minafarid): Currently we support local fuzzing only where we build
+# libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
+# library is already provided. LibFuzzer will need to be changed to a library.
 find_package(LibFuzzer REQUIRED)
 
 cc_binary(

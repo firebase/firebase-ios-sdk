@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Automatically looks for lib{LIBRARY_NAME}.a, therefore we search for "Fuzzer"
-# in the directory in which we have the libFuzzer.a file.
 find_library(
   LIBFUZZER_LIBRARY
   NAMES Fuzzer

@@ -18,7 +18,7 @@
 # BUILD_IN_SOURCES set to TRUE.
 #
 # TODO(minafarid): This build method might not work on all systems. See the
-# build.sh script here:
+# build.sh script of libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
 # A better way is to write our own CMake file that builds libFuzzer.
 include(ExternalProject)
@@ -32,7 +32,8 @@ ExternalProject_Add(
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME libfuzzer
-  SVN_REPOSITORY https://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer
+  SVN_REPOSITORY "http://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer"
+  SVN_REVISION -r "338160"
   LOG_DOWNLOAD FALSE    # Do not print SVN checkout messages.
 
   PREFIX ${PROJECT_BINARY_DIR}
@@ -40,6 +41,7 @@ ExternalProject_Add(
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/libfuzzer
   BUILD_IN_SOURCE TRUE
 
+  UPDATE_COMMAND    ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     "${PROJECT_BINARY_DIR}/src/libfuzzer/build.sh"
   INSTALL_COMMAND   ""
