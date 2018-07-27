@@ -103,8 +103,9 @@ class Schedule {
       //   either overdue (in which case `HasDueLocked` will break the cycle),
       //   or else `until` must be reevaluated (on the next iteration of the
       //   loop);
-      // - `until` entry has been removed. This means `until` has to be
-      //   reevaluated, similar to #2.
+      // - `until` entry has been removed (including the case where the queue
+      //   has become empty). This means `until` has to be reevaluated, similar
+      //   to #2.
 
       if (HasDueLocked()) {
         return ExtractLocked(scheduled_.begin());
