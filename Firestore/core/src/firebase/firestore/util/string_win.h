@@ -19,7 +19,6 @@
 
 #if defined(_WIN32)
 #include <windows.h>
-#endif
 
 #include <string>
 
@@ -29,7 +28,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-#if defined(_WIN32)
 /**
  * Converts a UTF-8-encoded string to the equivalent wide character form,
  * suitable for use with Windows path-related functions.
@@ -49,10 +47,9 @@ std::string NativeToUtf8(const wchar_t* input, size_t length);
  */
 std::string LastErrorMessage(DWORD last_error);
 
-#endif  // defined(_WIN32)
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
+#endif  // defined(_WIN32)
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_STRING_WIN_H_

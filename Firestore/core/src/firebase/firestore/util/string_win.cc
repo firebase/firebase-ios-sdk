@@ -16,11 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "absl/strings/match.h"
-
 #if defined(_WIN32)
 #include <windows.h>
+
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/match.h"
 
 namespace firebase {
 namespace firestore {
@@ -42,9 +42,9 @@ std::wstring Utf8ToNative(absl::string_view input) {
   int output_len =
       ::MultiByteToWideChar(CP_UTF8, 0, input.data(), input_len, nullptr, 0);
   if (output_len == 0) {
-    DWORD error = GetLastError();
+    DWORD error = ::GetLastError();
     HARD_FAIL("Utf8ToNative failed with code %s: %s", error,
-              LastErrorMessage(error));
+              ::LastErrorMessage(error));
   }
   HARD_ASSERT(output_len > 0);
 
@@ -76,9 +76,9 @@ std::string NativeToUtf8(const wchar_t* input, size_t input_size) {
   int output_len = ::WideCharToMultiByte(CP_UTF8, 0, input, input_len, nullptr,
                                          0, nullptr, nullptr);
   if (output_len == 0) {
-    DWORD error = GetLastError();
+    DWORD error = ::GetLastError();
     HARD_FAIL("NativeToUtf8 failed with code %s: %s", error,
-              LastErrorMessage(error));
+              ::LastErrorMessage(error));
   }
   HARD_ASSERT(output_len > 0);
 
@@ -96,7 +96,7 @@ std::string NativeToUtf8(const wchar_t* input, size_t input_size) {
 std::string LastErrorMessage(DWORD last_error) {
   // output_len excludes the trailing null.
   wchar_t* error_text = nullptr;
-  DWORD output_len = FormatMessageW(
+  DWORD output_len = ::FormatMessageW(
       FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER |
           FORMAT_MESSAGE_IGNORE_INSERTS,
       nullptr, last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -113,7 +113,7 @@ std::string LastErrorMessage(DWORD last_error) {
     }
   }
 
-  LocalFree(error_text);
+  ::LocalFree(error_text);
   error_text = nullptr;
   return formatted;
 }
