@@ -15,9 +15,11 @@
  */
 
 #import <Foundation/NSObject.h>
+#include <string>
 
 #include "LibFuzzer/FuzzerDefs.h"
 
+#include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -30,7 +32,7 @@ namespace fuzzing = firebase::firestore::fuzzing;
 
 // A list of targets to fuzz test. Should be kept in sync with the method
 // GetFuzzingTarget().
-enum class FuzzingTarget { kNone, kSerializer };
+enum class FuzzingTarget { kNone, kSerializer, kFieldPath };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
@@ -60,6 +62,9 @@ FuzzingTarget GetFuzzingTarget() {
   if (fuzzing_target == "SERIALIZER") {
     return FuzzingTarget::kSerializer;
   }
+  if (fuzzing_target == "FIELDPATH") {
+    return FuzzingTarget::kFieldPath;
+  }
   LOG_WARN("Invalid fuzzing target: %s", fuzzing_target);
   return FuzzingTarget::kNone;
 }
@@ -72,11 +77,11 @@ int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
   // All fuzzing resources.
-  NSString *resources_location = @"Firestore_FuzzTests_iOS.xctest/FuzzingResources";
+  std::string resources_location = "Firestore_FuzzTests_iOS.xctest/FuzzingResources";
   // The dictionary location for the fuzzing target.
-  NSString *dict_location;
+  std::string dict_location;
   // The corpus location for the fuzzing target.
-  NSString *corpus_location;
+  std::string corpus_location;
 
   // Fuzzing target method, equivalent to LLVMFuzzerTestOneInput. Holds a pointer
   // to the fuzzing method that is called repeatedly by the fuzzing driver with
@@ -92,6 +97,12 @@ int RunFuzzTestingMain() {
       fuzzer_function = fuzzing::FuzzTestDeserialization;
       break;
 
+    case FuzzingTarget::kFieldPath:
+      dict_location = fuzzing::GetFieldPathDictionaryLocation(resources_location);
+      corpus_location = fuzzing::GetFieldPathCorpusLocation(resources_location);
+      fuzzer_function = fuzzing::FuzzTestFieldPath;
+      break;
+
     case FuzzingTarget::kNone:
     default:
       LOG_WARN("Not going to run fuzzing, exiting!");
@@ -101,11 +112,11 @@ int RunFuzzTestingMain() {
   // Get dictionary and corpus paths from resources and convert to program arguments.
   NSString *plugins_path = [[NSBundle mainBundle] builtInPlugInsPath];
 
-  NSString *dict_path = [plugins_path stringByAppendingPathComponent:dict_location];
-  std::string dict_arg = std::string("-dict=") + MakeString(dict_path);
+  std::string dict_path = MakeString(plugins_path) + "/" + dict_location;
+  std::string dict_arg = std::string("-dict=") + dict_path;
 
-  NSString *corpus_path = [plugins_path stringByAppendingPathComponent:corpus_location];
-  std::string corpus_arg = MakeString(corpus_path);
+  // No argument prefix required for corpus arg.
+  std::string corpus_arg = MakeString(plugins_path) + "/" + corpus_location;
 
   // The directory in which libFuzzer writes crashing inputs.
   std::string prefix_arg = std::string("-artifact_prefix=") + MakeString(kCrashingInputsDirectory);

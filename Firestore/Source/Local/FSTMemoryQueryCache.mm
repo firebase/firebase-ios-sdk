@@ -66,10 +66,6 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTQueryCache implementation
 #pragma mark Query tracking
 
-- (void)start {
-  // Nothing to do.
-}
-
 - (FSTTargetID)highestTargetID {
   return _highestTargetID;
 }
@@ -119,19 +115,42 @@ NS_ASSUME_NONNULL_BEGIN
   return self.queries[query];
 }
 
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
+  [self.queries
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+        block(queryData, stop);
+      }];
+}
+
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
+  NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
+  [self.queries
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryData *queryData, BOOL *stop) {
+        if (queryData.sequenceNumber <= sequenceNumber) {
+          if (liveQueries[@(queryData.targetID)] == nil) {
+            [toRemove addObject:query];
+            [self.references removeReferencesForID:queryData.targetID];
+          }
+        }
+      }];
+  [self.queries removeObjectsForKeys:toRemove];
+  return (int)[toRemove count];
+}
+
 #pragma mark Reference tracking
 
 - (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate addReference:key target:targetID];
+    [_persistence.referenceDelegate addReference:key];
   }
 }
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
-    [_persistence.referenceDelegate removeReference:key target:targetID];
+    [_persistence.referenceDelegate removeReference:key];
   }
 }
 
@@ -141,16 +160,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
   return [self.references referencedKeysForID:targetID];
-}
-
-#pragma mark - FSTGarbageSource implementation
-
-- (nullable id<FSTGarbageCollector>)garbageCollector {
-  return self.references.garbageCollector;
-}
-
-- (void)setGarbageCollector:(nullable id<FSTGarbageCollector>)garbageCollector {
-  self.references.garbageCollector = garbageCollector;
 }
 
 - (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {

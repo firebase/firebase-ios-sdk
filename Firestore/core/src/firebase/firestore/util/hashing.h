@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HASHING_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_HASHING_H_
 
+#include <functional>
 #include <iterator>
 #include <string>
 #include <type_traits>

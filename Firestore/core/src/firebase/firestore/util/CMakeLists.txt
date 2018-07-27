@@ -83,18 +83,20 @@ cc_library(
     secure_random_arc4random.cc
 )
 
-get_target_property(
-  CMAKE_REQUIRED_INCLUDES
-  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
-)
-check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
-cc_library(
-  firebase_firestore_util_random_openssl
-  SOURCES
-    secure_random_openssl.cc
-  DEPENDS
-    OpenSSL::Crypto
-)
+if(TARGET OpenSSL::Crypto)
+  get_target_property(
+    CMAKE_REQUIRED_INCLUDES
+    OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+  )
+  check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+  cc_library(
+    firebase_firestore_util_random_openssl
+    SOURCES
+      secure_random_openssl.cc
+    DEPENDS
+      OpenSSL::Crypto
+  )
+endif()
 
 if(HAVE_ARC4RANDOM)
   set(

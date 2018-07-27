@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <set>
+#include <string>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -98,6 +100,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readonly) leveldb::DB *ptr;
 
 @property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *currentTransaction;
+
+@property(nonatomic, readonly) const std::set<std::string> &users;
 
 @end
 
