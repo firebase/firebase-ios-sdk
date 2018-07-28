@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
 
+#include <ios>
+
 #include "absl/strings/string_view.h"
 #include "gtest/gtest.h"
 
@@ -60,12 +62,36 @@ TEST(StringWindowsTest, InvalidUtf8) {
   EXPECT_EQ(invalid_replacement, NativeToUtf8(winvalid));
 }
 
-TEST(StringWindowsTest, LastErrorMessage) {
-  LANGID default_langid = ::GetUserDefaultUILanguage();
-  if (PRIMARYLANGID(default_langid) == LANG_ENGLISH) {
-    EXPECT_EQ(std::string{"The parameter is incorrect."},
-              LastErrorMessage(ERROR_INVALID_PARAMETER));
+/**
+ * Temporarily sets the curent language for the current thread to the given
+ * language. Restores the previously current language when the instance is
+ * destructed.
+ */
+class TemporaryLanguage {
+ public:
+  explicit TemporaryLanguage(LANGID lang_id) {
+    previous_lang_id_ = ::GetThreadUILanguage();
+    LANGID result = ::SetThreadUILanguage(lang_id);
+    if (result != lang_id) {
+      DWORD error = ::GetLastError();
+      ADD_FAILURE() << "SetThreadUILanguage(" << std::hex << lang_id
+                    << ") failed with error " << std::dec << error;
+    }
   }
+
+  ~TemporaryLanguage() {
+    ::SetThreadUILanguage(previous_lang_id_);
+  }
+
+ private:
+  LANGID previous_lang_id_;
+};
+
+TEST(StringWindowsTest, LastErrorMessage) {
+  TemporaryLanguage lang{MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US)};
+
+  EXPECT_EQ(std::string{"The parameter is incorrect."},
+            LastErrorMessage(ERROR_INVALID_PARAMETER));
 }
 
 #endif  // defined(_WIN32)
