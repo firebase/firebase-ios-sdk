@@ -200,6 +200,8 @@ cc_library(
     strerror.h
     string_util.cc
     string_util.h
+    string_win.cc
+    string_win.h
     type_traits.h
   DEPENDS
     absl_base
