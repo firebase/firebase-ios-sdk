@@ -116,6 +116,7 @@ check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
 cc_library(
   firebase_firestore_util_random_arc4random
   SOURCES
+    secure_random.h
     secure_random_arc4random.cc
 )
 
@@ -128,6 +129,7 @@ if(TARGET OpenSSL::Crypto)
   cc_library(
     firebase_firestore_util_random_openssl
     SOURCES
+      secure_random.h
       secure_random_openssl.cc
     DEPENDS
       OpenSSL::Crypto
@@ -166,7 +168,6 @@ cc_library(
     path.cc
     path.h
     range.h
-    secure_random.h
     status.cc
     status.h
     status_apple.mm
