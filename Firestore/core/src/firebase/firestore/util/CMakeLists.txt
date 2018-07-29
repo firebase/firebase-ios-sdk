@@ -61,17 +61,11 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
-if(APPLE)
-  set(
-    FIREBASE_FIRESTORE_UTIL_LOG
-    firebase_firestore_util_log_apple
-  )
-else()
-  set(
-    FIREBASE_FIRESTORE_UTIL_LOG
-    firebase_firestore_util_log_stdio
-  )
-endif()
+cc_select(
+  firebase_firestore_util_log
+  APPLE   firebase_firestore_util_log_apple
+  DEFAULT firebase_firestore_util_log_stdio
+)
 
 
 ## secure_random
@@ -98,22 +92,12 @@ if(TARGET OpenSSL::Crypto)
   )
 endif()
 
-if(HAVE_ARC4RANDOM)
-  set(
-    FIREBASE_FIRESTORE_UTIL_RANDOM
-    firebase_firestore_util_random_arc4random
-  )
+cc_select(
+  firebase_firestore_util_random
+  HAVE_ARC4RANDOM     firebase_firestore_util_random_arc4random
+  HAVE_OPENSSL_RAND_H firebase_firestore_util_random_openssl
+)
 
-elseif(HAVE_OPENSSL_RAND_H)
-  set(
-    FIREBASE_FIRESTORE_UTIL_RANDOM
-    firebase_firestore_util_random_openssl
-  )
-
-else()
-  message(FATAL_ERROR "No implementation for SecureRandom available.")
-
-endif()
 
 ## async queue
 
@@ -130,7 +114,7 @@ cc_library(
   DEPENDS
     absl_bad_optional_access
     absl_optional
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    firebase_firestore_util_log
   EXCLUDE_FROM_ALL
 )
 
@@ -146,24 +130,15 @@ cc_library(
     absl_bad_optional_access
     absl_optional
     absl_strings
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    firebase_firestore_util_log
   EXCLUDE_FROM_ALL
 )
-endif()
 
-if(HAVE_LIBDISPATCH)
-  set(
-    FIREBASE_FIRESTORE_UTIL_ASYNC
-    firebase_firestore_util_async_libdispatch
-  )
-
-else()
-  set(
-    FIREBASE_FIRESTORE_UTIL_ASYNC
-    firebase_firestore_util_async_std
-  )
-
-endif()
+cc_select(
+  firebase_firestore_util_async
+  HAVE_LIBDISPATCH firebase_firestore_util_async_libdispatch
+  DEFAULT          firebase_firestore_util_async_std
+)
 
 
 ## main library
@@ -207,8 +182,8 @@ cc_library(
     type_traits.h
   DEPENDS
     absl_base
+    firebase_firestore_util_async
     firebase_firestore_util_base
-    ${FIREBASE_FIRESTORE_UTIL_ASYNC}
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
-    ${FIREBASE_FIRESTORE_UTIL_RANDOM}
+    firebase_firestore_util_log
+    firebase_firestore_util_random
 )

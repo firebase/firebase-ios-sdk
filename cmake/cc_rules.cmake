@@ -46,7 +46,47 @@ function(cc_library name)
       PROPERTY EXCLUDE_FROM_ALL ON
     )
   endif()
+endfunction()
 
+# cc_select(
+#   interface_library
+#   CONDITION1 implementation_library1
+#   [CONDITION2 implementation_library2 ...]
+#   [DEFAULT implementation_library_default]
+# )
+#
+# Creates an INTERFACE library named `interface_library`.
+#
+# For each pair of condition and implementation_library, evaluates the condition
+# and if true makes that library an INTERFACE link library of
+# `interface_library`.
+#
+# If supplied, uses the `DEFAULT` implementation if no other condition matches.
+#
+# If no condition matches, fails the configuration cycle with an error message
+# indicating that no suitable implementation was found.
+function(cc_select library_name)
+  add_library(${library_name} INTERFACE)
+
+  list(LENGTH ARGN length)
+  if(length GREATER 0)
+    math(EXPR length "${length} - 1")
+    foreach(key RANGE 0 ${length} 2)
+      math(EXPR value "${key} + 1")
+      list(GET ARGN ${key} condition)
+      list(GET ARGN ${value} impl_library)
+
+      if((${condition} STREQUAL "DEFAULT") OR (${${condition}}))
+        message("Using ${library_name} = ${impl_library}")
+        target_link_libraries(
+          ${library_name} INTERFACE ${impl_library}
+        )
+        return()
+      endif()
+    endforeach()
+  endif()
+
+  message(FATAL_ERROR "Could not find implementation for ${library_name}")
 endfunction()
 
 # cc_test(
