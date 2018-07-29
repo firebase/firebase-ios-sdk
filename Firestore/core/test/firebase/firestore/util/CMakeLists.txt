@@ -19,50 +19,6 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
 endif()
 
-## assert and log
-
-if(APPLE)
-  cc_test(
-    firebase_firestore_util_log_apple_test
-    SOURCES
-      hard_assert_test.cc
-      log_test.cc
-    DEPENDS
-      firebase_firestore_util_log_apple
-  )
-endif(APPLE)
-
-cc_test(
-  firebase_firestore_util_log_stdio_test
-  SOURCES
-    hard_assert_test.cc
-    log_test.cc
-  DEPENDS
-    firebase_firestore_util_log_stdio
-)
-
-## secure random
-
-if(HAVE_ARC4RANDOM)
-  cc_test(
-    firebase_firestore_util_random_arc4random_test
-    SOURCES
-      secure_random_test.cc
-    DEPENDS
-      firebase_firestore_util_random_arc4random
-  )
-endif()
-
-if(HAVE_OPENSSL_RAND_H)
-  cc_test(
-    firebase_firestore_util_random_openssl_test
-    SOURCES
-      secure_random_test.cc
-    DEPENDS
-      firebase_firestore_util_random_openssl
-  )
-endif()
-
 
 ## async
 
@@ -95,6 +51,53 @@ if(HAVE_LIBDISPATCH)
       firebase_firestore_util_async_libdispatch
   )
 endif()
+
+
+## log
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_log_apple_test
+    SOURCES
+      hard_assert_test.cc
+      log_test.cc
+    DEPENDS
+      firebase_firestore_util_log_apple
+  )
+endif(APPLE)
+
+cc_test(
+  firebase_firestore_util_log_stdio_test
+  SOURCES
+    hard_assert_test.cc
+    log_test.cc
+  DEPENDS
+    firebase_firestore_util_log_stdio
+)
+
+
+## random
+
+if(HAVE_ARC4RANDOM)
+  cc_test(
+    firebase_firestore_util_random_arc4random_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_random_arc4random
+  )
+endif()
+
+if(HAVE_OPENSSL_RAND_H)
+  cc_test(
+    firebase_firestore_util_random_openssl_test
+    SOURCES
+      secure_random_test.cc
+    DEPENDS
+      firebase_firestore_util_random_openssl
+  )
+endif()
+
 
 ## main library
 
