@@ -20,12 +20,6 @@ cc_test(
     serializer_test.cc
   DEPENDS
     absl_base
-    # NB: Order is important. We need to include the ffp_libprotobuf library
-    # before ff_remote, or else we'll end up with nanopb's headers earlier in
-    # the include path than libprotobuf's, which makes using libprotobuf in the
-    # test quite difficult. (protoc doesn't generate full include paths, so it
-    # includes files like this: `#include google/proto/timestamp.pb.h` which
-    # exists in both the libprotobuf path and the nanopb path.
     firebase_firestore_protos_libprotobuf
     firebase_firestore_remote
     firebase_firestore_util_executor_std
