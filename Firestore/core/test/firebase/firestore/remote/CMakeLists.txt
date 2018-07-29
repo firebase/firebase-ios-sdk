@@ -22,5 +22,5 @@ cc_test(
     absl_base
     firebase_firestore_protos_libprotobuf
     firebase_firestore_remote
-    firebase_firestore_util_executor_std
+    firebase_firestore_util_async_std
 )
