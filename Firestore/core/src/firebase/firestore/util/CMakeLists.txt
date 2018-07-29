@@ -193,6 +193,7 @@ cc_library(
     secure_random.h
     status.cc
     status.h
+    status_apple.mm
     statusor.cc
     statusor.h
     statusor_internals.h
@@ -210,10 +211,3 @@ cc_library(
     ${FIREBASE_FIRESTORE_UTIL_LOG}
     ${FIREBASE_FIRESTORE_UTIL_RANDOM}
 )
-
-if(APPLE)
-  target_sources(
-    firebase_firestore_util PRIVATE
-    status_apple.mm
-  )
-endif()

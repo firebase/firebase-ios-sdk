@@ -27,7 +27,8 @@ function(cc_library name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
-  add_library(${name} ${ccl_SOURCES})
+  remove_objc_sources(sources ${ccl_SOURCES})
+  add_library(${name} ${sources})
   add_objc_flags(${name} ccl)
   target_include_directories(
     ${name}
@@ -62,7 +63,8 @@ function(cc_test name)
 
   list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
 
-  add_executable(${name} ${cct_SOURCES})
+  remove_objc_sources(sources ${cct_SOURCES})
+  add_executable(${name} ${sources})
   add_objc_flags(${name} cct)
   add_test(${name} ${name})
 
@@ -82,10 +84,28 @@ function(cc_binary name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
 
-  add_executable(${name} ${ccb_SOURCES})
+  remove_objc_sources(sources ${ccb_SOURCES})
+  add_executable(${name} ${sources})
+  add_objc_flags(${name} ccb)
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} ${ccb_DEPENDS})
+endfunction()
+
+# remove_objc_sources(output_var sources...)
+#
+# Removes Objective-C/C++ sources from the given sources if not on an Apple
+# platform. Stores the resulting list in the variable named by `output_var`.
+function(remove_objc_sources output_var)
+  unset(sources)
+  foreach(source ${ARGN})
+    get_filename_component(ext ${source} EXT)
+    if(NOT APPLE AND ((ext STREQUAL ".m") OR (ext STREQUAL ".mm")))
+      continue()
+    endif()
+    list(APPEND sources ${source})
+  endforeach()
+  set(${output_var} ${sources} PARENT_SCOPE)
 endfunction()
 
 # add_objc_flags(target sources...)

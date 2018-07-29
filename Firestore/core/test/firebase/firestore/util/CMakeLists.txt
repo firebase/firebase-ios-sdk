@@ -133,21 +133,14 @@ cc_test(
     status_test_util.h
     statusor_test.cc
     strerror_test.cc
+    string_format_apple_test.mm
     string_format_test.cc
     string_util_test.cc
     string_win_test.cc
+    type_traits_apple_test.mm
   DEPENDS
     absl_base
     absl_strings
     firebase_firestore_util
     GMock::GMock
 )
-
-if(APPLE)
-  target_sources(
-    firebase_firestore_util_test
-    PUBLIC
-      string_format_apple_test.mm
-      type_traits_apple_test.mm
-  )
-endif()
