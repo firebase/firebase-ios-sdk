@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,7 +62,7 @@ class QueryData {
    *     point in time from which the server should resume sending results.
    */
   QueryData(core::Query&& query,
-            int target_id,
+            model::TargetId target_id,
             QueryPurpose purpose,
             model::SnapshotVersion&& snapshot_version,
             std::vector<uint8_t>&& resume_token);
