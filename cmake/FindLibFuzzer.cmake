@@ -12,20 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+find_library(
+  LIBFUZZER_LIBRARY
+  NAMES Fuzzer
+  HINTS
+    ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
 )
 
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(
+  LibFuzzer
+  DEFAULT_MSG
+  LIBFUZZER_LIBRARY
+)
+
+if(LIBFUZZER_FOUND)
+  if (NOT TARGET LibFuzzer)
+    add_library(LibFuzzer STATIC IMPORTED)
+    set_target_properties(
+      LibFuzzer PROPERTIES
+      IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
+    )
+  endif()
+endif(LIBFUZZER_FOUND)

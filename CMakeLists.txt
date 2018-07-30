@@ -41,6 +41,7 @@ include(compiler_id)
 include(external_rules)
 include(podspec_rules)
 include(sanitizer_options)
+include(fuzzing_options)
 
 
 # If no build type is specified, make it a debug build
