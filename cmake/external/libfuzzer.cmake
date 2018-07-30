@@ -20,7 +20,7 @@
 # This build method might not work on all systems. See the build.sh script of
 # libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
-# An alternaitve is to write own CMake file that builds libFuzzer.
+# An alternative is to write own CMake file that builds libFuzzer.
 include(ExternalProject)
 
 if(OSS_FUZZ)
@@ -39,7 +39,7 @@ if(TARGET libfuzzer)
   return()
 endif()
 
-set(tag RELEASE_601)  # trunk@{2018-07-27}
+set(tag RELEASE_601)  # latest release@{2018-07-27}
 
 ExternalProject_Add(
   libfuzzer
@@ -47,7 +47,7 @@ ExternalProject_Add(
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME libfuzzer
   SVN_REPOSITORY "https://llvm.org/svn/llvm-project/compiler-rt/tags/${tag}/final/lib/fuzzer"
-  LOG_DOWNLOAD FALSE    # Do not print SVN checkout messages.
+  LOG_DOWNLOAD TRUE    # Do not print SVN checkout messages.
 
   PREFIX ${PROJECT_BINARY_DIR}
 
