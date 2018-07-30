@@ -16,23 +16,15 @@ if(NOT FUZZING)
   return()
 endif()
 
-# TODO(minafarid): Currently we support local fuzzing only where we build
-# libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
-# library is already provided.
+# This command finds LibFuzzer that is either provided by OSS Fuzz, if enabled,
+# or that manually built from sources.
 find_package(LibFuzzer REQUIRED)
-
-
-if(OSS_FUZZ)
-  set(AVAILABLE_FUZZING_LIBRARY FuzzingLibrary)
-else()
-  set(AVAILABLE_FUZZING_LIBRARY LibFuzzer)
-endif()
 
 cc_binary(
   firebase_firestore_fuzzing_serializer
   SOURCES
     fuzz_test_serializer.cc
   DEPENDS
-    LibFuzzer #${AVAILABLE_FUZZING_LIBRARY}
+    LibFuzzer
     firebase_firestore_remote
 )
