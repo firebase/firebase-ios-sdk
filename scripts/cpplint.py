@@ -4529,6 +4529,13 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
             '<%s> should be #include "%s" or #import <%s>' %
             (match.group(1), match.group(1), match.group(1)))
 
+  # framework-style imports should not be used for project imports
+  match = Match(r'#import\s*<(Firestore/Source/[^>]+)', line)
+  if match:
+    error(filenamne, linenum, 'build/include', 4,
+          'Prefer #import "%s" for project import than #import <>' %
+          match.group(1))
+
   # C++ system files should not be #imported
   match = Match(r'#import\s*<([^/>.]+)>', line)
   if match:
