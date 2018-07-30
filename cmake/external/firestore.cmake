@@ -13,12 +13,12 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/googletest)
-include(external/grpc)
-include(external/leveldb)
-include(external/nanopb)
-include(external/protobuf)
-include(external/libfuzzer)
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
+include(libfuzzer)
 
 if(TARGET Firestore)
   return()
