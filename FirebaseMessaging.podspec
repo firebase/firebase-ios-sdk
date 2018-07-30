@@ -38,6 +38,6 @@ device, and it is completely free.
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'FirebaseInstanceID', '~> 3.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 5.0'
+  s.dependency 'GoogleUtilities/Reachability', '~> 5.2'
   s.dependency 'Protobuf', '~> 3.1'
 end

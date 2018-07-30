@@ -13,7 +13,7 @@
 # limitations under the License.
 
 include(ExternalProject)
-include(external/protobuf)
+include(protobuf)
 
 if(TARGET nanopb)
   return()

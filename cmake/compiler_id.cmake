@@ -12,27 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT FUZZING)
-  return()
+# Adds cheap tests for various compilers
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(CXX_CLANG TRUE)
 endif()
 
-# TODO(minafarid): Currently we support local fuzzing only where we build
-# libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
-# library is already provided.
-find_package(LibFuzzer REQUIRED)
-
-
-if(OSS_FUZZ)
-  set(AVAILABLE_FUZZING_LIBRARY FuzzingLibrary)
-else()
-  set(AVAILABLE_FUZZING_LIBRARY LibFuzzer)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CXX_GNU TRUE)
 endif()
-
-cc_binary(
-  firebase_firestore_fuzzing_serializer
-  SOURCES
-    fuzz_test_serializer.cc
-  DEPENDS
-    LibFuzzer #${AVAILABLE_FUZZING_LIBRARY}
-    firebase_firestore_remote
-)

@@ -12,45 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Automatically looks for lib{LIBRARY_NAME}.a, therefore we search for "Fuzzer"
-# in the directory in which we have the libFuzzer.a file.
-message(WARNING "@@@@ FindLibFuzzer.cmake")
+if(TARGET LibFuzzer)
+  return()
+endif()
+
+# OSS_FUZZ provides its own fuzzing library in LIB_FUZZING_ENGINE environment
+# variable that we pass to Firestore cmake environment as OSS_FUZZING_ENGINE.
+# For local fuzzing, search for the libFuzzer.a that was manually built.
 if(OSS_FUZZ)
-  message(WARNING "@@@@  OSS_FUZZING_ENGINE = ${OSS_FUZZING_ENGINE}")
-  message(WARNING "@@@@  LIB_FUZZING_ENGINE = ${LIB_FUZZING_ENGINE}")
-  if(NOT TARGET LibFuzzer)
-    message(WARNING "@@@@ Importing location = ${OSS_FUZZING_ENGINE}")
-    add_library(LibFuzzer STATIC IMPORTED)
-    set_target_properties(
-      LibFuzzer PROPERTIES
-      IMPORTED_LOCATION ${OSS_FUZZING_ENGINE}
-    )
-  endif()
-else() # Look for libFuzzer.a that was manually built.
-  message(WARNING "@@@@ Looking for libFuzzer.a that was manually built")
+  set(FUZZING_LIBRARY_LOCATION ${OSS_FUZZING_ENGINE})
+else()
+  # Search for libFuzzer.a in the downloaded source directory.
+  set(LIBFUZZER_SOURCE_LOCATION ${FIREBASE_BINARY_DIR}/external/src/libfuzzer)
+
   find_library(
-    LIBFUZZER_LIBRARY
+    FUZZING_LIBRARY_LOCATION
     NAMES Fuzzer
-    HINTS
-      ${FIREBASE_BINARY_DIR}/src/libfuzzer
+    HINTS ${LIBFUZZER_SOURCE_LOCATION}
   )
 
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(
-    libfuzzer
+    LIBFUZZER
     DEFAULT_MSG
-    LIBFUZZER_LIBRARY
+    FUZZING_LIBRARY_LOCATION
   )
-  message(WARNING "@@@@ LibFuzzer found? = 4{LIBFUZZER_FOUND}")
-  if(LIBFUZZER_FOUND)
-    if (NOT TARGET LibFuzzer)
-      add_library(LibFuzzer STATIC IMPORTED)
-      set_target_properties(
-        LibFuzzer PROPERTIES
-        IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
-      )
-    endif()
-  else()
-    message(FATAL_ERROR "@@@@ LibFuzzer could not be found")
-  endif(LIBFUZZER_FOUND)
-endif()
+
+  if(NOT LIBFUZZER_FOUND)
+    message(FATAL_ERROR "Could not find LibFuzzer in location: "
+            "'${LIBFUZZER_SOURCE_LOCATION}'")
+  endif()
+endif(OSS_FUZZ)
+
+add_library(LibFuzzer STATIC IMPORTED)
+set_target_properties(
+  LibFuzzer PROPERTIES
+  IMPORTED_LOCATION ${FUZZING_LIBRARY_LOCATION}
+)
