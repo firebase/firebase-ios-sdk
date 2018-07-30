@@ -20,7 +20,7 @@
 # This build method might not work on all systems. See the build.sh script of
 # libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
-# An alternaitve is to write own CMake file that builds libFuzzer.
+# An alternative is to write own CMake file that builds libFuzzer.
 include(ExternalProject)
 
 if(TARGET libfuzzer)
