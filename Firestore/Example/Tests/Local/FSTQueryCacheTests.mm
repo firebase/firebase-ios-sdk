@@ -277,7 +277,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache removeQueryData:query2];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
-    // A query with an empty result set still counts.
     FSTQueryData *query3 = [[FSTQueryData alloc] initWithQuery:FSTTestQuery("garages")
                                                       targetID:42
                                           listenSequenceNumber:100
