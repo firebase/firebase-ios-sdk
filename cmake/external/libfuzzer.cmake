@@ -17,22 +17,24 @@
 # name libFuzzer.a in the same directory as the sources because we have
 # BUILD_IN_SOURCES set to TRUE.
 #
-# TODO(minafarid): This build method might not work on all systems. See the
-# build.sh script of libFuzzer here:
+# This build method might not work on all systems. See the build.sh script of
+# libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
-# A better way is to write our own CMake file that builds libFuzzer.
+# An alternaitve is to write own CMake file that builds libFuzzer.
 include(ExternalProject)
 
 if(TARGET libfuzzer)
   return()
 endif()
 
+set(tag RELEASE_601)  # trunk@{2018-07-27}
+
 ExternalProject_Add(
   libfuzzer
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
   DOWNLOAD_NAME libfuzzer
-  SVN_REPOSITORY "https://llvm.org/svn/llvm-project/compiler-rt/tags/RELEASE_601/final/lib/fuzzer"
+  SVN_REPOSITORY "https://llvm.org/svn/llvm-project/compiler-rt/tags/${tag}/final/lib/fuzzer"
   LOG_DOWNLOAD FALSE    # Do not print SVN checkout messages.
 
   PREFIX ${PROJECT_BINARY_DIR}

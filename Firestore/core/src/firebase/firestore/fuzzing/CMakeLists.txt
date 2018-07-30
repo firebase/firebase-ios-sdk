@@ -18,7 +18,7 @@ endif()
 
 # TODO(minafarid): Currently we support local fuzzing only where we build
 # libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
-# library is already provided. LibFuzzer will need to be changed to a library.
+# library is already provided.
 find_package(LibFuzzer REQUIRED)
 
 cc_binary(

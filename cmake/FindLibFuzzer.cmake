@@ -16,12 +16,12 @@ find_library(
   LIBFUZZER_LIBRARY
   NAMES Fuzzer
   HINTS
-    ${FIREBASE_BINARY_DIR}/src/libfuzzer
+    ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
 )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  libfuzzer
+  LibFuzzer
   DEFAULT_MSG
   LIBFUZZER_LIBRARY
 )
