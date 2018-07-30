@@ -87,7 +87,13 @@ void FIRLoggerInitializeASL() {
       [sFIRLoggerUserDefaults setBool:YES forKey:kFIRPersistedDebugModeKey];
       forceDebugMode = YES;
     }
-    GULLoggerInitializeASL(overrideSTDERR, forceDebugMode);
+    GULLoggerInitializeASL();
+    if (overrideSTDERR) {
+      GULLoggerEnableSTDERR();
+    }
+    if (forceDebugMode) {
+      GULLoggerForceDebug();
+    }
   });
 }
 

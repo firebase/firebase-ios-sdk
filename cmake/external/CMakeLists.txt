@@ -12,27 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT FUZZING)
-  return()
-endif()
+cmake_minimum_required(VERSION 3.1)
+project(Firebase-download C CXX)
 
-# TODO(minafarid): Currently we support local fuzzing only where we build
-# libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
-# library is already provided.
-find_package(LibFuzzer REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-
-if(OSS_FUZZ)
-  set(AVAILABLE_FUZZING_LIBRARY FuzzingLibrary)
-else()
-  set(AVAILABLE_FUZZING_LIBRARY LibFuzzer)
-endif()
-
-cc_binary(
-    firebase_firestore_fuzzing_serializer
-  SOURCES
-    fuzz_test_serializer.cc
-  DEPENDS
-    LibFuzzer #${AVAILABLE_FUZZING_LIBRARY}
-    firebase_firestore_remote
+set(
+  FIREBASE_DOWNLOAD_DIR
+  ${PROJECT_BINARY_DIR}/downloads
+  CACHE PATH "Where to store downloaded files"
 )
+
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
+include(libfuzzer)

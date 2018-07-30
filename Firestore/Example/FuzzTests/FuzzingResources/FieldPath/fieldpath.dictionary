@@ -12,27 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT FUZZING)
-  return()
-endif()
-
-# TODO(minafarid): Currently we support local fuzzing only where we build
-# libFuzzer. Future plans include integrating into OSS Fuzz, where the fuzzing
-# library is already provided.
-find_package(LibFuzzer REQUIRED)
-
-
-if(OSS_FUZZ)
-  set(AVAILABLE_FUZZING_LIBRARY FuzzingLibrary)
-else()
-  set(AVAILABLE_FUZZING_LIBRARY LibFuzzer)
-endif()
-
-cc_binary(
-    firebase_firestore_fuzzing_serializer
-  SOURCES
-    fuzz_test_serializer.cc
-  DEPENDS
-    LibFuzzer #${AVAILABLE_FUZZING_LIBRARY}
-    firebase_firestore_remote
-)
+key="__name__"
+name="name"
+underscore="_"
+dot="."
+colon=":"
+semicolon=";"
+quote="'"
+quotes="\""
+foreslash="/"
+backslash="\\"
+dollar="$"
+hash="#"
+asterisk="*"
+bracket1="("
+bracket2=")"
+bracket3="{"
+bracket4="}"
+bracket5="<"
+bracket6=">"
+ques="?"
+excl="!"
+at="@"
+hat="^"
+and="&"
+plus="+"
+dash="-"
+mod="|"
+"a"
+"b"
+"c"
+"0"
+"8"
+"9"
