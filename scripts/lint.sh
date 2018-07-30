@@ -86,6 +86,7 @@ fi
 CPP_STATUS=$?
 
 # Objective-C++ files get a looser cpplint
+MATCHING_STATUS=1
 "${command[@]}" "${git_options[@]}" \
     -- 'Firestore/Source/**/*.'{h,m,mm} \
       'Firestore/Example/Tests/**/*.'{h,m,mm} \
@@ -96,6 +97,12 @@ if [[ -s "$TEMP" ]]; then
 fi
 OBJC_STATUS=$?
 
-if [[ $CPP_STATUS != 0 || $OBJC_STATUS != 0 ]]; then
+# Checking forbidden patterns.
+if [[ -s "$TEMP" ]]; then
+  xargs -0 grep --null '#import <Firestore/Source' 2>&1 < "$TEMP"
+fi
+MATCHING_STATUS=$?
+
+if [[ $CPP_STATUS != 0 || $OBJC_STATUS != 0 || $MATCHING_STATUS == 0 ]]; then
   exit 1
 fi
