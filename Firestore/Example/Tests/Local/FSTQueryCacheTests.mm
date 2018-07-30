@@ -273,7 +273,7 @@ NS_ASSUME_NONNULL_BEGIN
     [self.queryCache addQueryData:query2];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
-    // TargetIDs never come down.
+    // Sequence numbers never come down.
     [self.queryCache removeQueryData:query2];
     XCTAssertEqual([self.queryCache highestListenSequenceNumber], 20);
 
