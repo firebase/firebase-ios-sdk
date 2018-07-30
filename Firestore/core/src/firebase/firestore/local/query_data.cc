@@ -26,7 +26,7 @@ using core::Query;
 using model::SnapshotVersion;
 
 QueryData::QueryData(Query&& query,
-                     int target_id,
+                     model::TargetId target_id,
                      QueryPurpose purpose,
                      SnapshotVersion&& snapshot_version,
                      std::vector<uint8_t>&& resume_token)

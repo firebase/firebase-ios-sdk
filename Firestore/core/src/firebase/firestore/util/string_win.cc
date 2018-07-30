@@ -104,7 +104,7 @@ std::string LastErrorMessage(DWORD last_error) {
   DWORD output_len = ::FormatMessageW(
       FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
       last_error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), error_text.get(),
-      size, nullptr);
+      static_cast<DWORD>(size), nullptr);
   if (output_len == 0) {
     DWORD format_error = ::GetLastError();
     return util::StringFormat(
