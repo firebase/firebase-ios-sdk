@@ -84,7 +84,7 @@ class QueryData {
     return query_;
   }
 
-  int target_id() const {
+  model::TargetId target_id() const {
     return target_id_;
   }
 
@@ -105,7 +105,7 @@ class QueryData {
 
  private:
   const core::Query query_;
-  int target_id_;
+  model::TargetId target_id_;
   QueryPurpose purpose_;
   const model::SnapshotVersion snapshot_version_;
   const std::vector<uint8_t> resume_token_;
