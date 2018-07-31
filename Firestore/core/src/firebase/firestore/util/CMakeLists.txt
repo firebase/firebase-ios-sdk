@@ -149,6 +149,7 @@ cc_library(
     status.cc
     status.h
     status_apple.mm
+    status_posix.cc
     statusor.cc
     statusor.h
     statusor_internals.h
