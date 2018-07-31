@@ -16,7 +16,7 @@
 # provided by libFuzzer to compile the sources and produce a library with the
 # name libFuzzer.a in the same directory as the sources because we have
 # BUILD_IN_SOURCES set to TRUE.
-#
+
 # This build method might not work on all systems. See the build.sh script of
 # libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
