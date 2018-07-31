@@ -39,6 +39,7 @@ DerivedData
 # Vim
 *.swo
 *.swp
+compile_commands.json
 
 # Bundler
 .bundle
