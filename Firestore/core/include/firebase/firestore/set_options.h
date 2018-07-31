@@ -30,7 +30,8 @@ namespace firestore {
 // TODO(zxu123): add more methods to complete the class and make it useful.
 class SetOptions {
  public:
-  SetOptions();
+  SetOptions() {
+  }
 };
 
 }  // namespace firestore
