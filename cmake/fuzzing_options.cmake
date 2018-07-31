@@ -12,31 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Adds fuzzing options to the current build.
-
 # Add fuzz testing options to the current build.
 
 include(compiler_id)
 
-option(FUZZING "Build for Fuzz Testing (local fuzzing and OSS Fuzz)" OFF)
+option(FUZZING "Build for local Fuzz Testing" OFF)
 option(OSS_FUZZ "Build for OSS Fuzz Environment" OFF)
-option(OSS_FUZZING_ENGINE STRING "Fuzzing engine provided by OSS Fuzz")
+option(OSS_FUZZING_ENGINE STRING "Fuzzing Library provided by OSS Fuzz")
 
-if(FUZZING)
+# OSS Fuzz provides its required compiler-specific flags in CXXFLAGS, which are
+# automatically added to CMAKE_CXX_FLAGS. For local fuzzing, multiple compile
+# and linking flags must be set. These flags depend on the compiler version.
+if(FUZZING AND NOT OSS_FUZZ)
+  if(WIN32)
+    # Currently, libFuzzer cannot be built on Windows.
+    message(FATAL_ERROR "Fuzzing is currently not supported on Windows.")
+  endif()
+
   # Address sanitizer must be enabled during fuzzing to detect memory errors.
   if(NOT WITH_ASAN)
     message(FATAL_ERROR "Fuzzing requires WITH_ASAN=ON to detect memory errors.")
   endif()
 
-  # OSS Fuzz provides its required compiler-specific flags in CXXFLAGS.
-  # For local fuzzing, we set compiler flags to enable code coverage
-  # instrumentation. Fuzzing engines use code coverage as a metric to guide the
-  # fuzzing. We use the basic code coverage level (trace-pc). This flag has
-  # different values in Clang and GNU. Other values, such as trace-cmp, can be
-  # used to trace data flow. See the official docs for the compiler flags.
-  if(OSS_FUZZ)
-    set(fuzzing_flags ${CXXFLAGS})
-  elseif(CXX_CLANG)
+  # Set the flag to enable code coverage instrumentation. Fuzzing engines use
+  # code coverage as a metric to guide the fuzzing. We use the basic code
+  # coverage level (trace-pc). This flag has different values in Clang and GNU.
+  # Other values, such as trace-cmp, can be used to trace data flow. See the
+  # official documentation for the compiler flags.
+  if(CXX_CLANG)
     # TODO(minafarid): Check the version of Clang. Clang versions >= 5.0 should
     # have libFuzzer by default.
     set(fuzzing_flags -fsanitize-coverage=trace-pc-guard)
@@ -50,3 +53,4 @@ if(FUZZING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   endforeach()
 endif()
+

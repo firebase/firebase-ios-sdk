@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if(NOT FUZZING)
+if(NOT FUZZING AND NOT OSS_FUZZ)
   return()
 endif()
 
-# This command finds LibFuzzer that is either provided by OSS Fuzz, if enabled,
-# or that manually built from sources.
-find_package(LibFuzzer REQUIRED)
+# Finds the fuzzing library that is either provided by OSS Fuzz, if enabled, or
+# libFuzzer that is manually built from sources.
+find_package(FuzzingLibrary REQUIRED)
 
 cc_binary(
   firebase_firestore_fuzzing_serializer
   SOURCES
     fuzz_test_serializer.cc
   DEPENDS
-    LibFuzzer
+    FuzzingLibrary
     firebase_firestore_remote
 )

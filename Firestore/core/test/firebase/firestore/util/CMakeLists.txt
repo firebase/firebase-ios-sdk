@@ -135,6 +135,7 @@ cc_test(
     strerror_test.cc
     string_format_test.cc
     string_util_test.cc
+    string_win_test.cc
   DEPENDS
     absl_base
     absl_strings

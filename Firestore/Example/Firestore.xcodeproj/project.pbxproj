@@ -82,7 +82,6 @@
 		5492E081202154EC00B64F25 /* FSTStreamTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E07D202154EB00B64F25 /* FSTStreamTests.mm */; };
 		5492E082202154EC00B64F25 /* FSTDatastoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E07E202154EC00B64F25 /* FSTDatastoreTests.mm */; };
 		5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0832021552A00B64F25 /* FSTLocalStoreTests.mm */; };
-		5492E09E2021552D00B64F25 /* FSTEagerGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0842021552A00B64F25 /* FSTEagerGarbageCollectorTests.mm */; };
 		5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0862021552A00B64F25 /* FSTLevelDBMigrationsTests.mm */; };
 		5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */; };
 		5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0882021552A00B64F25 /* FSTMemoryLocalStoreTests.mm */; };
@@ -136,6 +135,9 @@
 		54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A51F315EE100DD57A1 /* write_spec_test.json */; };
 		54EB764D202277B30088B8F3 /* array_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54EB764C202277B30088B8F3 /* array_sorted_map_test.cc */; };
 		5A080105CCBFDB6BF3F3772D /* path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 403DBF6EFB541DFD01582AA3 /* path_test.cc */; };
+		5CC9650320A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */; };
+		5CC9650520A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */; };
+		5CC9650720A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */; };
 		5D405BE298CE4692CB00790A /* Pods_Firestore_Tests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
@@ -210,6 +212,7 @@
 		C482E724F4B10968417C3F78 /* Pods_Firestore_FuzzTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */; };
 		C80B10E79CDD7EF7843C321E /* type_traits_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */; };
 		C8D3CE2343E53223E6487F2C /* Pods_Firestore_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */; };
+		DD5976A45071455FF3FE74B8 /* string_win_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 79507DF8378D3C42F5B36268 /* string_win_test.cc */; };
 		DE03B2D41F2149D600A30B9C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F5AF195388D20070C39A /* XCTest.framework */; };
 		DE03B2D51F2149D600A30B9C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		DE03B2D61F2149D600A30B9C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
@@ -344,7 +347,6 @@
 		5492E07D202154EB00B64F25 /* FSTStreamTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTStreamTests.mm; sourceTree = "<group>"; };
 		5492E07E202154EC00B64F25 /* FSTDatastoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDatastoreTests.mm; sourceTree = "<group>"; };
 		5492E0832021552A00B64F25 /* FSTLocalStoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLocalStoreTests.mm; sourceTree = "<group>"; };
-		5492E0842021552A00B64F25 /* FSTEagerGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTEagerGarbageCollectorTests.mm; sourceTree = "<group>"; };
 		5492E0852021552A00B64F25 /* FSTRemoteDocumentCacheTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTRemoteDocumentCacheTests.h; sourceTree = "<group>"; };
 		5492E0862021552A00B64F25 /* FSTLevelDBMigrationsTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBMigrationsTests.mm; sourceTree = "<group>"; };
 		5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBMutationQueueTests.mm; sourceTree = "<group>"; };
@@ -414,6 +416,10 @@
 		5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CAE131920FFFED600BE9A4A /* Firestore_Benchmarks_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Firestore_Benchmarks_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5CAE131D20FFFED600BE9A4A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5CC9650120A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLRUGarbageCollectorTests.h; sourceTree = "<group>"; };
+		5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
+		5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMemoryLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
+		5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBLRUGarbageCollectorTests.mm; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* Firestore_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Firestore_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6003F58F195388D20070C39A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -468,6 +474,7 @@
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7346E61C20325C6900FD6CEF /* FSTDispatchQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTDispatchQueueTests.mm; sourceTree = "<group>"; };
 		73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRArrayTransformTests.mm; sourceTree = "<group>"; };
+		79507DF8378D3C42F5B36268 /* string_win_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = string_win_test.cc; sourceTree = "<group>"; };
 		84434E57CA72951015FC71BC /* Pods-Firestore_FuzzTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		8E002F4AD5D9B6197C940847 /* Firestore.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Firestore.podspec; path = ../Firestore.podspec; sourceTree = "<group>"; };
@@ -664,6 +671,7 @@
 				9CFD366B783AE27B9E79EE7A /* string_format_apple_test.mm */,
 				54131E9620ADE678001DF3FF /* string_format_test.cc */,
 				AB380CFC201A2EE200D97691 /* string_util_test.cc */,
+				79507DF8378D3C42F5B36268 /* string_win_test.cc */,
 				2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */,
 			);
 			path = util;
@@ -731,8 +739,8 @@
 		5CAE131A20FFFED600BE9A4A /* Benchmarks */ = {
 			isa = PBXGroup;
 			children = (
-				5CAE131D20FFFED600BE9A4A /* Info.plist */,
 				132E3BB3D5C42282B4ACFB20 /* FSTLevelDBBenchmarkTests.mm */,
+				5CAE131D20FFFED600BE9A4A /* Info.plist */,
 			);
 			path = Benchmarks;
 			sourceTree = "<group>";
@@ -757,12 +765,12 @@
 		6003F58B195388D20070C39A /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				5CAE131920FFFED600BE9A4A /* Firestore_Benchmarks_iOS.xctest */,
 				6003F58A195388D20070C39A /* Firestore_Example_iOS.app */,
 				6EDD3B5B20BF247500C33877 /* Firestore_FuzzTests_iOS.xctest */,
 				DE03B2E91F2149D600A30B9C /* Firestore_IntegrationTests_iOS.xctest */,
 				54C9EDF12040E16300A969CD /* Firestore_SwiftTests_iOS.xctest */,
 				6003F5AE195388D20070C39A /* Firestore_Tests_iOS.xctest */,
-				5CAE131920FFFED600BE9A4A /* Firestore_Benchmarks_iOS.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -772,6 +780,7 @@
 			children = (
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
+				F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */,
 				5918805E993304321A05E82B /* Pods_Firestore_Example_iOS.framework */,
 				BB92EB03E3F92485023F64ED /* Pods_Firestore_Example_iOS_Firestore_SwiftTests_iOS.framework */,
 				B79CA87A1A01FC5329031C9B /* Pods_Firestore_FuzzTests_iOS.framework */,
@@ -779,7 +788,6 @@
 				2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
-				F694C3CE4B77B3C0FA4BBA53 /* Pods_Firestore_Benchmarks_iOS.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -944,10 +952,10 @@
 		6EA39FDC20FE81DD008D461F /* FuzzingTargets */ = {
 			isa = PBXGroup;
 			children = (
-				6E8302DF21022309003E1EA3 /* FSTFuzzTestFieldPath.mm */,
-				6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */,
-				6EA39FDF20FE824E008D461F /* FSTFuzzTestSerializer.h */,
 				6E8302DE210222ED003E1EA3 /* FSTFuzzTestFieldPath.h */,
+				6E8302DF21022309003E1EA3 /* FSTFuzzTestFieldPath.mm */,
+				6EA39FDF20FE824E008D461F /* FSTFuzzTestSerializer.h */,
+				6EA39FDD20FE820E008D461F /* FSTFuzzTestSerializer.mm */,
 			);
 			path = FuzzingTargets;
 			sourceTree = "<group>";
@@ -966,6 +974,8 @@
 		AAEA2A72CFD1FA5AD34462F7 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+				FA2E9952BA2B299C1156C43C /* Pods-Firestore_Benchmarks_iOS.debug.xcconfig */,
+				A5FA86650A18F3B7A8162287 /* Pods-Firestore_Benchmarks_iOS.release.xcconfig */,
 				69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */,
 				11984BA0A99D7A7ABA5B0D90 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.release.xcconfig */,
 				3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */,
@@ -976,8 +986,6 @@
 				F354C0FE92645B56A6C6FD44 /* Pods-Firestore_IntegrationTests_iOS.release.xcconfig */,
 				E592181BFD7C53C305123739 /* Pods-Firestore_Tests_iOS.debug.xcconfig */,
 				B3F5B3AAE791A5911B9EAA82 /* Pods-Firestore_Tests_iOS.release.xcconfig */,
-				FA2E9952BA2B299C1156C43C /* Pods-Firestore_Benchmarks_iOS.debug.xcconfig */,
-				A5FA86650A18F3B7A8162287 /* Pods-Firestore_Benchmarks_iOS.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -1039,8 +1047,10 @@
 		DE51B1621F0D48AC0013853F /* Local */ = {
 			isa = PBXGroup;
 			children = (
-				5492E0842021552A00B64F25 /* FSTEagerGarbageCollectorTests.mm */,
+				5CC9650120A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.h */,
+				5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */,
 				5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */,
+				5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */,
 				5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */,
 				5492E0862021552A00B64F25 /* FSTLevelDBMigrationsTests.mm */,
 				5492E0872021552A00B64F25 /* FSTLevelDBMutationQueueTests.mm */,
@@ -1050,6 +1060,7 @@
 				5492E08A2021552A00B64F25 /* FSTLocalSerializerTests.mm */,
 				5492E0912021552B00B64F25 /* FSTLocalStoreTests.h */,
 				5492E0832021552A00B64F25 /* FSTLocalStoreTests.mm */,
+				5CC9650420A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm */,
 				5492E0882021552A00B64F25 /* FSTMemoryLocalStoreTests.mm */,
 				5492E0972021552C00B64F25 /* FSTMemoryMutationQueueTests.mm */,
 				5492E08B2021552B00B64F25 /* FSTMemoryQueryCacheTests.mm */,
@@ -1789,7 +1800,6 @@
 				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
-				5492E09E2021552D00B64F25 /* FSTEagerGarbageCollectorTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
 				5492E067202154B900B64F25 /* FSTEventManagerTests.mm in Sources */,
 				5492E0BF2021555100B64F25 /* FSTFieldValueTests.mm in Sources */,
@@ -1798,7 +1808,9 @@
 				DE2EF0861F3D0B6E003D0CDC /* FSTImmutableSortedDictionary+Testing.m in Sources */,
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
+				5CC9650320A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm in Sources */,
 				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
+				5CC9650720A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
 				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
 				5492E0A02021552D00B64F25 /* FSTLevelDBMutationQueueTests.mm in Sources */,
@@ -1808,6 +1820,7 @@
 				132E3E53179DE287D875F3F2 /* FSTLevelDBTransactionTests.mm in Sources */,
 				5492E0A32021552D00B64F25 /* FSTLocalSerializerTests.mm in Sources */,
 				5492E09D2021552D00B64F25 /* FSTLocalStoreTests.mm in Sources */,
+				5CC9650520A0E9BD00A2D6A1 /* FSTMemoryLRUGarbageCollectorTests.mm in Sources */,
 				5492E0A12021552D00B64F25 /* FSTMemoryLocalStoreTests.mm in Sources */,
 				5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */,
 				5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */,
@@ -1892,6 +1905,7 @@
 				0535C1B65DADAE1CE47FA3CA /* string_format_apple_test.mm in Sources */,
 				54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */,
 				AB380CFE201A2F4500D97691 /* string_util_test.cc in Sources */,
+				DD5976A45071455FF3FE74B8 /* string_win_test.cc in Sources */,
 				618BBEA620B89AAC00B5BCE7 /* target.pb.cc in Sources */,
 				AB380CFB2019388600D97691 /* target_id_generator_test.cc in Sources */,
 				54A0352A20A3B3BD003E0143 /* testutil.cc in Sources */,

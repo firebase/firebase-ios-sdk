@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
+#import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
@@ -76,6 +77,21 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return result;
+}
+
+- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
+         throughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+  int count = 0;
+  FSTMaybeDocumentDictionary *updatedDocs = self.docs;
+  for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
+    if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
+      updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
+      NSLog(@"Removing %@", docKey);
+      count++;
+    }
+  }
+  self.docs = updatedDocs;
+  return count;
 }
 
 @end

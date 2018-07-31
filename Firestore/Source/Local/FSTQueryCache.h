@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -36,10 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * The cache is keyed by FSTQuery and entries in the cache are FSTQueryData instances.
  */
-@protocol FSTQueryCache <NSObject, FSTGarbageSource>
-
-/** Starts the query cache up. */
-- (void)start;
+@protocol FSTQueryCache <NSObject>
 
 /**
  * Returns the highest target ID of any query in the cache. Typically called during startup to
@@ -93,6 +89,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes the cached entry for the given query data (no-op if no entry exists). */
 - (void)removeQueryData:(FSTQueryData *)queryData;
 
+- (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
+
+- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                              liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
+
 /** Returns the number of targets cached. */
 - (int32_t)count;
 
@@ -116,6 +117,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID;
 
 - (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID;
+
+/**
+ * Checks to see if there are any references to a document with the given key.
+ */
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
 
 @end
 

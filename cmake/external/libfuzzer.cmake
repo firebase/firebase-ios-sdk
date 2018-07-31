@@ -23,19 +23,13 @@
 # An alternative is to write own CMake file that builds libFuzzer.
 include(ExternalProject)
 
-if(OSS_FUZZ)
-  ExternalProject_Add(
-    libfuzzer
-    DOWNLOAD_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    TEST_COMMAND ""
-  )
+if(TARGET libfuzzer)
   return()
 endif()
 
-if(TARGET libfuzzer)
+# Mark libfuzzer target as done on Windows because fuzzing is not supported.
+if(WIN32)
+  add_custom_target(libfuzzer)
   return()
 endif()
 

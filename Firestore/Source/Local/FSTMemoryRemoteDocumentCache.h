@@ -16,13 +16,19 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTMemoryLRUReferenceDelegate;
+
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
+         throughSequenceNumber:(FSTListenSequenceNumber)upperBound;
 
 @end
 

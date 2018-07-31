@@ -109,6 +109,7 @@ if(MSVC)
 
     # Cut down on symbol cruft in windows.h
     /DWIN32_LEAN_AND_MEAN=1
+    /DNOMINMAX=1
 
     # Specify at least Windows Vista/Server 2008 (required by gRPC)
     /D_WIN32_WINNT=0x600

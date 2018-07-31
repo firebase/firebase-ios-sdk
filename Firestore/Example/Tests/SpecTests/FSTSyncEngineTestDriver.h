@@ -34,7 +34,6 @@
 @class FSTQueryData;
 @class FSTViewSnapshot;
 @class FSTWatchChange;
-@protocol FSTGarbageCollector;
 @protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -92,8 +91,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
  * garbage collection policy.
  */
-- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector;
+- (instancetype)initWithPersistence:(id<FSTPersistence>)persistence;
 
 /**
  * Initializes the underlying FSTSyncEngine with the given local persistence implementation and
@@ -101,7 +99,6 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * persisted mutation queues).
  */
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector
                         initialUser:(const firebase::firestore::auth::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
     NS_DESIGNATED_INITIALIZER;
