@@ -16,9 +16,7 @@
 
 #import "FIRMessagingRmq2PersistentStore.h"
 
-#import "sqlite3.h"
-
-#import "Protos/GtalkCore.pbobjc.h"
+#import <sqlite3.h>
 
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingDefines.h"
@@ -26,6 +24,7 @@
 #import "FIRMessagingPersistentSyncMessage.h"
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
+#import "Protos/GtalkCore.pbobjc.h"
 
 #ifndef _FIRMessagingRmqLogAndExit
 #define _FIRMessagingRmqLogAndExit(stmt, return_value)   \

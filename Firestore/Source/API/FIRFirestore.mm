@@ -18,6 +18,7 @@
 
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
 
@@ -30,11 +31,10 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FIRWriteBatch+Internal.h"
+#import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -42,6 +42,8 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
@@ -59,6 +61,8 @@ using util::internal::ExecutorLibdispatch;
 NS_ASSUME_NONNULL_BEGIN
 
 extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
+
+#pragma mark - FIRFirestore
 
 @interface FIRFirestore () {
   /** The actual owned DatabaseId instance is allocated in FIRFirestore. */
@@ -128,11 +132,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          @"Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
                          @"before using Firestore");
   }
-  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
 }
 
 + (instancetype)firestoreForApp:(FIRApp *)app {
-  return [self firestoreForApp:app database:util::WrapNSStringNoCopy(DatabaseId::kDefault)];
+  return [self firestoreForApp:app database:util::WrapNSString(DatabaseId::kDefault)];
 }
 
 // TODO(b/62410906): make this public
@@ -149,36 +153,9 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         DatabaseId::kDefault);
   }
 
-  // Note: If the key format changes, please change the code that detects FIRApps being deleted
-  // contained in +initialize. It checks for the app's name followed by a | character.
-  NSString *key = [NSString stringWithFormat:@"%@|%@", app.name, database];
-
-  NSMutableDictionary<NSString *, FIRFirestore *> *instances = self.instances;
-  @synchronized(instances) {
-    FIRFirestore *firestore = instances[key];
-    if (!firestore) {
-      NSString *projectID = app.options.projectID;
-      FSTAssert(projectID, @"FirebaseOptions.projectID cannot be nil.");
-
-      FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
-          queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
-
-      std::unique_ptr<CredentialsProvider> credentials_provider =
-          absl::make_unique<FirebaseCredentialsProvider>(app);
-
-      NSString *persistenceKey = app.name;
-
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                 database:util::MakeStringView(database)
-                                           persistenceKey:persistenceKey
-                                      credentialsProvider:std::move(credentials_provider)
-                                      workerDispatchQueue:workerDispatchQueue
-                                              firebaseApp:app];
-      instances[key] = firestore;
-    }
-
-    return firestore;
-  }
+  id<FSTFirestoreMultiDBProvider> provider =
+      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
+  return [provider firestoreForDatabase:database];
 }
 
 - (instancetype)initWithProjectID:(const absl::string_view)projectID
@@ -242,35 +219,35 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   @synchronized(self) {
     if (!_client) {
       // These values are validated elsewhere; this is just double-checking:
-      FSTAssert(_settings.host, @"FirestoreSettings.host cannot be nil.");
-      FSTAssert(_settings.dispatchQueue, @"FirestoreSettings.dispatchQueue cannot be nil.");
+      HARD_ASSERT(_settings.host, "FirestoreSettings.host cannot be nil.");
+      HARD_ASSERT(_settings.dispatchQueue, "FirestoreSettings.dispatchQueue cannot be nil.");
 
       if (!_settings.timestampsInSnapshotsEnabled) {
-        FSTWarn(
-            @"The behavior for system Date objects stored in Firestore is going to change "
-             "AND YOUR APP MAY BREAK.\n"
-             "To hide this warning and ensure your app does not break, you need to add "
-             "the following code to your app before calling any other Cloud Firestore methods:\n"
-             "\n"
-             "let db = Firestore.firestore()\n"
-             "let settings = db.settings\n"
-             "settings.areTimestampsInSnapshotsEnabled = true\n"
-             "db.settings = settings\n"
-             "\n"
-             "With this change, timestamps stored in Cloud Firestore will be read back as "
-             "Firebase Timestamp objects instead of as system Date objects. So you will "
-             "also need to update code expecting a Date to instead expect a Timestamp. "
-             "For example:\n"
-             "\n"
-             "// old:\n"
-             "let date: Date = documentSnapshot.get(\"created_at\") as! Date\n"
-             "// new:\n"
-             "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
-             "let date: Date = timestamp.dateValue()\n"
-             "\n"
-             "Please audit all existing usages of Date when you enable the new behavior. In a "
-             "future release, the behavior will be changed to the new behavior, so if you do not "
-             "follow these steps, YOUR APP MAY BREAK.");
+        LOG_WARN(
+            "The behavior for system Date objects stored in Firestore is going to change "
+            "AND YOUR APP MAY BREAK.\n"
+            "To hide this warning and ensure your app does not break, you need to add "
+            "the following code to your app before calling any other Cloud Firestore methods:\n"
+            "\n"
+            "let db = Firestore.firestore()\n"
+            "let settings = db.settings\n"
+            "settings.areTimestampsInSnapshotsEnabled = true\n"
+            "db.settings = settings\n"
+            "\n"
+            "With this change, timestamps stored in Cloud Firestore will be read back as "
+            "Firebase Timestamp objects instead of as system Date objects. So you will "
+            "also need to update code expecting a Date to instead expect a Timestamp. "
+            "For example:\n"
+            "\n"
+            "// old:\n"
+            "let date: Date = documentSnapshot.get(\"created_at\") as! Date\n"
+            "// new:\n"
+            "let timestamp: Timestamp = documentSnapshot.get(\"created_at\") as! Timestamp\n"
+            "let date: Date = timestamp.dateValue()\n"
+            "\n"
+            "Please audit all existing usages of Date when you enable the new behavior. In a "
+            "future release, the behavior will be changed to the new behavior, so if you do not "
+            "follow these steps, YOUR APP MAY BREAK.");
       }
 
       const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
@@ -292,6 +269,11 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
+  if ([collectionPath containsString:@"//"]) {
+    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.",
+                            collectionPath);
+  }
+
   [self ensureClientConfigured];
   const ResourcePath path = ResourcePath::FromString(util::MakeStringView(collectionPath));
   return [FIRCollectionReference referenceWithPath:path firestore:self];
@@ -301,6 +283,10 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   if (!documentPath) {
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
+  if ([documentPath containsString:@"//"]) {
+    FSTThrowInvalidArgument(@"Invalid path (%@). Paths must not contain // in them.", documentPath);
+  }
+
   [self ensureClientConfigured];
   const ResourcePath path = ResourcePath::FromString(util::MakeStringView(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];

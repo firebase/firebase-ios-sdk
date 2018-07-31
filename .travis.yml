@@ -52,56 +52,81 @@ jobs:
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        # Set ALT_SOURCES like the following to continue lint testing until release when Utilities
+        # or Core APIs change. GoogleUtilities.podspec and FirebaseCore.podspec should be
+        # manually pushed to a temporary Specs repo. See
+        # https://guides.cocoapods.org/making/private-cocoapods.
+        # ALT_SOURCES="--sources=git@github.com:paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
+        - ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec
-        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint GoogleUtilities.podspec
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseCore.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuth.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseAuthInterop.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseDatabase.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseMessaging.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseStorage.podspec $ALT_SOURCES
+        - ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFunctions.podspec $ALT_SOURCES
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         # Eliminate the one warning from BoringSSL when CocoaPods 1.6.0 is available.
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings --no-subspecs
+        - travis_wait ./scripts/if_changed.sh bundle exec pod lib lint FirebaseFirestore.podspec --allow-warnings --no-subspecs $ALT_SOURCES
 
     # pod lib lint to check build and warnings for static library build - only on cron jobs
     - stage: test
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=pod-lib-lint
+        - ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries
+        # For GoogleUtilities, allow warnings for iOS 6 but not iOS 7.
+        - ./scripts/if_cron.sh bundle exec pod lib lint GoogleUtilities.podspec --use-libraries --allow-warnings
+        - ./scripts/if_cron.sh sed -i -e "s/s.ios.deployment_target = '6.0'/s.ios.deployment_target = '7.0'/" GoogleUtilities.podspec
+        - ./scripts/if_cron.sh bundle exec pod lib lint GoogleUtilities.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseCore.podspec --use-libraries $ALT_SOURCES
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuth.podspec --use-libraries $ALT_SOURCES
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseAuthInterop.podspec --use-libraries $ALT_SOURCES
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseDatabase.podspec --use-libraries $ALT_SOURCES
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries --allow-warnings
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseStorage.podspec --use-libraries
-        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFunctions.podspec --use-libraries
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseMessaging.podspec --use-libraries --allow-warnings $ALT_SOURCES
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseStorage.podspec --use-libraries $ALT_SOURCES
+        - ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFunctions.podspec --use-libraries $ALT_SOURCES
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=pod-lib-lint
+        - ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
+        - travis_wait ./scripts/if_cron.sh bundle exec pod lib lint FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs $ALT_SOURCES
 
     # Alternative platforms
 
     - stage: test
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
+
+    - stage: test
+      osx_image: xcode8.3
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild XCODE_VERSION=8.3.3
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:

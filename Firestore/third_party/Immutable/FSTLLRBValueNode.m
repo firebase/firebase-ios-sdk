@@ -1,6 +1,5 @@
 #import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
 
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/third_party/Immutable/FSTLLRBEmptyNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -64,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setLeft:(nullable id<FSTLLRBNode>)left {
   // Setting the left node should be only done by the builder, so doing it after someone has
   // memoized count is an error.
-  FSTAssert(_count == NSNotFound, @"Can't update left node after using count");
+  NSAssert(_count == NSNotFound, @"Can't update left node after using count");
   _left = left;
 }
 

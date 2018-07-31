@@ -43,9 +43,8 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
   FUNSerializer *_serializer;
   // A factory for getting the metadata to include with function calls.
   FUNContextProvider *_contextProvider;
-  // For testing only. If this is set, functions will be called against localhost instead of
-  // Firebase.
-  BOOL _useLocalhost;
+  // For testing only. If this is set, functions will be called against it instead of Firebase.
+  NSString *_emulatorOrigin;
 }
 
 /**
@@ -86,13 +85,17 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
     _region = [region copy];
     _serializer = [[FUNSerializer alloc] init];
     _contextProvider = [[FUNContextProvider alloc] initWithApp:app];
-    _useLocalhost = NO;
+    _emulatorOrigin = nil;
   }
   return self;
 }
 
 - (void)useLocalhost {
-  _useLocalhost = YES;
+  [self useFunctionsEmulatorOrigin:@"http://localhost:5005"];
+}
+
+- (void)useFunctionsEmulatorOrigin:(NSString *)origin {
+  _emulatorOrigin = origin;
 }
 
 - (NSString *)URLWithName:(NSString *)name {
@@ -103,8 +106,8 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
   if (!projectID) {
     FUNThrowInvalidArgument(@"FIRFunctions app projectID cannot be nil.");
   }
-  if (_useLocalhost) {
-    return [NSString stringWithFormat:@"http://localhost:5005/%@/%@/%@", projectID, _region, name];
+  if (_emulatorOrigin) {
+    return [NSString stringWithFormat:@"%@/%@/%@/%@", _emulatorOrigin, projectID, _region, name];
   }
   return
       [NSString stringWithFormat:@"https://%@-%@.cloudfunctions.net/%@", _region, projectID, name];
@@ -166,7 +169,7 @@ NSString *const kFUNInstanceIDTokenHeader = @"Firebase-Instance-ID-Token";
   }
 
   // Override normal security rules if this is a local test.
-  if (_useLocalhost) {
+  if (_emulatorOrigin) {
     fetcher.allowLocalhostRequest = YES;
     fetcher.allowedInsecureSchemes = @[ @"http" ];
   }

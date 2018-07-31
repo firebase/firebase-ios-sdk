@@ -17,7 +17,10 @@
 
 #import "FIRTestCase.h"
 
+// TODO - FIRLoggerTest should be split into a separate FIRLoggerTest and GULLoggerTest.
+// No test should include both includes.
 #import <FirebaseCore/FIRLogger.h>
+#import <GoogleUtilities/GULLogger.h>
 
 #import <asl.h>
 
@@ -25,23 +28,20 @@
 extern NSString *const kFIRDisableDebugModeApplicationArgument;
 extern NSString *const kFIREnableDebugModeApplicationArgument;
 
+/// Key for the debug mode bit in NSUserDefaults.
 extern NSString *const kFIRPersistedDebugModeKey;
 
-extern const char *kFIRLoggerASLClientFacilityName;
-
-extern const char *kFIRLoggerCustomASLMessageFormat;
+extern const char *kGULLoggerASLClientFacilityName;
 
 extern void FIRResetLogger(void);
 
-extern aslclient getFIRLoggerClient(void);
+extern void FIRSetLoggerUserDefaults(NSUserDefaults *defaults);
 
-extern dispatch_queue_t getFIRClientQueue(void);
+extern aslclient getGULLoggerClient(void);
 
-extern BOOL getFIRLoggerDebugMode(void);
+extern dispatch_queue_t getGULClientQueue(void);
 
-// Define the message format again to make sure the format doesn't accidentally change.
-static NSString *const kCorrectASLMessageFormat =
-    @"$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
+extern BOOL getGULLoggerDebugMode(void);
 
 static NSString *const kMessageCode = @"I-COR000001";
 
@@ -49,7 +49,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 @property(nonatomic) NSString *randomLogString;
 
-@property(nonatomic, strong) id userDefaultsMock;
+@property(nonatomic, strong) NSUserDefaults *defaults;
 
 @end
 
@@ -59,22 +59,19 @@ static NSString *const kMessageCode = @"I-COR000001";
   [super setUp];
   FIRResetLogger();
 
-  // Stub NSUserDefaults for tracking the error and warning count.
-  _userDefaultsMock = OCMPartialMock([NSUserDefaults standardUserDefaults]);
+  // Stub NSUserDefaults for cleaner testing.
+  _defaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.firebase.logger_test"];
+  FIRSetLoggerUserDefaults(_defaults);
 }
 
 - (void)tearDown {
   [super tearDown];
 
-  [_userDefaultsMock stopMocking];
+  _defaults = nil;
 }
 
 // Test some stable variables to make sure they weren't accidently changed.
 - (void)testStableVariables {
-  // kFIRLoggerCustomASLMessageFormat.
-  XCTAssertEqualObjects(kCorrectASLMessageFormat,
-                        [NSString stringWithUTF8String:kFIRLoggerCustomASLMessageFormat]);
-
   // Strings of type FIRLoggerServices.
   XCTAssertEqualObjects(kFIRLoggerABTesting, @"[Firebase/ABTesting]");
   XCTAssertEqualObjects(kFIRLoggerAdMob, @"[Firebase/AdMob]");
@@ -102,10 +99,11 @@ static NSString *const kMessageCode = @"I-COR000001";
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
   // Assert.
-  NSNumber *debugMode =
-      [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+#if MAKE_THREAD_SAFE
+  NSNumber *debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertNil(debugMode);
-  XCTAssertFalse(getFIRLoggerDebugMode());
+  XCTAssertFalse(getGULLoggerDebugMode());
+#endif
 
   // Stop.
   [processInfoMock stopMocking];
@@ -120,11 +118,12 @@ static NSString *const kMessageCode = @"I-COR000001";
   // Test.
   FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
 
+#ifdef MAKE_THREAD_SAFE
   // Assert.
-  NSNumber *debugMode =
-      [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+  NSNumber *debugMode = [self.defaults objectForKey:kGULPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
-  XCTAssertTrue(getFIRLoggerDebugMode());
+  XCTAssertTrue(getGULLoggerDebugMode());
+#endif
 
   // Stop.
   [processInfoMock stopMocking];
@@ -133,16 +132,14 @@ static NSString *const kMessageCode = @"I-COR000001";
 - (void)testInitializeASLForDebugModeWithUserDefaults {
   // Stub.
   NSNumber *debugMode = @YES;
-  OCMStub([self.userDefaultsMock boolForKey:kFIRPersistedDebugModeKey])
-      .andReturn(debugMode.boolValue);
+  [self.defaults setBool:debugMode.boolValue forKey:kFIRPersistedDebugModeKey];
 
   // Test.
-  FIRLogError(kFIRLoggerCore, kMessageCode, @"Some error.");
+  GULLogError(@"my service", NO, kMessageCode, @"Some error.");
 
   // Assert.
-  debugMode = [[NSUserDefaults standardUserDefaults] objectForKey:kFIRPersistedDebugModeKey];
+  debugMode = [self.defaults objectForKey:kFIRPersistedDebugModeKey];
   XCTAssertTrue(debugMode.boolValue);
-  XCTAssertTrue(getFIRLoggerDebugMode());
 }
 
 - (void)testMessageCodeFormat {
@@ -250,7 +247,7 @@ static NSString *const kMessageCode = @"I-COR000001";
 
 - (void)drainFIRClientQueue {
   dispatch_semaphore_t workerSemaphore = dispatch_semaphore_create(0);
-  dispatch_async(getFIRClientQueue(), ^{
+  dispatch_async(getGULClientQueue(), ^{
     dispatch_semaphore_signal(workerSemaphore);
   });
   dispatch_semaphore_wait(workerSemaphore, DISPATCH_TIME_FOREVER);
@@ -260,8 +257,8 @@ static NSString *const kMessageCode = @"I-COR000001";
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
   aslmsg query = asl_new(ASL_TYPE_QUERY);
-  asl_set_query(query, ASL_KEY_FACILITY, kFIRLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
-  aslresponse r = asl_search(getFIRLoggerClient(), query);
+  asl_set_query(query, ASL_KEY_FACILITY, kGULLoggerASLClientFacilityName, ASL_QUERY_OP_EQUAL);
+  aslresponse r = asl_search(getGULLoggerClient(), query);
   asl_free(query);
   aslmsg m;
   const char *val;

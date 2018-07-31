@@ -21,7 +21,6 @@
 #include <set>
 
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Model/FSTMutation.h"
@@ -31,11 +30,14 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::testutil::Key;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -284,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
     NSArray<FSTMutation *> *mutations = @[
-      FSTTestSetMutation(@"fob/bar",
+      FSTTestSetMutation(@"foi/bar",
                          @{ @"a" : @1 }),
       FSTTestSetMutation(@"foo/bar",
                          @{ @"a" : @1 }),
@@ -310,6 +312,85 @@ NS_ASSUME_NONNULL_BEGIN
     NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2] ];
     NSArray<FSTMutationBatch *> *matches =
         [self.mutationQueue allMutationBatchesAffectingDocumentKey:testutil::Key("foo/bar")];
+
+    XCTAssertEqualObjects(matches, expected);
+  });
+}
+
+- (void)testAllMutationBatchesAffectingDocumentKeys {
+  if ([self isTestBaseClass]) return;
+
+  self.persistence.run("testAllMutationBatchesAffectingDocumentKey", [&]() {
+    NSArray<FSTMutation *> *mutations = @[
+      FSTTestSetMutation(@"fob/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestPatchMutation("foo/bar",
+                           @{ @"b" : @1 }, {}),
+      FSTTestSetMutation(@"foo/bar/suffix/key",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"food/bar",
+                         @{ @"a" : @1 })
+    ];
+
+    // Store all the mutations.
+    NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
+    for (FSTMutation *mutation in mutations) {
+      FSTMutationBatch *batch =
+          [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                  mutations:@[ mutation ]];
+      [batches addObject:batch];
+    }
+
+    DocumentKeySet keys{
+        Key("foo/bar"),
+        Key("foo/baz"),
+    };
+
+    NSArray<FSTMutationBatch *> *expected = @[ batches[1], batches[2], batches[4] ];
+    NSArray<FSTMutationBatch *> *matches =
+        [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
+
+    XCTAssertEqualObjects(matches, expected);
+  });
+}
+
+- (void)testAllMutationBatchesAffectingDocumentKeys_handlesOverlap {
+  if ([self isTestBaseClass]) return;
+
+  self.persistence.run("testAllMutationBatchesAffectingDocumentKeys_handlesOverlap", [&]() {
+    NSArray<FSTMutation *> *group1 = @[
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"a" : @1 }),
+      FSTTestSetMutation(@"foo/baz",
+                         @{ @"a" : @1 }),
+    ];
+    FSTMutationBatch *batch1 =
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                mutations:group1];
+
+    NSArray<FSTMutation *> *group2 = @[ FSTTestSetMutation(@"food/bar", @{ @"a" : @1 }) ];
+    [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp] mutations:group2];
+
+    NSArray<FSTMutation *> *group3 = @[
+      FSTTestSetMutation(@"foo/bar",
+                         @{ @"b" : @1 }),
+    ];
+    FSTMutationBatch *batch3 =
+        [self.mutationQueue addMutationBatchWithWriteTime:[FIRTimestamp timestamp]
+                                                mutations:group3];
+
+    DocumentKeySet keys{
+        Key("foo/bar"),
+        Key("foo/baz"),
+    };
+
+    NSArray<FSTMutationBatch *> *expected = @[ batch1, batch3 ];
+    NSArray<FSTMutationBatch *> *matches =
+        [self.mutationQueue allMutationBatchesAffectingDocumentKeys:keys];
 
     XCTAssertEqualObjects(matches, expected);
   });
@@ -404,50 +485,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects(found, @[]);
     XCTAssertEqual(found.count, 0);
     XCTAssertTrue([self.mutationQueue isEmpty]);
-  });
-}
-
-- (void)testRemoveMutationBatchesEmitsGarbageEvents {
-  if ([self isTestBaseClass]) return;
-
-  FSTEagerGarbageCollector *garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-  [garbageCollector addGarbageSource:self.mutationQueue];
-
-  NSMutableArray<FSTMutationBatch *> *batches = [NSMutableArray array];
-  self.persistence.run("testRemoveMutationBatchesEmitsGarbageEvents", [&]() {
-    [batches addObjectsFromArray:@[
-      [self addMutationBatchWithKey:@"foo/bar"],
-      [self addMutationBatchWithKey:@"foo/ba"],
-      [self addMutationBatchWithKey:@"foo/bar2"],
-      [self addMutationBatchWithKey:@"foo/bar"],
-      [self addMutationBatchWithKey:@"foo/bar/suffix/baz"],
-      [self addMutationBatchWithKey:@"bar/baz"],
-    ]];
-
-    [self.mutationQueue removeMutationBatches:@[ batches[0] ]];
-    std::set<DocumentKey> garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[1] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/ba")}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[5] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("bar/baz")}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[2], batches[3] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage,
-                   std::set<DocumentKey>({testutil::Key("foo/bar"), testutil::Key("foo/bar2")}));
-
-    [batches addObject:[self addMutationBatchWithKey:@"foo/bar/suffix/baz"]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({}));
-
-    [self.mutationQueue removeMutationBatches:@[ batches[4], batches[6] ]];
-    garbage = [garbageCollector collectGarbage];
-    XCTAssertEqual(garbage, std::set<DocumentKey>({testutil::Key("foo/bar/suffix/baz")}));
   });
 }
 

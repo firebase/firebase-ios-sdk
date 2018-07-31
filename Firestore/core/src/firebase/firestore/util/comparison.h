@@ -86,6 +86,11 @@ struct Comparator<absl::string_view> {
                   const absl::string_view& right) const;
 };
 
+template <>
+struct Comparator<std::string> {
+  bool operator()(const std::string& left, const std::string& right) const;
+};
+
 /** Compares two bools: false < true. */
 template <>
 struct Comparator<bool> : public std::less<bool> {};

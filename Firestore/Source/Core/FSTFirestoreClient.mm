@@ -31,25 +31,23 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
-#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Remote/FSTDatastore.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -165,12 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
-  id<FSTGarbageCollector> garbageCollector;
   if (usePersistence) {
-    // TODO(http://b/33384523): For now we just disable garbage collection when persistence is
-    // enabled.
-    garbageCollector = [[FSTNoOpGarbageCollector alloc] init];
-
     NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                              documentsDirectory:[FSTLevelDB documentsDirectory]];
 
@@ -181,8 +174,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     _persistence = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
   } else {
-    garbageCollector = [[FSTEagerGarbageCollector alloc] init];
-    _persistence = [FSTMemoryPersistence persistence];
+    _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
 
   NSError *error;
@@ -194,9 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
     [NSException raise:NSInternalInconsistencyException format:@"Failed to open DB: %@", error];
   }
 
-  _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence
-                                          garbageCollector:garbageCollector
-                                               initialUser:user];
+  _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
 
   FSTDatastore *datastore = [FSTDatastore datastoreWithDatabase:self.databaseInfo
                                             workerDispatchQueue:self.workerDispatchQueue
@@ -226,7 +216,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)userDidChange:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  FSTLog(@"User Changed: %s", user.uid().c_str());
+  LOG_DEBUG("User Changed: %s", user.uid());
   [self.syncEngine userDidChange:user];
 }
 
@@ -320,8 +310,8 @@ NS_ASSUME_NONNULL_BEGIN
     FSTView *view = [[FSTView alloc] initWithQuery:query.query remoteDocuments:DocumentKeySet{}];
     FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
     FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-    FSTAssert(viewChange.limboChanges.count == 0,
-              @"View returned limbo documents during local-only query execution.");
+    HARD_ASSERT(viewChange.limboChanges.count == 0,
+                "View returned limbo documents during local-only query execution.");
 
     FSTViewSnapshot *snapshot = viewChange.snapshot;
     FIRSnapshotMetadata *metadata =

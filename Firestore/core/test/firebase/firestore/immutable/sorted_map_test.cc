@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+// Disable warnings in the MSVC standard library about the use of std::mismatch.
+// There's no guaranteed safe way to use it in C++11 but the test verifies that
+// our implementation matches the standard so we need to call it.
+#if defined(_MSC_VER)
+#define _SCL_SECURE_NO_WARNINGS 1
+#endif
+
 #include "Firestore/core/src/firebase/firestore/immutable/sorted_map.h"
 
 #include <numeric>

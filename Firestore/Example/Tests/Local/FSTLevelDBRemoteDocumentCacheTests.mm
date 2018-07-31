@@ -57,10 +57,10 @@ static const char *kDummy = "1";
 }
 
 - (void)tearDown {
+  [super tearDown];
   self.remoteDocumentCache = nil;
   self.persistence = nil;
   _db = nil;
-  [super tearDown];
 }
 
 - (void)writeDummyRowWithSegments:(NSArray<NSString *> *)segments {

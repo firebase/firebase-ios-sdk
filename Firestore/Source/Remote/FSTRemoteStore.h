@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
@@ -24,7 +25,6 @@
 @class FSTLocalStore;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
-@class FSTQuery;
 @class FSTQueryData;
 @class FSTRemoteEvent;
 @class FSTTransaction;
@@ -73,6 +73,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error;
 
+/**
+ * Returns the set of remote document keys for the given target ID. This list includes the
+ * documents that were assigned to the target when we received the last snapshot.
+ */
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId;
+
 @end
 
 /**
@@ -93,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTRemoteStore handles all interaction with the backend through a simple, clean interface. This
  * class is not thread safe and should be only called from the worker dispatch queue.
  */
-@interface FSTRemoteStore : NSObject
+@interface FSTRemoteStore : NSObject <FSTTargetMetadataProvider>
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
                          datastore:(FSTDatastore *)datastore

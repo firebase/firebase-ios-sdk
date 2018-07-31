@@ -34,8 +34,6 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
-#import "Firestore/Source/Util/FSTAssert.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -97,13 +95,12 @@ static const int kMaxPendingWrites = 10;
  * 0 we know that the client and server are in the same state (once this state
  * is reached the targetId is removed from the map to free the memory).
  */
-@property(nonatomic, strong, readonly)
-    NSMutableDictionary<FSTBoxedTargetID *, NSNumber *> *pendingTargetResponses;
 
-@property(nonatomic, strong) NSMutableArray<FSTWatchChange *> *accumulatedChanges;
 @property(nonatomic, assign) FSTBatchID lastBatchSeen;
 
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
+
+@property(nonatomic, strong, nullable) FSTWatchChangeAggregator *watchChangeAggregator;
 
 #pragma mark Write Stream
 // The writeStream is null when the network is disabled. The non-null check is performed by
@@ -132,8 +129,6 @@ static const int kMaxPendingWrites = 10;
     _localStore = localStore;
     _datastore = datastore;
     _listenTargets = [NSMutableDictionary dictionary];
-    _pendingTargetResponses = [NSMutableDictionary dictionary];
-    _accumulatedChanges = [NSMutableArray array];
 
     _lastBatchSeen = kFSTBatchIDUnknown;
     _pendingWrites = [NSMutableArray array];
@@ -160,11 +155,9 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (BOOL)isNetworkEnabled {
-  // FSTAssert((self.watchStream == nil) == (self.writeStream == nil),
-  //           @"WatchStream and WriteStream should both be null or non-null");
-  // return self.watchStream != nil;
-  // return self.watchStream.isStarted;
-  // return !self.watchStream.isStopped;
+  //HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
+  //            "WatchStream and WriteStream should both be null or non-null");
+  //return self.watchStream != nil;
   return _watchStream != nullptr;
 }
 
@@ -214,7 +207,7 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Shutdown
 
 - (void)shutdown {
-  FSTLog(@"FSTRemoteStore %p shutting down", (__bridge void *)self);
+  LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
   [self disableNetworkInternal];
   // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
@@ -223,7 +216,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)userDidChange:(const User &)user {
-  FSTLog(@"FSTRemoteStore %p changing users: %s", (__bridge void *)self, user.uid().c_str());
+  LOG_DEBUG("FSTRemoteStore %s changing users: %s", (__bridge void *)self, user.uid());
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
@@ -237,16 +230,17 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Watch Stream
 
 - (void)startWatchStream {
-  FSTAssert([self shouldStartWatchStream],
-            @"startWatchStream: called when shouldStartWatchStream: is false.");
+  HARD_ASSERT([self shouldStartWatchStream],
+              "startWatchStream: called when shouldStartWatchStream: is false.");
+  // ???_watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
   _watchStream->Start(self);
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData {
   NSNumber *targetKey = @(queryData.targetID);
-  FSTAssert(!self.listenTargets[targetKey], @"listenToQuery called with duplicate target id: %@",
-            targetKey);
+  HARD_ASSERT(!self.listenTargets[targetKey], "listenToQuery called with duplicate target id: %s",
+              targetKey);
 
   self.listenTargets[targetKey] = queryData;
 
@@ -258,14 +252,14 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendWatchRequestWithQueryData:(FSTQueryData *)queryData {
-  [self recordPendingRequestForTargetID:@(queryData.targetID)];
+  [self.watchChangeAggregator recordTargetRequest:@(queryData.targetID)];
   _watchStream->WatchQuery(queryData);
 }
 
 - (void)stopListeningToTargetID:(FSTTargetID)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
-  FSTAssert(queryData, @"unlistenToTarget: target not currently watched: %@", targetKey);
+  HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
   if ([self isNetworkEnabled] && _watchStream->IsOpen()) {
@@ -277,14 +271,8 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)sendUnwatchRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  [self recordPendingRequestForTargetID:targetID];
+  [self.watchChangeAggregator recordTargetRequest:targetID];
   _watchStream->UnwatchTargetId([targetID intValue]);
-}
-
-- (void)recordPendingRequestForTargetID:(FSTBoxedTargetID *)targetID {
-  NSNumber *count = [self.pendingTargetResponses objectForKey:targetID];
-  count = @([count intValue] + 1);
-  [self.pendingTargetResponses setObject:count forKey:targetID];
 }
 
 /**
@@ -296,11 +284,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)cleanUpWatchStreamState {
-  // If the connection is closed then we'll never get a snapshot version for the accumulated
-  // changes and so we'll never be able to complete the batch. When we start up again the server
-  // is going to resend these changes anyway, so just toss the accumulated state.
-  [self.accumulatedChanges removeAllObjects];
-  [self.pendingTargetResponses removeAllObjects];
+  _watchChangeAggregator = nil;
 }
 
 - (void)watchStreamDidOpen {
@@ -315,42 +299,45 @@ static const int kMaxPendingWrites = 10;
   // Mark the connection as Online because we got a message from the server.
   [self.onlineStateTracker updateState:FSTOnlineStateOnline];
 
-  FSTWatchTargetChange *watchTargetChange =
-      [change isKindOfClass:[FSTWatchTargetChange class]] ? (FSTWatchTargetChange *)change : nil;
-
-  if (watchTargetChange && watchTargetChange.state == FSTWatchTargetChangeStateRemoved &&
-      watchTargetChange.cause) {
-    // There was an error on a target, don't wait for a consistent snapshot to raise events
-    [self processTargetErrorForWatchChange:(FSTWatchTargetChange *)change];
-  } else {
-    // Accumulate watch changes but don't process them if there's no snapshotVersion or it's
-    // older than a previous snapshot we've processed (can happen after we resume a target
-    // using a resume token).
-    [self.accumulatedChanges addObject:change];
-    if (snapshotVersion == SnapshotVersion::None() ||
-        snapshotVersion < [self.localStore lastRemoteSnapshotVersion]) {
-      return;
+  if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
+    FSTWatchTargetChange *watchTargetChange = (FSTWatchTargetChange *)change;
+    if (watchTargetChange.state == FSTWatchTargetChangeStateRemoved && watchTargetChange.cause) {
+      // There was an error on a target, don't wait for a consistent snapshot to raise events
+      return [self processTargetErrorForWatchChange:watchTargetChange];
+    } else {
+      [self.watchChangeAggregator handleTargetChange:watchTargetChange];
     }
+  } else if ([change isKindOfClass:[FSTDocumentWatchChange class]]) {
+    [self.watchChangeAggregator handleDocumentChange:(FSTDocumentWatchChange *)change];
+  } else {
+    HARD_ASSERT([change isKindOfClass:[FSTExistenceFilterWatchChange class]],
+                "Expected watchChange to be an instance of FSTExistenceFilterWatchChange");
+    [self.watchChangeAggregator handleExistenceFilter:(FSTExistenceFilterWatchChange *)change];
+  }
 
-    // Create a batch, giving it the accumulatedChanges array.
-    NSArray<FSTWatchChange *> *changes = self.accumulatedChanges;
-    self.accumulatedChanges = [NSMutableArray array];
-
-    [self processBatchedWatchChanges:changes snapshotVersion:snapshotVersion];
+  if (snapshotVersion != SnapshotVersion::None() &&
+      snapshotVersion >= [self.localStore lastRemoteSnapshotVersion]) {
+    // We have received a target change with a global snapshot if the snapshot version is not equal
+    // to SnapshotVersion.None().
+    [self raiseWatchSnapshotWithSnapshotVersion:snapshotVersion];
   }
 }
 
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  FSTAssert([self isNetworkEnabled],
-            @"watchStreamWasInterruptedWithError: should only be called when the network is "
-             "enabled");
+  HARD_ASSERT([self isNetworkEnabled],
+              "watchStreamWasInterruptedWithError: should only be called when the network is "
+              "enabled");
 
   [self cleanUpWatchStreamState];
-  [self.onlineStateTracker handleWatchStreamFailure];
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
   if ([self shouldStartWatchStream]) {
+    if (error) {
+      // There should generally be an error if the watch stream was closed when it's still needed,
+      // but it's not quite worth asserting.
+      [self.onlineStateTracker handleWatchStreamFailure:error];
+    }
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
@@ -363,107 +350,60 @@ static const int kMaxPendingWrites = 10;
  * Takes a batch of changes from the Datastore, repackages them as a RemoteEvent, and passes that
  * on to the SyncEngine.
  */
-- (void)processBatchedWatchChanges:(NSArray<FSTWatchChange *> *)changes
-                   snapshotVersion:(const SnapshotVersion &)snapshotVersion {
-  FSTWatchChangeAggregator *aggregator =
-      [[FSTWatchChangeAggregator alloc] initWithSnapshotVersion:snapshotVersion
-                                                  listenTargets:self.listenTargets
-                                         pendingTargetResponses:self.pendingTargetResponses];
-  [aggregator addWatchChanges:changes];
-  FSTRemoteEvent *remoteEvent = [aggregator remoteEvent];
-  [self.pendingTargetResponses removeAllObjects];
-  [self.pendingTargetResponses setDictionary:aggregator.pendingTargetResponses];
+- (void)raiseWatchSnapshotWithSnapshotVersion:(const SnapshotVersion &)snapshotVersion {
+  HARD_ASSERT(snapshotVersion != SnapshotVersion::None(),
+              "Can't raise event for unknown SnapshotVersion");
 
-  // Handle existence filters and existence filter mismatches
-  [aggregator.existenceFilters enumerateKeysAndObjectsUsingBlock:^(FSTBoxedTargetID *target,
-                                                                   FSTExistenceFilter *filter,
-                                                                   BOOL *stop) {
-    FSTTargetID targetID = target.intValue;
-
-    FSTQueryData *queryData = self.listenTargets[target];
-    FSTQuery *query = queryData.query;
-    if (!queryData) {
-      // A watched target might have been removed already.
-      return;
-
-    } else if ([query isDocumentQuery]) {
-      if (filter.count == 0) {
-        // The existence filter told us the document does not exist.
-        // We need to deduce that this document does not exist and apply a deleted document to our
-        // updates. Without applying a deleted document there might be another query that will
-        // raise this document as part of a snapshot until it is resolved, essentially exposing
-        // inconsistency between queries
-        const DocumentKey key{query.path};
-        FSTDeletedDocument *deletedDoc =
-            [FSTDeletedDocument documentWithKey:key version:snapshotVersion];
-        [remoteEvent addDocumentUpdate:deletedDoc];
-      } else {
-        FSTAssert(filter.count == 1, @"Single document existence filter with count: %" PRId32,
-                  filter.count);
-      }
-
-    } else {
-      // Not a document query.
-      DocumentKeySet trackedRemote = [self.localStore remoteDocumentKeysForTarget:targetID];
-      FSTTargetMapping *mapping = remoteEvent.targetChanges[target].mapping;
-      if (mapping) {
-        if ([mapping isKindOfClass:[FSTUpdateMapping class]]) {
-          FSTUpdateMapping *update = (FSTUpdateMapping *)mapping;
-          trackedRemote = [update applyTo:trackedRemote];
-        } else {
-          FSTAssert([mapping isKindOfClass:[FSTResetMapping class]],
-                    @"Expected either reset or update mapping but got something else %@", mapping);
-          trackedRemote = ((FSTResetMapping *)mapping).documents;
-        }
-      }
-
-      if (trackedRemote.size() != static_cast<size_t>(filter.count)) {
-        FSTLog(@"Existence filter mismatch, resetting mapping");
-
-        // Make sure the mismatch is exposed in the remote event
-        [remoteEvent handleExistenceFilterMismatchForTargetID:target];
-
-        // Clear the resume token for the query, since we're in a known mismatch state.
-        queryData = [[FSTQueryData alloc] initWithQuery:query
-                                               targetID:targetID
-                                   listenSequenceNumber:queryData.sequenceNumber
-                                                purpose:queryData.purpose];
-        self.listenTargets[target] = queryData;
-
-        // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't
-        // send a resume token so that we get a full update.
-        [self sendUnwatchRequestForTargetID:@(targetID)];
-
-        // Mark the query we send as being on behalf of an existence filter mismatch, but don't
-        // actually retain that in listenTargets. This ensures that we flag the first re-listen
-        // this way without impacting future listens of this target (that might happen e.g. on
-        // reconnect).
-        FSTQueryData *requestQueryData =
-            [[FSTQueryData alloc] initWithQuery:query
-                                       targetID:targetID
-                           listenSequenceNumber:queryData.sequenceNumber
-                                        purpose:FSTQueryPurposeExistenceFilterMismatch];
-        [self sendWatchRequestWithQueryData:requestQueryData];
-      }
-    }
-  }];
+  FSTRemoteEvent *remoteEvent =
+      [self.watchChangeAggregator remoteEventAtSnapshotVersion:snapshotVersion];
 
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.
-  [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
-                                 FSTBoxedTargetID *target, FSTTargetChange *change, BOOL *stop) {
-    NSData *resumeToken = change.resumeToken;
+  for (const auto &entry : remoteEvent.targetChanges) {
+    NSData *resumeToken = entry.second.resumeToken;
     if (resumeToken.length > 0) {
-      FSTQueryData *queryData = self->_listenTargets[target];
+      FSTBoxedTargetID *targetID = @(entry.first);
+      FSTQueryData *queryData = _listenTargets[targetID];
       // A watched target might have been removed already.
       if (queryData) {
-        self->_listenTargets[target] =
-            [queryData queryDataByReplacingSnapshotVersion:change.snapshotVersion
+        _listenTargets[targetID] =
+            [queryData queryDataByReplacingSnapshotVersion:snapshotVersion
                                                resumeToken:resumeToken
                                             sequenceNumber:queryData.sequenceNumber];
       }
     }
-  }];
+  }
+
+  // Re-establish listens for the targets that have been invalidated by existence filter mismatches.
+  for (FSTTargetID targetID : remoteEvent.targetMismatches) {
+    FSTQueryData *queryData = self.listenTargets[@(targetID)];
+
+    if (!queryData) {
+      // A watched target might have been removed already.
+      continue;
+    }
+
+    // Clear the resume token for the query, since we're in a known mismatch state.
+    queryData = [[FSTQueryData alloc] initWithQuery:queryData.query
+                                           targetID:targetID
+                               listenSequenceNumber:queryData.sequenceNumber
+                                            purpose:queryData.purpose];
+    self.listenTargets[@(targetID)] = queryData;
+
+    // Cause a hard reset by unwatching and rewatching immediately, but deliberately don't send a
+    // resume token so that we get a full update.
+    [self sendUnwatchRequestForTargetID:@(targetID)];
+
+    // Mark the query we send as being on behalf of an existence filter mismatch, but don't actually
+    // retain that in listenTargets. This ensures that we flag the first re-listen this way without
+    // impacting future listens of this target (that might happen e.g. on reconnect).
+    FSTQueryData *requestQueryData =
+        [[FSTQueryData alloc] initWithQuery:queryData.query
+                                   targetID:targetID
+                       listenSequenceNumber:queryData.sequenceNumber
+                                    purpose:FSTQueryPurposeExistenceFilterMismatch];
+    [self sendWatchRequestWithQueryData:requestQueryData];
+  }
 
   // Finally handle remote event
   [self.syncEngine applyRemoteEvent:remoteEvent];
@@ -471,14 +411,24 @@ static const int kMaxPendingWrites = 10;
 
 /** Process a target error and passes the error along to SyncEngine. */
 - (void)processTargetErrorForWatchChange:(FSTWatchTargetChange *)change {
-  FSTAssert(change.cause, @"Handling target error without a cause");
+  HARD_ASSERT(change.cause, "Handling target error without a cause");
   // Ignore targets that have been removed already.
   for (FSTBoxedTargetID *targetID in change.targetIDs) {
     if (self.listenTargets[targetID]) {
+      int unboxedTargetId = targetID.intValue;
       [self.listenTargets removeObjectForKey:targetID];
-      [self.syncEngine rejectListenWithTargetID:[targetID intValue] error:change.cause];
+      [self.watchChangeAggregator removeTarget:unboxedTargetId];
+      [self.syncEngine rejectListenWithTargetID:unboxedTargetId error:change.cause];
     }
   }
+}
+
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetID {
+  return [self.syncEngine remoteKeysForTarget:targetID];
+}
+
+- (nullable FSTQueryData *)queryDataForTarget:(FSTBoxedTargetID *)targetID {
+  return self.listenTargets[targetID];
 }
 
 #pragma mark Write Stream
@@ -492,16 +442,15 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)startWriteStream {
-  FSTAssert([self shouldStartWriteStream],
-            @"startWriteStream: called when shouldStartWriteStream: is false.");
+  HARD_ASSERT([self shouldStartWriteStream],
+              "startWriteStream: called when shouldStartWriteStream: is false.");
 
   [self.writeStream startWithDelegate:self];
 }
 
 - (void)cleanUpWriteStreamState {
   self.lastBatchSeen = kFSTBatchIDUnknown;
-  FSTLog(@"Stopping write stream with %lu pending writes",
-         (unsigned long)[self.pendingWrites count]);
+  LOG_DEBUG("Stopping write stream with %s pending writes", [self.pendingWrites count]);
   [self.pendingWrites removeAllObjects];
 }
 
@@ -537,7 +486,7 @@ static const int kMaxPendingWrites = 10;
 
 /** Given mutations to commit, actually commits them to the backend. */
 - (void)commitBatch:(FSTMutationBatch *)batch {
-  FSTAssert([self canWriteMutations], @"commitBatch called when mutations can't be written");
+  HARD_ASSERT([self canWriteMutations], "commitBatch called when mutations can't be written");
   self.lastBatchSeen = batch.batchID;
 
   [self.pendingWrites addObject:batch];
@@ -601,8 +550,8 @@ static const int kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  FSTAssert([self isNetworkEnabled],
-            @"writeStreamDidClose: should only be called when the network is enabled");
+  HARD_ASSERT([self isNetworkEnabled],
+              "writeStreamDidClose: should only be called when the network is enabled");
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
@@ -628,8 +577,8 @@ static const int kMaxPendingWrites = 10;
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
     NSString *token = [self.writeStream.lastStreamToken base64EncodedStringWithOptions:0];
-    FSTLog(@"FSTRemoteStore %p error before completed handshake; resetting stream token %@: %@",
-           (__bridge void *)self, token, error);
+    LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
+              (__bridge void *)self, token, error);
     self.writeStream.lastStreamToken = nil;
     [self.localStore setLastStreamToken:nil];
   }

@@ -27,7 +27,7 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -41,7 +41,7 @@ namespace async {
 // the exact same time are prioritized in FIFO order.
 //
 // The main function of `Schedule` is `PopBlocking`, which sleeps until an entry
-// becomes available. It correctly handles entries being asynchonously added or
+// becomes available. It correctly handles entries being asynchronously added or
 // removed from the schedule.
 //
 // The details of time management are completely concealed within the class.
@@ -93,8 +93,9 @@ class Schedule {
       // To minimize busy waiting, sleep until either the nearest entry in the
       // future either changes, or else becomes due.
       const auto until = scheduled_.front().due;
-      cv_.wait_until(lock, until,
-                     [this, until] { return scheduled_.front().due != until; });
+      cv_.wait_until(lock, until, [this, until] {
+        return scheduled_.empty() || scheduled_.front().due != until;
+      });
       // There are 3 possibilities why `wait_until` has returned:
       // - `wait_until` has timed out, in which case the current time is at
       //   least `until`, so there must be an overdue entry;
@@ -102,8 +103,9 @@ class Schedule {
       //   either overdue (in which case `HasDueLocked` will break the cycle),
       //   or else `until` must be reevaluated (on the next iteration of the
       //   loop);
-      // - `until` entry has been removed. This means `until` has to be
-      //   reevaluated, similar to #2.
+      // - `until` entry has been removed (including the case where the queue
+      //   has become empty). This means `until` has to be reevaluated, similar
+      //   to #2.
 
       if (HasDueLocked()) {
         return ExtractLocked(scheduled_.begin());
@@ -181,8 +183,8 @@ class Schedule {
 
   // This function expects the mutex to be already locked.
   T ExtractLocked(const Iterator where) {
-    FIREBASE_ASSERT_MESSAGE(!scheduled_.empty(),
-                            "Trying to pop an entry from an empty queue.");
+    HARD_ASSERT(!scheduled_.empty(),
+                "Trying to pop an entry from an empty queue.");
 
     T result = std::move(where->value);
     scheduled_.erase(where);

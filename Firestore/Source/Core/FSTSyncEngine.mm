@@ -28,7 +28,6 @@
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -38,14 +37,14 @@
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
-#import "Firestore/Source/Util/FSTLogger.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
@@ -115,6 +114,27 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 @end
 
+#pragma mark - LimboResolution
+
+/** Tracks a limbo resolution. */
+class LimboResolution {
+ public:
+  LimboResolution() {
+  }
+
+  explicit LimboResolution(const DocumentKey &key) : key{key} {
+  }
+
+  DocumentKey key;
+
+  /**
+   * Set to true once we've received a document. This is used in remoteKeysForTarget and
+   * ultimately used by FSTWatchChangeAggregator to decide whether it needs to manufacture a delete
+   * event for the target once the target is CURRENT.
+   */
+  bool document_received = false;
+};
+
 #pragma mark - FSTSyncEngine
 
 @interface FSTSyncEngine ()
@@ -136,9 +156,6 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 /** Used to track any documents that are currently in limbo. */
 @property(nonatomic, strong, readonly) FSTReferenceSet *limboDocumentRefs;
 
-/** The garbage collector used to collect documents that are no longer in limbo. */
-@property(nonatomic, strong, readonly) FSTEagerGarbageCollector *limboCollector;
-
 @end
 
 @implementation FSTSyncEngine {
@@ -155,8 +172,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
    */
   std::map<DocumentKey, TargetId> _limboTargetsByKey;
 
-  /** The inverse of _limboTargetsByKey, a map of TargetId to the key of the limbo doc. */
-  std::map<TargetId, DocumentKey> _limboKeysByTarget;
+  /**
+   * Basically the inverse of limboTargetsByKey, a map of target ID to a LimboResolution (which
+   * includes the DocumentKey as well as whether we've received a document for the target).
+   */
+  std::map<TargetId, LimboResolution> _limboResolutionsByTarget;
 
   User _currentUser;
 }
@@ -171,10 +191,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
     _queryViewsByQuery = [NSMutableDictionary dictionary];
     _queryViewsByTarget = [NSMutableDictionary dictionary];
 
-    _limboCollector = [[FSTEagerGarbageCollector alloc] init];
     _limboDocumentRefs = [[FSTReferenceSet alloc] init];
-    [_limboCollector addGarbageSource:_limboDocumentRefs];
-
     _targetIdGenerator = TargetIdGenerator::SyncEngineTargetIdGenerator(0);
     _currentUser = initialUser;
   }
@@ -183,7 +200,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 - (FSTTargetID)listenToQuery:(FSTQuery *)query {
   [self assertDelegateExistsForSelector:_cmd];
-  FSTAssert(self.queryViewsByQuery[query] == nil, @"We already listen to query: %@", query);
+  HARD_ASSERT(self.queryViewsByQuery[query] == nil, "We already listen to query: %s", query);
 
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   FSTDocumentDictionary *docs = [self.localStore executeQuery:query];
@@ -192,8 +209,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:std::move(remoteKeys)];
   FSTViewDocumentChanges *viewDocChanges = [view computeChangesWithDocuments:docs];
   FSTViewChange *viewChange = [view applyChangesToDocuments:viewDocChanges];
-  FSTAssert(viewChange.limboChanges.count == 0,
-            @"View returned limbo docs before target ack from the server.");
+  HARD_ASSERT(viewChange.limboChanges.count == 0,
+              "View returned limbo docs before target ack from the server.");
 
   FSTQueryView *queryView = [[FSTQueryView alloc] initWithQuery:query
                                                        targetID:queryData.targetID
@@ -211,12 +228,11 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self assertDelegateExistsForSelector:_cmd];
 
   FSTQueryView *queryView = self.queryViewsByQuery[query];
-  FSTAssert(queryView, @"Trying to stop listening to a query not found");
+  HARD_ASSERT(queryView, "Trying to stop listening to a query not found");
 
   [self.localStore releaseQuery:query];
   [self.remoteStore stopListeningToTargetID:queryView.targetID];
   [self removeAndCleanupQuery:queryView];
-  [self.localStore collectGarbage];
 }
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations
@@ -257,7 +273,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion {
   [workerDispatchQueue verifyIsCurrentQueue];
-  FSTAssert(retries >= 0, @"Got negative number of retries for transaction");
+  HARD_ASSERT(retries >= 0, "Got negative number of retries for transaction");
   FSTTransaction *transaction = [self.remoteStore transaction];
   updateBlock(transaction, ^(id _Nullable result, NSError *_Nullable error) {
     [workerDispatchQueue dispatchAsync:^{
@@ -295,20 +311,34 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   [self assertDelegateExistsForSelector:_cmd];
 
-  // Make sure limbo documents are deleted if there were no results.
-  // Filter out document additions to targets that they already belong to.
-  [remoteEvent.targetChanges enumerateKeysAndObjectsUsingBlock:^(
-                                 FSTBoxedTargetID *_Nonnull targetID,
-                                 FSTTargetChange *_Nonnull targetChange, BOOL *_Nonnull stop) {
-    const auto iter = self->_limboKeysByTarget.find([targetID intValue]);
-    if (iter == self->_limboKeysByTarget.end()) {
-      FSTQueryView *qv = self.queryViewsByTarget[targetID];
-      FSTAssert(qv, @"Missing queryview for non-limbo query: %i", [targetID intValue]);
-      [targetChange.mapping filterUpdatesUsingExistingKeys:qv.view.syncedDocuments];
-    } else {
-      [remoteEvent synthesizeDeleteForLimboTargetChange:targetChange key:iter->second];
+  // Update `receivedDocument` as appropriate for any limbo targets.
+  for (const auto &entry : remoteEvent.targetChanges) {
+    FSTTargetID targetID = entry.first;
+    FSTTargetChange *change = entry.second;
+    const auto iter = _limboResolutionsByTarget.find(targetID);
+    if (iter != _limboResolutionsByTarget.end()) {
+      LimboResolution &limboResolution = iter->second;
+      // Since this is a limbo resolution lookup, it's for a single document and it could be
+      // added, modified, or removed, but not a combination.
+      HARD_ASSERT(change.addedDocuments.size() + change.modifiedDocuments.size() +
+                          change.removedDocuments.size() <=
+                      1,
+                  "Limbo resolution for single document contains multiple changes.");
+
+      if (change.addedDocuments.size() > 0) {
+        limboResolution.document_received = true;
+      } else if (change.modifiedDocuments.size() > 0) {
+        HARD_ASSERT(limboResolution.document_received,
+                    "Received change for limbo target document without add.");
+      } else if (change.removedDocuments.size() > 0) {
+        HARD_ASSERT(limboResolution.document_received,
+                    "Received remove for limbo target document without add.");
+        limboResolution.document_received = false;
+      } else {
+        // This was probably just a CURRENT targetChange or similar.
+      }
     }
-  }];
+  }
 
   FSTMaybeDocumentDictionary *changes = [self.localStore applyRemoteEvent:remoteEvent];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
@@ -319,8 +349,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
         FSTViewChange *viewChange = [queryView.view applyChangedOnlineState:onlineState];
-        FSTAssert(viewChange.limboChanges.count == 0,
-                  @"OnlineState should not affect limbo documents.");
+        HARD_ASSERT(viewChange.limboChanges.count == 0,
+                    "OnlineState should not affect limbo documents.");
         if (viewChange.snapshot) {
           [newViewSnapshots addObject:viewChange.snapshot];
         }
@@ -332,35 +362,33 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 - (void)rejectListenWithTargetID:(const TargetId)targetID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
 
-  const auto iter = _limboKeysByTarget.find(targetID);
-  if (iter != _limboKeysByTarget.end()) {
-    const DocumentKey limboKey = iter->second;
+  const auto iter = _limboResolutionsByTarget.find(targetID);
+  if (iter != _limboResolutionsByTarget.end()) {
+    const DocumentKey limboKey = iter->second.key;
     // Since this query failed, we won't want to manually unlisten to it.
     // So go ahead and remove it from bookkeeping.
     _limboTargetsByKey.erase(limboKey);
-    _limboKeysByTarget.erase(targetID);
+    _limboResolutionsByTarget.erase(targetID);
 
     // TODO(dimond): Retry on transient errors?
 
     // It's a limbo doc. Create a synthetic event saying it was deleted. This is kind of a hack.
     // Ideally, we would have a method in the local store to purge a document. However, it would
     // be tricky to keep all of the local store's invariants with another method.
-    NSMutableDictionary<NSNumber *, FSTTargetChange *> *targetChanges =
-        [NSMutableDictionary dictionary];
     FSTDeletedDocument *doc =
         [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
     DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
-    FSTRemoteEvent *event =
-        [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
-                                          targetChanges:targetChanges
-                                        documentUpdates:{
-                                          { limboKey, doc }
-                                        }
-                                         limboDocuments:std::move(limboDocuments)];
+    FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
+        targetChanges:{}
+        targetMismatches:{}
+        documentUpdates:{
+          { limboKey, doc }
+        }
+        limboDocuments:std::move(limboDocuments)];
     [self applyRemoteEvent:event];
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
-    FSTAssert(queryView, @"Unknown targetId: %d", targetID);
+    HARD_ASSERT(queryView, "Unknown targetId: %s", targetID);
     [self.localStore releaseQuery:queryView.query];
     [self removeAndCleanupQuery:queryView];
     [self.delegate handleError:error forQuery:queryView.query];
@@ -408,16 +436,22 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 }
 
 - (void)assertDelegateExistsForSelector:(SEL)methodSelector {
-  FSTAssert(self.delegate, @"Tried to call '%@' before delegate was registered.",
-            NSStringFromSelector(methodSelector));
+  HARD_ASSERT(self.delegate, "Tried to call '%s' before delegate was registered.",
+              NSStringFromSelector(methodSelector));
 }
 
 - (void)removeAndCleanupQuery:(FSTQueryView *)queryView {
   [self.queryViewsByQuery removeObjectForKey:queryView.query];
   [self.queryViewsByTarget removeObjectForKey:@(queryView.targetID)];
 
+  DocumentKeySet limboKeys = [self.limboDocumentRefs referencedKeysForID:queryView.targetID];
   [self.limboDocumentRefs removeReferencesForID:queryView.targetID];
-  [self garbageCollectLimboDocuments];
+  for (const DocumentKey &key : limboKeys) {
+    if (![self.limboDocumentRefs containsKey:key]) {
+      // We removed the last reference for this key.
+      [self removeLimboTargetForKey:key];
+    }
+  }
 }
 
 /**
@@ -439,7 +473,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
           FSTDocumentDictionary *docs = [self.localStore executeQuery:queryView.query];
           viewDocChanges = [view computeChangesWithDocuments:docs previousChanges:viewDocChanges];
         }
-        FSTTargetChange *_Nullable targetChange = remoteEvent.targetChanges[@(queryView.targetID)];
+
+        FSTTargetChange *_Nullable targetChange = nil;
+        if (remoteEvent) {
+          auto it = remoteEvent.targetChanges.find(queryView.targetID);
+          if (it != remoteEvent.targetChanges.end()) {
+            targetChange = it->second;
+          }
+        }
         FSTViewChange *viewChange =
             [queryView.view applyChangesToDocuments:viewDocChanges targetChange:targetChange];
 
@@ -449,14 +490,14 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         if (viewChange.snapshot) {
           [newSnapshots addObject:viewChange.snapshot];
           FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot];
+              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot
+                                             withTargetID:queryView.targetID];
           [documentChangesInAllViews addObject:docChanges];
         }
       }];
 
   [self.delegate handleViewSnapshots:newSnapshots];
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
-  [self.localStore collectGarbage];
 }
 
 /** Updates the limbo document state for the given targetID. */
@@ -470,48 +511,47 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         break;
 
       case FSTLimboDocumentChangeTypeRemoved:
-        FSTLog(@"Document no longer in limbo: %s", limboChange.key.ToString().c_str());
+        LOG_DEBUG("Document no longer in limbo: %s", limboChange.key.ToString());
         [self.limboDocumentRefs removeReferenceToKey:limboChange.key forID:targetID];
+        if (![self.limboDocumentRefs containsKey:limboChange.key]) {
+          // We removed the last reference for this key
+          [self removeLimboTargetForKey:limboChange.key];
+        }
         break;
 
       default:
-        FSTFail(@"Unknown limbo change type: %ld", (long)limboChange.type);
+        HARD_FAIL("Unknown limbo change type: %s", limboChange.type);
     }
   }
-  [self garbageCollectLimboDocuments];
 }
 
 - (void)trackLimboChange:(FSTLimboDocumentChange *)limboChange {
   DocumentKey key{limboChange.key};
 
   if (_limboTargetsByKey.find(key) == _limboTargetsByKey.end()) {
-    FSTLog(@"New document in limbo: %s", key.ToString().c_str());
+    LOG_DEBUG("New document in limbo: %s", key.ToString());
     TargetId limboTargetID = _targetIdGenerator.NextId();
     FSTQuery *query = [FSTQuery queryWithPath:key.path()];
     FSTQueryData *queryData = [[FSTQueryData alloc] initWithQuery:query
                                                          targetID:limboTargetID
                                              listenSequenceNumber:kIrrelevantSequenceNumber
                                                           purpose:FSTQueryPurposeLimboResolution];
-    _limboKeysByTarget[limboTargetID] = key;
+    _limboResolutionsByTarget.emplace(limboTargetID, LimboResolution{key});
     [self.remoteStore listenToTargetWithQueryData:queryData];
     _limboTargetsByKey[key] = limboTargetID;
   }
 }
 
-/** Garbage collect the limbo documents that we no longer need to track. */
-- (void)garbageCollectLimboDocuments {
-  const std::set<DocumentKey> garbage = [self.limboCollector collectGarbage];
-  for (const DocumentKey &key : garbage) {
-    const auto iter = _limboTargetsByKey.find(key);
-    if (iter == _limboTargetsByKey.end()) {
-      // This target already got removed, because the query failed.
-      return;
-    }
-    TargetId limboTargetID = iter->second;
-    [self.remoteStore stopListeningToTargetID:limboTargetID];
-    _limboTargetsByKey.erase(key);
-    _limboKeysByTarget.erase(limboTargetID);
+- (void)removeLimboTargetForKey:(const DocumentKey &)key {
+  const auto iter = _limboTargetsByKey.find(key);
+  if (iter == _limboTargetsByKey.end()) {
+    // This target already got removed, because the query failed.
+    return;
   }
+  TargetId limboTargetID = iter->second;
+  [self.remoteStore stopListeningToTargetID:limboTargetID];
+  _limboTargetsByKey.erase(key);
+  _limboResolutionsByTarget.erase(limboTargetID);
 }
 
 // Used for testing
@@ -529,6 +569,16 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
   // Notify remote store so it can restart its streams.
   [self.remoteStore userDidChange:user];
+}
+
+- (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {
+  const auto iter = _limboResolutionsByTarget.find([targetId intValue]);
+  if (iter != _limboResolutionsByTarget.end() && iter->second.document_received) {
+    return DocumentKeySet{iter->second.key};
+  } else {
+    FSTQueryView *queryView = self.queryViewsByTarget[targetId];
+    return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
+  }
 }
 
 @end

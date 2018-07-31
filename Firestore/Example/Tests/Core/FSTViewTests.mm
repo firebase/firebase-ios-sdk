@@ -56,10 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTDocument *doc2 = FSTTestDoc("rooms/eros/messages/2", 0, @{@"text" : @"msg2"}, NO);
   FSTDocument *doc3 = FSTTestDoc("rooms/other/messages/1", 0, @{@"text" : @"msg3"}, NO);
 
-  FSTViewSnapshot *_Nullable snapshot =
-      FSTTestApplyChanges(view, @[ doc1, doc2, doc3 ],
-                          [FSTTargetChange changeWithDocuments:@[ doc1, doc2, doc3 ]
-                                           currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
+  FSTViewSnapshot *_Nullable snapshot = FSTTestApplyChanges(
+      view, @[ doc1, doc2, doc3 ], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key, doc3.key}));
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -90,8 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
   // delete doc2, add doc3
   FSTViewSnapshot *snapshot =
       FSTTestApplyChanges(view, @[ FSTTestDeletedDoc("rooms/eros/messages/2", 0), doc3 ],
-                          [FSTTargetChange changeWithDocuments:@[ doc1, doc3 ]
-                                           currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
+                          FSTTestTargetChangeAckDocuments({doc1.key, doc3.key}));
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -216,10 +213,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTestApplyChanges(view, @[ doc1, doc3 ], nil);
 
   // add doc2, which should push out doc3
-  FSTViewSnapshot *snapshot =
-      FSTTestApplyChanges(view, @[ doc2 ],
-                          [FSTTargetChange changeWithDocuments:@[ doc1, doc2, doc3 ]
-                                           currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]);
+  FSTViewSnapshot *snapshot = FSTTestApplyChanges(
+      view, @[ doc2 ], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key, doc3.key}));
 
   XCTAssertEqual(snapshot.query, query);
 
@@ -263,9 +258,8 @@ NS_ASSUME_NONNULL_BEGIN
                                      previousChanges:viewDocChanges];
   FSTViewSnapshot *snapshot =
       [view applyChangesToDocuments:viewDocChanges
-                       targetChange:[FSTTargetChange
-                                        changeWithDocuments:@[ doc1, doc2, doc3, doc4 ]
-                                        currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]]
+                       targetChange:FSTTestTargetChangeAckDocuments(
+                                        {doc1.key, doc2.key, doc3.key, doc4.key})]
           .snapshot;
 
   XCTAssertEqual(snapshot.query, query);
@@ -294,27 +288,21 @@ NS_ASSUME_NONNULL_BEGIN
       applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc1 ])]];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 
-  change =
-      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
-                       targetChange:[FSTTargetChange
-                                        changeWithDocuments:@[]
-                                        currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent]];
+  change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
+                            targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(
       change.limboChanges,
       @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeAdded key:doc1.key] ]);
 
-  change = [view
-      applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
-                 targetChange:[FSTTargetChange changeWithDocuments:@[ doc1 ]
-                                               currentStatusUpdate:FSTCurrentStatusUpdateNone]];
+  change = [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[])]
+                            targetChange:FSTTestTargetChangeAckDocuments({doc1.key})];
   XCTAssertEqualObjects(
       change.limboChanges,
       @[ [FSTLimboDocumentChange changeWithType:FSTLimboDocumentChangeTypeRemoved key:doc1.key] ]);
 
-  change = [view
-      applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])]
-                 targetChange:[FSTTargetChange changeWithDocuments:@[ doc2 ]
-                                               currentStatusUpdate:FSTCurrentStatusUpdateNone]];
+  change =
+      [view applyChangesToDocuments:[view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2 ])]
+                       targetChange:FSTTestTargetChangeAckDocuments({doc2.key})];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 
   change = [view
@@ -343,11 +331,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view =
       [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{doc1.key, doc2.key}];
 
-  FSTTargetChange *markCurrent =
-      [FSTTargetChange changeWithDocuments:@[]
-                       currentStatusUpdate:FSTCurrentStatusUpdateMarkCurrent];
   FSTViewDocumentChanges *changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[])];
-  FSTViewChange *change = [view applyChangesToDocuments:changes targetChange:markCurrent];
+  FSTViewChange *change =
+      [view applyChangesToDocuments:changes targetChange:FSTTestTargetChangeMarkCurrent()];
   XCTAssertEqualObjects(change.limboChanges, @[]);
 }
 

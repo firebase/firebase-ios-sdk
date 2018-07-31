@@ -311,6 +311,11 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
     /** Indicates an internal error occurred.
      */
     FIRAuthErrorCodeInternalError = 17999,
+
+    /** Raised when a JWT fails to parse correctly. May be accompanied by an underlying error
+        describing which step of the JWT parsing process failed.
+     */
+    FIRAuthErrorCodeMalformedJWT = 18000,
 } NS_SWIFT_NAME(AuthErrorCode);
 
 @end

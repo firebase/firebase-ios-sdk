@@ -23,10 +23,11 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -58,6 +59,16 @@ class Reader {
   Tag ReadTag();
 
   /**
+   * Ensures the specified tag is of the specified type. If not, then
+   * Reader::status() will return a non-ok value (with the code set to
+   * FirestoreErrorCode::DataLoss).
+   *
+   * @return Convenience indicator for success. (If false, then status() will
+   * return a non-ok value.)
+   */
+  bool RequireWireType(pb_wire_type_t wire_type, Tag tag);
+
+  /**
    * Reads a nanopb message from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode() method. If we didn't
@@ -72,6 +83,8 @@ class Reader {
 
   std::string ReadString();
 
+  std::vector<uint8_t> ReadBytes();
+
   /**
    * Reads a message and its length.
    *
@@ -80,9 +93,23 @@ class Reader {
    *
    * Call this method when reading a nested message. Provide a function to read
    * the message itself.
+   *
+   * @param read_message_fn Function to read the submessage. Note that this
+   * function is expected to check the Reader's status (via
+   * Reader::status().ok()) and if not ok, to return a placeholder/invalid
+   * value.
    */
   template <typename T>
   T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
+
+  /**
+   * Discards the bytes associated with the given tag.
+   *
+   * @param tag The tag associated with the field that is otherwise about to be
+   * read. This method uses the tag to determine how many bytes should be
+   * discarded.
+   */
+  void SkipField(const Tag& tag);
 
   size_t bytes_left() const {
     return stream_.bytes_left;
@@ -130,14 +157,13 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
 
-  if (!status_.ok()) return T();
+  if (!status_.ok()) return read_message_fn(this);
 
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
     status_ =
         util::Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &raw_substream);
-    return T();
+    return read_message_fn(this);
   }
   Reader substream(raw_substream);
 
@@ -154,7 +180,7 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   // check within pb_close_string_substream. Unfortunately, that's not present
   // in the current version (0.38).  We'll make a stronger assertion and check
   // to make sure there *are* no remaining characters in the substream.
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       substream.bytes_left() == 0,
       "Bytes remaining in substream after supposedly reading all of them.");
 

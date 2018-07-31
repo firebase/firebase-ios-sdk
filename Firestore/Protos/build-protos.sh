@@ -27,24 +27,36 @@ pod update
   --nanopb_out="--options-file=protos/%s.options:nanopb" \
   `find protos -name *.proto -print | xargs`
 
-# Remove "well-known" protos from objc. (We get these for free. We only need
-# them for nanopb.)
+# Remove "well-known" protos from objc and cpp. (We get these for free. We only
+# need them for nanopb.)
 rm -rf objc/google/protobuf/
+rm -rf cpp/google/protobuf
 
 # If a proto uses a field named 'delete', nanopb happily uses that in the
 # message definition. Works fine for C; not so much for C++. Rename uses of this
 # to delete_ (which is how protoc does it for c++ files.)
 perl -i -pe 's/\bdelete\b/delete_/g' `find nanopb -type f`
 
+# Rename nanopb's headers from foo.pb.h to foo.nanopb.h. This avoids collisions
+# with libprotobuf.
+for f in $(find nanopb -name \*.pb.h); do
+  mv "$f" "${f%.pb.h}.nanopb.h"
+done
+
+# Adjust include paths to match
+for f in $(find nanopb -name \*.h -or -name \*.c); do
+  perl -i -pe 's/(#include .*)\.pb\.h/\1.nanopb.h/' $f
+done
+
 # CocoaPods does not like paths in library imports, flatten them.
 
-for i in `find objc  -name "*.[mh]"` ; do
+for i in $(find objc  -name "*.[mh]"); do
   perl -i -pe 's#import ".*/#import "#' $i;
 done
 
 # Remove the unnecessary extensionRegistry functions.
 
-for i in `find objc  -name "*.[m]" ` ; do
+for i in $(find objc  -name "*.[m]"); do
   ./strip-registry.py $i
 done
 

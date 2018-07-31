@@ -1,3 +1,6 @@
+# v5.0.2
+- [fixed] Fixed undefined behavior sanitizer issues. (#1443, #1444)
+
 # v4.1.5
 - [fixed] Fixes loss of precision for 64 bit numbers on older 32 bit iOS devices with persistence enabled.
 - [changed] Addresses CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF warnings that surface in newer versions of Xcode and CocoaPods.

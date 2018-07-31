@@ -68,10 +68,21 @@ else
   command=(git ls-files)
 fi
 
+# POSIX xargs is required to run commands at least once, but cpplint.py fails
+# (with huge help text) if no files are supplied. Apple xargs avoids invocation
+# if there are no arguments. Use a temporary file to avoid depending on/testing
+# for this feature.
+TEMP=$(mktemp -t lint-files-$$.XXXXXXXXXX)
+trap "rm '$TEMP'" EXIT
+
 # Straight C++ files get regular cpplint
 "${command[@]}" "${git_options[@]}" \
     -- 'Firestore/core/**/*.'{h,cc} \
-  | xargs -0 python scripts/cpplint.py --quiet 2>&1
+  > "$TEMP"
+
+if [[ -s "$TEMP" ]]; then
+  xargs -0 python scripts/cpplint.py --quiet 2>&1 < "$TEMP"
+fi
 CPP_STATUS=$?
 
 # Objective-C++ files get a looser cpplint
@@ -79,7 +90,10 @@ CPP_STATUS=$?
     -- 'Firestore/Source/**/*.'{h,m,mm} \
       'Firestore/Example/Tests/**/*.'{h,m,mm} \
       'Firestore/core/**/*.mm' \
-  | xargs -0 python scripts/cpplint.py "${objc_lint_options[@]}" --quiet 2>&1
+  > "$TEMP"
+if [[ -s "$TEMP" ]]; then
+  xargs -0 python scripts/cpplint.py "${objc_lint_options[@]}" --quiet 2>&1 < "$TEMP"
+fi
 OBJC_STATUS=$?
 
 if [[ $CPP_STATUS != 0 || $OBJC_STATUS != 0 ]]; then

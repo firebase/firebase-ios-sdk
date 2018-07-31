@@ -36,8 +36,9 @@
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
 
-#import <FirebaseCore/FIRReachabilityChecker.h>
+#import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
 #import "NSError+FIRMessaging.h"
 
@@ -124,10 +125,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
-                           FIRReachabilityDelegate>
+                           GULReachabilityDelegate>
 
 // FIRApp properties
-@property(nonatomic, readwrite, copy) NSString *fcmSenderID;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 
@@ -136,7 +136,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 @property(nonatomic, readwrite, assign) BOOL isClientSetup;
 
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
-@property(nonatomic, readwrite, strong) FIRReachabilityChecker *reachability;
+@property(nonatomic, readwrite, strong) GULReachabilityChecker *reachability;
 @property(nonatomic, readwrite, strong) FIRMessagingDataMessageManager *dataMessageManager;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
@@ -200,8 +200,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   [self setupReceiver];
 
   NSString *hostname = kFIRMessagingReachabilityHostname;
-  self.reachability = [[FIRReachabilityChecker alloc] initWithReachabilityDelegate:self
-                                                                    loggerDelegate:nil
+  self.reachability = [[GULReachabilityChecker alloc] initWithReachabilityDelegate:self
                                                                           withHost:hostname];
   [self.reachability start];
 
@@ -379,7 +378,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     });
     return;
   }
-  UIApplication *application = [UIApplication sharedApplication];
+  UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return;
+  }
   id<UIApplicationDelegate> appDelegate = application.delegate;
   SEL continueUserActivitySelector =
       @selector(application:continueUserActivity:restorationHandler:);
@@ -411,13 +413,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called, due
   // to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
                      openURL:url
            sourceApplication:FIRMessagingAppIdentifier()
                   annotation:@{}];
-
   } else if ([appDelegate respondsToSelector:handleOpenURLSelector]) {
     [appDelegate application:application handleOpenURL:url];
+#pragma clang diagnostic pop
   }
 }
 
@@ -473,7 +477,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 
   // If none of above exists, we default to the global switch that comes from FIRApp.
-  return self.isGlobalAutomaticDataCollectionEnabled;
+  return [[FIRApp defaultApp] isDataCollectionDefaultEnabled];
 }
 
 - (void)setAutoInitEnabled:(BOOL)autoInitEnabled {
@@ -481,7 +485,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   [_messagingUserDefaults setBool:autoInitEnabled
                            forKey:kFIRMessagingUserDefaultsKeyAutoInitEnabled];
   if (!isFCMAutoInitEnabled && autoInitEnabled) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     self.defaultFcmToken = self.instanceID.token;
+#pragma clang diagnostic pop
   }
 }
 
@@ -489,7 +496,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   NSString *token = self.defaultFcmToken;
   if (!token) {
     // We may not have received it from Instance ID yet (via NSNotification), so extract it directly
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     token = self.instanceID.token;
+#pragma clang diagnostic pop
   }
   return token;
 }
@@ -604,7 +614,11 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   // We require a token from Instance ID
   NSString *token = self.defaultFcmToken;
   // Only on foreground connections
-  UIApplicationState applicationState = [UIApplication sharedApplication].applicationState;
+  UIApplication *application = FIRMessagingUIApplication();
+  if (!application) {
+    return NO;
+  }
+  UIApplicationState applicationState = application.applicationState;
   BOOL shouldBeConnected = _shouldEstablishDirectChannel &&
                            (token.length > 0) &&
                            applicationState == UIApplicationStateActive;
@@ -668,6 +682,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 #pragma mark - Topics
 
 + (NSString *)normalizeTopic:(NSString *)topic {
+  if (!topic.length) {
+    return nil;
+  }
   if (![FIRMessagingPubSub hasTopicsPrefix:topic]) {
     topic = [FIRMessagingPubSub addPrefixToTopic:topic];
   }
@@ -683,19 +700,24 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)subscribeToTopic:(NSString *)topic
               completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (self.defaultFcmToken.length && topic.length) {
-    NSString *normalizeTopic = [[self class ] normalizeTopic:topic];
-    if (normalizeTopic.length) {
-      [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
-    } else {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
-                              @"Cannot parse topic name %@. Will not subscribe.", topic);
-    }
-  } else {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging010,
-                            @"Cannot subscribe to topic: %@ with token: %@", topic,
-                            self.defaultFcmToken);
+  if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                           @"Format '%@' is deprecated. Only '%@' should be used in "
+                           @"subscribeToTopic.",
+                           topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  if (!self.defaultFcmToken.length) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging010,
+                           @"The subscription operation is suspended because you don't have a "
+                           @"token. The operation will resume once you get an FCM token.");
+  }
+  NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+  if (normalizeTopic.length) {
+    [self.pubsub subscribeToTopic:normalizeTopic handler:completion];
+    return;
+  }
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
+                          @"Cannot parse topic name %@. Will not subscribe.", topic);
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -704,19 +726,24 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)unsubscribeFromTopic:(NSString *)topic
                   completion:(nullable FIRMessagingTopicOperationCompletion)completion {
-  if (self.defaultFcmToken.length && topic.length) {
-    NSString *normalizeTopic = [[self class] normalizeTopic:topic];
-    if (normalizeTopic.length) {
-      [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
-    } else {
-      FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
-                              @"Cannot parse topic name %@. Will not unsubscribe.", topic);
-    }
-  } else {
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging012,
-                            @"Cannot unsubscribe to topic: %@ with token: %@", topic,
-                            self.defaultFcmToken);
+  if ([FIRMessagingPubSub hasTopicsPrefix:topic]) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeTopicFormatIsDeprecated,
+                           @"Format '%@' is deprecated. Only '%@' should be used in "
+                           @"unsubscribeFromTopic.",
+                           topic, [FIRMessagingPubSub removePrefixFromTopic:topic]);
   }
+  if (!self.defaultFcmToken.length) {
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeMessaging012,
+                           @"The unsubscription operation is suspended because you don't have a "
+                           @"token. The operation will resume once you get an FCM token.");
+  }
+  NSString *normalizeTopic = [[self class] normalizeTopic:topic];
+  if (normalizeTopic.length) {
+    [self.pubsub unsubscribeFromTopic:normalizeTopic handler:completion];
+    return;
+  }
+  FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
+                          @"Cannot parse topic name %@. Will not unsubscribe.", topic);
 }
 
 #pragma mark - Send
@@ -779,10 +806,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 }
 
-#pragma mark - FIRReachabilityDelegate
+#pragma mark - GULReachabilityDelegate
 
-- (void)reachability:(FIRReachabilityChecker *)reachability
-       statusChanged:(FIRReachabilityStatus)status {
+- (void)reachability:(GULReachabilityChecker *)reachability
+       statusChanged:(GULReachabilityStatus)status {
   [self onNetworkStatusChanged];
 }
 
@@ -800,15 +827,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 - (BOOL)isNetworkAvailable {
-  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
-  return (status == kFIRReachabilityViaCellular || status == kFIRReachabilityViaWifi);
+  GULReachabilityStatus status = self.reachability.reachabilityStatus;
+  return (status == kGULReachabilityViaCellular || status == kGULReachabilityViaWifi);
 }
 
 - (FIRMessagingNetworkStatus)networkType {
-  FIRReachabilityStatus status = self.reachability.reachabilityStatus;
+  GULReachabilityStatus status = self.reachability.reachabilityStatus;
   if (![self isNetworkAvailable]) {
     return kFIRMessagingReachabilityNotReachable;
-  } else if (status == kFIRReachabilityViaCellular) {
+  } else if (status == kGULReachabilityViaCellular) {
     return kFIRMessagingReachabilityReachableViaWWAN;
   } else {
     return kFIRMessagingReachabilityReachableViaWiFi;
@@ -837,7 +864,10 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 - (void)defaultInstanceIDTokenWasRefreshed:(NSNotification *)notification {
   // Retrieve the Instance ID default token, and if it is non-nil, post it
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSString *token = self.instanceID.token;
+#pragma clang diagnostic pop
   // Sometimes Instance ID doesn't yet have a token, so wait until the default
   // token is fetched, and then notify. This ensures that this token should not
   // be nil when the developer accesses it.

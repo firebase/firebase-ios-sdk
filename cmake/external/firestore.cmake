@@ -13,19 +13,30 @@
 # limitations under the License.
 
 include(ExternalProject)
+include(googletest)
+include(grpc)
+include(leveldb)
+include(nanopb)
+include(protobuf)
+include(libfuzzer)
+
+if(TARGET Firestore)
+  return()
+endif()
 
 ExternalProject_Add(
   Firestore
   DEPENDS
-    FirebaseCore
     googletest
-    leveldb
     grpc
+    leveldb
     nanopb
+    protobuf
+    libfuzzer
 
   # Lay the binary directory out as if this were a subproject. This makes it
   # possible to build and test in it directly.
-  PREFIX ${PROJECT_BINARY_DIR}/external/Firestore
+  PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_SOURCE_DIR}/Firestore
   BINARY_DIR ${PROJECT_BINARY_DIR}/Firestore
 
@@ -35,6 +46,7 @@ ExternalProject_Add(
     -DWITH_ASAN:BOOL=${WITH_ASAN}
     -DWITH_TSAN:BOOL=${WITH_TSAN}
     -DWITH_UBSAN:BOOL=${WITH_UBSAN}
+    -DFUZZING:BOOL=${FUZZING}
 
   BUILD_ALWAYS ON
 

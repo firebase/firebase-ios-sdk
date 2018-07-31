@@ -29,11 +29,11 @@
 #import "Firestore/Source/Model/FSTFieldValue.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
@@ -64,7 +64,7 @@ using firebase::firestore::model::SnapshotVersion;
   } else if ([document isKindOfClass:[FSTDocument class]]) {
     proto.document = [self encodedDocument:(FSTDocument *)document];
   } else {
-    FSTFail(@"Unknown document type %@", NSStringFromClass([document class]));
+    HARD_FAIL("Unknown document type %s", NSStringFromClass([document class]));
   }
 
   return proto;
@@ -79,7 +79,7 @@ using firebase::firestore::model::SnapshotVersion;
       return [self decodedDeletedDocument:proto.noDocument];
 
     default:
-      FSTFail(@"Unknown MaybeDocument %@", proto);
+      HARD_FAIL("Unknown MaybeDocument %s", proto);
   }
 }
 
@@ -164,9 +164,9 @@ using firebase::firestore::model::SnapshotVersion;
 - (FSTPBTarget *)encodedQueryData:(FSTQueryData *)queryData {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
-  FSTAssert(queryData.purpose == FSTQueryPurposeListen,
-            @"only queries with purpose %lu may be stored, got %lu",
-            (unsigned long)FSTQueryPurposeListen, (unsigned long)queryData.purpose);
+  HARD_ASSERT(queryData.purpose == FSTQueryPurposeListen,
+              "only queries with purpose %s may be stored, got %s", FSTQueryPurposeListen,
+              queryData.purpose);
 
   FSTPBTarget *proto = [FSTPBTarget message];
   proto.targetId = queryData.targetID;
@@ -203,7 +203,7 @@ using firebase::firestore::model::SnapshotVersion;
       break;
 
     default:
-      FSTFail(@"Unknown Target.targetType %" PRId32, target.targetTypeOneOfCase);
+      HARD_FAIL("Unknown Target.targetType %s", target.targetTypeOneOfCase);
   }
 
   return [[FSTQueryData alloc] initWithQuery:query

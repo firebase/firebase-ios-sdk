@@ -17,7 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_EXPONENTIAL_BACKOFF_H_
 
-#include <chrono>
+#include <chrono>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/secure_random.h"
@@ -26,25 +26,30 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ *
+ * A helper for running delayed operations following an exponential backoff
+ * curve between attempts.
+ *
+ * The first attempt will be done immediately. After that, each retry will
+ * have a delay that is made up of a "base" delay which follows the
+ * exponential backoff curve, and a +/- <=50% "jitter" that is calculated and
+ * added to the base delay. This prevents clients from accidentally
+ * synchronizing their delays causing spikes of load to the backend.
+ *
+ */
 class ExponentialBackoff {
  public:
   /**
-   * Initializes a helper for running delayed tasks following an exponential
-   * backoff curve between attempts.
-   *
-   * Each delay is made up of a "base" delay which follows the exponential
-   * backoff curve, and a +/- <=50% "jitter" that is calculated and added to the
-   * base delay. This prevents clients from accidentally synchronizing their
-   * delays causing spikes of load to the backend.
-   *
    * @param queue The queue to run operations on.
    * @param timer_id The id to use when scheduling backoff operations on the
    *     queue.
    * @param backoff_factor The multiplier to use to determine the extended base
    *     delay after each attempt.
    * @param initial_delay The initial delay (used as the base delay on the first
-   *     retry attempt). Note that jitter will still be applied, so the actual
-   *     delay could be as little as `0.5*initial_delay`.
+   *     retry attempt, that is, the second attempt). Note that jitter will
+   *     still be applied, so the actual delay could be as little as
+   *     `0.5*initial_delay`.
    * @param max_delay The maximum base delay after which no further backoff is
    *     performed. Note that jitter will still be applied, so the actual delay
    *     could be as much as `1.5*max_delay`.
@@ -53,13 +58,7 @@ class ExponentialBackoff {
                      util::TimerId timer_id,
                      double backoff_factor,
                      util::AsyncQueue::Milliseconds initial_delay,
-                     util::AsyncQueue::Milliseconds max_delay)
-      : queue_{queue},
-        timer_id_{timer_id},
-        backoff_factor_{backoff_factor},
-        initial_delay_{initial_delay},
-        max_delay_{max_delay} {
-  }
+                     util::AsyncQueue::Milliseconds max_delay);
 
   /**
    * Resets the backoff delay.
@@ -69,7 +68,7 @@ class ExponentialBackoff {
    * subsequent ones will increase according to the `backoff_factor`.
    */
   void Reset() {
-    current_base_ = RealSeconds{0};
+    current_base_ = Milliseconds{0};
   }
 
   /**
@@ -81,9 +80,9 @@ class ExponentialBackoff {
   }
 
   /**
-   * Waits for `current_base` seconds, increases the delay and runs the
-   * specified operation. If there was a pending operation waiting to be run
-   * already, it will be canceled.
+   * Waits for `current_base` seconds (which may be zero), increases the delay
+   * and runs the specified operation. If there was a pending operation waiting
+   * to be run already, it will be canceled.
    */
   void BackoffAndRun(util::AsyncQueue::Operation&& operation);
 
@@ -93,19 +92,20 @@ class ExponentialBackoff {
   }
 
  private:
-  using RealSeconds = std::chrono::duration<double>;
+  using Milliseconds = util::AsyncQueue::Milliseconds;
 
-  RealSeconds GetDelayWithJitter();
-  RealSeconds ClampDelay(RealSeconds delay) const;
+  // Returns a random value in the range [-current_base_/2, current_base_/2].
+  Milliseconds GetDelayWithJitter();
+  Milliseconds ClampDelay(Milliseconds delay) const;
 
-  util::AsyncQueue* queue_;
-  util::TimerId timer_id_;
+  util::AsyncQueue* const queue_;
+  const util::TimerId timer_id_;
   util::DelayedOperation delayed_operation_;
 
-  double backoff_factor_;
-  RealSeconds current_base_;
-  util::AsyncQueue::Milliseconds initial_delay_;
-  util::AsyncQueue::Milliseconds max_delay_;
+  const double backoff_factor_;
+  Milliseconds current_base_{0};
+  const Milliseconds initial_delay_;
+  const Milliseconds max_delay_;
   util::SecureRandom secure_random_;
 };
 

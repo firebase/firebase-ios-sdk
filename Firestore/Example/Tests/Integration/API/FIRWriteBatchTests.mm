@@ -17,6 +17,9 @@
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
+#include <mach/mach.h>
+
+#include <cstdint>
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -320,6 +323,57 @@
     [expectation fulfill];
   }];
 
+  [self awaitExpectations];
+}
+
+// Returns how much memory the test application is currently using, in megabytes (fractional part is
+// truncated), or -1 if the OS call fails.
+// TODO(varconst): move the helper function and the test into a new test target for performance
+// testing.
+int64_t GetCurrentMemoryUsedInMb() {
+  mach_task_basic_info taskInfo;
+  mach_msg_type_number_t taskInfoSize = MACH_TASK_BASIC_INFO_COUNT;
+  const auto errorCode =
+      task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t)&taskInfo, &taskInfoSize);
+  if (errorCode == KERN_SUCCESS) {
+    const int bytesInMegabyte = 1024 * 1024;
+    return taskInfo.resident_size / bytesInMegabyte;
+  }
+  return -1;
+}
+
+- (void)testReasonableMemoryUsageForLotsOfMutations {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testReasonableMemoryUsageForLotsOfMutations"];
+
+  FIRDocumentReference *mainDoc = [self documentRef];
+  FIRWriteBatch *batch = [mainDoc.firestore batch];
+
+  // > 500 mutations will be rejected.
+  const int maxMutations = 500;
+  for (int i = 0; i != maxMutations; ++i) {
+    FIRDocumentReference *nestedDoc = [[mainDoc collectionWithPath:@"nested"] documentWithAutoID];
+    // The exact data doesn't matter; what is important is the large number of mutations.
+    [batch setData:@{
+      @"a" : @"foo",
+      @"b" : @"bar",
+    }
+        forDocument:nestedDoc];
+  }
+
+  const int64_t memoryUsedBeforeCommitMb = GetCurrentMemoryUsedInMb();
+  XCTAssertNotEqual(memoryUsedBeforeCommitMb, -1);
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    const int64_t memoryUsedAfterCommitMb = GetCurrentMemoryUsedInMb();
+    XCTAssertNotEqual(memoryUsedAfterCommitMb, -1);
+    const int64_t memoryDeltaMb = memoryUsedAfterCommitMb - memoryUsedBeforeCommitMb;
+    // This by its nature cannot be a precise value. Runs on simulator seem to give an increase of
+    // 10MB in debug mode pretty consistently. A regression would be on the scale of 500Mb.
+    XCTAssertLessThan(memoryDeltaMb, 20);
+
+    [expectation fulfill];
+  }];
   [self awaitExpectations];
 }
 

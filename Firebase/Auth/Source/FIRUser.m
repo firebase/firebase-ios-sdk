@@ -541,7 +541,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)updateEmail:(nullable NSString *)email
            password:(nullable NSString *)password
            callback:(nonnull FIRUserProfileChangeCallback)callback {
-  if (password && ![password length]){
+  if (password && ![password length]) {
     callback([FIRAuthErrorUtils weakPasswordErrorWithServerResponseReason:kMissingPasswordReason]);
     return;
   }
@@ -561,11 +561,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     if (email) {
-      self->_email = email;
+      self->_email = [email copy];
     }
-    if (self->_email && password) {
-      self->_anonymous = NO;
-      self->_hasEmailPasswordCredential = YES;
+    if (self->_email) {
       if (!hadEmailPasswordCredential) {
         // The list of providers need to be updated for the newly added email-password provider.
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
@@ -585,6 +583,20 @@ static void callInMainThreadWithAuthDataResultAndError(
               [self signOutIfTokenIsInvalidWithError:error];
               callback(error);
               return;
+            }
+            for (FIRGetAccountInfoResponseUser *userAccountInfo in response.users) {
+              // Set the account to non-anonymous if there are any providers, even if
+              // they're not email/password ones.
+              if (userAccountInfo.providerUserInfo.count > 0) {
+                self->_anonymous = NO;
+              }
+              for (FIRGetAccountInfoResponseProviderUserInfo *providerUserInfo in
+                   userAccountInfo.providerUserInfo) {
+                if ([providerUserInfo.providerID isEqualToString:FIREmailAuthProviderID]) {
+                  self->_hasEmailPasswordCredential = YES;
+                  break;
+                }
+              }
             }
             [self updateWithGetAccountInfoResponse:response];
             if (![self updateKeychain:&error]) {
@@ -754,7 +766,7 @@ static void callInMainThreadWithAuthDataResultAndError(
         callInMainThreadWithAuthDataResultAndError(completion, authResult, error);
         return;
       }
-      if (![authResult.user.uid isEqual:[self->_auth getUID]]) {
+      if (![authResult.user.uid isEqual:[self->_auth getUserID]]) {
         callInMainThreadWithAuthDataResultAndError(completion, authResult,
                                                    [FIRAuthErrorUtils userMismatchError]);
         return;
@@ -839,8 +851,16 @@ static void callInMainThreadWithAuthDataResultAndError(
         "error" out parameter.
  */
 - (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
+  // Though this is an internal method, errors returned here are surfaced in user-visible
+  // callbacks.
   *error = nil;
   NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
+
+  // The JWT should have three parts, though we only use the second in this method.
+  if (tokenStringArray.count != 3) {
+    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    return nil;
+  }
 
   // The token payload is always the second index of the array.
   NSString *idToken = tokenStringArray[1];
@@ -851,8 +871,10 @@ static void callInMainThreadWithAuthDataResultAndError(
       [[idToken stringByReplacingOccurrencesOfString:@"_" withString:@"/"] mutableCopy];
 
   // Replace "-" with "+"
-  tokenPayload =
-      [[tokenPayload stringByReplacingOccurrencesOfString:@"-" withString:@"+"] mutableCopy];
+  [tokenPayload replaceOccurrencesOfString:@"-"
+                                withString:@"+"
+                                   options:kNilOptions
+                                     range:NSMakeRange(0, tokenPayload.length)];
 
   // Pad the token payload with "=" signs if the payload's length is not a multiple of 4.
   while ((tokenPayload.length % 4) != 0) {
@@ -862,28 +884,33 @@ static void callInMainThreadWithAuthDataResultAndError(
       [[NSData alloc] initWithBase64EncodedString:tokenPayload
                                           options:NSDataBase64DecodingIgnoreUnknownCharacters];
   if (!decodedTokenPayloadData) {
-    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
+    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
     return nil;
   }
+  NSError *jsonError = nil;
+  NSJSONReadingOptions options = NSJSONReadingMutableContainers|NSJSONReadingAllowFragments;
   NSDictionary *tokenPayloadDictionary =
       [NSJSONSerialization JSONObjectWithData:decodedTokenPayloadData
-                                      options:NSJSONReadingMutableContainers|NSJSONReadingAllowFragments
-                                        error:error];
-  if (*error) {
+                                      options:options
+                                        error:&jsonError];
+  if (jsonError != nil) {
+    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:jsonError];
     return nil;
   }
 
   if (!tokenPayloadDictionary) {
-    *error = [FIRAuthErrorUtils unexpectedResponseWithDeserializedResponse:token];
+    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
     return nil;
   }
 
+  // These are dates since 00:00:00 January 1 1970, as described by the Terminology section in
+  // the JWT spec. https://tools.ietf.org/html/rfc7519
   NSDate *expDate =
-      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"exp"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"exp"] doubleValue]];
   NSDate *authDate =
-      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"auth_time"] doubleValue]];
   NSDate *issuedDate =
-      [NSDate dateWithTimeIntervalSinceNow:[tokenPayloadDictionary[@"iat"] doubleValue]];
+      [NSDate dateWithTimeIntervalSince1970:[tokenPayloadDictionary[@"iat"] doubleValue]];
   FIRAuthTokenResult *result =
      [[FIRAuthTokenResult alloc] initWithToken:token
                                 expirationDate:expDate

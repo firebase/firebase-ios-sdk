@@ -26,11 +26,13 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Functions/Example
+    bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
   Firebase-*-xcodebuild)
     gem install xcpretty
     bundle exec pod install --project-directory=Example --repo-update
+    bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
   Firestore-*-xcodebuild)

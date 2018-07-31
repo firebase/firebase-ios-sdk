@@ -19,7 +19,6 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFieldValue+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -555,6 +554,13 @@
                    @"equality different than orderBy works.");
   XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"y" arrayContains:@"cat"],
                    @"array_contains different than orderBy works.");
+}
+
+- (void)testQueryMustNotHaveMultipleArrayContainsFilters {
+  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
+  FSTAssertThrows(
+      [[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo" arrayContains:@2],
+      @"Invalid Query. Queries only support a single arrayContains filter.");
 }
 
 #pragma mark - GeoPoint Validation

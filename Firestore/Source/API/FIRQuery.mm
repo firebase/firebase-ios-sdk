@@ -34,13 +34,13 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTFieldValue.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -487,26 +487,13 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     fieldValue = [self.firestore.dataConverter parsedQueryValue:value];
   }
 
-  id<FSTFilter> filter;
-  if ([fieldValue isEqual:[FSTNullValue nullValue]]) {
-    if (filterOperator != FSTRelationFilterOperatorEqual) {
-      FSTThrowInvalidUsage(@"InvalidQueryException",
-                           @"Invalid Query. You can only perform equality comparisons on nil / "
-                            "NSNull.");
-    }
-    filter = [[FSTNullFilter alloc] initWithField:fieldPath];
-  } else if ([fieldValue isEqual:[FSTDoubleValue nanValue]]) {
-    if (filterOperator != FSTRelationFilterOperatorEqual) {
-      FSTThrowInvalidUsage(@"InvalidQueryException",
-                           @"Invalid Query. You can only perform equality comparisons on NaN.");
-    }
-    filter = [[FSTNanFilter alloc] initWithField:fieldPath];
-  } else {
-    filter = [FSTRelationFilter filterWithField:fieldPath
-                                 filterOperator:filterOperator
-                                          value:fieldValue];
-    [self validateNewRelationFilter:filter];
+  FSTFilter *filter =
+      [FSTFilter filterWithField:fieldPath filterOperator:filterOperator value:fieldValue];
+
+  if ([filter isKindOfClass:[FSTRelationFilter class]]) {
+    [self validateNewRelationFilter:(FSTRelationFilter *)filter];
   }
+
   return [FIRQuery referenceWithQuery:[self.query queryByAddingFilter:filter]
                             firestore:self.firestore];
 }
@@ -526,6 +513,11 @@ addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
     const FieldPath *firstOrderByField = [self.query firstSortOrderField];
     if (firstOrderByField) {
       [self validateOrderByField:*firstOrderByField matchesInequalityField:filter.field];
+    }
+  } else if (filter.filterOperator == FSTRelationFilterOperatorArrayContains) {
+    if ([self.query hasArrayContainsFilter]) {
+      FSTThrowInvalidUsage(@"InvalidQueryException",
+                           @"Invalid Query. Queries only support a single arrayContains filter.");
     }
   }
 }

@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,8 +27,8 @@ constexpr const char* DatabaseId::kDefault;
 DatabaseId::DatabaseId(const absl::string_view project_id,
                        const absl::string_view database_id)
     : project_id_(project_id), database_id_(database_id) {
-  FIREBASE_ASSERT(!project_id.empty());
-  FIREBASE_ASSERT(!database_id.empty());
+  HARD_ASSERT(!project_id.empty());
+  HARD_ASSERT(!database_id.empty());
 }
 
 }  // namespace model

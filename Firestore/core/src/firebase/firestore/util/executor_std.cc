@@ -64,8 +64,7 @@ DelayedOperation ExecutorStd::Schedule(const Milliseconds delay,
   // While negative delay can be interpreted as a request for immediate
   // execution, supporting it would provide a hacky way to modify FIFO ordering
   // of immediate operations.
-  FIREBASE_ASSERT_MESSAGE(delay.count() >= 0,
-                          "Schedule: delay cannot be negative");
+  HARD_ASSERT(delay.count() >= 0, "Schedule: delay cannot be negative");
 
   namespace chr = std::chrono;
   const auto now = chr::time_point_cast<Milliseconds>(chr::steady_clock::now());

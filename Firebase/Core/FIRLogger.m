@@ -14,16 +14,11 @@
 
 #import "Private/FIRLogger.h"
 
-#import "FIRLoggerLevel.h"
-#import "Private/FIRVersion.h"
-#import "third_party/FIRAppEnvironmentUtil.h"
+#import <FirebaseCore/FIRLoggerLevel.h>
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+#import <GoogleUtilities/GULLogger.h>
 
-#include <asl.h>
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/sysctl.h>
-#include <sys/types.h>
-#include <unistd.h>
+#import "Private/FIRVersion.h"
 
 FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
 FIRLoggerService kFIRLoggerAdMob = @"[Firebase/AdMob]";
@@ -51,32 +46,17 @@ NSString *const kFIRLoggerForceSDTERRApplicationArgument = @"-FIRLoggerForceSTDE
 /// Key for the debug mode bit in NSUserDefaults.
 NSString *const kFIRPersistedDebugModeKey = @"/google/firebase/debug_mode";
 
-/// ASL client facility name used by FIRLogger.
-const char *kFIRLoggerASLClientFacilityName = "com.firebase.app.logger";
-
-/// Message format used by ASL client that matches format of NSLog.
-const char *kFIRLoggerCustomASLMessageFormat =
-    "$((Time)(J.3)) $(Sender)[$(PID)] <$((Level)(str))> $Message";
-
-/// Keys for the number of errors and warnings logged.
-NSString *const kFIRLoggerErrorCountKey = @"/google/firebase/count_of_errors_logged";
-NSString *const kFIRLoggerWarningCountKey = @"/google/firebase/count_of_warnings_logged";
+/// NSUserDefaults that should be used to store and read variables. If nil, `standardUserDefaults`
+/// will be used.
+static NSUserDefaults *sFIRLoggerUserDefaults;
 
 static dispatch_once_t sFIRLoggerOnceToken;
-
-static aslclient sFIRLoggerClient;
-
-static dispatch_queue_t sFIRClientQueue;
-
-static BOOL sFIRLoggerDebugMode;
 
 // The sFIRAnalyticsDebugMode flag is here to support the -FIRDebugEnabled/-FIRDebugDisabled
 // flags used by Analytics. Users who use those flags expect Analytics to log verbosely,
 // while the rest of Firebase logs at the default level. This flag is introduced to support
 // that behavior.
 static BOOL sFIRAnalyticsDebugMode;
-
-static FIRLoggerLevel sFIRLoggerMaximumLevel;
 
 #ifdef DEBUG
 /// The regex pattern for the message code.
@@ -86,122 +66,74 @@ static NSRegularExpression *sMessageCodeRegex;
 
 void FIRLoggerInitializeASL() {
   dispatch_once(&sFIRLoggerOnceToken, ^{
-    NSInteger majorOSVersion = [[FIRAppEnvironmentUtil systemVersion] integerValue];
-    uint32_t aslOptions = ASL_OPT_STDERR;
-#if TARGET_OS_SIMULATOR
-    // The iOS 11 simulator doesn't need the ASL_OPT_STDERR flag.
-    if (majorOSVersion >= 11) {
-      aslOptions = 0;
-    }
-#else
-    // Devices running iOS 10 or higher don't need the ASL_OPT_STDERR flag.
-    if (majorOSVersion >= 10) {
-      aslOptions = 0;
-    }
-#endif  // TARGET_OS_SIMULATOR
+    // Register Firebase Version with GULLogger.
+    GULLoggerRegisterVersion(FIRVersionString);
 
     // Override the aslOptions to ASL_OPT_STDERR if the override argument is passed in.
     NSArray *arguments = [NSProcessInfo processInfo].arguments;
-    if ([arguments containsObject:kFIRLoggerForceSDTERRApplicationArgument]) {
-      aslOptions = ASL_OPT_STDERR;
+    BOOL overrideSTDERR = [arguments containsObject:kFIRLoggerForceSDTERRApplicationArgument];
+
+    // Use the standard NSUserDefaults if it hasn't been explicitly set.
+    if (sFIRLoggerUserDefaults == nil) {
+      sFIRLoggerUserDefaults = [NSUserDefaults standardUserDefaults];
     }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"  // asl is deprecated
-    // Initialize the ASL client handle.
-    sFIRLoggerClient = asl_open(NULL, kFIRLoggerASLClientFacilityName, aslOptions);
-
-    // Set the filter used by system/device log. Initialize in default mode.
-    asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_NOTICE));
-    sFIRLoggerDebugMode = NO;
-    sFIRAnalyticsDebugMode = NO;
-    sFIRLoggerMaximumLevel = FIRLoggerLevelNotice;
-
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    BOOL debugMode = [userDefaults boolForKey:kFIRPersistedDebugModeKey];
-
+    BOOL forceDebugMode = NO;
+    BOOL debugMode = [sFIRLoggerUserDefaults boolForKey:kFIRPersistedDebugModeKey];
     if ([arguments containsObject:kFIRDisableDebugModeApplicationArgument]) {  // Default mode
-      [userDefaults removeObjectForKey:kFIRPersistedDebugModeKey];
+      [sFIRLoggerUserDefaults removeObjectForKey:kFIRPersistedDebugModeKey];
     } else if ([arguments containsObject:kFIREnableDebugModeApplicationArgument] ||
                debugMode) {  // Debug mode
-      [userDefaults setBool:YES forKey:kFIRPersistedDebugModeKey];
-      asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));
-      sFIRLoggerDebugMode = YES;
+      [sFIRLoggerUserDefaults setBool:YES forKey:kFIRPersistedDebugModeKey];
+      forceDebugMode = YES;
     }
-
-    // We should disable debug mode if we are running from App Store.
-    if (sFIRLoggerDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
-      sFIRLoggerDebugMode = NO;
+    GULLoggerInitializeASL();
+    if (overrideSTDERR) {
+      GULLoggerEnableSTDERR();
     }
-
-    sFIRClientQueue = dispatch_queue_create("FIRLoggingClientQueue", DISPATCH_QUEUE_SERIAL);
-    dispatch_set_target_queue(sFIRClientQueue,
-                              dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0));
-
-#ifdef DEBUG
-    sMessageCodeRegex =
-        [NSRegularExpression regularExpressionWithPattern:kMessageCodePattern options:0 error:NULL];
-#endif
+    if (forceDebugMode) {
+      GULLoggerForceDebug();
+    }
   });
 }
 
-void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
-  FIRLoggerInitializeASL();
-  dispatch_async(sFIRClientQueue, ^{
-    // We should not enable debug mode if we are running from App Store.
-    if (analyticsDebugMode && [FIRAppEnvironmentUtil isFromAppStore]) {
-      return;
-    }
-    sFIRAnalyticsDebugMode = analyticsDebugMode;
-    asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(ASL_LEVEL_DEBUG));
-  });
+__attribute__((no_sanitize("thread"))) void FIRSetAnalyticsDebugMode(BOOL analyticsDebugMode) {
+  sFIRAnalyticsDebugMode = analyticsDebugMode;
 }
 
 void FIRSetLoggerLevel(FIRLoggerLevel loggerLevel) {
-  if (loggerLevel < FIRLoggerLevelMin || loggerLevel > FIRLoggerLevelMax) {
-    FIRLogError(kFIRLoggerCore, @"I-COR000023", @"Invalid logger level, %ld", (long)loggerLevel);
-    return;
-  }
   FIRLoggerInitializeASL();
-  // We should not raise the logger level if we are running from App Store.
-  if (loggerLevel >= FIRLoggerLevelNotice && [FIRAppEnvironmentUtil isFromAppStore]) {
-    return;
-  }
-
-  sFIRLoggerMaximumLevel = loggerLevel;
-  dispatch_async(sFIRClientQueue, ^{
-    asl_set_filter(sFIRLoggerClient, ASL_FILTER_MASK_UPTO(loggerLevel));
-  });
-}
-
-BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel, BOOL analyticsComponent) {
-  FIRLoggerInitializeASL();
-  if (sFIRLoggerDebugMode) {
-    return YES;
-  } else if (sFIRAnalyticsDebugMode && analyticsComponent) {
-    return YES;
-  }
-  return (BOOL)(loggerLevel <= sFIRLoggerMaximumLevel);
+  GULSetLoggerLevel((GULLoggerLevel)loggerLevel);
 }
 
 #ifdef DEBUG
 void FIRResetLogger() {
+  extern void GULResetLogger(void);
   sFIRLoggerOnceToken = 0;
-  [[NSUserDefaults standardUserDefaults] removeObjectForKey:kFIRPersistedDebugModeKey];
+  [sFIRLoggerUserDefaults removeObjectForKey:kFIRPersistedDebugModeKey];
+  sFIRLoggerUserDefaults = nil;
+  GULResetLogger();
 }
 
-aslclient getFIRLoggerClient() {
-  return sFIRLoggerClient;
-}
-
-dispatch_queue_t getFIRClientQueue() {
-  return sFIRClientQueue;
-}
-
-BOOL getFIRLoggerDebugMode() {
-  return sFIRLoggerDebugMode;
+void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
+  sFIRLoggerUserDefaults = defaults;
 }
 #endif
+
+/**
+ * Check if the level is high enough to be loggable.
+ *
+ * Analytics can override the log level with an intentional race condition.
+ * Add the attribute to get a clean thread sanitizer run.
+ */
+__attribute__((no_sanitize("thread"))) BOOL FIRIsLoggableLevel(FIRLoggerLevel loggerLevel,
+                                                               BOOL analyticsComponent) {
+  FIRLoggerInitializeASL();
+  if (sFIRAnalyticsDebugMode && analyticsComponent) {
+    return YES;
+  }
+  return GULIsLoggableLevel((GULLoggerLevel)loggerLevel);
+}
 
 void FIRLogBasic(FIRLoggerLevel level,
                  FIRLoggerService service,
@@ -209,32 +141,10 @@ void FIRLogBasic(FIRLoggerLevel level,
                  NSString *message,
                  va_list args_ptr) {
   FIRLoggerInitializeASL();
-  BOOL canLog = level <= sFIRLoggerMaximumLevel;
-
-  if (sFIRLoggerDebugMode) {
-    canLog = YES;
-  } else if (sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:service]) {
-    canLog = YES;
-  }
-
-  if (!canLog) {
-    return;
-  }
-#ifdef DEBUG
-  NSCAssert(messageCode.length == 11, @"Incorrect message code length.");
-  NSRange messageCodeRange = NSMakeRange(0, messageCode.length);
-  NSUInteger numberOfMatches =
-      [sMessageCodeRegex numberOfMatchesInString:messageCode options:0 range:messageCodeRange];
-  NSCAssert(numberOfMatches == 1, @"Incorrect message code format.");
-#endif
-  NSString *logMsg = [[NSString alloc] initWithFormat:message arguments:args_ptr];
-  logMsg =
-      [NSString stringWithFormat:@"%s - %@[%@] %@", FIRVersionString, service, messageCode, logMsg];
-  dispatch_async(sFIRClientQueue, ^{
-    asl_log(sFIRLoggerClient, NULL, level, "%s", logMsg.UTF8String);
-  });
+  GULLogBasic((GULLoggerLevel)level, service,
+              sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:service], messageCode,
+              message, args_ptr);
 }
-#pragma clang diagnostic pop
 
 /**
  * Generates the logging functions using macros.

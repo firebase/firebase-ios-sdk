@@ -31,6 +31,12 @@ bool Comparator<absl::string_view>::operator()(
   return left < right;
 }
 
+bool Comparator<std::string>::operator()(const std::string& left,
+                                         const std::string& right) const {
+  // TODO(wilhuff): truncation aware comparison
+  return left < right;
+}
+
 bool Comparator<double>::operator()(double left, double right) const {
   // NaN sorts equal to itself and before any other number.
   if (left < right) {

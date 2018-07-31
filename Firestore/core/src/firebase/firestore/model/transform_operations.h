@@ -191,8 +191,8 @@ class ArrayTransform : public TransformOperation {
 
   static const std::vector<FSTFieldValue*>& Elements(
       const TransformOperation& op) {
-    FIREBASE_ASSERT(op.type() == Type::ArrayUnion ||
-                    op.type() == Type::ArrayRemove);
+    HARD_ASSERT(op.type() == Type::ArrayUnion ||
+                op.type() == Type::ArrayRemove);
     return static_cast<const ArrayTransform&>(op).elements();
   }
 
@@ -225,7 +225,7 @@ class ArrayTransform : public TransformOperation {
           [result addObject:element];
         }
       } else {
-        FIREBASE_ASSERT(type_ == Type::ArrayRemove);
+        HARD_ASSERT(type_ == Type::ArrayRemove);
         [result removeObject:element];
       }
     }

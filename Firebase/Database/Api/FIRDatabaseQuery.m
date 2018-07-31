@@ -253,7 +253,7 @@ priorityMethodCalled:(BOOL)priorityMethodCalled {
     if (limit == 0) {
         [NSException raise:INVALID_QUERY_PARAM_ERROR format:@"Limit can't be zero"];
     }
-    if (limit >= 1l<<31) {
+    if (limit >= 1ul<<31) {
         [NSException raise:INVALID_QUERY_PARAM_ERROR format:@"Limit must be less than 2,147,483,648"];
     }
 }

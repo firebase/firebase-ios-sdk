@@ -4,7 +4,6 @@
 #import "Firestore/third_party/Immutable/FSTLLRBNode.h"
 #import "Firestore/third_party/Immutable/FSTLLRBValueNode.h"
 #import "Firestore/third_party/Immutable/FSTTreeSortedDictionary.h"
-#import "Firestore/Source/Util/FSTAssert.h"
 
 #import "Firestore/third_party/Immutable/Tests/FSTLLRBValueNode+Test.h"
 
@@ -21,7 +20,7 @@
 
 - (NSComparator)defaultComparator {
   return ^(id obj1, id obj2) {
-    FSTAssert([obj1 respondsToSelector:@selector(compare:)] &&
+    NSAssert([obj1 respondsToSelector:@selector(compare:)] &&
                   [obj2 respondsToSelector:@selector(compare:)],
               @"Objects must support compare: %@ %@", obj1, obj2);
     return [obj1 compare:obj2];

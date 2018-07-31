@@ -14,18 +14,29 @@
 
 include(ExternalProject)
 
+if(TARGET protobuf)
+  return()
+endif()
+
+# This ExternalProject unpacks itself inside the gRPC source tree. CMake clears
+# the SOURCE_DIR when unpacking so this must come after grpc despite the fact
+# that grpc logically depends upon this.
+
 ExternalProject_Add(
   protobuf
+  DEPENDS
+    grpc-download
 
-  DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/downloads
-  DOWNLOAD_NAME protobuf-v3.5.11.tar.gz
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME protobuf-v3.5.1.1.tar.gz
   URL https://github.com/google/protobuf/archive/v3.5.1.1.tar.gz
   URL_HASH SHA256=56b5d9e1ab2bf4f5736c4cfba9f4981fbc6976246721e7ded5602fbaee6d6869
 
-  PREFIX ${PROJECT_BINARY_DIR}/external/protobuf
+  PREFIX ${PROJECT_BINARY_DIR}
+  SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc/third_party/protobuf
 
-  UPDATE_COMMAND ""
-  CONFIGURE_COMMAND cd <SOURCE_DIR> && ./autogen.sh
-    COMMAND <SOURCE_DIR>/configure --prefix=${PREFIX}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
   INSTALL_COMMAND ""
+  TEST_COMMAND ""
 )

@@ -225,7 +225,8 @@ NS_SWIFT_NAME(DocumentReference)
  * @param completion a block to execute once the document has been successfully read.
  */
 // clang-format off
-- (void)getDocumentWithSource:(FIRFirestoreSource)source completion:(FIRDocumentSnapshotBlock)completion
+- (void)getDocumentWithSource:(FIRFirestoreSource)source
+                   completion:(FIRDocumentSnapshotBlock)completion
     NS_SWIFT_NAME(getDocument(source:completion:));
 // clang-format on
 

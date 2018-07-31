@@ -18,7 +18,7 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -35,27 +35,26 @@ AsyncQueue::AsyncQueue(std::unique_ptr<Executor> executor)
 // TODO(varconst): assert in destructor that the queue is empty.
 
 void AsyncQueue::VerifyIsCurrentExecutor() const {
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       executor_->IsCurrentExecutor(),
       "Expected to be called by the executor associated with this queue "
       "(expected executor: '%s', actual executor: '%s')",
-      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
+      executor_->Name(), executor_->CurrentExecutorName());
 }
 
 void AsyncQueue::VerifyIsCurrentQueue() const {
   VerifyIsCurrentExecutor();
-  FIREBASE_ASSERT_MESSAGE(
-      is_operation_in_progress_,
-      "VerifyIsCurrentQueue called when no operation is executing "
-      "(expected executor: '%s', actual executor: '%s')",
-      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
+  HARD_ASSERT(is_operation_in_progress_,
+              "VerifyIsCurrentQueue called when no operation is executing "
+              "(expected executor: '%s', actual executor: '%s')",
+              executor_->Name(), executor_->CurrentExecutorName());
 }
 
 void AsyncQueue::ExecuteBlocking(const Operation& operation) {
   VerifyIsCurrentExecutor();
-  FIREBASE_ASSERT_MESSAGE(!is_operation_in_progress_,
-                          "ExecuteBlocking may not be called "
-                          "before the previous operation finishes executing");
+  HARD_ASSERT(!is_operation_in_progress_,
+              "ExecuteBlocking may not be called "
+              "before the previous operation finishes executing");
 
   is_operation_in_progress_ = true;
   operation();
@@ -79,9 +78,8 @@ DelayedOperation AsyncQueue::EnqueueAfterDelay(const Milliseconds delay,
   // While not necessarily harmful, we currently don't expect to have multiple
   // callbacks with the same timer_id in the queue, so defensively reject
   // them.
-  FIREBASE_ASSERT_MESSAGE(
-      !IsScheduled(timer_id),
-      "Attempted to schedule multiple operations with id %d", timer_id);
+  HARD_ASSERT(!IsScheduled(timer_id),
+              "Attempted to schedule multiple operations with id %s", timer_id);
 
   Executor::TaggedOperation tagged{static_cast<int>(timer_id), Wrap(operation)};
   return executor_->Schedule(delay, std::move(tagged));
@@ -97,12 +95,11 @@ AsyncQueue::Operation AsyncQueue::Wrap(const Operation& operation) {
 
 void AsyncQueue::VerifySequentialOrder() const {
   // This is the inverse of `VerifyIsCurrentQueue`.
-  FIREBASE_ASSERT_MESSAGE(
-      !is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
-      "Enqueue methods cannot be called when we are already running on "
-      "target executor"
-      "(this queue's executor: '%s', current executor: '%s')",
-      executor_->Name().c_str(), executor_->CurrentExecutorName().c_str());
+  HARD_ASSERT(!is_operation_in_progress_ || !executor_->IsCurrentExecutor(),
+              "Enqueue methods cannot be called when we are already running on "
+              "target executor "
+              "(this queue's executor: '%s', current executor: '%s')",
+              executor_->Name(), executor_->CurrentExecutorName());
 }
 
 // Test-only functions
@@ -117,14 +114,13 @@ bool AsyncQueue::IsScheduled(const TimerId timer_id) const {
 }
 
 void AsyncQueue::RunScheduledOperationsUntil(const TimerId last_timer_id) {
-  FIREBASE_ASSERT_MESSAGE(
-      !executor_->IsCurrentExecutor(),
-      "RunScheduledOperationsUntil must not be called on the queue");
+  HARD_ASSERT(!executor_->IsCurrentExecutor(),
+              "RunScheduledOperationsUntil must not be called on the queue");
 
   executor_->ExecuteBlocking([this, last_timer_id] {
-    FIREBASE_ASSERT_MESSAGE(
+    HARD_ASSERT(
         last_timer_id == TimerId::All || IsScheduled(last_timer_id),
-        "Attempted to run scheduled operations until missing timer id: %d",
+        "Attempted to run scheduled operations until missing timer id: %s",
         last_timer_id);
 
     for (auto next = executor_->PopFromSchedule(); next.has_value();

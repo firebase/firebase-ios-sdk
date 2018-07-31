@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #include <memory>
+#include <set>
+#include <string>
 
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -95,9 +97,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)descriptionOfStatus:(leveldb::Status)status;
 
 /** The native db pointer, allocated during start. */
-@property(nonatomic, assign, readonly) std::shared_ptr<leveldb::DB> ptr;
+@property(nonatomic, assign, readonly) leveldb::DB *ptr;
 
 @property(nonatomic, readonly) firebase::firestore::local::LevelDbTransaction *currentTransaction;
+
+@property(nonatomic, readonly) const std::set<std::string> &users;
 
 @end
 

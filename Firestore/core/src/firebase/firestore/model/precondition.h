@@ -27,7 +27,7 @@
 
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
@@ -104,7 +104,7 @@ class Precondition {
       case Type::None:
         return true;
     }
-    FIREBASE_UNREACHABLE();
+    UNREACHABLE();
   }
 
   // For Objective-C++ hash; to be removed after migration.
@@ -131,10 +131,7 @@ class Precondition {
             stringWithFormat:@"<Precondition update_time=%s>",
                              update_time_.timestamp().ToString().c_str()];
     }
-    // We only raise dev assertion here. This function is mainly used in
-    // logging.
-    FIREBASE_DEV_ASSERT_MESSAGE(false, "precondition invalid");
-    return @"<Precondition invalid>";
+    UNREACHABLE();
   }
 #endif  // defined(__OBJC__)
 
