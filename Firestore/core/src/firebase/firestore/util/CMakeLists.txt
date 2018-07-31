@@ -106,6 +106,25 @@ cc_select(
 )
 
 
+## filesystem
+
+cc_library(
+  firebase_firestore_util_filesystem_apple
+  SOURCES
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+  EXCLUDE_FROM_ALL
+)
+
+cc_select(
+  firebase_firestore_util_filesystem
+  APPLE   firebase_firestore_util_filesystem_apple
+  DEFAULT ""
+)
+
+
 ## random
 
 check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
@@ -185,8 +204,6 @@ cc_library(
     iterator_adaptors.h
     ordered_code.cc
     ordered_code.h
-    path.cc
-    path.h
     range.h
     string_util.cc
     string_util.h
