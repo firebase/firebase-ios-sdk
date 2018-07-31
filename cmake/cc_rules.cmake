@@ -27,7 +27,7 @@ function(cc_library name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
-  remove_objc_sources(sources ${ccl_SOURCES})
+  maybe_remove_objc_sources(sources ${ccl_SOURCES})
   add_library(${name} ${sources})
   add_objc_flags(${name} ccl)
   target_include_directories(
@@ -103,7 +103,7 @@ function(cc_test name)
 
   list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
 
-  remove_objc_sources(sources ${cct_SOURCES})
+  maybe_remove_objc_sources(sources ${cct_SOURCES})
   add_executable(${name} ${sources})
   add_objc_flags(${name} cct)
   add_test(${name} ${name})
@@ -124,7 +124,7 @@ function(cc_binary name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
 
-  remove_objc_sources(sources ${ccb_SOURCES})
+  maybe_remove_objc_sources(sources ${ccb_SOURCES})
   add_executable(${name} ${sources})
   add_objc_flags(${name} ccb)
 
@@ -132,11 +132,11 @@ function(cc_binary name)
   target_link_libraries(${name} ${ccb_DEPENDS})
 endfunction()
 
-# remove_objc_sources(output_var sources...)
+# maybe_remove_objc_sources(output_var sources...)
 #
 # Removes Objective-C/C++ sources from the given sources if not on an Apple
 # platform. Stores the resulting list in the variable named by `output_var`.
-function(remove_objc_sources output_var)
+function(maybe_remove_objc_sources output_var)
   unset(sources)
   foreach(source ${ARGN})
     get_filename_component(ext ${source} EXT)
