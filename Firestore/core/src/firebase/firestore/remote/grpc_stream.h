@@ -141,11 +141,14 @@ class StreamOp : public GrpcStreamOperation {
     }
   }
 
-  int generation() const override { return generation_; }
+  int generation() const override {
+    return generation_;
+  }
 
  protected:
   StreamOp(const std::shared_ptr<WatchStream>& stream,
-           const std::shared_ptr<internal::GrpcCall>& call, int generation)
+           const std::shared_ptr<internal::GrpcCall>& call,
+           int generation)
       : stream_handle_{stream}, call_{call}, generation_{generation} {
   }
 
@@ -153,7 +156,8 @@ class StreamOp : public GrpcStreamOperation {
   virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
 
   std::weak_ptr<WatchStream> stream_handle_;
- protected: // FIXME
+
+ protected:  // FIXME
   std::shared_ptr<internal::GrpcCall> call_;
   int generation_ = 0;
 };
@@ -187,7 +191,9 @@ class WatchStream : public GrpcStreamCallbacks,
   void MarkIdle();
   void CancelIdleCheck();
 
-  int generation() const { return generation_; }
+  int generation() const {
+    return generation_;
+  }
 
  private:
   friend class internal::BufferedWriter;
@@ -225,7 +231,7 @@ class WatchStream : public GrpcStreamCallbacks,
   util::AsyncQueue* firestore_queue_;
   DatastoreImpl* datastore_;
   ExponentialBackoff backoff_;
-                        util::DelayedOperation idleness_timer_;
+  util::DelayedOperation idleness_timer_;
 
   internal::ObjcBridge objc_bridge_;
 

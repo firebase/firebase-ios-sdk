@@ -46,20 +46,23 @@ class Datastore {
 };
 
 class GrpcQueue {
-  public:
-    void Shutdown() {
-      //FIREBASE_ASSERT_MESSAGE(!is_shutting_down_, "GrpcQueue cannot be shut down twice");
-      is_shutting_down_ = true;
-      impl_.Shutdown();
-    }
+ public:
+  void Shutdown() {
+    // FIREBASE_ASSERT_MESSAGE(!is_shutting_down_, "GrpcQueue cannot be shut
+    // down twice");
+    is_shutting_down_ = true;
+    impl_.Shutdown();
+  }
 
-    bool Next(void** tag, bool* ok) {
-      return impl_.Next(tag, ok);
-    }
+  bool Next(void** tag, bool* ok) {
+    return impl_.Next(tag, ok);
+  }
 
-    grpc::CompletionQueue* get_impl() { return &impl_; }
+  grpc::CompletionQueue* get_impl() {
+    return &impl_;
+  }
 
-  private:
+ private:
   grpc::CompletionQueue impl_;
   bool is_shutting_down_ = false;
 };
@@ -72,7 +75,8 @@ class DatastoreImpl {
   // database_info_->database_id()
 
   static FirestoreErrorCode FromGrpcErrorCode(grpc::StatusCode grpc_error);
-  std::unique_ptr<grpc::ClientContext> CreateContext(const absl::string_view token);
+  std::unique_ptr<grpc::ClientContext> CreateContext(
+      const absl::string_view token);
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
       grpc::ClientContext* context, const absl::string_view path);
 
@@ -98,7 +102,7 @@ class DatastoreImpl {
   // GrpcQueue grpc_queue_;
 };
 
-    extern std::string pemRootCertsPath;
+extern std::string pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore

@@ -18,8 +18,8 @@
 
 #include <cinttypes>
 #include <memory>
-#include "absl/memory/memory.h"
 #include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "absl/memory/memory.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
@@ -35,10 +35,10 @@
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
+#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
@@ -115,7 +115,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
 @end
 
-
 @implementation FSTRemoteStore {
   // The watchStream is null when the network is disabled. The non-null check is performed by
   // isNetworkEnabled.
@@ -155,9 +154,9 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (BOOL)isNetworkEnabled {
-  //HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
+  // HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
   //            "WatchStream and WriteStream should both be null or non-null");
-  //return self.watchStream != nil;
+  // return self.watchStream != nil;
   return _watchStream != nullptr;
 }
 
@@ -232,7 +231,8 @@ static const int kMaxPendingWrites = 10;
 - (void)startWatchStream {
   HARD_ASSERT([self shouldStartWatchStream],
               "startWatchStream: called when shouldStartWatchStream: is false.");
-  // ???_watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
+  // ???_watchChangeAggregator = [[FSTWatchChangeAggregator alloc]
+  // initWithTargetMetadataProvider:self];
   _watchStream->Start(self);
   [self.onlineStateTracker handleWatchStreamStart];
 }

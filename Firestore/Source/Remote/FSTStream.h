@@ -200,7 +200,7 @@ NS_ASSUME_NONNULL_BEGIN
  * unwatchTargetId calls can be sent to control what changes will be sent from the server for
  * WatchChanges.
  */
-@interface FSTWatchStream : NSObject //: FSTStream
+@interface FSTWatchStream : NSObject  //: FSTStream
 
 /**
  * Initializes the watch stream with its dependencies.

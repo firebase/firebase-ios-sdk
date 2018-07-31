@@ -50,14 +50,18 @@ namespace {
 
 class StreamStartOp : public StreamOp {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation) {
+  static void Execute(const std::shared_ptr<WatchStream>& stream,
+                      const std::shared_ptr<GrpcCall>& call,
+                      int generation) {
     auto op = new StreamStartOp{stream, call, generation};
     std::cout << "\nOBCOBC start " << call->call.get() << "\n\n";
     call->call->StartCall(op);
   }
 
  private:
-  StreamStartOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+  StreamStartOp(const std::shared_ptr<WatchStream>& stream,
+                const std::shared_ptr<GrpcCall>& call,
+                int generation)
       : StreamOp{stream, call, generation} {
   }
 
@@ -72,14 +76,18 @@ class StreamStartOp : public StreamOp {
 
 class StreamReadOp : public StreamOp {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation) {
+  static void Execute(const std::shared_ptr<WatchStream>& stream,
+                      const std::shared_ptr<GrpcCall>& call,
+                      int generation) {
     auto op = new StreamReadOp{stream, call, generation};
     std::cout << "\nOBCOBC read " << call->call.get() << "\n\n";
     call->call->Read(&op->message, op);
   }
 
  private:
-  StreamReadOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+  StreamReadOp(const std::shared_ptr<WatchStream>& stream,
+               const std::shared_ptr<GrpcCall>& call,
+               int generation)
       : StreamOp{stream, call, generation} {
   }
 
@@ -96,18 +104,19 @@ class StreamReadOp : public StreamOp {
 
 class StreamWriteOp : public StreamOp {
  public:
-  static void Execute(
-                    const std::shared_ptr<WatchStream>& stream,
-                    const std::shared_ptr<GrpcCall>& call,
-                    int generation,
-                    const grpc::ByteBuffer& message) {
+  static void Execute(const std::shared_ptr<WatchStream>& stream,
+                      const std::shared_ptr<GrpcCall>& call,
+                      int generation,
+                      const grpc::ByteBuffer& message) {
     auto op = new StreamWriteOp{stream, call, generation};
     std::cout << "\nOBCOBC write " << call->call.get() << "\n\n";
     call->call->Write(message, op);
   }
 
  private:
-  StreamWriteOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+  StreamWriteOp(const std::shared_ptr<WatchStream>& stream,
+                const std::shared_ptr<GrpcCall>& call,
+                int generation)
       : StreamOp{stream, call, generation} {
   }
 
@@ -122,10 +131,9 @@ class StreamWriteOp : public StreamOp {
 
 class StreamFinishOp : public StreamOp {
  public:
-  static void Execute(
-                    const std::shared_ptr<WatchStream>& stream,
-                    const std::shared_ptr<GrpcCall>& call,
-                    int generation) {
+  static void Execute(const std::shared_ptr<WatchStream>& stream,
+                      const std::shared_ptr<GrpcCall>& call,
+                      int generation) {
     auto op = new StreamFinishOp{stream, call, generation};
     std::cout << "\nOBCOBC finish " << call->call.get() << "\n\n";
     call->context->TryCancel();
@@ -133,7 +141,9 @@ class StreamFinishOp : public StreamOp {
   }
 
  private:
-  StreamFinishOp(const std::shared_ptr<WatchStream>& stream, const std::shared_ptr<GrpcCall>& call, int generation)
+  StreamFinishOp(const std::shared_ptr<WatchStream>& stream,
+                 const std::shared_ptr<GrpcCall>& call,
+                 int generation)
       : StreamOp{stream, call, generation} {
   }
 
@@ -143,16 +153,17 @@ class StreamFinishOp : public StreamOp {
     }
     FIREBASE_ASSERT_MESSAGE(ok, "TODO");
     std::cout << "\nOBCOBC on finish " << call_->call.get() << "\n\n";
-    const util::Status firestore_status = grpc_status_.ok() ?
-      util::Status{} :
-      util::Status{DatastoreImpl::FromGrpcErrorCode(
-          grpc_status_.error_code()), grpc_status_.error_message()};
+    const util::Status firestore_status =
+        grpc_status_.ok()
+            ? util::Status{}
+            : util::Status{
+                  DatastoreImpl::FromGrpcErrorCode(grpc_status_.error_code()),
+                  grpc_status_.error_message()};
     stream->OnStreamFinish(firestore_status);
   }
 
   grpc::Status grpc_status_;
 };
-
 }
 
 namespace internal {
@@ -259,7 +270,7 @@ using firebase::firestore::model::DatabaseId;
 //        WATCH STREAM
 
 WatchStream::WatchStream(AsyncQueue* const async_queue,
-                         //TimerId timer_id,
+                         // TimerId timer_id,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer,
                          DatastoreImpl* datastore)
@@ -268,8 +279,9 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
       datastore_{datastore},
       buffered_writer_{this},
       objc_bridge_{serializer},
-    backoff_{firestore_queue_, util::TimerId::ListenStreamConnectionBackoff /*FIXME*/, kBackoffFactor, kBackoffInitialDelay,
-               kBackoffMaxDelay} {
+      backoff_{firestore_queue_,
+               util::TimerId::ListenStreamConnectionBackoff /*FIXME*/,
+               kBackoffFactor, kBackoffInitialDelay, kBackoffMaxDelay} {
 }
 
 void WatchStream::Start(id delegate) {
@@ -295,13 +307,12 @@ void WatchStream::Start(id delegate) {
   credentials_provider_->GetToken(
       do_force_refresh, [this, ugly_hack](util::StatusOr<Token> maybe_token) {
         if (auto lock = ugly_hack->lock()) {
-          firestore_queue_->EnqueueRelaxed(
-              [this, maybe_token, ugly_hack] {
-                if (auto lock = ugly_hack->lock()) {
-                  ResumeStartAfterAuth(maybe_token);
-                  delete ugly_hack;
-              }
-            });
+          firestore_queue_->EnqueueRelaxed([this, maybe_token, ugly_hack] {
+            if (auto lock = ugly_hack->lock()) {
+              ResumeStartAfterAuth(maybe_token);
+              delete ugly_hack;
+            }
+          });
         }
       });
 }
@@ -329,9 +340,10 @@ void WatchStream::ResumeStartAfterAuth(
                                            : absl::string_view{};
   }();
   auto context = datastore_->CreateContext(token);
-  auto bidi_stream = datastore_->CreateGrpcCall(context.get(),
-                                   "/google.firestore.v1beta1.Firestore/Listen");
-  call_ = std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
+  auto bidi_stream = datastore_->CreateGrpcCall(
+      context.get(), "/google.firestore.v1beta1.Firestore/Listen");
+  call_ =
+      std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
   Execute<StreamStartOp>();
   // TODO: set state to open here, or only upon successful completion?
@@ -346,8 +358,7 @@ void WatchStream::BackoffAndTryRestarting() {
   FIREBASE_ASSERT_MESSAGE(state_ == State::GrpcError,
                           "Should only perform backoff in an error case");
 
-  backoff_.BackoffAndRun(
-      [this] { ResumeStartFromBackoff(); });
+  backoff_.BackoffAndRun([this] { ResumeStartFromBackoff(); });
   state_ = State::ReconnectingWithBackoff;
 }
 
@@ -385,9 +396,9 @@ void WatchStream::CancelBackoff() {
 void WatchStream::MarkIdle() {
   firestore_queue_->VerifyIsCurrentQueue();
   if (IsOpen() && !idleness_timer_) {
-      idleness_timer_ = firestore_queue_->EnqueueAfterDelay(kIdleTimeout, util::TimerId::ListenStreamIdle, [this] {
-        CloseDueToIdleness();
-      });
+    idleness_timer_ = firestore_queue_->EnqueueAfterDelay(
+        kIdleTimeout, util::TimerId::ListenStreamIdle,
+        [this] { CloseDueToIdleness(); });
   }
 }
 
@@ -484,9 +495,10 @@ void WatchStream::Stop() {
   buffered_writer_.Stop();
   FinishStream();
   state_ = State::ShuttingDown;
-    
-  // If this is an intentional close, ensure we don't delay our next connection attempt.
-  backoff_.Reset(); // ???
+
+  // If this is an intentional close, ensure we don't delay our next connection
+  // attempt.
+  backoff_.Reset();  // ???
   // LogDebug("%@ %p Performing stream teardown", [self class], (__bridge void
   // *)self);
   // TODO: [self tearDown];
@@ -494,7 +506,7 @@ void WatchStream::Stop() {
 
 void WatchStream::FinishStream() {
   if (!IsOpen()) {
-      return;
+    return;
   }
   Execute<StreamFinishOp>();
 }
@@ -506,7 +518,8 @@ bool WatchStream::IsOpen() const {
 
 bool WatchStream::IsStarted() const {
   firestore_queue_->VerifyIsCurrentQueue();
-  const bool is_starting = (state_ == State::Auth || state_ == State::ReconnectingWithBackoff);
+  const bool is_starting =
+      (state_ == State::Auth || state_ == State::ReconnectingWithBackoff);
   return is_starting || IsOpen();
 }
 
@@ -519,7 +532,7 @@ void WatchStream::CloseDueToIdleness() {
     // When timing out an idle stream there's no reason to force the stream into
     // backoff when it restarts.
     CancelBackoff();
-    state_ = State::NotStarted; // FIXME to distinguish from other stop cases.
+    state_ = State::NotStarted;  // FIXME to distinguish from other stop cases.
   }
 }
 

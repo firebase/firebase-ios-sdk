@@ -23,11 +23,11 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"

@@ -39,7 +39,7 @@ class GrpcStreamOperation {
 };
 
 class GrpcStreamCallbacks {
-public:
+ public:
   virtual ~GrpcStreamCallbacks() {
   }
 
