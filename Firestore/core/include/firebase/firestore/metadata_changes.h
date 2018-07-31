@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIELD_VALUE_H_
-#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIELD_VALUE_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_METADATA_CHANGES_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_METADATA_CHANGES_H_
 
 namespace firebase {
 namespace firestore {
 
-class FieldValueInternal;
-
 /**
- * Sentinel values that can be used when writing document fields with setData()
- * or updateData().
+ * Indicates whether metadata-only changes (i.e. only {@code
+ * DocumentSnapshot.getMetadata()} or
+ * {@code Query.getMetadata()} changed) should trigger snapshot events.
  */
-// TODO(zxu123): add more methods to complete the class and make it useful.
-class FieldValue {
- private:
-  friend class QueryInternal;
-
-  FieldValueInternal* internal_ = nullptr;
+enum class MetadataChanges {
+  kExclude,
+  kInclude,
 };
 
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIELD_VALUE_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_METADATA_CHANGES_H_
