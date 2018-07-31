@@ -53,26 +53,26 @@ if(HAVE_LIBDISPATCH)
 endif()
 
 
-## log
+## base
 
 if(APPLE)
   cc_test(
-    firebase_firestore_util_log_apple_test
+    firebase_firestore_util_base_apple_test
     SOURCES
       hard_assert_test.cc
       log_test.cc
     DEPENDS
-      firebase_firestore_util_log_apple
+      firebase_firestore_util_base_apple
   )
 endif(APPLE)
 
 cc_test(
-  firebase_firestore_util_log_stdio_test
+  firebase_firestore_util_base_stdio_test
   SOURCES
     hard_assert_test.cc
     log_test.cc
   DEPENDS
-    firebase_firestore_util_log_stdio
+    firebase_firestore_util_base_stdio
 )
 
 
