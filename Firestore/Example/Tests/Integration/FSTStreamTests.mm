@@ -33,8 +33,8 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -176,7 +176,8 @@ using firebase::firestore::model::SnapshotVersion;
   return [datastore createWriteStream];
 }
 
-- (std::shared_ptr<firebase::firestore::remote::WatchStream>) setUpWatchStreamWithDatastore:(FSTDatastore*) datastore {
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)setUpWatchStreamWithDatastore:
+    (FSTDatastore *)datastore {
   return [datastore createWatchStream];
 }
 
@@ -196,8 +197,8 @@ using firebase::firestore::model::SnapshotVersion;
 /** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
 - (void)testWatchStreamStopBeforeHandshake {
   _datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                   workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:&_credentials];
+                                      workerDispatchQueue:_workerDispatchQueue
+                                              credentials:&_credentials];
   auto watchStream = [self setUpWatchStreamWithDatastore:_datastore];
 
   [_delegate awaitNotificationFromBlock:^{
