@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # OSS_FUZZ provides its own fuzzing library in LIB_FUZZING_ENGINE environment
-# variable that we pass to Firestore cmake environment as OSS_FUZZING_ENGINE.
-# For local fuzzing, search for the libFuzzer.a library that was manually built.
+# variable. For local fuzzing, search for the libFuzzer.a library that was
+# manually built.
 if(OSS_FUZZ)
-  set(FUZZING_LIBRARY_LOCATION ${OSS_FUZZING_ENGINE})
+  set(FUZZING_LIBRARY_LOCATION $ENV{LIB_FUZZING_ENGINE})
 else()
   find_library(
     FUZZING_LIBRARY_LOCATION

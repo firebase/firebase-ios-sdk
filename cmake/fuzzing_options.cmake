@@ -18,7 +18,6 @@ include(compiler_id)
 
 option(FUZZING "Build for local Fuzz Testing" OFF)
 option(OSS_FUZZ "Build for OSS Fuzz Environment" OFF)
-option(OSS_FUZZING_ENGINE STRING "Fuzzing Library provided by OSS Fuzz")
 
 # OSS Fuzz provides its required compiler-specific flags in CXXFLAGS, which are
 # automatically added to CMAKE_CXX_FLAGS. For local fuzzing, multiple compile
