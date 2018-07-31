@@ -141,6 +141,26 @@ cc_select(
 )
 
 
+## status
+
+cc_library(
+  firebase_firestore_util_status
+  SOURCES
+    status.cc
+    status.h
+    status_apple.mm
+    statusor.cc
+    statusor.h
+    statusor_internals.h
+    strerror.cc
+    strerror.h
+  DEPENDS
+    absl_base
+    absl_strings
+    firebase_firestore_util_base
+)
+
+
 ## main library
 
 configure_file(
@@ -166,14 +186,6 @@ cc_library(
     path.cc
     path.h
     range.h
-    status.cc
-    status.h
-    status_apple.mm
-    statusor.cc
-    statusor.h
-    statusor_internals.h
-    strerror.cc
-    strerror.h
     string_util.cc
     string_util.h
     type_traits.h
@@ -182,4 +194,5 @@ cc_library(
     firebase_firestore_util_async
     firebase_firestore_util_base
     firebase_firestore_util_random
+    firebase_firestore_util_status
 )
