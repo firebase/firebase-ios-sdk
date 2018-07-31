@@ -340,8 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
     FSTReferenceSet *localViewReferences = self.localViewReferences;
-    for (FSTLocalViewChanges *viewChange in viewChanges)
-    {
+    for (FSTLocalViewChanges *viewChange in viewChanges) {
       for (const DocumentKey &key : viewChange.removedKeys) {
         [self->_persistence.referenceDelegate removeReference:key];
       }
