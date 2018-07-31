@@ -53,4 +53,3 @@ if(FUZZING AND NOT OSS_FUZZ)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
   endforeach()
 endif()
-
