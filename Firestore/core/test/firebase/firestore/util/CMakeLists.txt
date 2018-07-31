@@ -82,8 +82,11 @@ if(APPLE)
   cc_test(
     firebase_firestore_util_filesystem_apple_test
     SOURCES
+      filesystem_test.cc
       path_test.cc
     DEPENDS
+      absl_optional
+      firebase_firestore_util_autoid
       firebase_firestore_util_filesystem_apple
   )
 endif()

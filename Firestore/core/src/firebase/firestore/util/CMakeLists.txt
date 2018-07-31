@@ -111,10 +111,13 @@ cc_select(
 cc_library(
   firebase_firestore_util_filesystem_apple
   SOURCES
+    filesystem.h
+    filesystem_apple.mm
     path.cc
     path.h
   DEPENDS
     absl_strings
+    firebase_firestore_util_status
   EXCLUDE_FROM_ALL
 )
 
@@ -190,10 +193,17 @@ configure_file(
 )
 
 cc_library(
-  firebase_firestore_util
+  firebase_firestore_util_autoid
   SOURCES
     autoid.cc
     autoid.h
+  DEPENDS
+    firebase_firestore_util_random
+)
+
+cc_library(
+  firebase_firestore_util
+  SOURCES
     bits.cc
     bits.h
     comparator_holder.h
@@ -211,6 +221,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_async
+    firebase_firestore_util_autoid
     firebase_firestore_util_base
     firebase_firestore_util_random
     firebase_firestore_util_status
