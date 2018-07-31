@@ -240,7 +240,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                          error = [FSTDatastore firestoreErrorForError:error];
                          [self.workerDispatchQueue dispatchAsync:^{
                            if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                             _credentials->InvalidateToken();
+                             self->_credentials->InvalidateToken();
                            }
                            LOG_DEBUG("RPC CommitRequest completed. Error: %s", error);
                            [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
@@ -277,7 +277,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
                                  if (error) {
                                    LOG_DEBUG("RPC BatchGetDocuments completed. Error: %s", error);
                                    if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                                     _credentials->InvalidateToken();
+                                     self->_credentials->InvalidateToken();
                                    }
                                    [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
                                    completion(nil, error);

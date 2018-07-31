@@ -46,6 +46,17 @@ Tag Reader::ReadTag() {
   return tag;
 }
 
+bool Reader::RequireWireType(pb_wire_type_t wire_type, Tag tag) {
+  if (!status_.ok()) return false;
+  if (wire_type != tag.wire_type) {
+    set_status(Status(FirestoreErrorCode::DataLoss,
+                      "Input proto bytes cannot be parsed (mismatch between "
+                      "the wiretype and the field number (tag))"));
+    return false;
+  }
+  return true;
+}
+
 void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
   if (!status_.ok()) return;
 
@@ -110,14 +121,13 @@ std::string Reader::ReadString() {
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
     status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &substream);
     return "";
   }
 
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&substream));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -134,6 +144,13 @@ std::string Reader::ReadString() {
   pb_close_string_substream(&stream_, &substream);
 
   return result;
+}
+
+std::vector<uint8_t> Reader::ReadBytes() {
+  std::string bytes = ReadString();
+  if (!status_.ok()) return {};
+
+  return std::vector<uint8_t>(bytes.begin(), bytes.end());
 }
 
 void Reader::SkipField(const Tag& tag) {

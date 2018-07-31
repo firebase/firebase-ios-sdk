@@ -1,3 +1,14 @@
+# v5.1.0
+- Adds `FIRAuthErrorCodeMalformedJWT`, which is raised on JWT token parsing
+  failures during auth operations (#1436).
+
+# v5.0.2
+- Fix an issue where JWT date timestamps weren't parsed correctly. (#1319)
+- Fix an issue where anonymous accounts weren't correctly promoted to
+  non-anonymous when linked with passwordless email auth accounts. (#1383)
+- Fix an exception from using an invalidated NSURLSession. (#1261)
+- Fix a data race issue caught by the sanitizer. (#1446)
+
 # v5.0.1
 - Restore 4.x level of support for extensions (#1357).
 

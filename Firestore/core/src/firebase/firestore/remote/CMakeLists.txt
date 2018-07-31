@@ -17,13 +17,17 @@ cc_library(
   SOURCES
     datastore.h
     datastore.cc
+    exponential_backoff.h
+    exponential_backoff.cc
     serializer.h
     serializer.cc
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    protobuf-nanopb
+
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_util
-    grpc::grpc
-    nanopb
+    grpc
 )

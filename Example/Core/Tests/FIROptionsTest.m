@@ -433,7 +433,7 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
-  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(YES);
+  OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(YES);
 
   // With no other settings, Analytics collection should default to the app's flag.
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
@@ -448,7 +448,7 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
-  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(NO);
+  OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(NO);
 
   // With no other settings, Analytics collection should default to the app's flag.
   FIROptions *options = [[FIROptions alloc] initInternalWithOptionsDictionary:@{}];
@@ -463,7 +463,7 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
-  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(YES);
+  OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(YES);
 
   // Test the three Analytics flags that override to disable Analytics collection.
   FIROptions *collectionEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{
@@ -488,7 +488,7 @@ extern NSString *const kFIRLibraryVersionID;
   id appMock = OCMClassMock([FIRApp class]);
   OCMStub([appMock isDefaultAppConfigured]).andReturn(YES);
   OCMStub([appMock defaultApp]).andReturn(appMock);
-  OCMStub([appMock isAutomaticDataCollectionEnabled]).andReturn(NO);
+  OCMStub([appMock isDataCollectionDefaultEnabled]).andReturn(NO);
 
   // Test the two Analytics flags that can override and enable collection.
   FIROptions *collectionEnabledOptions = [[FIROptions alloc] initInternalWithOptionsDictionary:@{

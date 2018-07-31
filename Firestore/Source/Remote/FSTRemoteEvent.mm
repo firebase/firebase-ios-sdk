@@ -494,8 +494,7 @@ initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
     // ignore the change.
     [targetState removeDocumentChangeForKey:key];
   }
-
-  _pendingDocumentTargetMappings[key].erase(targetID);
+  _pendingDocumentTargetMappings[key].insert(targetID);
 
   if (document) {
     _pendingDocumentUpdates[key] = document;

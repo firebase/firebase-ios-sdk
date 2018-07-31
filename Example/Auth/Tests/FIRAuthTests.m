@@ -18,10 +18,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRAppInternal.h>
-
 #import <FirebaseAuth/FirebaseAuth.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentRegistrant.h>
 
+#import "FIRAdditionalUserInfo.h"
 #import "FIRAuth_Internal.h"
 #import "FIRAuthOperationType.h"
 #import "FIRAuthErrorUtils.h"
@@ -31,12 +34,15 @@
 #import "FIRAuthBackend.h"
 #import "FIRCreateAuthURIRequest.h"
 #import "FIRCreateAuthURIResponse.h"
+#import "FIREmailAuthProvider.h"
 #import "FIREmailLinkSignInRequest.h"
 #import "FIREmailLinkSignInResponse.h"
+#import "FIRFacebookAuthProvider.h"
 #import "FIRGetAccountInfoRequest.h"
 #import "FIRGetAccountInfoResponse.h"
 #import "FIRGetOOBConfirmationCodeRequest.h"
 #import "FIRGetOOBConfirmationCodeResponse.h"
+#import "FIRGoogleAuthProvider.h"
 #import "FIRSecureTokenRequest.h"
 #import "FIRSecureTokenResponse.h"
 #import "FIRResetPasswordRequest.h"
@@ -219,6 +225,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
  */
 static const NSTimeInterval kWaitInterval = .5;
 
+/** Category for FIRAuth to expose FIRComponentRegistrant conformance. */
+@interface FIRAuth () <FIRComponentRegistrant>
+@end
+
 /** @class FIRAuthTests
     @brief Tests for @c FIRAuth.
  */
@@ -360,6 +370,8 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Verifies that FIRApp's getUIDImplementation is correctly set by FIRAuth.
  */
 - (void)testGetUID {
+  // TODO: Remove this test once Firestore, Database, and Storage move over to the new Auth interop
+  //       library.
   FIRApp *app = [FIRApp defaultApp];
   XCTAssertNotNil(app.getUIDImplementation);
   [[FIRAuth auth] signOut:NULL];
@@ -1863,16 +1875,17 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForSignInWithAccessToken:kTestAccessToken
                               APIKey:kTestAPIKey
                           completion:nil];
-    NSString *kTestAPIKey2 = @"fakeAPIKey2";
-    FIRUser *user2 = [FIRAuth auth].currentUser;
-    user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc]initWithAPIKey:kTestAPIKey2];
-    OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
-      .andDispatchError2([FIRAuthErrorUtils networkErrorWithUnderlyingError:[NSError new]]);
-    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-    [[FIRAuth auth] updateCurrentUser:user2 completion:^(NSError *_Nullable error) {
-      XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
-      [expectation fulfill];
-    }];
+  NSString *kTestAPIKey2 = @"fakeAPIKey2";
+  FIRUser *user2 = [FIRAuth auth].currentUser;
+  user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc]initWithAPIKey:kTestAPIKey2];
+  NSError *underlyingError = [NSError errorWithDomain:@"Test Error" code:1 userInfo:nil];
+  OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
+    .andDispatchError2([FIRAuthErrorUtils networkErrorWithUnderlyingError:underlyingError]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] updateCurrentUser:user2 completion:^(NSError *_Nullable error) {
+    XCTAssertEqual(error.code, FIRAuthErrorCodeNetworkError);
+    [expectation fulfill];
+  }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
@@ -2217,6 +2230,21 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 #endif
+
+#pragma mark - Interoperability Tests
+
+/** @fn testComponentsBeingRegistered
+ @brief Tests that Auth provides the necessary components for interoperability with other SDKs.
+ */
+- (void)testComponentsBeingRegistered {
+  // Verify that the components are registered properly. Check the count, because any time a new
+  // component is added it should be added to the test suite as well.
+  NSArray<FIRComponent *> *components = [FIRAuth componentsToRegister];
+  XCTAssertTrue(components.count == 1);
+
+  FIRComponent *component = [components firstObject];
+  XCTAssert(component.protocol == @protocol(FIRAuthInterop));
+}
 
 #pragma mark - Helpers
 

@@ -69,11 +69,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName NS_DESIGNATED_INITIALIZER;
 
-/** @fn getUID
+/** @fn getUserID
     @brief Gets the identifier of the current user, if any.
     @return The identifier of the current user, or nil if there is no current user.
  */
-- (nullable NSString *)getUID;
+- (nullable NSString *)getUserID;
 
 /** @fn updateKeychainWithUser:error:
     @brief Updates the keychain for the given user.

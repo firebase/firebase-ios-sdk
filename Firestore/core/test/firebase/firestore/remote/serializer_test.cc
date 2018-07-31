@@ -161,11 +161,12 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(status.code(), bad_status.status().code());
   }
 
-  v1beta1::Value ValueProto(nullptr_t) {
+  v1beta1::Value ValueProto(std::nullptr_t) {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::NullValue());
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -199,7 +200,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -208,7 +210,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -221,7 +224,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::StringValue(s));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -230,7 +234,8 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes =
         EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
     v1beta1::Value proto;
-    bool ok = proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok =
+        proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     return proto;
   }
@@ -266,7 +271,8 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(type, model.type());
     std::vector<uint8_t> bytes = EncodeFieldValue(&serializer, model);
     v1beta1::Value actual_proto;
-    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok = actual_proto.ParseFromArray(bytes.data(),
+                                          static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
     EXPECT_TRUE(msg_diff.Compare(proto, actual_proto)) << message_differences;
   }
@@ -276,7 +282,7 @@ class SerializerTest : public ::testing::Test {
                                       FieldValue::Type type) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
-    bool status = proto.SerializeToArray(bytes.data(), size);
+    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
     StatusOr<FieldValue> actual_model_status =
         serializer.DecodeFieldValue(bytes);
@@ -293,7 +299,8 @@ class SerializerTest : public ::testing::Test {
       const v1beta1::BatchGetDocumentsResponse& proto) {
     std::vector<uint8_t> bytes = EncodeDocument(&serializer, key, value);
     v1beta1::Document actual_proto;
-    bool ok = actual_proto.ParseFromArray(bytes.data(), bytes.size());
+    bool ok = actual_proto.ParseFromArray(bytes.data(),
+                                          static_cast<int>(bytes.size()));
     EXPECT_TRUE(ok);
 
     // Note that the client can only serialize Documents (and cannot serialize
@@ -325,7 +332,7 @@ class SerializerTest : public ::testing::Test {
       const v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
     std::vector<uint8_t> bytes(size);
-    bool status = proto.SerializeToArray(bytes.data(), size);
+    bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
         serializer.DecodeMaybeDocument(bytes);
@@ -385,16 +392,16 @@ TEST_F(SerializerTest, EncodesString) {
       "",
       "a",
       "abc def",
-      "æ",
+      u8"æ",
       // Note: Each one of the three embedded universal character names
       // (\u-escaped) maps to three chars, so the total length of the string
       // literal is 10 (ignoring the terminating null), and the resulting string
       // literal is the same as '\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf'". The
       // size of 10 must be added, or else std::string will see the \0 at the
       // start and assume that's the end of the string.
-      {"\0\ud7ff\ue000\uffff", 10},
+      {u8"\0\ud7ff\ue000\uffff", 10},
       {"\0\xed\x9f\xbf\xee\x80\x80\xef\xbf\xbf", 10},
-      "(╯°□°）╯︵ ┻━┻",
+      u8"(╯°□°）╯︵ ┻━┻",
   };
 
   for (const std::string& string_value : cases) {
@@ -656,7 +663,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   // Craft the bytes. boolean_value has a smaller tag, so it'll get encoded
   // first, normally implying integer_value should "win". Except that
   // integer_value isn't a valid tag, so it should be ignored here.
-  google_firestore_v1beta1_Value_Fake crafty_value{false, int64_t{42}};
+  google_firestore_v1beta1_Value_Fake crafty_value{true, int64_t{42}};
   std::vector<uint8_t> bytes(128);
   pb_ostream_t stream = pb_ostream_from_buffer(bytes.data(), bytes.size());
   pb_encode(&stream, google_firestore_v1beta1_Value_fields_Fake, &crafty_value);
@@ -664,11 +671,12 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Decode the bytes into the model
   StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
+  Status s = actual_model_status.status();
   EXPECT_OK(actual_model_status);
   FieldValue actual_model = actual_model_status.ValueOrDie();
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::BooleanValue(false);
+  FieldValue expected_model = FieldValue::BooleanValue(true);
   EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
   EXPECT_EQ(expected_model, actual_model);
 }
@@ -892,7 +900,8 @@ TEST_F(SerializerTest, DecodeMaybeDocWithoutFoundOrMissingSetShouldFail) {
   v1beta1::BatchGetDocumentsResponse proto;
 
   std::vector<uint8_t> bytes(proto.ByteSizeLong());
-  bool status = proto.SerializeToArray(bytes.data(), bytes.size());
+  bool status =
+      proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
   EXPECT_TRUE(status);
 
   ExpectFailedStatusDuringMaybeDocumentDecode(

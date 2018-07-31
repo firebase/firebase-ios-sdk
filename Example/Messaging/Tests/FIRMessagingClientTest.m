@@ -31,7 +31,7 @@
 #import "FIRMessagingUtilities.h"
 #import "NSError+FIRMessaging.h"
 
-#import <FirebaseCore/FIRReachabilityChecker.h>
+#import <GoogleUtilities/GULReachabilityChecker.h>
 
 static NSString *const kFIRMessagingUserDefaultsSuite = @"FIRMessagingClientTestUserDefaultsSuite";
 
@@ -104,7 +104,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
   [super setUp];
   _mockClientDelegate =
       OCMStrictProtocolMock(@protocol(FIRMessagingClientDelegate));
-  _mockReachability = OCMClassMock([FIRReachabilityChecker class]);
+  _mockReachability = OCMClassMock([GULReachabilityChecker class]);
   _mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
   _client = [[FIRMessagingClient alloc] initWithDelegate:_mockClientDelegate
                                    reachability:_mockReachability
@@ -203,7 +203,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 
   // the network is available
   [[[self.mockReachability stub]
-      andReturnValue:@(kFIRReachabilityViaWifi)] reachabilityStatus];
+      andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
 
   [self setupFakeConnectionWithClass:[FIRMessagingFakeFailConnection class]
           withSetupCompletionHandler:^(FIRMessagingConnection *connection) {
@@ -241,7 +241,7 @@ static NSString *const kTopicToSubscribeTo = @"/topics/abcdef/hello-world";
 
   // the network is available
   [[[self.mockReachability stub]
-      andReturnValue:@(kFIRReachabilityViaWifi)] reachabilityStatus];
+      andReturnValue:@(kGULReachabilityViaWifi)] reachabilityStatus];
 
   XCTestExpectation *setupConnection =
       [self expectationWithDescription:@"Fcm should successfully setup a connection"];

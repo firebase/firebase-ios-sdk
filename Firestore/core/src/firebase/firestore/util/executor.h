@@ -38,7 +38,9 @@ class DelayedOperation {
   // If the operation has not been run yet, cancels the operation. Otherwise,
   // this function is a no-op.
   void Cancel() {
-    cancel_func_();
+    if (cancel_func_) {
+      cancel_func_();
+    }
   }
 
   // Internal use only.

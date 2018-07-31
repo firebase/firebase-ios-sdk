@@ -23,6 +23,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
@@ -58,6 +59,16 @@ class Reader {
   Tag ReadTag();
 
   /**
+   * Ensures the specified tag is of the specified type. If not, then
+   * Reader::status() will return a non-ok value (with the code set to
+   * FirestoreErrorCode::DataLoss).
+   *
+   * @return Convenience indicator for success. (If false, then status() will
+   * return a non-ok value.)
+   */
+  bool RequireWireType(pb_wire_type_t wire_type, Tag tag);
+
+  /**
    * Reads a nanopb message from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode() method. If we didn't
@@ -71,6 +82,8 @@ class Reader {
   std::int64_t ReadInteger();
 
   std::string ReadString();
+
+  std::vector<uint8_t> ReadBytes();
 
   /**
    * Reads a message and its length.
@@ -150,7 +163,6 @@ T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
     status_ =
         util::Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    pb_close_string_substream(&stream_, &raw_substream);
     return read_message_fn(this);
   }
   Reader substream(raw_substream);

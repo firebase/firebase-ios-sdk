@@ -139,6 +139,16 @@ class BasePath {
     return size() <= rhs.size() && std::equal(begin(), end(), rhs.begin());
   }
 
+  /**
+   * Returns true if the given argument is a direct child of this path.
+   *
+   * Empty path is a parent of any path that consists of a single segment.
+   */
+  bool IsImmediateParentOf(const T& potential_child) const {
+    return size() + 1 == potential_child.size() &&
+           std::equal(begin(), end(), potential_child.begin());
+  }
+
   bool operator==(const BasePath& rhs) const {
     return segments_ == rhs.segments_;
   }

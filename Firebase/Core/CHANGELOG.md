@@ -1,8 +1,11 @@
 # Unreleased
 
+# 2018-07-31 -- v5.1.0 -- M30
+- [feature] Added a global data collection flag to use when individual product flags are not set. (#1583)
+
 # 2018-06-19 -- v5.0.4 -- M28
 - [fixed] Fixed a thread sanitizer error (#1390)
-- [fixed] Updated FirebaseCore.podspec so that it works with coocoapod-packager. (#1378)
+- [fixed] Updated FirebaseCore.podspec so that it works with cocoapods-packager. (#1378)
 
 # 2018-05-29 -- v5.0.2 -- M26
 - [changed] Delayed library registration call from `+load` to `+initialize`. (#1305)

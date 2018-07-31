@@ -21,7 +21,9 @@ cc_library(
     writer.h
     writer.cc
   DEPENDS
+    # TODO(b/111328563) Force nanopb first to work around ODR violations
+    protobuf-nanopb
+
     firebase_firestore_util
     firebase_firestore_protos_nanopb
-    nanopb
 )

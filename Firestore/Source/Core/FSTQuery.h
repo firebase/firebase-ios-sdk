@@ -38,15 +38,27 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 };
 
 /** Interface used for all query filters. */
-@protocol FSTFilter <NSObject>
+@interface FSTFilter : NSObject
 
-/** Returns the field the Filter operates over. */
+/**
+ * Creates a filter for the provided path, operator, and value.
+ *
+ * Note that if the relational operator is FSTRelationFilterOperatorEqual and
+ * the value is [FSTNullValue nullValue] or [FSTDoubleValue nanValue], this
+ * will return the appropriate FSTNullFilter or FSTNanFilter class instead of a
+ * FSTRelationFilter.
+ */
++ (instancetype)filterWithField:(const firebase::firestore::model::FieldPath &)field
+                 filterOperator:(FSTRelationFilterOperator)op
+                          value:(FSTFieldValue *)value;
+
+/** Returns the field the Filter operates over. Abstract method. */
 - (const firebase::firestore::model::FieldPath &)field;
 
-/** Returns true if a document matches the filter. */
+/** Returns true if a document matches the filter. Abstract method. */
 - (BOOL)matchesDocument:(FSTDocument *)document;
 
-/** A unique ID identifying the filter; used when serializing queries. */
+/** A unique ID identifying the filter; used when serializing queries. Abstract method. */
 - (NSString *)canonicalID;
 
 @end
@@ -55,7 +67,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * FSTRelationFilter is a document filter constraint on a query with a single relation operator.
  * It is similar to NSComparisonPredicate, except customized for Firestore semantics.
  */
-@interface FSTRelationFilter : NSObject <FSTFilter>
+@interface FSTRelationFilter : FSTFilter
 
 /**
  * Creates a new constraint for filtering documents.
@@ -65,9 +77,9 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @param value A constant value to compare @a field to. The RHS of the expression.
  * @return A new instance of FSTRelationFilter.
  */
-+ (instancetype)filterWithField:(firebase::firestore::model::FieldPath)field
-                 filterOperator:(FSTRelationFilterOperator)filterOperator
-                          value:(FSTFieldValue *)value;
+- (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
+               filterOperator:(FSTRelationFilterOperator)filterOperator
+                        value:(FSTFieldValue *)value;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -86,14 +98,14 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 @end
 
 /** Filter that matches NULL values. */
-@interface FSTNullFilter : NSObject <FSTFilter>
+@interface FSTNullFilter : FSTFilter
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
     NS_DESIGNATED_INITIALIZER;
 @end
 
 /** Filter that matches NAN values. */
-@interface FSTNanFilter : NSObject <FSTFilter>
+@interface FSTNanFilter : FSTFilter
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithField:(firebase::firestore::model::FieldPath)field
     NS_DESIGNATED_INITIALIZER;
@@ -162,7 +174,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * Initializes a query with all of its components directly.
  */
 - (instancetype)initWithPath:(firebase::firestore::model::ResourcePath)path
-                    filterBy:(NSArray<id<FSTFilter>> *)filters
+                    filterBy:(NSArray<FSTFilter *> *)filters
                      orderBy:(NSArray<FSTSortOrder *> *)sortOrders
                        limit:(NSInteger)limit
                      startAt:(nullable FSTBound *)startAtBound
@@ -198,7 +210,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
  * @param filter The predicate to filter by.
  * @return the new FSTQuery.
  */
-- (instancetype)queryByAddingFilter:(id<FSTFilter>)filter;
+- (instancetype)queryByAddingFilter:(FSTFilter *)filter;
 
 /**
  * Creates a new FSTQuery with an additional ordering constraint.
@@ -255,7 +267,7 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 - (const firebase::firestore::model::ResourcePath &)path;
 
 /** The filters on the documents returned by the query. */
-@property(nonatomic, strong, readonly) NSArray<id<FSTFilter>> *filters;
+@property(nonatomic, strong, readonly) NSArray<FSTFilter *> *filters;
 
 /** The maximum number of results to return, or NSNotFound if no limit. */
 @property(nonatomic, assign, readonly) NSInteger limit;

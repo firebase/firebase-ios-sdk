@@ -34,6 +34,7 @@
 @class FSTDocumentKeyReference;
 @class FSTDocumentSet;
 @class FSTFieldValue;
+@class FSTFilter;
 @class FSTLocalViewChanges;
 @class FSTPatchMutation;
 @class FSTQuery;
@@ -46,7 +47,6 @@
 @class FSTView;
 @class FSTViewSnapshot;
 @class FSTObjectValue;
-@protocol FSTFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -167,6 +167,10 @@ inline NSString *FSTRemoveExceptionPrefix(NSString *exception) {
 + (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
                                        targets:(NSArray<FSTBoxedTargetID *> *)targets;
 
++ (instancetype)providerWithSingleResultForKey:(firebase::firestore::model::DocumentKey)documentKey
+                                 listenTargets:(NSArray<FSTBoxedTargetID *> *)listenTargets
+                                  limboTargets:(NSArray<FSTBoxedTargetID *> *)limboTargets;
+
 /**
  * Creates an FSTTestTargetMetadataProvider that behaves as if there's an established listen for
  * each of the given targets, where each target has not seen any previous document.
@@ -242,7 +246,7 @@ FSTQuery *FSTTestQuery(const absl::string_view path);
  * A convenience method to create a FSTFilter using a string representation for both field
  * and operator (<, <=, ==, >=, >, array_contains).
  */
-id<FSTFilter> FSTTestFilter(const absl::string_view field, NSString *op, id value);
+FSTFilter *FSTTestFilter(const absl::string_view field, NSString *op, id value);
 
 /** A convenience method for creating sort orders. */
 FSTSortOrder *FSTTestOrderBy(const absl::string_view field, NSString *direction);
@@ -293,6 +297,12 @@ FSTRemoteEvent *FSTTestAddedRemoteEvent(FSTMaybeDocument *doc, NSArray<NSNumber 
 FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *updatedInTargets,
                                          NSArray<NSNumber *> *removedFromTargets);
+
+/** Creates a remote event with changes to a document. Allows for identifying limbo targets */
+FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
+                                                         NSArray<NSNumber *> *updatedInTargets,
+                                                         NSArray<NSNumber *> *removedFromTargets,
+                                                         NSArray<NSNumber *> *limboTargets);
 
 /** Creates a test view changes. */
 FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,

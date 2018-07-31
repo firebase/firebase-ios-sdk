@@ -1,3 +1,17 @@
+# Copyright 2018 Google
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
@@ -36,19 +50,12 @@ cc_library(
     nanopb/google/type/latlng.pb.c
     nanopb/google/type/latlng.nanopb.h
   DEPENDS
-    nanopb
+    protobuf-nanopb
 )
 
-target_compile_definitions(
-  firebase_firestore_protos_nanopb PUBLIC
-    -DPB_FIELD_16BIT
-)
-
-# TODO(rsgowman): this may be worth moving into cc_library, possibly via an
-# INCLUDE_DIRS or similar.
 target_include_directories(
-  firebase_firestore_protos_nanopb PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
+  firebase_firestore_protos_nanopb
+  PUBLIC ${FIREBASE_SOURCE_DIR}/Firestore/Protos/nanopb
 )
 
 # libprotobuf based generated protos. Expected only to be used in test (as
@@ -82,16 +89,11 @@ cc_library(
     cpp/google/type/latlng.pb.cc
     cpp/google/type/latlng.pb.h
   DEPENDS
-    protobuf
+    protobuf::libprotobuf
   EXCLUDE_FROM_ALL
 )
 
 target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
-    ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
-)
-
-set_target_properties(
-  firebase_firestore_protos_libprotobuf PROPERTIES
-    COMPILE_FLAGS "-Wno-unused-parameter"
+  ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )

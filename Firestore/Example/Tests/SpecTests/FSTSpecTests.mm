@@ -24,8 +24,6 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
-#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -66,42 +64,36 @@ static NSString *const kExclusiveTag = @"exclusive";
 // to temporarily diverge.
 static NSString *const kNoIOSTag = @"no-ios";
 
+NSString *const kNoLRUTag = @"no-lru";
+
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
 // Some config info for the currently running spec; used when restarting the driver (for doRestart).
-@property(nonatomic, assign) BOOL GCEnabled;
 @property(nonatomic, strong) id<FSTPersistence> driverPersistence;
 @end
 
 @implementation FSTSpecTests
 
-- (id<FSTPersistence>)persistence {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Store persistence / GCEnabled so we can re-use it in doRestart.
-  self.driverPersistence = [self persistence];
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  self.GCEnabled = [GCEnabled boolValue];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector];
+  self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
 }
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
   [self.driverPersistence shutdown];
-}
-
-/**
- * Creates the appropriate garbage collector for the test configuration: an eager collector if
- * GC is enabled or a no-op collector otherwise.
- */
-- (id<FSTGarbageCollector>)garbageCollector {
-  return self.GCEnabled ? [[FSTEagerGarbageCollector alloc] init]
-                        : [[FSTNoOpGarbageCollector alloc] init];
 }
 
 /**
@@ -194,25 +186,25 @@ static NSString *const kNoIOSTag = @"no-ios";
   [self.driver writeUserMutation:FSTTestDeleteMutation(key)];
 }
 
-- (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchAck:(NSArray<NSNumber *> *)ackedTargets {
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateAdded
                                   targetIDs:ackedTargets
                                       cause:nil];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchCurrent:(NSArray<id> *)currentSpec snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchCurrent:(NSArray<id> *)currentSpec {
   NSArray<NSNumber *> *currentTargets = currentSpec[0];
   NSData *resumeToken = [currentSpec[1] dataUsingEncoding:NSUTF8StringEncoding];
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
                                   targetIDs:currentTargets
                                 resumeToken:resumeToken];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchRemove:(NSDictionary *)watchRemoveSpec snapshot:(NSNumber *)watchSnapshot {
+- (void)doWatchRemove:(NSDictionary *)watchRemoveSpec {
   NSError *error = nil;
   NSDictionary *cause = watchRemoveSpec[@"cause"];
   if (cause) {
@@ -226,19 +218,16 @@ static NSString *const kNoIOSTag = @"no-ios";
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateRemoved
                                   targetIDs:watchRemoveSpec[@"targetIds"]
                                       cause:error];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   // Unlike web, the FSTMockDatastore detects a watch removal with cause and will remove active
   // targets
 }
 
-- (void)doWatchEntity:(NSDictionary *)watchEntity snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchEntity:(NSDictionary *)watchEntity {
   if (watchEntity[@"docs"]) {
     HARD_ASSERT(!watchEntity[@"doc"], "Exactly one of |doc| or |docs| needs to be set.");
-    int count = 0;
     NSArray *docs = watchEntity[@"docs"];
     for (NSDictionary *doc in docs) {
-      count++;
-      bool isLast = (count == docs.count);
       NSMutableDictionary *watchSpec = [NSMutableDictionary dictionary];
       watchSpec[@"doc"] = doc;
       if (watchEntity[@"targets"]) {
@@ -247,11 +236,7 @@ static NSString *const kNoIOSTag = @"no-ios";
       if (watchEntity[@"removedTargets"]) {
         watchSpec[@"removedTargets"] = watchEntity[@"removedTargets"];
       }
-      NSNumber *_Nullable version = nil;
-      if (isLast) {
-        version = watchSnapshot;
-      }
-      [self doWatchEntity:watchSpec snapshot:version];
+      [self doWatchEntity:watchSpec];
     }
   } else if (watchEntity[@"doc"]) {
     NSArray *docSpec = watchEntity[@"doc"];
@@ -270,7 +255,7 @@ static NSString *const kNoIOSTag = @"no-ios";
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
                                                      documentKey:doc.key
                                                         document:doc];
-    [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+    [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else if (watchEntity[@"key"]) {
     FSTDocumentKey *docKey = FSTTestDocKey(watchEntity[@"key"]);
     FSTWatchChange *change =
@@ -278,13 +263,13 @@ static NSString *const kNoIOSTag = @"no-ios";
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
                                                      documentKey:docKey
                                                         document:nil];
-    [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+    [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
   } else {
     HARD_FAIL("Either key, doc or docs must be set.");
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchFilter:(NSArray *)watchFilter {
   NSArray<NSNumber *> *targets = watchFilter[0];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
@@ -294,15 +279,29 @@ static NSString *const kNoIOSTag = @"no-ios";
   FSTExistenceFilter *filter = [FSTExistenceFilter filterWithCount:keyCount];
   FSTExistenceFilterWatchChange *change =
       [FSTExistenceFilterWatchChange changeWithFilter:filter targetID:targets[0].intValue];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
-- (void)doWatchReset:(NSArray<NSNumber *> *)watchReset snapshot:(NSNumber *_Nullable)watchSnapshot {
+- (void)doWatchReset:(NSArray<NSNumber *> *)watchReset {
   FSTWatchTargetChange *change =
       [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateReset
                                   targetIDs:watchReset
                                       cause:nil];
-  [self.driver receiveWatchChange:change snapshotVersion:[self parseVersion:watchSnapshot]];
+  [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
+}
+
+- (void)doWatchSnapshot:(NSDictionary *)watchSnapshot {
+  // The client will only respond to watchSnapshots if they are on a target change with an empty
+  // set of target IDs.
+  NSArray<NSNumber *> *targetIDs =
+      watchSnapshot[@"targetIds"] ? watchSnapshot[@"targetIds"] : [NSArray array];
+  NSData *resumeToken = [watchSnapshot[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
+  FSTWatchTargetChange *change =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateNoChange
+                                  targetIDs:targetIDs
+                                resumeToken:resumeToken];
+  [self.driver receiveWatchChange:change
+                  snapshotVersion:[self parseVersion:watchSnapshot[@"version"]]];
 }
 
 - (void)doWatchStreamClose:(NSDictionary *)closeSpec {
@@ -397,7 +396,6 @@ static NSString *const kNoIOSTag = @"no-ios";
   // re-create FSTMemoryPersistence without losing all persisted state).
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
@@ -415,17 +413,19 @@ static NSString *const kNoIOSTag = @"no-ios";
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
   } else if (step[@"watchAck"]) {
-    [self doWatchAck:step[@"watchAck"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchAck:step[@"watchAck"]];
   } else if (step[@"watchCurrent"]) {
-    [self doWatchCurrent:step[@"watchCurrent"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchCurrent:step[@"watchCurrent"]];
   } else if (step[@"watchRemove"]) {
-    [self doWatchRemove:step[@"watchRemove"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchRemove:step[@"watchRemove"]];
   } else if (step[@"watchEntity"]) {
-    [self doWatchEntity:step[@"watchEntity"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchEntity:step[@"watchEntity"]];
   } else if (step[@"watchFilter"]) {
-    [self doWatchFilter:step[@"watchFilter"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchFilter:step[@"watchFilter"]];
   } else if (step[@"watchReset"]) {
-    [self doWatchReset:step[@"watchReset"] snapshot:step[@"watchSnapshot"]];
+    [self doWatchReset:step[@"watchReset"]];
+  } else if (step[@"watchSnapshot"]) {
+    [self doWatchSnapshot:step[@"watchSnapshot"]];
   } else if (step[@"watchStreamClose"]) {
     [self doWatchStreamClose:step[@"watchStreamClose"]];
   } else if (step[@"watchProto"]) {
@@ -691,11 +691,18 @@ static NSString *const kNoIOSTag = @"no-ios";
         runTest = NO;
       }
       if (runTest) {
+        runTest = [self shouldRunWithTags:tags];
+      }
+      if (runTest) {
         NSLog(@"  Spec test: %@", name);
         [self runSpecTestSteps:steps config:config];
         ranAtLeastOneTest = YES;
       } else {
         NSLog(@"  [SKIPPED] Spec test: %@", name);
+        NSString *comment = testDescription[@"comment"];
+        if (comment) {
+          NSLog(@"    %@", comment);
+        }
       }
     }];
   }

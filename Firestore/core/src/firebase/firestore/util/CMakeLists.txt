@@ -55,6 +55,7 @@ cc_library(
     string_apple.h
   DEPENDS
     FirebaseCore
+    GoogleUtilities
     absl_strings
     firebase_firestore_util_base
   EXCLUDE_FROM_ALL
@@ -82,18 +83,20 @@ cc_library(
     secure_random_arc4random.cc
 )
 
-get_target_property(
-  CMAKE_REQUIRED_INCLUDES
-  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
-)
-check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
-cc_library(
-  firebase_firestore_util_random_openssl
-  SOURCES
-    secure_random_openssl.cc
-  DEPENDS
-    OpenSSL::Crypto
-)
+if(TARGET OpenSSL::Crypto)
+  get_target_property(
+    CMAKE_REQUIRED_INCLUDES
+    OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+  )
+  check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+  cc_library(
+    firebase_firestore_util_random_openssl
+    SOURCES
+      secure_random_openssl.cc
+    DEPENDS
+      OpenSSL::Crypto
+  )
+endif()
 
 if(HAVE_ARC4RANDOM)
   set(
@@ -197,6 +200,8 @@ cc_library(
     strerror.h
     string_util.cc
     string_util.h
+    string_win.cc
+    string_win.h
     type_traits.h
   DEPENDS
     absl_base

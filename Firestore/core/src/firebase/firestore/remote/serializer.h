@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/core/query.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -38,6 +39,11 @@
 
 namespace firebase {
 namespace firestore {
+
+namespace local {
+class LocalSerializer;
+}
+
 namespace remote {
 
 /**
@@ -59,9 +65,8 @@ class Serializer {
    * @param database_id Must remain valid for the lifetime of this Serializer
    * object.
    */
-  explicit Serializer(const firebase::firestore::model::DatabaseId& database_id)
-      : database_id_(database_id) {
-  }
+  explicit Serializer(
+      const firebase::firestore::model::DatabaseId& database_id);
 
   /**
    * @brief Converts the FieldValue model passed into bytes.
@@ -158,15 +163,62 @@ class Serializer {
     return DecodeMaybeDocument(bytes.data(), bytes.size());
   }
 
+  /**
+   * @brief Converts the Query into bytes, representing a
+   * firestore::v1beta1::Target::QueryTarget.
+   *
+   * @param[out] out_bytes A buffer to place the output. The bytes will be
+   * appended to this vector.
+   * @return A Status, which if not ok(), indicates what went wrong. Note that
+   * errors during encoding generally indicate a serious/fatal error.
+   */
+  util::Status EncodeQueryTarget(const core::Query& query,
+                                 std::vector<uint8_t>* out_bytes) const;
+
+  std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
+
+  static void EncodeObjectMap(nanopb::Writer* writer,
+                              const model::ObjectValue::Map& object_value_map,
+                              uint32_t map_tag,
+                              uint32_t key_tag,
+                              uint32_t value_tag);
+
+  static void EncodeVersion(nanopb::Writer* writer,
+                            const model::SnapshotVersion& version);
+
+  static void EncodeTimestamp(nanopb::Writer* writer,
+                              const Timestamp& timestamp_value);
+  static Timestamp DecodeTimestamp(nanopb::Reader* reader);
+  static model::FieldValue DecodeFieldValue(nanopb::Reader* reader);
+
+  void EncodeQueryTarget(nanopb::Writer* writer,
+                         const core::Query& query) const;
+  static core::Query DecodeQueryTarget(nanopb::Reader* reader);
+
  private:
   void EncodeDocument(nanopb::Writer* writer,
                       const model::DocumentKey& key,
                       const model::ObjectValue& object_value) const;
   std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
       nanopb::Reader* reader) const;
-  std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 
-  const firebase::firestore::model::DatabaseId& database_id_;
+  static void EncodeMapValue(nanopb::Writer* writer,
+                             const model::ObjectValue& object_value);
+
+  static void EncodeFieldsEntry(nanopb::Writer* writer,
+                                const model::ObjectValue::Map::value_type& kv,
+                                uint32_t key_tag,
+                                uint32_t value_tag);
+
+  static void EncodeFieldValue(nanopb::Writer* writer,
+                               const model::FieldValue& field_value);
+
+  void EncodeQueryPath(nanopb::Writer* writer,
+                       const model::ResourcePath& path) const;
+  std::string EncodeQueryPath(const model::ResourcePath& path) const;
+
+  const model::DatabaseId& database_id_;
+  const std::string database_name_;
 };
 
 }  // namespace remote

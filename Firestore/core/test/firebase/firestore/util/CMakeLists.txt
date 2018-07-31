@@ -15,7 +15,9 @@
 set(CMAKE_CXX_EXTENSIONS ON)
 
 # Required to allow 0 length printf style strings for testing purposes.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
+endif()
 
 ## assert and log
 
@@ -133,11 +135,12 @@ cc_test(
     strerror_test.cc
     string_format_test.cc
     string_util_test.cc
+    string_win_test.cc
   DEPENDS
     absl_base
     absl_strings
     firebase_firestore_util
-    gmock
+    GMock::GMock
 )
 
 if(APPLE)

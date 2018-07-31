@@ -19,14 +19,23 @@
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
+#include "Firestore/core/src/firebase/firestore/core/query.h"
+#include "Firestore/core/src/firebase/firestore/core/relation_filter.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
+#include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -59,14 +68,73 @@ inline model::SnapshotVersion Version(int64_t version) {
   return model::SnapshotVersion{Timestamp::FromTimePoint(timepoint)};
 }
 
-inline model::Document Doc(absl::string_view key, int64_t version) {
-  return model::Document{model::FieldValue::ObjectValueFromMap({}), Key(key),
+inline model::Document Doc(absl::string_view key,
+                           int64_t version = 0,
+                           const model::ObjectValue::Map& data = {}) {
+  return model::Document{model::FieldValue::ObjectValueFromMap(data), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
 }
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
   return model::NoDocument{Key(key), Version(version)};
+}
+
+inline core::RelationFilter::Operator OperatorFromString(absl::string_view s) {
+  if (s == "<")
+    return core::RelationFilter::Operator::LessThan;
+  else if (s == "<=")
+    return core::RelationFilter::Operator::LessThanOrEqual;
+  else if (s == "==")
+    return core::RelationFilter::Operator::Equal;
+  else if (s == ">")
+    return core::RelationFilter::Operator::GreaterThan;
+  else if (s == ">=")
+    return core::RelationFilter::Operator::GreaterThanOrEqual;
+  HARD_FAIL("Unknown operator: %s", s);
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            model::FieldValue value) {
+  return core::Filter::Create(Field(key), OperatorFromString(op),
+                              std::move(value));
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            const std::string& value) {
+  return Filter(key, op, model::FieldValue::StringValue(value));
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            int value) {
+  return Filter(key, op, model::FieldValue::IntegerValue(value));
+}
+
+inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
+                                            absl::string_view op,
+                                            double value) {
+  return Filter(key, op, model::FieldValue::DoubleValue(value));
+}
+
+inline core::Query Query(absl::string_view path) {
+  return core::Query::AtPath(Resource(path));
+}
+
+inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
+  if (snapshot_version == 0) {
+    // TODO(rsgowman): The other platforms return null here, though I'm not sure
+    // if they ever rely on that. I suspect it'd be sufficient to return '{}'.
+    // But for now, we'll just abort() until we hit a test case that actually
+    // makes use of this.
+    abort();
+  }
+
+  std::string snapshot_string =
+      std::string("snapshot-") + std::to_string(snapshot_version);
+  return {snapshot_string.begin(), snapshot_string.end()};
 }
 
 // Add a non-inline function to make this library buildable.

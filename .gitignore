@@ -39,6 +39,7 @@ DerivedData
 # Vim
 *.swo
 *.swp
+*~
 
 # Bundler
 .bundle
@@ -65,3 +66,6 @@ Firestore/core/src/firebase/firestore/util/config.h
 .downloads
 Debug
 Release
+
+# Visual Studio
+/.vs
