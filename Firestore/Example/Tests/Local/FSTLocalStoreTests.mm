@@ -726,7 +726,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   FSTAssertContains(FSTTestDoc("foo/baz", 0, @{@"foo" : @"baz"}, YES));
 
-  [self notifyLocalViewChanges:FSTTestViewChanges(query, @[ @"foo/bar", @"foo/baz" ], @[])];
+  [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[ @"foo/bar", @"foo/baz" ], @[])];
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                   @[], @[ @(targetID) ])];
@@ -738,7 +738,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO));
   FSTAssertContains(FSTTestDoc("foo/baz", 2, @{@"foo" : @"baz"}, NO));
 
-  [self notifyLocalViewChanges:FSTTestViewChanges(query, @[], @[ @"foo/bar", @"foo/baz" ])];
+  [self notifyLocalViewChanges:FSTTestViewChanges(targetID, @[], @[ @"foo/bar", @"foo/baz" ])];
   [self.localStore releaseQuery:query];
 
   FSTAssertNotContains(@"foo/bar");
