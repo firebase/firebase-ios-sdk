@@ -121,10 +121,25 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
+cc_library(
+  firebase_firestore_util_filesystem_posix
+  SOURCES
+    filesystem.h
+    filesystem_detail.cc
+    filesystem_detail.h
+    filesystem_posix.cc
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util_status
+  EXCLUDE_FROM_ALL
+)
+
 cc_select(
   firebase_firestore_util_filesystem
   APPLE   firebase_firestore_util_filesystem_apple
-  DEFAULT ""
+  DEFAULT firebase_firestore_util_filesystem_posix
 )
 
 
@@ -223,6 +238,7 @@ cc_library(
     firebase_firestore_util_async
     firebase_firestore_util_autoid
     firebase_firestore_util_base
+    firebase_firestore_util_filesystem
     firebase_firestore_util_random
     firebase_firestore_util_status
 )
