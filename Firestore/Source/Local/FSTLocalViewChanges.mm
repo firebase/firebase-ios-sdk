@@ -18,7 +18,6 @@
 
 #include <utility>
 
-#import "FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 
