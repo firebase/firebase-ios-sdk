@@ -430,7 +430,7 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
   return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
+FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;
@@ -441,9 +441,9 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
   for (NSString *keyPath in removedKeys) {
     removed = removed.insert(testutil::Key(util::MakeStringView(keyPath)));
   }
-  return [FSTLocalViewChanges changesForQuery:query
-                                    addedKeys:std::move(added)
-                                  removedKeys:std::move(removed)];
+  return [FSTLocalViewChanges changesForTarget:targetID
+                                     addedKeys:std::move(added)
+                                   removedKeys:std::move(removed)];
 }
 
 NS_ASSUME_NONNULL_END

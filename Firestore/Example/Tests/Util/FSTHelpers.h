@@ -295,7 +295,7 @@ FSTRemoteEvent *FSTTestUpdateRemoteEvent(FSTMaybeDocument *doc,
                                          NSArray<NSNumber *> *removedFromTargets);
 
 /** Creates a test view changes. */
-FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
+FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
 

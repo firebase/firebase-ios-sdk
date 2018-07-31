@@ -439,7 +439,8 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
         if (viewChange.snapshot) {
           [newSnapshots addObject:viewChange.snapshot];
           FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot];
+              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot
+                                             withTargetID:queryView.targetID];
           [documentChangesInAllViews addObject:docChanges];
         }
       }];
