@@ -236,7 +236,7 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    # Firestore_FuzzTests_iOS require recent Clang version in Xcode 9.
+    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard.
     if [[ "$xcode_major" -ge 9 ]]; then
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
