@@ -76,7 +76,6 @@ cc_library(
     string_win.cc
     string_win.h
   DEPENDS
-    firebase_firestore_util_base
     absl_base
     absl_strings
   EXCLUDE_FROM_ALL
@@ -97,7 +96,6 @@ cc_library(
     GoogleUtilities
     absl_base
     absl_strings
-    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
