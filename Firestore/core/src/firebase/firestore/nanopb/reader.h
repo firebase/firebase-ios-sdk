@@ -115,12 +115,13 @@ class Reader {
   }
 
   /**
-   * Discards the bytes associated with the last read tag.
+   * Discards the bytes associated with the last read tag. (According to the
+   * proto spec, we must ignore unknown fields.)
    *
    * This method uses the last tag read via ReadTag to determine how many bytes
    * should be discarded.
    */
-  void SkipField();
+  void SkipUnknown();
 
   size_t bytes_left() const {
     return stream_.bytes_left;

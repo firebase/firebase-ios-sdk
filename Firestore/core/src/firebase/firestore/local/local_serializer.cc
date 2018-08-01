@@ -93,8 +93,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         break;
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -163,8 +162,7 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
         break;
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
         break;
     }
   }
@@ -245,8 +243,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
         abort();
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
         break;
     }
   }

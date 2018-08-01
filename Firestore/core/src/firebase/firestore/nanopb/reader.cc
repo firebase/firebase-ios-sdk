@@ -156,7 +156,7 @@ std::vector<uint8_t> Reader::ReadBytes() {
   return std::vector<uint8_t>(bytes.begin(), bytes.end());
 }
 
-void Reader::SkipField() {
+void Reader::SkipUnknown() {
   if (!status_.ok()) return;
 
   if (!pb_skip_field(&stream_, last_tag_.wire_type)) {

@@ -117,8 +117,7 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
       value = reader->ReadNestedMessage<FieldValue>(
           [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
     } else {
-      // Unknown tag. According to the proto spec, we need to ignore these.
-      reader->SkipField();
+      reader->SkipUnknown();
     }
   }
 
@@ -166,8 +165,7 @@ absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
       }
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -244,8 +242,7 @@ absl::optional<StructuredQuery::CollectionSelector> DecodeCollectionSelector(
         collection_selector.all_descendants = reader->ReadBool();
         break;
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -268,8 +265,7 @@ absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
 
       // TODO(rsgowman): decode other fields
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -394,8 +390,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
                   reader->last_tag().field_number);
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -485,8 +480,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         // This field is ignored by the client sdk, but we still need to extract
         // it.
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -541,8 +535,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // This field is ignored by the client sdk, but we still need to extract
         // it.
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
@@ -627,8 +620,7 @@ absl::optional<Query> Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
         break;
 
       default:
-        // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField();
+        reader->SkipUnknown();
     }
   }
 
