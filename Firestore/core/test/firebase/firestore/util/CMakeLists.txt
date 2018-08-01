@@ -19,7 +19,41 @@ if(NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-zero-length")
 endif()
 
-## assert and log
+
+## async
+
+cc_test(
+  firebase_firestore_util_async_std_test
+  SOURCES
+    async_queue_std_test.cc
+    async_queue_test.cc
+    async_queue_test.h
+    async_tests_util.h
+    executor_std_test.cc
+    executor_test.cc
+    executor_test.h
+  DEPENDS
+    firebase_firestore_util_async_std
+)
+
+if(HAVE_LIBDISPATCH)
+  cc_test(
+    firebase_firestore_util_async_libdispatch_test
+    SOURCES
+      async_queue_libdispatch_test.mm
+      async_queue_test.cc
+      async_queue_test.h
+      async_tests_util.h
+      executor_libdispatch_test.mm
+      executor_test.cc
+      executor_test.h
+    DEPENDS
+      firebase_firestore_util_async_libdispatch
+  )
+endif()
+
+
+## log
 
 if(APPLE)
   cc_test(
@@ -41,7 +75,8 @@ cc_test(
     firebase_firestore_util_log_stdio
 )
 
-## secure random
+
+## random
 
 if(HAVE_ARC4RANDOM)
   cc_test(
@@ -63,59 +98,6 @@ if(HAVE_OPENSSL_RAND_H)
   )
 endif()
 
-## executors
-
-cc_test(
-  firebase_firestore_util_executor_std_test
-  SOURCES
-    executor_test.h
-    executor_test.cc
-    executor_std_test.cc
-    async_tests_util.h
-  DEPENDS
-    firebase_firestore_util_executor_std
-)
-
-if(HAVE_LIBDISPATCH)
-  cc_test(
-    firebase_firestore_util_executor_libdispatch_test
-    SOURCES
-      executor_test.h
-      executor_test.cc
-      executor_libdispatch_test.mm
-      async_tests_util.h
-    DEPENDS
-      firebase_firestore_util_executor_libdispatch
-  )
-endif()
-
-## async queue
-
-cc_test(
-  firebase_firestore_util_async_queue_std_test
-  SOURCES
-    async_queue_test.h
-    async_queue_test.cc
-    async_queue_std_test.cc
-    async_tests_util.h
-  DEPENDS
-    firebase_firestore_util_executor_std
-    firebase_firestore_util
-)
-
-if(HAVE_LIBDISPATCH)
-  cc_test(
-    firebase_firestore_util_async_queue_libdispatch_test
-    SOURCES
-      async_queue_test.h
-      async_queue_test.cc
-      async_queue_libdispatch_test.mm
-      async_tests_util.h
-    DEPENDS
-    firebase_firestore_util_executor_libdispatch
-    firebase_firestore_util
-  )
-endif()
 
 ## main library
 
@@ -133,21 +115,14 @@ cc_test(
     status_test_util.h
     statusor_test.cc
     strerror_test.cc
+    string_format_apple_test.mm
     string_format_test.cc
     string_util_test.cc
     string_win_test.cc
+    type_traits_apple_test.mm
   DEPENDS
     absl_base
     absl_strings
     firebase_firestore_util
     GMock::GMock
 )
-
-if(APPLE)
-  target_sources(
-    firebase_firestore_util_test
-    PUBLIC
-      string_format_apple_test.mm
-      type_traits_apple_test.mm
-  )
-endif()

@@ -27,7 +27,8 @@ function(cc_library name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
-  add_library(${name} ${ccl_SOURCES})
+  maybe_remove_objc_sources(sources ${ccl_SOURCES})
+  add_library(${name} ${sources})
   add_objc_flags(${name} ccl)
   target_include_directories(
     ${name}
@@ -45,7 +46,47 @@ function(cc_library name)
       PROPERTY EXCLUDE_FROM_ALL ON
     )
   endif()
+endfunction()
 
+# cc_select(
+#   interface_library
+#   CONDITION1 implementation_library1
+#   [CONDITION2 implementation_library2 ...]
+#   [DEFAULT implementation_library_default]
+# )
+#
+# Creates an INTERFACE library named `interface_library`.
+#
+# For each pair of condition and implementation_library, evaluates the condition
+# and if true makes that library an INTERFACE link library of
+# `interface_library`.
+#
+# If supplied, uses the `DEFAULT` implementation if no other condition matches.
+#
+# If no condition matches, fails the configuration cycle with an error message
+# indicating that no suitable implementation was found.
+function(cc_select library_name)
+  add_library(${library_name} INTERFACE)
+
+  list(LENGTH ARGN length)
+  if(length GREATER 0)
+    math(EXPR length "${length} - 1")
+    foreach(key RANGE 0 ${length} 2)
+      math(EXPR value "${key} + 1")
+      list(GET ARGN ${key} condition)
+      list(GET ARGN ${value} impl_library)
+
+      if((${condition} STREQUAL "DEFAULT") OR (${${condition}}))
+        message("Using ${library_name} = ${impl_library}")
+        target_link_libraries(
+          ${library_name} INTERFACE ${impl_library}
+        )
+        return()
+      endif()
+    endforeach()
+  endif()
+
+  message(FATAL_ERROR "Could not find implementation for ${library_name}")
 endfunction()
 
 # cc_test(
@@ -62,7 +103,8 @@ function(cc_test name)
 
   list(APPEND cct_DEPENDS GTest::GTest GTest::Main)
 
-  add_executable(${name} ${cct_SOURCES})
+  maybe_remove_objc_sources(sources ${cct_SOURCES})
+  add_executable(${name} ${sources})
   add_objc_flags(${name} cct)
   add_test(${name} ${name})
 
@@ -82,10 +124,28 @@ function(cc_binary name)
   set(multi DEPENDS SOURCES)
   cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
 
-  add_executable(${name} ${ccb_SOURCES})
+  maybe_remove_objc_sources(sources ${ccb_SOURCES})
+  add_executable(${name} ${sources})
+  add_objc_flags(${name} ccb)
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} ${ccb_DEPENDS})
+endfunction()
+
+# maybe_remove_objc_sources(output_var sources...)
+#
+# Removes Objective-C/C++ sources from the given sources if not on an Apple
+# platform. Stores the resulting list in the variable named by `output_var`.
+function(maybe_remove_objc_sources output_var)
+  unset(sources)
+  foreach(source ${ARGN})
+    get_filename_component(ext ${source} EXT)
+    if(NOT APPLE AND ((ext STREQUAL ".m") OR (ext STREQUAL ".mm")))
+      continue()
+    endif()
+    list(APPEND sources ${source})
+  endforeach()
+  set(${output_var} ${sources} PARENT_SCOPE)
 endfunction()
 
 # add_objc_flags(target sources...)
