@@ -22,7 +22,7 @@ endif()
 find_library(
   FUZZER_LOCATION
   NAMES FuzzingEngine Fuzzer
-  HINTS 
+  HINTS
     $ENV{LIB_FUZZING_ENGINE}
     ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
 )

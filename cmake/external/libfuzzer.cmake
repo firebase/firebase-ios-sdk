@@ -27,12 +27,11 @@ if(TARGET libfuzzer)
   return()
 endif()
 
-message(WARNING "@@@@ external/libfuzzer.cmake - OSS_FUZZ = ${OSS_FUZZ}")
-# Mark libfuzzer target as done if: (a) not fuzzing since it is not needed;
-# (b) fuzzing library is already provided in LIB_FUZZING_ENGINE environment
-# variable as in OSS Fuzz and there is no need to build it; and (c) on Windows
-# because fuzzing is not supported.
-if(NOT FUZZING OR $ENV{LIB_FUZZING_ENGINE} OR WIN32)
+# Mark libfuzzer target as done if: (a) a fuzzing library is already provided in
+# LIB_FUZZING_ENGINE environment variable as in OSS Fuzz and there is no need to
+# build it; and (b) on Windows because fuzzing is not supported.
+# TODO(minafarid) avoid building libFuzzer if FUZZING is not enabled.
+if(DEFINED ENV{LIB_FUZZING_ENGINE} OR WIN32)
   add_custom_target(libfuzzer)
   return()
 endif()
