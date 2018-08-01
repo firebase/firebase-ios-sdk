@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
+#include <algorithm>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_win.h"
 #include "absl/strings/ascii.h"
