@@ -12,34 +12,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# OSS_FUZZ provides its own fuzzing library in LIB_FUZZING_ENGINE environment
-# variable. For local fuzzing, search for the libFuzzer.a library that was
-# manually built.
-if(OSS_FUZZ)
-  set(FUZZING_LIBRARY_LOCATION $ENV{LIB_FUZZING_ENGINE})
-else()
-  find_library(
-    FUZZING_LIBRARY_LOCATION
-    NAMES Fuzzer
-    HINTS ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
-  )
+if(TARGET Fuzzer)
+  return()
 endif()
+
+# OSS Fuzz provides its own fuzzing library libFuzzingEngine.a in the path
+# defined by LIB_FUZZING_ENGINE environment variable. For local fuzzing, search
+# for the libFuzzer.a library that was manually built.
+find_library(
+  FUZZER_LOCATION
+  NAMES FuzzingEngine Fuzzer
+  HINTS 
+    $ENV{LIB_FUZZING_ENGINE}
+    ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
+)
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  FUZZING_LIBRARY
+  FUZZER
   DEFAULT_MSG
-  FUZZING_LIBRARY_LOCATION
+  FUZZER_LOCATION
 )
 
-if(FUZZING_LIBRARY_FOUND)
-  if (NOT TARGET FuzzingLibrary)
-    add_library(FuzzingLibrary STATIC IMPORTED)
-    set_target_properties(
-      FuzzingLibrary PROPERTIES
-      IMPORTED_LOCATION ${FUZZING_LIBRARY_LOCATION}
-    )
-  endif()
+if(FUZZER_FOUND)
+  add_library(Fuzzer STATIC IMPORTED)
+  set_target_properties(
+    Fuzzer PROPERTIES
+    IMPORTED_LOCATION ${FUZZER_LOCATION}
+  )
 else()
   message(FATAL_ERROR "Could not find the fuzzing library.")
-endif(FUZZING_LIBRARY_FOUND)
+endif(FUZZER_FOUND)

@@ -27,8 +27,12 @@ if(TARGET libfuzzer)
   return()
 endif()
 
-# Mark libfuzzer target as done on Windows because fuzzing is not supported.
-if(WIN32)
+message(WARNING "@@@@ external/libfuzzer.cmake - OSS_FUZZ = ${OSS_FUZZ}")
+# Mark libfuzzer target as done if: (a) not fuzzing since it is not needed;
+# (b) fuzzing library is already provided in LIB_FUZZING_ENGINE environment
+# variable as in OSS Fuzz and there is no need to build it; and (c) on Windows
+# because fuzzing is not supported.
+if(NOT FUZZING OR $ENV{LIB_FUZZING_ENGINE} OR WIN32)
   add_custom_target(libfuzzer)
   return()
 endif()
