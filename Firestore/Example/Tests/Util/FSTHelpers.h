@@ -305,7 +305,7 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
                                                          NSArray<NSNumber *> *limboTargets);
 
 /** Creates a test view changes. */
-FSTLocalViewChanges *FSTTestViewChanges(FSTQuery *query,
+FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
 

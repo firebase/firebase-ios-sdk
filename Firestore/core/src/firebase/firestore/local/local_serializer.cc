@@ -271,7 +271,7 @@ util::StatusOr<QueryData> LocalSerializer::DecodeQueryData(
 QueryData LocalSerializer::DecodeQueryData(Reader* reader) const {
   if (!reader->status().ok()) return QueryData::Invalid();
 
-  int64_t target_id = 0;
+  model::TargetId target_id = 0;
   SnapshotVersion version = SnapshotVersion::None();
   std::vector<uint8_t> resume_token;
   Query query = Query::Invalid();
@@ -284,7 +284,8 @@ QueryData LocalSerializer::DecodeQueryData(Reader* reader) const {
       case firestore_client_Target_target_id_tag:
         if (!reader->RequireWireType(PB_WT_VARINT, tag))
           return QueryData::Invalid();
-        target_id = reader->ReadInteger();
+        // TODO(rsgowman): How to handle truncation of integer types?
+        target_id = static_cast<model::TargetId>(reader->ReadInteger());
         break;
 
       case firestore_client_Target_snapshot_version_tag:
