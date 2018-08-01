@@ -236,12 +236,15 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    RunXcodebuild \
-        -workspace 'Firestore/Example/Firestore.xcworkspace' \
-        -scheme "Firestore_FuzzTests_iOS" \
-        "${xcb_flags[@]}" \
-        FUZZING_TARGET="NONE" \
-        test
+    # Firestore_FuzzTests_iOS require recent Clang version in Xcode 9.
+    if [[ "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_FuzzTests_iOS" \
+          "${xcb_flags[@]}" \
+          FUZZING_TARGET="NONE" \
+          test
+    fi
     ;;
 
   Firestore-cmake-macOS)
