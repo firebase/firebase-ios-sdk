@@ -235,6 +235,13 @@ case "$product-$method-$platform" in
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build
+
+    RunXcodebuild \
+        -workspace 'Firestore/Example/Firestore.xcworkspace' \
+        -scheme "Firestore_FuzzTests_iOS" \
+        "${xcb_flags[@]}" \
+        FUZZING_TARGET="NONE" \
+        test
     ;;
 
   Firestore-cmake-macOS)
