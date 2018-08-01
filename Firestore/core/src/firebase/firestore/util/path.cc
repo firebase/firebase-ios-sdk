@@ -28,15 +28,20 @@ namespace firestore {
 namespace util {
 
 constexpr size_t Path::npos;
-constexpr Path::char_type Path::kPreferredSeparator;
 
 namespace {
+
+#if defined(_WIN32)
+constexpr Path::char_type kPreferredSeparator = L'\\';
+#else
+constexpr Path::char_type kPreferredSeparator = '/';
+#endif
 
 /**
  * Returns the offset within the given path that skips the leading drive letter.
  * If there is no drive letter, returns zero.
  */
-size_t StripDriveLetter(const Path::char_type* path, size_t size) {
+size_t OffsetAfterDriveLetter(const Path::char_type* path, size_t size) {
 #if defined(_WIN32)
   if (size >= 2 && path[1] == L':') {
     wchar_t drive_letter = path[0];
@@ -64,15 +69,14 @@ inline bool IsSeparator(Path::char_type c) {
 }
 
 bool IsAbsolute(const Path::char_type* path, size_t size) {
-  size_t offset = StripDriveLetter(path, size);
+  size_t offset = OffsetAfterDriveLetter(path, size);
   return size >= offset && IsSeparator(path[offset]);
 }
 
 size_t LastNonSeparator(const Path::char_type* path, size_t size) {
   if (size == 0) return Path::npos;
 
-  size_t i = size;
-  for (; i-- > 0;) {
+  for (size_t i = size; i-- > 0;) {
     if (!IsSeparator(path[i])) {
       return i;
     }
@@ -83,14 +87,58 @@ size_t LastNonSeparator(const Path::char_type* path, size_t size) {
 size_t LastSeparator(const Path::char_type* path, size_t size) {
   if (size == 0) return Path::npos;
 
-  size_t i = size;
-  for (; i-- > 0;) {
+  for (size_t i = size; i-- > 0;) {
     if (IsSeparator(path[i])) {
       return i;
     }
   }
   return Path::npos;
 }
+
+#if defined(_WIN32)
+Path::string_type CanonicalPath(const Path::string_type& path) {
+  if (path.empty()) {
+    return path;
+  }
+
+  // Remove trailing separators, but take care not to remove the trailing slash
+  // in a root path name (which can have a drive letter).
+  std::wstring copy{path};
+  size_t rel_path_begin = OffsetAfterDriveLetter(copy.c_str(), copy.size());
+  if (rel_path_begin < copy.size() && IsSeparator(copy[min])) {
+    rel_path_begin += 1;
+  }
+
+  size_t non_slash = LastNonSeparator(copy.c_str(), copy.size());
+  if (non_slash != npos) {
+    size_t last_slash = std::max(non_slash + 1, rel_path_begin);
+    copy.resize(last_slash);
+  }
+
+  // Convert separators to canonical separators.
+  std::replace(copy.begin(), copy.end(), L'/', kPreferredSeparator);
+
+  // Convert to lowercase. This relies on C++11 semantics of std::basic_string,
+  // namely that:
+  //   * s.c_str(), s.data(), and &s[0] are all aliases for each other;
+  //   * strings are always contiguous and null terminated; and
+  //   * Accessing s[s.size()] is valid and is the null terminator.
+  errno_t error = _wcslwr_s(&copy[0], copy.size() + 1);
+  HARD_ASSERT(error == 0);
+
+  return copy;
+}
+
+#else
+absl::string_view CanonicalPath(const Path::string_type& path) {
+  size_t non_slash = LastNonSeparator(path.c_str(), path.size());
+  if (non_slash == Path::npos) {
+    return path;
+  }
+
+  return absl::string_view{path.c_str(), non_slash + 1};
+}
+#endif  // defined(_WIN32)
 
 }  // namespace
 
@@ -110,11 +158,11 @@ Path Path::FromUtf16(const wchar_t* path, size_t size) {
 #endif
 
 #if defined(_WIN32)
-std::string Path::ToString() const {
+std::string Path::ToUtf8String() const {
   return NativeToUtf8(pathname_);
 }
 #else
-const std::string& Path::ToString() const {
+const std::string& Path::ToUtf8String() const {
   return pathname_;
 }
 #endif  // defined(_WIN32)
@@ -136,7 +184,7 @@ Path Path::Dirname() const {
   if (last_slash == npos) {
     // No path separator found => empty string. Conformance with POSIX would
     // have us return "." here.
-    return Path{string_type{}};
+    return {};
   }
 
   // Collapse runs of slashes.
@@ -177,7 +225,7 @@ void Path::MutableAppendSegment(const char_type* path, size_t size) {
   }
 }
 
-void Path::MutableAppendSegmentUtf8(absl::string_view path) {
+void Path::MutableAppendUtf8Segment(absl::string_view path) {
 #if defined(_WIN32)
   Path segment = Path::FromUtf8(path);
   MutableAppendSegment(segment.c_str(), segment.size());
@@ -187,54 +235,8 @@ void Path::MutableAppendSegmentUtf8(absl::string_view path) {
 #endif
 }
 
-#if defined(_WIN32)
-Path::string_type Path::CanonicalPath() const {
-  if (pathname_.empty()) {
-    return pathname_;
-  }
-
-  // Remove trailing separators, but take care not to remove the trailing slash
-  // in a root path name (which can have a drive letter).
-  std::wstring copy{pathname_};
-  size_t min = StripDriveLetter(copy.c_str(), copy.size());
-  if (min < copy.size() && IsSeparator(copy[min])) {
-    min += 1;
-  }
-
-  size_t non_slash = LastNonSeparator(copy.c_str(), copy.size());
-  if (non_slash != npos) {
-    size_t last_slash = std::max(non_slash + 1, min);
-    copy.resize(last_slash);
-  }
-
-  // Convert separators to canonical separators.
-  std::replace(copy.begin(), copy.end(), L'/', kPreferredSeparator);
-
-  // Convert to lowercase. This relies on C++11 semantics of std::basic_string,
-  // namely that:
-  //   * s.c_str(), s.data(), and &s[0] are all aliases for each other;
-  //   * strings are always contiguous and null terminated; and
-  //   * Accessing s[s.size()] is valid and is the null terminator.
-  errno_t error = _wcslwr_s(&copy[0], copy.size() + 1);
-  HARD_ASSERT(error == 0);
-
-  return copy;
-}
-
-#else
-absl::string_view Path::CanonicalPath() const {
-  size_t non_slash = LastNonSeparator(c_str(), size());
-  if (non_slash == npos) {
-    return pathname_;
-  }
-
-  size_t last_slash = non_slash + 1;
-  return absl::string_view{c_str(), last_slash};
-}
-#endif  // defined(_WIN32)
-
 bool operator==(const Path& lhs, const Path& rhs) {
-  return lhs.CanonicalPath() == rhs.CanonicalPath();
+  return CanonicalPath(lhs.pathname_) == CanonicalPath(rhs.pathname_);
 }
 
 }  // namespace util

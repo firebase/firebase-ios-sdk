@@ -42,15 +42,11 @@ class Path {
  public:
 #if defined(_WIN32)
   using char_type = wchar_t;
-  using string_type = std::wstring;
-
-  static constexpr char_type kPreferredSeparator = L'\\';
 #else
   using char_type = char;
-  using string_type = std::string;
+#endif
 
-  static constexpr char_type kPreferredSeparator = '/';
-#endif  // defined(_WIN32)
+  using string_type = std::basic_string<char_type>;
 
   static constexpr size_t npos = static_cast<size_t>(-1);
 
@@ -92,9 +88,9 @@ class Path {
   }
 
 #if defined(_WIN32)
-  std::string ToString() const;
+  std::string ToUtf8String() const;
 #else
-  const std::string& ToString() const;
+  const std::string& ToUtf8String() const;
 #endif  // defined(_WIN32)
 
 #if defined(__OBJC__)
@@ -164,15 +160,9 @@ class Path {
   }
 
  private:
-  explicit Path(string_type&& native_pathname) {
-    pathname_ = std::move(native_pathname);
+  explicit Path(string_type&& native_pathname)
+      : pathname_{std::move(native_pathname)} {
   }
-
-#if defined(_WIN32)
-  string_type CanonicalPath() const;
-#else
-  absl::string_view CanonicalPath() const;
-#endif
 
   /**
    * If `path` is relative, appends it to `*this`. If `path` is absolute,
@@ -194,11 +184,11 @@ class Path {
    */
   template <typename P1, typename... P>
   void MutableAppendUtf8(const P1& path, const P&... rest) {
-    MutableAppendSegmentUtf8(path);
+    MutableAppendUtf8Segment(path);
     MutableAppendUtf8(rest...);
   }
-  void MutableAppendSegmentUtf8(absl::string_view path);
-  void MutableAppendSegmentUtf8(const Path& path) {
+  void MutableAppendUtf8Segment(absl::string_view path);
+  void MutableAppendUtf8Segment(const Path& path) {
     // Allow existing Paths to be passed to Path::JoinUtf8.
     MutableAppendSegment(path.c_str(), path.size());
   }

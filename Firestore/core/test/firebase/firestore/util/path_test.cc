@@ -100,7 +100,7 @@ TEST(PathTest, Equals) {
     EXPECT_PATH_EQ(expected, Path::FromUtf8(source).Basename()); \
   } while (0)
 
-TEST(Path, Basename_NoSeparator) {
+TEST(PathTest, Basename_NoSeparator) {
   // POSIX would require all of these to be ".".
   // python and libc++ agree this is "".
   EXPECT_BASENAME_EQ("", "");
@@ -110,7 +110,7 @@ TEST(Path, Basename_NoSeparator) {
   EXPECT_BASENAME_EQ("..", "..");
 }
 
-TEST(Path, Basename_LeadingSlash) {
+TEST(PathTest, Basename_LeadingSlash) {
   EXPECT_BASENAME_EQ("", "/");
   EXPECT_BASENAME_EQ("", "///");
   EXPECT_BASENAME_EQ("a", "/a");
@@ -121,7 +121,7 @@ TEST(Path, Basename_LeadingSlash) {
   EXPECT_BASENAME_EQ("..", "//..");
 }
 
-TEST(Path, Basename_IntermediateSlash) {
+TEST(PathTest, Basename_IntermediateSlash) {
   EXPECT_BASENAME_EQ("b", "/a/b");
   EXPECT_BASENAME_EQ("b", "/a//b");
   EXPECT_BASENAME_EQ("b", "//a/b");
@@ -132,7 +132,7 @@ TEST(Path, Basename_IntermediateSlash) {
   EXPECT_BASENAME_EQ("b", "//a/.//b");
 }
 
-TEST(Path, Basename_TrailingSlash) {
+TEST(PathTest, Basename_TrailingSlash) {
   // python: "a/b//" => ""
   // POSIX: "a/b//" => "b"
   // libc++ path::filename(): "a/b//" => "." (cppreference suggests "")
@@ -145,7 +145,7 @@ TEST(Path, Basename_TrailingSlash) {
   EXPECT_BASENAME_EQ("", "//a//b//");
 }
 
-TEST(Path, Basename_RelativePath) {
+TEST(PathTest, Basename_RelativePath) {
   EXPECT_BASENAME_EQ("b", "a/b");
   EXPECT_BASENAME_EQ("b", "a//b");
 
@@ -160,7 +160,7 @@ TEST(Path, Basename_RelativePath) {
     EXPECT_PATH_EQ(expected, Path::FromUtf8(source).Dirname()); \
   } while (0)
 
-TEST(Path, Dirname_NoSeparator) {
+TEST(PathTest, Dirname_NoSeparator) {
   // POSIX would require all of these to be ".".
   // python and libc++ agree this is "".
   EXPECT_DIRNAME_EQ("", "");
@@ -170,7 +170,7 @@ TEST(Path, Dirname_NoSeparator) {
   EXPECT_DIRNAME_EQ("", "..");
 }
 
-TEST(Path, Dirname_LeadingSlash) {
+TEST(PathTest, Dirname_LeadingSlash) {
   // POSIX says all "/".
   // python starts with "/" but does not strip trailing slashes.
   // libc++ path::parent_path() considers all of these be "", though
@@ -186,7 +186,7 @@ TEST(Path, Dirname_LeadingSlash) {
   EXPECT_DIRNAME_EQ("/", "//..");
 }
 
-TEST(Path, Dirname_IntermediateSlash) {
+TEST(PathTest, Dirname_IntermediateSlash) {
   EXPECT_DIRNAME_EQ("/a", "/a/b");
   EXPECT_DIRNAME_EQ("/a", "/a//b");
   EXPECT_DIRNAME_EQ("//a", "//a/b");
@@ -197,7 +197,7 @@ TEST(Path, Dirname_IntermediateSlash) {
   EXPECT_DIRNAME_EQ("//a/.", "//a/.//b");
 }
 
-TEST(Path, Dirname_TrailingSlash) {
+TEST(PathTest, Dirname_TrailingSlash) {
   // POSIX demands stripping trailing slashes before computing dirname, while
   // python and libc++ effectively seem to consider the path to contain an empty
   // path segment there.
@@ -210,7 +210,7 @@ TEST(Path, Dirname_TrailingSlash) {
   EXPECT_DIRNAME_EQ("//a//b", "//a//b//");
 }
 
-TEST(Path, Dirname_RelativePath) {
+TEST(PathTest, Dirname_RelativePath) {
   EXPECT_DIRNAME_EQ("a", "a/b");
   EXPECT_DIRNAME_EQ("a", "a//b");
 
@@ -220,7 +220,7 @@ TEST(Path, Dirname_RelativePath) {
   EXPECT_DIRNAME_EQ("a//.", "a//.//b");
 }
 
-TEST(Path, IsAbsolute) {
+TEST(PathTest, IsAbsolute) {
   EXPECT_FALSE(Path::FromUtf8("").IsAbsolute());
   EXPECT_TRUE(Path::FromUtf8("/").IsAbsolute());
   EXPECT_TRUE(Path::FromUtf8("//").IsAbsolute());
@@ -229,7 +229,7 @@ TEST(Path, IsAbsolute) {
   EXPECT_FALSE(Path::FromUtf8("foo/bar").IsAbsolute());
 }
 
-TEST(Path, Join_Absolute) {
+TEST(PathTest, Join_Absolute) {
   EXPECT_PATH_EQ("/", Path::JoinUtf8("/"));
 
   EXPECT_PATH_EQ("/", Path::JoinUtf8("", "/"));
@@ -254,7 +254,7 @@ TEST(Path, Join_Absolute) {
   EXPECT_PATH_EQ("/..", Path::JoinUtf8("/", ".."));
 }
 
-TEST(Path, Join_Relative) {
+TEST(PathTest, Join_Relative) {
   EXPECT_PATH_EQ("", Path::JoinUtf8(""));
 
   EXPECT_PATH_EQ("", Path::JoinUtf8("", "", "", ""));
@@ -263,7 +263,7 @@ TEST(Path, Join_Relative) {
   EXPECT_PATH_EQ("/c/d", Path::JoinUtf8("a/b/", "/c", "d"));
 }
 
-TEST(Path, Join_Types) {
+TEST(PathTest, Join_Types) {
   EXPECT_PATH_EQ("a/b", Path::JoinUtf8(absl::string_view{"a"}, "b"));
   EXPECT_PATH_EQ("a/b", Path::JoinUtf8(std::string{"a"}, "b"));
 
