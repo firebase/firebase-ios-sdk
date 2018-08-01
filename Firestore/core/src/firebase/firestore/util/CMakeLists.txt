@@ -19,16 +19,6 @@
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
-cc_library(
-  firebase_firestore_util_base
-  SOURCES
-    string_format.cc
-    string_format.h
-  DEPENDS
-    absl_base
-    absl_strings
-)
-
 
 ## async
 
@@ -45,7 +35,7 @@ cc_library(
   DEPENDS
     absl_bad_optional_access
     absl_optional
-    firebase_firestore_util_log
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
@@ -61,7 +51,7 @@ cc_library(
     absl_bad_optional_access
     absl_optional
     absl_strings
-    firebase_firestore_util_log
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
@@ -72,41 +62,47 @@ cc_select(
 )
 
 
-## log
+## base
 
 cc_library(
-  firebase_firestore_util_log_stdio
+  firebase_firestore_util_base_stdio
   SOURCES
     hard_assert_stdio.cc
     hard_assert.h
     log.h
     log_stdio.cc
+    string_format.cc
+    string_format.h
+    string_win.cc
+    string_win.h
   DEPENDS
-    firebase_firestore_util_base
     absl_base
+    absl_strings
   EXCLUDE_FROM_ALL
 )
 
 cc_library(
-  firebase_firestore_util_log_apple
+  firebase_firestore_util_base_apple
   SOURCES
     hard_assert.h
     hard_assert_apple.mm
     log.h
     log_apple.mm
     string_apple.h
+    string_format.cc
+    string_format.h
   DEPENDS
     FirebaseCore
     GoogleUtilities
+    absl_base
     absl_strings
-    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
 cc_select(
-  firebase_firestore_util_log
-  APPLE   firebase_firestore_util_log_apple
-  DEFAULT firebase_firestore_util_log_stdio
+  firebase_firestore_util_base
+  APPLE   firebase_firestore_util_base_apple
+  DEFAULT firebase_firestore_util_base_stdio
 )
 
 
@@ -118,6 +114,7 @@ cc_library(
   SOURCES
     secure_random.h
     secure_random_arc4random.cc
+  EXCLUDE_FROM_ALL
 )
 
 if(TARGET OpenSSL::Crypto)
@@ -133,6 +130,7 @@ if(TARGET OpenSSL::Crypto)
       secure_random_openssl.cc
     DEPENDS
       OpenSSL::Crypto
+    EXCLUDE_FROM_ALL
   )
 endif()
 
@@ -178,13 +176,10 @@ cc_library(
     strerror.h
     string_util.cc
     string_util.h
-    string_win.cc
-    string_win.h
     type_traits.h
   DEPENDS
     absl_base
     firebase_firestore_util_async
     firebase_firestore_util_base
-    firebase_firestore_util_log
     firebase_firestore_util_random
 )
