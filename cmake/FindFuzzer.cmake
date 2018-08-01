@@ -40,6 +40,4 @@ if(FUZZER_FOUND)
     Fuzzer PROPERTIES
     IMPORTED_LOCATION ${FUZZER_LOCATION}
   )
-else()
-  message(FATAL_ERROR "Could not find the fuzzing library.")
 endif(FUZZER_FOUND)
