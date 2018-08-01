@@ -114,6 +114,7 @@ cc_library(
   SOURCES
     secure_random.h
     secure_random_arc4random.cc
+  EXCLUDE_FROM_ALL
 )
 
 if(TARGET OpenSSL::Crypto)
@@ -129,6 +130,7 @@ if(TARGET OpenSSL::Crypto)
       secure_random_openssl.cc
     DEPENDS
       OpenSSL::Crypto
+    EXCLUDE_FROM_ALL
   )
 endif()
 
