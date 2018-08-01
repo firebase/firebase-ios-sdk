@@ -235,6 +235,16 @@ case "$product-$method-$platform" in
         -scheme "Firestore_IntegrationTests_$platform" \
         "${xcb_flags[@]}" \
         build
+
+    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard.
+    if [[ "$xcode_major" -ge 9 ]]; then
+      RunXcodebuild \
+          -workspace 'Firestore/Example/Firestore.xcworkspace' \
+          -scheme "Firestore_FuzzTests_iOS" \
+          "${xcb_flags[@]}" \
+          FUZZING_TARGET="NONE" \
+          test
+    fi
     ;;
 
   Firestore-cmake-macOS)
