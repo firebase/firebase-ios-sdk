@@ -236,8 +236,9 @@ case "$product-$method-$platform" in
         "${xcb_flags[@]}" \
         build
 
-    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard.
-    if [[ "$xcode_major" -ge 9 ]]; then
+    # Firestore_FuzzTests_iOS require a Clang that supports -fsanitize-coverage=trace-pc-guard
+    # and cannot run with thread sanitizer.
+    if [[ "$xcode_major" -ge 9 ]] && ! [[ "$SANITIZERS" = *"tsan"* ]]; then
       RunXcodebuild \
           -workspace 'Firestore/Example/Firestore.xcworkspace' \
           -scheme "Firestore_FuzzTests_iOS" \
