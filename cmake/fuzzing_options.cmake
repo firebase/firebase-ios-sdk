@@ -18,15 +18,11 @@ include(compiler_id)
 
 option(FUZZING "Build for Fuzz Testing (local fuzzing and OSS Fuzz)" OFF)
 
-# Assume OSS Fuzz if LIB_FUZZING_ENGINE environment variable is set.
-if(DEFINED ENV{LIB_FUZZING_ENGINE})
-  set(OSS_FUZZ ON)
-endif()
-
-# OSS Fuzz provides its required compiler-specific flags in CXXFLAGS, which are
+# Assume OSS Fuzz if LIB_FUZZING_ENGINE environment variable is set. OSS Fuzz
+# provides its required compiler-specific flags in CXXFLAGS, which are
 # automatically added to CMAKE_CXX_FLAGS. For local fuzzing, multiple compile
 # and linking flags must be set. These flags depend on the compiler version.
-if(FUZZING AND NOT OSS_FUZZ)
+if(FUZZING AND NOT DEFINED ENV{LIB_FUZZING_ENGINE})
   if(WIN32)
     # Currently, libFuzzer cannot be built on Windows.
     message(FATAL_ERROR "Fuzzing is currently not supported on Windows.")
