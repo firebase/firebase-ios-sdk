@@ -12,26 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if(TARGET Fuzzer)
+  return()
+endif()
+
+# OSS Fuzz provides its own fuzzing library libFuzzingEngine.a in the path
+# defined by LIB_FUZZING_ENGINE environment variable. For local fuzzing, search
+# for the libFuzzer.a library that was manually built.
 find_library(
-  LIBFUZZER_LIBRARY
-  NAMES Fuzzer
+  FUZZER_LOCATION
+  NAMES FuzzingEngine Fuzzer
   HINTS
+    $ENV{LIB_FUZZING_ENGINE}
     ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
 )
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
-  LibFuzzer
+  FUZZER
   DEFAULT_MSG
-  LIBFUZZER_LIBRARY
+  FUZZER_LOCATION
 )
 
-if(LIBFUZZER_FOUND)
-  if (NOT TARGET LibFuzzer)
-    add_library(LibFuzzer STATIC IMPORTED)
-    set_target_properties(
-      LibFuzzer PROPERTIES
-      IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
-    )
-  endif()
-endif(LIBFUZZER_FOUND)
+if(FUZZER_FOUND)
+  add_library(Fuzzer STATIC IMPORTED)
+  set_target_properties(
+    Fuzzer PROPERTIES
+    IMPORTED_LOCATION ${FUZZER_LOCATION}
+  )
+endif(FUZZER_FOUND)
