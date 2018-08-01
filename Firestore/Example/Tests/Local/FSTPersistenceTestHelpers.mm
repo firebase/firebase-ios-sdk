@@ -22,28 +22,31 @@
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
 
 + (NSString *)levelDBDir {
-  NSError *error;
-  NSFileManager *files = [NSFileManager defaultManager];
-  NSString *dir =
-      [NSTemporaryDirectory() stringByAppendingPathComponent:@"FSTPersistenceTestHelpers"];
-  if ([files fileExistsAtPath:dir]) {
-    // Delete the directory first to ensure isolation between runs.
-    BOOL success = [files removeItemAtPath:dir error:&error];
-    if (!success) {
-      [NSException raise:NSInternalInconsistencyException
-                  format:@"Failed to clean up leveldb path %@: %@", dir, error];
-    }
+  Path dir = util::TempDir().AppendUtf8("FSTPersistenceTestHelpers");
+
+  // Delete the directory first to ensure isolation between runs.
+  util::Status status = util::RecursivelyDelete(dir);
+  if (!status.ok()) {
+    [NSException
+         raise:NSInternalInconsistencyException
+        format:@"Failed to clean up leveldb path %s: %s", dir.c_str(), status.ToString().c_str()];
   }
-  return dir;
+
+  return dir.ToNSString();
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(NSString *)dir {
