@@ -216,14 +216,14 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
   EXPECT_EQ(FieldValue::NullValue(), null_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::NullValue(), clone);
 
   const FieldValue true_value = FieldValue::TrueValue();
   clone = true_value;
   EXPECT_EQ(FieldValue::TrueValue(), clone);
   EXPECT_EQ(FieldValue::TrueValue(), true_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::TrueValue(), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -232,7 +232,7 @@ TEST(FieldValue, Copy) {
   clone = nan_value;
   EXPECT_EQ(FieldValue::NanValue(), clone);
   EXPECT_EQ(FieldValue::NanValue(), nan_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::NanValue(), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -241,7 +241,7 @@ TEST(FieldValue, Copy) {
   clone = integer_value;
   EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
   EXPECT_EQ(FieldValue::IntegerValue(1L), integer_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -250,7 +250,7 @@ TEST(FieldValue, Copy) {
   clone = double_value;
   EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
   EXPECT_EQ(FieldValue::DoubleValue(1.0), double_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -259,7 +259,7 @@ TEST(FieldValue, Copy) {
   clone = timestamp_value;
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), timestamp_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -270,7 +270,7 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}), clone);
   EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}),
             server_timestamp_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -279,7 +279,7 @@ TEST(FieldValue, Copy) {
   clone = string_value;
   EXPECT_EQ(FieldValue::StringValue("abc"), clone);
   EXPECT_EQ(FieldValue::StringValue("abc"), string_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::StringValue("abc"), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -288,7 +288,7 @@ TEST(FieldValue, Copy) {
   clone = blob_value;
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), blob_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -303,7 +303,7 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
                                        &database_id),
             reference_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
                                        &database_id),
             clone);
@@ -314,7 +314,7 @@ TEST(FieldValue, Copy) {
   clone = geo_point_value;
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), geo_point_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::NullValue(), clone);
@@ -328,7 +328,7 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             array_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
@@ -347,7 +347,7 @@ TEST(FieldValue, Copy) {
                 ObjectValue::Map{{"true", FieldValue::TrueValue()},
                                  {"false", FieldValue::FalseValue()}}),
             object_value);
-  clone = clone;
+  clone = *&clone;
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
                 ObjectValue::Map{{"true", FieldValue::TrueValue()},
                                  {"false", FieldValue::FalseValue()}}),
