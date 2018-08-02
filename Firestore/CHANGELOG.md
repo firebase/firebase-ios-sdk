@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed an issue that could cause deleted documents to momentarily
+  re-appear in the results of a listener, causing a flicker.
 
 # v0.13.0
 - [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
