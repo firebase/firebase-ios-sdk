@@ -76,6 +76,7 @@ void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
  * @return The decoded varint as a uint64_t.
  */
 uint64_t Reader::ReadVarint() {
+  RequireWireType(PB_WT_VARINT);
   if (!status_.ok()) return 0;
 
   uint64_t varint_value = 0;
@@ -117,6 +118,7 @@ int64_t Reader::ReadInteger() {
 }
 
 std::string Reader::ReadString() {
+  RequireWireType(PB_WT_STRING);
   if (!status_.ok()) return "";
 
   pb_istream_t substream;

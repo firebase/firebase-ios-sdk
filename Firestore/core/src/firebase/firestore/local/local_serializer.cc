@@ -77,8 +77,6 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
       case firestore_client_MaybeDocument_document_tag:
-        reader->RequireWireType(PB_WT_STRING);
-
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
         result =
@@ -88,8 +86,6 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
-        reader->RequireWireType(PB_WT_STRING);
-
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
         result = reader->ReadNestedMessage<model::NoDocument>(
@@ -158,12 +154,10 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
       case firestore_client_NoDocument_name_tag:
-        reader->RequireWireType(PB_WT_STRING);
         name = reader->ReadString();
         break;
 
       case firestore_client_NoDocument_read_time_tag:
-        reader->RequireWireType(PB_WT_STRING);
         version = reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp);
         break;
@@ -224,24 +218,20 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
       case firestore_client_Target_target_id_tag:
-        reader->RequireWireType(PB_WT_VARINT);
         // TODO(rsgowman): How to handle truncation of integer types?
         target_id = static_cast<model::TargetId>(reader->ReadInteger());
         break;
 
       case firestore_client_Target_snapshot_version_tag:
-        reader->RequireWireType(PB_WT_STRING);
         version = reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp);
         break;
 
       case firestore_client_Target_resume_token_tag:
-        reader->RequireWireType(PB_WT_STRING);
         resume_token = reader->ReadBytes();
         break;
 
       case firestore_client_Target_query_tag:
-        reader->RequireWireType(PB_WT_STRING);
         // TODO(rsgowman): Clear 'documents' field (since query and documents
         // are part of a 'oneof').
         query =
@@ -249,7 +239,6 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
         break;
 
       case firestore_client_Target_documents_tag:
-        reader->RequireWireType(PB_WT_STRING);
         // Clear 'query' field (since query and documents are part of a 'oneof')
         query = Query::Invalid();
         // TODO(rsgowman): Implement.

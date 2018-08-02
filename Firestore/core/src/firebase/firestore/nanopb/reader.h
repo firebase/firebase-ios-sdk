@@ -38,6 +38,10 @@ namespace nanopb {
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
  * pb_istream_t.
+ *
+ * All 'ReadX' methods verify the wiretype (by examining the last_tag_ field, as
+ * set by ReadTag()) to ensure the correct type. If that fails, the status of
+ * the Reader instance is set to non-ok.
  */
 class Reader {
  public:
@@ -67,16 +71,6 @@ class Reader {
   const Tag& last_tag() {
     return last_tag_;
   }
-
-  /**
-   * Ensures the last read tag (set via ReadTag()) is of the specified type. If
-   * not, then Reader::status() will return a non-ok value (with the code set to
-   * FirestoreErrorCode::DataLoss).
-   *
-   * @return Convenience indicator for success. (If false, then status() will
-   * return a non-ok value.)
-   */
-  bool RequireWireType(pb_wire_type_t wire_type);
 
   /**
    * Reads a nanopb message from the input stream.
@@ -161,6 +155,16 @@ class Reader {
   }
 
   /**
+   * Ensures the last read tag (set via ReadTag()) is of the specified type. If
+   * not, then Reader::status() will return a non-ok value (with the code set to
+   * FirestoreErrorCode::DataLoss).
+   *
+   * @return Convenience indicator for success. (If false, then status() will
+   * return a non-ok value.)
+   */
+  bool RequireWireType(pb_wire_type_t wire_type);
+
+  /**
    * Reads a "varint" from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode_varint() method.
@@ -191,6 +195,7 @@ T Reader::ReadNestedMessageImpl(
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
 
+  RequireWireType(PB_WT_STRING);
   if (!status_.ok()) return {};
 
   pb_istream_t raw_substream;
