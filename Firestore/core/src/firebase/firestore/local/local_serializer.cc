@@ -102,7 +102,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     reader->update_status(Status(FirestoreErrorCode::DataLoss,
                                  "Invalid MaybeDocument message: Neither "
                                  "'no_document' nor 'document' fields set."));
-    return {};
+    return nullptr;
   }
   return result;
 }
@@ -249,7 +249,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     }
   }
 
-  if (!reader->status().ok()) return {};
+  if (!reader->status().ok()) return absl::nullopt;
   return QueryData(*std::move(query), target_id, QueryPurpose::kListen,
                    SnapshotVersion{*std::move(version)},
                    std::move(resume_token));

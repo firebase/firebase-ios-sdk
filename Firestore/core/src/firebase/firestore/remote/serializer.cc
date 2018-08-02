@@ -121,7 +121,7 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
     }
   }
 
-  if (!value.has_value()) return {};
+  if (!value.has_value()) return absl::nullopt;
   return ObjectValue::Map::value_type{key, *std::move(value)};
 }
 
@@ -332,13 +332,13 @@ void Serializer::EncodeFieldValue(Writer* writer,
 }
 
 absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
-  if (!reader->status().ok()) return {};
+  if (!reader->status().ok()) return absl::nullopt;
 
   // There needs to be at least one entry in the FieldValue.
   if (reader->bytes_left() == 0) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Input Value proto missing contents"));
-    return {};
+    return absl::nullopt;
   }
 
   FieldValue result = FieldValue::NullValue();
@@ -394,7 +394,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
     }
   }
 
-  if (!reader->status().ok()) return {};
+  if (!reader->status().ok()) return absl::nullopt;
   return result;
 }
 
@@ -438,7 +438,7 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
   if (reader->status().ok()) {
     return std::move(maybeDoc);
   } else {
-    return {};
+    return nullptr;
   }
 }
 
@@ -738,7 +738,7 @@ absl::optional<Timestamp> Serializer::DecodeTimestamp(nanopb::Reader* reader) {
         "Invalid message: timestamp nanos must be between 0 and 999999999"));
   }
 
-  if (!reader->status().ok()) return {};
+  if (!reader->status().ok()) return absl::nullopt;
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 
