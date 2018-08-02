@@ -114,8 +114,8 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
     if (tag.field_number == key_tag) {
       key = reader->ReadString();
     } else if (tag.field_number == value_tag) {
-      value = reader->ReadNestedMessage<FieldValue>(
-          [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
+      value =
+          reader->ReadNestedMessage<FieldValue>(Serializer::DecodeFieldValue);
     } else {
       reader->SkipUnknown();
     }
@@ -445,7 +445,7 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
 std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     Reader* reader) const {
   // Initialize BatchGetDocumentsResponse fields to their default values
-  std::unique_ptr<MaybeDocument> found;
+  std::unique_ptr<Document> found;
   std::string missing;
   // We explicitly ignore the 'transaction' field
   absl::optional<Timestamp> read_time = Timestamp{};
@@ -459,8 +459,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 
         // TODO(rsgowman): If multiple 'found' values are found, we should merge
         // them (rather than using the last one.)
-        found = reader->ReadNestedMessage<MaybeDocument>(
-            [this](Reader* reader) { return DecodeDocument(reader); });
+        found = reader->ReadNestedMessage<Document>(
+            *this, &Serializer::DecodeDocument);
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:

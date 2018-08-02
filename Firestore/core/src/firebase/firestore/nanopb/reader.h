@@ -96,11 +96,12 @@ class Reader {
    * details.
    *
    * Call this method when reading a nested message. Provide a function to read
-   * the message itself.
+   * the message itself. An overload exists to allow the function to return
+   * either an optional or a unique_ptr.
    *
    * @param read_message_fn Function to read the submessage. Note that this
-   * function is expected to check the Reader's status (via
-   * Reader::status().ok()) and if not ok, to return a placeholder/invalid
+   * function is expected to return {} (or nullptr/nullopt) on error.
+   * @return Empty (i.e. nullptr/nullopt) on failure, else the deserialized
    * value.
    */
   template <typename T>
@@ -112,6 +113,29 @@ class Reader {
   std::unique_ptr<T> ReadNestedMessage(
       const std::function<std::unique_ptr<T>(Reader*)>& read_message_fn) {
     return ReadNestedMessageImpl(read_message_fn);
+  }
+
+  template <typename T, typename C>
+  using ReadingMemberFunction = T (C::*)(Reader*) const;
+
+  /**
+   * Reads a message and its length.
+   *
+   * Identical to ReadNestedMessage(), except this additionally takes the
+   * serializer (either local or remote) as the first parameter, thus allowing
+   * non-static methods to be used as the read_message_member_fn.
+   */
+  template <typename T, typename C>
+  absl::optional<T> ReadNestedMessage(
+      const C& serializer,
+      ReadingMemberFunction<absl::optional<T>, C> read_message_member_fn) {
+    return ReadNestedMessageImpl(serializer, read_message_member_fn);
+  }
+  template <typename T, typename C>
+  std::unique_ptr<T> ReadNestedMessage(
+      const C& serializer,
+      ReadingMemberFunction<std::unique_ptr<T>, C> read_message_member_fn) {
+    return ReadNestedMessageImpl(serializer, read_message_member_fn);
   }
 
   /**
@@ -183,6 +207,10 @@ class Reader {
   template <typename T>
   T ReadNestedMessageImpl(const std::function<T(Reader*)>& read_message_fn);
 
+  template <typename T, typename C>
+  T ReadNestedMessageImpl(const C& serializer,
+                          ReadingMemberFunction<T, C> read_message_member_fn);
+
   util::Status status_ = util::Status::OK();
 
   pb_istream_t stream_;
@@ -227,6 +255,17 @@ T Reader::ReadNestedMessageImpl(
   pb_close_string_substream(&stream_, &substream.stream_);
 
   return message;
+}
+
+template <typename T, typename C>
+T Reader::ReadNestedMessageImpl(
+    const C& serializer,
+    Reader::ReadingMemberFunction<T, C> read_message_member_fn) {
+  std::function<T(Reader*)> read_message_fn = [=](Reader* reader) {
+    return (serializer.*read_message_member_fn)(reader);
+  };
+
+  return ReadNestedMessageImpl(read_message_fn);
 }
 
 }  // namespace nanopb

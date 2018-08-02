@@ -79,17 +79,15 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
       case firestore_client_MaybeDocument_document_tag:
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
-        result =
-            reader->ReadNestedMessage<model::Document>([&](Reader* reader) {
-              return rpc_serializer_.DecodeDocument(reader);
-            });
+        result = reader->ReadNestedMessage<model::Document>(
+            rpc_serializer_, &remote::Serializer::DecodeDocument);
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
         result = reader->ReadNestedMessage<model::NoDocument>(
-            [&](Reader* reader) { return DecodeNoDocument(reader); });
+            *this, &LocalSerializer::DecodeNoDocument);
         break;
 
       default:
