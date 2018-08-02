@@ -673,7 +673,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation {
   // NOTE: Deletes don't have an updateTime.
   absl::optional<SnapshotVersion> version;
-  if (mutation.updateTime) {
+  if (mutation.hasUpdateTime) {
     version = [self decodedVersion:mutation.updateTime];
   }
   NSMutableArray *_Nullable transformResults = nil;
