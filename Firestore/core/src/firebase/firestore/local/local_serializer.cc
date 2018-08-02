@@ -75,12 +75,9 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   std::unique_ptr<model::MaybeDocument> result;
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-
-    // Ensure the tag matches the wire type
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case firestore_client_MaybeDocument_document_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
 
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
@@ -91,7 +88,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
 
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
@@ -101,7 +98,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -159,24 +156,21 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
   absl::optional<Timestamp> version = Timestamp{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-
-    // Ensure the tag matches the wire type
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case firestore_client_NoDocument_name_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         name = reader->ReadString();
         break;
 
       case firestore_client_NoDocument_read_time_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         version = reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp);
         break;
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
         break;
     }
   }
@@ -228,28 +222,26 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
   absl::optional<Query> query = Query::Invalid();
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case firestore_client_Target_target_id_tag:
-        reader->RequireWireType(PB_WT_VARINT, tag);
+        reader->RequireWireType(PB_WT_VARINT);
         // TODO(rsgowman): How to handle truncation of integer types?
         target_id = static_cast<model::TargetId>(reader->ReadInteger());
         break;
 
       case firestore_client_Target_snapshot_version_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         version = reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp);
         break;
 
       case firestore_client_Target_resume_token_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         resume_token = reader->ReadBytes();
         break;
 
       case firestore_client_Target_query_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // TODO(rsgowman): Clear 'documents' field (since query and documents
         // are part of a 'oneof').
         query =
@@ -257,7 +249,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
         break;
 
       case firestore_client_Target_documents_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // Clear 'query' field (since query and documents are part of a 'oneof')
         query = Query::Invalid();
         // TODO(rsgowman): Implement.
@@ -265,7 +257,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
         break;
     }
   }

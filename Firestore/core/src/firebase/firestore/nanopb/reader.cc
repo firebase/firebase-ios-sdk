@@ -43,12 +43,13 @@ Tag Reader::ReadTag() {
   // nanopb code always returns a false status when setting eof.
   HARD_ASSERT(!eof, "nanopb set both ok status and eof to true");
 
+  last_tag_ = tag;
   return tag;
 }
 
-bool Reader::RequireWireType(pb_wire_type_t wire_type, Tag tag) {
+bool Reader::RequireWireType(pb_wire_type_t wire_type) {
   if (!status_.ok()) return false;
-  if (wire_type != tag.wire_type) {
+  if (wire_type != last_tag_.wire_type) {
     set_status(Status(FirestoreErrorCode::DataLoss,
                       "Input proto bytes cannot be parsed (mismatch between "
                       "the wiretype and the field number (tag))"));
@@ -153,10 +154,10 @@ std::vector<uint8_t> Reader::ReadBytes() {
   return std::vector<uint8_t>(bytes.begin(), bytes.end());
 }
 
-void Reader::SkipField(const Tag& tag) {
+void Reader::SkipField() {
   if (!status_.ok()) return;
 
-  if (!pb_skip_field(&stream_, tag.wire_type)) {
+  if (!pb_skip_field(&stream_, last_tag_.wire_type)) {
     status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
   }
 }

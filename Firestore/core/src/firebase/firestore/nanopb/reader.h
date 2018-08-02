@@ -56,18 +56,27 @@ class Reader {
    * Reads a message type from the input stream.
    *
    * This essentially wraps calls to nanopb's pb_decode_tag() method.
+   *
+   * In addition to returning the tag, this method also stores it. Subsequent
+   * calls to ReadX will use the stored last tag to verify that the type is
+   * correct (and will otherwise set the status of this Reader object to a
+   * non-ok value with the code set to FirestoreErrorCode::DataLoss).
    */
   Tag ReadTag();
 
+  const Tag& last_tag() {
+    return last_tag_;
+  }
+
   /**
-   * Ensures the specified tag is of the specified type. If not, then
-   * Reader::status() will return a non-ok value (with the code set to
+   * Ensures the last read tag (set via ReadTag()) is of the specified type. If
+   * not, then Reader::status() will return a non-ok value (with the code set to
    * FirestoreErrorCode::DataLoss).
    *
    * @return Convenience indicator for success. (If false, then status() will
    * return a non-ok value.)
    */
-  bool RequireWireType(pb_wire_type_t wire_type, Tag tag);
+  bool RequireWireType(pb_wire_type_t wire_type);
 
   /**
    * Reads a nanopb message from the input stream.
@@ -112,13 +121,12 @@ class Reader {
   }
 
   /**
-   * Discards the bytes associated with the given tag.
+   * Discards the bytes associated with the last read tag.
    *
-   * @param tag The tag associated with the field that is otherwise about to be
-   * read. This method uses the tag to determine how many bytes should be
-   * discarded.
+   * This method uses the last tag read via ReadTag to determine how many bytes
+   * should be discarded.
    */
-  void SkipField(const Tag& tag);
+  void SkipField();
 
   size_t bytes_left() const {
     return stream_.bytes_left;
@@ -173,6 +181,8 @@ class Reader {
   util::Status status_ = util::Status::OK();
 
   pb_istream_t stream_;
+
+  Tag last_tag_;
 };
 
 template <typename T>

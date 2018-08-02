@@ -112,15 +112,15 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
   while (reader->good()) {
     Tag tag = reader->ReadTag();
     if (tag.field_number == key_tag) {
-      reader->RequireWireType(PB_WT_STRING, tag);
+      reader->RequireWireType(PB_WT_STRING);
       key = reader->ReadString();
     } else if (tag.field_number == value_tag) {
-      reader->RequireWireType(PB_WT_STRING, tag);
+      reader->RequireWireType(PB_WT_STRING);
       value = reader->ReadNestedMessage<FieldValue>(
           [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
     } else {
       // Unknown tag. According to the proto spec, we need to ignore these.
-      reader->SkipField(tag);
+      reader->SkipField();
     }
   }
 
@@ -146,10 +146,9 @@ absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
   ObjectValue::Map result;
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_MapValue_fields_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
 
         absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
@@ -172,7 +171,7 @@ absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -241,19 +240,18 @@ absl::optional<StructuredQuery::CollectionSelector> DecodeCollectionSelector(
   StructuredQuery::CollectionSelector collection_selector{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case v1beta1::StructuredQuery_CollectionSelector_collection_id_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         collection_selector.collection_id = reader->ReadString();
         break;
       case v1beta1::StructuredQuery_CollectionSelector_all_descendants_tag:
-        reader->RequireWireType(PB_WT_VARINT, tag);
+        reader->RequireWireType(PB_WT_VARINT);
         collection_selector.all_descendants = reader->ReadBool();
         break;
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -264,10 +262,9 @@ absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
   StructuredQuery query{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_StructuredQuery_from_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         absl::optional<StructuredQuery::CollectionSelector>
             collection_selector =
                 reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
@@ -279,7 +276,7 @@ absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
       // TODO(rsgowman): decode other fields
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -358,33 +355,30 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
   FieldValue result = FieldValue::NullValue();
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-
-    // Ensure the tag matches the wire type
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_Value_null_value_tag:
-        reader->RequireWireType(PB_WT_VARINT, tag);
+        reader->RequireWireType(PB_WT_VARINT);
         reader->ReadNull();
         result = FieldValue::NullValue();
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:
-        reader->RequireWireType(PB_WT_VARINT, tag);
+        reader->RequireWireType(PB_WT_VARINT);
         result = FieldValue::BooleanValue(reader->ReadBool());
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:
-        reader->RequireWireType(PB_WT_VARINT, tag);
+        reader->RequireWireType(PB_WT_VARINT);
         result = FieldValue::IntegerValue(reader->ReadInteger());
         break;
 
       case google_firestore_v1beta1_Value_string_value_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         result = FieldValue::StringValue(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Value_timestamp_value_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         absl::optional<Timestamp> timestamp =
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         if (reader->status().ok())
@@ -393,7 +387,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
       }
 
       case google_firestore_v1beta1_Value_map_value_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
         absl::optional<ObjectValue::Map> optional_map =
@@ -410,11 +404,11 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
       case google_firestore_v1beta1_Value_array_value_tag:
         // TODO(b/74243929): Implement remaining types.
         HARD_FAIL("Unhandled message field number (tag): %i.",
-                  tag.field_number);
+                  reader->last_tag().field_number);
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -475,12 +469,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   absl::optional<Timestamp> read_time = Timestamp{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-
-    // Ensure the tag matches the wire type
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         missing = "";
@@ -492,7 +483,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
         found = nullptr;
@@ -501,7 +492,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         read_time = reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
       }
@@ -511,7 +502,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         // it.
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -536,15 +527,14 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   absl::optional<Timestamp> version = Timestamp{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_Document_name_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         name = reader->ReadString();
         break;
 
       case google_firestore_v1beta1_Document_fields_tag: {
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
                 DecodeDocumentFieldsEntry);
@@ -558,7 +548,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       }
 
       case google_firestore_v1beta1_Document_update_time_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         // TODO(rsgowman): Rather than overwriting, we should instead merge with
         // the existing SnapshotVersion (if any). Less relevant here, since it's
         // just two numbers which are both expected to be present, but if the
@@ -571,7 +561,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // it.
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
@@ -645,22 +635,21 @@ absl::optional<Query> Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
   absl::optional<StructuredQuery> query = StructuredQuery{};
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    switch (tag.field_number) {
+    switch (reader->ReadTag().field_number) {
       case google_firestore_v1beta1_Target_QueryTarget_parent_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         path = DecodeQueryPath(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag:
-        reader->RequireWireType(PB_WT_STRING, tag);
+        reader->RequireWireType(PB_WT_STRING);
         query =
             reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
         break;
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
-        reader->SkipField(tag);
+        reader->SkipField();
     }
   }
 
