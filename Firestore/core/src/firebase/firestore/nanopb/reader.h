@@ -115,12 +115,23 @@ class Reader {
     return stream_.bytes_left;
   }
 
+  /**
+   * True IFF the stream still has bytes left, and the status is ok.
+   */
+  bool good() const {
+    return stream_.bytes_left && status_.ok();
+  }
+
   util::Status status() const {
     return status_;
   }
 
   void set_status(util::Status status) {
     status_ = status;
+  }
+
+  void update_status(const util::Status& status) {
+    status_.Update(status);
   }
 
  private:

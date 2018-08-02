@@ -72,18 +72,15 @@ void LocalSerializer::EncodeMaybeDocument(
 
 std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     Reader* reader) const {
-  if (!reader->status().ok()) return {};
-
   std::unique_ptr<model::MaybeDocument> result;
 
-  while (reader->bytes_left()) {
+  while (reader->good()) {
     Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return {};
 
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case firestore_client_MaybeDocument_document_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
 
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
@@ -94,7 +91,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
 
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
@@ -109,9 +106,9 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   }
 
   if (!result) {
-    reader->set_status(Status(FirestoreErrorCode::DataLoss,
-                              "Invalid MaybeDocument message: Neither "
-                              "'no_document' nor 'document' fields set."));
+    reader->update_status(Status(FirestoreErrorCode::DataLoss,
+                                 "Invalid MaybeDocument message: Neither "
+                                 "'no_document' nor 'document' fields set."));
     return {};
   }
   return result;
@@ -158,24 +155,21 @@ void LocalSerializer::EncodeNoDocument(Writer* writer,
 
 std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader) const {
-  if (!reader->status().ok()) return nullptr;
-
   std::string name;
   SnapshotVersion version = SnapshotVersion::None();
 
-  while (reader->bytes_left()) {
+  while (reader->good()) {
     Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return nullptr;
 
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case firestore_client_NoDocument_name_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
+        reader->RequireWireType(PB_WT_STRING, tag);
         name = reader->ReadString();
         break;
 
       case firestore_client_NoDocument_read_time_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return nullptr;
+        reader->RequireWireType(PB_WT_STRING, tag);
         version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp)};
         break;
@@ -187,6 +181,7 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
     }
   }
 
+  if (!reader->status().ok()) return nullptr;
   return absl::make_unique<model::NoDocument>(rpc_serializer_.DecodeKey(name),
                                               version);
 }
@@ -227,37 +222,34 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
 
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     Reader* reader) const {
-  if (!reader->status().ok()) return {};
-
   model::TargetId target_id = 0;
   SnapshotVersion version = SnapshotVersion::None();
   std::vector<uint8_t> resume_token;
   Query query = Query::Invalid();
 
-  while (reader->bytes_left()) {
+  while (reader->good()) {
     Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return {};
 
     switch (tag.field_number) {
       case firestore_client_Target_target_id_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return {};
+        reader->RequireWireType(PB_WT_VARINT, tag);
         // TODO(rsgowman): How to handle truncation of integer types?
         target_id = static_cast<model::TargetId>(reader->ReadInteger());
         break;
 
       case firestore_client_Target_snapshot_version_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
         version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
             rpc_serializer_.DecodeTimestamp)};
         break;
 
       case firestore_client_Target_resume_token_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
         resume_token = reader->ReadBytes();
         break;
 
       case firestore_client_Target_query_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
         // TODO(rsgowman): Clear 'documents' field (since query and documents
         // are part of a 'oneof').
         query =
@@ -265,7 +257,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
         break;
 
       case firestore_client_Target_documents_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
+        reader->RequireWireType(PB_WT_STRING, tag);
         // Clear 'query' field (since query and documents are part of a 'oneof')
         query = Query::Invalid();
         // TODO(rsgowman): Implement.
@@ -278,6 +270,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     }
   }
 
+  if (!reader->status().ok()) return {};
   return QueryData(std::move(query), target_id, QueryPurpose::kListen,
                    std::move(version), std::move(resume_token));
 }

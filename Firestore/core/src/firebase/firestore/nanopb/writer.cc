@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
