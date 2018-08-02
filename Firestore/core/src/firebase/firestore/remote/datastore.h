@@ -35,42 +35,9 @@ namespace remote {
 
 class Datastore {
  public:
-  Datastore();
-  ~Datastore();
-
-  Datastore(const Datastore& other) = delete;
-  Datastore(Datastore&& other) = delete;
-
-  Datastore& operator=(const Datastore& other) = delete;
-  Datastore& operator=(Datastore&& other) = delete;
-};
-
-class GrpcQueue {
- public:
-  void Shutdown() {
-    // FIREBASE_ASSERT_MESSAGE(!is_shutting_down_, "GrpcQueue cannot be shut
-    // down twice");
-    is_shutting_down_ = true;
-    impl_.Shutdown();
-  }
-
-  bool Next(void** tag, bool* ok) {
-    return impl_.Next(tag, ok);
-  }
-
-  grpc::CompletionQueue* get_impl() {
-    return &impl_;
-  }
-
- private:
-  grpc::CompletionQueue impl_;
-  bool is_shutting_down_ = false;
-};
-
-class DatastoreImpl {
- public:
-  DatastoreImpl(util::AsyncQueue* firestore_queue,
+  Datastore(util::AsyncQueue* firestore_queue,
                 const core::DatabaseInfo& database_info);
+
 
   // database_info_->database_id()
 
@@ -82,24 +49,28 @@ class DatastoreImpl {
 
   // TODO
   void Shutdown();
-  // DatastoreImpl::~DatastoreImpl() {
+  // Datastore::~Datastore() {
   //   grpc_queue_.Shutdown();
   //   dedicated_executor_->ExecuteBlocking([] {});
   // }
+
+  Datastore(const Datastore& other) = delete;
+  Datastore(Datastore&& other) = delete;
+  Datastore& operator=(const Datastore& other) = delete;
+  Datastore& operator=(Datastore&& other) = delete;
 
  private:
   void PollGrpcQueue();
   static std::unique_ptr<util::internal::Executor> CreateExecutor();
 
-  grpc::GenericStub CreateStub() const;
+  grpc::GenericStub CreateGrpcStub() const;
 
   util::AsyncQueue* firestore_queue_;
   const core::DatabaseInfo* database_info_;
 
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
-  grpc::GenericStub stub_;
+  grpc::GenericStub grpc_stub_;
   grpc::CompletionQueue grpc_queue_;
-  // GrpcQueue grpc_queue_;
 };
 
 extern std::string pemRootCertsPath;
