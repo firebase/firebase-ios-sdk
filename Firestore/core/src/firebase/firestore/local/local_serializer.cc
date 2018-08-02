@@ -60,8 +60,7 @@ void LocalSerializer::EncodeMaybeDocument(
       writer->WriteTag(
           {PB_WT_STRING, firestore_client_MaybeDocument_no_document_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
-        EncodeNoDocument(writer,
-                         static_cast<const NoDocument&>(maybe_doc));
+        EncodeNoDocument(writer, static_cast<const NoDocument&>(maybe_doc));
       });
       return;
 
@@ -170,7 +169,7 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
-                                              SnapshotVersion{*version});
+                                       SnapshotVersion{*version});
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
