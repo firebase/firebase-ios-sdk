@@ -52,7 +52,6 @@ using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Query;
 using util::Status;
-using util::StatusOr;
 
 // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
 #define EXPECT_OK(status) EXPECT_TRUE(StatusOk(status))
@@ -115,12 +114,6 @@ class LocalSerializerTest : public ::testing::Test {
     return testing::AssertionSuccess();
   }
 
-  // TODO(rsgowman): This is copied from remote/serializer_tests.cc. Refactor.
-  template <typename T>
-  testing::AssertionResult StatusOk(const StatusOr<T>& status) {
-    return StatusOk(status.status());
-  }
-
  private:
   void ExpectSerializationRoundTrip(
       const MaybeDocument& model,
@@ -144,11 +137,11 @@ class LocalSerializerTest : public ::testing::Test {
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
+    absl::optional<std::unique_ptr<MaybeDocument>> actual_model_optional =
         serializer.DecodeMaybeDocument(&reader);
-    EXPECT_OK(actual_model_status);
+    EXPECT_OK(reader.status());
     std::unique_ptr<MaybeDocument> actual_model =
-        std::move(actual_model_status).ValueOrDie();
+        std::move(actual_model_optional).value();
     EXPECT_EQ(type, actual_model->type());
     EXPECT_EQ(model, *actual_model);
   }
@@ -157,8 +150,8 @@ class LocalSerializerTest : public ::testing::Test {
                                            const MaybeDocument& maybe_doc) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    Status status = serializer->EncodeMaybeDocument(&writer, maybe_doc);
-    EXPECT_OK(status);
+    serializer->EncodeMaybeDocument(&writer, maybe_doc);
+    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -179,11 +172,10 @@ class LocalSerializerTest : public ::testing::Test {
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    StatusOr<QueryData> actual_query_data_status =
+    absl::optional<QueryData> actual_query_data_optional =
         serializer.DecodeQueryData(&reader);
-    EXPECT_OK(actual_query_data_status);
-    QueryData actual_query_data =
-        std::move(actual_query_data_status).ValueOrDie();
+    EXPECT_OK(reader.status());
+    QueryData actual_query_data = std::move(actual_query_data_optional).value();
 
     EXPECT_EQ(query_data, actual_query_data);
   }
@@ -193,8 +185,8 @@ class LocalSerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
     Writer writer = Writer::Wrap(&bytes);
-    Status status = serializer->EncodeQueryData(&writer, query_data);
-    EXPECT_OK(status);
+    serializer->EncodeQueryData(&writer, query_data);
+    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -239,9 +231,8 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   // Let the RPC serializer test various permutations of query serialization.
   std::vector<uint8_t> query_target_bytes;
   Writer writer = Writer::Wrap(&query_target_bytes);
-  util::Status status =
-      remote_serializer.EncodeQueryTarget(&writer, query_data.query());
-  EXPECT_OK(status);
+  remote_serializer.EncodeQueryTarget(&writer, query_data.query());
+  EXPECT_OK(writer.status());
   v1beta1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));

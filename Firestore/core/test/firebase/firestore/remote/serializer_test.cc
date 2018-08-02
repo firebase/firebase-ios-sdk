@@ -153,18 +153,17 @@ class SerializerTest : public ::testing::Test {
   void ExpectFailedStatusDuringFieldValueDecode(
       Status status, const std::vector<uint8_t>& bytes) {
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    StatusOr<FieldValue> bad_status = serializer.DecodeFieldValue(&reader);
-    ASSERT_NOT_OK(bad_status);
-    EXPECT_EQ(status.code(), bad_status.status().code());
+    serializer.DecodeFieldValue(&reader);
+    ASSERT_NOT_OK(reader.status());
+    EXPECT_EQ(status.code(), reader.status().code());
   }
 
   void ExpectFailedStatusDuringMaybeDocumentDecode(
       Status status, const std::vector<uint8_t>& bytes) {
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    StatusOr<std::unique_ptr<MaybeDocument>> bad_status =
-        serializer.DecodeMaybeDocument(&reader);
-    ASSERT_NOT_OK(bad_status);
-    EXPECT_EQ(status.code(), bad_status.status().code());
+    serializer.DecodeMaybeDocument(&reader);
+    ASSERT_NOT_OK(reader.status());
+    EXPECT_EQ(status.code(), reader.status().code());
   }
 
   v1beta1::Value ValueProto(std::nullptr_t) {
@@ -181,8 +180,8 @@ class SerializerTest : public ::testing::Test {
                                         const FieldValue& fv) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    Status status = serializer->EncodeFieldValue(&writer, fv);
-    EXPECT_OK(status);
+    serializer->EncodeFieldValue(&writer, fv);
+    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -191,9 +190,8 @@ class SerializerTest : public ::testing::Test {
                                       const FieldValue& value) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    Status status =
-        serializer->EncodeDocument(&writer, key, value.object_value());
-    EXPECT_OK(status);
+    serializer->EncodeDocument(&writer, key, value.object_value());
+    EXPECT_OK(writer.status());
     return bytes;
   }
 
@@ -293,12 +291,11 @@ class SerializerTest : public ::testing::Test {
     bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
     Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-    StatusOr<FieldValue> actual_model_status =
+    absl::optional<FieldValue> actual_model =
         serializer.DecodeFieldValue(&reader);
-    EXPECT_OK(actual_model_status);
-    FieldValue actual_model = actual_model_status.ValueOrDie();
-    EXPECT_EQ(type, actual_model.type());
-    EXPECT_EQ(model, actual_model);
+    EXPECT_OK(reader.status());
+    EXPECT_EQ(type, actual_model->type());
+    EXPECT_EQ(model, *actual_model);
   }
 
   void ExpectSerializationRoundTrip(
@@ -539,15 +536,14 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
   // Decode the bytes into the model
   Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-  StatusOr<FieldValue> actual_model_status =
+  absl::optional<FieldValue> actual_model =
       serializer.DecodeFieldValue(&reader);
-  EXPECT_OK(actual_model_status);
-  FieldValue actual_model = actual_model_status.ValueOrDie();
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::IntegerValue(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
+  EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
@@ -683,16 +679,14 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Decode the bytes into the model
   Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-  StatusOr<FieldValue> actual_model_status =
+  absl::optional<FieldValue> actual_model =
       serializer.DecodeFieldValue(&reader);
-  Status s = actual_model_status.status();
-  EXPECT_OK(actual_model_status);
-  FieldValue actual_model = actual_model_status.ValueOrDie();
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::BooleanValue(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
+  EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
@@ -880,16 +874,14 @@ TEST_F(SerializerTest,
 
   // Decode the bytes into the model
   Reader reader = Reader::Wrap(bytes.data(), bytes.size());
-  StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
-      serializer.DecodeMaybeDocument(&reader);
-  EXPECT_OK(actual_model_status);
   std::unique_ptr<MaybeDocument> actual_model =
-      std::move(actual_model_status).ValueOrDie();
+      serializer.DecodeMaybeDocument(&reader);
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   NoDocument expected_model =
       NoDocument(Key("one/two"), SnapshotVersion::None());
-  EXPECT_EQ(expected_model, *actual_model.get());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, DecodesNoDocument) {

@@ -59,7 +59,6 @@ using firebase::firestore::nanopb::Reader;
 using firebase::firestore::nanopb::Tag;
 using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
-using firebase::firestore::util::StatusOr;
 
 // Aliases for nanopb's equivalent of google::firestore::v1beta1. This shorten
 // the symbols and allows them to fit on one line.
@@ -124,11 +123,12 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
   HARD_ASSERT(tag.field_number == value_tag);
   HARD_ASSERT(tag.wire_type == PB_WT_STRING);
 
-  StatusOr<FieldValue> value = reader->ReadNestedMessage<StatusOr<FieldValue>>(
-      [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
+  absl::optional<FieldValue> value =
+      reader->ReadNestedMessage<absl::optional<FieldValue>>(
+          [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
 
-  if (!reader->status().ok()) return {};
-  return ObjectValue::Map::value_type{key, std::move(value).ValueOrDie()};
+  if (!value.has_value()) return {};
+  return ObjectValue::Map::value_type{key, std::move(value).value()};
 }
 
 ObjectValue::Map::value_type DecodeMapValueFieldsEntry(Reader* reader) {
@@ -290,8 +290,8 @@ Serializer::Serializer(
       database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
 }
 
-Status Serializer::EncodeFieldValue(Writer* writer,
-                                    const FieldValue& field_value) {
+void Serializer::EncodeFieldValue(Writer* writer,
+                                  const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
   switch (field_value.type()) {
@@ -339,63 +339,55 @@ Status Serializer::EncodeFieldValue(Writer* writer,
       // TODO(rsgowman): implement the other types
       abort();
   }
-
-  return writer->status();
 }
 
-StatusOr<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
-  if (!reader->status().ok()) return reader->status();
+absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
+  if (!reader->status().ok()) return {};
 
   // There needs to be at least one entry in the FieldValue.
   if (reader->bytes_left() == 0) {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Input Value proto missing contents"));
-    return reader->status();
+    return {};
   }
 
   FieldValue result = FieldValue::NullValue();
 
   while (reader->bytes_left()) {
     Tag tag = reader->ReadTag();
-    if (!reader->status().ok()) return reader->status();
+    if (!reader->status().ok()) return {};
 
     // Ensure the tag matches the wire type
     switch (tag.field_number) {
       case google_firestore_v1beta1_Value_null_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return {};
         reader->ReadNull();
         result = FieldValue::NullValue();
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return {};
         result = FieldValue::BooleanValue(reader->ReadBool());
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:
-        if (!reader->RequireWireType(PB_WT_VARINT, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_VARINT, tag)) return {};
         result = FieldValue::IntegerValue(reader->ReadInteger());
         break;
 
       case google_firestore_v1beta1_Value_string_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
         result = FieldValue::StringValue(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Value_timestamp_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
         result = FieldValue::TimestampValue(
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
         break;
 
       case google_firestore_v1beta1_Value_map_value_tag:
-        if (!reader->RequireWireType(PB_WT_STRING, tag))
-          return reader->status();
+        if (!reader->RequireWireType(PB_WT_STRING, tag)) return {};
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
         result = FieldValue::ObjectValueFromMap(
@@ -418,7 +410,7 @@ StatusOr<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
   }
 
   if (reader->status().ok()) return result;
-  return reader->status();
+  return {};
 }
 
 std::string Serializer::EncodeKey(const DocumentKey& key) const {
@@ -434,9 +426,9 @@ DocumentKey Serializer::DecodeKey(absl::string_view name) const {
   return DocumentKey{ExtractLocalPathFromResourceName(resource)};
 }
 
-Status Serializer::EncodeDocument(Writer* writer,
-                                  const DocumentKey& key,
-                                  const ObjectValue& object_value) const {
+void Serializer::EncodeDocument(Writer* writer,
+                                const DocumentKey& key,
+                                const ObjectValue& object_value) const {
   // Encode Document.name
   writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
   writer->WriteString(EncodeKey(key));
@@ -451,19 +443,17 @@ Status Serializer::EncodeDocument(Writer* writer,
 
   // Skip Document.create_time and Document.update_time, since they're
   // output-only fields.
-
-  return writer->status();
 }
 
-util::StatusOr<std::unique_ptr<model::MaybeDocument>>
-Serializer::DecodeMaybeDocument(Reader* reader) const {
+std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
+    Reader* reader) const {
   std::unique_ptr<MaybeDocument> maybeDoc =
       DecodeBatchGetDocumentsResponse(reader);
 
   if (reader->status().ok()) {
     return std::move(maybeDoc);
   } else {
-    return reader->status();
+    return {};
   }
 }
 
@@ -587,9 +577,9 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
       /*has_local_modifications=*/false);
 }
 
-Status Serializer::EncodeQueryTarget(Writer* writer,
-                                     const core::Query& query) const {
-  if (!writer->status().ok()) return writer->status();
+void Serializer::EncodeQueryTarget(Writer* writer,
+                                   const core::Query& query) const {
+  if (!writer->status().ok()) return;
 
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
@@ -634,8 +624,6 @@ Status Serializer::EncodeQueryTarget(Writer* writer,
     // TODO(rsgowman): Encode the startat.
     // TODO(rsgowman): Encode the endat.
   });
-
-  return writer->status();
 }
 
 ResourcePath DecodeQueryPath(absl::string_view name) {
@@ -760,12 +748,8 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
 
   // Write the value (FieldValue)
   writer->WriteTag({PB_WT_STRING, value_tag});
-  writer->WriteNestedMessage([&kv](Writer* writer) {
-    // TODO(rsgowman): Temporarily just ignore the error. It'll be set on
-    // the write stream too, so it's not truely ignored. (The return value
-    // will be changed shortly to make this irrelevant.)
-    EncodeFieldValue(writer, kv.second).IgnoreError();
-  });
+  writer->WriteNestedMessage(
+      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
 }
 
 Timestamp Serializer::DecodeTimestamp(nanopb::Reader* reader) {

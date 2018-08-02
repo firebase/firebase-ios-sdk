@@ -33,9 +33,9 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -71,23 +71,24 @@ class Serializer {
   /**
    * @brief Converts the FieldValue model passed into bytes.
    *
+   * Any errors that occur during encoding are fatal.
+   *
    * @param writer The serialized output will be written to the provided writer.
    * @param field_value the model to convert.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  static util::Status EncodeFieldValue(nanopb::Writer* writer,
-                                       const model::FieldValue& field_value);
+  static void EncodeFieldValue(nanopb::Writer* writer,
+                               const model::FieldValue& field_value);
 
   /**
    * @brief Converts from bytes to the model FieldValue format.
    *
    * @param reader The Reader object containing the bytes to convert. It's
    * assumed that exactly all of the bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating
-   * what went wrong.
+   * @return The model equivalent of the bytes or nullopt if an error occurred.
+   * @post (reader->status().ok() && result) ||
+   * (!reader->status().ok() && !result)
    */
-  static util::StatusOr<model::FieldValue> DecodeFieldValue(
+  static absl::optional<model::FieldValue> DecodeFieldValue(
       nanopb::Reader* reader);
 
   /**
@@ -106,13 +107,13 @@ class Serializer {
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
    *
+   * Any errors that occur during encoding are fatal.
+   *
    * @param writer The serialized output will be written to the provided writer.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeDocument(nanopb::Writer* writer,
-                              const model::DocumentKey& key,
-                              const model::ObjectValue& value) const;
+  void EncodeDocument(nanopb::Writer* writer,
+                      const model::DocumentKey& key,
+                      const model::ObjectValue& value) const;
 
   /**
    * @brief Converts from bytes to the model Document format.
@@ -120,22 +121,23 @@ class Serializer {
    * @param reader The Reader containing the bytes to convert. These bytes must
    * represent a BatchGetDocumentsResponse. It's assumed that exactly all of the
    * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating
-   * what went wrong.
+   * @return The model equivalent of the bytes or nullopt if an error occurred.
+   * @post (reader->status().ok() && result) ||
+   * (!reader->status().ok() && !result)
    */
-  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader) const;
 
   /**
    * @brief Converts the Query into bytes, representing a
    * firestore::v1beta1::Target::QueryTarget.
    *
+   * Any errors that occur during encoding are fatal.
+   *
    * @param writer The serialized output will be written to the provided writer.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeQueryTarget(nanopb::Writer* writer,
-                                 const core::Query& query) const;
+  void EncodeQueryTarget(nanopb::Writer* writer,
+                         const core::Query& query) const;
 
   std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 

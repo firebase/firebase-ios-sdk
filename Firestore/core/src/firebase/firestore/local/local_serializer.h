@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,47 +53,54 @@ class LocalSerializer {
    * @brief Encodes a MaybeDocument model to the equivalent bytes for local
    * storage.
    *
+   * Any errors that occur during encoding are fatal.
+   *
    * @param writer The serialized output will be written to the provided writer.
    * @param maybe_doc the model to convert.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeMaybeDocument(nanopb::Writer* writer,
-                                   const model::MaybeDocument& maybe_doc) const;
+  void EncodeMaybeDocument(nanopb::Writer* writer,
+                           const model::MaybeDocument& maybe_doc) const;
 
   /**
    * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
    * model.
    *
+   * Check writer->status() to determine if an error occured while decoding.
+   *
    * @param reader The reader object containing the bytes to convert. It's
    * assumed that exactly all of the bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating what went
-   * wrong.
+   * @return The model equivalent of the bytes or nullopt if an error occurred.
+   * @post (reader->status().ok() && result) ||
+   * (!reader->status().ok() && !result)
    */
-  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
+  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
       nanopb::Reader* reader) const;
 
   /**
    * @brief Encodes a QueryData to the equivalent bytes, representing a
    * ::firestore::proto::Target, for local storage.
    *
+   * Any errors that occur during encoding are fatal.
+   *
    * @param writer The serialized output will be written to the provided writer.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeQueryData(nanopb::Writer* writer,
-                               const QueryData& query_data) const;
+  void EncodeQueryData(nanopb::Writer* writer,
+                       const QueryData& query_data) const;
 
   /**
    * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
    * equivalent QueryData.
    *
+   * Check writer->status() to determine if an error occured while decoding.
+   *
    * @param reader The reader object containing the bytes to convert. It's
    * assumed that exactly all of the bytes will be used by this conversion.
-   * @return The QueryData equivalent of the bytes or a Status indicating what
-   * went wrong.
+   * @return The QueryData equivalent of the bytes or nullopt if an error
+   * occurred.
+   * @post (reader->status().ok() && result.has_value()) ||
+   * (!reader->status().ok() && !result.has_value())
    */
-  util::StatusOr<QueryData> DecodeQueryData(nanopb::Reader* reader) const;
+  absl::optional<QueryData> DecodeQueryData(nanopb::Reader* reader) const;
 
  private:
   /**
