@@ -84,8 +84,8 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<std::unique_ptr<model::Document>>(
-            [&](Reader* reader) -> std::unique_ptr<model::Document> {
+        result =
+            reader->ReadNestedMessage<model::Document>([&](Reader* reader) {
               return rpc_serializer_.DecodeDocument(reader);
             });
         break;
@@ -95,7 +95,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<std::unique_ptr<model::NoDocument>>(
+        result = reader->ReadNestedMessage<model::NoDocument>(
             [&](Reader* reader) { return DecodeNoDocument(reader); });
         break;
 
@@ -156,7 +156,7 @@ void LocalSerializer::EncodeNoDocument(Writer* writer,
 std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader) const {
   std::string name;
-  SnapshotVersion version = SnapshotVersion::None();
+  absl::optional<Timestamp> version = Timestamp{};
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
@@ -170,8 +170,8 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
 
       case firestore_client_NoDocument_read_time_tag:
         reader->RequireWireType(PB_WT_STRING, tag);
-        version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
-            rpc_serializer_.DecodeTimestamp)};
+        version = reader->ReadNestedMessage<Timestamp>(
+            rpc_serializer_.DecodeTimestamp);
         break;
 
       default:
@@ -183,7 +183,7 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<model::NoDocument>(rpc_serializer_.DecodeKey(name),
-                                              version);
+                                              SnapshotVersion{*version});
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
@@ -223,9 +223,9 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     Reader* reader) const {
   model::TargetId target_id = 0;
-  SnapshotVersion version = SnapshotVersion::None();
+  absl::optional<Timestamp> version = Timestamp{};
   std::vector<uint8_t> resume_token;
-  Query query = Query::Invalid();
+  absl::optional<Query> query = Query::Invalid();
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
@@ -239,8 +239,8 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
 
       case firestore_client_Target_snapshot_version_tag:
         reader->RequireWireType(PB_WT_STRING, tag);
-        version = SnapshotVersion{reader->ReadNestedMessage<Timestamp>(
-            rpc_serializer_.DecodeTimestamp)};
+        version = reader->ReadNestedMessage<Timestamp>(
+            rpc_serializer_.DecodeTimestamp);
         break;
 
       case firestore_client_Target_resume_token_tag:
@@ -271,8 +271,9 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return {};
-  return QueryData(std::move(query), target_id, QueryPurpose::kListen,
-                   std::move(version), std::move(resume_token));
+  return QueryData(*std::move(query), target_id, QueryPurpose::kListen,
+                   SnapshotVersion{*std::move(version)},
+                   std::move(resume_token));
 }
 
 }  // namespace local

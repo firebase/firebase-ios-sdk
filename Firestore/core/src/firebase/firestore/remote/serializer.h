@@ -152,9 +152,9 @@ class Serializer {
 
   static void EncodeTimestamp(nanopb::Writer* writer,
                               const Timestamp& timestamp_value);
-  static Timestamp DecodeTimestamp(nanopb::Reader* reader);
+  static absl::optional<Timestamp> DecodeTimestamp(nanopb::Reader* reader);
 
-  static core::Query DecodeQueryTarget(nanopb::Reader* reader);
+  static absl::optional<core::Query> DecodeQueryTarget(nanopb::Reader* reader);
 
  private:
   std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(

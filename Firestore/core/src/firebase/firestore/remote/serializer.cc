@@ -87,7 +87,7 @@ void Serializer::EncodeTimestamp(Writer* writer,
 
 namespace {
 
-ObjectValue::Map DecodeMapValue(Reader* reader);
+absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader);
 
 // There's no f:f::model equivalent of StructuredQuery, so we'll create our
 // own struct for decoding. We could use nanopb's struct, but it's slightly
@@ -104,9 +104,8 @@ struct StructuredQuery {
   // TODO(rsgowman): other fields
 };
 
-ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
-                                               uint32_t key_tag,
-                                               uint32_t value_tag) {
+absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
+    Reader* reader, uint32_t key_tag, uint32_t value_tag) {
   std::string key;
   absl::optional<FieldValue> value;
 
@@ -117,7 +116,7 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
       key = reader->ReadString();
     } else if (tag.field_number == value_tag) {
       reader->RequireWireType(PB_WT_STRING, tag);
-      value = reader->ReadNestedMessage<absl::optional<FieldValue>>(
+      value = reader->ReadNestedMessage<FieldValue>(
           [](Reader* reader) { return Serializer::DecodeFieldValue(reader); });
     } else {
       // Unknown tag. According to the proto spec, we need to ignore these.
@@ -126,22 +125,24 @@ ObjectValue::Map::value_type DecodeFieldsEntry(Reader* reader,
   }
 
   if (!value.has_value()) return {};
-  return ObjectValue::Map::value_type{key, std::move(value).value()};
+  return ObjectValue::Map::value_type{key, *std::move(value)};
 }
 
-ObjectValue::Map::value_type DecodeMapValueFieldsEntry(Reader* reader) {
+absl::optional<ObjectValue::Map::value_type> DecodeMapValueFieldsEntry(
+    Reader* reader) {
   return DecodeFieldsEntry(
       reader, google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
       google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
 }
 
-ObjectValue::Map::value_type DecodeDocumentFieldsEntry(Reader* reader) {
+absl::optional<ObjectValue::Map::value_type> DecodeDocumentFieldsEntry(
+    Reader* reader) {
   return DecodeFieldsEntry(
       reader, google_firestore_v1beta1_Document_FieldsEntry_key_tag,
       google_firestore_v1beta1_Document_FieldsEntry_value_tag);
 }
 
-ObjectValue::Map DecodeMapValue(Reader* reader) {
+absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
   ObjectValue::Map result;
 
   while (reader->good()) {
@@ -150,7 +151,7 @@ ObjectValue::Map DecodeMapValue(Reader* reader) {
       case google_firestore_v1beta1_MapValue_fields_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
 
-        ObjectValue::Map::value_type fv =
+        absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
                 DecodeMapValueFieldsEntry);
 
@@ -165,7 +166,7 @@ ObjectValue::Map DecodeMapValue(Reader* reader) {
         // https://developers.google.com/protocol-buffers/docs/encoding#optional
 
         // Add this key,fieldvalue to the results map.
-        result[fv.first] = fv.second;
+        if (reader->status().ok()) result[fv->first] = fv->second;
         break;
       }
 
@@ -235,7 +236,8 @@ ResourcePath ExtractLocalPathFromResourceName(
   return resource_name.PopFirst(5);
 }
 
-StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
+absl::optional<StructuredQuery::CollectionSelector> DecodeCollectionSelector(
+    Reader* reader) {
   StructuredQuery::CollectionSelector collection_selector{};
 
   while (reader->good()) {
@@ -258,18 +260,22 @@ StructuredQuery::CollectionSelector DecodeCollectionSelector(Reader* reader) {
   return collection_selector;
 }
 
-StructuredQuery DecodeStructuredQuery(Reader* reader) {
+absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
   StructuredQuery query{};
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
     switch (tag.field_number) {
-      case google_firestore_v1beta1_StructuredQuery_from_tag:
+      case google_firestore_v1beta1_StructuredQuery_from_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
-        query.from.push_back(
-            reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
-                DecodeCollectionSelector));
+        absl::optional<StructuredQuery::CollectionSelector>
+            collection_selector =
+                reader->ReadNestedMessage<StructuredQuery::CollectionSelector>(
+                    DecodeCollectionSelector);
+        if (reader->status().ok()) query.from.push_back(*collection_selector);
         break;
+      }
+
       // TODO(rsgowman): decode other fields
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
@@ -377,19 +383,25 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         result = FieldValue::StringValue(reader->ReadString());
         break;
 
-      case google_firestore_v1beta1_Value_timestamp_value_tag:
+      case google_firestore_v1beta1_Value_timestamp_value_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
-        result = FieldValue::TimestampValue(
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp));
+        absl::optional<Timestamp> timestamp =
+            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
+        if (reader->status().ok())
+          result = FieldValue::TimestampValue(*timestamp);
         break;
+      }
 
-      case google_firestore_v1beta1_Value_map_value_tag:
+      case google_firestore_v1beta1_Value_map_value_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
         // TODO(rsgowman): We should merge the existing map (if any) with the
         // newly parsed map.
-        result = FieldValue::ObjectValueFromMap(
-            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue));
+        absl::optional<ObjectValue::Map> optional_map =
+            reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue);
+        if (reader->status().ok())
+          result = FieldValue::ObjectValueFromMap(*optional_map);
         break;
+      }
 
       case google_firestore_v1beta1_Value_double_value_tag:
       case google_firestore_v1beta1_Value_bytes_value_tag:
@@ -460,7 +472,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   std::unique_ptr<MaybeDocument> found;
   std::string missing;
   // We explicitly ignore the 'transaction' field
-  SnapshotVersion read_time = SnapshotVersion::None();
+  absl::optional<Timestamp> read_time = Timestamp{};
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
@@ -475,10 +487,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 
         // TODO(rsgowman): If multiple 'found' values are found, we should merge
         // them (rather than using the last one.)
-        found = reader->ReadNestedMessage<std::unique_ptr<MaybeDocument>>(
-            [this](Reader* reader) -> std::unique_ptr<MaybeDocument> {
-              return DecodeDocument(reader);
-            });
+        found = reader->ReadNestedMessage<MaybeDocument>(
+            [this](Reader* reader) { return DecodeDocument(reader); });
         break;
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag:
@@ -490,11 +500,11 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
         missing = reader->ReadString();
         break;
 
-      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag:
+      case google_firestore_v1beta1_BatchGetDocumentsResponse_read_time_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
-        read_time = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+        read_time = reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
+      }
 
       case google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag:
         // This field is ignored by the client sdk, but we still need to extract
@@ -510,7 +520,8 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   } else if (found != nullptr) {
     return found;
   } else if (!missing.empty()) {
-    return absl::make_unique<NoDocument>(DecodeKey(missing), read_time);
+    return absl::make_unique<NoDocument>(
+        DecodeKey(missing), SnapshotVersion{*std::move(read_time)});
   } else {
     reader->set_status(Status(FirestoreErrorCode::DataLoss,
                               "Invalid BatchGetDocumentsReponse message: "
@@ -522,7 +533,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   std::string name;
   ObjectValue::Map fields_internal;
-  SnapshotVersion version = SnapshotVersion::None();
+  absl::optional<Timestamp> version = Timestamp{};
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
@@ -534,7 +545,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
       case google_firestore_v1beta1_Document_fields_tag: {
         reader->RequireWireType(PB_WT_STRING, tag);
-        ObjectValue::Map::value_type fv =
+        absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
                 DecodeDocumentFieldsEntry);
 
@@ -542,7 +553,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // comment on writing object map for details (DecodeMapValue).
 
         // Add fieldvalue to the results map.
-        fields_internal[fv.first] = fv.second;
+        if (reader->status().ok()) fields_internal[fv->first] = fv->second;
         break;
       }
 
@@ -552,8 +563,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // the existing SnapshotVersion (if any). Less relevant here, since it's
         // just two numbers which are both expected to be present, but if the
         // proto evolves that might change.
-        version = SnapshotVersion{
-            reader->ReadNestedMessage<Timestamp>(DecodeTimestamp)};
+        version = reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         break;
 
       case google_firestore_v1beta1_Document_create_time_tag:
@@ -567,7 +577,8 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(
-      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name), version,
+      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name),
+      SnapshotVersion{*std::move(version)},
       /*has_local_modifications=*/false);
 }
 
@@ -629,9 +640,9 @@ ResourcePath DecodeQueryPath(absl::string_view name) {
   }
 }
 
-Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
+absl::optional<Query> Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
   ResourcePath path = ResourcePath::Empty();
-  StructuredQuery query{};
+  absl::optional<StructuredQuery> query = StructuredQuery{};
 
   while (reader->good()) {
     Tag tag = reader->ReadTag();
@@ -641,12 +652,11 @@ Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
         path = DecodeQueryPath(reader->ReadString());
         break;
 
-      case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag: {
+      case google_firestore_v1beta1_Target_QueryTarget_structured_query_tag:
         reader->RequireWireType(PB_WT_STRING, tag);
         query =
             reader->ReadNestedMessage<StructuredQuery>(DecodeStructuredQuery);
         break;
-      }
 
       default:
         // Unknown tag. According to the proto spec, we need to ignore these.
@@ -656,13 +666,13 @@ Query Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
 
   if (!reader->status().ok()) return Query::Invalid();
 
-  size_t from_count = query.from.size();
+  size_t from_count = query->from.size();
   if (from_count > 0) {
     HARD_ASSERT(
         from_count == 1,
         "StructuredQuery.from with more than one collection is not supported.");
 
-    path = path.Append(query.from[0].collection_id);
+    path = path.Append(query->from[0].collection_id);
   }
 
   // TODO(rsgowman): Dencode the filters.
@@ -745,7 +755,7 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
       [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
 }
 
-Timestamp Serializer::DecodeTimestamp(nanopb::Reader* reader) {
+absl::optional<Timestamp> Serializer::DecodeTimestamp(nanopb::Reader* reader) {
   google_protobuf_Timestamp timestamp_proto =
       google_protobuf_Timestamp_init_zero;
   reader->ReadNanopbMessage(google_protobuf_Timestamp_fields, &timestamp_proto);

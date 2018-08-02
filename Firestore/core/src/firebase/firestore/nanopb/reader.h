@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -100,7 +101,15 @@ class Reader {
    * value.
    */
   template <typename T>
-  T ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn);
+  absl::optional<T> ReadNestedMessage(
+      const std::function<absl::optional<T>(Reader*)>& read_message_fn) {
+    return ReadNestedMessageImpl(read_message_fn);
+  }
+  template <typename T>
+  std::unique_ptr<T> ReadNestedMessage(
+      const std::function<std::unique_ptr<T>(Reader*)>& read_message_fn) {
+    return ReadNestedMessageImpl(read_message_fn);
+  }
 
   /**
    * Discards the bytes associated with the given tag.
@@ -158,17 +167,21 @@ class Reader {
    */
   std::uint64_t ReadVarint();
 
+  template <typename T>
+  T ReadNestedMessageImpl(const std::function<T(Reader*)>& read_message_fn);
+
   util::Status status_ = util::Status::OK();
 
   pb_istream_t stream_;
 };
 
 template <typename T>
-T Reader::ReadNestedMessage(const std::function<T(Reader*)>& read_message_fn) {
+T Reader::ReadNestedMessageImpl(
+    const std::function<T(Reader*)>& read_message_fn) {
   // Implementation note: This is roughly modeled on pb_decode_delimited,
   // adjusted to account for the oneof in FieldValue.
 
-  if (!status_.ok()) return read_message_fn(this);
+  if (!status_.ok()) return {};
 
   pb_istream_t raw_substream;
   if (!pb_make_string_substream(&stream_, &raw_substream)) {
