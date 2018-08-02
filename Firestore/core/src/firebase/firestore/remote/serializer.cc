@@ -436,7 +436,7 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
       DecodeBatchGetDocumentsResponse(reader);
 
   if (reader->status().ok()) {
-    return std::move(maybeDoc);
+    return maybeDoc;
   } else {
     return nullptr;
   }
