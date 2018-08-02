@@ -35,6 +35,9 @@ namespace firestore {
 namespace local {
 
 using core::Query;
+using model::Document;
+using model::MaybeDocument;
+using model::NoDocument;
 using model::ObjectValue;
 using model::SnapshotVersion;
 using nanopb::Reader;
@@ -43,26 +46,26 @@ using nanopb::Writer;
 using util::Status;
 
 void LocalSerializer::EncodeMaybeDocument(
-    Writer* writer, const model::MaybeDocument& maybe_doc) const {
+    Writer* writer, const MaybeDocument& maybe_doc) const {
   switch (maybe_doc.type()) {
-    case model::MaybeDocument::Type::Document:
+    case MaybeDocument::Type::Document:
       writer->WriteTag(
           {PB_WT_STRING, firestore_client_MaybeDocument_document_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
-        EncodeDocument(writer, static_cast<const model::Document&>(maybe_doc));
+        EncodeDocument(writer, static_cast<const Document&>(maybe_doc));
       });
       return;
 
-    case model::MaybeDocument::Type::NoDocument:
+    case MaybeDocument::Type::NoDocument:
       writer->WriteTag(
           {PB_WT_STRING, firestore_client_MaybeDocument_no_document_tag});
       writer->WriteNestedMessage([&](Writer* writer) {
         EncodeNoDocument(writer,
-                         static_cast<const model::NoDocument&>(maybe_doc));
+                         static_cast<const NoDocument&>(maybe_doc));
       });
       return;
 
-    case model::MaybeDocument::Type::Unknown:
+    case MaybeDocument::Type::Unknown:
       // TODO(rsgowman)
       abort();
   }
@@ -70,23 +73,23 @@ void LocalSerializer::EncodeMaybeDocument(
   UNREACHABLE();
 }
 
-std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
+std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
     Reader* reader) const {
-  std::unique_ptr<model::MaybeDocument> result;
+  std::unique_ptr<MaybeDocument> result;
 
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
       case firestore_client_MaybeDocument_document_tag:
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<model::Document>(
+        result = reader->ReadNestedMessage<Document>(
             rpc_serializer_, &remote::Serializer::DecodeDocument);
         break;
 
       case firestore_client_MaybeDocument_no_document_tag:
         // TODO(rsgowman): If multiple 'no_document' values are found, we should
         // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<model::NoDocument>(
+        result = reader->ReadNestedMessage<NoDocument>(
             *this, &LocalSerializer::DecodeNoDocument);
         break;
 
@@ -105,7 +108,7 @@ std::unique_ptr<model::MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 }
 
 void LocalSerializer::EncodeDocument(Writer* writer,
-                                     const model::Document& doc) const {
+                                     const Document& doc) const {
   // Encode Document.name
   writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(doc.key()));
@@ -131,7 +134,7 @@ void LocalSerializer::EncodeDocument(Writer* writer,
 }
 
 void LocalSerializer::EncodeNoDocument(Writer* writer,
-                                       const model::NoDocument& no_doc) const {
+                                       const NoDocument& no_doc) const {
   // Encode NoDocument.name
   writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_name_tag});
   writer->WriteString(rpc_serializer_.EncodeKey(no_doc.key()));
@@ -143,7 +146,7 @@ void LocalSerializer::EncodeNoDocument(Writer* writer,
   });
 }
 
-std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
+std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader) const {
   std::string name;
   absl::optional<Timestamp> version = Timestamp{};
@@ -166,7 +169,7 @@ std::unique_ptr<model::NoDocument> LocalSerializer::DecodeNoDocument(
   }
 
   if (!reader->status().ok()) return nullptr;
-  return absl::make_unique<model::NoDocument>(rpc_serializer_.DecodeKey(name),
+  return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
                                               SnapshotVersion{*version});
 }
 
