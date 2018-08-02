@@ -71,42 +71,24 @@ class Serializer {
   /**
    * @brief Converts the FieldValue model passed into bytes.
    *
+   * @param writer The serialized output will be written to the provided writer.
    * @param field_value the model to convert.
-   * @param[out] out_bytes A buffer to place the output. The bytes will be
-   * appended to this vector.
    * @return A Status, which if not ok(), indicates what went wrong. Note that
    * errors during encoding generally indicate a serious/fatal error.
    */
-  // TODO(rsgowman): If we never support any output except to a vector, it may
-  // make sense to have Serializer own the vector and provide an accessor rather
-  // than asking the user to create it first.
-  util::Status EncodeFieldValue(
-      const firebase::firestore::model::FieldValue& field_value,
-      std::vector<uint8_t>* out_bytes);
+  static util::Status EncodeFieldValue(nanopb::Writer* writer,
+                                       const model::FieldValue& field_value);
 
   /**
    * @brief Converts from bytes to the model FieldValue format.
    *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
+   * @param reader The Reader object containing the bytes to convert. It's
+   * assumed that exactly all of the bytes will be used by this conversion.
    * @return The model equivalent of the bytes or a Status indicating
    * what went wrong.
    */
-  util::StatusOr<model::FieldValue> DecodeFieldValue(const uint8_t* bytes,
-                                                     size_t length);
-
-  /**
-   * @brief Converts from bytes to the model FieldValue format.
-   *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating
-   * what went wrong.
-   */
-  util::StatusOr<model::FieldValue> DecodeFieldValue(
-      const std::vector<uint8_t>& bytes) {
-    return DecodeFieldValue(bytes.data(), bytes.size());
-  }
+  static util::StatusOr<model::FieldValue> DecodeFieldValue(
+      nanopb::Reader* reader);
 
   /**
    * Encodes the given document key as a fully qualified name. This includes the
@@ -124,56 +106,36 @@ class Serializer {
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
    *
-   * @param[out] out_bytes A buffer to place the output. The bytes will be
-   * appended to this vector.
+   * @param writer The serialized output will be written to the provided writer.
    * @return A Status, which if not ok(), indicates what went wrong. Note that
    * errors during encoding generally indicate a serious/fatal error.
    */
-  // TODO(rsgowman): Similar to above, if we never support any output except to
-  // a vector, it may make sense to have Serializer own the vector and provide
-  // an accessor rather than asking the user to create it first.
-  util::Status EncodeDocument(
-      const firebase::firestore::model::DocumentKey& key,
-      const firebase::firestore::model::ObjectValue& value,
-      std::vector<uint8_t>* out_bytes) const;
+  util::Status EncodeDocument(nanopb::Writer* writer,
+                              const model::DocumentKey& key,
+                              const model::ObjectValue& value) const;
 
   /**
    * @brief Converts from bytes to the model Document format.
    *
-   * @param bytes The bytes to convert. These bytes must represent a
-   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
-   * be used by this conversion.
+   * @param reader The Reader containing the bytes to convert. These bytes must
+   * represent a BatchGetDocumentsResponse. It's assumed that exactly all of the
+   * bytes will be used by this conversion.
    * @return The model equivalent of the bytes or a Status indicating
    * what went wrong.
    */
   util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
-      const uint8_t* bytes, size_t length) const;
-
-  /**
-   * @brief Converts from bytes to the model Document format.
-   *
-   * @param bytes The bytes to convert. These bytes must represent a
-   * BatchGetDocumentsResponse. It's assumed that exactly all of the bytes will
-   * be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating
-   * what went wrong.
-   */
-  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
-      const std::vector<uint8_t>& bytes) const {
-    return DecodeMaybeDocument(bytes.data(), bytes.size());
-  }
+      nanopb::Reader* reader) const;
 
   /**
    * @brief Converts the Query into bytes, representing a
    * firestore::v1beta1::Target::QueryTarget.
    *
-   * @param[out] out_bytes A buffer to place the output. The bytes will be
-   * appended to this vector.
+   * @param writer The serialized output will be written to the provided writer.
    * @return A Status, which if not ok(), indicates what went wrong. Note that
    * errors during encoding generally indicate a serious/fatal error.
    */
-  util::Status EncodeQueryTarget(const core::Query& query,
-                                 std::vector<uint8_t>* out_bytes) const;
+  util::Status EncodeQueryTarget(nanopb::Writer* writer,
+                                 const core::Query& query) const;
 
   std::unique_ptr<model::Document> DecodeDocument(nanopb::Reader* reader) const;
 
@@ -189,16 +151,10 @@ class Serializer {
   static void EncodeTimestamp(nanopb::Writer* writer,
                               const Timestamp& timestamp_value);
   static Timestamp DecodeTimestamp(nanopb::Reader* reader);
-  static model::FieldValue DecodeFieldValue(nanopb::Reader* reader);
 
-  void EncodeQueryTarget(nanopb::Writer* writer,
-                         const core::Query& query) const;
   static core::Query DecodeQueryTarget(nanopb::Reader* reader);
 
  private:
-  void EncodeDocument(nanopb::Writer* writer,
-                      const model::DocumentKey& key,
-                      const model::ObjectValue& object_value) const;
   std::unique_ptr<model::MaybeDocument> DecodeBatchGetDocumentsResponse(
       nanopb::Reader* reader) const;
 
@@ -209,9 +165,6 @@ class Serializer {
                                 const model::ObjectValue::Map::value_type& kv,
                                 uint32_t key_tag,
                                 uint32_t value_tag);
-
-  static void EncodeFieldValue(nanopb::Writer* writer,
-                               const model::FieldValue& field_value);
 
   void EncodeQueryPath(nanopb::Writer* writer,
                        const model::ResourcePath& path) const;

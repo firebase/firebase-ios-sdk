@@ -25,6 +25,8 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -44,6 +46,8 @@ using model::DocumentKey;
 using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
+using nanopb::Reader;
+using nanopb::Writer;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Query;
@@ -139,8 +143,9 @@ class LocalSerializerTest : public ::testing::Test {
     bool status =
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
-        serializer.DecodeMaybeDocument(bytes);
+        serializer.DecodeMaybeDocument(&reader);
     EXPECT_OK(actual_model_status);
     std::unique_ptr<MaybeDocument> actual_model =
         std::move(actual_model_status).ValueOrDie();
@@ -151,7 +156,8 @@ class LocalSerializerTest : public ::testing::Test {
   std::vector<uint8_t> EncodeMaybeDocument(local::LocalSerializer* serializer,
                                            const MaybeDocument& maybe_doc) {
     std::vector<uint8_t> bytes;
-    Status status = serializer->EncodeMaybeDocument(maybe_doc, &bytes);
+    Writer writer = Writer::Wrap(&bytes);
+    Status status = serializer->EncodeMaybeDocument(&writer, maybe_doc);
     EXPECT_OK(status);
     return bytes;
   }
@@ -172,8 +178,9 @@ class LocalSerializerTest : public ::testing::Test {
     bool status =
         proto.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()));
     EXPECT_TRUE(status);
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
     StatusOr<QueryData> actual_query_data_status =
-        serializer.DecodeQueryData(bytes);
+        serializer.DecodeQueryData(&reader);
     EXPECT_OK(actual_query_data_status);
     QueryData actual_query_data =
         std::move(actual_query_data_status).ValueOrDie();
@@ -185,7 +192,8 @@ class LocalSerializerTest : public ::testing::Test {
                                        const QueryData& query_data) {
     std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
-    Status status = serializer->EncodeQueryData(query_data, &bytes);
+    Writer writer = Writer::Wrap(&bytes);
+    Status status = serializer->EncodeQueryData(&writer, query_data);
     EXPECT_OK(status);
     return bytes;
   }
@@ -230,8 +238,9 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
 
   // Let the RPC serializer test various permutations of query serialization.
   std::vector<uint8_t> query_target_bytes;
-  util::Status status = remote_serializer.EncodeQueryTarget(
-      query_data.query(), &query_target_bytes);
+  Writer writer = Writer::Wrap(&query_target_bytes);
+  util::Status status =
+      remote_serializer.EncodeQueryTarget(&writer, query_data.query());
   EXPECT_OK(status);
   v1beta1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
