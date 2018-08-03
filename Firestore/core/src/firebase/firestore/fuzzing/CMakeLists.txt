@@ -29,26 +29,16 @@ cc_binary(
     firebase_firestore_remote
 )
 
-# Copy the serializer dictionary from the FuzzingResources in iOS fuzz tests.
-configure_file(
-  ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/FuzzingResources/Serializer/serializer.dictionary
-  serializer_fuzzer.dict
-  COPYONLY
-)
-
-# Copy the binary protos from the serializer corpus in the iOS FuzzingResources
-# to serializer_fuzzer_seed_corpus folder.
+# Copy the serializer dictionary and corpus from the FuzzingResources in iOS
+# fuzz tests.
 # TODO(minafarid): Generate the serializer corpus by converting the text protos
 # from the serializer corpus in the iOS FuzzintResources to binary protos. This
 # conversion requires the protoc binary that is not currently available.
-set(binary_protos_dir
-  ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/FuzzingResources/Serializer/Corpus/BinaryProtos
-)
-
-set(serializer_corpus_dir "serializer_fuzzer_seed_corpus")
-
+set(serializer_resources ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/FuzzingResources/Serializer)
 add_custom_command(
   TARGET serializer_fuzzer POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+    ${serializer_resources}/serializer.dictionary serializer_fuzzer.dict
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-  ${binary_protos_dir} ${serializer_corpus_dir}
+    ${serializer_resources}/Corpus/BinaryProtos serializer_fuzzer_seed_corpus
 )
