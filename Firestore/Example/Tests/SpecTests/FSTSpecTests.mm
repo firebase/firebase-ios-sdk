@@ -92,11 +92,11 @@ NSString *const kNoLRUTag = @"no-lru";
 }
 
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
-  if ([tags indexOfObject:kNoIOSTag] != NSNotFound) {
+  if ([tags containsObject:kNoIOSTag]) {
     return NO;
-  } else if ([tags indexOfObject:kMultiClientTag] != NSNotFound) {
+  } else if ([tags containsObject:kMultiClientTag]) {
     return NO;
-  } else if (!kRunBenchmarkTests && [tags indexOfObject:kBenchmarkTag] != NSNotFound) {
+  } else if (!kRunBenchmarkTests && [tags containsObject:kBenchmarkTag]) {
     return NO;
   }
   return YES;
@@ -106,7 +106,9 @@ NSString *const kNoLRUTag = @"no-lru";
   // Store persistence / GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
   NSNumber *numClients = config[@"numClients"];
-  XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
+  if (numClients) {
+    XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
+  }
   self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
