@@ -445,7 +445,7 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
 std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     Reader* reader) const {
   // Initialize BatchGetDocumentsResponse fields to their default values
-  std::unique_ptr<Document> found;
+  std::unique_ptr<MaybeDocument> found;
   std::string missing;
   // We explicitly ignore the 'transaction' field
   absl::optional<Timestamp> read_time = Timestamp{};
