@@ -27,6 +27,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
@@ -57,20 +58,13 @@ namespace internal {
 // parsing.
 class ObjcBridge {
  public:
-  explicit ObjcBridge(FSTSerializerBeta* serializer) : serializer_{serializer} {
+  ObjcBridge(FSTSerializerBeta* serializer, id delegate)
+      : serializer_{serializer}, delegate_{delegate} {
   }
 
-  void set_delegate(id delegate) {
-    delegate_ = delegate;
-  }
-
-  id get_delegate() const {
-    return delegate_;
-  }
-
-  std::unique_ptr<grpc::ClientContext> CreateContext(
+  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
       const model::DatabaseId& database_id,
-      const absl::string_view token) const;
+      absl::string_view token) const;
 
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
   grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
@@ -95,33 +89,6 @@ class ObjcBridge {
 
   FSTSerializerBeta* serializer_;
   id delegate_;
-};
-
-class BufferedWriter {
- public:
-  explicit BufferedWriter(WatchStream* stream) : stream_{stream} {
-  }
-
-  void Start() {
-    is_started_ = true;
-    TryWrite();
-  }
-  void Stop() {
-    is_started_ = false;
-  }
-  void Enqueue(grpc::ByteBuffer&& bytes);
-
-  void OnSuccessfulWrite();
-
- private:
-  friend class WatchStream;
-
-  void TryWrite();
-
-  WatchStream* stream_ = nullptr;
-  std::vector<grpc::ByteBuffer> buffer_;
-  bool has_pending_write_ = false;
-  bool is_started_ = false;
 };
 
 struct GrpcCall {

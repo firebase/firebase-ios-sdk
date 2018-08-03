@@ -54,7 +54,6 @@ class StreamStartOp : public StreamOp {
                       const std::shared_ptr<GrpcCall>& call,
                       int generation) {
     auto op = new StreamStartOp{stream, call, generation};
-    std::cout << "\nOBCOBC start " << call->call.get() << "\n\n";
     call->call->StartCall(op);
   }
 
@@ -69,7 +68,6 @@ class StreamStartOp : public StreamOp {
     if (stream->generation() != generation()) {
       return;
     }
-    std::cout << "\nOBCOBC on start " << call_->call.get() << "\n\n";
     stream->OnStreamStart(ok);
   }
 };
@@ -80,7 +78,6 @@ class StreamReadOp : public StreamOp {
                       const std::shared_ptr<GrpcCall>& call,
                       int generation) {
     auto op = new StreamReadOp{stream, call, generation};
-    std::cout << "\nOBCOBC read " << call->call.get() << "\n\n";
     call->call->Read(&op->message, op);
   }
 
@@ -95,7 +92,6 @@ class StreamReadOp : public StreamOp {
     if (stream->generation() != generation()) {
       return;
     }
-    std::cout << "\nOBCOBC on read " << call_->call.get() << "\n\n";
     stream->OnStreamRead(ok, message);
   }
 
@@ -109,7 +105,6 @@ class StreamWriteOp : public StreamOp {
                       int generation,
                       const grpc::ByteBuffer& message) {
     auto op = new StreamWriteOp{stream, call, generation};
-    std::cout << "\nOBCOBC write " << call->call.get() << "\n\n";
     call->call->Write(message, op);
   }
 
@@ -124,7 +119,6 @@ class StreamWriteOp : public StreamOp {
     if (stream->generation() != generation()) {
       return;
     }
-    std::cout << "\nOBCOBC on write " << call_->call.get() << "\n\n";
     stream->OnStreamWrite(ok);
   }
 };
@@ -135,7 +129,6 @@ class StreamFinishOp : public StreamOp {
                       const std::shared_ptr<GrpcCall>& call,
                       int generation) {
     auto op = new StreamFinishOp{stream, call, generation};
-    std::cout << "\nOBCOBC finish " << call->call.get() << "\n\n";
     call->context->TryCancel();
     call->call->Finish(&op->grpc_status_, op);
   }
@@ -152,12 +145,11 @@ class StreamFinishOp : public StreamOp {
       return;
     }
     FIREBASE_ASSERT_MESSAGE(ok, "TODO");
-    std::cout << "\nOBCOBC on finish " << call_->call.get() << "\n\n";
     const util::Status firestore_status =
         grpc_status_.ok()
             ? util::Status{}
             : util::Status{
-                  Datastore::FromGrpcErrorCode(grpc_status_.error_code()),
+                  Datastore::ToFirestoreErrorCode(grpc_status_.error_code()),
                   grpc_status_.error_message()};
     stream->OnStreamFinish(firestore_status);
   }
@@ -229,36 +221,6 @@ void ObjcBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
   delegate_ = nil;
 }
 
-void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
-  buffer_.push_back(std::move(bytes));
-  TryWrite();
-}
-
-void BufferedWriter::TryWrite() {
-  if (!is_started_) {
-    return;
-  }
-  if (buffer_.empty()) {
-    return;
-  }
-  // From the docs:
-  // Only one write may be outstanding at any given time. This means that
-  /// after calling Write, one must wait to receive \a tag from the completion
-  /// queue BEFORE calling Write again.
-  if (has_pending_write_) {
-    return;
-  }
-
-  has_pending_write_ = true;
-  stream_->Write(buffer_.back());
-  buffer_.pop_back();
-}
-
-void BufferedWriter::OnSuccessfulWrite() {
-  has_pending_write_ = false;
-  TryWrite();
-}
-
 }  // namespace
 
 using firebase::firestore::auth::CredentialsProvider;
@@ -273,23 +235,22 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
                          // TimerId timer_id,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* datastore)
+                         Datastore* datastore,
+                         id delegate)
     : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
       buffered_writer_{this},
-      objc_bridge_{serializer},
+      objc_bridge_{serializer, delegate},
       backoff_{firestore_queue_,
                util::TimerId::ListenStreamConnectionBackoff /*FIXME*/,
                kBackoffFactor, kBackoffInitialDelay, kBackoffMaxDelay} {
 }
 
-void WatchStream::Start(id delegate) {
+void WatchStream::Start() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   ++generation_;
-
-  objc_bridge_.set_delegate(delegate);
 
   if (state_ == State::GrpcError) {
     BackoffAndTryRestarting();
@@ -377,7 +338,7 @@ void WatchStream::ResumeStartFromBackoff() {
                           "State should still be backoff (was %s)", state_);
 
   state_ = State::NotStarted;
-  Start(objc_bridge_.get_delegate());
+  Start();
   FIREBASE_ASSERT_MESSAGE(IsStarted(), "Stream should have started.");
 }
 
@@ -525,7 +486,6 @@ bool WatchStream::IsStarted() const {
 void WatchStream::CloseDueToIdleness() {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  std::cout << "\\nnOBC idle close\n\n";
   if (IsOpen()) {
     Stop();
     // When timing out an idle stream there's no reason to force the stream into

@@ -39,13 +39,13 @@ class Datastore {
                 const core::DatabaseInfo& database_info);
 
   std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
-      const absl::string_view token) const;
+      absl::string_view token) const;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
-      grpc::ClientContext* context, const absl::string_view path) const;
+      grpc::ClientContext* context, absl::string_view path) const;
 
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
-  // TODO
+  // TODO?
   void Shutdown();
   // Datastore::~Datastore() {
   //   grpc_queue_.Shutdown();
@@ -74,7 +74,6 @@ class Datastore {
   grpc::GenericStub grpc_stub_;
   grpc::CompletionQueue grpc_queue_;
 };
-
 
 }  // namespace remote
 }  // namespace firestore
