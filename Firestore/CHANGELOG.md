@@ -12,6 +12,8 @@
 - [fixed] Fixed a performance issue where adding a listener for a large
   (thousands of documents) collection would take a long time in offline mode
   (#1477).
+- [fixed] Fixed an issue that could cause deleted documents to momentarily
+  re-appear in the results of a listener, causing a flicker (#1591).
 
 # v0.12.6
 - [fixed] Fixed an issue where queries returned fewer results than they should,
