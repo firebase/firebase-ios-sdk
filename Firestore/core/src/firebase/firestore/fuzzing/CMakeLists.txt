@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Builds all fuzzing targets and copies/generates a dictionary and a corpus for
+# each target. A fuzzing target that tests xyz must be called 'xyz_fuzzer' and
+# its dictionary 'xyz_fuzzer.dict' and its corpus 'xyz_fuzzer_seed_corpus'.
+# This naming convention is required for our OSS Fuzz build script to capture
+# new fuzzing targets.
+
 if(NOT FUZZING)
   return()
 endif()
@@ -38,7 +44,7 @@ set(serializer_resources ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/Fuzz
 add_custom_command(
   TARGET serializer_fuzzer POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy
-    ${serializer_resources}/serializer.dictionary serializer_fuzzer.dict
+      ${serializer_resources}/serializer.dictionary serializer_fuzzer.dict
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${serializer_resources}/Corpus/BinaryProtos serializer_fuzzer_seed_corpus
+      ${serializer_resources}/Corpus/BinaryProtos serializer_fuzzer_seed_corpus
 )
