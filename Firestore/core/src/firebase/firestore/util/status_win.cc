@@ -34,8 +34,7 @@ static FirestoreErrorCode CodeForLastError(DWORD error) {
     case ERROR_SUCCESS:
       return FirestoreErrorCode::Ok;
 
-    case ERROR_INVALID_ACCESS:
-      return FirestoreErrorCode::Internal;
+      // return FirestoreErrorCode::Internal;
 
     case ERROR_INVALID_FUNCTION:
     case ERROR_INVALID_HANDLE:
@@ -56,6 +55,7 @@ static FirestoreErrorCode CodeForLastError(DWORD error) {
       return FirestoreErrorCode::AlreadyExists;
 
     case ERROR_ACCESS_DENIED:
+    case ERROR_INVALID_ACCESS:
     case ERROR_SHARING_VIOLATION:
     case ERROR_WRITE_PROTECT:
     case ERROR_LOCK_VIOLATION:
