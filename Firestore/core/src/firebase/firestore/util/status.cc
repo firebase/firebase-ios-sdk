@@ -117,18 +117,6 @@ void Status::IgnoreError() const {
   // no-op
 }
 
-Status Status::Annotate(absl::string_view msg) const {
-  if (ok() || msg.empty()) return *this;
-
-  absl::string_view new_msg = msg;
-  std::string annotated;
-  if (!error_message().empty()) {
-    absl::StrAppend(&annotated, error_message(), "; ", msg);
-    new_msg = annotated;
-  }
-  return Status{code(), new_msg};
-}
-
 std::string StatusCheckOpHelperOutOfLine(const Status& v, const char* msg) {
   HARD_ASSERT(!v.ok());
   std::string r("Non-OK-status: ");

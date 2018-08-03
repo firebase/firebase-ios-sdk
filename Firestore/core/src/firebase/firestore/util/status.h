@@ -115,25 +115,6 @@ class ABSL_MUST_USE_RESULT Status {
   // the floor.
   void IgnoreError() const;
 
-  // Returns a Status that is identical to 's' except that the error_message()
-  // has been augmented by adding 'msg' to the end of the original error
-  // message.
-  //
-  // Annotate should be used to add higher-level information to a Status.  E.g.,
-  //
-  //   util::Status s = file::GetContents(...);
-  //   if (!s.ok()) {
-  //     return s.Annotate("loading blacklist");
-  //   }
-  //
-  // Annotate() adds the appropriate separators, so callers should not include a
-  // separator in 'msg'. The exact formatting is subject to change, so you
-  // should not depend on it in your tests.
-  //
-  // OK status values have no error message and therefore if 's' is OK, the
-  // result is unchanged.
-  Status Annotate(absl::string_view msg) const;
-
  private:
   static const std::string& empty_string();
   struct State {

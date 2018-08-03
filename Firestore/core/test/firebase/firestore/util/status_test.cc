@@ -113,18 +113,6 @@ TEST(Status, FromErrno) {
           "Already exists: Cannot write file \\(errno .*: File exists\\)"));
 }
 
-TEST(Status, Annotate) {
-  Status a(FirestoreErrorCode::NotFound, "fork not found");
-  Status b = a.Annotate("could not eat dinner");
-  ASSERT_EQ(FirestoreErrorCode::NotFound, b.code());
-  ASSERT_EQ("fork not found; could not eat dinner", b.error_message());
-
-  a = Status(FirestoreErrorCode::NotFound, "");
-  b = a.Annotate("could not eat dinner");
-  ASSERT_EQ(FirestoreErrorCode::NotFound, b.code());
-  ASSERT_EQ("could not eat dinner", b.error_message());
-}
-
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
