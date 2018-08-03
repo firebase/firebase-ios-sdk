@@ -34,13 +34,13 @@ class WatchStream;
 // The class invariant is that not more than one write might be pending
 // at any given time. To maintain the invariant, caller has to invoke
 // `OnSuccessfulWrite` when and only when a write issued via this
-// `BufferedWriter` has finished (`BufferedWriter` doesn't monitor GRPC by itself).
+// `BufferedWriter` has finished. `BufferedWriter` doesn't monitor GRPC by itself.
+// Performing actual writes is also delegated to the associated stream.
 //
-// If no other write is currently pending, a call to `Enqueue` will be forwarded
-// to the stream associated with this `BufferedWriter` immediately. Otherwise,
-// it will be buffered and issued when `OnSuccessfulWrite` is called. An
-// arbitrary number of writes may be buffered.
-
+// If no other write is currently pending, a call to `Enqueue` will issue
+// a write immediately. Otherwise, it will be buffered and then issued when
+// `OnSuccessfulWrite` is called. An arbitrary number of writes may be buffered.
+//
 // Buffer is cleared when `Stop` is called; deciding whether unfinished
 // writes have to be issued again or not upon restart is left to the caller.
 // TODO OBC - does stopped state have to exist? Is there danger that

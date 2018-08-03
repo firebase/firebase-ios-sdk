@@ -100,38 +100,34 @@ struct GrpcCall {
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
 };
 
-class StreamOp : public GrpcStreamOperation {
+class StreamOperation : public GrpcOperationInterface {
  public:
-  void Finalize(bool ok) override {
-    if (auto stream = stream_handle_.lock()) {
-      DoFinalize(stream.get(), ok);
-    }
-  }
-
-  int generation() const override {
-    return generation_;
-  }
-
- protected:
-  StreamOp(const std::shared_ptr<WatchStream>& stream,
+  StreamOperation(const std::shared_ptr<WatchStream>& stream,
            const std::shared_ptr<internal::GrpcCall>& call,
-           int generation)
+           const int generation)
       : stream_handle_{stream}, call_{call}, generation_{generation} {
   }
 
+  void NotifyOnCompletion(const bool ok) override {
+    if (auto stream = stream_handle_.lock()) {
+      if (stream.generation() == generation_) {
+        DoNotifyOnCompletion(stream.get(), ok);
+      }
+    }
+  }
+
  private:
-  virtual void DoFinalize(WatchStream* stream, bool ok) = 0;
+  virtual void DoNotifyOnCompletion(WatchStream* stream, bool ok) = 0;
 
   std::weak_ptr<WatchStream> stream_handle_;
-
- protected:  // FIXME
+  // TODO: explain
   std::shared_ptr<internal::GrpcCall> call_;
-  int generation_ = 0;
+  int generation_ = -1;
 };
 
 }  // namespace internal
 
-class WatchStream : public GrpcStreamCallbacks,
+class WatchStream : public GrpcOperationsObserver,
                     public std::enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
@@ -158,7 +154,7 @@ class WatchStream : public GrpcStreamCallbacks,
   void MarkIdle();
   void CancelIdleCheck();
 
-  int generation() const {
+  int generation() const override {
     return generation_;
   }
 

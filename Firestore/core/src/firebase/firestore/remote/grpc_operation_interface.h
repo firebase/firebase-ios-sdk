@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_OPERATION_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_OPERATION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_OPERATION_INTERFACE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_OPERATION_INTERFACE_H_
 
-#include <memory>
-
-#include <grpcpp/client_context.h>
-#include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -29,28 +25,29 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcStreamOperation {
+class GrpcOperationInterface {
  public:
-  virtual ~GrpcStreamOperation() {
+  virtual ~GrpcOperationInterface() {
   }
 
-  virtual void Finalize(bool ok) = 0;
-  virtual int generation() const = 0;
+  virtual void NotifyOnCompletion(bool ok) = 0;
 };
 
-class GrpcStreamCallbacks {
+class GrpcOperationsObserver {
  public:
-  virtual ~GrpcStreamCallbacks() {
+  virtual ~GrpcOperationsObserver() {
   }
 
   virtual void OnStreamStart(bool ok) = 0;
   virtual void OnStreamRead(bool ok, const grpc::ByteBuffer& message) = 0;
   virtual void OnStreamWrite(bool ok) = 0;
   virtual void OnStreamFinish(util::Status status) = 0;
+
+  virtual int generation() const = 0;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_OPERATION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_OPERATION_INTERFACE_H_

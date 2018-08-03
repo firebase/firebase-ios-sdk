@@ -29,7 +29,7 @@ namespace remote {
 
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::remote::internal::GrpcCall;
-using firebase::firestore::remote::internal::StreamOp;
+using firebase::firestore::remote::internal::StreamOperation;
 using firebase::firestore::util::AsyncQueue;
 namespace chr = std::chrono;
 
@@ -48,7 +48,7 @@ const AsyncQueue::Milliseconds kIdleTimeout{chr::seconds(60)};
 
 namespace {
 
-class StreamStartOp : public StreamOp {
+class StreamStartOp : public StreamOperation {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream,
                       const std::shared_ptr<GrpcCall>& call,
@@ -61,18 +61,15 @@ class StreamStartOp : public StreamOp {
   StreamStartOp(const std::shared_ptr<WatchStream>& stream,
                 const std::shared_ptr<GrpcCall>& call,
                 int generation)
-      : StreamOp{stream, call, generation} {
+      : StreamOperation{stream, call, generation} {
   }
 
-  void DoFinalize(WatchStream* stream, bool ok) override {
-    if (stream->generation() != generation()) {
-      return;
-    }
+  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
     stream->OnStreamStart(ok);
   }
 };
 
-class StreamReadOp : public StreamOp {
+class StreamReadOp : public StreamOperation {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream,
                       const std::shared_ptr<GrpcCall>& call,
@@ -85,20 +82,17 @@ class StreamReadOp : public StreamOp {
   StreamReadOp(const std::shared_ptr<WatchStream>& stream,
                const std::shared_ptr<GrpcCall>& call,
                int generation)
-      : StreamOp{stream, call, generation} {
+      : StreamOperation{stream, call, generation} {
   }
 
-  void DoFinalize(WatchStream* stream, bool ok) override {
-    if (stream->generation() != generation()) {
-      return;
-    }
+  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
     stream->OnStreamRead(ok, message);
   }
 
   grpc::ByteBuffer message;
 };
 
-class StreamWriteOp : public StreamOp {
+class StreamWriteOp : public StreamOperation {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream,
                       const std::shared_ptr<GrpcCall>& call,
@@ -112,18 +106,15 @@ class StreamWriteOp : public StreamOp {
   StreamWriteOp(const std::shared_ptr<WatchStream>& stream,
                 const std::shared_ptr<GrpcCall>& call,
                 int generation)
-      : StreamOp{stream, call, generation} {
+      : StreamOperation{stream, call, generation} {
   }
 
-  void DoFinalize(WatchStream* stream, bool ok) override {
-    if (stream->generation() != generation()) {
-      return;
-    }
+  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
     stream->OnStreamWrite(ok);
   }
 };
 
-class StreamFinishOp : public StreamOp {
+class StreamFinishOp : public StreamOperation {
  public:
   static void Execute(const std::shared_ptr<WatchStream>& stream,
                       const std::shared_ptr<GrpcCall>& call,
@@ -137,14 +128,11 @@ class StreamFinishOp : public StreamOp {
   StreamFinishOp(const std::shared_ptr<WatchStream>& stream,
                  const std::shared_ptr<GrpcCall>& call,
                  int generation)
-      : StreamOp{stream, call, generation} {
+      : StreamOperation{stream, call, generation} {
   }
 
-  void DoFinalize(WatchStream* stream, bool ok) override {
-    if (stream->generation() != generation()) {
-      return;
-    }
-    FIREBASE_ASSERT_MESSAGE(ok, "TODO");
+  void DoNotifyOnCompletion(WatchStream* stream, const bool ok) override {
+    FIREBASE_ASSERT_MESSAGE(ok, "Calling Finish on a GRPC call should never fail, according to the docs");
     const util::Status firestore_status =
         grpc_status_.ok()
             ? util::Status{}

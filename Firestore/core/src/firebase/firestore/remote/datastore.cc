@@ -78,9 +78,9 @@ void Datastore::PollGrpcQueue() {
   void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto *operation = static_cast<GrpcStreamOperation *>(tag);
+    auto *operation = static_cast<GrpcOperationInterface *>(tag);
     firestore_queue_->Enqueue([operation, ok] {
-      operation->Finalize(ok);
+      operation->NotifyOnCompletion(ok);
       delete operation;
     });
   }
