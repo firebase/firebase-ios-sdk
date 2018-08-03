@@ -38,7 +38,7 @@ cc_binary(
 # Copy the serializer dictionary and corpus from the FuzzingResources in iOS
 # fuzz tests.
 # TODO(minafarid): Generate the serializer corpus by converting the text protos
-# from the serializer corpus in the iOS FuzzintResources to binary protos. This
+# from the serializer corpus in the iOS FuzzingResources to binary protos. This
 # conversion requires the protoc binary that is not currently available.
 set(serializer_resources ${FIREBASE_SOURCE_DIR}/Firestore/Example/FuzzTests/FuzzingResources/Serializer)
 add_custom_command(
