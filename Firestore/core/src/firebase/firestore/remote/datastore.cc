@@ -70,12 +70,20 @@ void Datastore::Shutdown() {
   dedicated_executor_->ExecuteBlocking([] {});  // Drain the executor
 }
 
-FirestoreErrorCode Datastore::ToFirestoreErrorCode(
-    grpc::StatusCode grpc_error) {
-  FIREBASE_ASSERT_MESSAGE(
-      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
-      "Unknown GRPC error code: %s", grpc_error);
-  return static_cast<FirestoreErrorCode>(grpc_error);
+void Datastore::PollGrpcQueue() {
+  HARD_ASSERT(dedicated_executor_->IsCurrentExecutor(),
+                          "PollGrpcQueue should only be called on the "
+                          "dedicated Datastore executor");
+
+  void *tag = nullptr;
+  bool ok = false;
+  while (grpc_queue_.Next(&tag, &ok)) {
+    auto *operation = static_cast<GrpcStreamOperation *>(tag);
+    firestore_queue_->Enqueue([operation, ok] {
+      operation->Finalize(ok);
+      delete operation;
+    });
+  }
 }
 
 std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcCall(
@@ -129,23 +137,13 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
   return context;
 }
 
-void Datastore::PollGrpcQueue() {
-  HARD_ASSERT(dedicated_executor_->IsCurrentExecutor(),
-                          "PollGrpcQueue should only be called on the "
-                          "dedicated Datastore executor");
-
-  void *tag = nullptr;
-  bool ok = false;
-  while (grpc_queue_.Next(&tag, &ok)) {
-    auto *operation = static_cast<GrpcStreamOperation *>(tag);
-    firestore_queue_->Enqueue([operation, ok] {
-      operation->Finalize(ok);
-      delete operation;
-    });
-  }
+FirestoreErrorCode Datastore::ToFirestoreErrorCode(
+    grpc::StatusCode grpc_error) {
+  FIREBASE_ASSERT_MESSAGE(
+      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
+      "Unknown GRPC error code: %s", grpc_error);
+  return static_cast<FirestoreErrorCode>(grpc_error);
 }
-
-std::string pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore
