@@ -157,7 +157,7 @@ class StreamFinishOp : public StreamOp {
         grpc_status_.ok()
             ? util::Status{}
             : util::Status{
-                  DatastoreImpl::FromGrpcErrorCode(grpc_status_.error_code()),
+                  Datastore::FromGrpcErrorCode(grpc_status_.error_code()),
                   grpc_status_.error_message()};
     stream->OnStreamFinish(firestore_status);
   }
@@ -273,7 +273,7 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
                          // TimerId timer_id,
                          CredentialsProvider* const credentials_provider,
                          FSTSerializerBeta* serializer,
-                         DatastoreImpl* datastore)
+                         Datastore* datastore)
     : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
@@ -303,14 +303,13 @@ void WatchStream::Start(id delegate) {
   state_ = State::Auth;
 
   const bool do_force_refresh = false;
-  auto ugly_hack = new std::weak_ptr<WatchStream>(shared_from_this());
+  std::weak_ptr<WatchStream> self{shared_from_this()};
   credentials_provider_->GetToken(
-      do_force_refresh, [this, ugly_hack](util::StatusOr<Token> maybe_token) {
-        if (auto lock = ugly_hack->lock()) {
-          firestore_queue_->EnqueueRelaxed([this, maybe_token, ugly_hack] {
-            if (auto lock = ugly_hack->lock()) {
+      do_force_refresh, [this, self](util::StatusOr<Token> maybe_token) {
+        if (auto live_instance = self.lock()) {
+          firestore_queue_->EnqueueRelaxed([this, maybe_token, self] {
+            if (auto live_instance = self.lock()) {
               ResumeStartAfterAuth(maybe_token);
-              delete ugly_hack;
             }
           });
         }

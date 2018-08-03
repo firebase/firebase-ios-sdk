@@ -23,47 +23,58 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
-
-#include <chrono>
-#include <iostream>
-#include <thread>
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-namespace util = firebase::firestore::util;
 using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using model::DocumentKey;
+using util::internal::ExecutorLibdispatch;
+
+namespace {
+
+std::unique_ptr<util::internal::Executor> CreateExecutor() {
+  const auto queue = dispatch_queue_create(
+      "com.google.firebase.firestore.datastore", DISPATCH_QUEUE_SERIAL);
+  return absl::make_unique<ExecutorLibdispatch>(queue);
+}
+
+}  // namespace
 
 const char *const kXGoogAPIClientHeader = "x-goog-api-client";
 const char *const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
+std::string Datastore::test_certificate_path_;
 
 Datastore::Datastore(util::AsyncQueue *firestore_queue,
-                             const core::DatabaseInfo &database_info)
+                     const core::DatabaseInfo &database_info)
     : firestore_queue_{firestore_queue},
       database_info_{&database_info},
-      dedicated_executor_{Datastore::CreateExecutor()},
+      dedicated_executor_{CreateExecutor()},
       grpc_stub_{CreateGrpcStub()} {
-  std::cout << "\nOBC " << this << " datastore created\n\n";
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
-  std::cout << "\nOBC " << this << " datastore start SHUTdown\n\n";
   grpc_queue_.Shutdown();
-  // Drain the executor.
-  dedicated_executor_->ExecuteBlocking([] {});
-  std::cout << "\nOBC " << this << " datastore end SHUTdown\n\n";
+  dedicated_executor_->ExecuteBlocking([] {});  // Drain the executor
 }
 
-FirestoreErrorCode Datastore::FromGrpcErrorCode(grpc::StatusCode grpc_error) {
-  FIREBASE_ASSERT_MESSAGE(grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
-                          "Unknown GRPC error code: %s", grpc_error);
+FirestoreErrorCode Datastore::ToFirestoreErrorCode(
+    grpc::StatusCode grpc_error) {
+  FIREBASE_ASSERT_MESSAGE(
+      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
+      "Unknown GRPC error code: %s", grpc_error);
   return static_cast<FirestoreErrorCode>(grpc_error);
 }
 
@@ -72,65 +83,66 @@ std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcCall(
   return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
+grpc::GenericStub Datastore::CreateGrpcStub() const {
+  if (test_certificate_path_.empty()) {
+    return grpc::GenericStub{grpc::CreateChannel(
+        database_info_->host(),
+        grpc::SslCredentials(grpc::SslCredentialsOptions()))};
+  }
+
+  std::fstream cert_file{test_certificate_path_};
+  std::stringstream cert_buffer;
+  cert_buffer << cert_file.rdbuf();
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = cert_buffer.str();
+
+  grpc::ChannelArguments args;
+  args.SetSslTargetNameOverride("test_cert_2");
+  return grpc::GenericStub{grpc::CreateCustomChannel(
+      database_info_->host(), grpc::SslCredentials(options), args)};
+}
+
+std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
+    const absl::string_view token) const {
+  auto context = absl::make_unique<grpc::ClientContext>();
+  if (token.data()) {
+    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
+  }
+
+  // TODO(dimond): This should ideally also include the grpc version, however,
+  // gRPC defines the version as a macro, so it would be hardcoded based on
+  // version we have at compile time of the Firestore library, rather than the
+  // version available at runtime/at compile time by the user of the library.
+  //
+  // TODO(varconst): once C++ SDK is ready, this should be "gl-cpp" or similar.
+  context->AddMetadata(
+      kXGoogAPIClientHeader,
+      StringFormat("gl-objc/ fire/%s grpc/",
+                   static_cast<const char *>(FIRFirestoreVersionString)));
+
+  // This header is used to improve routing and project isolation by the
+  // backend.
+  const model::DatabaseId db_id = database_info_->database_id();
+  context->AddMetadata(kGoogleCloudResourcePrefix,
+                       StringFormat("projects/%s/databases/%s", db_id.project(),
+                                    db_id.database_id()));
+  return context;
+}
+
 void Datastore::PollGrpcQueue() {
-  FIREBASE_ASSERT_MESSAGE(dedicated_executor_->IsCurrentExecutor(), "TODO");
+  HARD_ASSERT(dedicated_executor_->IsCurrentExecutor(),
+                          "PollGrpcQueue should only be called on the "
+                          "dedicated Datastore executor");
 
   void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    std::cout << "\nOBC " << this << " got tag\n\n";
-    auto* operation = static_cast<GrpcStreamOperation*>(tag);
+    auto *operation = static_cast<GrpcStreamOperation *>(tag);
     firestore_queue_->Enqueue([operation, ok] {
       operation->Finalize(ok);
       delete operation;
     });
   }
-}
-
-std::unique_ptr<util::internal::Executor> Datastore::CreateExecutor() {
-  const auto queue =
-      dispatch_queue_create("com.google.firebase.firestore.datastore", DISPATCH_QUEUE_SERIAL);
-  return absl::make_unique<util::internal::ExecutorLibdispatch>(queue);
-}
-
-grpc::GenericStub Datastore::CreateGrpcStub() const {
-  if (!pemRootCertsPath.empty()) {
-    grpc::SslCredentialsOptions options;
-    std::fstream file{pemRootCertsPath};
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    const std::string cert = buffer.str();
-    options.pem_root_certs = cert;
-
-    grpc::ChannelArguments args;
-    args.SetSslTargetNameOverride("test_cert_2");
-    return grpc::GenericStub{
-        grpc::CreateCustomChannel(database_info_->host(), grpc::SslCredentials(options), args)};
-  }
-  return grpc::GenericStub{grpc::CreateChannel(
-      database_info_->host(), grpc::SslCredentials(grpc::SslCredentialsOptions()))};
-}
-
-std::unique_ptr<grpc::ClientContext> Datastore::CreateContext(const absl::string_view token) {
-  auto context = absl::make_unique<grpc::ClientContext>();
-
-  if (token.data()) {
-    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
-  }
-
-  const model::DatabaseId database_id = database_info_->database_id();
-
-  std::string client_header{"gl-objc/ fire/"};
-  for (auto cur = FIRFirestoreVersionString; *cur != '\0'; ++cur) {
-    client_header += *cur;
-  }
-  client_header += " grpc/";
-  context->AddMetadata(kXGoogAPIClientHeader, client_header);
-  // This header is used to improve routing and project isolation by the backend.
-  const std::string resource_prefix = std::string{"projects/"} + database_id.project_id() +
-                                      "/databases/" + database_id.database_id();
-  context->AddMetadata(kGoogleCloudResourcePrefix, resource_prefix);
-  return context;
 }
 
 std::string pemRootCertsPath;

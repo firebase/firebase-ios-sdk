@@ -38,14 +38,12 @@ class Datastore {
   Datastore(util::AsyncQueue* firestore_queue,
                 const core::DatabaseInfo& database_info);
 
-
-  // database_info_->database_id()
-
-  static FirestoreErrorCode FromGrpcErrorCode(grpc::StatusCode grpc_error);
-  std::unique_ptr<grpc::ClientContext> CreateContext(
-      const absl::string_view token);
+  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
+      const absl::string_view token) const;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
-      grpc::ClientContext* context, const absl::string_view path);
+      grpc::ClientContext* context, const absl::string_view path) const;
+
+  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   // TODO
   void Shutdown();
@@ -54,6 +52,10 @@ class Datastore {
   //   dedicated_executor_->ExecuteBlocking([] {});
   // }
 
+  static void SetTestCertificatePath(const std::string& path) {
+    test_certificate_path_ = path;
+  }
+
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
   Datastore& operator=(const Datastore& other) = delete;
@@ -61,9 +63,9 @@ class Datastore {
 
  private:
   void PollGrpcQueue();
-  static std::unique_ptr<util::internal::Executor> CreateExecutor();
-
   grpc::GenericStub CreateGrpcStub() const;
+
+  static std::string test_certificate_path_;
 
   util::AsyncQueue* firestore_queue_;
   const core::DatabaseInfo* database_info_;
@@ -73,7 +75,6 @@ class Datastore {
   grpc::CompletionQueue grpc_queue_;
 };
 
-extern std::string pemRootCertsPath;
 
 }  // namespace remote
 }  // namespace firestore

@@ -84,8 +84,10 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @end
 
+using firebase::firestore::remote::Datastore;
+
 @implementation FSTDatastore {
-  std::unique_ptr<firebase::firestore::remote::DatastoreImpl> _datastore;
+  std::unique_ptr<Datastore> _datastore;
 }
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
@@ -111,8 +113,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
 
-    _datastore = absl::make_unique<firebase::firestore::remote::DatastoreImpl>(
-        [_workerDispatchQueue implementation], *_databaseInfo);
+    _datastore = absl::make_unique<Datastore>([_workerDispatchQueue implementation], *_databaseInfo);
   }
   return self;
 }
