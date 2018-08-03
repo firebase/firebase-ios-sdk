@@ -24,9 +24,14 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+void BufferedWriter::Start() {
+  is_started_ = true;
+  TryWrite();
+}
+
 void BufferedWriter::Stop() {
-  is_started_ = has_pending_write_ = false;
   buffer_.clear();
+  is_started_ = has_pending_write_ = false;
 }
 
 void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
