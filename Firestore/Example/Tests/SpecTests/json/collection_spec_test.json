@@ -4,7 +4,8 @@
     "itName": "Events are raised after watch ack",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -91,7 +92,8 @@
     "itName": "Events are raised for local sets before watch ack",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {

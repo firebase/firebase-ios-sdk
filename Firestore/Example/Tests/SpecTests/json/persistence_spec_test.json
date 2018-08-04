@@ -2,11 +2,10 @@
   "Local mutations are persisted and re-sent": {
     "describeName": "Persistence:",
     "itName": "Local mutations are persisted and re-sent",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -35,14 +34,12 @@
       },
       {
         "writeAck": {
-          "version": 1,
-          "expectUserCallback": false
+          "version": 1
         }
       },
       {
         "writeAck": {
-          "version": 2,
-          "expectUserCallback": false
+          "version": 2
         },
         "stateExpect": {
           "numOutstandingWrites": 0
@@ -53,11 +50,10 @@
   "Persisted local mutations are visible to listeners": {
     "describeName": "Persistence:",
     "itName": "Persisted local mutations are visible to listeners",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -140,11 +136,10 @@
   "Remote documents are persisted": {
     "describeName": "Persistence:",
     "itName": "Remote documents are persisted",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -279,11 +274,10 @@
   "Remote documents from watch are not GC'd": {
     "describeName": "Persistence:",
     "itName": "Remote documents from watch are not GC'd",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": false
+      "useGarbageCollection": false,
+      "numClients": 1
     },
     "steps": [
       {
@@ -424,11 +418,10 @@
   "Remote documents from user sets are not GC'd": {
     "describeName": "Persistence:",
     "itName": "Remote documents from user sets are not GC'd",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": false
+      "useGarbageCollection": false,
+      "numClients": 1
     },
     "steps": [
       {
@@ -441,8 +434,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -493,11 +493,10 @@
   "Mutation Queue is persisted across uid switches": {
     "describeName": "Persistence:",
     "itName": "Mutation Queue is persisted across uid switches",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -539,8 +538,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "users/anon"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -551,14 +557,28 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "users/user1"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
         "writeAck": {
-          "version": 3000,
-          "expectUserCallback": true
+          "version": 3000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "users/user1"
+            ],
+            "rejectedDocs": []
+          }
         }
       }
     ]
@@ -566,11 +586,10 @@
   "Mutation Queue is persisted across uid switches (with restarts)": {
     "describeName": "Persistence:",
     "itName": "Mutation Queue is persisted across uid switches (with restarts)",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -617,8 +636,7 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": false
+          "version": 1000
         }
       },
       {
@@ -634,14 +652,12 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": false
+          "version": 2000
         }
       },
       {
         "writeAck": {
-          "version": 3000,
-          "expectUserCallback": false
+          "version": 3000
         }
       }
     ]
@@ -649,11 +665,10 @@
   "Visible mutations reflect uid switches": {
     "describeName": "Persistence:",
     "itName": "Visible mutations reflect uid switches",
-    "tags": [
-      "persistence"
-    ],
+    "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -864,6 +879,293 @@
             "hasPendingWrites": true
           }
         ]
+      }
+    ]
+  },
+  "Detects all active clients": {
+    "describeName": "Persistence:",
+    "itName": "Detects all active clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "hidden"
+        },
+        "stateExpect": {
+          "numActiveClients": 1
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "stateExpect": {
+          "numActiveClients": 2
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Single tab acquires primary lease": {
+    "describeName": "Persistence:",
+    "itName": "Single tab acquires primary lease",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "hidden"
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "applyClientState": {
+          "visibility": "hidden"
+        },
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "shutdown": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Foreground tab acquires primary lease": {
+    "describeName": "Persistence:",
+    "itName": "Foreground tab acquires primary lease",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 3
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "hidden"
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "applyClientState": {
+          "visibility": "hidden"
+        },
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "shutdown": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 2
+      }
+    ]
+  },
+  "Primary lease bound to network state": {
+    "describeName": "Persistence:",
+    "itName": "Primary lease bound to network state",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "enableNetwork": false,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      },
+      {
+        "enableNetwork": false,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": [],
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "enableNetwork": true,
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
       }
     ]
   }

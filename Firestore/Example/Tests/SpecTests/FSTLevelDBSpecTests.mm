@@ -39,7 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
-  return ![tags containsObject:kNoLRUTag];
+  if ([tags containsObject:kNoLRUTag]) {
+    return NO;
+  }
+
+  return [super shouldRunWithTags:tags];
 }
 
 @end

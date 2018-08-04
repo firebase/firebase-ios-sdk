@@ -87,6 +87,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryListener *> *queryListeners;
 
+#pragma mark - Data structures for holding events sent by the write stream.
+
+/** The names of the documents that the client acknowledged during the current spec test step */
+@property(nonatomic, strong, readonly) NSMutableArray<NSString *> *acknowledgedDocs;
+/** The names of the documents that the client rejected during the current spec test step */
+@property(nonatomic, strong, readonly) NSMutableArray<NSString *> *rejectedDocs;
+
 @end
 
 @implementation FSTSyncEngineTestDriver {
@@ -152,12 +159,21 @@ NS_ASSUME_NONNULL_BEGIN
     _expectedActiveTargets = [NSDictionary dictionary];
 
     _currentUser = initialUser;
+
+    _acknowledgedDocs = [NSMutableArray array];
+
+    _rejectedDocs = [NSMutableArray array];
   }
   return self;
 }
 
 - (const FSTOutstandingWriteQueues &)outstandingWrites {
   return _outstandingWrites;
+}
+
+- (void)drainQueue {
+  [_dispatchQueue dispatchSync:^(){
+  }];
 }
 
 - (const User &)currentUser {
@@ -253,7 +269,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTOutstandingWrite *)receiveWriteError:(int)errorCode
-                                  userInfo:(NSDictionary<NSString *, id> *)userInfo {
+                                  userInfo:(NSDictionary<NSString *, id> *)userInfo
+                               keepInQueue:(BOOL)keepInQueue {
   NSError *error =
       [NSError errorWithDomain:FIRFirestoreErrorDomain code:errorCode userInfo:userInfo];
 
@@ -262,7 +279,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // If this is a permanent error, the mutation is not expected to be sent again so we remove it
   // from currentOutstandingWrites.
-  if ([FSTDatastore isPermanentWriteError:error]) {
+  if (!keepInQueue) {
     [[self currentOutstandingWrites] removeObjectAtIndex:0];
   }
 
@@ -277,6 +294,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<FSTQueryEvent *> *)capturedEventsSinceLastCall {
   NSArray<FSTQueryEvent *> *result = [self.events copy];
   [self.events removeAllObjects];
+  return result;
+}
+
+- (NSArray<NSString *> *)capturedAcknowledgedWritesSinceLastCall {
+  NSArray<NSString *> *result = [self.acknowledgedDocs copy];
+  [self.acknowledgedDocs removeAllObjects];
+  return result;
+}
+
+- (NSArray<NSString *> *)capturedRejectedWritesSinceLastCall {
+  NSArray<NSString *> *result = [self.rejectedDocs copy];
+  [self.rejectedDocs removeAllObjects];
   return result;
 }
 
@@ -323,6 +352,15 @@ NS_ASSUME_NONNULL_BEGIN
                            LOG_DEBUG("A callback was called with error: %s", error);
                            write.done = YES;
                            write.error = error;
+
+                           NSString *mutationKey =
+                               [NSString stringWithCString:mutation.key.ToString().c_str()
+                                                  encoding:[NSString defaultCStringEncoding]];
+                           if (error) {
+                             [self.rejectedDocs addObject:mutationKey];
+                           } else {
+                             [self.acknowledgedDocs addObject:mutationKey];
+                           }
                          }];
   }];
 }
