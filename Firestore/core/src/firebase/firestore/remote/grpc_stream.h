@@ -29,8 +29,9 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -48,7 +49,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// WRITE STREAM
+// TODO: WRITE STREAM
 
 class WatchStream;
 
@@ -91,50 +92,15 @@ class ObjcBridge {
   id delegate_;
 };
 
-struct GrpcCall {
-  GrpcCall(std::unique_ptr<grpc::ClientContext>&& context,
-           std::unique_ptr<grpc::GenericClientAsyncReaderWriter>&& call)
-      : context{std::move(context)}, call{std::move(call)} {
-  }
-  std::unique_ptr<grpc::ClientContext> context;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call;
-};
-
-class StreamOperation : public GrpcOperationInterface {
- public:
-  StreamOperation(const std::shared_ptr<WatchStream>& stream,
-           const std::shared_ptr<internal::GrpcCall>& call,
-           const int generation)
-      : stream_handle_{stream}, call_{call}, generation_{generation} {
-  }
-
-  void NotifyOnCompletion(const bool ok) override {
-    if (auto stream = stream_handle_.lock()) {
-      if (stream.generation() == generation_) {
-        DoNotifyOnCompletion(stream.get(), ok);
-      }
-    }
-  }
-
- private:
-  virtual void DoNotifyOnCompletion(WatchStream* stream, bool ok) = 0;
-
-  std::weak_ptr<WatchStream> stream_handle_;
-  // TODO: explain
-  std::shared_ptr<internal::GrpcCall> call_;
-  int generation_ = -1;
-};
-
 }  // namespace internal
 
-class WatchStream : public GrpcOperationsObserver,
-                    public std::enable_shared_from_this<WatchStream> {
+class WatchStream : public std::enable_shared_from_this<WatchStream> {
  public:
   WatchStream(util::AsyncQueue* async_queue,
               // util::TimerId timer_id,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
-              DatastoreImpl* datastore);
+              Datastore* datastore);
 
   void Start(id delegate);
   void Stop();
@@ -144,10 +110,10 @@ class WatchStream : public GrpcOperationsObserver,
   void WatchQuery(FSTQueryData* query);
   void UnwatchTargetId(FSTTargetID target_id);
 
-  void OnStreamStart(bool ok) override;
-  void OnStreamRead(bool ok, const grpc::ByteBuffer& message) override;
-  void OnStreamWrite(bool ok) override;
-  void OnStreamFinish(util::Status status) override;
+  void OnStreamStart(bool ok);
+  void OnStreamRead(bool ok, const grpc::ByteBuffer& message);
+  void OnStreamWrite(bool ok);
+  void OnStreamFinish(util::Status status);
 
   // ClearError?
   void CancelBackoff();
@@ -159,7 +125,7 @@ class WatchStream : public GrpcOperationsObserver,
   }
 
  private:
-  friend class internal::BufferedWriter;
+  friend class BufferedWriter;
 
   enum class State {
     NotStarted,
@@ -181,18 +147,19 @@ class WatchStream : public GrpcOperationsObserver,
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
-    Op::Execute(shared_from_this(), call_, generation_, args...);
+    auto* operation = new Op(this, grpc_call_, generation(), args...);
+    operation->Execute();
   }
 
   State state_{State::NotStarted};
 
-  internal::BufferedWriter buffered_writer_;
+  BufferedWriter buffered_writer_;
 
-  std::shared_ptr<internal::GrpcCall> call_;
+  std::shared_ptr<GrpcCall> grpc_call_;
 
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
-  DatastoreImpl* datastore_;
+  Datastore* datastore_;
   ExponentialBackoff backoff_;
   util::DelayedOperation idleness_timer_;
 

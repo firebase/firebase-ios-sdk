@@ -27,11 +27,10 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::remote::internal::GrpcCall;
-using firebase::firestore::remote::internal::StreamOperation;
-using firebase::firestore::util::AsyncQueue;
 namespace chr = std::chrono;
+
+using model::SnapshotVersion;
+using util::AsyncQueue;
 
 namespace {
 
@@ -48,103 +47,83 @@ const AsyncQueue::Milliseconds kIdleTimeout{chr::seconds(60)};
 
 namespace {
 
-class StreamStartOp : public StreamOperation {
+class StreamStart : public StreamOperation {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream,
-                      const std::shared_ptr<GrpcCall>& call,
-                      int generation) {
-    auto op = new StreamStartOp{stream, call, generation};
-    call->call->StartCall(op);
-  }
+  using StreamOperation::StreamOperation;
 
  private:
-  StreamStartOp(const std::shared_ptr<WatchStream>& stream,
-                const std::shared_ptr<GrpcCall>& call,
-                int generation)
-      : StreamOperation{stream, call, generation} {
+  void DoExecute(GrpcCall* const call) override {
+    call->Start(this);
   }
-
-  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
+  void OnCompletion(WatchStream* const stream, const bool ok) override {
     stream->OnStreamStart(ok);
   }
 };
 
-class StreamReadOp : public StreamOperation {
+class StreamRead : public StreamOperation {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream,
-                      const std::shared_ptr<GrpcCall>& call,
-                      int generation) {
-    auto op = new StreamReadOp{stream, call, generation};
-    call->call->Read(&op->message, op);
-  }
+  using StreamOperation::StreamOperation;
 
  private:
-  StreamReadOp(const std::shared_ptr<WatchStream>& stream,
-               const std::shared_ptr<GrpcCall>& call,
-               int generation)
-      : StreamOperation{stream, call, generation} {
+  void DoExecute(GrpcCall* const call) override {
+    call->Read(&message_, this);
+  }
+  void OnCompletion(WatchStream* const stream, const bool ok) override {
+    stream->OnStreamRead(ok, message_);
   }
 
-  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
-    stream->OnStreamRead(ok, message);
-  }
-
-  grpc::ByteBuffer message;
+  grpc::ByteBuffer message_;
 };
 
-class StreamWriteOp : public StreamOperation {
+class StreamWrite : public StreamOperation {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream,
-                      const std::shared_ptr<GrpcCall>& call,
-                      int generation,
-                      const grpc::ByteBuffer& message) {
-    auto op = new StreamWriteOp{stream, call, generation};
-    call->call->Write(message, op);
+  void StreamWrite(WatchStream* const stream,
+                   const std::shared_ptr<GrpcCall>& call,
+                   const int generation,
+                   const grpc::ByteBuffer& message)
+      : StreamOperation{stream, call, generation}, message_{&message} {
   }
 
  private:
-  StreamWriteOp(const std::shared_ptr<WatchStream>& stream,
-                const std::shared_ptr<GrpcCall>& call,
-                int generation)
-      : StreamOperation{stream, call, generation} {
+  void DoExecute(GrpcCall* const call) override {
+    call->Write(*message_, this);
   }
-
-  void DoNotifyOnCompletion(WatchStream* stream, bool ok) override {
+  void OnCompletion(WatchStream* const stream, const bool ok) override {
     stream->OnStreamWrite(ok);
   }
+
+  const grpc::ByteBuffer* message_;
 };
 
-class StreamFinishOp : public StreamOperation {
+class StreamFinish : public StreamOperation {
  public:
-  static void Execute(const std::shared_ptr<WatchStream>& stream,
-                      const std::shared_ptr<GrpcCall>& call,
-                      int generation) {
-    auto op = new StreamFinishOp{stream, call, generation};
-    call->context->TryCancel();
-    call->call->Finish(&op->grpc_status_, op);
-  }
+  using StreamOperation::StreamOperation;
 
  private:
-  StreamFinishOp(const std::shared_ptr<WatchStream>& stream,
-                 const std::shared_ptr<GrpcCall>& call,
-                 int generation)
-      : StreamOperation{stream, call, generation} {
+  void DoExecute(GrpcCall* const call) override {
+    call->TryCancel();
+    call->Finish(&grpc_status_, this);
   }
 
-  void DoNotifyOnCompletion(WatchStream* stream, const bool ok) override {
-    FIREBASE_ASSERT_MESSAGE(ok, "Calling Finish on a GRPC call should never fail, according to the docs");
-    const util::Status firestore_status =
-        grpc_status_.ok()
-            ? util::Status{}
-            : util::Status{
-                  Datastore::ToFirestoreErrorCode(grpc_status_.error_code()),
-                  grpc_status_.error_message()};
-    stream->OnStreamFinish(firestore_status);
+  void OnCompletion(WatchStream* stream, const bool ok) override {
+    FIREBASE_ASSERT_MESSAGE(ok,
+                            "Calling Finish on a GRPC call should never fail, "
+                            "according to the docs");
+    stream->OnStreamFinish(ToFirestoreStatus(grpc_status_));
   }
 
-  grpc::Status grpc_status_;
-};
+  static util::Status ToFirestoreStatus(const grpc::Status from) {
+    if (from.ok()}) {
+    return {};
+  }
+  return {Datastore::ToFirestoreErrorCode(from.error_code()),
+          from.error_message()};
 }
+
+grpc::Status grpc_status_;
+};
+
+}  // namespace
 
 namespace internal {
 
@@ -293,7 +272,7 @@ void WatchStream::ResumeStartAfterAuth(
   call_ =
       std::make_shared<GrpcCall>(std::move(context), std::move(bidi_stream));
 
-  Execute<StreamStartOp>();
+  Execute<StreamStart>();
   // TODO: set state to open here, or only upon successful completion?
   // Objective-C does it here.
 }
@@ -364,7 +343,7 @@ void WatchStream::OnStreamStart(const bool ok) {
 
   state_ = State::Open;
   buffered_writer_.Start();
-  Execute<StreamReadOp>();
+  Execute<StreamRead>();
 
   objc_bridge_.NotifyDelegateOnOpen();
 }
@@ -379,7 +358,7 @@ void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
 
   objc_bridge_.NotifyDelegateOnChange(message);
 
-  Execute<StreamReadOp>();
+  Execute<StreamRead>();
 }
 
 void WatchStream::OnStreamWrite(const bool ok) {
@@ -417,7 +396,7 @@ void WatchStream::OnStreamFinish(const util::Status status) {
 }
 
 void WatchStream::Write(const grpc::ByteBuffer& message) {
-  Execute<StreamWriteOp>(message);
+  Execute<StreamWrite>(message);
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -456,7 +435,7 @@ void WatchStream::FinishStream() {
   if (!IsOpen()) {
     return;
   }
-  Execute<StreamFinishOp>();
+  Execute<StreamFinish>();
 }
 
 bool WatchStream::IsOpen() const {
