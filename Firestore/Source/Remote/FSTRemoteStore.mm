@@ -166,7 +166,7 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Create new streams (but note they're not started yet).
-  _watchStream = [self.datastore createWatchStream];
+  _watchStream = [self.datastore createWatchStreamWithDelegate:self];
   self.writeStream = [self.datastore createWriteStream];
 
   // Load any saved stream token from persistent storage

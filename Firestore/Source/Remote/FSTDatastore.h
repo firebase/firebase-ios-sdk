@@ -104,7 +104,7 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStream;
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:(id)delegate;
 
 /** Creates a new write stream. */
 - (FSTWriteStream *)createWriteStream;

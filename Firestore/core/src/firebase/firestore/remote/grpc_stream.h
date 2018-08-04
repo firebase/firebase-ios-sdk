@@ -51,8 +51,6 @@ namespace remote {
 
 // TODO: WRITE STREAM
 
-class WatchStream;
-
 namespace internal {
 
 // Contains operations that are still delegated to Objective-C, notably proto
@@ -91,13 +89,13 @@ class ObjcBridge {
 
 class WatchStream : public std::enable_shared_from_this<WatchStream> {
  public:
-  WatchStream(util::AsyncQueue* async_queue,
-              // util::TimerId timer_id,
+  WatchStream(
+      util::AsyncQueue* async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
-              Datastore* datastore);
+              Datastore* datastore, id delegate);
 
-  void Start(id delegate);
+  void Start();
   void Stop();
   bool IsStarted() const;
   bool IsOpen() const;
@@ -115,7 +113,7 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   void MarkIdle();
   void CancelIdleCheck();
 
-  int generation() const override {
+  int generation() const {
     return generation_;
   }
 
@@ -123,22 +121,24 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   friend class BufferedWriter;
 
   enum class State {
-    NotStarted,
-    Auth,
+    Initial,
+    Starting,
     Open,
     GrpcError,
     ReconnectingWithBackoff,
     ShuttingDown
   };
 
-  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
+  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token, int auth_generation);
 
   void BackoffAndTryRestarting();
   void ResumeStartFromBackoff();
-  void CloseDueToIdleness();
+  void StopDueToIdleness();
 
   void Write(const grpc::ByteBuffer& message);
-  void FinishStream();
+
+  void OnConnectionBroken();
+  void HalfCloseConnection();
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
@@ -146,21 +146,21 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
     operation->Execute();
   }
 
-  State state_{State::NotStarted};
+  State state_ = State::Initial;
 
   BufferedWriter buffered_writer_;
-
   std::shared_ptr<GrpcCall> grpc_call_;
 
+  internal::ObjcBridge objc_bridge_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   Datastore* datastore_;
+
   ExponentialBackoff backoff_;
   util::DelayedOperation idleness_timer_;
 
-  internal::ObjcBridge objc_bridge_;
-
-  // FIXME
+  // Generation is incremented in each call to `Start`, so the first generation
+  // will be zero.
   int generation_ = -1;
 };
 

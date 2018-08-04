@@ -85,11 +85,6 @@ void Datastore::PollGrpcQueue() {
   }
 }
 
-std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcCall(
-    grpc::ClientContext *context, const absl::string_view path) {
-  return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
-}
-
 grpc::GenericStub Datastore::CreateGrpcStub() const {
   if (test_certificate_path_.empty()) {
     return grpc::GenericStub{grpc::CreateChannel(
@@ -107,6 +102,12 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
   args.SetSslTargetNameOverride("test_cert_2");
   return grpc::GenericStub{grpc::CreateCustomChannel(
       database_info_->host(), grpc::SslCredentials(options), args)};
+}
+
+std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path) const {
+  auto context = CreateContext(token);
+  auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
+  return std::make_shared<GrpcCall>(std::move(context), std::move(reader_writer));
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
@@ -134,6 +135,11 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
                        StringFormat("projects/%s/databases/%s", db_id.project(),
                                     db_id.database_id()));
   return context;
+}
+
+std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcCall(
+    grpc::ClientContext *context, const absl::string_view path) {
+  return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
 FirestoreErrorCode Datastore::ToFirestoreErrorCode(

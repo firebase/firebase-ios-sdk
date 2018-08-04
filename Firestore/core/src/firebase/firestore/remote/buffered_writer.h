@@ -43,8 +43,8 @@ class WatchStream;
 //
 // Buffer is cleared when `Stop` is called; deciding whether unfinished
 // writes have to be issued again or not upon restart is left to the caller.
-// TODO OBC - does stopped state have to exist? Is there danger that
-// this class tries writing when there is no valid `GrpcCall`?
+// While `BufferedWriter` is stopped, no operation can be enqueued (`Enqueue`
+// becomes a no-op).
 class BufferedWriter {
  public:
   explicit BufferedWriter(WatchStream* stream) : stream_{stream} {

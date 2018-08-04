@@ -744,49 +744,4 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 
 @end
 
-#pragma mark - FSTWatchStream
-
-using firebase::firestore::remote::WatchStream;
-
-@implementation FSTWatchStream {
-  std::unique_ptr<WatchStream> impl_;
-}
-
-- (instancetype)initWithDatabase:(const DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(CredentialsProvider *)credentials
-                      serializer:(FSTSerializerBeta *)serializer {
-  impl_ = absl::make_unique<WatchStream>([workerDispatchQueue implementation], credentials,
-                                         serializer, nullptr);
-  // FIXME!
-  return self;
-}
-
-- (void)watchQuery:(FSTQueryData *)query {
-  impl_->WatchQuery(query);
-}
-
-- (void)unwatchTargetID:(FSTTargetID)targetID {
-  impl_->UnwatchTargetId(targetID);
-}
-
-- (void)startWithDelegate:(id)delegate {
-  impl_->Start(delegate);
-}
-
-- (void)stop {
-  impl_->Stop();
-}
-
-- (BOOL)isOpen {
-  return impl_->IsOpen();
-}
-
-- (BOOL)isStarted {
-  return impl_->IsStarted();
-}
-
-- (void)markIdle {
-}
-
 @end

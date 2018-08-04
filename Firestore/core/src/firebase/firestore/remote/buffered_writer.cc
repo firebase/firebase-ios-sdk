@@ -35,6 +35,10 @@ void BufferedWriter::Stop() {
 }
 
 void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
+  if (!is_started_) {
+    return;
+  }
+
   buffer_.push_back(std::move(bytes));
   TryWrite();
 }

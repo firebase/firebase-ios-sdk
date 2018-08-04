@@ -38,11 +38,7 @@ class Datastore {
   Datastore(util::AsyncQueue* firestore_queue,
                 const core::DatabaseInfo& database_info);
 
-  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
-      absl::string_view token) const;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcCall(
-      grpc::ClientContext* context, absl::string_view path) const;
-
+  std::shared_ptr<GrpcCall> CreateGrpcCall(absl::string_view token, absl::string_view path) const;
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   // TODO?
@@ -64,6 +60,10 @@ class Datastore {
  private:
   void PollGrpcQueue();
   grpc::GenericStub CreateGrpcStub() const;
+  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
+      absl::string_view token) const;
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
+      grpc::ClientContext* context, absl::string_view path) const;
 
   static std::string test_certificate_path_;
 

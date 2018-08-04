@@ -29,7 +29,6 @@
 @class FSTQueryData;
 @class FSTSerializerBeta;
 @class FSTWatchChange;
-@class FSTWatchStream;
 @class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
@@ -190,85 +189,6 @@ NS_ASSUME_NONNULL_BEGIN
  * on FSTStream for details.
  */
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
-
-@end
-
-/**
- * An FSTStream that implements the StreamingWatch RPC.
- *
- * Once the FSTWatchStream has called the streamDidOpen method, any number of watchQuery and
- * unwatchTargetId calls can be sent to control what changes will be sent from the server for
- * WatchChanges.
- */
-@interface FSTWatchStream : NSObject  //: FSTStream
-
-/**
- * Initializes the watch stream with its dependencies.
- */
-- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passsing ownership
-                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-               connectionTimerID:(FSTTimerID)connectionTimerID
-                     idleTimerID:(FSTTimerID)idleTimerID
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passing ownership
-            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
-
-- (instancetype)init NS_UNAVAILABLE;
-
-/**
- * Registers interest in the results of the given query. If the query includes a resumeToken it
- * will be included in the request. Results that affect the query will be streamed back as
- * WatchChange messages that reference the targetID included in |query|.
- */
-- (void)watchQuery:(FSTQueryData *)query;
-
-/** Unregisters interest in the results of the query associated with the given target ID. */
-- (void)unwatchTargetID:(FSTTargetID)targetID;
-
-- (void)startWithDelegate:(id)delegate;
-- (void)stop;
-- (BOOL)isOpen;
-- (void)markIdle;
-- (BOOL)isStarted;
-
-@end
-
-#pragma mark - FSTWriteStream
-
-@protocol FSTWriteStreamDelegate <NSObject>
-
-/** Called by the FSTWriteStream when it is ready to accept outbound request messages. */
-- (void)writeStreamDidOpen;
-
-/**
- * Called by the FSTWriteStream upon a successful handshake response from the server, which is the
- * receiver's cue to send any pending writes.
- */
-- (void)writeStreamDidCompleteHandshake;
-
-/**
- * Called by the FSTWriteStream upon receiving a StreamingWriteResponse from the server that
- * contains mutation results.
- */
-- (void)writeStreamDidReceiveResponseWithVersion:
-            (const firebase::firestore::model::SnapshotVersion &)commitVersion
-                                 mutationResults:(NSArray<FSTMutationResult *> *)results;
-
-/**
- * Called when the FSTWriteStream's underlying RPC is interrupted for whatever reason, usually
- * because of an error, but possibly due to an idle timeout. The error passed to this method may be
- * nil, in which case the stream was closed without attributable fault.
- *
- * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
- * on FSTStream for details.
- */
-- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
 
