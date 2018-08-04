@@ -20,14 +20,13 @@
 #include <sstream>
 
 #include <grpcpp/create_channel.h>
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
@@ -72,15 +71,15 @@ void Datastore::Shutdown() {
 
 void Datastore::PollGrpcQueue() {
   HARD_ASSERT(dedicated_executor_->IsCurrentExecutor(),
-                          "PollGrpcQueue should only be called on the "
-                          "dedicated Datastore executor");
+              "PollGrpcQueue should only be called on the "
+              "dedicated Datastore executor");
 
   void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto *operation = static_cast<GrpcOperationInterface *>(tag);
+    auto *operation = static_cast<StreamOperation *>(tag);
     firestore_queue_->Enqueue([operation, ok] {
-      operation->NotifyOnCompletion(ok);
+      operation->Complete(ok);
       delete operation;
     });
   }

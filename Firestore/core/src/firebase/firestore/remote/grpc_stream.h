@@ -63,28 +63,23 @@ class ObjcBridge {
       : serializer_{serializer}, delegate_{delegate} {
   }
 
-  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
-      const model::DatabaseId& database_id,
-      absl::string_view token) const;
-
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
   grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
 
-  FSTWatchChange* GetWatchChange(GCFSListenResponse* proto);
-  model::SnapshotVersion GetSnapshotVersion(GCFSListenResponse* proto);
-
-  // TODO(StatusOr)
-  template <typename Proto>
-  Proto* ToProto(const grpc::ByteBuffer& buffer) {
-    NSError* error;
-    return [Proto parseFromData:ToNsData(buffer) error:&error];
-  }
+  FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
+  model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
   void NotifyDelegateOnOpen();
-  void NotifyDelegateOnChange(const grpc::ByteBuffer& message);
+  NSError* NotifyDelegateOnChange(const grpc::ByteBuffer& message);
   void NotifyDelegateOnError(FirestoreErrorCode error_code);
 
  private:
+  // TODO(StatusOr)
+  template <typename Proto>
+  Proto* ToProto(const grpc::ByteBuffer& buffer, NSError** error) const {
+    return [Proto parseFromData:ToNSData(buffer) error:error];
+  }
+
   grpc::ByteBuffer ToByteBuffer(NSData* data) const;
   NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
 

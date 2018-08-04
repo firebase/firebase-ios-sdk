@@ -113,14 +113,14 @@ class StreamFinish : public StreamOperation {
   }
 
   static util::Status ToFirestoreStatus(const grpc::Status from) {
-    if (from.ok()}) {
-    return {};
+    if (from.ok()) {
+      return {};
+    }
+    return {Datastore::ToFirestoreErrorCode(from.error_code()),
+            from.error_message()};
   }
-  return {Datastore::ToFirestoreErrorCode(from.error_code()),
-          from.error_message()};
-}
 
-grpc::Status grpc_status_;
+  grpc::Status grpc_status_;
 };
 
 }  // namespace
@@ -149,24 +149,27 @@ grpc::ByteBuffer ObjcBridge::ToByteBuffer(NSData* data) const {
   return grpc::ByteBuffer{&slice, 1};
 }
 
-FSTWatchChange* ObjcBridge::GetWatchChange(GCFSListenResponse* proto) {
+FSTWatchChange* ObjcBridge::ToWatchChange(GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
 
-SnapshotVersion ObjcBridge::GetSnapshotVersion(GCFSListenResponse* proto) {
+SnapshotVersion ObjcBridge::ToSnapshotVersion(GCFSListenResponse* proto) const {
   return [serializer_ versionFromListenResponse:proto];
 }
 
 NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
   std::vector<grpc::Slice> slices;
-  buffer.Dump(&slices);  // TODO: check return value
+  const grpc::Status status = buffer.Dump(&slices);
+  HARD_ASSERT(status.ok(), "Trying to convert a corrupted grpc::ByteBuffer");
   if (slices.size() == 1) {
     return [NSData dataWithBytes:slices.front().begin()
                           length:slices.front().size()];
   } else {
-    // FIXME
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
+    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
+    for (const auto& slice : slices) {
+      [data appendBytes: slice.begin() length:slize.size()];
+    }
+    return data;
   }
 }
 
@@ -175,28 +178,39 @@ void ObjcBridge::NotifyDelegateOnOpen() {
   [delegate watchStreamDidOpen];
 }
 
-void ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
-  auto* proto = ToProto<GCFSListenResponse>(message);
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:GetWatchChange(proto)
-                 snapshotVersion:GetSnapshotVersion(proto)];
+NSError* ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
+  NSError* error;
+  auto* proto = ToProto<GCFSListenResponse>(message, &error);
+  if (proto) {
+    id<FSTWatchStreamDelegate> delegate = delegate_;
+    [delegate watchStreamDidChange:ToWatchChange(proto)
+      snapshotVersion:ToSnapshotVersion(proto)];
+    return nil;
+  }
+
+  NSDictionary *info = @{
+    NSLocalizedDescriptionKey : @"Unable to parse response from the server",
+    NSUnderlyingErrorKey : error,
+    @"Expected class" : [GCFSListenResponse class],
+    @"Received value" : ToNSData(message),
+  };
+  return [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                code:FIRFirestoreErrorCodeInternal
+                            userInfo:info];
 }
 
 void ObjcBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:nil];  // FIXME!
-  delegate_ = nil;
+  NSError* error = util::MakeNSError(error_code, "Server error");
+  [delegate watchStreamWasInterruptedWithError:error];
 }
 
 }  // namespace
 
-using firebase::firestore::auth::CredentialsProvider;
-using firebase::firestore::auth::Token;
-using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::model::DatabaseId;
-// using firebase::firestore::model::SnapshotVersion;
-
-//        WATCH STREAM
+using auth::CredentialsProvider;
+using auth::Token;
+using core::DatabaseInfo;
+using model::DatabaseId;
 
 WatchStream::WatchStream(AsyncQueue* const async_queue,
                          // TimerId timer_id,
@@ -356,9 +370,14 @@ void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
 
   firestore_queue_->VerifyIsCurrentQueue();
 
-  objc_bridge_.NotifyDelegateOnChange(message);
-
-  Execute<StreamRead>();
+  NSError* error = objc_bridge_.NotifyDelegateOnChange(message);
+  if (!error) {
+    Execute<StreamRead>();
+  else {
+    // TODO
+    LOG_DEBUG("%s", [error description]);
+    FinishStream();
+  }
 }
 
 void WatchStream::OnStreamWrite(const bool ok) {
