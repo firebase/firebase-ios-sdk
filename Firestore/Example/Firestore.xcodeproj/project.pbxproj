@@ -33,7 +33,6 @@
 		54131E9720ADE679001DF3FF /* string_format_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54131E9620ADE678001DF3FF /* string_format_test.cc */; };
 		544A20EE20F6C10C004E52CD /* BasicCompileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0761F61F2FE68D003233AF /* BasicCompileTests.swift */; };
 		54511E8E209805F8005BD28F /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
-		5457910820186CCB000C029C /* GRPCTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5457910720186CCA000C029C /* GRPCTests.mm */; };
 		5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
 		5467FB08203E6A44009C9584 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
 		546854AA20A36867004BDBD5 /* datastore_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 546854A820A36867004BDBD5 /* datastore_test.cc */; };
@@ -300,7 +299,6 @@
 		444B7AB3F5A2929070CB1363 /* hard_assert_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = hard_assert_test.cc; sourceTree = "<group>"; };
 		54131E9620ADE678001DF3FF /* string_format_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_format_test.cc; sourceTree = "<group>"; };
 		54511E8D209805F8005BD28F /* hashing_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hashing_test.cc; sourceTree = "<group>"; };
-		5457910720186CCA000C029C /* GRPCTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GRPCTests.mm; sourceTree = "<group>"; };
 		5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreTests.mm; sourceTree = "<group>"; };
 		5467FB06203E6A44009C9584 /* app_testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_testing.h; sourceTree = "<group>"; };
 		5467FB07203E6A44009C9584 /* app_testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = app_testing.mm; sourceTree = "<group>"; };
@@ -1188,7 +1186,6 @@
 				5492E0C42021557E00B64F25 /* FSTWatchChange+Testing.h */,
 				5492E0C02021557E00B64F25 /* FSTWatchChange+Testing.mm */,
 				5492E0C52021557E00B64F25 /* FSTWatchChangeTests.mm */,
-				5457910720186CCA000C029C /* GRPCTests.mm */,
 			);
 			path = Remote;
 			sourceTree = "<group>";
@@ -1236,7 +1233,6 @@
 				54C9EDEE2040E16300A969CD /* Frameworks */,
 				54C9EDEF2040E16300A969CD /* Resources */,
 				EA424838F4A5DD7B337F57AB /* [CP] Embed Pods Frameworks */,
-				32CC7F604C7044C4CF35BCF3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1277,7 +1273,6 @@
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
 				1EE692C7509A98D7EB03CA51 /* [CP] Embed Pods Frameworks */,
-				5D09CE012EFD7CE17C874A65 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1297,7 +1292,6 @@
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
 				329C25E418360CEF62F6CB2B /* [CP] Embed Pods Frameworks */,
-				DDB8EF7D005D1613224FB448 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1339,7 +1333,6 @@
 				DE03B2D31F2149D600A30B9C /* Frameworks */,
 				DE03B2D81F2149D600A30B9C /* Resources */,
 				B7923D95031DB0DA112AAE9B /* [CP] Embed Pods Frameworks */,
-				3BA0E007476410A98D14CEE4 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1540,6 +1533,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		4C71ED5B5EF024AEF16B5E55 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1557,6 +1551,7 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Benchmarks_iOS/Pods-Firestore_Benchmarks_iOS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		6E622C7A20F52C8300B7E93A /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 12;
 			files = (
@@ -1719,21 +1714,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		DDB8EF7D005D1613224FB448 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_Tests_iOS/Pods-Firestore_Tests_iOS-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		EA424838F4A5DD7B337F57AB /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1818,6 +1798,10 @@
 				5492E057202154AB00B64F25 /* FIRSnapshotMetadataTests.mm in Sources */,
 				B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */,
 				5492E058202154AB00B64F25 /* FSTAPIHelpers.mm in Sources */,
+				DE2EF0851F3D0B6E003D0CDC /* FSTArraySortedDictionaryTests.m in Sources */,
+				5492E0C82021557E00B64F25 /* FSTDatastoreTests.mm in Sources */,
+				7346E61D20325C6900FD6CEF /* FSTDispatchQueueTests.mm in Sources */,
+				5492E0B92021555100B64F25 /* FSTDocumentKeyTests.mm in Sources */,
 				5492E0BA2021555100B64F25 /* FSTDocumentSetTests.mm in Sources */,
 				5492E0BD2021555100B64F25 /* FSTDocumentTests.mm in Sources */,
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,

@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
+#if !defined(__OBJC__)
+#error "This header only supports Objective-C++"
+#endif  // !defined(__OBJC__)
+
 #include <grpc/grpc.h>
 #include <grpcpp/client_context.h>
 #include <grpcpp/completion_queue.h>
@@ -75,7 +79,7 @@ class ObjcBridge {
   // TODO(StatusOr)
   template <typename Proto>
   Proto* ToProto(const grpc::ByteBuffer& buffer, NSError** error) const {
-    return [Proto parseFromData:ToNSData(buffer) error:error];
+    return [Proto parseFromData:ToNsData(buffer) error:error];
   }
 
   grpc::ByteBuffer ToByteBuffer(NSData* data) const;

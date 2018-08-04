@@ -30,6 +30,8 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
+#import "Firestore/Source/API/FIRFirestoreVersion.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -39,6 +41,7 @@ using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using model::DocumentKey;
+using util::StringFormat;
 using util::internal::ExecutorLibdispatch;
 
 namespace {
@@ -104,10 +107,12 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path) const {
-  auto context = CreateContext(token);
+std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
+    absl::string_view token, absl::string_view path) const {
+  auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return std::make_shared<GrpcCall>(std::move(context), std::move(reader_writer));
+  return std::make_shared<GrpcCall>(std::move(context),
+                                    std::move(reader_writer));
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(

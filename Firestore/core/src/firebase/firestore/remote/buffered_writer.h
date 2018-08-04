@@ -54,9 +54,7 @@ class BufferedWriter {
   // Note that it clears the buffer.
   void Stop();
 
-  // Automatically calls `TryWrite`.
   void Enqueue(grpc::ByteBuffer&& bytes);
-  // Automatically calls `TryWrite`.
   void OnSuccessfulWrite();
 
  private:

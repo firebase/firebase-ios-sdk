@@ -24,24 +24,25 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+class StreamOperation;
+    
 class GrpcCall {
  public:
   GrpcCall(std::unique_ptr<grpc::ClientContext> context,
            std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call)
-      : context{std::move(context)}, call{std::move(call)} {
+      : context_{std::move(context)}, call_{std::move(call)} {
   }
 
-  void StartCall(GrpcOperation* operation);
-  void Read(grpc::ByteBuffer* buffer, GrpcOperation* operation);
-  void Write(grpc::ByteBuffer* buffer, GrpcOperation* operation);
-  void Finish(grpc::Status* status, GrpcOperation* operation);
+  void StartCall(StreamOperation* operation);
+  void Read(grpc::ByteBuffer* buffer, StreamOperation* operation);
+  void Write(grpc::ByteBuffer* buffer, StreamOperation* operation);
+  void Finish(grpc::Status* status, StreamOperation* operation);
   void TryCancel();
 
  private:

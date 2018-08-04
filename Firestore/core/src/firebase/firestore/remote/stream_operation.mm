@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {

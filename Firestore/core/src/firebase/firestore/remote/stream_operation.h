@@ -28,6 +28,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class GrpcCall;
+    
 class StreamOperation {
  public:
   StreamOperation(WatchStream* const stream,
