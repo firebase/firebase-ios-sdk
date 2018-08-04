@@ -104,6 +104,19 @@ if(NOT WIN32)
   )
 endif()
 
+if(WIN32)
+  cc_test(
+    firebase_firestore_util_filesystem_win_test
+    SOURCES
+      filesystem_test.cc
+      path_test.cc
+    DEPENDS
+      absl_optional
+      firebase_firestore_util_autoid
+      firebase_firestore_util_filesystem_win
+  )
+endif()
+
 
 ## random
 

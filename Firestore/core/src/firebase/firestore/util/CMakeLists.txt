@@ -136,9 +136,25 @@ cc_library(
   EXCLUDE_FROM_ALL
 )
 
+cc_library(
+  firebase_firestore_util_filesystem_win
+  SOURCES
+    filesystem.h
+    filesystem_detail.h
+    filesystem_detail.cc
+    filesystem_win.cc
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util_status
+  EXCLUDE_FROM_ALL
+)
+
 cc_select(
   firebase_firestore_util_filesystem
   APPLE   firebase_firestore_util_filesystem_apple
+  WIN32   firebase_firestore_util_filesystem_win
   DEFAULT firebase_firestore_util_filesystem_posix
 )
 
