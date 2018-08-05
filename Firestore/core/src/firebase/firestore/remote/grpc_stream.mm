@@ -220,7 +220,8 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
       credentials_provider_{credentials_provider},
       datastore_{datastore},
       buffered_writer_{this},
-      objc_bridge_{serializer, delegate},
+      serializer_bridge_{serializer},
+      delegate_bridge_{delegate},
       backoff_{firestore_queue_, TimerId::ListenStreamConnectionBackoff,
                kBackoffFactor, kBackoffInitialDelay, kBackoffMaxDelay} {
 }
@@ -300,7 +301,7 @@ void WatchStream::OnStreamStart(const bool ok) {
   buffered_writer_.Start();
   Execute<StreamRead>();
 
-  objc_bridge_.NotifyDelegateOnOpen();
+  delegate_bridge_.NotifyDelegateOnOpen();
 }
 
 // Backoff
@@ -374,14 +375,14 @@ void WatchStream::WatchQuery(FSTQueryData* query) {
   firestore_queue_->VerifyIsCurrentQueue();
 
   CancelIdleCheck();
-  buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(query));
+  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   firestore_queue_->VerifyIsCurrentQueue();
 
   CancelIdleCheck();
-  buffered_writer_.Enqueue(objc_bridge_.ToByteBuffer(target_id));
+  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(target_id));
 }
 
 void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
@@ -393,7 +394,7 @@ void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
   }
 
   // FIXME OBC remove nserror
-  NSError* error = objc_bridge_.NotifyDelegateOnChange(message);
+  NSError* error = delegate_bridge_.NotifyDelegateOnChange(message);
   if (error) {
     client_side_error_ = util::MakeString([error description]);
     OnConnectionBroken();
@@ -475,7 +476,7 @@ void WatchStream::OnStreamFinish(const util::Status status) {
   }
   client_side_error_.reset();
 
-  objc_bridge_.NotifyDelegateOnError(error);
+  delegate_bridge_.NotifyDelegateOnError(error);
 
   // After a GRPC call has been finished, it is no longer valid. Pending operations, if any, have
   // their own `shared_ptr` to the call.

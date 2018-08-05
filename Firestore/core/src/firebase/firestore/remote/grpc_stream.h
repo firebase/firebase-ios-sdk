@@ -60,10 +60,10 @@ namespace internal {
 
 // Contains operations that are still delegated to Objective-C, notably proto
 // parsing.
-class ObjcBridge {
+class SerializerBridge {
  public:
-  ObjcBridge(FSTSerializerBeta* serializer, id delegate)
-      : serializer_{serializer}, delegate_{delegate} {
+  explicit SerializerBridge(FSTSerializerBeta* serializer)
+      : serializer_{serializer} {
   }
 
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
@@ -72,12 +72,7 @@ class ObjcBridge {
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
-  void NotifyDelegateOnOpen();
-  NSError* NotifyDelegateOnChange(const grpc::ByteBuffer& message);
-  void NotifyDelegateOnError(FirestoreErrorCode error_code);
-
  private:
-  // TODO(StatusOr)
   template <typename Proto>
   Proto* ToProto(const grpc::ByteBuffer& buffer, NSError** error) const {
     return [Proto parseFromData:ToNsData(buffer) error:error];
@@ -87,6 +82,19 @@ class ObjcBridge {
   NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
 
   FSTSerializerBeta* serializer_;
+};
+
+class DelegateBridge {
+ public:
+  explicit DelegateBridge(FSTSerializerBeta* serializer)
+      : delegate_{delegate} {
+  }
+
+  void NotifyDelegateOnOpen();
+  NSError* NotifyDelegateOnChange(const grpc::ByteBuffer& message);
+  void NotifyDelegateOnError(FirestoreErrorCode error_code);
+
+ private:
   id delegate_;
 };
 
@@ -156,7 +164,8 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   BufferedWriter buffered_writer_;
   std::shared_ptr<GrpcCall> grpc_call_;
 
-  internal::ObjcBridge objc_bridge_;
+  internal::SerializerBridge serializer_bridge_;
+  internal::DelegateBridge delegate_bridge_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   Datastore* datastore_;
