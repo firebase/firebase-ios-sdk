@@ -392,10 +392,10 @@ void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
     return;
   }
 
+  // FIXME OBC remove nserror
   NSError* error = objc_bridge_.NotifyDelegateOnChange(message);
   if (error) {
-    // TODO
-    LOG_DEBUG("%s", [error description]);
+    client_side_error_ = util::MakeString([error description]);
     OnConnectionBroken();
     return;
   }
@@ -456,8 +456,16 @@ void WatchStream::HalfCloseConnection() {
 void WatchStream::OnStreamFinish(const util::Status status) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  const FirestoreErrorCode error = status.code();
-  if (error == FirestoreErrorCode::ResourceExhausted) {
+  const FirestoreErrorCode error = [&] {
+    if (client_side_error_ && status.code() == FirestoreErrorCode::Ok) {
+      return FirestoreErrorCode::Internal;
+    }
+    return status.error_code();
+  }();
+
+  if (client_side_error_) {
+    LOG_DEBUG("%s", client_side_error_.value());
+  } else if (error == FirestoreErrorCode::ResourceExhausted) {
     // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
     // backend.", [self class],
     //       (__bridge void *)self);
@@ -465,6 +473,7 @@ void WatchStream::OnStreamFinish(const util::Status status) {
   } else if (error == FirestoreErrorCode::Unauthenticated) {
     credentials_provider_->InvalidateToken();
   }
+  client_side_error_.reset();
 
   objc_bridge_.NotifyDelegateOnError(error);
 

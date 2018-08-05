@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 #include "absl/strings/string_view.h"
 
 #include <memory>
@@ -166,6 +167,8 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   // Generation is incremented in each call to `Start`, so the first generation
   // will be zero.
   int generation_ = -1;
+
+  absl::optional<std::string> client_side_error_;
 };
 
 }  // namespace remote
