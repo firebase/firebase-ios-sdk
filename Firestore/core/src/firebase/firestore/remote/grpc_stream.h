@@ -33,14 +33,13 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "absl/types/optional.h"
 #include "absl/strings/string_view.h"
+#include "absl/types/optional.h"
 
 #include <memory>
 
@@ -86,8 +85,7 @@ class SerializerBridge {
 
 class DelegateBridge {
  public:
-  explicit DelegateBridge(FSTSerializerBeta* serializer)
-      : delegate_{delegate} {
+  explicit DelegateBridge(id delegate) : delegate_{delegate} {
   }
 
   void NotifyDelegateOnOpen();
@@ -100,21 +98,19 @@ class DelegateBridge {
 
 }  // namespace internal
 
-class WatchStream : public std::enable_shared_from_this<WatchStream> {
+class Stream : public std::enable_shared_from_this<Stream> {
  public:
-  WatchStream(
-      util::AsyncQueue* async_queue,
-              auth::CredentialsProvider* credentials_provider,
-              FSTSerializerBeta* serializer,
-              Datastore* datastore, id delegate);
+  Stream(util::AsyncQueue* async_queue,
+         auth::CredentialsProvider* credentials_provider,
+         FSTSerializerBeta* serializer,
+         Datastore* datastore,
+         util::TimerId backoff_timer_id,
+         util::TimerId idle_timer_id);
 
   void Start();
   void Stop();
   bool IsStarted() const;
   bool IsOpen() const;
-
-  void WatchQuery(FSTQueryData* query);
-  void UnwatchTargetId(FSTTargetID target_id);
 
   void OnStreamStart(bool ok);
   void OnStreamRead(bool ok, const grpc::ByteBuffer& message);
@@ -142,6 +138,15 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
     ShuttingDown
   };
 
+  // Timer ids
+  virtual std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+      Datastore* datastore, absl::string_view token) = 0;
+  virtual void DoOnStreamStart() = 0;
+  virtual absl::optional<std::string> DoOnStreamRead(
+      const grpc::ByteBuffer& message) = 0;
+  virtual void DoOnStreamWrite() = 0;
+  virtual void DoOnStreamFinish(FirestoreErrorCode error) = 0;
+
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
 
   void BackoffAndTryRestarting();
@@ -167,18 +172,41 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   std::shared_ptr<GrpcCall> grpc_call_;
 
   internal::SerializerBridge serializer_bridge_;
-  internal::DelegateBridge delegate_bridge_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   Datastore* datastore_;
 
   ExponentialBackoff backoff_;
+  util::TimerId idle_timer_id_{};
   util::DelayedOperation idleness_timer_;
 
   // Generation is incremented in each call to `Finish`.
   int generation_ = 0;
 
   absl::optional<std::string> client_side_error_;
+};
+
+class WatchStream : public Stream {
+ public:
+  WatchStream(util::AsyncQueue* async_queue,
+              auth::CredentialsProvider* credentials_provider,
+              FSTSerializerBeta* serializer,
+              Datastore* datastore,
+              id delegate);
+
+  void WatchQuery(FSTQueryData* query);
+  void UnwatchTargetId(FSTTargetID target_id);
+
+ private:
+  std::shared_ptr<GrpcCall> DoCreateGrpcCall(Datastore* datastore,
+                            const absl::string_view token) override;
+  void DoOnStreamStart() override;
+  absl::optional<std::string> DoOnStreamRead(
+      const grpc::ByteBuffer& message) override;
+  void DoOnStreamWrite() override;
+  void DoOnStreamFinish(FirestoreErrorCode error) override;
+
+  internal::DelegateBridge delegate_bridge_;
 };
 
 }  // namespace remote

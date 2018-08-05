@@ -19,6 +19,7 @@
 #include <utility>
 
 #include "Firestore/Source/Remote/FSTDatastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -58,7 +59,7 @@ class StreamStart : public StreamOperation {
   void DoExecute(GrpcCall* const call) override {
     call->Start(this);
   }
-  void OnCompletion(WatchStream* const stream, const bool ok) override {
+  void OnCompletion(Stream* const stream, const bool ok) override {
     stream->OnStreamStart(ok);
   }
 };
@@ -71,7 +72,7 @@ class StreamRead : public StreamOperation {
   void DoExecute(GrpcCall* const call) override {
     call->Read(&message_, this);
   }
-  void OnCompletion(WatchStream* const stream, const bool ok) override {
+  void OnCompletion(Stream* const stream, const bool ok) override {
     stream->OnStreamRead(ok, message_);
   }
 
@@ -80,10 +81,10 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  StreamWrite(WatchStream* const stream,
-                   const std::shared_ptr<GrpcCall>& call,
-                   const int generation,
-                   const grpc::ByteBuffer& message)
+  StreamWrite(Stream* const stream,
+              const std::shared_ptr<GrpcCall>& call,
+              const int generation,
+              const grpc::ByteBuffer& message)
       : StreamOperation{stream, call, generation}, message_{&message} {
   }
 
@@ -91,7 +92,7 @@ class StreamWrite : public StreamOperation {
   void DoExecute(GrpcCall* const call) override {
     call->Write(*message_, this);
   }
-  void OnCompletion(WatchStream* const stream, const bool ok) override {
+  void OnCompletion(Stream* const stream, const bool ok) override {
     stream->OnStreamWrite(ok);
   }
 
@@ -108,7 +109,7 @@ class StreamFinish : public StreamOperation {
     call->Finish(&grpc_status_, this);
   }
 
-  void OnCompletion(WatchStream* stream, const bool ok) override {
+  void OnCompletion(Stream* stream, const bool ok) override {
     HARD_ASSERT(ok,
                 "Calling Finish on a GRPC call should never fail, "
                 "according to the docs");
@@ -130,7 +131,7 @@ class StreamFinish : public StreamOperation {
 
 namespace internal {
 
-grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTQueryData* query) const {
+grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.addTarget = [serializer_ encodedTarget:query];
@@ -139,7 +140,7 @@ grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTQueryData* query) const {
   return ToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTTargetID target_id) const {
+grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTTargetID target_id) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.removeTarget = target_id;
@@ -147,20 +148,20 @@ grpc::ByteBuffer ObjcBridge::ToByteBuffer(FSTTargetID target_id) const {
   return ToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer ObjcBridge::ToByteBuffer(NSData* data) const {
+grpc::ByteBuffer SerializerBridge::ToByteBuffer(NSData* data) const {
   const grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
 }
 
-FSTWatchChange* ObjcBridge::ToWatchChange(GCFSListenResponse* proto) const {
+FSTWatchChange* SerializerBridge::ToWatchChange(GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
 
-SnapshotVersion ObjcBridge::ToSnapshotVersion(GCFSListenResponse* proto) const {
+SnapshotVersion SerializerBridge::ToSnapshotVersion(GCFSListenResponse* proto) const {
   return [serializer_ versionFromListenResponse:proto];
 }
 
-NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
+NSData* SerializerBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
   std::vector<grpc::Slice> slices;
   const grpc::Status status = buffer.Dump(&slices);
   HARD_ASSERT(status.ok(), "Trying to convert a corrupted grpc::ByteBuffer");
@@ -177,16 +178,16 @@ NSData* ObjcBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
   }
 }
 
-void ObjcBridge::NotifyDelegateOnOpen() {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
+void DelegateBridge::NotifyDelegateOnOpen() {
+  id<FSTStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
-NSError* ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
+NSError* DelegateBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
   NSError* error;
   auto* proto = ToProto<GCFSListenResponse>(message, &error);
   if (proto) {
-    id<FSTWatchStreamDelegate> delegate = delegate_;
+    id<FSTStreamDelegate> delegate = delegate_;
     [delegate watchStreamDidChange:ToWatchChange(proto)
                    snapshotVersion:ToSnapshotVersion(proto)];
     return nil;
@@ -203,32 +204,33 @@ NSError* ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
                          userInfo:info];
 }
 
-void ObjcBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
+void DelegateBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
+  id<FSTStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate watchStreamWasInterruptedWithError:error];
 }
 
 }  // namespace
 
-WatchStream::WatchStream(AsyncQueue* const async_queue,
-                         CredentialsProvider* const credentials_provider,
-                         FSTSerializerBeta* serializer,
-                         Datastore* const datastore,
-                         id delegate)
+Stream::Stream(AsyncQueue* const async_queue,
+               CredentialsProvider* const credentials_provider,
+               FSTSerializerBeta* serializer,
+               Datastore* const datastore,
+               const TimerId backoff_timer_id,
+               const TimerId idle_timer_id)
     : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
       buffered_writer_{this},
       serializer_bridge_{serializer},
-      delegate_bridge_{delegate},
-      backoff_{firestore_queue_, TimerId::ListenStreamConnectionBackoff,
-               kBackoffFactor, kBackoffInitialDelay, kBackoffMaxDelay} {
+      backoff_{firestore_queue_, backoff_timer_id, kBackoffFactor,
+               kBackoffInitialDelay, kBackoffMaxDelay},
+      idle_timer_id_{idle_timer_id} {
 }
 
 // Starting
 
-void WatchStream::Start() {
+void Stream::Start() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (state_ == State::GrpcError) {
@@ -244,8 +246,9 @@ void WatchStream::Start() {
 
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
-  std::weak_ptr<WatchStream> weak_self{shared_from_this()};
+  std::weak_ptr<Stream> weak_self{shared_from_this()};
   const int auth_generation = generation();
+  // TODO OBC: refactor, way too nested.
   credentials_provider_->GetToken(
       [weak_self, auth_generation](util::StatusOr<Token> maybe_token) {
         if (auto live_instance = weak_self.lock()) {
@@ -262,11 +265,11 @@ void WatchStream::Start() {
       });
 }
 
-void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
+void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-    HARD_ASSERT(state_ == State::Starting,
-                "State should still be 'Starting' (was %s)", state_);
+  HARD_ASSERT(state_ == State::Starting,
+              "State should still be 'Starting' (was %s)", state_);
 
   if (!maybe_token.ok()) {
     OnStreamFinish(maybe_token.status());
@@ -278,15 +281,15 @@ void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token)
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  grpc_call_ = datastore_->CreateGrpcCall(
-      token, "/google.firestore.v1beta1.Firestore/Listen");
+  grpc_call_ = DoCreateGrpcCall(datastore_, token);
 
   Execute<StreamStart>();
   // TODO: set state to open here, or only upon successful completion?
-  // Objective-C does it here.
+  // Objective-C does it here. C++, for now at least, does it upon successful
+  // completion.
 }
 
-void WatchStream::OnStreamStart(const bool ok) {
+void Stream::OnStreamStart(const bool ok) {
   firestore_queue_->VerifyIsCurrentQueue();
   if (!ok) {
     OnConnectionBroken();
@@ -297,13 +300,11 @@ void WatchStream::OnStreamStart(const bool ok) {
 
   buffered_writer_.Start();
   Execute<StreamRead>();
-
-  delegate_bridge_.NotifyDelegateOnOpen();
 }
 
 // Backoff
 
-void WatchStream::BackoffAndTryRestarting() {
+void Stream::BackoffAndTryRestarting() {
   // LogDebug(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void
   // *)self);
   firestore_queue_->VerifyIsCurrentQueue();
@@ -315,7 +316,7 @@ void WatchStream::BackoffAndTryRestarting() {
   state_ = State::ReconnectingWithBackoff;
 }
 
-void WatchStream::ResumeStartFromBackoff() {
+void Stream::ResumeStartFromBackoff() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (state_ == State::ShuttingDown) {
@@ -335,7 +336,7 @@ void WatchStream::ResumeStartFromBackoff() {
   HARD_ASSERT(IsStarted(), "Stream should have started.");
 }
 
-void WatchStream::CancelBackoff() {
+void Stream::CancelBackoff() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   HARD_ASSERT(!IsStarted(), "Can only cancel backoff after an error (was %s)",
@@ -348,75 +349,59 @@ void WatchStream::CancelBackoff() {
 
 // Idleness
 
-void WatchStream::MarkIdle() {
+void Stream::MarkIdle() {
   firestore_queue_->VerifyIsCurrentQueue();
   if (IsOpen() && !idleness_timer_) {
     idleness_timer_ = firestore_queue_->EnqueueAfterDelay(
-        kIdleTimeout, TimerId::ListenStreamIdle,
-        [this] { StopDueToIdleness(); });
+        kIdleTimeout, idle_timer_id_, [this] { StopDueToIdleness(); });
   }
 }
 
-void WatchStream::CancelIdleCheck() {
+void Stream::CancelIdleCheck() {
   idleness_timer_.Cancel();
 }
 
 // Read/write
 
 // Called by `BufferedWriter`.
-void WatchStream::Write(const grpc::ByteBuffer& message) {
+void Stream::Write(const grpc::ByteBuffer& message) {
   Execute<StreamWrite>(message);
 }
 
-void WatchStream::WatchQuery(FSTQueryData* query) {
+void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
   firestore_queue_->VerifyIsCurrentQueue();
-
-  CancelIdleCheck();
-  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(query));
-}
-
-void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
-  firestore_queue_->VerifyIsCurrentQueue();
-
-  CancelIdleCheck();
-  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(target_id));
-}
-
-void WatchStream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
-  firestore_queue_->VerifyIsCurrentQueue();
-
   if (!ok) {
     OnConnectionBroken();
     return;
   }
 
-  // FIXME OBC remove nserror
-  NSError* error = delegate_bridge_.NotifyDelegateOnChange(message);
-  if (error) {
-    client_side_error_ = util::MakeString([error description]);
+  client_side_error_ = DoOnStreamRead(message);
+  if (client_side_error_) {
     OnConnectionBroken();
     return;
   }
 
   if (IsOpen()) {
-    // While `Stop` hasn't been called, ontinue waiting for new messages indefinitely.
+    // While `Stop` hasn't been called, continue waiting for new messages
+    // indefinitely.
     Execute<StreamRead>();
   }
 }
 
-void WatchStream::OnStreamWrite(const bool ok) {
+void Stream::OnStreamWrite(const bool ok) {
   firestore_queue_->VerifyIsCurrentQueue();
   if (!ok) {
     OnConnectionBroken();
     return;
   }
 
+  DoOnStreamWrite();
   buffered_writer_.OnSuccessfulWrite();
 }
 
 // Stopping
 
-void WatchStream::Stop() {
+void Stream::Stop() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   RaiseGeneration();
@@ -426,19 +411,20 @@ void WatchStream::Stop() {
 
   buffered_writer_.Stop();
   HalfCloseConnection();
-  // If this is an intentional close, ensure we don't delay our next connection attempt.
+  // If this is an intentional close, ensure we don't delay our next connection
+  // attempt.
   backoff_.Reset();
 
   state_ = State::Initial;
 }
 
-void WatchStream::RaiseGeneration() {
+void Stream::RaiseGeneration() {
   if (IsStarted()) {
     ++generation_;
   }
 }
 
-void WatchStream::OnConnectionBroken() {
+void Stream::OnConnectionBroken() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   RaiseGeneration();
@@ -452,7 +438,7 @@ void WatchStream::OnConnectionBroken() {
   state_ = State::GrpcError;
 }
 
-void WatchStream::HalfCloseConnection() {
+void Stream::HalfCloseConnection() {
   firestore_queue_->VerifyIsCurrentQueue();
   if (!IsOpen()) {
     return;
@@ -461,7 +447,7 @@ void WatchStream::HalfCloseConnection() {
   Execute<StreamFinish>();
 }
 
-void WatchStream::OnStreamFinish(const util::Status status) {
+void Stream::OnStreamFinish(const util::Status status) {
   firestore_queue_->VerifyIsCurrentQueue();
 
   const FirestoreErrorCode error = [&] {
@@ -483,14 +469,14 @@ void WatchStream::OnStreamFinish(const util::Status status) {
   }
   client_side_error_.reset();
 
-  delegate_bridge_.NotifyDelegateOnError(error);
+  DoOnStreamFinish(error);
 
-  // After a GRPC call has been finished, it is no longer valid. Pending operations, if any, have
-  // their own `shared_ptr` to the call.
+  // After a GRPC call has been finished, it is no longer valid. Pending
+  // operations, if any, have their own `shared_ptr` to the call.
   grpc_call_.reset();
 }
 
-void WatchStream::StopDueToIdleness() {
+void Stream::StopDueToIdleness() {
   firestore_queue_->VerifyIsCurrentQueue();
   if (!IsOpen()) {
     return;
@@ -505,17 +491,78 @@ void WatchStream::StopDueToIdleness() {
 
 // Check state
 
-bool WatchStream::IsOpen() const {
+bool Stream::IsOpen() const {
   firestore_queue_->VerifyIsCurrentQueue();
   return state_ == State::Open;
 }
 
-bool WatchStream::IsStarted() const {
+bool Stream::IsStarted() const {
   firestore_queue_->VerifyIsCurrentQueue();
   const bool is_starting =
       (state_ == State::Starting || state_ == State::ReconnectingWithBackoff);
   return is_starting || IsOpen();
 }
+
+// Watch stream
+
+WatchStream::WatchStream(AsyncQueue* const async_queue,
+                         CredentialsProvider* const credentials_provider,
+                         FSTSerializerBeta* serializer,
+                         Datastore* const datastore,
+                         id delegate)
+    : Stream{async_queue,
+             credentials_provider,
+             serializer,
+             datastore,
+             TimerId::ListenStreamConnectionBackoff,
+             TimerId::ListenStreamIdle},
+      delegate_bridge_{delegate} {
+}
+
+void WatchStream::WatchQuery(FSTQueryData* query) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
+  CancelIdleCheck();
+  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(query));
+}
+
+void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
+  firestore_queue_->VerifyIsCurrentQueue();
+
+  CancelIdleCheck();
+  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(target_id));
+}
+
+std::shared_ptr<GrpcCall> WatchStream::DoCreateGrpcCall(Datastore* const datastore,
+                                       const absl::string_view token) {
+  return datastore->CreateGrpcCall(
+      token, "/google.firestore.v1beta1.Firestore/Listen");
+}
+
+void WatchStream::DoOnStreamStart() {
+  delegate_bridge_.NotifyDelegateOnOpen();
+}
+
+absl::optional<std::string> WatchStream::DoOnStreamRead(
+    const grpc::ByteBuffer& message) {
+  // FIXME OBC remove nserror
+  NSError* error = delegate_bridge_.NotifyDelegateOnChange(message);
+  if (error) {
+    return util::MakeString([error description]);
+  }
+  return {};
+}
+
+void WatchStream::DoOnStreamWrite() {
+  // Nothing to do.
+}
+
+void WatchStream::DoOnStreamFinish(const FirestoreErrorCode error) {
+  delegate_bridge_.NotifyDelegateOnError(error);
+}
+
+// serializer, queue, and writer have to be protected
+// separating objcbridge was wrong
 
 }  // namespace remote
 }  // namespace firestore

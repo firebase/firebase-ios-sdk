@@ -25,7 +25,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class WatchStream;
+class Stream;
 
 // GRPC forbids trying to issue a write operation before the previous write
 // operation has finished. This class implements simple logic to buffer writes
@@ -47,7 +47,7 @@ class WatchStream;
 // becomes a no-op).
 class BufferedWriter {
  public:
-  explicit BufferedWriter(WatchStream* stream) : stream_{stream} {
+  explicit BufferedWriter(Stream* stream) : stream_{stream} {
   }
 
   void Start();
@@ -58,11 +58,11 @@ class BufferedWriter {
   void OnSuccessfulWrite();
 
  private:
-  friend class WatchStream;
+  friend class Stream;
 
   void TryWrite();
 
-  WatchStream* stream_ = nullptr;
+  Stream* stream_ = nullptr;
   std::vector<grpc::ByteBuffer> buffer_;
   bool has_pending_write_ = false;
   bool is_started_ = false;

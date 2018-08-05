@@ -29,10 +29,10 @@ namespace firestore {
 namespace remote {
 
 class GrpcCall;
-    
+
 class StreamOperation {
  public:
-  StreamOperation(WatchStream* const stream,
+  StreamOperation(Stream* const stream,
                   const std::shared_ptr<GrpcCall>& call,
                   const int generation)
       : stream_{stream}, call_{call}, generation_{generation} {
@@ -45,11 +45,11 @@ class StreamOperation {
 
  private:
   virtual void DoExecute(GrpcCall* call) = 0;
-  virtual void OnCompletion(WatchStream* stream, bool ok) = 0;
+  virtual void OnCompletion(Stream* stream, bool ok) = 0;
 
   bool SameGeneration() const;
 
-  WatchStream* stream_;
+  Stream* stream_;
   // TODO: explain ownership
   std::shared_ptr<GrpcCall> call_;
   int generation_ = -1;
