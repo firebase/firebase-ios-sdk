@@ -65,7 +65,7 @@ std::string DocTargetKey(absl::string_view key, TargetId target_id) {
  * produce.
  */
 #define AssertExpectedKeyDescription(expected_description, key) \
-  ASSERT_EQ((expected_description), Describe(key))
+  ASSERT_EQ((expected_description), DescribeKey(key))
 
 TEST(LevelDbMutationKeyTest, Prefixing) {
   auto tableKey = LevelDbMutationKey::KeyPrefix();
@@ -280,7 +280,7 @@ TEST(TargetDocumentKeyTest, Ordering) {
 
 TEST(TargetDocumentKeyTest, Description) {
   auto key = LevelDbTargetDocumentKey::Key(42, testutil::Key("foo/bar"));
-  ASSERT_EQ("[target_document: target_id=42 key=foo/bar]", Describe(key));
+  ASSERT_EQ("[target_document: target_id=42 key=foo/bar]", DescribeKey(key));
 }
 
 TEST(DocumentTargetKeyTest, EncodeDecodeCycle) {
@@ -295,7 +295,7 @@ TEST(DocumentTargetKeyTest, EncodeDecodeCycle) {
 
 TEST(DocumentTargetKeyTest, Description) {
   auto key = LevelDbDocumentTargetKey::Key(testutil::Key("foo/bar"), 42);
-  ASSERT_EQ("[document_target: key=foo/bar target_id=42]", Describe(key));
+  ASSERT_EQ("[document_target: key=foo/bar target_id=42]", DescribeKey(key));
 }
 
 TEST(DocumentTargetKeyTest, Ordering) {

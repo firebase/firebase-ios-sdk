@@ -226,12 +226,12 @@ std::string LevelDbTransaction::ToString() {
   dest += std::to_string(changes) + " changes ";
   std::string items;  // accumulator for individual changes.
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    items += "\n  - Delete " + Describe(*it);
+    items += "\n  - Delete " + DescribeKey(*it);
   }
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
     int64_t change_bytes = it->second.length();
     bytes += change_bytes;
-    items += "\n  - Put " + Describe(it->first) + " (" +
+    items += "\n  - Put " + DescribeKey(it->first) + " (" +
              std::to_string(change_bytes) + " bytes)";
   }
   dest += "(" + std::to_string(bytes) + " bytes):" + items + ">";

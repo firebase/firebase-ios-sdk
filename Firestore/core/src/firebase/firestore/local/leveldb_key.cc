@@ -539,7 +539,7 @@ class Writer {
 
 }  // namespace
 
-std::string Describe(leveldb::Slice key) {
+std::string DescribeKey(leveldb::Slice key) {
   Reader reader{key};
   return reader.Describe();
 }
