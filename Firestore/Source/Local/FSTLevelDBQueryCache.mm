@@ -27,6 +27,7 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -35,15 +36,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::local::LevelDbTransaction;
-using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
+using firebase::firestore::local::DescribeKey;
+using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
-using firebase::firestore::model::DocumentKeySet;
 
 namespace {
 
@@ -333,15 +335,10 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
     std::string targetKey = [FSTLevelDBTargetKey keyWithTargetID:rowKey.targetID];
     targetIterator->Seek(targetKey);
     if (!targetIterator->Valid() || targetIterator->key() != targetKey) {
-      NSString *foundKeyDescription = @"the end of the table";
-      if (targetIterator->Valid()) {
-        foundKeyDescription = [FSTLevelDBKey descriptionForKey:targetIterator->key()];
-      }
       HARD_FAIL(
           "Dangling query-target reference found: "
           "%s points to %s; seeking there found %s",
-          [FSTLevelDBKey descriptionForKey:indexItererator->key()],
-          [FSTLevelDBKey descriptionForKey:targetKey], foundKeyDescription);
+          DescribeKey(indexItererator), DescribeKey(targetKey), DescribeKey(targetIterator));
     }
 
     // Finally after finding a potential match, check that the query is actually equal to the

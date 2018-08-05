@@ -19,6 +19,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <vector>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -29,7 +30,9 @@
 #import "Firestore/Source/Model/FSTMutationBatch.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -44,6 +47,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::local::LevelDbTransaction;
 using Firestore::StringView;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::DescribeKey;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
@@ -385,15 +389,10 @@ using leveldb::WriteOptions;
     std::string mutationKey = [FSTLevelDBMutationKey keyWithUserID:userID batchID:rowKey.batchID];
     mutationIterator->Seek(mutationKey);
     if (!mutationIterator->Valid() || mutationIterator->key() != mutationKey) {
-      NSString *foundKeyDescription = @"the end of the table";
-      if (mutationIterator->Valid()) {
-        foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
-      }
       HARD_FAIL(
           "Dangling document-mutation reference found: "
           "%s points to %s; seeking there found %s",
-          [FSTLevelDBKey descriptionForKey:indexIterator->key()],
-          [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
+          DescribeKey(indexIterator), DescribeKey(mutationKey), DescribeKey(mutationIterator));
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -507,14 +506,10 @@ using leveldb::WriteOptions;
     std::string mutationKey = [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID];
     mutationIterator->Seek(mutationKey);
     if (!mutationIterator->Valid() || mutationIterator->key() != mutationKey) {
-      NSString *foundKeyDescription = @"the end of the table";
-      if (mutationIterator->Valid()) {
-        foundKeyDescription = [FSTLevelDBKey descriptionForKey:mutationIterator->key()];
-      }
       HARD_FAIL(
           "Dangling document-mutation reference found: "
           "Missing batch %s; seeking there found %s",
-          [FSTLevelDBKey descriptionForKey:mutationKey], foundKeyDescription);
+          DescribeKey(mutationKey), DescribeKey(mutationIterator));
     }
 
     [result addObject:[self decodedMutationBatch:mutationIterator->value()]];
@@ -547,12 +542,10 @@ using leveldb::WriteOptions;
 
     // As a sanity check, verify that the mutation batch exists before deleting it.
     checkIterator->Seek(key);
-    HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist",
-                [FSTLevelDBKey descriptionForKey:key]);
+    HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist", DescribeKey(key));
 
     HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
-                [FSTLevelDBKey descriptionForKey:key],
-                [FSTLevelDBKey descriptionForKey:checkIterator->key()]);
+                DescribeKey(key), DescribeKey(checkIterator));
 
     _db.currentTransaction->Delete(key);
 
@@ -576,7 +569,7 @@ using leveldb::WriteOptions;
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
-  NSMutableArray<NSString *> *danglingMutationReferences = [NSMutableArray array];
+  std::vector<std::string> danglingMutationReferences;
 
   for (; indexIterator->Valid(); indexIterator->Next()) {
     // Only consider rows matching this index prefix for the current user.
@@ -584,13 +577,13 @@ using leveldb::WriteOptions;
       break;
     }
 
-    [danglingMutationReferences addObject:[FSTLevelDBKey descriptionForKey:indexIterator->key()]];
+    danglingMutationReferences.push_back(DescribeKey(indexIterator));
   }
 
-  HARD_ASSERT(danglingMutationReferences.count == 0,
+  HARD_ASSERT(danglingMutationReferences.empty(),
               "Document leak -- detected dangling mutation references when queue "
               "is empty. Dangling keys: %s",
-              danglingMutationReferences);
+              util::ToString(danglingMutationReferences));
 }
 
 - (std::string)mutationKeyForBatch:(FSTMutationBatch *)batch {
