@@ -71,36 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - path: ResourcePath
 
 /**
- * A key in the query targets table, an index of canonicalIDs to the targets they may match. This
- * is not a unique mapping because canonicalID does not promise a unique name for all possible
- * queries.
- */
-@interface FSTLevelDBQueryTargetKey : NSObject
-
-/**
- * Creates a key that contains just the query targets table prefix and points just before the
- * first key.
- */
-+ (std::string)keyPrefix;
-
-/** Creates a key that points to the first query-target association for a canonicalID. */
-+ (std::string)keyPrefixWithCanonicalID:(Firestore::StringView)canonicalID;
-
-/** Creates a key that points to a specific query-target entry. */
-+ (std::string)keyWithCanonicalID:(Firestore::StringView)canonicalID targetID:(FSTTargetID)targetID;
-
-/** Decodes the contents of a query target key into properties on this instance. */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-/** The canonicalID derived from the query. */
-@property(nonatomic, assign, readonly) const std::string &canonicalID;
-
-/** The targetID identifying a target. */
-@property(nonatomic, assign, readonly) FSTTargetID targetID;
-
-@end
-
-/**
  * A key in the target documents table, an index of targetIDs to the documents they contain.
  */
 @interface FSTLevelDBTargetDocumentKey : NSObject

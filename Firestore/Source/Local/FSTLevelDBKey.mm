@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kQueryTargetsTable = "query_target";
 static const char *kTargetDocumentsTable = "target_document";
 static const char *kDocumentTargetsTable = "document_target";
 static const char *kRemoteDocumentsTable = "remote_document";
@@ -302,14 +301,6 @@ inline BOOL ReadTableNameMatching(Slice *contents, const char *expectedTableName
   return ReadLabeledStringMatching(contents, FSTComponentLabelTableName, expectedTableName);
 }
 
-inline void WriteCanonicalID(std::string *dest, StringView canonicalID) {
-  WriteLabeledString(dest, FSTComponentLabelCanonicalID, canonicalID);
-}
-
-inline BOOL ReadCanonicalID(Slice *contents, std::string *canonicalID) {
-  return ReadLabeledString(contents, FSTComponentLabelCanonicalID, canonicalID);
-}
-
 inline void WriteTargetID(std::string *dest, FSTTargetID targetID) {
   WriteLabeledInt32(dest, FSTComponentLabelTargetID, targetID);
 }
@@ -319,47 +310,6 @@ inline BOOL ReadTargetID(Slice *contents, FSTTargetID *targetID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBQueryTargetKey {
-  std::string _canonicalID;
-}
-
-+ (std::string)keyPrefix {
-  std::string result;
-  WriteTableName(&result, kQueryTargetsTable);
-  return result;
-}
-
-+ (std::string)keyPrefixWithCanonicalID:(StringView)canonicalID {
-  std::string result;
-  WriteTableName(&result, kQueryTargetsTable);
-  WriteCanonicalID(&result, canonicalID);
-  return result;
-}
-
-+ (std::string)keyWithCanonicalID:(StringView)canonicalID targetID:(FSTTargetID)targetID {
-  std::string result;
-  WriteTableName(&result, kQueryTargetsTable);
-  WriteCanonicalID(&result, canonicalID);
-  WriteTargetID(&result, targetID);
-  WriteTerminator(&result);
-  return result;
-}
-
-- (const std::string &)canonicalID {
-  return _canonicalID;
-}
-
-- (BOOL)decodeKey:(StringView)key {
-  _canonicalID.clear();
-
-  Slice contents = key;
-  return ReadTableNameMatching(&contents, kQueryTargetsTable) &&
-         ReadCanonicalID(&contents, &_canonicalID) && ReadTargetID(&contents, &_targetID) &&
-         ReadTerminator(&contents);
-}
-
-@end
 
 @implementation FSTLevelDBTargetDocumentKey
 

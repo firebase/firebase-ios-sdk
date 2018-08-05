@@ -723,7 +723,7 @@ std::string LevelDbQueryTargetKey::Key(absl::string_view canonical_id,
   return writer.result();
 }
 
-bool LevelDbQueryTargetKey::Decode(leveldb::Slice key) {
+bool LevelDbQueryTargetKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kQueryTargetsTable);
   canonical_id_ = reader.ReadCanonicalId();

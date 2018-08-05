@@ -322,7 +322,7 @@ class LevelDbQueryTargetKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
-  bool Decode(leveldb::Slice key);
+  bool Decode(absl::string_view key);
 
   /** The canonical_id derived from the query. */
   const std::string& canonical_id() const {

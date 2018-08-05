@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
+using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
@@ -91,7 +92,7 @@ static void ClearQueryCache(leveldb::DB *db) {
   DeleteEverythingWithPrefix(LevelDbTargetKey::KeyPrefix(), db);
   DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix], db);
   DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix], db);
-  DeleteEverythingWithPrefix([FSTLevelDBQueryTargetKey keyPrefix], db);
+  DeleteEverythingWithPrefix(LevelDbQueryTargetKey::KeyPrefix(), db);
 
   LevelDbTransaction transaction(db, "Drop query cache");
 

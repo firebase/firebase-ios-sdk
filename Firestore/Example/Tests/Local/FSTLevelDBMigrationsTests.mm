@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
+using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
@@ -128,7 +129,7 @@ using leveldb::Status;
       [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key2],
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID],
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:"foo.bar.baz" targetID:targetID],
+      LevelDbQueryTargetKey::Key("foo.bar.baz", targetID),
   };
 
   // Keys that should not be modified by the dropping the query cache

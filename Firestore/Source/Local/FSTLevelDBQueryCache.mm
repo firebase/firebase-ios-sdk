@@ -32,12 +32,14 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/match.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using Firestore::StringView;
 using firebase::firestore::local::DescribeKey;
+using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
@@ -45,6 +47,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::util::OrderedCode;
+using firebase::firestore::util::MakeStringView;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
@@ -238,7 +241,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
   NSString *canonicalID = queryData.query.canonicalID;
   std::string indexKey =
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:canonicalID targetID:queryData.targetID];
+      LevelDbQueryTargetKey::Key(MakeStringView(canonicalID), queryData.targetID);
   std::string emptyBuffer;
   _db.currentTransaction->Put(indexKey, emptyBuffer);
 
@@ -264,7 +267,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   _db.currentTransaction->Delete(key);
 
   std::string indexKey =
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
+      LevelDbQueryTargetKey::Key(MakeStringView(queryData.query.canonicalID), targetID);
   _db.currentTransaction->Delete(indexKey);
   self.metadata.targetCount -= 1;
   _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
@@ -312,9 +315,9 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   // Scan the query-target index starting with a prefix starting with the given query's canonicalID.
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
-  Slice canonicalID = StringView(query.canonicalID);
+  absl::string_view canonicalID = MakeStringView(query.canonicalID);
   auto indexItererator = _db.currentTransaction->NewIterator();
-  std::string indexPrefix = [FSTLevelDBQueryTargetKey keyPrefixWithCanonicalID:canonicalID];
+  std::string indexPrefix = LevelDbQueryTargetKey::KeyPrefix(canonicalID);
   indexItererator->Seek(indexPrefix);
 
   // Simultaneously scan the targets table. This works because each (canonicalID, targetID) pair is
@@ -323,18 +326,18 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   std::string targetPrefix = LevelDbTargetKey::KeyPrefix();
   auto targetIterator = _db.currentTransaction->NewIterator();
 
-  FSTLevelDBQueryTargetKey *rowKey = [[FSTLevelDBQueryTargetKey alloc] init];
+  LevelDbQueryTargetKey rowKey;
   for (; indexItererator->Valid(); indexItererator->Next()) {
     // Only consider rows matching exactly the specific canonicalID of interest.
     if (!absl::StartsWith(indexItererator->key(), indexPrefix) ||
-        ![rowKey decodeKey:indexItererator->key()] || canonicalID != rowKey.canonicalID) {
+        !rowKey.Decode(indexItererator->key()) || canonicalID != rowKey.canonical_id()) {
       // End of this canonicalID's possible targets.
       break;
     }
 
     // Each row is a unique combination of canonicalID and targetID, so this foreign key reference
     // can only occur once.
-    std::string targetKey = LevelDbTargetKey::Key(rowKey.targetID);
+    std::string targetKey = LevelDbTargetKey::Key(rowKey.target_id());
     targetIterator->Seek(targetKey);
     if (!targetIterator->Valid() || targetIterator->key() != targetKey) {
       HARD_FAIL(
