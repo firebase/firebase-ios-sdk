@@ -50,6 +50,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::local::DescribeKey;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::MakeStringView;
 using firebase::firestore::model::DocumentKey;
@@ -247,7 +248,7 @@ using leveldb::WriteOptions;
 }
 
 - (std::string)keyForCurrentMutationQueue {
-  return [FSTLevelDBMutationQueueKey keyWithUserID:_userID];
+  return LevelDbMutationQueueKey::Key(_userID);
 }
 
 - (nullable FSTPBMutationQueue *)metadataForKey:(const std::string &)key {

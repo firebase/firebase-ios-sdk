@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::testutil::Key;
@@ -132,7 +133,7 @@ using leveldb::Status;
   // Keys that should not be modified by the dropping the query cache
   std::string preservedKeys[] = {
       [self dummyKeyForTable:"targetA"],
-      [FSTLevelDBMutationQueueKey keyWithUserID:userID],
+      LevelDbMutationQueueKey::Key(userID),
       LevelDbMutationKey::Key(userID, batchID),
   };
 

@@ -70,32 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/**
- * A key in the mutation_queues table.
- *
- * Note that where mutation_queues contains one row about each queue, mutations contains the actual
- * mutation batches themselves.
- */
-@interface FSTLevelDBMutationQueueKey : NSObject
-
-/** Creates a key prefix that points just before the first key in the table. */
-+ (std::string)keyPrefix;
-
-/** Creates a complete key that points to a specific mutation queue entry for the given userID. */
-+ (std::string)keyWithUserID:(Firestore::StringView)userID;
-
-/**
- * Decodes the given complete key, storing the decoded values as properties of the receiver.
- *
- * @return YES if the key successfully decoded, NO otherwise. If NO is returned, the properties of
- *     the receiver are in an undefined state until the next call to -decodeKey:.
- */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-@property(nonatomic, assign, readonly) const std::string &userID;
-
-@end
-
 /** A key in the target globals table, a record of global values across all targets. */
 @interface FSTLevelDBTargetGlobalKey : NSObject
 
