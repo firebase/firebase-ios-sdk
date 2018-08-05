@@ -50,6 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
@@ -150,9 +151,8 @@ static NSString *const kReservedPathComponent = @"firestore";
   auto it = _db.currentTransaction->NewIterator();
   // For each user, if there is any batch that contains this document in any batch, we know it's
   // pinned.
-  for (auto user = users.begin(); user != users.end(); ++user) {
-    std::string mutationKey =
-        [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:*user resourcePath:path];
+  for (const std::string &user : users) {
+    std::string mutationKey = LevelDbDocumentMutationKey::KeyPrefix(user, path);
     it->Seek(mutationKey);
     if (it->Valid() && absl::StartsWith(it->key(), mutationKey)) {
       return YES;

@@ -632,7 +632,7 @@ std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
   return writer.result();
 }
 
-bool LevelDbDocumentMutationKey::Decode(leveldb::Slice key) {
+bool LevelDbDocumentMutationKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kDocumentMutationsTable);
   user_id_ = reader.ReadUserId();

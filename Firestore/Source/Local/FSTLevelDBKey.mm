@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kDocumentMutationsTable = "document_mutation";
 static const char *kMutationQueuesTable = "mutation_queue";
 static const char *kTargetGlobalTable = "target_global";
 static const char *kTargetsTable = "target";
@@ -306,14 +305,6 @@ inline BOOL ReadTableNameMatching(Slice *contents, const char *expectedTableName
   return ReadLabeledStringMatching(contents, FSTComponentLabelTableName, expectedTableName);
 }
 
-inline void WriteBatchID(std::string *dest, FSTBatchID batchID) {
-  WriteLabeledInt32(dest, FSTComponentLabelBatchID, batchID);
-}
-
-inline BOOL ReadBatchID(Slice *contents, FSTBatchID *batchID) {
-  return ReadLabeledInt32(contents, FSTComponentLabelBatchID, batchID);
-}
-
 inline void WriteCanonicalID(std::string *dest, StringView canonicalID) {
   WriteLabeledString(dest, FSTComponentLabelCanonicalID, canonicalID);
 }
@@ -339,60 +330,6 @@ inline BOOL ReadUserID(Slice *contents, std::string *userID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBDocumentMutationKey {
-  std::string _userID;
-}
-
-+ (std::string)keyPrefix {
-  std::string result;
-  WriteTableName(&result, kDocumentMutationsTable);
-  return result;
-}
-
-+ (std::string)keyPrefixWithUserID:(StringView)userID {
-  std::string result;
-  WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, userID);
-  return result;
-}
-
-+ (std::string)keyPrefixWithUserID:(StringView)userID
-                      resourcePath:(const ResourcePath &)resourcePath {
-  std::string result;
-  WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, userID);
-  WriteResourcePath(&result, resourcePath);
-  return result;
-}
-
-+ (std::string)keyWithUserID:(StringView)userID
-                 documentKey:(FSTDocumentKey *)documentKey
-                     batchID:(FSTBatchID)batchID {
-  std::string result;
-  WriteTableName(&result, kDocumentMutationsTable);
-  WriteUserID(&result, userID);
-  WriteResourcePath(&result, documentKey.path);
-  WriteBatchID(&result, batchID);
-  WriteTerminator(&result);
-  return result;
-}
-
-- (const std::string &)userID {
-  return _userID;
-}
-
-- (BOOL)decodeKey:(StringView)key {
-  _userID.clear();
-  _documentKey = nil;
-
-  Slice contents = key;
-  return ReadTableNameMatching(&contents, kDocumentMutationsTable) &&
-         ReadUserID(&contents, &_userID) && ReadDocumentKey(&contents, &_documentKey) &&
-         ReadBatchID(&contents, &_batchID) && ReadTerminator(&contents);
-}
-
-@end
 
 @implementation FSTLevelDBMutationQueueKey {
   std::string _userID;

@@ -49,12 +49,6 @@ static std::string RemoteDocKeyPrefix(NSString *pathString) {
       keyPrefixWithResourcePath:testutil::Resource(util::MakeStringView(pathString))];
 }
 
-static std::string DocMutationKey(const std::string &userID, NSString *key, FSTBatchID batchID) {
-  return [FSTLevelDBDocumentMutationKey keyWithUserID:userID
-                                          documentKey:FSTTestDocKey(key)
-                                              batchID:batchID];
-}
-
 static std::string TargetDocKey(FSTTargetID targetID, NSString *key) {
   return [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:FSTTestDocKey(key)];
 }
@@ -72,71 +66,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   } while (0)
 
 @implementation FSTLevelDBKeyTests
-
-- (void)testDocumentMutationKeyPrefixing {
-  auto tableKey = [FSTLevelDBDocumentMutationKey keyPrefix];
-  auto emptyUserKey = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:""];
-  auto fooUserKey = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:"foo"];
-
-  FSTDocumentKey *documentKey = FSTTestDocKey(@"foo/bar");
-  auto foo2Key =
-      [FSTLevelDBDocumentMutationKey keyWithUserID:"foo" documentKey:documentKey batchID:2];
-
-  XCTAssertTrue(StartsWith(emptyUserKey, tableKey));
-
-  // While we want a key with whole segments in common be considered a prefix it's vital that
-  // partial segments in common not be prefixes.
-  XCTAssertTrue(StartsWith(fooUserKey, tableKey));
-
-  // Here even though "" is a prefix of "foo" that prefix is within a segment so keys derived from
-  // those segments cannot be prefixes of each other.
-  XCTAssertFalse(StartsWith(fooUserKey, emptyUserKey));
-  XCTAssertFalse(StartsWith(emptyUserKey, fooUserKey));
-
-  // However whole segments in common are prefixes.
-  XCTAssertTrue(StartsWith(foo2Key, tableKey));
-  XCTAssertTrue(StartsWith(foo2Key, fooUserKey));
-}
-
-- (void)testDocumentMutationKeyEncodeDecodeCycle {
-  FSTLevelDBDocumentMutationKey *key = [[FSTLevelDBDocumentMutationKey alloc] init];
-  std::string user("foo");
-
-  NSArray<FSTDocumentKey *> *documentKeys = @[ FSTTestDocKey(@"a/b"), FSTTestDocKey(@"a/b/c/d") ];
-
-  NSArray<NSNumber *> *batchIds = @[ @0, @1, @100, @(INT_MAX - 1), @(INT_MAX) ];
-  for (NSNumber *batchIDNumber in batchIds) {
-    for (FSTDocumentKey *documentKey in documentKeys) {
-      FSTBatchID batchID = [batchIDNumber intValue];
-      auto encoded = [FSTLevelDBDocumentMutationKey keyWithUserID:user
-                                                      documentKey:documentKey
-                                                          batchID:batchID];
-
-      BOOL ok = [key decodeKey:encoded];
-      XCTAssertTrue(ok);
-      XCTAssertEqual(key.userID, user);
-      XCTAssertEqualObjects(key.documentKey, documentKey);
-      XCTAssertEqual(key.batchID, batchID);
-    }
-  }
-}
-
-- (void)testDocumentMutationKeyOrdering {
-  // Different user:
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("10", @"foo/bar", 0));
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("2", @"foo/bar", 0));
-
-  // Different paths:
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/baz", 0));
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/bar2", 0));
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0),
-                       DocMutationKey("1", @"foo/bar/suffix/key", 0));
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar/suffix/key", 0),
-                       DocMutationKey("1", @"foo/bar2", 0));
-
-  // Different batchID:
-  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/bar", 1));
-}
 
 - (void)testTargetGlobalKeyEncodeDecodeCycle {
   FSTLevelDBTargetGlobalKey *key = [[FSTLevelDBTargetGlobalKey alloc] init];

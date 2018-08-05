@@ -71,51 +71,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - path: ResourcePath
 
 /**
- * A key in the document mutations index, which stores the batches in which documents are mutated.
- */
-@interface FSTLevelDBDocumentMutationKey : NSObject
-
-/** Creates a key prefix that points just before the first key in the table. */
-+ (std::string)keyPrefix;
-
-/** Creates a key prefix that points just before the first key for the given userID. */
-+ (std::string)keyPrefixWithUserID:(Firestore::StringView)userID;
-
-/**
- * Creates a key prefix that points just before the first key for the userID and resource path.
- *
- * Note that this uses a ResourcePath rather than an FSTDocumentKey in order to allow prefix
- * scans over a collection. However a naive scan over those results isn't useful since it would
- * match both immediate children of the collection and any subcollections.
- */
-+ (std::string)keyPrefixWithUserID:(Firestore::StringView)userID
-                      resourcePath:(const firebase::firestore::model::ResourcePath &)resourcePath;
-
-/** Creates a complete key that points to a specific userID, document key, and batchID. */
-+ (std::string)keyWithUserID:(Firestore::StringView)userID
-                 documentKey:(FSTDocumentKey *)documentKey
-                     batchID:(FSTBatchID)batchID;
-
-/**
- * Decodes the given complete key, storing the decoded values as properties of the receiver.
- *
- * @return YES if the key successfully decoded, NO otherwise. If NO is returned, the properties of
- *     the receiver are in an undefined state until the next call to -decodeKey:.
- */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-/** The user that owns the mutation batches. */
-@property(nonatomic, assign, readonly) const std::string &userID;
-
-/** The path to the document, as encoded in the key. */
-@property(nonatomic, strong, readonly, nullable) FSTDocumentKey *documentKey;
-
-/** The batchID in which the document participates. */
-@property(nonatomic, assign, readonly) FSTBatchID batchID;
-
-@end
-
-/**
  * A key in the mutation_queues table.
  *
  * Note that where mutation_queues contains one row about each queue, mutations contains the actual
