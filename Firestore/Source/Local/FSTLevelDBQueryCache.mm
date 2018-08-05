@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 using Firestore::StringView;
 using firebase::firestore::local::DescribeKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
@@ -366,8 +367,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   std::string emptyBuffer;
 
   for (const DocumentKey &key : keys) {
-    self->_db.currentTransaction->Put(
-        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key], emptyBuffer);
+    self->_db.currentTransaction->Put(LevelDbTargetDocumentKey::Key(targetID, key), emptyBuffer);
     self->_db.currentTransaction->Put(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
     [self->_db.referenceDelegate addReference:key];
@@ -376,8 +376,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   for (const DocumentKey &key : keys) {
-    self->_db.currentTransaction->Delete(
-        [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key]);
+    self->_db.currentTransaction->Delete(LevelDbTargetDocumentKey::Key(targetID, key));
     self->_db.currentTransaction->Delete(
         [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
     [self->_db.referenceDelegate removeReference:key];
@@ -385,19 +384,19 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
-  std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
+  std::string indexPrefix = LevelDbTargetDocumentKey::KeyPrefix(targetID);
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
-  FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
+  LevelDbTargetDocumentKey rowKey;
   for (; indexIterator->Valid(); indexIterator->Next()) {
     absl::string_view indexKey = indexIterator->key();
 
     // Only consider rows matching this specific targetID.
-    if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
+    if (!rowKey.Decode(indexKey) || rowKey.target_id() != targetID) {
       break;
     }
-    const DocumentKey &documentKey = rowKey.documentKey;
+    const DocumentKey &documentKey = rowKey.document_key();
 
     // Delete both index rows
     _db.currentTransaction->Delete(indexKey);
@@ -407,21 +406,19 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
-  std::string indexPrefix = [FSTLevelDBTargetDocumentKey keyPrefixWithTargetID:targetID];
+  std::string indexPrefix = LevelDbTargetDocumentKey::KeyPrefix(targetID);
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   DocumentKeySet result;
-  FSTLevelDBTargetDocumentKey *rowKey = [[FSTLevelDBTargetDocumentKey alloc] init];
+  LevelDbTargetDocumentKey rowKey;
   for (; indexIterator->Valid(); indexIterator->Next()) {
-    absl::string_view indexKey = indexIterator->key();
-
     // Only consider rows matching this specific targetID.
-    if (![rowKey decodeKey:indexKey] || rowKey.targetID != targetID) {
+    if (!rowKey.Decode(indexIterator->key()) || rowKey.target_id() != targetID) {
       break;
     }
 
-    result = result.insert(rowKey.documentKey);
+    result = result.insert(rowKey.document_key());
   }
 
   return result;

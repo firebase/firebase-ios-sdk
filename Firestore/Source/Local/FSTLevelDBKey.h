@@ -70,34 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/**
- * A key in the target documents table, an index of targetIDs to the documents they contain.
- */
-@interface FSTLevelDBTargetDocumentKey : NSObject
-
-/**
- * Creates a key that contains just the target documents table prefix and points just before the
- * first key.
- */
-+ (std::string)keyPrefix;
-
-/** Creates a key that points to the first target-document association for a targetID. */
-+ (std::string)keyPrefixWithTargetID:(FSTTargetID)targetID;
-
-/** Creates a key that points to a specific target-document entry. */
-+ (std::string)keyWithTargetID:(FSTTargetID)targetID documentKey:(FSTDocumentKey *)documentKey;
-
-/** Decodes the contents of a target document key into properties on this instance. */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-/** The targetID identifying a target. */
-@property(nonatomic, assign, readonly) FSTTargetID targetID;
-
-/** The path to the document, as encoded in the key. */
-@property(nonatomic, strong, readonly, nullable) FSTDocumentKey *documentKey;
-
-@end
-
 BOOL FSTTargetIDIsSentinel(FSTTargetID targetId);
 
 /**

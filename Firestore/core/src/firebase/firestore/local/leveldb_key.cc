@@ -755,7 +755,7 @@ std::string LevelDbTargetDocumentKey::Key(model::TargetId target_id,
   return writer.result();
 }
 
-bool LevelDbTargetDocumentKey::Decode(leveldb::Slice key) {
+bool LevelDbTargetDocumentKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kTargetDocumentsTable);
   target_id_ = reader.ReadTargetId();

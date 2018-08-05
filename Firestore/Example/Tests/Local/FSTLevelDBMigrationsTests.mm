@@ -42,6 +42,7 @@ using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
@@ -125,8 +126,8 @@ using leveldb::Status;
 
   std::string targetKeys[] = {
       LevelDbTargetKey::Key(targetID),
-      [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key1],
-      [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key2],
+      LevelDbTargetDocumentKey::Key(targetID, key1),
+      LevelDbTargetDocumentKey::Key(targetID, key2),
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
       [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID],
       LevelDbQueryTargetKey::Key("foo.bar.baz", targetID),

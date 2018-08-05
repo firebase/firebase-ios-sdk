@@ -26,10 +26,13 @@
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
+
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
 
@@ -114,8 +117,7 @@ class LevelDBFixture : public benchmark::Fixture {
     FSTTargetID targetID = 1;
     txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:targetID],
             emptyBuffer_);
-    txn.Put([FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:docKey],
-            emptyBuffer_);
+    txn.Put(LevelDbTargetDocumentKey::Key(targetID, docKey), emptyBuffer_);
   }
 
   FSTLevelDB *db_;

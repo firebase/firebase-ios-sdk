@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kTargetDocumentsTable = "target_document";
 static const char *kDocumentTargetsTable = "document_target";
 static const char *kRemoteDocumentsTable = "remote_document";
 
@@ -310,41 +309,6 @@ inline BOOL ReadTargetID(Slice *contents, FSTTargetID *targetID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBTargetDocumentKey
-
-+ (std::string)keyPrefix {
-  std::string result;
-  WriteTableName(&result, kTargetDocumentsTable);
-  return result;
-}
-
-+ (std::string)keyPrefixWithTargetID:(FSTTargetID)targetID {
-  std::string result;
-  WriteTableName(&result, kTargetDocumentsTable);
-  WriteTargetID(&result, targetID);
-  return result;
-}
-
-+ (std::string)keyWithTargetID:(FSTTargetID)targetID documentKey:(FSTDocumentKey *)documentKey {
-  std::string result;
-  WriteTableName(&result, kTargetDocumentsTable);
-  WriteTargetID(&result, targetID);
-  WriteResourcePath(&result, documentKey.path);
-  WriteTerminator(&result);
-  return result;
-}
-
-- (BOOL)decodeKey:(Firestore::StringView)key {
-  _documentKey = nil;
-
-  leveldb::Slice contents = key;
-  return ReadTableNameMatching(&contents, kTargetDocumentsTable) &&
-         ReadTargetID(&contents, &_targetID) && ReadDocumentKey(&contents, &_documentKey) &&
-         ReadTerminator(&contents);
-}
-
-@end
 
 // Used for sentinel row for a document in the document target index. No target has the ID 0,
 // and it will sort first in the list of targets for a document.

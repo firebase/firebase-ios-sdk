@@ -49,10 +49,6 @@ static std::string RemoteDocKeyPrefix(NSString *pathString) {
       keyPrefixWithResourcePath:testutil::Resource(util::MakeStringView(pathString))];
 }
 
-static std::string TargetDocKey(FSTTargetID targetID, NSString *key) {
-  return [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:FSTTestDocKey(key)];
-}
-
 static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   return [FSTLevelDBDocumentTargetKey keyWithDocumentKey:FSTTestDocKey(key) targetID:targetID];
 }
@@ -66,35 +62,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   } while (0)
 
 @implementation FSTLevelDBKeyTests
-
-- (void)testTargetDocumentKeyEncodeDecodeCycle {
-  FSTLevelDBTargetDocumentKey *key = [[FSTLevelDBTargetDocumentKey alloc] init];
-
-  auto encoded =
-      [FSTLevelDBTargetDocumentKey keyWithTargetID:42 documentKey:FSTTestDocKey(@"foo/bar")];
-  BOOL ok = [key decodeKey:encoded];
-  XCTAssertTrue(ok);
-  XCTAssertEqual(key.targetID, 42);
-  XCTAssertEqualObjects(key.documentKey, FSTTestDocKey(@"foo/bar"));
-}
-
-- (void)testTargetDocumentKeyOrdering {
-  // Different targetID:
-  FSTAssertKeyLessThan(TargetDocKey(1, @"foo/bar"), TargetDocKey(2, @"foo/bar"));
-  FSTAssertKeyLessThan(TargetDocKey(2, @"foo/bar"), TargetDocKey(10, @"foo/bar"));
-  FSTAssertKeyLessThan(TargetDocKey(10, @"foo/bar"), TargetDocKey(100, @"foo/bar"));
-  FSTAssertKeyLessThan(TargetDocKey(42, @"foo/bar"), TargetDocKey(100, @"foo/bar"));
-
-  // Different paths:
-  FSTAssertKeyLessThan(TargetDocKey(1, @"foo/bar"), TargetDocKey(1, @"foo/baz"));
-  FSTAssertKeyLessThan(TargetDocKey(1, @"foo/bar"), TargetDocKey(1, @"foo/bar2"));
-  FSTAssertKeyLessThan(TargetDocKey(1, @"foo/bar"), TargetDocKey(1, @"foo/bar/suffix/key"));
-  FSTAssertKeyLessThan(TargetDocKey(1, @"foo/bar/suffix/key"), TargetDocKey(1, @"foo/bar2"));
-}
-
-- (void)testTargetDocumentKeyDescription {
-  auto key = [FSTLevelDBTargetDocumentKey keyWithTargetID:42 documentKey:FSTTestDocKey(@"foo/bar")];
-}
 
 - (void)testDocumentTargetKeyEncodeDecodeCycle {
   FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
