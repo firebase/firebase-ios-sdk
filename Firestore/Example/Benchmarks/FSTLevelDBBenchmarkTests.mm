@@ -115,8 +115,7 @@ class LevelDBFixture : public benchmark::Fixture {
   void WriteIndex(LevelDbTransaction &txn, FSTDocumentKey *docKey) {
     // Arbitrary target ID
     FSTTargetID targetID = 1;
-    txn.Put([FSTLevelDBDocumentTargetKey keyWithDocumentKey:docKey targetID:targetID],
-            emptyBuffer_);
+    txn.Put(LevelDbDocumentTargetKey::Key(docKey, targetID), emptyBuffer_);
     txn.Put(LevelDbTargetDocumentKey::Key(targetID, docKey), emptyBuffer_);
   }
 

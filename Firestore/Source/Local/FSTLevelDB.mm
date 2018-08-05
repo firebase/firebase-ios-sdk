@@ -51,6 +51,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
@@ -210,7 +211,7 @@ static NSString *const kReservedPathComponent = @"firestore";
 - (void)writeSentinelForKey:(const DocumentKey &)key {
   std::string encodedSequenceNumber;
   OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
-  std::string sentinelKey = [FSTLevelDBDocumentTargetKey sentinelKeyWithDocumentKey:key];
+  std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 

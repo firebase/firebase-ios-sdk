@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using Firestore::StringView;
 using firebase::firestore::local::DescribeKey;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetGlobalKey;
@@ -184,16 +185,16 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
     (void (^)(const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
-  std::string documentTargetPrefix = [FSTLevelDBDocumentTargetKey keyPrefix];
+  std::string documentTargetPrefix = LevelDbDocumentTargetKey::KeyPrefix();
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(documentTargetPrefix);
   FSTListenSequenceNumber nextToReport = 0;
   DocumentKey keyToReport;
-  FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
+  LevelDbDocumentTargetKey key;
   BOOL stop = NO;
   for (; !stop && it->Valid() && absl::StartsWith(it->key(), documentTargetPrefix); it->Next()) {
-    [key decodeKey:it->key()];
-    if (FSTTargetIDIsSentinel(key.targetID)) {
+    key.Decode(it->key());
+    if (key.IsSentinel()) {
       // if nextToReport is non-zero, report it, this is a new key so the last one
       // must be not be a member of any targets.
       if (nextToReport != 0) {
@@ -202,7 +203,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
       // set nextToReport to be this sequence number. It's the next one we might
       // report, if we don't find any targets for this document.
       nextToReport = ReadSequenceNumber(it->value());
-      keyToReport = key.documentKey;
+      keyToReport = key.document_key();
     } else {
       // set nextToReport to be 0, we know we don't need to report this one since
       // we found a target for it.
@@ -368,8 +369,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
   for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Put(LevelDbTargetDocumentKey::Key(targetID, key), emptyBuffer);
-    self->_db.currentTransaction->Put(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID], emptyBuffer);
+    self->_db.currentTransaction->Put(LevelDbDocumentTargetKey::Key(key, targetID), emptyBuffer);
     [self->_db.referenceDelegate addReference:key];
   };
 }
@@ -377,8 +377,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 - (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
   for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(LevelDbTargetDocumentKey::Key(targetID, key));
-    self->_db.currentTransaction->Delete(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key targetID:targetID]);
+    self->_db.currentTransaction->Delete(LevelDbDocumentTargetKey::Key(key, targetID));
     [self->_db.referenceDelegate removeReference:key];
   }
 }
@@ -400,8 +399,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
     // Delete both index rows
     _db.currentTransaction->Delete(indexKey);
-    _db.currentTransaction->Delete(
-        [FSTLevelDBDocumentTargetKey keyWithDocumentKey:documentKey targetID:targetID]);
+    _db.currentTransaction->Delete(LevelDbDocumentTargetKey::Key(documentKey, targetID));
   }
 }
 
@@ -427,15 +425,15 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 - (BOOL)containsKey:(const DocumentKey &)key {
   // ignore sentinel rows when determining if a key belongs to a target. Sentinel row just says the
   // document exists, not that it's a member of any particular target.
-  std::string indexPrefix = [FSTLevelDBDocumentTargetKey keyPrefixWithResourcePath:key.path()];
+  std::string indexPrefix = LevelDbDocumentTargetKey::KeyPrefix(key.path());
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
   for (; indexIterator->Valid() && absl::StartsWith(indexIterator->key(), indexPrefix);
        indexIterator->Next()) {
-    FSTLevelDBDocumentTargetKey *rowKey = [[FSTLevelDBDocumentTargetKey alloc] init];
-    if ([rowKey decodeKey:indexIterator->key()] && !FSTTargetIDIsSentinel(rowKey.targetID) &&
-        DocumentKey{rowKey.documentKey} == key) {
+    LevelDbDocumentTargetKey rowKey;
+    if (rowKey.Decode(indexIterator->key()) && !rowKey.IsSentinel() &&
+        rowKey.document_key() == key) {
       return YES;
     }
   }

@@ -49,10 +49,6 @@ static std::string RemoteDocKeyPrefix(NSString *pathString) {
       keyPrefixWithResourcePath:testutil::Resource(util::MakeStringView(pathString))];
 }
 
-static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
-  return [FSTLevelDBDocumentTargetKey keyWithDocumentKey:FSTTestDocKey(key) targetID:targetID];
-}
-
 #define FSTAssertKeyLessThan(left, right)                                           \
   do {                                                                              \
     std::string leftKey = (left);                                                   \
@@ -62,31 +58,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   } while (0)
 
 @implementation FSTLevelDBKeyTests
-
-- (void)testDocumentTargetKeyEncodeDecodeCycle {
-  FSTLevelDBDocumentTargetKey *key = [[FSTLevelDBDocumentTargetKey alloc] init];
-
-  auto encoded =
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:FSTTestDocKey(@"foo/bar") targetID:42];
-  BOOL ok = [key decodeKey:encoded];
-  XCTAssertTrue(ok);
-  XCTAssertEqualObjects(key.documentKey, FSTTestDocKey(@"foo/bar"));
-  XCTAssertEqual(key.targetID, 42);
-}
-
-- (void)testDocumentTargetKeyOrdering {
-  // Different paths:
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 1), DocTargetKey(@"foo/baz", 1));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 1), DocTargetKey(@"foo/bar2", 1));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 1), DocTargetKey(@"foo/bar/suffix/key", 1));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar/suffix/key", 1), DocTargetKey(@"foo/bar2", 1));
-
-  // Different targetID:
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 1), DocTargetKey(@"foo/bar", 2));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 2), DocTargetKey(@"foo/bar", 10));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 10), DocTargetKey(@"foo/bar", 100));
-  FSTAssertKeyLessThan(DocTargetKey(@"foo/bar", 42), DocTargetKey(@"foo/bar", 100));
-}
 
 - (void)testRemoteDocumentKeyPrefixing {
   auto tableKey = [FSTLevelDBRemoteDocumentKey keyPrefix];

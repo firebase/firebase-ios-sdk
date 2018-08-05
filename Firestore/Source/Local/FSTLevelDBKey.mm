@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kDocumentTargetsTable = "document_target";
 static const char *kRemoteDocumentsTable = "remote_document";
 
 /**
@@ -116,57 +115,6 @@ BOOL ReadComponentLabelMatching(absl::string_view *contents, FSTComponentLabel e
   if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
     if (rawResult == expectedLabel) {
       *contents = tmp;
-      return YES;
-    }
-  }
-  return NO;
-}
-
-/**
- * Reads a signed number from the given key contents and verifies that the value fits in a 32-bit
- * integer.
- *
- * If the read is unsuccessful or the number that was read was out of bounds for an int32_t,
- * returns NO, and changes none of its arguments.
- *
- * If the read is successful, returns YES, contents will be updated to the next unread byte, and
- * result will be set to the decoded integer value.
- */
-BOOL ReadInt32(Slice *contents, int32_t *result) {
-  int64_t rawResult = 0;
-  absl::string_view tmp(contents->data(), contents->size());
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
-    if (rawResult >= INT32_MIN && rawResult <= INT32_MAX) {
-      *contents = leveldb::Slice(tmp.data(), tmp.size());
-      *result = static_cast<int32_t>(rawResult);
-      return YES;
-    }
-  }
-  return NO;
-}
-
-/** Writes a component label and a signed integer to the given key destination. */
-void WriteLabeledInt32(std::string *dest, FSTComponentLabel label, int32_t value) {
-  WriteComponentLabel(dest, label);
-  OrderedCode::WriteSignedNumIncreasing(dest, value);
-}
-
-/**
- * Reads a component label and signed number from the given key contents and verifies that the
- * label matches the expectedLabel and the value fits in a 32-bit integer.
- *
- * If the read is unsuccessful, the label didn't match, or the number that was read was out of
- * bounds for an int32_t, returns NO, and changes none of its arguments.
- *
- * If the read is successful, returns YES, contents will be updated to the next unread byte, and
- * value will be set to the decoded integer value.
- */
-BOOL ReadLabeledInt32(Slice *contents, FSTComponentLabel expectedLabel, int32_t *value) {
-  absl::string_view tmp(contents->data(), contents->size());
-  if (ReadComponentLabelMatching(&tmp, expectedLabel)) {
-    Slice tmpSlice = leveldb::Slice(tmp.data(), tmp.size());
-    if (ReadInt32(&tmpSlice, value)) {
-      *contents = tmpSlice;
       return YES;
     }
   }
@@ -300,62 +248,7 @@ inline BOOL ReadTableNameMatching(Slice *contents, const char *expectedTableName
   return ReadLabeledStringMatching(contents, FSTComponentLabelTableName, expectedTableName);
 }
 
-inline void WriteTargetID(std::string *dest, FSTTargetID targetID) {
-  WriteLabeledInt32(dest, FSTComponentLabelTargetID, targetID);
-}
-
-inline BOOL ReadTargetID(Slice *contents, FSTTargetID *targetID) {
-  return ReadLabeledInt32(contents, FSTComponentLabelTargetID, targetID);
-}
-
 }  // namespace
-
-// Used for sentinel row for a document in the document target index. No target has the ID 0,
-// and it will sort first in the list of targets for a document.
-static const FSTTargetID kInvalidTargetID = 0;
-
-@implementation FSTLevelDBDocumentTargetKey
-
-+ (std::string)keyPrefix {
-  std::string result;
-  WriteTableName(&result, kDocumentTargetsTable);
-  return result;
-}
-
-+ (std::string)keyPrefixWithResourcePath:(const ResourcePath &)resourcePath {
-  std::string result;
-  WriteTableName(&result, kDocumentTargetsTable);
-  WriteResourcePath(&result, resourcePath);
-  return result;
-}
-
-+ (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID {
-  std::string result;
-  WriteTableName(&result, kDocumentTargetsTable);
-  WriteResourcePath(&result, documentKey.path);
-  WriteTargetID(&result, targetID);
-  WriteTerminator(&result);
-  return result;
-}
-
-+ (std::string)sentinelKeyWithDocumentKey:(FSTDocumentKey *)documentKey {
-  return [self keyWithDocumentKey:documentKey targetID:kInvalidTargetID];
-}
-
-- (BOOL)decodeKey:(Firestore::StringView)key {
-  _documentKey = nil;
-
-  leveldb::Slice contents = key;
-  return ReadTableNameMatching(&contents, kDocumentTargetsTable) &&
-         ReadDocumentKey(&contents, &_documentKey) && ReadTargetID(&contents, &_targetID) &&
-         ReadTerminator(&contents);
-}
-
-@end
-
-BOOL FSTTargetIDIsSentinel(FSTTargetID targetId) {
-  return targetId == 0;
-}
 
 @implementation FSTLevelDBRemoteDocumentKey
 

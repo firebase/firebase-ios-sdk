@@ -39,6 +39,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
@@ -128,8 +129,8 @@ using leveldb::Status;
       LevelDbTargetKey::Key(targetID),
       LevelDbTargetDocumentKey::Key(targetID, key1),
       LevelDbTargetDocumentKey::Key(targetID, key2),
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID],
+      LevelDbDocumentTargetKey::Key(key1, targetID),
+      LevelDbDocumentTargetKey::Key(key2, targetID),
       LevelDbQueryTargetKey::Key("foo.bar.baz", targetID),
   };
 
