@@ -544,6 +544,18 @@ std::string DescribeKey(leveldb::Slice key) {
   return reader.Describe();
 }
 
+std::string DescribeKey(absl::string_view key) {
+  return DescribeKey(MakeSlice(key));
+}
+
+std::string DescribeKey(const std::string& key) {
+  return DescribeKey(leveldb::Slice{key});
+}
+
+std::string DescribeKey(const char* key) {
+  return DescribeKey(leveldb::Slice{key});
+}
+
 std::string LevelDbVersionKey::Key() {
   Writer writer;
   writer.WriteTableName(kVersionGlobalTable);
