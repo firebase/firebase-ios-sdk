@@ -44,7 +44,7 @@ class StreamOperation {
   void Complete(bool ok);
 
  private:
-  virtual void DoExecute(GrpcCall* call, bool ok) = 0;
+  virtual void DoExecute(GrpcCall* call) = 0;
   virtual void OnCompletion(WatchStream* stream, bool ok) = 0;
 
   bool SameGeneration() const;

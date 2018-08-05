@@ -97,25 +97,6 @@ typedef NS_ENUM(NSInteger, FSTStreamState) {
   FSTStreamStateStopped,
 };
 
-// We need to declare these classes first so that Datastore can alloc them.
-
-@interface FSTWatchStream ()
-
-/**
- * Initializes the watch stream with its dependencies.
- */
-- (instancetype)initWithDatabase:(const DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(CredentialsProvider *)credentials
-                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithDatabase:(const DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(CredentialsProvider *)credentials
-            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
-
-@end
-
 @interface FSTStream ()
 
 @property(nonatomic, assign, readonly) FSTTimerID idleTimerID;
@@ -741,7 +722,5 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
   }
 }
-
-@end
 
 @end

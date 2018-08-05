@@ -133,7 +133,7 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
     ShuttingDown
   };
 
-  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token, int auth_generation);
+  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
 
   void BackoffAndTryRestarting();
   void ResumeStartFromBackoff();

@@ -39,9 +39,9 @@ class GrpcCall {
       : context_{std::move(context)}, call_{std::move(call)} {
   }
 
-  void StartCall(StreamOperation* operation);
+  void Start(StreamOperation* operation);
   void Read(grpc::ByteBuffer* buffer, StreamOperation* operation);
-  void Write(grpc::ByteBuffer* buffer, StreamOperation* operation);
+  void Write(const grpc::ByteBuffer& buffer, StreamOperation* operation);
   void Finish(grpc::Status* status, StreamOperation* operation);
   void TryCancel();
 

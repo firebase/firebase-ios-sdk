@@ -107,8 +107,7 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
-    absl::string_view token, absl::string_view path) const {
+std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
   return std::make_shared<GrpcCall>(std::move(context),
@@ -131,25 +130,26 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
   context->AddMetadata(
       kXGoogAPIClientHeader,
       StringFormat("gl-objc/ fire/%s grpc/",
-                   static_cast<const char *>(FIRFirestoreVersionString)));
+                   // FIXME OBC
+                   reinterpret_cast<const char *>(FIRFirestoreVersionString)));
 
   // This header is used to improve routing and project isolation by the
   // backend.
   const model::DatabaseId db_id = database_info_->database_id();
   context->AddMetadata(kGoogleCloudResourcePrefix,
-                       StringFormat("projects/%s/databases/%s", db_id.project(),
+                       StringFormat("projects/%s/databases/%s", db_id.project_id(),
                                     db_id.database_id()));
   return context;
 }
 
-std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcCall(
+std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcReaderWriter(
     grpc::ClientContext *context, const absl::string_view path) {
   return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
 FirestoreErrorCode Datastore::ToFirestoreErrorCode(
     grpc::StatusCode grpc_error) {
-  FIREBASE_ASSERT_MESSAGE(
+  HARD_ASSERT(
       grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
       "Unknown GRPC error code: %s", grpc_error);
   return static_cast<FirestoreErrorCode>(grpc_error);

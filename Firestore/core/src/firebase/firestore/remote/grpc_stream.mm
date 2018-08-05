@@ -19,7 +19,9 @@
 #include <utility>
 
 #include "Firestore/Source/Remote/FSTDatastore.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/memory/memory.h"
 
@@ -78,7 +80,7 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  void StreamWrite(WatchStream* const stream,
+  StreamWrite(WatchStream* const stream,
                    const std::shared_ptr<GrpcCall>& call,
                    const int generation,
                    const grpc::ByteBuffer& message)
@@ -194,7 +196,7 @@ NSError* ObjcBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
     NSLocalizedDescriptionKey : @"Unable to parse response from the server",
     NSUnderlyingErrorKey : error,
     @"Expected class" : [GCFSListenResponse class],
-    @"Received value" : ToNSData(message),
+    @"Received value" : ToNsData(message),
   };
   return [NSError errorWithDomain:FIRFirestoreErrorDomain
                              code:FIRFirestoreErrorCodeInternal
@@ -248,27 +250,24 @@ void WatchStream::Start() {
   credentials_provider_->GetToken(
       [weak_self, auth_generation](util::StatusOr<Token> maybe_token) {
         if (auto live_instance = weak_self.lock()) {
-          firestore_queue_->EnqueueRelaxed(
+          live_instance->firestore_queue_->EnqueueRelaxed(
               [maybe_token, weak_self, auth_generation] {
                 if (auto live_instance = weak_self.lock()) {
-                  live_instance->ResumeStartAfterAuth(maybe_token);
+                  // Streams can be stopped while waiting for authorization.
+                  if (live_instance->generation_ == auth_generation) {
+                    live_instance->ResumeStartAfterAuth(maybe_token);
+                  }
                 }
               });
         }
       });
 }
 
-void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token,
-                                       const int auth_generation) {
+void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  if (auth_generation != generation()) {
-    // Streams can be stopped while waiting for authorization.
-    return;
-  } else {
     HARD_ASSERT(state_ == State::Starting,
                 "State should still be 'Starting' (was %s)", state_);
-  }
 
   if (!maybe_token.ok()) {
     OnStreamFinish(maybe_token.status());

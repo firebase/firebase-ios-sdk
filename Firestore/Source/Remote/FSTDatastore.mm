@@ -49,6 +49,13 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
+namespace util = firebase::firestore::util;
+using firebase::firestore::auth::CredentialsProvider;
+using firebase::firestore::auth::Token;
+using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DatabaseId;
+
 NS_ASSUME_NONNULL_BEGIN
 
 // GRPC does not publicly declare a means of disabling SSL, which we need for testing. Firestore

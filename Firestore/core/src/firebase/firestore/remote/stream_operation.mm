@@ -25,17 +25,17 @@ namespace remote {
 
 void StreamOperation::Execute() {
   HARD_ASSERT(SameGeneration(), "Stale stream operation");
-  DoExecute(call.get());
+  DoExecute(call_.get());
 }
 
 void StreamOperation::Complete(const bool ok) {
   if (SameGeneration()) {
-    OnCompletion(stream, ok);
+    OnCompletion(stream_, ok);
   }
 }
 
 bool StreamOperation::SameGeneration() const {
-  return stream_.generation() == generation_;
+  return stream_->generation() == generation_;
 }
 
 }  // namespace remote

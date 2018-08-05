@@ -20,8 +20,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-void GrpcCall::StartCall(StreamOperation* const operation) {
-  call_->Start(operation);
+void GrpcCall::Start(StreamOperation* const operation) {
+  call_->StartCall(operation);
 }
 
 void GrpcCall::Read(grpc::ByteBuffer* const buffer,
@@ -29,14 +29,14 @@ void GrpcCall::Read(grpc::ByteBuffer* const buffer,
   call_->Read(buffer, operation);
 }
 
-void GrpcCall::Write(const grpc::ByteBuffer* const buffer,
+void GrpcCall::Write(const grpc::ByteBuffer& buffer,
                      StreamOperation* const operation) {
   call_->Write(buffer, operation);
 }
 
 void GrpcCall::Finish(grpc::Status* const status,
                       StreamOperation* const operation) {
-  call_->Finish(operation);
+  call_->Finish(status, operation);
 }
 
 void GrpcCall::TryCancel() {

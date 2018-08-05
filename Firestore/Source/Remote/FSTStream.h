@@ -192,6 +192,37 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@protocol FSTWriteStreamDelegate <NSObject>
+
+/** Called by the FSTWriteStream when it is ready to accept outbound request messages. */
+- (void)writeStreamDidOpen;
+
+/**
+ * Called by the FSTWriteStream upon a successful handshake response from the server, which is the
+ * receiver's cue to send any pending writes.
+ */
+- (void)writeStreamDidCompleteHandshake;
+
+/**
+ * Called by the FSTWriteStream upon receiving a StreamingWriteResponse from the server that
+ * contains mutation results.
+ */
+- (void)writeStreamDidReceiveResponseWithVersion:
+            (const firebase::firestore::model::SnapshotVersion &)commitVersion
+                                 mutationResults:(NSArray<FSTMutationResult *> *)results;
+
+/**
+ * Called when the FSTWriteStream's underlying RPC is interrupted for whatever reason, usually
+ * because of an error, but possibly due to an idle timeout. The error passed to this method may be
+ * nil, in which case the stream was closed without attributable fault.
+ *
+ * NOTE: This will not be called after `stop` is called on the stream. See "Starting and Stopping"
+ * on FSTStream for details.
+ */
+- (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
+
+@end
+
 /**
  * An FSTStream that implements the StreamingWrite RPC.
  *

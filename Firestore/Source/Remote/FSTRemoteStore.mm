@@ -18,7 +18,7 @@
 
 #include <cinttypes>
 #include <memory>
-#include "Firestore/core/src/firebase/firestore/util/firebase_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -38,6 +38,7 @@
 #include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
@@ -233,7 +234,7 @@ static const int kMaxPendingWrites = 10;
               "startWatchStream: called when shouldStartWatchStream: is false.");
   // ???_watchChangeAggregator = [[FSTWatchChangeAggregator alloc]
   // initWithTargetMetadataProvider:self];
-  _watchStream->Start(self);
+  _watchStream->Start();
   [self.onlineStateTracker handleWatchStreamStart];
 }
 

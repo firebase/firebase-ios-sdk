@@ -37,9 +37,10 @@ namespace remote {
 class Datastore {
  public:
   Datastore(util::AsyncQueue* firestore_queue,
-                const core::DatabaseInfo& database_info);
+            const core::DatabaseInfo& database_info);
 
-  std::shared_ptr<GrpcCall> CreateGrpcCall(absl::string_view token, absl::string_view path) const;
+  std::shared_ptr<GrpcCall> CreateGrpcCall(absl::string_view token,
+                                           absl::string_view path);
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   // TODO?
@@ -64,7 +65,7 @@ class Datastore {
   std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
       absl::string_view token) const;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
-      grpc::ClientContext* context, absl::string_view path) const;
+      grpc::ClientContext* context, absl::string_view path);
 
   static std::string test_certificate_path_;
 
