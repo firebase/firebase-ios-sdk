@@ -73,40 +73,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
 
 @implementation FSTLevelDBKeyTests
 
-- (void)testMutationKeyPrefixing {
-  auto tableKey = [FSTLevelDBMutationKey keyPrefix];
-  auto emptyUserKey = [FSTLevelDBMutationKey keyPrefixWithUserID:""];
-  auto fooUserKey = [FSTLevelDBMutationKey keyPrefixWithUserID:"foo"];
-
-  auto foo2Key = [FSTLevelDBMutationKey keyWithUserID:"foo" batchID:2];
-
-  XCTAssertTrue(StartsWith(emptyUserKey, tableKey));
-
-  // This is critical: prefixes of the a value don't convert into prefixes of the key.
-  XCTAssertTrue(StartsWith(fooUserKey, tableKey));
-  XCTAssertFalse(StartsWith(fooUserKey, emptyUserKey));
-
-  // However whole segments in common are prefixes.
-  XCTAssertTrue(StartsWith(foo2Key, tableKey));
-  XCTAssertTrue(StartsWith(foo2Key, fooUserKey));
-}
-
-- (void)testMutationKeyEncodeDecodeCycle {
-  FSTLevelDBMutationKey *key = [[FSTLevelDBMutationKey alloc] init];
-  std::string user("foo");
-
-  NSArray<NSNumber *> *batchIds = @[ @0, @1, @100, @(INT_MAX - 1), @(INT_MAX) ];
-  for (NSNumber *batchIDNumber in batchIds) {
-    FSTBatchID batchID = [batchIDNumber intValue];
-    auto encoded = [FSTLevelDBMutationKey keyWithUserID:user batchID:batchID];
-
-    BOOL ok = [key decodeKey:encoded];
-    XCTAssertTrue(ok);
-    XCTAssertEqual(key.userID, user);
-    XCTAssertEqual(key.batchID, batchID);
-  }
-}
-
 - (void)testDocumentMutationKeyPrefixing {
   auto tableKey = [FSTLevelDBDocumentMutationKey keyPrefix];
   auto emptyUserKey = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:""];

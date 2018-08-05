@@ -28,18 +28,20 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+using Firestore::StringView;
+using firebase::firestore::auth::User;
+using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
-using Firestore::StringView;
-using firebase::firestore::auth::User;
-using firebase::firestore::util::OrderedCode;
 
 // A dummy mutation value, useful for testing code that's known to examine only mutation keys.
 static const char *kDummy = "1";
@@ -53,7 +55,7 @@ static const char *kDummy = "1";
 @end
 
 /**
- * Creates a key that's structurally the same as FSTLevelDBMutationKey except it allows for
+ * Creates a key that's structurally the same as LevelDbMutationKey except it allows for
  * nonstandard table names.
  */
 std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batchID) {
@@ -91,26 +93,26 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
 
 - (void)testLoadNextBatchID_findsSingleRow {
   // Seeks off the end of the table altogether
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:6]];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
 
   XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
 }
 
 - (void)testLoadNextBatchID_findsSingleRowAmongNonMutations {
   // Seeks into table following mutations.
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:6]];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
   [self setDummyValueForKey:MutationLikeKey("mutationsa", "foo", 10)];
 
   XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
 }
 
 - (void)testLoadNextBatchID_findsMaxAcrossUsers {
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"fo" batchID:5]];
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"food" batchID:3]];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("fo", 5)];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("food", 3)];
 
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:6]];
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:2]];
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:1]];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 6)];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 2)];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 1)];
 
   XCTAssertEqual([FSTLevelDBMutationQueue loadNextBatchIDFromDB:_db.ptr], 7);
 }
@@ -123,9 +125,9 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
     [self setDummyValueForKey:MutationLikeKey(table, "", highBatchID++)];
   }
 
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"bar" batchID:3]];
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"bar" batchID:2]];
-  [self setDummyValueForKey:[FSTLevelDBMutationKey keyWithUserID:@"foo" batchID:1]];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("bar", 3)];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("bar", 2)];
+  [self setDummyValueForKey:LevelDbMutationKey::Key("foo", 1)];
 
   // None of the higher tables should match -- this is the only entry that's in the mutations
   // table

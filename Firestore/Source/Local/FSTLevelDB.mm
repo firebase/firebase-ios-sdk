@@ -32,6 +32,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
@@ -44,24 +45,24 @@
 #include "absl/strings/match.h"
 #include "leveldb/db.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ResourcePath;
-using util::OrderedCode;
-
-NS_ASSUME_NONNULL_BEGIN
-
-static NSString *const kReservedPathComponent = @"firestore";
-
-using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
+
+static NSString *const kReservedPathComponent = @"firestore";
 
 /**
  * Provides LRU functionality for leveldb persistence.
@@ -252,14 +253,14 @@ using leveldb::WriteOptions;
 + (std::set<std::string>)collectUserSet:(LevelDbTransaction *)transaction {
   std::set<std::string> users;
 
-  std::string tablePrefix = [FSTLevelDBMutationKey keyPrefix];
+  std::string tablePrefix = LevelDbMutationKey::KeyPrefix();
   auto it = transaction->NewIterator();
   it->Seek(tablePrefix);
-  FSTLevelDBMutationKey *rowKey = [[FSTLevelDBMutationKey alloc] init];
-  while (it->Valid() && absl::StartsWith(it->key(), tablePrefix) && [rowKey decodeKey:it->key()]) {
-    users.insert(rowKey.userID);
+  LevelDbMutationKey rowKey;
+  while (it->Valid() && absl::StartsWith(it->key(), tablePrefix) && rowKey.Decode(it->key())) {
+    users.insert(rowKey.user_id());
 
-    auto userEnd = [FSTLevelDBMutationKey keyPrefixWithUserID:rowKey.userID];
+    auto userEnd = LevelDbMutationKey::KeyPrefix(rowKey.user_id());
     userEnd = util::PrefixSuccessor(userEnd);
     it->Seek(userEnd);
   }

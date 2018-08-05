@@ -118,6 +118,9 @@ class Reader {
   explicit Reader(leveldb::Slice src) : src_(src), ok_(true) {
   }
 
+  explicit Reader(absl::string_view src) : Reader{MakeSlice(src)} {
+  }
+
   /** Returns true if the Reader has encountered no errors. */
   bool ok() const {
     return ok_;
@@ -586,7 +589,7 @@ std::string LevelDbMutationKey::Key(absl::string_view user_id,
   return writer.result();
 }
 
-bool LevelDbMutationKey::Decode(leveldb::Slice key) {
+bool LevelDbMutationKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kMutationsTable);
   user_id_ = reader.ReadUserId();

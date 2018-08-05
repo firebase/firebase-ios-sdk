@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kMutationsTable = "mutation";
 static const char *kDocumentMutationsTable = "document_mutation";
 static const char *kMutationQueuesTable = "mutation_queue";
 static const char *kTargetGlobalTable = "target_global";
@@ -340,46 +339,6 @@ inline BOOL ReadUserID(Slice *contents, std::string *userID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBMutationKey {
-  std::string _userID;
-}
-
-+ (std::string)keyPrefix {
-  std::string result;
-  WriteTableName(&result, kMutationsTable);
-  return result;
-}
-
-+ (std::string)keyPrefixWithUserID:(StringView)userID {
-  std::string result;
-  WriteTableName(&result, kMutationsTable);
-  WriteUserID(&result, userID);
-  return result;
-}
-
-+ (std::string)keyWithUserID:(StringView)userID batchID:(FSTBatchID)batchID {
-  std::string result;
-  WriteTableName(&result, kMutationsTable);
-  WriteUserID(&result, userID);
-  WriteBatchID(&result, batchID);
-  WriteTerminator(&result);
-  return result;
-}
-
-- (const std::string &)userID {
-  return _userID;
-}
-
-- (BOOL)decodeKey:(StringView)key {
-  _userID.clear();
-
-  Slice contents = key;
-  return ReadTableNameMatching(&contents, kMutationsTable) && ReadUserID(&contents, &_userID) &&
-         ReadBatchID(&contents, &_batchID) && ReadTerminator(&contents);
-}
-
-@end
 
 @implementation FSTLevelDBDocumentMutationKey {
   std::string _userID;

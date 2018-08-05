@@ -70,34 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/** A key in the mutations table. */
-@interface FSTLevelDBMutationKey : NSObject
-
-/** Creates a key prefix that points just before the first key in the table. */
-+ (std::string)keyPrefix;
-
-/** Creates a key prefix that points just before the first key for the given userID. */
-+ (std::string)keyPrefixWithUserID:(Firestore::StringView)userID;
-
-/** Creates a complete key that points to a specific userID and batchID. */
-+ (std::string)keyWithUserID:(Firestore::StringView)userID batchID:(FSTBatchID)batchID;
-
-/**
- * Decodes the given complete key, storing the decoded values as properties of the receiver.
- *
- * @return YES if the key successfully decoded, NO otherwise. If NO is returned, the properties of
- *     the receiver are in an undefined state until the next call to -decodeKey:.
- */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-/** The user that owns the mutation batches. */
-@property(nonatomic, assign, readonly) const std::string &userID;
-
-/** The batchID of the batch. */
-@property(nonatomic, assign, readonly) FSTBatchID batchID;
-
-@end
-
 /**
  * A key in the document mutations index, which stores the batches in which documents are mutated.
  */

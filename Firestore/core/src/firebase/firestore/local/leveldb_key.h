@@ -121,7 +121,7 @@ class LevelDbMutationKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
-  bool Decode(leveldb::Slice key);
+  bool Decode(absl::string_view key);
 
   /** The user that owns the mutation batches. */
   const std::string& user_id() const {

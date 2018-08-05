@@ -27,6 +27,7 @@
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -38,6 +39,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::testutil::Key;
@@ -131,7 +133,7 @@ using leveldb::Status;
   std::string preservedKeys[] = {
       [self dummyKeyForTable:"targetA"],
       [FSTLevelDBMutationQueueKey keyWithUserID:userID],
-      [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID],
+      LevelDbMutationKey::Key(userID, batchID),
   };
 
   [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
