@@ -231,8 +231,6 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
 void WatchStream::Start() {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  ++generation_;
-
   if (state_ == State::GrpcError) {
     BackoffAndTryRestarting();
     return;
@@ -290,7 +288,6 @@ void WatchStream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token)
 
 void WatchStream::OnStreamStart(const bool ok) {
   firestore_queue_->VerifyIsCurrentQueue();
-
   if (!ok) {
     OnConnectionBroken();
     return;
@@ -421,7 +418,9 @@ void WatchStream::OnStreamWrite(const bool ok) {
 
 void WatchStream::Stop() {
   firestore_queue_->VerifyIsCurrentQueue();
-  if (!IsOpen()) {
+
+  RaiseGeneration();
+  if (!IsStarted()) {
     return;
   }
 
@@ -433,8 +432,16 @@ void WatchStream::Stop() {
   state_ = State::Initial;
 }
 
+void WatchStream::RaiseGeneration() {
+  if (IsStarted()) {
+    ++generation_;
+  }
+}
+
 void WatchStream::OnConnectionBroken() {
   firestore_queue_->VerifyIsCurrentQueue();
+
+  RaiseGeneration();
   if (!IsOpen()) {
     return;
   }

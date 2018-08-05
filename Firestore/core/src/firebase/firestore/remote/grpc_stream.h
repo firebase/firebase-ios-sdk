@@ -153,6 +153,8 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   void OnConnectionBroken();
   void HalfCloseConnection();
 
+  void RaiseGeneration();
+
   template <typename Op, typename... Args>
   void Execute(Args... args) {
     auto* operation = new Op(this, grpc_call_, generation(), args...);
@@ -173,9 +175,8 @@ class WatchStream : public std::enable_shared_from_this<WatchStream> {
   ExponentialBackoff backoff_;
   util::DelayedOperation idleness_timer_;
 
-  // Generation is incremented in each call to `Start`, so the first generation
-  // will be zero.
-  int generation_ = -1;
+  // Generation is incremented in each call to `Finish`.
+  int generation_ = 0;
 
   absl::optional<std::string> client_side_error_;
 };
