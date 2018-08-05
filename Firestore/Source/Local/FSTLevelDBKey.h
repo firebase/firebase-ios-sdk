@@ -70,28 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/** A key in the targets table. */
-@interface FSTLevelDBTargetKey : NSObject
-
-/** Creates a key prefix that points just before the first key in the table. */
-+ (std::string)keyPrefix;
-
-/** Creates a complete key that points to a specific target, by targetID. */
-+ (std::string)keyWithTargetID:(FSTTargetID)targetID;
-
-/**
- * Decodes the contents of a target key into properties on this instance.
- *
- * @return YES if the key successfully decoded, NO otherwise. If NO is returned, the properties of
- *     the receiver are in an undefined state until the next call to -decodeKey:.
- */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-/** The targetID identifying a target. */
-@property(nonatomic, assign, readonly) FSTTargetID targetID;
-
-@end
-
 /**
  * A key in the query targets table, an index of canonicalIDs to the targets they may match. This
  * is not a unique mapping because canonicalID does not promise a unique name for all possible

@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
 using firebase::firestore::local::LevelDbTargetGlobalKey;
+using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::LevelDbVersionKey;
 using leveldb::Iterator;
@@ -87,7 +88,7 @@ static void DeleteEverythingWithPrefix(const std::string &prefix, leveldb::DB *d
 
 /** Migration 3. */
 static void ClearQueryCache(leveldb::DB *db) {
-  DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix], db);
+  DeleteEverythingWithPrefix(LevelDbTargetKey::KeyPrefix(), db);
   DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix], db);
   DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix], db);
   DeleteEverythingWithPrefix([FSTLevelDBQueryTargetKey keyPrefix], db);

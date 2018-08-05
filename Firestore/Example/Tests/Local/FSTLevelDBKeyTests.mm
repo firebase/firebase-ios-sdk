@@ -67,16 +67,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
 
 @implementation FSTLevelDBKeyTests
 
-- (void)testTargetKeyEncodeDecodeCycle {
-  FSTLevelDBTargetKey *key = [[FSTLevelDBTargetKey alloc] init];
-  FSTTargetID targetID = 42;
-
-  auto encoded = [FSTLevelDBTargetKey keyWithTargetID:42];
-  BOOL ok = [key decodeKey:encoded];
-  XCTAssertTrue(ok);
-  XCTAssertEqual(key.targetID, targetID);
-}
-
 - (void)testQueryTargetKeyEncodeDecodeCycle {
   FSTLevelDBQueryTargetKey *key = [[FSTLevelDBQueryTargetKey alloc] init];
   std::string canonicalID("foo");
