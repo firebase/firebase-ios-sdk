@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kVersionGlobalTable = "version";
 static const char *kMutationsTable = "mutation";
 static const char *kDocumentMutationsTable = "document_mutation";
 static const char *kMutationQueuesTable = "mutation_queue";
@@ -341,17 +340,6 @@ inline BOOL ReadUserID(Slice *contents, std::string *userID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBVersionKey
-
-+ (std::string)key {
-  std::string result;
-  WriteTableName(&result, kVersionGlobalTable);
-  WriteTerminator(&result);
-  return result;
-}
-
-@end
 
 @implementation FSTLevelDBMutationKey {
   std::string _userID;

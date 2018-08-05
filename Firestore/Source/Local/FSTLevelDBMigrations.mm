@@ -22,6 +22,7 @@
 #import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/macros.h"
 #include "absl/memory/memory.h"
@@ -47,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::LevelDbVersionKey;
 using leveldb::Iterator;
 using leveldb::Status;
 using leveldb::Slice;
@@ -58,7 +60,7 @@ using leveldb::WriteOptions;
  * @param transaction The transaction in which to save the new version number
  */
 static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *transaction) {
-  std::string key = [FSTLevelDBVersionKey key];
+  std::string key = LevelDbVersionKey::Key();
   std::string version_string = std::to_string(version);
   transaction->Put(key, version_string);
 }
@@ -102,7 +104,7 @@ static void ClearQueryCache(leveldb::DB *db) {
 
 + (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
     (firebase::firestore::local::LevelDbTransaction *)transaction {
-  std::string key = [FSTLevelDBVersionKey key];
+  std::string key = LevelDbVersionKey::Key();
   std::string version_string;
   Status status = transaction->Get(key, &version_string);
   if (status.IsNotFound()) {
