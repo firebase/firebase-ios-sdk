@@ -38,7 +38,6 @@ using firebase::firestore::util::OrderedCode;
 using Firestore::StringView;
 using leveldb::Slice;
 
-static const char *kTargetGlobalTable = "target_global";
 static const char *kTargetsTable = "target";
 static const char *kQueryTargetsTable = "query_target";
 static const char *kTargetDocumentsTable = "target_document";
@@ -321,22 +320,6 @@ inline BOOL ReadTargetID(Slice *contents, FSTTargetID *targetID) {
 }
 
 }  // namespace
-
-@implementation FSTLevelDBTargetGlobalKey
-
-+ (std::string)key {
-  std::string result;
-  WriteTableName(&result, kTargetGlobalTable);
-  WriteTerminator(&result);
-  return result;
-}
-
-- (BOOL)decodeKey:(StringView)key {
-  Slice contents = key;
-  return ReadTableNameMatching(&contents, kTargetGlobalTable) && ReadTerminator(&contents);
-}
-
-@end
 
 @implementation FSTLevelDBTargetKey
 

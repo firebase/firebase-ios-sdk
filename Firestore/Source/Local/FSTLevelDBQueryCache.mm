@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using Firestore::StringView;
 using firebase::firestore::local::DescribeKey;
+using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -80,7 +81,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 + (nullable FSTPBTargetGlobal *)readTargetMetadataWithTransaction:
     (firebase::firestore::local::LevelDbTransaction *)transaction {
-  std::string key = [FSTLevelDBTargetGlobalKey key];
+  std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = transaction->Get(key, &value);
   if (status.IsNotFound()) {
@@ -102,7 +103,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 + (nullable FSTPBTargetGlobal *)readTargetMetadataFromDB:(DB *)db {
-  std::string key = [FSTLevelDBTargetGlobalKey key];
+  std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
   Status status = db->Get([FSTLevelDB standardReadOptions], key, &value);
   if (status.IsNotFound()) {
@@ -161,7 +162,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   _lastRemoteSnapshotVersion = std::move(snapshotVersion);
   self.metadata.lastRemoteSnapshotVersion =
       [self.serializer encodedVersion:_lastRemoteSnapshotVersion];
-  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
+  _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
 }
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block {
@@ -242,14 +243,14 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
   self.metadata.targetCount += 1;
   [self updateMetadataForQueryData:queryData];
-  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
+  _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
 }
 
 - (void)updateQueryData:(FSTQueryData *)queryData {
   [self saveQueryData:queryData];
 
   if ([self updateMetadataForQueryData:queryData]) {
-    _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
+    _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
   }
 }
 
@@ -265,7 +266,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
       [FSTLevelDBQueryTargetKey keyWithCanonicalID:queryData.query.canonicalID targetID:targetID];
   _db.currentTransaction->Delete(indexKey);
   self.metadata.targetCount -= 1;
-  _db.currentTransaction->Put([FSTLevelDBTargetGlobalKey key], self.metadata);
+  _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
 }
 
 - (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber

@@ -70,20 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/** A key in the target globals table, a record of global values across all targets. */
-@interface FSTLevelDBTargetGlobalKey : NSObject
-
-/** Creates a key that points to the single target global row. */
-+ (std::string)key;
-
-/**
- * Decodes the contents of a target global key, essentially just verifying that the key has the
- * correct table name.
- */
-- (BOOL)decodeKey:(Firestore::StringView)key;
-
-@end
-
 /** A key in the targets table. */
 @interface FSTLevelDBTargetKey : NSObject
 

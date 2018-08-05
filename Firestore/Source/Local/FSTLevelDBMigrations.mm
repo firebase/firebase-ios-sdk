@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
+using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::LevelDbVersionKey;
 using leveldb::Iterator;
@@ -94,7 +95,7 @@ static void ClearQueryCache(leveldb::DB *db) {
   LevelDbTransaction transaction(db, "Drop query cache");
 
   // Reset the target global entry too (to reset the target count).
-  transaction.Put([FSTLevelDBTargetGlobalKey key], [FSTPBTargetGlobal message]);
+  transaction.Put(LevelDbTargetGlobalKey::Key(), [FSTPBTargetGlobal message]);
 
   SaveVersion(3, &transaction);
   transaction.Commit();
