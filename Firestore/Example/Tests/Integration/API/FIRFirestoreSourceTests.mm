@@ -493,7 +493,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get doc. This will fail since there's nothing in cache.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
@@ -510,13 +510,13 @@
 - (void)xtestGetDeletedDocWhileOfflineWithDefaultSource {
   FIRDocumentReference *doc = [self documentRef];
 
-  // delete the doc to get a deleted document into our cache.
+  // Delete the doc to get a deleted document into our cache.
   [self deleteDocumentRef:doc];
 
-  // go offline for the rest of this test
+  // Go offline for the rest of this test
   [self disableNetwork];
 
-  // should get a FIRDocumentSnapshot with exists=false, fromCache=true
+  // Should get a FIRDocumentSnapshot with exists=false, fromCache=true
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc source:FIRFirestoreSourceDefault];
   XCTAssertNotNil(snapshot);
   XCTAssertFalse(snapshot.exists);
@@ -542,7 +542,7 @@
 - (void)testGetNonExistingDocWhileOnlineCacheOnly {
   FIRDocumentReference *doc = [self documentRef];
 
-  // attempt to get doc. This will fail since there's nothing in cache.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
@@ -572,7 +572,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get doc. This will fail since there's nothing in cache.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
@@ -588,13 +588,13 @@
 - (void)testGetDeletedDocWhileOfflineCacheOnly {
   FIRDocumentReference *doc = [self documentRef];
 
-  // delete the doc to get a deleted document into our cache.
+  // Delete the doc to get a deleted document into our cache.
   [self deleteDocumentRef:doc];
 
-  // go offline for the rest of this test
+  // Go offline for the rest of this test
   [self disableNetwork];
 
-  // should get a FIRDocumentSnapshot with exists=false, fromCache=true
+  // Should get a FIRDocumentSnapshot with exists=false, fromCache=true
   FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc source:FIRFirestoreSourceCache];
   XCTAssertNotNil(snapshot);
   XCTAssertFalse(snapshot.exists);
