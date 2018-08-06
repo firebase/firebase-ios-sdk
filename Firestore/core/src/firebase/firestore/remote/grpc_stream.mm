@@ -148,17 +148,60 @@ grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTTargetID target_id) const {
   return ToByteBuffer([request data]);
 }
 
+grpc::ByteBuffer SerializerBridge::CreateHandshake() const {
+  // The initial request cannot contain mutations, but must contain a projectID.
+  GCFSWriteRequest* request = [GCFSWriteRequest message];
+  request.database = [serializer_ encodedDatabaseID];
+  return ToByteBuffer([request data]);
+}
+
+grpc::ByteBuffer SerializerBridge::ToByteBuffer(
+    NSArray<FSTMutation*>* mutations, const std::string& last_stream_token) {
+  NSMutableArray<GCFSWrite*>* protos =
+      [NSMutableArray arrayWithCapacity:mutations.count];
+  for (FSTMutation* mutation in mutations) {
+    [protos addObject:[_serializer encodedMutation:mutation]];
+  };
+
+  GCFSWriteRequest* request = [GCFSWriteRequest message];
+  request.writesArray = protos;
+  request.streamToken = util::MakeNSString(last_stream_token);
+  return ToByteBuffer([request data]);
+}
+
 grpc::ByteBuffer SerializerBridge::ToByteBuffer(NSData* data) const {
   const grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
 }
 
-FSTWatchChange* SerializerBridge::ToWatchChange(GCFSListenResponse* proto) const {
+FSTWatchChange* SerializerBridge::ToWatchChange(
+    GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
 
-SnapshotVersion SerializerBridge::ToSnapshotVersion(GCFSListenResponse* proto) const {
+SnapshotVersion SerializerBridge::ToSnapshotVersion(
+    GCFSListenResponse* proto) const {
   return [serializer_ versionFromListenResponse:proto];
+}
+
+std::string SerializerBridge::ToStreamToken(GCFSWriteResponse* proto) const {
+  return util::MakeString(proto.streamToken);
+}
+
+model::SnapshotVersion SerializerBridge::ToCommitVersion(
+    GCFSWriteResponse* proto) const {
+  return [_serializer decodedVersion:proto.commitTime];
+}
+
+NSArray<FSTMutationResult*> SerializerBridge::ToMutationResults(
+    GCFSWriteResponse* proto) const {
+  NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
+  NSMutableArray<FSTMutationResult*>* results =
+      [NSMutableArray arrayWithCapacity:protos.count];
+  for (GCFSWriteResult* proto in protos) {
+    [results addObject:[_serializer decodedMutationResult:proto]];
+  };
+  return results;
 }
 
 NSData* SerializerBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
@@ -178,33 +221,39 @@ NSData* SerializerBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
   }
 }
 
-void DelegateBridge::NotifyDelegateOnOpen() {
+void WatchStreamDelegateBridge::NotifyDelegateOnOpen() {
   id<FSTStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
-NSError* DelegateBridge::NotifyDelegateOnChange(const grpc::ByteBuffer& message) {
-  NSError* error;
-  auto* proto = ToProto<GCFSListenResponse>(message, &error);
-  if (proto) {
-    id<FSTStreamDelegate> delegate = delegate_;
-    [delegate watchStreamDidChange:ToWatchChange(proto)
-                   snapshotVersion:ToSnapshotVersion(proto)];
-    return nil;
-  }
-
-  NSDictionary* info = @{
-    NSLocalizedDescriptionKey : @"Unable to parse response from the server",
-    NSUnderlyingErrorKey : error,
-    @"Expected class" : [GCFSListenResponse class],
-    @"Received value" : ToNsData(message),
-  };
-  return [NSError errorWithDomain:FIRFirestoreErrorDomain
-                             code:FIRFirestoreErrorCodeInternal
-                         userInfo:info];
+NSError* WatchStreamDelegateBridge::NotifyDelegateOnChange(
+    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
+  id<FSTStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidChange:ToWatchChange(proto)
+                 snapshotVersion:ToSnapshotVersion(proto)];
 }
 
-void DelegateBridge::NotifyDelegateOnError(const FirestoreErrorCode error_code) {
+void WatchStreamDelegateBridge::NotifyDelegateOnStreamFinished(
+    const FirestoreErrorCode error_code) {
+  id<FSTStreamDelegate> delegate = delegate_;
+  NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
+  [delegate watchStreamWasInterruptedWithError:error];
+}
+
+void WriteStreamDelegateBridge::NotifyDelegateOnOpen() {
+  id<FSTStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidOpen];
+}
+
+NSError* WriteStreamDelegateBridge::NotifyDelegateOnChange(
+    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
+  id<FSTStreamDelegate> delegate = delegate_;
+  [delegate watchStreamDidChange:ToWatchChange(proto)
+                 snapshotVersion:ToSnapshotVersion(proto)];
+}
+
+void WriteStreamDelegateBridge::NotifyDelegateOnStreamFinished(
+    const FirestoreErrorCode error_code) {
   id<FSTStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate watchStreamWasInterruptedWithError:error];
@@ -231,7 +280,7 @@ Stream::Stream(AsyncQueue* const async_queue,
 // Starting
 
 void Stream::Start() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   if (state_ == State::GrpcError) {
     BackoffAndTryRestarting();
@@ -266,7 +315,7 @@ void Stream::Start() {
 }
 
 void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,
               "State should still be 'Starting' (was %s)", state_);
@@ -290,7 +339,7 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
 }
 
 void Stream::OnStreamStart(const bool ok) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (!ok) {
     OnConnectionBroken();
     return;
@@ -307,7 +356,7 @@ void Stream::OnStreamStart(const bool ok) {
 void Stream::BackoffAndTryRestarting() {
   // LogDebug(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void
   // *)self);
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::GrpcError,
               "Should only perform backoff in an error case");
@@ -317,7 +366,7 @@ void Stream::BackoffAndTryRestarting() {
 }
 
 void Stream::ResumeStartFromBackoff() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   if (state_ == State::ShuttingDown) {
     // We should have canceled the backoff timer when the stream was closed, but
@@ -337,7 +386,7 @@ void Stream::ResumeStartFromBackoff() {
 }
 
 void Stream::CancelBackoff() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   HARD_ASSERT(!IsStarted(), "Can only cancel backoff after an error (was %s)",
               state_);
@@ -350,7 +399,7 @@ void Stream::CancelBackoff() {
 // Idleness
 
 void Stream::MarkIdle() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (IsOpen() && !idleness_timer_) {
     idleness_timer_ = firestore_queue_->EnqueueAfterDelay(
         kIdleTimeout, idle_timer_id_, [this] { StopDueToIdleness(); });
@@ -369,7 +418,7 @@ void Stream::Write(const grpc::ByteBuffer& message) {
 }
 
 void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (!ok) {
     OnConnectionBroken();
     return;
@@ -389,7 +438,7 @@ void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
 }
 
 void Stream::OnStreamWrite(const bool ok) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (!ok) {
     OnConnectionBroken();
     return;
@@ -402,7 +451,7 @@ void Stream::OnStreamWrite(const bool ok) {
 // Stopping
 
 void Stream::Stop() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   RaiseGeneration();
   if (!IsStarted()) {
@@ -425,7 +474,7 @@ void Stream::RaiseGeneration() {
 }
 
 void Stream::OnConnectionBroken() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   RaiseGeneration();
   if (!IsOpen()) {
@@ -439,7 +488,7 @@ void Stream::OnConnectionBroken() {
 }
 
 void Stream::HalfCloseConnection() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (!IsOpen()) {
     return;
   }
@@ -448,7 +497,7 @@ void Stream::HalfCloseConnection() {
 }
 
 void Stream::OnStreamFinish(const util::Status status) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
 
   const FirestoreErrorCode error = [&] {
     if (client_side_error_ && status.code() == FirestoreErrorCode::Ok) {
@@ -457,9 +506,7 @@ void Stream::OnStreamFinish(const util::Status status) {
     return status.error_code();
   }();
 
-  if (client_side_error_) {
-    LOG_DEBUG("%s", client_side_error_.value());
-  } else if (error == FirestoreErrorCode::ResourceExhausted) {
+  if (error == FirestoreErrorCode::ResourceExhausted) {
     // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
     // backend.", [self class],
     //       (__bridge void *)self);
@@ -467,7 +514,7 @@ void Stream::OnStreamFinish(const util::Status status) {
   } else if (error == FirestoreErrorCode::Unauthenticated) {
     credentials_provider_->InvalidateToken();
   }
-  client_side_error_.reset();
+  client_side_error_ = false;
 
   DoOnStreamFinish(error);
 
@@ -477,7 +524,7 @@ void Stream::OnStreamFinish(const util::Status status) {
 }
 
 void Stream::StopDueToIdleness() {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   if (!IsOpen()) {
     return;
   }
@@ -492,15 +539,26 @@ void Stream::StopDueToIdleness() {
 // Check state
 
 bool Stream::IsOpen() const {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   return state_ == State::Open;
 }
 
 bool Stream::IsStarted() const {
-  firestore_queue_->VerifyIsCurrentQueue();
+  EnsureOnQueue();
   const bool is_starting =
       (state_ == State::Starting || state_ == State::ReconnectingWithBackoff);
   return is_starting || IsOpen();
+}
+
+// Protected helpers
+
+void Stream::EnsureOnQueue() {
+  firestore_queue_->VerifyIsCurrentQueue();
+}
+
+void Stream::BufferedWrite(const grpc::ByteBuffer& message) {
+  CancelIdleCheck();
+  buffered_writer_.Enqueue(message);
 }
 
 // Watch stream
@@ -520,21 +578,17 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
-  firestore_queue_->VerifyIsCurrentQueue();
-
-  CancelIdleCheck();
-  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(query));
+  EnsureOnQueue();
+  BufferedWrite(serializer_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
-  firestore_queue_->VerifyIsCurrentQueue();
-
-  CancelIdleCheck();
-  buffered_writer_.Enqueue(serializer_bridge_.ToByteBuffer(target_id));
+  EnsureOnQueue();
+  BufferedWrite(serializer_bridge_.ToByteBuffer(target_id));
 }
 
-std::shared_ptr<GrpcCall> WatchStream::DoCreateGrpcCall(Datastore* const datastore,
-                                       const absl::string_view token) {
+std::shared_ptr<GrpcCall> WatchStream::DoCreateGrpcCall(
+    Datastore* const datastore, const absl::string_view token) {
   return datastore->CreateGrpcCall(
       token, "/google.firestore.v1beta1.Firestore/Listen");
 }
@@ -543,14 +597,15 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-absl::optional<std::string> WatchStream::DoOnStreamRead(
-    const grpc::ByteBuffer& message) {
-  // FIXME OBC remove nserror
-  NSError* error = delegate_bridge_.NotifyDelegateOnChange(message);
-  if (error) {
-    return util::MakeString([error description]);
+bool WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+  // TODO OBC proper error handling?
+  GCFSListenRespone* response =
+      serializer_bridge_.ParseResponse<GCFSListenResponse>(message);
+  if (response) {
+    delegate_bridge_.NotifyDelegateOnChange(message);
+    return true;
   }
-  return {};
+  return false;
 }
 
 void WatchStream::DoOnStreamWrite() {
@@ -558,11 +613,83 @@ void WatchStream::DoOnStreamWrite() {
 }
 
 void WatchStream::DoOnStreamFinish(const FirestoreErrorCode error) {
-  delegate_bridge_.NotifyDelegateOnError(error);
+  delegate_bridge_.NotifyDelegateOnStreamFinished(error);
 }
 
-// serializer, queue, and writer have to be protected
-// separating objcbridge was wrong
+// Write stream
+
+void WriteStream::WriteHandshake() {
+  EnsureOnQueue();
+  HARD_ASSERT(IsOpen, "Not yet open");
+  HARD_ASSERT(!is_handshake_complete_, "Handshake sent out of turn");
+
+  // LOG_DEBUG("WriteStream %s initial request: %s", this, [request
+  // description]);
+  BufferedWrite(serializer_bridge_.CreateHandshake());
+
+  // TODO(dimond): Support stream resumption. We intentionally do not set the
+  // stream token on the handshake, ignoring any stream token we might have.
+}
+
+void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
+  EnsureOnQueue();
+  HARD_ASSERT(IsOpen, "Not yet open");
+  HARD_ASSERT(!is_handshake_complete_, "Mutations sent out of turn");
+
+  // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
+  // request);
+  BufferedWrite(serializer_bridge_.ToByteBuffer(mutations, last_stream_token_));
+}
+
+// Private interface
+
+std::shared_ptr<GrpcCall> WriteStream::DoCreateGrpcCall(
+    Datastore* const datastore, const absl::string_view token) {
+  return datastore->CreateGrpcCall(token,
+                                   "/google.firestore.v1beta1.Firestore/Write");
+}
+
+void WriteStream::DoOnStreamStart() {
+  delegate_bridge_.NotifyDelegateOnOpen();
+}
+
+void WriteStream::DoOnStreamWrite() {
+  // Nothing to do.
+}
+
+void WriteStream::DoOnStreamFinish(const FirestoreErrorCode error) {
+  delegate_bridge_.NotifyDelegateOnStreamFinished(error);
+}
+
+bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+  // LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self,
+  // response);
+  EnsureOnQueue();
+
+  auto* response = serializer_bridge_.ParseResponse<GCFSWriteResponse>(message);
+  if (!response) {
+    return false;
+  }
+
+  last_stream_token_ = serializer_bridge.ToStreamToken(response);
+
+  if (!is_handshake_complete_) {
+    // The first response is the handshake response
+    is_handshake_complete_ = true;
+    delegate_bridge_.NotifyDelegateOnHandshakeComplete();
+  } else {
+    // A successful first write response means the stream is healthy.
+    // Note that we could consider a successful handshake healthy, however, the
+    // write itself might be causing an error we want to back off from.
+    CancelBackoff();
+
+    delegate_bridge_.NotifyDelegateOnCommit(
+        serializer_bridge_.ToCommitVersion(response),
+        serializer_bridge_.ToMutationResults(results));
+  }
+
+  return true;
+}
 
 }  // namespace remote
 }  // namespace firestore

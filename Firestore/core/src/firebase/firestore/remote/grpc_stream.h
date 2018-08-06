@@ -53,8 +53,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// TODO: WRITE STREAM
-
 namespace internal {
 
 // Contains operations that are still delegated to Objective-C, notably proto
@@ -67,30 +65,71 @@ class SerializerBridge {
 
   grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
   grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
+  grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations,
+                                const std::string& last_stream_token);
 
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
- private:
+  std::string ToStreamToken(GCFSWriteResponse* proto) const;
+  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*> ToMutationResults(GCFSWriteResponse* proto) const;
+
+  GCFSListenResponse* ParseListenResponse(GCFSListenResponse* proto) const;
+
+  grpc::ByteBuffer CreateHandshake() const;
+
   template <typename Proto>
-  Proto* ToProto(const grpc::ByteBuffer& buffer, NSError** error) const {
-    return [Proto parseFromData:ToNsData(buffer) error:error];
+  Proto* ParseResponse(const grpc::ByteBuffer& buffer) const {
+    NSError* error;
+    auto* proto = [Proto parseFromData:ToNsData(buffer) error:error];
+    // FIXME OBC
+    if (error) {
+      NSDictionary* info = @{
+        NSLocalizedDescriptionKey : @"Unable to parse response from the server",
+        NSUnderlyingErrorKey : error,
+        @"Expected class" : [proto class],
+        @"Received value" : ToNsData(message),
+      };
+      LOG_DEBUG("%s", [info description]);
+
+      return nil;
+    }
+
+    return proto;
   }
 
+ private:
   grpc::ByteBuffer ToByteBuffer(NSData* data) const;
   NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
 
   FSTSerializerBeta* serializer_;
 };
 
-class DelegateBridge {
+class WatchStreamDelegateBridge {
  public:
-  explicit DelegateBridge(id delegate) : delegate_{delegate} {
+  explicit WatchStreamDelegateBridge(id delegate) : delegate_{delegate} {
   }
 
   void NotifyDelegateOnOpen();
-  NSError* NotifyDelegateOnChange(const grpc::ByteBuffer& message);
-  void NotifyDelegateOnError(FirestoreErrorCode error_code);
+  void NotifyDelegateOnChange(FSTWatchChange* change,
+                              const model::SnapshotVersion& snapshot_version);
+  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
+
+ private:
+  id delegate_;
+};
+
+class WriteStreamDelegateBridge {
+ public:
+  explicit WriteStreamDelegateBridge(id delegate) : delegate_{delegate} {
+  }
+
+  void NotifyDelegateOnOpen();
+  void NotifyDelegateOnHandshakeComplete();
+  void NotifyDelegateOnCommit(NSArray<FSTMutationResult*>* results,
+                                const model::SnapshotVersion& commit_version);
+  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
 
  private:
   id delegate_;
@@ -126,6 +165,13 @@ class Stream : public std::enable_shared_from_this<Stream> {
     return generation_;
   }
 
+ protected:
+  void EnsureOnQueue();
+  void BufferedWrite(const grpc::ByteBuffer& message);
+  // TODO OBC: make one for each derived class, they have very little overlap
+  // (and what overlap there is can be a shared free function).
+  internal::SerializerBridge serializer_bridge_;
+
  private:
   friend class BufferedWriter;
 
@@ -138,7 +184,6 @@ class Stream : public std::enable_shared_from_this<Stream> {
     ShuttingDown
   };
 
-  // Timer ids
   virtual std::shared_ptr<GrpcCall> DoCreateGrpcCall(
       Datastore* datastore, absl::string_view token) = 0;
   virtual void DoOnStreamStart() = 0;
@@ -171,7 +216,6 @@ class Stream : public std::enable_shared_from_this<Stream> {
   BufferedWriter buffered_writer_;
   std::shared_ptr<GrpcCall> grpc_call_;
 
-  internal::SerializerBridge serializer_bridge_;
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
   Datastore* datastore_;
@@ -183,7 +227,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   // Generation is incremented in each call to `Finish`.
   int generation_ = 0;
 
-  absl::optional<std::string> client_side_error_;
+  bool client_side_error_ = false;
 };
 
 class WatchStream : public Stream {
@@ -198,15 +242,37 @@ class WatchStream : public Stream {
   void UnwatchTargetId(FSTTargetID target_id);
 
  private:
-  std::shared_ptr<GrpcCall> DoCreateGrpcCall(Datastore* datastore,
-                            const absl::string_view token) override;
+  std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+      Datastore* datastore, const absl::string_view token) override;
   void DoOnStreamStart() override;
-  absl::optional<std::string> DoOnStreamRead(
-      const grpc::ByteBuffer& message) override;
+  bool DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
   void DoOnStreamFinish(FirestoreErrorCode error) override;
 
-  internal::DelegateBridge delegate_bridge_;
+  internal::WatchStreamDelegateBridge delegate_bridge_;
+};
+
+class WriteStream : public Stream {
+ public:
+  WriteStream(util::AsyncQueue* async_queue,
+              auth::CredentialsProvider* credentials_provider,
+              FSTSerializerBeta* serializer,
+              Datastore* datastore,
+              id delegate);
+
+  void WriteHandshake();
+
+ private:
+  std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+      Datastore* datastore, const absl::string_view token) override;
+  void DoOnStreamStart() override;
+  bool DoOnStreamRead(const grpc::ByteBuffer& message) override;
+  void DoOnStreamWrite() override;
+  void DoOnStreamFinish(FirestoreErrorCode error) override;
+
+  internal::WriteStreamDelegateBridge delegate_bridge_;
+  bool is_handshake_complete_{false};
+  std::string last_stream_token_;
 };
 
 }  // namespace remote
