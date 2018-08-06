@@ -281,9 +281,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
     if (maybeDoc) {
+      FSTDocument *_Nullable document =
+          ([maybeDoc isKindOfClass:[FSTDocument class]]) ? (FSTDocument *)maybeDoc : nil;
       completion([FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
                                                 documentKey:doc.key
-                                                   document:(FSTDocument *)maybeDoc
+                                                   document:document
                                                   fromCache:YES],
                  nil);
     } else {

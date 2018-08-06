@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where `get(source:.Cache)` could throw an
+  "unrecognized selector" error if the SDK has previously cached the
+  non-existence of the document (#1632).
 
 # v0.13.0
 - [feature] Added `FieldValue.arrayUnion()` and `FieldValue.arrayRemove()` to
