@@ -139,10 +139,9 @@ GCFSListenResponse* WatchStreamSerializer::ParseResponse(
   return ToProto<GCFSListenResponse>(message);
 }
 
-std::string WriteStreamSerializer::ToStreamToken(
-    GCFSWriteResponse* proto) const {
-  return util::MakeString([[NSString alloc] initWithData:proto.streamToken
-                                                encoding:NSUTF8StringEncoding]);
+void WriteStreamSerializer::UpdateLastStreamToken(
+    GCFSWriteResponse* proto) {
+  last_stream_token_ = proto.streamToken;
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(

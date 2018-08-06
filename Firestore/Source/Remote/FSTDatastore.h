@@ -107,7 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:(id)delegate;
 
 /** Creates a new write stream. */
-- (FSTWriteStream *)createWriteStream;
+- (std::shared_ptr<firebase::firestore::remote::WriteStream>)createWriteStreamWithDelegate:(id)delegate;
 
 /** The name of the database and the backend. */
 // Does not own this DatabaseInfo.

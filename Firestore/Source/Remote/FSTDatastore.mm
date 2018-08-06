@@ -93,6 +93,7 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 using firebase::firestore::remote::Datastore;
 using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
 
 @implementation FSTDatastore {
   std::unique_ptr<Datastore> _datastore;
@@ -353,11 +354,9 @@ using firebase::firestore::remote::WatchStream;
       [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
 }
 
-- (FSTWriteStream *)createWriteStream {
-  return [[FSTWriteStream alloc] initWithDatabase:_databaseInfo
-                              workerDispatchQueue:_workerDispatchQueue
-                                      credentials:_credentials
-                                       serializer:_serializer];
+- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id)delegate {
+  return std::make_shared<WriteStream>(
+      [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
 }
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/

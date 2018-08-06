@@ -554,7 +554,7 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
     return false;
   }
 
-  SetLastStreamToken(serializer_bridge_.ToStreamToken(response));
+  serializer_bridge_.UpdateLastStreamToken(response);
 
   if (!is_handshake_complete_) {
     // The first response is the handshake response
