@@ -127,6 +127,8 @@ class StreamFinish : public StreamOperation {
   grpc::Status grpc_status_;
 };
 
+}
+
 Stream::Stream(AsyncQueue* const async_queue,
                CredentialsProvider* const credentials_provider,
                Datastore* const datastore,
@@ -232,7 +234,7 @@ void Stream::BackoffAndTryRestarting() {
 void Stream::ResumeStartFromBackoff() {
   EnsureOnQueue();
 
-  if (state_ == State::ShuttingDown) {
+  if (state_ == State::Initial) {
     // We should have canceled the backoff timer when the stream was closed, but
     // just in case we make this a no-op.
     return;
@@ -367,7 +369,7 @@ void Stream::OnStreamFinish(const util::Status status) {
     if (client_side_error_ && status.code() == FirestoreErrorCode::Ok) {
       return FirestoreErrorCode::Internal;
     }
-    return status.error_code();
+    return status.code();
   }();
 
   if (error == FirestoreErrorCode::ResourceExhausted) {
@@ -416,13 +418,13 @@ bool Stream::IsStarted() const {
 
 // Protected helpers
 
-void Stream::EnsureOnQueue() {
+void Stream::EnsureOnQueue() const {
   firestore_queue_->VerifyIsCurrentQueue();
 }
 
-void Stream::BufferedWrite(const grpc::ByteBuffer& message) {
+void Stream::BufferedWrite(grpc::ByteBuffer&& message) {
   CancelIdleCheck();
-  buffered_writer_.Enqueue(message);
+  buffered_writer_.Enqueue(std::move(message));
 }
 
 // Watch stream
@@ -463,10 +465,10 @@ void WatchStream::DoOnStreamStart() {
 
 bool WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   // TODO OBC proper error handling?
-  GCFSListenRespone* response =
-      serializer_bridge_.ParseResponse<GCFSListenResponse>(message);
+  GCFSListenResponse* response =
+      serializer_bridge_.ParseResponse(message);
   if (response) {
-    delegate_bridge_.NotifyDelegateOnChange(message);
+    delegate_bridge_.NotifyDelegateOnChange(serializer_bridge_.ToWatchChange(response), serializer_bridge_.ToSnapshotVersion(response));
     return true;
   }
   return false;
@@ -495,7 +497,7 @@ WriteStream::WriteStream(AsyncQueue* const async_queue,
 
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
-  HARD_ASSERT(IsOpen, "Not yet open");
+  HARD_ASSERT(IsOpen(), "Not yet open");
   HARD_ASSERT(!is_handshake_complete_, "Handshake sent out of turn");
 
   // LOG_DEBUG("WriteStream %s initial request: %s", this, [request
@@ -508,7 +510,7 @@ void WriteStream::WriteHandshake() {
 
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
-  HARD_ASSERT(IsOpen, "Not yet open");
+  HARD_ASSERT(IsOpen(), "Not yet open");
   HARD_ASSERT(!is_handshake_complete_, "Mutations sent out of turn");
 
   // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
@@ -529,7 +531,13 @@ void WriteStream::DoOnStreamStart() {
 }
 
 void WriteStream::DoOnStreamWrite() {
-  // Nothing to do.
+  // OBC is this logic necessary? We finish the stream gracefully.
+  // (void) tearDown {
+  // if ([self isHandshakeComplete]) {
+  //   // Send an empty write request to the backend to indicate imminent stream closure. This allows
+  //   // the backend to clean up resources.
+  //   [self writeMutations:@[]];
+  // }
 }
 
 void WriteStream::DoOnStreamFinish(const FirestoreErrorCode error) {
@@ -541,12 +549,12 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   // response);
   EnsureOnQueue();
 
-  auto* response = serializer_bridge_.ParseResponse<GCFSWriteResponse>(message);
+  auto* response = serializer_bridge_.ParseResponse(message);
   if (!response) {
     return false;
   }
 
-  last_stream_token_ = serializer_bridge.ToStreamToken(response);
+  last_stream_token_ = serializer_bridge_.ToStreamToken(response);
 
   if (!is_handshake_complete_) {
     // The first response is the handshake response
@@ -559,8 +567,8 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
     CancelBackoff();
 
     delegate_bridge_.NotifyDelegateOnCommit(
-        serializer_bridge_.ToCommitVersion(response),
-        serializer_bridge_.ToMutationResults(results));
+        serializer_bridge_.ToMutationResults(response),
+        serializer_bridge_.ToCommitVersion(response));
   }
 
   return true;

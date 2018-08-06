@@ -18,16 +18,21 @@
 
 #include <utility>
 
-#include "Firestore/Source/Remote/FSTDatastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#import "Firestore/Source/Remote/FSTStream.h"
+
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
+
+using model::SnapshotVersion;
+
 namespace remote {
 namespace bridge {
 
@@ -51,9 +56,9 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
 }
 
 template <typename Proto>
-Proto* ParseResponse(const grpc::ByteBuffer& buffer) {
+Proto* ToProto(const grpc::ByteBuffer& message) {
   NSError* error;
-  auto* proto = [Proto parseFromData:ToNsData(buffer) error:error];
+  auto* proto = [Proto parseFromData:ToNsData(message) error:error];
   // FIXME OBC
   if (error) {
     NSDictionary* info = @{
@@ -69,117 +74,118 @@ Proto* ParseResponse(const grpc::ByteBuffer& buffer) {
   return proto;
 }
 
-grpc::ByteBuffer ToByteBuffer(NSData* data) {
+grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
   const grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
 }
 
 }  // namespace
 
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTQueryData* query) const {
+grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.addTarget = [serializer_ encodedTarget:query];
   request.labels = [serializer_ encodedListenRequestLabelsForQueryData:query];
 
-  return ToByteBuffer([request data]);
+  return ConvertToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTTargetID target_id) const {
+grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(FSTTargetID target_id) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.removeTarget = target_id;
 
-  return ToByteBuffer([request data]);
+  return ConvertToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer SerializerBridge::CreateHandshake() const {
+grpc::ByteBuffer WriteStreamSerializer::CreateHandshake() const {
   // The initial request cannot contain mutations, but must contain a projectID.
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.database = [serializer_ encodedDatabaseID];
-  return ToByteBuffer([request data]);
+  return ConvertToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(
+grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
     NSArray<FSTMutation*>* mutations, const std::string& last_stream_token) {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.count];
   for (FSTMutation* mutation in mutations) {
-    [protos addObject:[_serializer encodedMutation:mutation]];
+    [protos addObject:[serializer_ encodedMutation:mutation]];
   };
 
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.writesArray = protos;
-  request.streamToken = util::MakeNSString(last_stream_token);
-  return ToByteBuffer([request data]);
+  request.streamToken = util::WrapNSString(last_stream_token);
+  return ConvertToByteBuffer([request data]);
 }
 
-FSTWatchChange* SerializerBridge::ToWatchChange(
+FSTWatchChange* WatchStreamSerializer::ToWatchChange(
     GCFSListenResponse* proto) const {
   return [serializer_ decodedWatchChange:proto];
 }
 
-SnapshotVersion SerializerBridge::ToSnapshotVersion(
+SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
     GCFSListenResponse* proto) const {
   return [serializer_ versionFromListenResponse:proto];
 }
 
-std::string SerializerBridge::ToStreamToken(GCFSWriteResponse* proto) const {
+GCFSListenResponse* WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return ToProto<GCFSListenResponse>(message);
+}
+
+std::string WriteStreamSerializer::ToStreamToken(GCFSWriteResponse* proto) const {
   return util::MakeString(proto.streamToken);
 }
 
-model::SnapshotVersion SerializerBridge::ToCommitVersion(
+model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     GCFSWriteResponse* proto) const {
-  return [_serializer decodedVersion:proto.commitTime];
+  return [serializer_ decodedVersion:proto.commitTime];
 }
 
-NSArray<FSTMutationResult*> SerializerBridge::ToMutationResults(
+NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* proto) const {
   NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
   NSMutableArray<FSTMutationResult*>* results =
       [NSMutableArray arrayWithCapacity:protos.count];
   for (GCFSWriteResult* proto in protos) {
-    [results addObject:[_serializer decodedMutationResult:proto]];
+    [results addObject:[serializer_ decodedMutationResult:proto]];
   };
   return results;
 }
 
-void WatchStreamDelegateBridge::NotifyDelegateOnOpen() {
+GCFSWriteResponse* WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+  return ToProto<GCFSWriteResponse>(message);
+}
+
+void WatchStreamDelegate::NotifyDelegateOnOpen() {
   id<FSTStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
-NSError* WatchStreamDelegateBridge::NotifyDelegateOnChange(
+void WatchStreamDelegate::NotifyDelegateOnChange(
     FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
   id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:ToWatchChange(proto)
-                 snapshotVersion:ToSnapshotVersion(proto)];
+  [delegate watchStreamDidChange:change
+                 snapshotVersion:snapshot_version];
 }
 
-void WatchStreamDelegateBridge::NotifyDelegateOnStreamFinished(
+void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
   id<FSTStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate watchStreamWasInterruptedWithError:error];
 }
 
-void WriteStreamDelegateBridge::NotifyDelegateOnOpen() {
+void WriteStreamDelegate::NotifyDelegateOnOpen() {
   id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
+  [delegate writeStreamDidOpen];
 }
 
-NSError* WriteStreamDelegateBridge::NotifyDelegateOnChange(
-    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:ToWatchChange(proto)
-                 snapshotVersion:ToSnapshotVersion(proto)];
-}
-
-void WriteStreamDelegateBridge::NotifyDelegateOnStreamFinished(
+void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
   id<FSTStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
-  [delegate watchStreamWasInterruptedWithError:error];
+  [delegate writeStreamWasInterruptedWithError:error];
 }
 
 }

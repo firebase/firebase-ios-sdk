@@ -23,11 +23,11 @@
 
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 namespace firebase {
 namespace firestore {
@@ -49,7 +49,7 @@ class WatchStreamSerializer {
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
-  GCFSListenResponse* ParseListenResponse(GCFSListenResponse* proto) const;
+  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message) const;
 
  private:
   FSTSerializerBeta* serializer_;
@@ -67,9 +67,9 @@ class WriteStreamSerializer {
 
   std::string ToStreamToken(GCFSWriteResponse* proto) const;
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*> ToMutationResults(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*>* ToMutationResults(GCFSWriteResponse* proto) const;
 
-  GCFSListenResponse* ParseWriteResponse(GCFSWriteResponse* proto) const;
+  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message) const;
 
   grpc::ByteBuffer CreateHandshake() const;
 

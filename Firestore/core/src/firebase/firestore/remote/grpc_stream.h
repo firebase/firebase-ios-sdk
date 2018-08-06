@@ -82,8 +82,8 @@ class Stream : public std::enable_shared_from_this<Stream> {
   }
 
  protected:
-  void EnsureOnQueue();
-  void BufferedWrite(const grpc::ByteBuffer& message);
+  void EnsureOnQueue() const;
+  void BufferedWrite(grpc::ByteBuffer&& message);
 
  private:
   friend class BufferedWriter;
@@ -93,14 +93,13 @@ class Stream : public std::enable_shared_from_this<Stream> {
     Starting,
     Open,
     GrpcError,
-    ReconnectingWithBackoff,
-    ShuttingDown
+    ReconnectingWithBackoff
   };
 
   virtual std::shared_ptr<GrpcCall> DoCreateGrpcCall(
       Datastore* datastore, absl::string_view token) = 0;
   virtual void DoOnStreamStart() = 0;
-  virtual absl::optional<std::string> DoOnStreamRead(
+  virtual bool DoOnStreamRead(
       const grpc::ByteBuffer& message) = 0;
   virtual void DoOnStreamWrite() = 0;
   virtual void DoOnStreamFinish(FirestoreErrorCode error) = 0;
@@ -175,6 +174,7 @@ class WriteStream : public Stream {
               id delegate);
 
   void WriteHandshake();
+  void WriteMutations(NSArray<FSTMutation*>* mutations);
 
  private:
   std::shared_ptr<GrpcCall> DoCreateGrpcCall(
