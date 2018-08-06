@@ -681,10 +681,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   }
 }
 
-+ (id<UIApplicationDelegate>)originalDelegate {
-  return gOriginalAppDelegate;
-}
-
 #pragma mark - Methods to print correct debug logs
 
 + (NSString *)correctAppDelegateProxyKey {
@@ -709,6 +705,10 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 + (void)resetProxyOriginalDelegateOnceToken {
   sProxyAppDelegateOnceToken = 0;
+}
+
++ (id<UIApplicationDelegate>)originalDelegate {
+  return gOriginalAppDelegate;
 }
 
 #endif  // GUL_APP_DELEGATE_TESTING

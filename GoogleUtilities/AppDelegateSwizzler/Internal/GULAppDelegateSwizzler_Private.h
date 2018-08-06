@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#ifdef GUL_APP_DELEGATE_TESTING
-
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 
@@ -45,11 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (GULMutableDictionary *)interceptors;
 
-/** Returns the original app delegate that was proxied.
- *
- *  @return The original app delegate instance that was proxied.
- */
-+ (id<UIApplicationDelegate>)originalDelegate;
+#ifdef GUL_APP_DELEGATE_TESTING // Methods only used in tests.
 
 /** Deletes all the registered interceptors. */
 + (void)clearInterceptors;
@@ -57,8 +51,14 @@ NS_ASSUME_NONNULL_BEGIN
 /** Resets the token that prevents the app delegate proxy from being isa swizzled multiple times. */
 + (void)resetProxyOriginalDelegateOnceToken;
 
+/** Returns the original app delegate that was proxied.
+ *
+ *  @return The original app delegate instance that was proxied.
+ */
++ (id<UIApplicationDelegate>)originalDelegate;
+
+#endif // GUL_APP_DELEGATE_TESTING
+
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif
