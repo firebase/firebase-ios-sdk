@@ -176,7 +176,10 @@ class WriteStream : public Stream {
 
   void WriteHandshake();
   void WriteMutations(NSArray<FSTMutation*>* mutations);
+
   bool IsHandshakeComplete() const { return is_handshake_complete_; }
+  // FIXME exists for tests
+  void SetHandshakeComplete() { is_handshake_complete_ = true; }
 
  private:
   std::shared_ptr<GrpcCall> DoCreateGrpcCall(

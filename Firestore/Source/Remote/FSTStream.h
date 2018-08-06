@@ -160,6 +160,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations;
 
+- (void) setHandshakeComplete;
+
 - (BOOL) isHandshakeComplete;
 
 - (NSData *) lastStreamToken;

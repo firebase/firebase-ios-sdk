@@ -138,6 +138,10 @@ using firebase::firestore::remote::WriteStream;
   impl_->WriteMutations(mutations);
 }
 
+- (void) setHandshakeComplete {
+  impl_->SetHandshakeComplete();
+}
+
 - (BOOL) isHandshakeComplete {
   return impl_->IsHandshakeComplete();
 }

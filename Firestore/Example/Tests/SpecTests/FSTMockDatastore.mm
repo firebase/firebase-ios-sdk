@@ -235,7 +235,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)writeHandshake {
   self.datastore.writeStreamRequestCount += 1;
-  self.handshakeComplete = YES;
+  [self setHandshakeComplete];
   [self.delegate writeStreamDidCompleteHandshake];
 }
 
