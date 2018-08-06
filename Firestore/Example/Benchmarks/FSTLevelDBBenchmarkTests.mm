@@ -22,7 +22,6 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"

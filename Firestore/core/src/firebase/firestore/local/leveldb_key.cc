@@ -824,7 +824,7 @@ std::string LevelDbRemoteDocumentKey::Key(const DocumentKey& key) {
   return writer.result();
 }
 
-bool LevelDbRemoteDocumentKey::Decode(leveldb::Slice key) {
+bool LevelDbRemoteDocumentKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kRemoteDocumentsTable);
   document_key_ = reader.ReadDocumentKey();

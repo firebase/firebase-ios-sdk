@@ -19,22 +19,21 @@
 #import <XCTest/XCTest.h>
 
 #include <string>
-
-#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
+#include <vector>
 
 #import "Firestore/Example/Tests/Local/FSTMutationQueueTests.h"
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
+#import "Firestore/Source/Local/FSTLevelDB.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
+#include "absl/strings/string_view.h"
 #include "leveldb/db.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::StringView;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::util::OrderedCode;
@@ -58,7 +57,7 @@ static const char *kDummy = "1";
  * Creates a key that's structurally the same as LevelDbMutationKey except it allows for
  * nonstandard table names.
  */
-std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batchID) {
+std::string MutationLikeKey(absl::string_view table, absl::string_view userID, FSTBatchID batchID) {
   std::string key;
   OrderedCode::WriteString(&key, table);
   OrderedCode::WriteString(&key, userID);
@@ -119,9 +118,9 @@ std::string MutationLikeKey(StringView table, StringView userID, FSTBatchID batc
 
 - (void)testLoadNextBatchID_onlyFindsMutations {
   // Write higher-valued batchIDs in nearby "tables"
-  auto tables = @[ @"mutatio", @"mutationsa", @"bears", @"zombies" ];
+  std::vector<std::string> tables{"mutatio", "mutationsa", "bears", "zombies"};
   FSTBatchID highBatchID = 5;
-  for (NSString *table in tables) {
+  for (const auto &table : tables) {
     [self setDummyValueForKey:MutationLikeKey(table, "", highBatchID++)];
   }
 

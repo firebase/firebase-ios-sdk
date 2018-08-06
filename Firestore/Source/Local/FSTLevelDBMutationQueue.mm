@@ -25,7 +25,6 @@
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Model/FSTMutationBatch.h"
@@ -45,7 +44,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 namespace util = firebase::firestore::util;
-using Firestore::StringView;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::DescribeKey;
 using firebase::firestore::local::LevelDbDocumentMutationKey;

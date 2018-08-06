@@ -22,7 +22,6 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"

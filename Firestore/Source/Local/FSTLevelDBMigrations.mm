@@ -19,7 +19,6 @@
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"

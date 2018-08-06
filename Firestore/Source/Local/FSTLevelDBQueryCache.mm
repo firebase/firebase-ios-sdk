@@ -23,7 +23,6 @@
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 
@@ -37,7 +36,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using Firestore::StringView;
 using firebase::firestore::local::DescribeKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;

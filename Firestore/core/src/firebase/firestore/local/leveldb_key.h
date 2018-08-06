@@ -487,7 +487,7 @@ class LevelDbRemoteDocumentKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
-  bool Decode(leveldb::Slice key);
+  bool Decode(absl::string_view key);
 
   /** The path to the document, as encoded in the key. */
   const model::DocumentKey& document_key() const {
