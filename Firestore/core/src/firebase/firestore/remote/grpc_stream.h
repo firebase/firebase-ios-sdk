@@ -35,6 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -53,95 +54,10 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-namespace internal {
-
-// Contains operations that are still delegated to Objective-C, notably proto
-// parsing.
-class SerializerBridge {
- public:
-  explicit SerializerBridge(FSTSerializerBeta* serializer)
-      : serializer_{serializer} {
-  }
-
-  grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
-  grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
-  grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations,
-                                const std::string& last_stream_token);
-
-  FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
-  model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
-
-  std::string ToStreamToken(GCFSWriteResponse* proto) const;
-  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*> ToMutationResults(GCFSWriteResponse* proto) const;
-
-  GCFSListenResponse* ParseListenResponse(GCFSListenResponse* proto) const;
-
-  grpc::ByteBuffer CreateHandshake() const;
-
-  template <typename Proto>
-  Proto* ParseResponse(const grpc::ByteBuffer& buffer) const {
-    NSError* error;
-    auto* proto = [Proto parseFromData:ToNsData(buffer) error:error];
-    // FIXME OBC
-    if (error) {
-      NSDictionary* info = @{
-        NSLocalizedDescriptionKey : @"Unable to parse response from the server",
-        NSUnderlyingErrorKey : error,
-        @"Expected class" : [proto class],
-        @"Received value" : ToNsData(message),
-      };
-      LOG_DEBUG("%s", [info description]);
-
-      return nil;
-    }
-
-    return proto;
-  }
-
- private:
-  grpc::ByteBuffer ToByteBuffer(NSData* data) const;
-  NSData* ToNsData(const grpc::ByteBuffer& buffer) const;
-
-  FSTSerializerBeta* serializer_;
-};
-
-class WatchStreamDelegateBridge {
- public:
-  explicit WatchStreamDelegateBridge(id delegate) : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnChange(FSTWatchChange* change,
-                              const model::SnapshotVersion& snapshot_version);
-  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
-
- private:
-  id delegate_;
-};
-
-class WriteStreamDelegateBridge {
- public:
-  explicit WriteStreamDelegateBridge(id delegate) : delegate_{delegate} {
-  }
-
-  void NotifyDelegateOnOpen();
-  void NotifyDelegateOnHandshakeComplete();
-  void NotifyDelegateOnCommit(NSArray<FSTMutationResult*>* results,
-                                const model::SnapshotVersion& commit_version);
-  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
-
- private:
-  id delegate_;
-};
-
-}  // namespace internal
-
 class Stream : public std::enable_shared_from_this<Stream> {
  public:
   Stream(util::AsyncQueue* async_queue,
          auth::CredentialsProvider* credentials_provider,
-         FSTSerializerBeta* serializer,
          Datastore* datastore,
          util::TimerId backoff_timer_id,
          util::TimerId idle_timer_id);
@@ -168,9 +84,6 @@ class Stream : public std::enable_shared_from_this<Stream> {
  protected:
   void EnsureOnQueue();
   void BufferedWrite(const grpc::ByteBuffer& message);
-  // TODO OBC: make one for each derived class, they have very little overlap
-  // (and what overlap there is can be a shared free function).
-  internal::SerializerBridge serializer_bridge_;
 
  private:
   friend class BufferedWriter;
@@ -249,7 +162,8 @@ class WatchStream : public Stream {
   void DoOnStreamWrite() override;
   void DoOnStreamFinish(FirestoreErrorCode error) override;
 
-  internal::WatchStreamDelegateBridge delegate_bridge_;
+  bridge::WatchStreamSerializer serializer_bridge_;
+  bridge::WatchStreamDelegate delegate_bridge_;
 };
 
 class WriteStream : public Stream {
@@ -270,7 +184,8 @@ class WriteStream : public Stream {
   void DoOnStreamWrite() override;
   void DoOnStreamFinish(FirestoreErrorCode error) override;
 
-  internal::WriteStreamDelegateBridge delegate_bridge_;
+  bridge::WriteStreamSerializer serializer_bridge_;
+  bridge::WriteStreamDelegate delegate_bridge_;
   bool is_handshake_complete_{false};
   std::string last_stream_token_;
 };

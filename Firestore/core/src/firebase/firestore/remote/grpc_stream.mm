@@ -127,143 +127,8 @@ class StreamFinish : public StreamOperation {
   grpc::Status grpc_status_;
 };
 
-}  // namespace
-
-namespace internal {
-
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTQueryData* query) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.addTarget = [serializer_ encodedTarget:query];
-  request.labels = [serializer_ encodedListenRequestLabelsForQueryData:query];
-
-  return ToByteBuffer([request data]);
-}
-
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(FSTTargetID target_id) const {
-  GCFSListenRequest* request = [GCFSListenRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  request.removeTarget = target_id;
-
-  return ToByteBuffer([request data]);
-}
-
-grpc::ByteBuffer SerializerBridge::CreateHandshake() const {
-  // The initial request cannot contain mutations, but must contain a projectID.
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.database = [serializer_ encodedDatabaseID];
-  return ToByteBuffer([request data]);
-}
-
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(
-    NSArray<FSTMutation*>* mutations, const std::string& last_stream_token) {
-  NSMutableArray<GCFSWrite*>* protos =
-      [NSMutableArray arrayWithCapacity:mutations.count];
-  for (FSTMutation* mutation in mutations) {
-    [protos addObject:[_serializer encodedMutation:mutation]];
-  };
-
-  GCFSWriteRequest* request = [GCFSWriteRequest message];
-  request.writesArray = protos;
-  request.streamToken = util::MakeNSString(last_stream_token);
-  return ToByteBuffer([request data]);
-}
-
-grpc::ByteBuffer SerializerBridge::ToByteBuffer(NSData* data) const {
-  const grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
-FSTWatchChange* SerializerBridge::ToWatchChange(
-    GCFSListenResponse* proto) const {
-  return [serializer_ decodedWatchChange:proto];
-}
-
-SnapshotVersion SerializerBridge::ToSnapshotVersion(
-    GCFSListenResponse* proto) const {
-  return [serializer_ versionFromListenResponse:proto];
-}
-
-std::string SerializerBridge::ToStreamToken(GCFSWriteResponse* proto) const {
-  return util::MakeString(proto.streamToken);
-}
-
-model::SnapshotVersion SerializerBridge::ToCommitVersion(
-    GCFSWriteResponse* proto) const {
-  return [_serializer decodedVersion:proto.commitTime];
-}
-
-NSArray<FSTMutationResult*> SerializerBridge::ToMutationResults(
-    GCFSWriteResponse* proto) const {
-  NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
-  NSMutableArray<FSTMutationResult*>* results =
-      [NSMutableArray arrayWithCapacity:protos.count];
-  for (GCFSWriteResult* proto in protos) {
-    [results addObject:[_serializer decodedMutationResult:proto]];
-  };
-  return results;
-}
-
-NSData* SerializerBridge::ToNsData(const grpc::ByteBuffer& buffer) const {
-  std::vector<grpc::Slice> slices;
-  const grpc::Status status = buffer.Dump(&slices);
-  HARD_ASSERT(status.ok(), "Trying to convert a corrupted grpc::ByteBuffer");
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
-void WatchStreamDelegateBridge::NotifyDelegateOnOpen() {
-  id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
-}
-
-NSError* WatchStreamDelegateBridge::NotifyDelegateOnChange(
-    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:ToWatchChange(proto)
-                 snapshotVersion:ToSnapshotVersion(proto)];
-}
-
-void WatchStreamDelegateBridge::NotifyDelegateOnStreamFinished(
-    const FirestoreErrorCode error_code) {
-  id<FSTStreamDelegate> delegate = delegate_;
-  NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
-  [delegate watchStreamWasInterruptedWithError:error];
-}
-
-void WriteStreamDelegateBridge::NotifyDelegateOnOpen() {
-  id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
-}
-
-NSError* WriteStreamDelegateBridge::NotifyDelegateOnChange(
-    FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:ToWatchChange(proto)
-                 snapshotVersion:ToSnapshotVersion(proto)];
-}
-
-void WriteStreamDelegateBridge::NotifyDelegateOnStreamFinished(
-    const FirestoreErrorCode error_code) {
-  id<FSTStreamDelegate> delegate = delegate_;
-  NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
-  [delegate watchStreamWasInterruptedWithError:error];
-}
-
-}  // namespace
-
 Stream::Stream(AsyncQueue* const async_queue,
                CredentialsProvider* const credentials_provider,
-               FSTSerializerBeta* serializer,
                Datastore* const datastore,
                const TimerId backoff_timer_id,
                const TimerId idle_timer_id)
@@ -271,7 +136,6 @@ Stream::Stream(AsyncQueue* const async_queue,
       credentials_provider_{credentials_provider},
       datastore_{datastore},
       buffered_writer_{this},
-      serializer_bridge_{serializer},
       backoff_{firestore_queue_, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
       idle_timer_id_{idle_timer_id} {
@@ -570,10 +434,10 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
                          id delegate)
     : Stream{async_queue,
              credentials_provider,
-             serializer,
              datastore,
              TimerId::ListenStreamConnectionBackoff,
              TimerId::ListenStreamIdle},
+      serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
 }
 
@@ -617,6 +481,17 @@ void WatchStream::DoOnStreamFinish(const FirestoreErrorCode error) {
 }
 
 // Write stream
+
+WriteStream::WriteStream(AsyncQueue* const async_queue,
+                         CredentialsProvider* const credentials_provider,
+                         FSTSerializerBeta* serializer,
+                         Datastore* const datastore,
+                         id delegate)
+    : Stream{async_queue, credentials_provider, datastore,
+             TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
+      serializer_bridge_{serializer},
+      delegate_bridge_{delegate} {
+}
 
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
