@@ -136,7 +136,8 @@ static id<UIApplicationDelegate> gOriginalAppDelegate;
     if ([oldValue isEqual:gOriginalAppDelegate]) {
       gOriginalAppDelegate = nil;
       // Remove the observer. Parse it to NSObject to avoid warning.
-      [[GULAppDelegateSwizzler sharedApplication] removeObserver:self forKeyPath:kGULAppDelegateKeyPath];
+      [[GULAppDelegateSwizzler sharedApplication] removeObserver:self
+                                                      forKeyPath:kGULAppDelegateKeyPath];
       _isObserving = NO;
     }
   }
@@ -239,7 +240,8 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 + (void)proxyOriginalDelegate {
   dispatch_once(&sProxyAppDelegateOnceToken, ^{
-    id<UIApplicationDelegate> originalDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+    id<UIApplicationDelegate> originalDelegate =
+        [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
   });
 }
