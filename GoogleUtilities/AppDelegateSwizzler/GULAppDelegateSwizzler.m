@@ -246,10 +246,6 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 #pragma mark - Create proxy
 
-/** Returns the current sharedApplication.
- *
- *  @return the current UIApplication if in an app, or nil if in extension or if it doesn't exist.
- */
 + (UIApplication *)sharedApplication {
   // YES if the bundle is an app extension.
   if ([[NSBundle mainBundle].bundlePath hasSuffix:@".appex"]) {
