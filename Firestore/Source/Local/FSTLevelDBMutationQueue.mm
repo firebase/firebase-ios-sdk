@@ -19,6 +19,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
@@ -89,7 +90,9 @@ using leveldb::WriteOptions;
                            serializer:(FSTLocalSerializer *)serializer {
   std::string userID = user.is_authenticated() ? user.uid() : "";
 
-  return [[FSTLevelDBMutationQueue alloc] initWithUserID:std::move(userID) db:db serializer:serializer];
+  return [[FSTLevelDBMutationQueue alloc] initWithUserID:std::move(userID)
+                                                      db:db
+                                              serializer:serializer];
 }
 
 - (instancetype)initWithUserID:(std::string)userID
@@ -345,8 +348,8 @@ using leveldb::WriteOptions;
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const DocumentKey &)documentKey {
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
-  std::string indexPrefix = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:_userID
-                                                                  resourcePath:documentKey.path()];
+  std::string indexPrefix =
+      [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:_userID resourcePath:documentKey.path()];
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
 
