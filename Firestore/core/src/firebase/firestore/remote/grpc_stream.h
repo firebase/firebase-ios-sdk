@@ -115,8 +115,6 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void OnConnectionBroken();
   void HalfCloseConnection();
 
-  void RaiseGeneration();
-
   template <typename Op, typename... Args>
   void Execute(Args... args) {
     auto* operation = new Op(this, grpc_call_, generation(), args...);
@@ -173,8 +171,11 @@ class WriteStream : public Stream {
               Datastore* datastore,
               id delegate);
 
+  void SetLastStreamToken(std::string token) { last_stream_token_ = std::move(token); }
+  //  GetLastStreamToken base64EncodedStringWithOptions:0
   void WriteHandshake();
   void WriteMutations(NSArray<FSTMutation*>* mutations);
+  bool IsHandshakeComplete() const { return is_handshake_complete_; }
 
  private:
   std::shared_ptr<GrpcCall> DoCreateGrpcCall(

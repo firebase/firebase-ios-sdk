@@ -318,11 +318,12 @@ void Stream::OnStreamWrite(const bool ok) {
 void Stream::Stop() {
   EnsureOnQueue();
 
-  RaiseGeneration();
   if (!IsStarted()) {
     return;
   }
+  ++generation_; // This means the stream will NOT get `OnStreamFinish`.
 
+  client_side_error_ = false;
   buffered_writer_.Stop();
   HalfCloseConnection();
   // If this is an intentional close, ensure we don't delay our next connection
@@ -332,16 +333,9 @@ void Stream::Stop() {
   state_ = State::Initial;
 }
 
-void Stream::RaiseGeneration() {
-  if (IsStarted()) {
-    ++generation_;
-  }
-}
-
 void Stream::OnConnectionBroken() {
   EnsureOnQueue();
 
-  RaiseGeneration();
   if (!IsOpen()) {
     return;
   }
@@ -359,6 +353,10 @@ void Stream::HalfCloseConnection() {
   }
 
   Execute<StreamFinish>();
+  // After a GRPC call finishes, it will no longer valid, so there is no reason
+  // to hold on to it now that a finish operation has been added (the operation
+  // has its own `shared_ptr` to the call).
+  grpc_call_.reset();
 }
 
 void Stream::OnStreamFinish(const util::Status status) {
@@ -382,10 +380,6 @@ void Stream::OnStreamFinish(const util::Status status) {
   client_side_error_ = false;
 
   DoOnStreamFinish(error);
-
-  // After a GRPC call has been finished, it is no longer valid. Pending
-  // operations, if any, have their own `shared_ptr` to the call.
-  grpc_call_.reset();
 }
 
 void Stream::StopDueToIdleness() {
@@ -398,7 +392,7 @@ void Stream::StopDueToIdleness() {
   // When timing out an idle stream there's no reason to force the stream
   // into backoff when it restarts.
   CancelBackoff();
-  state_ = State::Initial;  // FIXME to distinguish from other stop cases.
+  state_ = State::Initial;
 }
 
 // Check state

@@ -103,11 +103,6 @@ static const int kMaxPendingWrites = 10;
 
 @property(nonatomic, strong, nullable) FSTWatchChangeAggregator *watchChangeAggregator;
 
-#pragma mark Write Stream
-// The writeStream is null when the network is disabled. The non-null check is performed by
-// isNetworkEnabled.
-@property(nonatomic, strong, nullable) FSTWriteStream *writeStream;
-
 /**
  * A FIFO queue of in-flight writes. This is in-flight from the point of view of the caller of
  * writeMutations, not from the point of view from the Datastore itself. In particular, these
@@ -117,9 +112,9 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
-  // The watchStream is null when the network is disabled. The non-null check is performed by
-  // isNetworkEnabled.
   std::shared_ptr<firebase::firestore::remote::WatchStream> _watchStream;
+  std::shared_ptr<firebase::firestore::remote::WriteStream> _writeStream;
+  BOOL _isNetworkEnabled;
 }
 
 - (instancetype)initWithLocalStore:(FSTLocalStore *)localStore
@@ -155,10 +150,7 @@ static const int kMaxPendingWrites = 10;
 #pragma mark Online/Offline state
 
 - (BOOL)isNetworkEnabled {
-  // HARD_ASSERT((self.watchStream == nil) == (self.writeStream == nil),
-  //            "WatchStream and WriteStream should both be null or non-null");
-  // return self.watchStream != nil;
-  return _watchStream != nullptr;
+  return _isNetworkEnabled;
 }
 
 - (void)enableNetwork {
@@ -168,10 +160,11 @@ static const int kMaxPendingWrites = 10;
 
   // Create new streams (but note they're not started yet).
   _watchStream = [self.datastore createWatchStreamWithDelegate:self];
-  self.writeStream = [self.datastore createWriteStream];
+  _writeStream = [self.datastore createWriteStreamWithDelegate:self];
 
   // Load any saved stream token from persistent storage
-  self.writeStream.lastStreamToken = [self.localStore lastStreamToken];
+  std::string last_stream_token = util::MakeString([[NSString alloc] initWithData:[self.localStore lastStreamToken] encoding:NSUTF8StringEncoding]);
+  _writeStream->SetLastStreamToken(std::move(last_stream_token));
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
@@ -194,13 +187,10 @@ static const int kMaxPendingWrites = 10;
     // NOTE: We're guaranteed not to get any further events from these streams (not even a close
     // event).
     _watchStream->Stop();
-    [self.writeStream stop];
+    _writeStream->Stop();
 
     [self cleanUpWatchStreamState];
     [self cleanUpWriteStreamState];
-
-    _watchStream.reset();
-    self.writeStream = nil;
   }
 }
 
@@ -439,14 +429,14 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.pendingWrites.count > 0;
+  return [self isNetworkEnabled] && !_writeStream->IsStarted() && self.pendingWrites.count > 0;
 }
 
 - (void)startWriteStream {
   HARD_ASSERT([self shouldStartWriteStream],
               "startWriteStream: called when shouldStartWriteStream: is false.");
 
-  [self.writeStream startWithDelegate:self];
+  _writeStream->Start();
 }
 
 - (void)cleanUpWriteStreamState {
@@ -466,7 +456,7 @@ static const int kMaxPendingWrites = 10;
     }
 
     if ([self.pendingWrites count] == 0) {
-      [self.writeStream markIdle];
+      _writeStream->MarkIdle();
     }
   }
 }
@@ -494,13 +484,13 @@ static const int kMaxPendingWrites = 10;
 
   if ([self shouldStartWriteStream]) {
     [self startWriteStream];
-  } else if ([self isNetworkEnabled] && self.writeStream.handshakeComplete) {
-    [self.writeStream writeMutations:batch.mutations];
+  } else if ([self isNetworkEnabled] && _writeStream->IsHandshakeComplete()) {
+    _writeStream->WriteMutations(batch.mutations);
   }
 }
 
 - (void)writeStreamDidOpen {
-  [self.writeStream writeHandshake];
+  _writeStream->WriteHandshake();
 }
 
 /**
@@ -509,7 +499,7 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)writeStreamDidCompleteHandshake {
   // Record the stream token.
-  [self.localStore setLastStreamToken:self.writeStream.lastStreamToken];
+  [self.localStore setLastStreamToken:_writeStream.GetLastStreamToken()];
 
   // Drain any pending writes.
   //
@@ -522,7 +512,7 @@ static const int kMaxPendingWrites = 10;
   // limits imposed by canWriteMutations actually protect us from DOSing ourselves then those limits
   // won't be exceeded here and we'll continue to make progress.
   for (FSTMutationBatch *write in self.pendingWrites) {
-    [self.writeStream writeMutations:write.mutations];
+    _writeStream->WriteMutations(write.mutations);
   }
 }
 
@@ -539,7 +529,7 @@ static const int kMaxPendingWrites = 10;
       [FSTMutationBatchResult resultWithBatch:batch
                                 commitVersion:commitVersion
                               mutationResults:results
-                                  streamToken:self.writeStream.lastStreamToken];
+                                  streamToken:_writeStream->GetLastStreamToken()];
   [self.syncEngine applySuccessfulWriteWithResult:batchResult];
 
   // It's possible that with the completion of this mutation another slot has freed up.
@@ -557,7 +547,7 @@ static const int kMaxPendingWrites = 10;
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
   if (error != nil && self.pendingWrites.count > 0) {
-    if (self.writeStream.handshakeComplete) {
+    if (_writeStream->IsHandshakeComplete()) {
       // This error affects the actual writes.
       [self handleWriteError:error];
     } else {
@@ -577,10 +567,10 @@ static const int kMaxPendingWrites = 10;
   // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
-    NSString *token = [self.writeStream.lastStreamToken base64EncodedStringWithOptions:0];
+    NSString *token = util::WrapNSString([_writeStream->GetLastStreamToken()]);
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
-    self.writeStream.lastStreamToken = nil;
+    _writeStream.SetLastStreamToken("");
     [self.localStore setLastStreamToken:nil];
   }
 }
@@ -598,7 +588,7 @@ static const int kMaxPendingWrites = 10;
 
   // In this case it's also unlikely that the server itself is melting down--this was just a
   // bad request so inhibit backoff on the next restart.
-  [self.writeStream inhibitBackoff];
+  _writeStream->CancelBackoff();
 
   [self.syncEngine rejectFailedWriteWithBatchID:batch.batchID error:error];
 
