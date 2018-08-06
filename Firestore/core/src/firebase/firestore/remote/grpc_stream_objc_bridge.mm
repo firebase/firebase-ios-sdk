@@ -83,7 +83,8 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
 
 }  // namespace
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(FSTQueryData* query) const {
+grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
+    FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.addTarget = [serializer_ encodedTarget:query];
@@ -92,7 +93,8 @@ grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(FSTQueryData* query) const 
   return ConvertToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(FSTTargetID target_id) const {
+grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
+    FSTTargetID target_id) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.removeTarget = target_id;
@@ -117,7 +119,8 @@ grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
 
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.writesArray = protos;
-  request.streamToken = util::WrapNSString(last_stream_token);
+  request.streamToken = [util::WrapNSString(last_stream_token)
+      dataUsingEncoding:NSUTF8StringEncoding];
   return ConvertToByteBuffer([request data]);
 }
 
@@ -131,12 +134,15 @@ SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
   return [serializer_ versionFromListenResponse:proto];
 }
 
-GCFSListenResponse* WatchStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+GCFSListenResponse* WatchStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message) const {
   return ToProto<GCFSListenResponse>(message);
 }
 
-std::string WriteStreamSerializer::ToStreamToken(GCFSWriteResponse* proto) const {
-  return util::MakeString(proto.streamToken);
+std::string WriteStreamSerializer::ToStreamToken(
+    GCFSWriteResponse* proto) const {
+  return util::MakeString([[NSString alloc] initWithData:proto.streamToken
+                                                encoding:NSUTF8StringEncoding]);
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
@@ -155,7 +161,8 @@ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
   return results;
 }
 
-GCFSWriteResponse* WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& message) const {
+GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message) const {
   return ToProto<GCFSWriteResponse>(message);
 }
 
@@ -167,8 +174,7 @@ void WatchStreamDelegate::NotifyDelegateOnOpen() {
 void WatchStreamDelegate::NotifyDelegateOnChange(
     FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:change
-                 snapshotVersion:snapshot_version];
+  [delegate watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
@@ -188,9 +194,12 @@ void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
   [delegate writeStreamDidCompleteHandshake];
 }
 
-void WriteStreamDelegate::NotifyDelegateOnCommit(const SnapshotVersion& commit_version, NSArray<FSTMutationResult*>* results) {
+void WriteStreamDelegate::NotifyDelegateOnCommit(
+    const SnapshotVersion& commit_version,
+    NSArray<FSTMutationResult*>* results) {
   id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamDidReceiveResponseWithVersion:commit_version mutationResults:results];
+  [delegate writeStreamDidReceiveResponseWithVersion:commit_version
+                                     mutationResults:results];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
@@ -199,7 +208,6 @@ void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate writeStreamWasInterruptedWithError:error];
 }
-
 }
 }
 }
