@@ -64,10 +64,10 @@ class WriteStreamSerializer {
   grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations,
                                 const std::string& last_stream_token);
 
-
   std::string ToStreamToken(GCFSWriteResponse* proto) const;
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*>* ToMutationResults(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*>* ToMutationResults(
+      GCFSWriteResponse* proto) const;
 
   GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message) const;
 
@@ -98,8 +98,8 @@ class WriteStreamDelegate {
 
   void NotifyDelegateOnOpen();
   void NotifyDelegateOnHandshakeComplete();
-  void NotifyDelegateOnCommit(NSArray<FSTMutationResult*>* results,
-                              const model::SnapshotVersion& commit_version);
+  void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
+                              NSArray<FSTMutationResult*>* results);
   void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
 
  private:

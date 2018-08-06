@@ -28,6 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/memory/memory.h"
 
+#include <vector>
+
 namespace firebase {
 namespace firestore {
 
@@ -58,7 +60,7 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
 template <typename Proto>
 Proto* ToProto(const grpc::ByteBuffer& message) {
   NSError* error;
-  auto* proto = [Proto parseFromData:ToNsData(message) error:error];
+  auto* proto = [Proto parseFromData:ToNsData(message) error:&error];
   // FIXME OBC
   if (error) {
     NSDictionary* info = @{
@@ -158,32 +160,42 @@ GCFSWriteResponse* WriteStreamSerializer::ParseResponse(const grpc::ByteBuffer& 
 }
 
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  id<FSTStreamDelegate> delegate = delegate_;
+  id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidOpen];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnChange(
     FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTStreamDelegate> delegate = delegate_;
+  id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamDidChange:change
                  snapshotVersion:snapshot_version];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
-  id<FSTStreamDelegate> delegate = delegate_;
+  id<FSTWatchStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate watchStreamWasInterruptedWithError:error];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
-  id<FSTStreamDelegate> delegate = delegate_;
+  id<FSTWriteStreamDelegate> delegate = delegate_;
   [delegate writeStreamDidOpen];
+}
+
+void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
+  id<FSTWriteStreamDelegate> delegate = delegate_;
+  [delegate writeStreamDidCompleteHandshake];
+}
+
+void WriteStreamDelegate::NotifyDelegateOnCommit(const SnapshotVersion& commit_version, NSArray<FSTMutationResult*>* results) {
+  id<FSTWriteStreamDelegate> delegate = delegate_;
+  [delegate writeStreamDidReceiveResponseWithVersion:commit_version mutationResults:results];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
-  id<FSTStreamDelegate> delegate = delegate_;
+  id<FSTWriteStreamDelegate> delegate = delegate_;
   NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
   [delegate writeStreamWasInterruptedWithError:error];
 }

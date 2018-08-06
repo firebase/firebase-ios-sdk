@@ -126,7 +126,6 @@ class StreamFinish : public StreamOperation {
 
   grpc::Status grpc_status_;
 };
-
 }
 
 Stream::Stream(AsyncQueue* const async_queue,
@@ -434,11 +433,8 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
                          FSTSerializerBeta* serializer,
                          Datastore* const datastore,
                          id delegate)
-    : Stream{async_queue,
-             credentials_provider,
-             datastore,
-             TimerId::ListenStreamConnectionBackoff,
-             TimerId::ListenStreamIdle},
+    : Stream{async_queue, credentials_provider, datastore,
+             TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
 }
@@ -465,10 +461,11 @@ void WatchStream::DoOnStreamStart() {
 
 bool WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   // TODO OBC proper error handling?
-  GCFSListenResponse* response =
-      serializer_bridge_.ParseResponse(message);
+  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message);
   if (response) {
-    delegate_bridge_.NotifyDelegateOnChange(serializer_bridge_.ToWatchChange(response), serializer_bridge_.ToSnapshotVersion(response));
+    delegate_bridge_.NotifyDelegateOnChange(
+        serializer_bridge_.ToWatchChange(response),
+        serializer_bridge_.ToSnapshotVersion(response));
     return true;
   }
   return false;
@@ -534,7 +531,8 @@ void WriteStream::DoOnStreamWrite() {
   // OBC is this logic necessary? We finish the stream gracefully.
   // (void) tearDown {
   // if ([self isHandshakeComplete]) {
-  //   // Send an empty write request to the backend to indicate imminent stream closure. This allows
+  //   // Send an empty write request to the backend to indicate imminent stream
+  //   closure. This allows
   //   // the backend to clean up resources.
   //   [self writeMutations:@[]];
   // }
@@ -567,8 +565,8 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
     CancelBackoff();
 
     delegate_bridge_.NotifyDelegateOnCommit(
-        serializer_bridge_.ToMutationResults(response),
-        serializer_bridge_.ToCommitVersion(response));
+        serializer_bridge_.ToCommitVersion(response),
+        serializer_bridge_.ToMutationResults(response));
   }
 
   return true;
