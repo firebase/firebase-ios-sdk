@@ -111,7 +111,7 @@ using leveldb::Status;
   } while (0)
 
 - (void)testDropsTheQueryCache {
-  NSString *userID = @"user";
+  std::string userID{"user"};
   FSTBatchID batchID = 1;
   FSTTargetID targetID = 2;
 

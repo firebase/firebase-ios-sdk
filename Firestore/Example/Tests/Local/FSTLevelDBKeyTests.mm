@@ -49,7 +49,7 @@ static std::string RemoteDocKeyPrefix(NSString *pathString) {
       keyPrefixWithResourcePath:testutil::Resource(util::MakeStringView(pathString))];
 }
 
-static std::string DocMutationKey(NSString *userID, NSString *key, FSTBatchID batchID) {
+static std::string DocMutationKey(const std::string &userID, NSString *key, FSTBatchID batchID) {
   return [FSTLevelDBDocumentMutationKey keyWithUserID:userID
                                           documentKey:FSTTestDocKey(key)
                                               batchID:batchID];
@@ -157,19 +157,19 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
 
 - (void)testDocumentMutationKeyOrdering {
   // Different user:
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0), DocMutationKey(@"10", @"foo/bar", 0));
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0), DocMutationKey(@"2", @"foo/bar", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("10", @"foo/bar", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("2", @"foo/bar", 0));
 
   // Different paths:
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0), DocMutationKey(@"1", @"foo/baz", 0));
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0), DocMutationKey(@"1", @"foo/bar2", 0));
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0),
-                       DocMutationKey(@"1", @"foo/bar/suffix/key", 0));
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar/suffix/key", 0),
-                       DocMutationKey(@"1", @"foo/bar2", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/baz", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/bar2", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0),
+                       DocMutationKey("1", @"foo/bar/suffix/key", 0));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar/suffix/key", 0),
+                       DocMutationKey("1", @"foo/bar2", 0));
 
   // Different batchID:
-  FSTAssertKeyLessThan(DocMutationKey(@"1", @"foo/bar", 0), DocMutationKey(@"1", @"foo/bar", 1));
+  FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/bar", 1));
 }
 
 - (void)testTargetGlobalKeyEncodeDecodeCycle {
