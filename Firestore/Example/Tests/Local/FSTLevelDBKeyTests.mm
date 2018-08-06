@@ -22,11 +22,13 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 
 namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
+using firebase::firestore::local::DescribeKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,22 +63,12 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   return [FSTLevelDBDocumentTargetKey keyWithDocumentKey:FSTTestDocKey(key) targetID:targetID];
 }
 
-/**
- * Asserts that the description for given key is equal to the expected description.
- *
- * @param key A StringView of a textual key
- * @param key An NSString that [FSTLevelDBKey descriptionForKey:] is expected to produce.
- */
-#define FSTAssertExpectedKeyDescription(key, expectedDescription) \
-  XCTAssertEqualObjects([FSTLevelDBKey descriptionForKey:(key)], (expectedDescription))
-
 #define FSTAssertKeyLessThan(left, right)                                           \
   do {                                                                              \
     std::string leftKey = (left);                                                   \
     std::string rightKey = (right);                                                 \
-    XCTAssertLessThan(leftKey.compare(right), 0, @"Expected %@ to be less than %@", \
-                      [FSTLevelDBKey descriptionForKey:leftKey],                    \
-                      [FSTLevelDBKey descriptionForKey:rightKey]);                  \
+    XCTAssertLessThan(leftKey.compare(right), 0, @"Expected %s to be less than %s", \
+                      DescribeKey(leftKey).c_str(), DescribeKey(rightKey).c_str()); \
   } while (0)
 
 @implementation FSTLevelDBKeyTests
@@ -113,24 +105,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
     XCTAssertEqual(key.userID, user);
     XCTAssertEqual(key.batchID, batchID);
   }
-}
-
-- (void)testMutationKeyDescription {
-  FSTAssertExpectedKeyDescription([FSTLevelDBMutationKey keyPrefix], @"[mutation: incomplete key]");
-
-  FSTAssertExpectedKeyDescription([FSTLevelDBMutationKey keyPrefixWithUserID:@"user1"],
-                                  @"[mutation: userID=user1 incomplete key]");
-
-  auto key = [FSTLevelDBMutationKey keyWithUserID:@"user1" batchID:42];
-  FSTAssertExpectedKeyDescription(key, @"[mutation: userID=user1 batchID=42]");
-
-  FSTAssertExpectedKeyDescription(key + " extra",
-                                  @"[mutation: userID=user1 batchID=42 invalid "
-                                  @"key=<hW11dGF0aW9uAAGNdXNlcjEAAYqqgCBleHRyYQ==>]");
-
-  // Truncate the key so that it's missing its terminator.
-  key.resize(key.size() - 1);
-  FSTAssertExpectedKeyDescription(key, @"[mutation: userID=user1 batchID=42 incomplete key]");
 }
 
 - (void)testDocumentMutationKeyPrefixing {
@@ -198,34 +172,12 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   FSTAssertKeyLessThan(DocMutationKey("1", @"foo/bar", 0), DocMutationKey("1", @"foo/bar", 1));
 }
 
-- (void)testDocumentMutationKeyDescription {
-  FSTAssertExpectedKeyDescription([FSTLevelDBDocumentMutationKey keyPrefix],
-                                  @"[document_mutation: incomplete key]");
-
-  FSTAssertExpectedKeyDescription([FSTLevelDBDocumentMutationKey keyPrefixWithUserID:@"user1"],
-                                  @"[document_mutation: userID=user1 incomplete key]");
-
-  auto key = [FSTLevelDBDocumentMutationKey keyPrefixWithUserID:@"user1"
-                                                   resourcePath:testutil::Resource("foo/bar")];
-  FSTAssertExpectedKeyDescription(key,
-                                  @"[document_mutation: userID=user1 key=foo/bar incomplete key]");
-
-  key = [FSTLevelDBDocumentMutationKey keyWithUserID:@"user1"
-                                         documentKey:FSTTestDocKey(@"foo/bar")
-                                             batchID:42];
-  FSTAssertExpectedKeyDescription(key, @"[document_mutation: userID=user1 key=foo/bar batchID=42]");
-}
-
 - (void)testTargetGlobalKeyEncodeDecodeCycle {
   FSTLevelDBTargetGlobalKey *key = [[FSTLevelDBTargetGlobalKey alloc] init];
 
   auto encoded = [FSTLevelDBTargetGlobalKey key];
   BOOL ok = [key decodeKey:encoded];
   XCTAssertTrue(ok);
-}
-
-- (void)testTargetGlobalKeyDescription {
-  FSTAssertExpectedKeyDescription([FSTLevelDBTargetGlobalKey key], @"[target_global:]");
 }
 
 - (void)testTargetKeyEncodeDecodeCycle {
@@ -238,11 +190,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   XCTAssertEqual(key.targetID, targetID);
 }
 
-- (void)testTargetKeyDescription {
-  FSTAssertExpectedKeyDescription([FSTLevelDBTargetKey keyWithTargetID:42],
-                                  @"[target: targetID=42]");
-}
-
 - (void)testQueryTargetKeyEncodeDecodeCycle {
   FSTLevelDBQueryTargetKey *key = [[FSTLevelDBQueryTargetKey alloc] init];
   std::string canonicalID("foo");
@@ -253,11 +200,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   XCTAssertTrue(ok);
   XCTAssertEqual(key.canonicalID, canonicalID);
   XCTAssertEqual(key.targetID, targetID);
-}
-
-- (void)testQueryKeyDescription {
-  FSTAssertExpectedKeyDescription([FSTLevelDBQueryTargetKey keyWithCanonicalID:"foo" targetID:42],
-                                  @"[query_target: canonicalID=foo targetID=42]");
 }
 
 - (void)testTargetDocumentKeyEncodeDecodeCycle {
@@ -287,8 +229,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
 
 - (void)testTargetDocumentKeyDescription {
   auto key = [FSTLevelDBTargetDocumentKey keyWithTargetID:42 documentKey:FSTTestDocKey(@"foo/bar")];
-  XCTAssertEqualObjects([FSTLevelDBKey descriptionForKey:key],
-                        @"[target_document: targetID=42 key=foo/bar]");
 }
 
 - (void)testDocumentTargetKeyEncodeDecodeCycle {
@@ -300,12 +240,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
   XCTAssertTrue(ok);
   XCTAssertEqualObjects(key.documentKey, FSTTestDocKey(@"foo/bar"));
   XCTAssertEqual(key.targetID, 42);
-}
-
-- (void)testDocumentTargetKeyDescription {
-  auto key = [FSTLevelDBDocumentTargetKey keyWithDocumentKey:FSTTestDocKey(@"foo/bar") targetID:42];
-  XCTAssertEqualObjects([FSTLevelDBKey descriptionForKey:key],
-                        @"[document_target: key=foo/bar targetID=42]");
 }
 
 - (void)testDocumentTargetKeyOrdering {
@@ -353,12 +287,6 @@ static std::string DocTargetKey(NSString *key, FSTTargetID targetID) {
     XCTAssertTrue(ok);
     XCTAssertEqualObjects(key.documentKey, FSTTestDocKey(path));
   }
-}
-
-- (void)testRemoteDocumentKeyDescription {
-  FSTAssertExpectedKeyDescription(
-      [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:FSTTestDocKey(@"foo/bar/baz/quux")],
-      @"[remote_document: key=foo/bar/baz/quux]");
 }
 
 @end
