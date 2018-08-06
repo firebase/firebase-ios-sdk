@@ -198,7 +198,7 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
   grpc_call_ = DoCreateGrpcCall(datastore_, token);
 
   Execute<StreamStart>();
-  // TODO: set state to open here, or only upon successful completion?
+  // TODO OBC: set state to open here, or only upon successful completion?
   // Objective-C does it here. C++, for now at least, does it upon successful
   // completion.
 }
@@ -486,6 +486,14 @@ WriteStream::WriteStream(AsyncQueue* const async_queue,
       delegate_bridge_{delegate} {
 }
 
+void WriteStream::SetLastStreamToken(NSData* token) {
+  serializer_bridge_.SetLastStreamToken(token);
+}
+
+NSData* WriteStream::GetLastStreamToken() const {
+  return serializer_bridge_.GetLastStreamToken();
+}
+
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Not yet open");
@@ -506,7 +514,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
   // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
   // request);
-  BufferedWrite(serializer_bridge_.ToByteBuffer(mutations, last_stream_token_));
+  BufferedWrite(serializer_bridge_.ToByteBuffer(mutations));
 }
 
 // Private interface
@@ -546,7 +554,7 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
     return false;
   }
 
-  last_stream_token_ = serializer_bridge_.ToStreamToken(response);
+  SetLastStreamToken(serializer_bridge_.ToStreamToken(response));
 
   if (!is_handshake_complete_) {
     // The first response is the handshake response

@@ -163,8 +163,7 @@ static const int kMaxPendingWrites = 10;
   _writeStream = [self.datastore createWriteStreamWithDelegate:self];
 
   // Load any saved stream token from persistent storage
-  std::string last_stream_token = util::MakeString([[NSString alloc] initWithData:[self.localStore lastStreamToken] encoding:NSUTF8StringEncoding]);
-  _writeStream->SetLastStreamToken(std::move(last_stream_token));
+  _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
@@ -499,7 +498,7 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)writeStreamDidCompleteHandshake {
   // Record the stream token.
-  [self.localStore setLastStreamToken:_writeStream.GetLastStreamToken()];
+  [self.localStore setLastStreamToken:_writeStream->GetLastStreamToken()];
 
   // Drain any pending writes.
   //
@@ -567,10 +566,10 @@ static const int kMaxPendingWrites = 10;
   // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
-    NSString *token = util::WrapNSString([_writeStream->GetLastStreamToken()]);
+    NSString *token = [_writeStream->GetLastStreamToken() base64EncodedStringWithOptions:0];
     LOG_DEBUG("FSTRemoteStore %s error before completed handshake; resetting stream token %s: %s",
               (__bridge void *)self, token, error);
-    _writeStream.SetLastStreamToken("");
+    _writeStream->SetLastStreamToken(nil);
     [self.localStore setLastStreamToken:nil];
   }
 }

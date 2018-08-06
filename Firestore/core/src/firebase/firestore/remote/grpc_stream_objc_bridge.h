@@ -61,8 +61,12 @@ class WriteStreamSerializer {
       : serializer_{serializer} {
   }
 
-  grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations,
-                                const std::string& last_stream_token);
+  void SetLastStreamToken(NSData* token) { last_stream_token_ = token; }
+  NSData* GetLastStreamToken() const {
+    return last_stream_token_;
+  }
+
+  grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations);
 
   std::string ToStreamToken(GCFSWriteResponse* proto) const;
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
@@ -75,6 +79,7 @@ class WriteStreamSerializer {
 
  private:
   FSTSerializerBeta* serializer_;
+  NSData* last_stream_token_;
 };
 
 class WatchStreamDelegate {

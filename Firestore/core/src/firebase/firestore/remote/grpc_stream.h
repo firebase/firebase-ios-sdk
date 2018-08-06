@@ -171,8 +171,9 @@ class WriteStream : public Stream {
               Datastore* datastore,
               id delegate);
 
-  void SetLastStreamToken(std::string token) { last_stream_token_ = std::move(token); }
-  //  GetLastStreamToken base64EncodedStringWithOptions:0
+  void SetLastStreamToken(NSData* token);
+  NSData* GetLastStreamToken() const;
+
   void WriteHandshake();
   void WriteMutations(NSArray<FSTMutation*>* mutations);
   bool IsHandshakeComplete() const { return is_handshake_complete_; }

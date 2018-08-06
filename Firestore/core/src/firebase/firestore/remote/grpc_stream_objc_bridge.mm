@@ -110,7 +110,7 @@ grpc::ByteBuffer WriteStreamSerializer::CreateHandshake() const {
 }
 
 grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    NSArray<FSTMutation*>* mutations, const std::string& last_stream_token) {
+    NSArray<FSTMutation*>* mutations) {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.count];
   for (FSTMutation* mutation in mutations) {
@@ -119,8 +119,8 @@ grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
 
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.writesArray = protos;
-  request.streamToken = [util::WrapNSString(last_stream_token)
-      dataUsingEncoding:NSUTF8StringEncoding];
+  request.streamToken = last_stream_token_;
+
   return ConvertToByteBuffer([request data]);
 }
 
