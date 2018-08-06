@@ -113,7 +113,7 @@ static id<UIApplicationDelegate> gOriginalAppDelegate;
   if (_isObserving) {
     return;
   }
-  [[UIApplication sharedApplication]
+  [[GULAppDelegateSwizzler sharedApplication]
       addObserver:self
        forKeyPath:kGULAppDelegateKeyPath
           options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
@@ -136,7 +136,7 @@ static id<UIApplicationDelegate> gOriginalAppDelegate;
     if ([oldValue isEqual:gOriginalAppDelegate]) {
       gOriginalAppDelegate = nil;
       // Remove the observer. Parse it to NSObject to avoid warning.
-      [[UIApplication sharedApplication] removeObserver:self forKeyPath:kGULAppDelegateKeyPath];
+      [[GULAppDelegateSwizzler sharedApplication] removeObserver:self forKeyPath:kGULAppDelegateKeyPath];
       _isObserving = NO;
     }
   }
@@ -239,7 +239,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 
 + (void)proxyOriginalDelegate {
   dispatch_once(&sProxyAppDelegateOnceToken, ^{
-    id<UIApplicationDelegate> originalDelegate = [self sharedApplication].delegate;
+    id<UIApplicationDelegate> originalDelegate = [GULAppDelegateSwizzler sharedApplication].delegate;
     [GULAppDelegateSwizzler proxyAppDelegate:originalDelegate];
   });
 }
@@ -412,9 +412,9 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
   // checks and caches them.
   // Register KVO only once. Otherwise, the observing method will be called as many times as
   // being registered.
-  id<UIApplicationDelegate> delegate = [UIApplication sharedApplication].delegate;
-  [UIApplication sharedApplication].delegate = nil;
-  [UIApplication sharedApplication].delegate = delegate;
+  id<UIApplicationDelegate> delegate = [GULAppDelegateSwizzler sharedApplication].delegate;
+  [GULAppDelegateSwizzler sharedApplication].delegate = nil;
+  [GULAppDelegateSwizzler sharedApplication].delegate = delegate;
   gOriginalAppDelegate = delegate;
   [[GULAppDelegateObserver sharedInstance] observeUIApplication];
 }
