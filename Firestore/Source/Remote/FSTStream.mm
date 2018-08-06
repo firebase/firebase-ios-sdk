@@ -724,3 +724,102 @@ static const NSTimeInterval kIdleTimeout = 60.0;
 }
 
 @end
+
+#pragma mark - FSTWatchStream
+
+using firebase::firestore::remote::WatchStream;
+
+@implementation FSTWatchStream {
+  std::shared_ptr<WatchStream> impl_;
+}
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+                      serializer:(FSTSerializerBeta *)serializer {
+  impl_ = std::make_shared<WatchStream>([workerDispatchQueue implementation], credentials, serializer, nullptr);
+  // FIXME!
+  return self;
+}
+
+- (void)watchQuery:(FSTQueryData *)query {
+  impl_->WatchQuery(query);
+}
+
+- (void)unwatchTargetID:(FSTTargetID)targetID {
+  impl_->UnwatchTargetId(targetID);
+}
+
+- (void)startWithDelegate:(id)delegate {
+  impl_->Start(delegate);
+}
+
+- (void)stop {
+  impl_->Stop();
+}
+
+- (BOOL)isOpen {
+  return impl_->IsOpen();
+}
+
+- (BOOL)isStarted {
+  return impl_->IsStarted();
+}
+
+- (void)markIdle {
+  impl_->MarkIdle();
+}
+
+#pragma mark - FSTWriteStream
+
+using firebase::firestore::remote::WriteStream;
+
+@implementation FSTWriteStream {
+  std::shared_ptr<WriteStream> impl_;
+}
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+                      serializer:(FSTSerializerBeta *)serializer {
+  impl_ = std::make_shared<WriteStream>([workerDispatchQueue implementation], credentials, serializer, nullptr);
+  return self;
+}
+
+- (void)start {
+  impl_->Start();
+}
+
+- (void)stop {
+  impl_->Stop();
+}
+
+- (BOOL)isOpen {
+  return impl_->IsOpen();
+}
+
+- (BOOL)isStarted {
+  return impl_->IsStarted();
+}
+
+- (void)markIdle {
+  impl_->MarkIdle();
+}
+
+- (void)writeHandshake {
+  impl_->WriteHandshake();
+}
+
+- (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
+  impl_->WriteMutations(mutations);
+}
+
+- (BOOL) isHandshakeComplete {
+  return impl_->IsHandshakeComplete();
+}
+
+(NSData *) lastStreamToken {
+  return impl_->GetLastStreamToken();
+}
+
+@end
