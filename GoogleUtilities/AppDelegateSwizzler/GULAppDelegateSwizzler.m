@@ -16,6 +16,7 @@
 
 #if TARGET_OS_IOS
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULLogger.h>
 #import <GoogleUtilities/GULMutableDictionary.h>
 #import "../Common/GULLoggerCodes.h"
@@ -249,8 +250,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #pragma mark - Create proxy
 
 + (UIApplication *)sharedApplication {
-  // YES if the bundle is an app extension.
-  if ([[NSBundle mainBundle].bundlePath hasSuffix:@".appex"]) {
+  if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
   }
   id sharedApplication = nil;
