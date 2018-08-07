@@ -319,20 +319,18 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error {
-  HARD_ASSERT([self isNetworkEnabled],
-              "watchStreamWasInterruptedWithError: should only be called when the network is "
-              "enabled");
+  if (!error) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
+    HARD_ASSERT(![self shouldStartWatchStream],
+        "Watch stream was stopped gracefully while still needed.");
+  }
 
   [self cleanUpWatchStreamState];
 
   // If the watch stream closed due to an error, retry the connection if there are any active
   // watch targets.
   if ([self shouldStartWatchStream]) {
-    if (error) {
-      // There should generally be an error if the watch stream was closed when it's still needed,
-      // but it's not quite worth asserting.
-      [self.onlineStateTracker handleWatchStreamFailure:error];
-    }
+    [self.onlineStateTracker handleWatchStreamFailure:error];
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
@@ -546,8 +544,11 @@ static const int kMaxPendingWrites = 10;
  * has been terminated by the client or the server.
  */
 - (void)writeStreamWasInterruptedWithError:(nullable NSError *)error {
-  HARD_ASSERT([self isNetworkEnabled],
-              "writeStreamDidClose: should only be called when the network is enabled");
+  if (!error) {
+    // Graceful stop (due to Stop() or idle timeout). Make sure that's desirable.
+    HARD_ASSERT(![self shouldStartWriteStream],
+        "Write stream was stopped gracefully while still needed.");
+  }
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.

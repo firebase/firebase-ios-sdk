@@ -81,6 +81,13 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
   return grpc::ByteBuffer{&slice, 1};
 }
 
+NSError* ToNsError(const FirestoreErrorCode error_code) {
+  if (error_code == FirestoreErrorCode::Ok) {
+    return nil;
+  }
+  return util::MakeNSError(error_code, "Server error");  // TODO
+}
+
 }  // namespace
 
 grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
@@ -179,8 +186,7 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
 void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
-  NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
-  [delegate watchStreamWasInterruptedWithError:error];
+  [delegate watchStreamWasInterruptedWithError:ToNsError(error_code)];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
@@ -204,8 +210,7 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
 void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
     const FirestoreErrorCode error_code) {
   id<FSTWriteStreamDelegate> delegate = delegate_;
-  NSError* error = util::MakeNSError(error_code, "Server error");  // TODO
-  [delegate writeStreamWasInterruptedWithError:error];
+  [delegate writeStreamWasInterruptedWithError:ToNsError(error_code)];
 }
 }
 }
