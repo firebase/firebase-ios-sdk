@@ -28,11 +28,17 @@ namespace util {
 // are required to implement these routines.
 
 /**
- * Returns true if the given path exists. If the path exists and is_directory is
- * non-null, stores whether or not the path is a directory. If the file does
- * not exist, is_directory is unmodified.
+ * Answers the question "is this path a directory? The path is not required to
+ * have a trailing slash.
+ *
+ * Typical return codes include:
+ *   * Ok - The path exists and is a directory.
+ *   * FailedPrecondition - Some component of the path is not a directory. This
+ *     does not necessarily imply that the path exists and is a file.
+ *   * NotFound - The path does not exist
+ *   * PermissionDenied - Insufficient permissions to access the path.
  */
-bool Exists(const Path& path, bool* is_directory = nullptr);
+Status IsDirectory(const Path& path);
 
 /**
  * Recursively creates all the directories in the path name if they don't
@@ -52,7 +58,15 @@ Status RecursivelyCreateDir(const Path& path);
 Status RecursivelyDelete(const Path& path);
 
 /**
- * Returns the best directory in which to create temporary files.
+ * Returns system-defined best directory in which to create temporary files.
+ * Typical return values are like `/tmp` on UNIX systems. Clients should create
+ * randomly named directories or files within this location to avoid collisions.
+ * Absent any changes that might affect the underlying calls, the value returned
+ * from TempDir will be stable over time.
+ *
+ * Note: the returned path is just where the system thinks temporary files
+ * should be stored, but TempDir does not actually guarantee that this path
+ * exists.
  */
 Path TempDir();
 
