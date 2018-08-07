@@ -214,6 +214,8 @@ void Stream::OnStreamStart(const bool ok) {
 
   buffered_writer_.Start();
   Execute<StreamRead>();
+
+  DoOnStreamStart();
 }
 
 // Backoff
@@ -258,6 +260,10 @@ void Stream::CancelBackoff() {
 
   // Clear the error condition.
   state_ = State::Initial;
+  ResetBackoff();
+}
+
+void Stream::ResetBackoff() {
   backoff_.Reset();
 }
 
@@ -289,7 +295,8 @@ void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
     return;
   }
 
-  client_side_error_ = DoOnStreamRead(message);
+  // OBC: remove negation to easily test retry logic
+  client_side_error_ = !DoOnStreamRead(message);
   if (client_side_error_) {
     OnConnectionBroken();
     return;
@@ -328,7 +335,7 @@ void Stream::Stop() {
   HalfCloseConnection();
   // If this is an intentional close, ensure we don't delay our next connection
   // attempt.
-  backoff_.Reset();
+  ResetBackoff();
 
   state_ = State::Initial;
 }
@@ -391,7 +398,7 @@ void Stream::StopDueToIdleness() {
   Stop();
   // When timing out an idle stream there's no reason to force the stream
   // into backoff when it restarts.
-  CancelBackoff();
+  ResetBackoff();
   state_ = State::Initial;
 }
 
@@ -510,7 +517,7 @@ void WriteStream::WriteHandshake() {
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Not yet open");
-  HARD_ASSERT(!is_handshake_complete_, "Mutations sent out of turn");
+  HARD_ASSERT(is_handshake_complete_, "Mutations sent out of turn");
 
   // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
   // request);
@@ -541,6 +548,7 @@ void WriteStream::DoOnStreamWrite() {
 }
 
 void WriteStream::DoOnStreamFinish(const FirestoreErrorCode error) {
+  is_handshake_complete_ = false;
   delegate_bridge_.NotifyDelegateOnStreamFinished(error);
 }
 
@@ -564,7 +572,7 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
     // A successful first write response means the stream is healthy.
     // Note that we could consider a successful handshake healthy, however, the
     // write itself might be causing an error we want to back off from.
-    CancelBackoff();
+    ResetBackoff();
 
     delegate_bridge_.NotifyDelegateOnCommit(
         serializer_bridge_.ToCommitVersion(response),

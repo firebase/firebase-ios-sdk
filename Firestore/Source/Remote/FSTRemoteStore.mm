@@ -128,6 +128,8 @@ static const int kMaxPendingWrites = 10;
     _lastBatchSeen = kFSTBatchIDUnknown;
     _pendingWrites = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
+
+    _isNetworkEnabled = NO;
   }
   return self;
 }
@@ -158,6 +160,8 @@ static const int kMaxPendingWrites = 10;
     return;
   }
 
+  _isNetworkEnabled = YES;
+  
   // Create new streams (but note they're not started yet).
   _watchStream = [self.datastore createWatchStreamWithDelegate:self];
   _writeStream = [self.datastore createWriteStreamWithDelegate:self];
@@ -190,6 +194,8 @@ static const int kMaxPendingWrites = 10;
 
     [self cleanUpWatchStreamState];
     [self cleanUpWriteStreamState];
+    
+    _isNetworkEnabled = NO;
   }
 }
 
@@ -221,8 +227,7 @@ static const int kMaxPendingWrites = 10;
 - (void)startWatchStream {
   HARD_ASSERT([self shouldStartWatchStream],
               "startWatchStream: called when shouldStartWatchStream: is false.");
-  // ???_watchChangeAggregator = [[FSTWatchChangeAggregator alloc]
-  // initWithTargetMetadataProvider:self];
+  _watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
   _watchStream->Start();
   [self.onlineStateTracker handleWatchStreamStart];
 }
@@ -346,6 +351,7 @@ static const int kMaxPendingWrites = 10;
 
   FSTRemoteEvent *remoteEvent =
       [self.watchChangeAggregator remoteEventAtSnapshotVersion:snapshotVersion];
+  HARD_ASSERT(remoteEvent, "Unable to find remote event for SnapshotVersion %s", snapshotVersion.timestamp().ToString());
 
   // Update in-memory resume tokens. FSTLocalStore will update the persistent view of these when
   // applying the completed FSTRemoteEvent.

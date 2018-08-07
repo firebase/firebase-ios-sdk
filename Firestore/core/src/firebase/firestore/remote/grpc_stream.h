@@ -84,6 +84,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
  protected:
   void EnsureOnQueue() const;
   void BufferedWrite(grpc::ByteBuffer&& message);
+  void ResetBackoff();
 
  private:
   friend class BufferedWriter;
