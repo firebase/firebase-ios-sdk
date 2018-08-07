@@ -114,7 +114,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void Write(const grpc::ByteBuffer& message);
 
   void OnConnectionBroken();
-  void HalfCloseConnection();
+  void HalfCloseConnection(bool is_broken);
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {

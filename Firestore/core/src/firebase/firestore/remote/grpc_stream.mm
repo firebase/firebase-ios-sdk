@@ -101,11 +101,18 @@ class StreamWrite : public StreamOperation {
 
 class StreamFinish : public StreamOperation {
  public:
-  using StreamOperation::StreamOperation;
+  StreamFinish(Stream* const stream,
+              const std::shared_ptr<GrpcCall>& call,
+              const int generation,
+              const bool cancel_pending_operations)
+      : StreamOperation{stream, call, generation}, cancel_pending_operations_{cancel_pending_operations} {
+  }
 
  private:
   void DoExecute(GrpcCall* const call) override {
-    call->TryCancel();
+    if (cancel_pending_operations_) {
+      call->TryCancel();
+    }
     call->Finish(&grpc_status_, this);
   }
 
@@ -125,6 +132,7 @@ class StreamFinish : public StreamOperation {
   }
 
   grpc::Status grpc_status_;
+  bool cancel_pending_operations_ = false;
 };
 }
 
@@ -332,7 +340,7 @@ void Stream::Stop() {
 
   client_side_error_ = false;
   buffered_writer_.Stop();
-  HalfCloseConnection();
+  HalfCloseConnection(false);
   // If this is an intentional close, ensure we don't delay our next connection
   // attempt.
   ResetBackoff();
@@ -348,18 +356,20 @@ void Stream::OnConnectionBroken() {
   }
 
   buffered_writer_.Stop();
-  HalfCloseConnection();
+  HalfCloseConnection(true);
 
   state_ = State::GrpcError;
 }
 
-void Stream::HalfCloseConnection() {
+void Stream::HalfCloseConnection(const bool is_broken) {
   EnsureOnQueue();
   if (!IsOpen()) {
     return;
   }
 
-  Execute<StreamFinish>();
+  // TODO OBC explain
+  const bool cancel_pending_operations = !is_broken;
+  Execute<StreamFinish>(cancel_pending_operations);
   // After a GRPC call finishes, it will no longer valid, so there is no reason
   // to hold on to it now that a finish operation has been added (the operation
   // has its own `shared_ptr` to the call).
@@ -548,8 +558,9 @@ void WriteStream::DoOnStreamWrite() {
 }
 
 void WriteStream::DoOnStreamFinish(const FirestoreErrorCode error) {
-  is_handshake_complete_ = false;
   delegate_bridge_.NotifyDelegateOnStreamFinished(error);
+  // TODO OBC explain that order is important here
+  is_handshake_complete_ = false;
 }
 
 bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {

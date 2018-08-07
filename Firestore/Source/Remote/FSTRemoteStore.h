@@ -67,6 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)applySuccessfulWriteWithResult:(FSTMutationBatchResult *)batchResult;
 
+// OBC this appears to be unused
 /**
  * Rejects the batch, removing the batch from the mutation queue, recomputing the local view of
  * any documents affected by the batch and then, emitting snapshots with the reverted value.
