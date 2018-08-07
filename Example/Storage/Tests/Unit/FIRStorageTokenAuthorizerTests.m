@@ -31,15 +31,13 @@
   self.fetcher = [GTMSessionFetcher fetcherWithRequest:fetchRequest];
 
   self.mockApp = OCMClassMock([FIRApp class]);
-  OCMStub([self.mockApp getTokenImplementation])
-      .andReturn(^{
-      });
-  FIRTokenCallback mockCallback =
-      [OCMArg invokeBlockWithArgs:kFIRStorageTestAuthToken, [NSNull null], nil];
-  OCMStub([self.mockApp getTokenForcingRefresh:NO withCallback:mockCallback]);
+
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
+  FIRAuthFake *auth = [[FIRAuthFake alloc] initWithToken:kFIRStorageTestAuthToken uid:nil];
   self.fetcher.authorizer =
-      [[FIRStorageTokenAuthorizer alloc] initWithApp:self.mockApp fetcherService:fetcherService];
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:fetcherService
+                                                authProvider:auth];
 }
 
 - (void)tearDown {

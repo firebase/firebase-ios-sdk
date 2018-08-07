@@ -574,9 +574,15 @@
 		ED34CF5420DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
 		ED34CF5520DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
 		ED34CF5620DC16DD000EA5D1 /* FIRComponentTypeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */; };
+		ED981885211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
+		ED981886211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
+		ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */; };
 		EDD43AA420BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD43AA520BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
+		EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1252,7 +1258,10 @@
 		ED34CF4B20DC16DC000EA5D1 /* FIRTestComponents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestComponents.m; sourceTree = "<group>"; };
 		ED34CF4C20DC16DD000EA5D1 /* FIRTestComponents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRTestComponents.h; sourceTree = "<group>"; };
 		ED34CF4D20DC16DD000EA5D1 /* FIRComponentTypeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRComponentTypeTest.m; sourceTree = "<group>"; };
+		ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRStorageComponentTests.m; sourceTree = "<group>"; };
 		EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAnalyticsConfigurationTest.m; sourceTree = "<group>"; };
+		EDD53E23211A442D00376BFF /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
+		EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1515,6 +1524,7 @@
 		06121EC81EC399E50008D70E /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				ED981884211A2E4700EDEBF4 /* FIRStorageComponentTests.m */,
 				DEB139C61E734D9D00AC236D /* FIRStorageTestHelpers.h */,
 				DEB139C11E734D9D00AC236D /* FIRStorageDeleteTests.m */,
 				DEB139C21E734D9D00AC236D /* FIRStorageGetMetadataTests.m */,
@@ -1661,6 +1671,8 @@
 		AFC8BAA01EC24B1600B8EEAE /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				EDD53E23211A442D00376BFF /* FIRAuthInteropFake.h */,
+				EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */,
 				AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */,
 				AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */,
 				AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */,
@@ -3628,11 +3640,13 @@
 			files = (
 				D0EDB2E31EDA06CB00B6C31B /* FIRStorageUtilsTests.m in Sources */,
 				D0EDB2E41EDA06CB00B6C31B /* FIRStorageTests.m in Sources */,
+				EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
 				D0EDB2E51EDA06CB00B6C31B /* FIRStorageGetMetadataTests.m in Sources */,
 				D0EDB2E61EDA06CB00B6C31B /* FIRStorageUpdateMetadataTests.m in Sources */,
 				D0EDB2E71EDA06CB00B6C31B /* FIRStorageDeleteTests.m in Sources */,
 				D0EDB2E81EDA06CB00B6C31B /* FIRStorageTestHelpers.m in Sources */,
 				D0EDB2E91EDA06CB00B6C31B /* FIRStorageMetadataTests.m in Sources */,
+				ED981886211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				D0EDB2EA1EDA06CB00B6C31B /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				D0EDB2EB1EDA06CB00B6C31B /* FIRStorageReferenceTests.m in Sources */,
 				D0EDB2EC1EDA06CB00B6C31B /* FIRStoragePathTests.m in Sources */,
@@ -4085,11 +4099,13 @@
 			files = (
 				DEAAD4251FBA49ED0053BF48 /* FIRStoragePathTests.m in Sources */,
 				DEAAD42A1FBA49ED0053BF48 /* FIRStorageUpdateMetadataTests.m in Sources */,
+				EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
 				DEAAD4221FBA49ED0053BF48 /* FIRStorageDeleteTests.m in Sources */,
 				DEAAD4291FBA49ED0053BF48 /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEAAD4231FBA49ED0053BF48 /* FIRStorageGetMetadataTests.m in Sources */,
 				DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */,
 				DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */,
+				ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */,
 				DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */,
 				DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */,
@@ -4112,11 +4128,13 @@
 			files = (
 				DEB13A301E73518B00AC236D /* FIRStorageUtilsTests.m in Sources */,
 				DEB13A2D1E73518B00AC236D /* FIRStorageTests.m in Sources */,
+				EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
 				DEB13A281E73518B00AC236D /* FIRStorageGetMetadataTests.m in Sources */,
 				DEB13A2F1E73518B00AC236D /* FIRStorageUpdateMetadataTests.m in Sources */,
 				DEB13A271E73518B00AC236D /* FIRStorageDeleteTests.m in Sources */,
 				DEB13A2C1E73518B00AC236D /* FIRStorageTestHelpers.m in Sources */,
 				DEB13A291E73518B00AC236D /* FIRStorageMetadataTests.m in Sources */,
+				ED981885211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
 				DEB13A2E1E73518B00AC236D /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEB13A2B1E73518B00AC236D /* FIRStorageReferenceTests.m in Sources */,
 				DEB13A2A1E73518B00AC236D /* FIRStoragePathTests.m in Sources */,

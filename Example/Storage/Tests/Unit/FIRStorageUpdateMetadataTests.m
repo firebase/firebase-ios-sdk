@@ -42,8 +42,9 @@
 
   self.fetcherService = [[GTMSessionFetcherService alloc] init];
   self.fetcherService.authorizer =
-      [[FIRStorageTokenAuthorizer alloc] initWithApp:self.mockApp
-                                      fetcherService:self.fetcherService];
+      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                              fetcherService:self.fetcherService
+                                                authProvider:nil];
 
   self.storage = [FIRStorage storageForApp:self.mockApp];
 }
