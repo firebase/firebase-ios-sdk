@@ -328,7 +328,6 @@ void Stream::Stop() {
   if (!IsStarted()) {
     return;
   }
-  ++generation_; // This means the stream will NOT get `OnStreamFinish`.
 
   client_side_error_ = false;
   buffered_writer_.Stop();
@@ -338,6 +337,7 @@ void Stream::Stop() {
   ResetBackoff();
 
   state_ = State::Initial;
+  ++generation_; // This means the stream will NOT get `OnStreamFinish`.
 }
 
 void Stream::OnConnectionBroken() {
