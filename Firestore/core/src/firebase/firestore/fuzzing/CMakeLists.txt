@@ -39,7 +39,6 @@ cc_binary(
     firebase_firestore_remote
 )
 
-
 # Copy serializer dictionary and corpus.
 # TODO(minafarid): Generate the serializer corpus by converting the text protos
 # from the serializer corpus in the iOS FuzzingResources to binary protos. This
