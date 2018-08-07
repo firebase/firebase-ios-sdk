@@ -20,11 +20,6 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
-namespace firebase {
-namespace firestore {
-namespace fuzzing {
-namespace serializer {
-
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::remote::Serializer;
 
@@ -40,7 +35,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   return 0;
 }
 
-}  // namespace serializer
-}  // namespace fuzzing
-}  // namespace firestore
-}  // namespace firebase

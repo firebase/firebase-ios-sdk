@@ -19,11 +19,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 
-namespace firebase {
-namespace firestore {
-namespace fuzzing {
-namespace fieldpath {
-
 using firebase::firestore::model::FieldPath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
@@ -38,7 +33,3 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   return 0;
 }
 
-}  // namespace fieldpath
-}  // namespace fuzzing
-}  // namespace firestore
-}  // namespace firebase
