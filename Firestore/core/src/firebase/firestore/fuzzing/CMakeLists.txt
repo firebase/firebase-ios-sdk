@@ -48,3 +48,13 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_directory
       ${serializer_resources}/Corpus/BinaryProtos serializer_fuzzer_seed_corpus
 )
+
+# Resource path fuzzing target.
+cc_binary(
+  resource_path_fuzzer
+  SOURCES
+    resource_path_fuzzer.cc
+  DEPENDS
+    Fuzzer
+    firebase_firestore_model
+)
