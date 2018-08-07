@@ -324,11 +324,14 @@ NS_ASSUME_NONNULL_BEGIN
         [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
                                                      fromCache:snapshot.fromCache];
 
-    completion([FIRQuerySnapshot snapshotWithFirestore:query.firestore
-                                         originalQuery:query.query
-                                              snapshot:snapshot
-                                              metadata:metadata],
-               nil);
+    FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
+                                                         originalQuery:query.query
+                                                              snapshot:snapshot
+                                                              metadata:metadata];
+
+    if (completion) {
+      self->_userExecutor->Execute([=] { completion(result, nil); });
+    }
   }];
 }
 
