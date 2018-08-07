@@ -72,6 +72,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
     adss.dependency 'GoogleUtilities/Logger'
     adss.dependency 'GoogleUtilities/Network'
+    adss.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'ISASwizzler' do |iss|
