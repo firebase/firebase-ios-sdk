@@ -280,25 +280,29 @@ NS_ASSUME_NONNULL_BEGIN
                                             NSError *_Nullable error))completion {
   [self.workerDispatchQueue dispatchAsync:^{
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
+    FIRDocumentSnapshot *_Nullable result = nil;
+    NSError *_Nullable error = nil;
     if (maybeDoc) {
       FSTDocument *_Nullable document =
           ([maybeDoc isKindOfClass:[FSTDocument class]]) ? (FSTDocument *)maybeDoc : nil;
-      completion([FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
-                                                documentKey:doc.key
-                                                   document:document
-                                                  fromCache:YES],
-                 nil);
+      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
+                                              documentKey:doc.key
+                                                 document:document
+                                                fromCache:YES];
     } else {
-      completion(nil,
-                 [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                     code:FIRFirestoreErrorCodeUnavailable
-                                 userInfo:@{
-                                   NSLocalizedDescriptionKey :
-                                       @"Failed to get document from cache. (However, this "
-                                       @"document may exist on the server. Run again without "
-                                       @"setting source to FIRFirestoreSourceCache to attempt to "
-                                       @"retrieve the document from the server.)",
-                                 }]);
+      error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                  code:FIRFirestoreErrorCodeUnavailable
+                              userInfo:@{
+                                NSLocalizedDescriptionKey :
+                                    @"Failed to get document from cache. (However, this document "
+                                    @"may exist on the server. Run again without setting source to "
+                                    @"FIRFirestoreSourceCache to attempt to retrieve the document "
+                                    @"from the server.)",
+                              }];
+    }
+
+    if (completion) {
+      self->_userExecutor->Execute([=] { completion(result, error); });
     }
   }];
 }
@@ -320,11 +324,14 @@ NS_ASSUME_NONNULL_BEGIN
         [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:snapshot.hasPendingWrites
                                                      fromCache:snapshot.fromCache];
 
-    completion([FIRQuerySnapshot snapshotWithFirestore:query.firestore
-                                         originalQuery:query.query
-                                              snapshot:snapshot
-                                              metadata:metadata],
-               nil);
+    FIRQuerySnapshot *result = [FIRQuerySnapshot snapshotWithFirestore:query.firestore
+                                                         originalQuery:query.query
+                                                              snapshot:snapshot
+                                                              metadata:metadata];
+
+    if (completion) {
+      self->_userExecutor->Execute([=] { completion(result, nil); });
+    }
   }];
 }
 
