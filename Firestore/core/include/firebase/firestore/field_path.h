@@ -17,8 +17,12 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIELD_PATH_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIELD_PATH_H_
 
+#include <string>
+
 namespace firebase {
 namespace firestore {
+
+class FieldPathInternal;
 
 /**
  * A FieldPath refers to a field in a document. The path may consist of a single
@@ -26,7 +30,21 @@ namespace firestore {
  * field names (referring to a nested field in the document).
  */
 // TODO(zxu123): add more methods to complete the class and make it useful.
-class FieldPath {};
+class FieldPath {
+ private:
+  /**
+   * Parses a field path string into a FieldPath, treating dots as separators.
+   *
+   * @param path Presented as a dot-separated string.
+   * @return The created FieldPath.
+   */
+  static FieldPath FromDotSeparatedString(const std::string& path);
+
+  friend class Query;
+  friend class QueryInternal;
+
+  FieldPathInternal* internal_ = nullptr;
+};
 
 }  // namespace firestore
 }  // namespace firebase

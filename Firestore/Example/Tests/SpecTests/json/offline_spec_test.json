@@ -4,7 +4,8 @@
     "itName": "Empty queries are resolved if client goes offline",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -84,7 +85,8 @@
     "itName": "A successful message delays offline status",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -181,7 +183,8 @@
     ],
     "comment": "Marked as no-lru because when a listen is re-added, it gets a new target id rather than reusing one",
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -317,7 +320,8 @@
     "itName": "Queries revert to fromCache=true when offline.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -493,7 +497,8 @@
     "itName": "Queries with limbo documents handle going offline.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -766,7 +771,8 @@
     "itName": "OnlineState timeout triggers offline behavior",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -925,7 +931,8 @@
     "itName": "New queries return immediately with fromCache=true when offline due to stream failures.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -1029,7 +1036,8 @@
     "itName": "New queries return immediately with fromCache=true when offline due to OnlineState timeout.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {

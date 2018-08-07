@@ -21,8 +21,10 @@
 #import "Firestore/Source/Core/FSTQuery.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 using firebase::firestore::model::SnapshotVersion;
+namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -74,17 +76,15 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQueryData *other = (FSTQueryData *)object;
   return [self.query isEqual:other.query] && self.targetID == other.targetID &&
-         self.purpose == other.purpose && self.snapshotVersion == other.snapshotVersion &&
+         self.sequenceNumber == other.sequenceNumber && self.purpose == other.purpose &&
+         self.snapshotVersion == other.snapshotVersion &&
          [self.resumeToken isEqual:other.resumeToken];
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = [self.query hash];
-  result = result * 31 + self.targetID;
-  result = result * 31 + self.purpose;
-  result = result * 31 + self.snapshotVersion.Hash();
-  result = result * 31 + [self.resumeToken hash];
-  return result;
+  return util::Hash([self.query hash], self.targetID, self.sequenceNumber,
+                    static_cast<NSInteger>(self.purpose), self.snapshotVersion.Hash(),
+                    [self.resumeToken hash]);
 }
 
 - (NSString *)description {

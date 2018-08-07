@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 
@@ -36,10 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * FSTReferenceSet also keeps a secondary set that contains references sorted by IDs. This one is
  * used to efficiently implement removal of all references by some target ID.
  */
-@interface FSTReferenceSet : NSObject <FSTGarbageSource>
-
-/** Keeps track of keys that have references. */
-@property(nonatomic, weak, readwrite, nullable) id<FSTGarbageCollector> garbageCollector;
+@interface FSTReferenceSet : NSObject
 
 /** Returns YES if the reference set contains no references. */
 - (BOOL)isEmpty;
@@ -65,6 +61,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Returns all of the document keys that have had references added for the given ID. */
 - (firebase::firestore::model::DocumentKeySet)referencedKeysForID:(int)ID;
+
+/**
+ * Checks to see if there are any references to a document with the given key.
+ */
+- (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
 
 @end
 

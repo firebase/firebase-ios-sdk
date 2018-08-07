@@ -34,8 +34,16 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTLevelDBSpecTests
 
 /** Overrides -[FSTSpecTests persistence] */
-- (id<FSTPersistence>)persistence {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
   return [FSTPersistenceTestHelpers levelDBPersistence];
+}
+
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
+  if ([tags containsObject:kNoLRUTag]) {
+    return NO;
+  }
+
+  return [super shouldRunWithTags:tags];
 }
 
 @end

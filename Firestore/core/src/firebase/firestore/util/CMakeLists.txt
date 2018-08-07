@@ -19,121 +19,31 @@
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
-cc_library(
-  firebase_firestore_util_base
-  SOURCES
-    string_format.cc
-    string_format.h
-  DEPENDS
-    absl_base
-    absl_strings
-)
 
-
-## assert and log
-
-cc_library(
-  firebase_firestore_util_log_stdio
-  SOURCES
-    hard_assert_stdio.cc
-    hard_assert.h
-    log.h
-    log_stdio.cc
-  DEPENDS
-    firebase_firestore_util_base
-    absl_base
-  EXCLUDE_FROM_ALL
-)
-
-cc_library(
-  firebase_firestore_util_log_apple
-  SOURCES
-    hard_assert.h
-    hard_assert_apple.mm
-    log.h
-    log_apple.mm
-    string_apple.h
-  DEPENDS
-    FirebaseCore
-    GoogleUtilities
-    absl_strings
-    firebase_firestore_util_base
-  EXCLUDE_FROM_ALL
-)
-
-if(APPLE)
-  set(
-    FIREBASE_FIRESTORE_UTIL_LOG
-    firebase_firestore_util_log_apple
-  )
-else()
-  set(
-    FIREBASE_FIRESTORE_UTIL_LOG
-    firebase_firestore_util_log_stdio
-  )
-endif()
-
-
-## secure_random
-
-check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
-cc_library(
-  firebase_firestore_util_random_arc4random
-  SOURCES
-    secure_random_arc4random.cc
-)
-
-get_target_property(
-  CMAKE_REQUIRED_INCLUDES
-  OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
-)
-check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
-cc_library(
-  firebase_firestore_util_random_openssl
-  SOURCES
-    secure_random_openssl.cc
-  DEPENDS
-    OpenSSL::Crypto
-)
-
-if(HAVE_ARC4RANDOM)
-  set(
-    FIREBASE_FIRESTORE_UTIL_RANDOM
-    firebase_firestore_util_random_arc4random
-  )
-
-elseif(HAVE_OPENSSL_RAND_H)
-  set(
-    FIREBASE_FIRESTORE_UTIL_RANDOM
-    firebase_firestore_util_random_openssl
-  )
-
-else()
-  message(FATAL_ERROR "No implementation for SecureRandom available.")
-
-endif()
-
-## async queue
+## async
 
 check_symbol_exists(dispatch_async_f dispatch/dispatch.h HAVE_LIBDISPATCH)
 
 cc_library(
-  firebase_firestore_util_executor_std
+  firebase_firestore_util_async_std
   SOURCES
+    async_queue.cc
+    async_queue.h
     executor_std.cc
     executor_std.h
     executor.h
   DEPENDS
     absl_bad_optional_access
     absl_optional
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
 
-if(HAVE_LIBDISPATCH)
 cc_library(
-  firebase_firestore_util_executor_libdispatch
+  firebase_firestore_util_async_libdispatch
   SOURCES
+    async_queue.cc
+    async_queue.h
     executor_libdispatch.mm
     executor_libdispatch.h
     executor.h
@@ -141,24 +51,116 @@ cc_library(
     absl_bad_optional_access
     absl_optional
     absl_strings
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
+    firebase_firestore_util_base
   EXCLUDE_FROM_ALL
 )
+
+cc_select(
+  firebase_firestore_util_async
+  HAVE_LIBDISPATCH firebase_firestore_util_async_libdispatch
+  DEFAULT          firebase_firestore_util_async_std
+)
+
+
+## base
+
+cc_library(
+  firebase_firestore_util_base_stdio
+  SOURCES
+    hard_assert_stdio.cc
+    hard_assert.h
+    log.h
+    log_stdio.cc
+    string_format.cc
+    string_format.h
+    string_win.cc
+    string_win.h
+  DEPENDS
+    absl_base
+    absl_strings
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
+  firebase_firestore_util_base_apple
+  SOURCES
+    hard_assert.h
+    hard_assert_apple.mm
+    log.h
+    log_apple.mm
+    string_apple.h
+    string_format.cc
+    string_format.h
+  DEPENDS
+    FirebaseCore
+    GoogleUtilities
+    absl_base
+    absl_strings
+  EXCLUDE_FROM_ALL
+)
+
+cc_select(
+  firebase_firestore_util_base
+  APPLE   firebase_firestore_util_base_apple
+  DEFAULT firebase_firestore_util_base_stdio
+)
+
+
+## random
+
+check_symbol_exists(arc4random stdlib.h HAVE_ARC4RANDOM)
+cc_library(
+  firebase_firestore_util_random_arc4random
+  SOURCES
+    secure_random.h
+    secure_random_arc4random.cc
+  EXCLUDE_FROM_ALL
+)
+
+if(TARGET OpenSSL::Crypto)
+  get_target_property(
+    CMAKE_REQUIRED_INCLUDES
+    OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
+  )
+  check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+  cc_library(
+    firebase_firestore_util_random_openssl
+    SOURCES
+      secure_random.h
+      secure_random_openssl.cc
+    DEPENDS
+      OpenSSL::Crypto
+    EXCLUDE_FROM_ALL
+  )
 endif()
 
-if(HAVE_LIBDISPATCH)
-  set(
-    FIREBASE_FIRESTORE_UTIL_EXECUTOR
-    firebase_firestore_util_executor_libdispatch
-  )
+cc_select(
+  firebase_firestore_util_random
+  HAVE_ARC4RANDOM     firebase_firestore_util_random_arc4random
+  HAVE_OPENSSL_RAND_H firebase_firestore_util_random_openssl
+)
 
-else()
-  set(
-    FIREBASE_FIRESTORE_UTIL_EXECUTOR
-    firebase_firestore_util_executor_std
-  )
 
-endif()
+## status
+
+cc_library(
+  firebase_firestore_util_status
+  SOURCES
+    status.cc
+    status.h
+    status_apple.mm
+    status_posix.cc
+    status_win.cc
+    statusor.cc
+    statusor.h
+    statusor_internals.h
+    strerror.cc
+    strerror.h
+  DEPENDS
+    absl_base
+    absl_strings
+    firebase_firestore_util_base
+)
 
 
 ## main library
@@ -171,8 +173,6 @@ configure_file(
 cc_library(
   firebase_firestore_util
   SOURCES
-    async_queue.cc
-    async_queue.h
     autoid.cc
     autoid.h
     bits.cc
@@ -188,28 +188,13 @@ cc_library(
     path.cc
     path.h
     range.h
-    secure_random.h
-    status.cc
-    status.h
-    statusor.cc
-    statusor.h
-    statusor_internals.h
-    strerror.cc
-    strerror.h
     string_util.cc
     string_util.h
     type_traits.h
   DEPENDS
     absl_base
+    firebase_firestore_util_async
     firebase_firestore_util_base
-    ${FIREBASE_FIRESTORE_UTIL_EXECUTOR}
-    ${FIREBASE_FIRESTORE_UTIL_LOG}
-    ${FIREBASE_FIRESTORE_UTIL_RANDOM}
+    firebase_firestore_util_random
+    firebase_firestore_util_status
 )
-
-if(APPLE)
-  target_sources(
-    firebase_firestore_util PRIVATE
-    status_apple.mm
-  )
-endif()

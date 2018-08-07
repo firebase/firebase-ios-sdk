@@ -70,17 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/** Helpers for any LevelDB key. */
-@interface FSTLevelDBKey : NSObject
-
-/**
- * Parses the given key and returns a human readable description of its contents, suitable for
- * error messages and logging.
- */
-+ (NSString *)descriptionForKey:(Firestore::StringView)key;
-
-@end
-
 /** A key to a singleton row storing the version of the schema. */
 @interface FSTLevelDBVersionKey : NSObject
 
@@ -282,6 +271,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+BOOL FSTTargetIDIsSentinel(FSTTargetID targetId);
+
 /**
  * A key in the document targets table, an index from documents to the targets that contain them.
  */
@@ -299,6 +290,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Creates a key that points to a specific document-target entry. */
 + (std::string)keyWithDocumentKey:(FSTDocumentKey *)documentKey targetID:(FSTTargetID)targetID;
+
++ (std::string)sentinelKeyWithDocumentKey:(FSTDocumentKey *)documentKey;
 
 /** Decodes the contents of a document target key into properties on this instance. */
 - (BOOL)decodeKey:(Firestore::StringView)key;

@@ -134,10 +134,6 @@ void LevelDbTransaction::Iterator::Next() {
   }
 }
 
-bool LevelDbTransaction::Iterator::Valid() {
-  return is_valid_;
-}
-
 LevelDbTransaction::LevelDbTransaction(DB* db,
                                        absl::string_view label,
                                        const ReadOptions& read_options,
@@ -226,16 +222,25 @@ std::string LevelDbTransaction::ToString() {
   dest += std::to_string(changes) + " changes ";
   std::string items;  // accumulator for individual changes.
   for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    items += "\n  - Delete " + Describe(*it);
+    items += "\n  - Delete " + DescribeKey(*it);
   }
   for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
     int64_t change_bytes = it->second.length();
     bytes += change_bytes;
-    items += "\n  - Put " + Describe(it->first) + " (" +
+    items += "\n  - Put " + DescribeKey(it->first) + " (" +
              std::to_string(change_bytes) + " bytes)";
   }
   dest += "(" + std::to_string(bytes) + " bytes):" + items + ">";
   return dest;
+}
+
+std::string DescribeKey(
+    const std::unique_ptr<LevelDbTransaction::Iterator>& iterator) {
+  if (iterator->Valid()) {
+    return DescribeKey(iterator->key());
+  } else {
+    return "the end of the table";
+  }
 }
 
 }  // namespace local

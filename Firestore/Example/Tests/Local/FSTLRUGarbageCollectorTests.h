@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
+@protocol FSTPersistence;
 
 NS_ASSUME_NONNULL_BEGIN
 
-/**
- * A garbage collector implementation that does absolutely nothing. It ignores all
- * addGarbageSource: and addPotentialGarbageKey: messages and never produces any garbage.
- */
-@interface FSTNoOpGarbageCollector : NSObject <FSTGarbageCollector>
+@interface FSTLRUGarbageCollectorTests : XCTestCase
+
+- (id<FSTPersistence>)newPersistence;
+
 @end
 
 NS_ASSUME_NONNULL_END

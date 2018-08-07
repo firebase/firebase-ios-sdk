@@ -113,27 +113,6 @@ void WriteComponentLabel(std::string *dest, FSTComponentLabel label) {
 /**
  * Reads a component label from the given key contents.
  *
- * If the read is unsuccessful, returns NO, and changes none of its arguments.
- *
- * If the read is successful, returns YES, contents will be updated to the next unread byte, and
- * label will be set to the decoded label value.
- */
-BOOL ReadComponentLabel(leveldb::Slice *contents, FSTComponentLabel *label) {
-  int64_t rawResult = 0;
-  absl::string_view tmp(contents->data(), contents->size());
-  if (OrderedCode::ReadSignedNumIncreasing(&tmp, &rawResult)) {
-    if (rawResult >= FSTComponentLabelTerminator && rawResult <= FSTComponentLabelUnknown) {
-      *label = static_cast<FSTComponentLabel>(rawResult);
-      *contents = leveldb::Slice(tmp.data(), tmp.size());
-      return YES;
-    }
-  }
-  return NO;
-}
-
-/**
- * Reads a component label from the given key contents.
- *
  * If the read is unsuccessful or if the read was successful but the label that was read did not
  * match the expectedLabel returns NO and changes none of its arguments.
  *
@@ -361,101 +340,7 @@ inline BOOL ReadUserID(Slice *contents, std::string *userID) {
   return ReadLabeledString(contents, FSTComponentLabelUserID, userID);
 }
 
-/** Returns a base64-encoded string for an invalid key, used for debug-friendly description text. */
-NSString *InvalidKey(const Slice &key) {
-  NSData *keyData =
-      [[NSData alloc] initWithBytesNoCopy:(void *)key.data() length:key.size() freeWhenDone:NO];
-  return [keyData base64EncodedStringWithOptions:0];
-}
-
 }  // namespace
-
-@implementation FSTLevelDBKey
-
-+ (NSString *)descriptionForKey:(StringView)key {
-  Slice contents = key;
-  BOOL isTerminated = NO;
-
-  NSMutableString *description = [NSMutableString string];
-  [description appendString:@"["];
-  while (contents.size() > 0) {
-    Slice tmp = contents;
-    FSTComponentLabel label = FSTComponentLabelUnknown;
-    if (!ReadComponentLabel(&tmp, &label)) {
-      break;
-    }
-
-    if (label == FSTComponentLabelTerminator) {
-      isTerminated = YES;
-      contents = tmp;
-      break;
-    }
-
-    // Reset tmp since all the different read routines expect to see the separator first
-    tmp = contents;
-
-    if (label == FSTComponentLabelPathSegment) {
-      FSTDocumentKey *documentKey = nil;
-      if (!ReadDocumentKey(&tmp, &documentKey)) {
-        break;
-      }
-      [description appendFormat:@" key=%s", documentKey.path.CanonicalString().c_str()];
-
-    } else if (label == FSTComponentLabelTableName) {
-      std::string table;
-      if (!ReadLabeledString(&tmp, FSTComponentLabelTableName, &table)) {
-        break;
-      }
-      [description appendFormat:@"%s:", table.c_str()];
-
-    } else if (label == FSTComponentLabelBatchID) {
-      FSTBatchID batchID;
-      if (!ReadBatchID(&tmp, &batchID)) {
-        break;
-      }
-      [description appendFormat:@" batchID=%d", batchID];
-
-    } else if (label == FSTComponentLabelCanonicalID) {
-      std::string canonicalID;
-      if (!ReadCanonicalID(&tmp, &canonicalID)) {
-        break;
-      }
-      [description appendFormat:@" canonicalID=%s", canonicalID.c_str()];
-
-    } else if (label == FSTComponentLabelTargetID) {
-      FSTTargetID targetID;
-      if (!ReadTargetID(&tmp, &targetID)) {
-        break;
-      }
-      [description appendFormat:@" targetID=%d", targetID];
-
-    } else if (label == FSTComponentLabelUserID) {
-      std::string userID;
-      if (!ReadUserID(&tmp, &userID)) {
-        break;
-      }
-      [description appendFormat:@" userID=%s", userID.c_str()];
-
-    } else {
-      [description appendFormat:@" unknown label=%d", (int)label];
-      break;
-    }
-
-    contents = tmp;
-  }
-
-  if (contents.size() > 0) {
-    [description appendFormat:@" invalid key=<%@>", InvalidKey(key)];
-
-  } else if (!isTerminated) {
-    [description appendFormat:@" incomplete key"];
-  }
-
-  [description appendString:@"]"];
-  return description;
-}
-
-@end
 
 @implementation FSTLevelDBVersionKey
 
@@ -710,6 +595,10 @@ NSString *InvalidKey(const Slice &key) {
 
 @end
 
+// Used for sentinel row for a document in the document target index. No target has the ID 0,
+// and it will sort first in the list of targets for a document.
+static const FSTTargetID kInvalidTargetID = 0;
+
 @implementation FSTLevelDBDocumentTargetKey
 
 + (std::string)keyPrefix {
@@ -734,6 +623,10 @@ NSString *InvalidKey(const Slice &key) {
   return result;
 }
 
++ (std::string)sentinelKeyWithDocumentKey:(FSTDocumentKey *)documentKey {
+  return [self keyWithDocumentKey:documentKey targetID:kInvalidTargetID];
+}
+
 - (BOOL)decodeKey:(Firestore::StringView)key {
   _documentKey = nil;
 
@@ -744,6 +637,10 @@ NSString *InvalidKey(const Slice &key) {
 }
 
 @end
+
+BOOL FSTTargetIDIsSentinel(FSTTargetID targetId) {
+  return targetId == 0;
+}
 
 @implementation FSTLevelDBRemoteDocumentKey
 

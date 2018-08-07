@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '5.0.6'
+  s.version          = '5.1.0'
   s.summary          = 'Firebase Core for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -13,9 +13,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-# Undo comment before release
-#    :tag => 'Core-' + s.version.to_s
-    :tag => 'pre-5.3-' + s.version.to_s
+    :tag => 'Core-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
@@ -32,10 +30,10 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.frameworks = [
     'Foundation'
   ]
-  s.dependency 'GoogleUtilities/Logger', '~> 5.0'
+  s.dependency 'GoogleUtilities/Logger', '~> 5.2'
   s.pod_target_xcconfig = {
     'OTHER_CFLAGS' => '-fno-autolink',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.4.1'
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.5.0'
   }
 end

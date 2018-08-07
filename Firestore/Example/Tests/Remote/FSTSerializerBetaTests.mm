@@ -438,6 +438,27 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(actualMutation, mutation);
 }
 
+- (void)testDecodesMutationResult {
+  GCFSWriteResult *proto = [GCFSWriteResult message];
+  proto.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
+  [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
+
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto];
+
+  XCTAssertEqual(result.version.value(), (SnapshotVersion{Timestamp{0, 4000}}));
+  XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
+}
+
+- (void)testDecodesDeleteMutationResult {
+  GCFSWriteResult *proto = [GCFSWriteResult message];
+  // Deletes don't set updateTime (or transformResults).
+
+  FSTMutationResult *result = [self.serializer decodedMutationResult:proto];
+
+  XCTAssertFalse(result.version.has_value());
+  XCTAssertEqual(result.transformResults.count, 0);
+}
+
 - (void)testRoundTripSpecialFieldNames {
   FSTMutation *set = FSTTestSetMutation(@"collection/key", @{
     @"field" : [NSString stringWithFormat:@"field %d", 1],

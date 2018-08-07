@@ -23,6 +23,10 @@
 #import <FirebaseCore/FIRComponentContainerInternal.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 
+#include <chrono>  // NOLINT(build/c++11)
+#include <future>  // NOLINT(build/c++11)
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
@@ -69,6 +73,32 @@
 namespace firebase {
 namespace firestore {
 namespace auth {
+
+// Simulates the case where Firebase/Firestore is installed in the project but
+// Firebase/Auth is not available.
+TEST(FirebaseCredentialsProviderTest, GetTokenNoProvider) {
+  auto token_promise = std::make_shared<std::promise<Token>>();
+
+  FIRApp* app = testutil::AppForUnitTesting();
+  FirebaseCredentialsProvider credentials_provider(app, nil);
+  credentials_provider.GetToken([token_promise](util::StatusOr<Token> result) {
+    EXPECT_TRUE(result.ok());
+    const Token& token = result.ValueOrDie();
+    EXPECT_ANY_THROW(token.token());
+    const User& user = token.user();
+    EXPECT_EQ("", user.uid());
+    EXPECT_FALSE(user.is_authenticated());
+
+    // TODO(wilhuff): convert between !result.ok() and a failed promise.
+    token_promise->set_value(token);
+  });
+
+  // TODO(wilhuff): generalize this pattern or make util::Await for non-void
+  // futures.
+  auto kTimeout = std::chrono::seconds(5);
+  auto token_future = token_promise->get_future();
+  ASSERT_EQ(std::future_status::ready, token_future.wait_for(kTimeout));
+}
 
 TEST(FirebaseCredentialsProviderTest, GetTokenUnauthenticated) {
   FIRApp* app = testutil::AppForUnitTesting();

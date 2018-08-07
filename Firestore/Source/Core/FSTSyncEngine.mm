@@ -233,7 +233,6 @@ class LimboResolution {
   [self.localStore releaseQuery:query];
   [self.remoteStore stopListeningToTargetID:queryView.targetID];
   [self removeAndCleanupQuery:queryView];
-  [self.localStore collectGarbage];
 }
 
 - (void)writeMutations:(NSArray<FSTMutation *> *)mutations
@@ -491,14 +490,14 @@ class LimboResolution {
         if (viewChange.snapshot) {
           [newSnapshots addObject:viewChange.snapshot];
           FSTLocalViewChanges *docChanges =
-              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot];
+              [FSTLocalViewChanges changesForViewSnapshot:viewChange.snapshot
+                                             withTargetID:queryView.targetID];
           [documentChangesInAllViews addObject:docChanges];
         }
       }];
 
   [self.delegate handleViewSnapshots:newSnapshots];
   [self.localStore notifyLocalViewChanges:documentChangesInAllViews];
-  [self.localStore collectGarbage];
 }
 
 /** Updates the limbo document state for the given targetID. */

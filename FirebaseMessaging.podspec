@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessaging'
-  s.version          = '3.0.3'
+  s.version          = '3.1.0'
   s.summary          = 'Firebase Messaging for iOS'
 
   s.description      = <<-DESC
@@ -38,6 +38,6 @@ device, and it is completely free.
   s.framework = 'SystemConfiguration'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'FirebaseInstanceID', '~> 3.0'
-  s.dependency 'GoogleUtilities/Reachability', '~> 5.0'
+  s.dependency 'GoogleUtilities/Reachability', '~> 5.2'
   s.dependency 'Protobuf', '~> 3.1'
 end

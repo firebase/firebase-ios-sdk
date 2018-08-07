@@ -14,6 +14,8 @@
 
 # Adds Sanitzer options to the current build.
 
+include(compiler_id)
+
 option(WITH_ASAN "Build with Address Sanitizer" OFF)
 # TODO(varconst): msan
 # Memory sanitizer is more complicated:
@@ -28,7 +30,7 @@ macro(add_to_compile_and_link_flags flag)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${flag}")
 endmacro()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CXX_CLANG OR CXX_GNU)
   if(WITH_ASAN)
     add_to_compile_and_link_flags("-fsanitize=address")
   endif()

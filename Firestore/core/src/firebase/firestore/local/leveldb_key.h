@@ -82,7 +82,10 @@ namespace local {
  * Parses the given key and returns a human readable description of its
  * contents, suitable for error messages and logging.
  */
-std::string Describe(leveldb::Slice key);
+std::string DescribeKey(leveldb::Slice key);
+std::string DescribeKey(absl::string_view key);
+std::string DescribeKey(const std::string& key);
+std::string DescribeKey(const char* key);
 
 /** A key to a singleton row storing the version of the schema. */
 class LevelDbVersionKey {

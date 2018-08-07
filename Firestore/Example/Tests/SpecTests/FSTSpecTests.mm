@@ -24,8 +24,6 @@
 
 #import "Firestore/Source/Core/FSTEventManager.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTEagerGarbageCollector.h"
-#import "Firestore/Source/Local/FSTNoOpGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -58,6 +56,10 @@ using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Whether to run the benchmark spec tests.
+// TODO(mrschmidt): Make this configurable via the tests schema.
+static BOOL kRunBenchmarkTests = NO;
+
 // Disables all other tests; useful for debugging. Multiple tests can have this tag and they'll all
 // be run (but all others won't).
 static NSString *const kExclusiveTag = @"exclusive";
@@ -66,42 +68,55 @@ static NSString *const kExclusiveTag = @"exclusive";
 // to temporarily diverge.
 static NSString *const kNoIOSTag = @"no-ios";
 
+// A tag for tests that exercise the multi-client behavior of the Web client. These tests are
+// ignored on iOS.
+static NSString *const kMultiClientTag = @"multi-client";
+
+// A tag for tests that is assigned to the perf tests in "perf_spec.json". These tests are only run
+// if `kRunBenchmarkTests` is set to 'YES'.
+static NSString *const kBenchmarkTag = @"benchmark";
+
+NSString *const kNoLRUTag = @"no-lru";
+
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
 // Some config info for the currently running spec; used when restarting the driver (for doRestart).
-@property(nonatomic, assign) BOOL GCEnabled;
 @property(nonatomic, strong) id<FSTPersistence> driverPersistence;
 @end
 
 @implementation FSTSpecTests
 
-- (id<FSTPersistence>)persistence {
+- (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
+  if ([tags containsObject:kNoIOSTag]) {
+    return NO;
+  } else if ([tags containsObject:kMultiClientTag]) {
+    return NO;
+  } else if (!kRunBenchmarkTests && [tags containsObject:kBenchmarkTag]) {
+    return NO;
+  }
+  return YES;
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
   // Store persistence / GCEnabled so we can re-use it in doRestart.
-  self.driverPersistence = [self persistence];
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  self.GCEnabled = [GCEnabled boolValue];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector];
+  NSNumber *numClients = config[@"numClients"];
+  if (numClients) {
+    XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
+  }
+  self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
   [self.driver start];
 }
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
   [self.driverPersistence shutdown];
-}
-
-/**
- * Creates the appropriate garbage collector for the test configuration: an eager collector if
- * GC is enabled or a no-op collector otherwise.
- */
-- (id<FSTGarbageCollector>)garbageCollector {
-  return self.GCEnabled ? [[FSTEagerGarbageCollector alloc] init]
-                        : [[FSTNoOpGarbageCollector alloc] init];
 }
 
 /**
@@ -325,32 +340,26 @@ static NSString *const kNoIOSTag = @"no-ios";
 
 - (void)doWriteAck:(NSDictionary *)spec {
   SnapshotVersion version = [self parseVersion:spec[@"version"]];
-  NSNumber *expectUserCallback = spec[@"expectUserCallback"];
+  NSNumber *keepInQueue = spec[@"keepInQueue"];
+  XCTAssertTrue(keepInQueue == nil || keepInQueue.boolValue == NO,
+                @"'keepInQueue=true' is not supported on iOS and should only be set in "
+                @"multi-client tests");
 
   FSTMutationResult *mutationResult =
       [[FSTMutationResult alloc] initWithVersion:version transformResults:nil];
-  FSTOutstandingWrite *write =
-      [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
-
-  if (expectUserCallback.boolValue) {
-    HARD_ASSERT(write.done, "Write should be done");
-    HARD_ASSERT(!write.error, "Ack should not fail");
-  }
+  [self.driver receiveWriteAckWithVersion:version mutationResults:@[ mutationResult ]];
 }
 
 - (void)doFailWrite:(NSDictionary *)spec {
   NSDictionary *errorSpec = spec[@"error"];
-  NSNumber *expectUserCallback = spec[@"expectUserCallback"];
+  NSNumber *keepInQueue = spec[@"keepInQueue"];
 
   int code = ((NSNumber *)(errorSpec[@"code"])).intValue;
-  FSTOutstandingWrite *write = [self.driver receiveWriteError:code userInfo:errorSpec];
+  [self.driver receiveWriteError:code userInfo:errorSpec keepInQueue:keepInQueue.boolValue];
+}
 
-  if (expectUserCallback.boolValue) {
-    HARD_ASSERT(write.done, "Write should be done");
-    XCTAssertNotNil(write.error, @"Write should have failed");
-    XCTAssertEqualObjects(write.error.domain, FIRFirestoreErrorDomain);
-    XCTAssertEqual(write.error.code, code);
-  }
+- (void)doDrainQueue {
+  [self.driver drainQueue];
 }
 
 - (void)doRunTimer:(NSString *)timer {
@@ -404,13 +413,15 @@ static NSString *const kNoIOSTag = @"no-ios";
   // re-create FSTMemoryPersistence without losing all persisted state).
 
   self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
-                                                    garbageCollector:self.garbageCollector
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];
 }
 
 - (void)doStep:(NSDictionary *)step {
+  NSNumber *clientIndex = step[@"clientIndex"];
+  XCTAssertNil(clientIndex, @"The iOS client does not support switching clients");
+
   if (step[@"userListen"]) {
     [self doListen:step[@"userListen"]];
   } else if (step[@"userUnlisten"]) {
@@ -421,6 +432,8 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self doPatch:step[@"userPatch"]];
   } else if (step[@"userDelete"]) {
     [self doDelete:step[@"userDelete"]];
+  } else if (step[@"drainQueue"]) {
+    [self doDrainQueue];
   } else if (step[@"watchAck"]) {
     [self doWatchAck:step[@"watchAck"]];
   } else if (step[@"watchCurrent"]) {
@@ -456,6 +469,10 @@ static NSString *const kNoIOSTag = @"no-ios";
     [self doChangeUser:step[@"changeUser"]];
   } else if (step[@"restart"]) {
     [self doRestart];
+  } else if (step[@"applyClientState"]) {
+    XCTFail(
+        @"'applyClientState' is not supported on iOS and should only be used in multi-client "
+        @"tests");
   } else {
     XCTFail(@"Unknown step: %@", step);
   }
@@ -500,7 +517,7 @@ static NSString *const kNoIOSTag = @"no-ios";
   }
 }
 
-- (void)validateStepExpectations:(NSMutableArray *_Nullable)stepExpectations {
+- (void)validateStepExpectations:(NSArray *_Nullable)stepExpectations {
   NSArray<FSTQueryEvent *> *events = self.driver.capturedEventsSinceLastCall;
 
   if (!stepExpectations) {
@@ -511,12 +528,18 @@ static NSString *const kNoIOSTag = @"no-ios";
     return;
   }
 
+  XCTAssertEqual(events.count, stepExpectations.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
         return [q1.query.canonicalID compare:q2.query.canonicalID];
       }];
+  stepExpectations = [stepExpectations
+      sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
+        FSTQuery *leftQuery = [self parseQuery:left[@"query"]];
+        FSTQuery *rightQuery = [self parseQuery:right[@"query"]];
+        return [leftQuery.canonicalID compare:rightQuery.canonicalID];
+      }];
 
-  XCTAssertEqual(events.count, stepExpectations.count);
   NSUInteger i = 0;
   for (; i < stepExpectations.count && i < events.count; ++i) {
     [self validateEvent:events[i] matches:stepExpectations[i]];
@@ -574,10 +597,27 @@ static NSString *const kNoIOSTag = @"no-ios";
     }
   }
 
+  // Always validate the we received the expected number of callbacks.
+  [self validateUserCallbacks:expected];
   // Always validate that the expected limbo docs match the actual limbo docs.
   [self validateLimboDocuments];
   // Always validate that the expected active targets match the actual active targets.
   [self validateActiveTargets];
+}
+
+- (void)validateUserCallbacks:(nullable NSDictionary *)expected {
+  NSDictionary *expectedCallbacks = expected[@"userCallbacks"];
+  NSArray<NSString *> *actualAcknowledgedDocs =
+      [self.driver capturedAcknowledgedWritesSinceLastCall];
+  NSArray<NSString *> *actualRejectedDocs = [self.driver capturedRejectedWritesSinceLastCall];
+
+  if (expectedCallbacks) {
+    XCTAssertTrue([actualAcknowledgedDocs isEqualToArray:expectedCallbacks[@"acknowledgedDocs"]]);
+    XCTAssertTrue([actualRejectedDocs isEqualToArray:expectedCallbacks[@"rejectedDocs"]]);
+  } else {
+    XCTAssertEqual([actualAcknowledgedDocs count], 0);
+    XCTAssertEqual([actualRejectedDocs count], 0);
+  }
 }
 
 - (void)validateLimboDocuments {
@@ -696,8 +736,8 @@ static NSString *const kNoIOSTag = @"no-ios";
       NSArray<NSString *> *tags = testDescription[@"tags"];
 
       BOOL runTest = !exclusiveMode || [tags indexOfObject:kExclusiveTag] != NSNotFound;
-      if ([tags indexOfObject:kNoIOSTag] != NSNotFound) {
-        runTest = NO;
+      if (runTest) {
+        runTest = [self shouldRunWithTags:tags];
       }
       if (runTest) {
         NSLog(@"  Spec test: %@", name);
@@ -705,6 +745,10 @@ static NSString *const kNoIOSTag = @"no-ios";
         ranAtLeastOneTest = YES;
       } else {
         NSLog(@"  [SKIPPED] Spec test: %@", name);
+        NSString *comment = testDescription[@"comment"];
+        if (comment) {
+          NSLog(@"    %@", comment);
+        }
       }
     }];
   }

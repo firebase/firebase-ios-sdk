@@ -493,9 +493,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get doc. Currently, this is expected to fail. In the future, we
-  // might consider adding support for negative cache hits so that we know
-  // certain documents *don't* exist.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
@@ -505,6 +503,26 @@
     [getNonExistingDocCompletion fulfill];
   }];
   [self awaitExpectations];
+}
+
+// TODO(b/112267729): We should raise a fromCache=true event with a nonexistent snapshot, but
+// because the default source goes through a normal listener, we do not.
+- (void)xtestGetDeletedDocWhileOfflineWithDefaultSource {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // Delete the doc to get a deleted document into our cache.
+  [self deleteDocumentRef:doc];
+
+  // Go offline for the rest of this test
+  [self disableNetwork];
+
+  // Should get a FIRDocumentSnapshot with exists=false, fromCache=true
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc source:FIRFirestoreSourceDefault];
+  XCTAssertNotNil(snapshot);
+  XCTAssertFalse(snapshot.exists);
+  XCTAssertNil(snapshot.data);
+  XCTAssertTrue(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingCollectionWhileOfflineWithDefaultSource {
@@ -524,9 +542,7 @@
 - (void)testGetNonExistingDocWhileOnlineCacheOnly {
   FIRDocumentReference *doc = [self documentRef];
 
-  // attempt to get doc. Currently, this is expected to fail. In the future, we
-  // might consider adding support for negative cache hits so that we know
-  // certain documents *don't* exist.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
@@ -556,9 +572,7 @@
   // go offline for the rest of this test
   [self disableNetwork];
 
-  // attempt to get doc. Currently, this is expected to fail. In the future, we
-  // might consider adding support for negative cache hits so that we know
-  // certain documents *don't* exist.
+  // Attempt to get doc. This will fail since there's nothing in cache.
   XCTestExpectation *getNonExistingDocCompletion =
       [self expectationWithDescription:@"getNonExistingDoc"];
   [doc getDocumentWithSource:FIRFirestoreSourceCache
@@ -569,6 +583,24 @@
                     [getNonExistingDocCompletion fulfill];
                   }];
   [self awaitExpectations];
+}
+
+- (void)testGetDeletedDocWhileOfflineCacheOnly {
+  FIRDocumentReference *doc = [self documentRef];
+
+  // Delete the doc to get a deleted document into our cache.
+  [self deleteDocumentRef:doc];
+
+  // Go offline for the rest of this test
+  [self disableNetwork];
+
+  // Should get a FIRDocumentSnapshot with exists=false, fromCache=true
+  FIRDocumentSnapshot *snapshot = [self readDocumentForRef:doc source:FIRFirestoreSourceCache];
+  XCTAssertNotNil(snapshot);
+  XCTAssertFalse(snapshot.exists);
+  XCTAssertNil(snapshot.data);
+  XCTAssertTrue(snapshot.metadata.fromCache);
+  XCTAssertFalse(snapshot.metadata.hasPendingWrites);
 }
 
 - (void)testGetNonExistingCollectionWhileOfflineCacheOnly {

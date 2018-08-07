@@ -21,7 +21,6 @@
 #import "FIRTimestamp.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Core/FSTQuery.h"
-#import "Firestore/Source/Local/FSTGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLocalDocumentsView.h"
 #import "Firestore/Source/Local/FSTLocalViewChanges.h"
 #import "Firestore/Source/Local/FSTLocalWriteResult.h"
@@ -70,20 +69,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** The set of document references maintained by any local views. */
 @property(nonatomic, strong) FSTReferenceSet *localViewReferences;
 
-/**
- * The garbage collector collects documents that should no longer be cached (e.g. if they are no
- * longer retained by the above reference sets and the garbage collector is performing eager
- * collection).
- */
-@property(nonatomic, strong) id<FSTGarbageCollector> garbageCollector;
-
 /** Maps a query to the data about that query. */
 @property(nonatomic, strong) id<FSTQueryCache> queryCache;
 
 /** Maps a targetID to data about its query. */
 @property(nonatomic, strong) NSMutableDictionary<NSNumber *, FSTQueryData *> *targetIDs;
-
-@property(nonatomic, strong) FSTListenSequence *listenSequence;
 
 /**
  * A heldBatchResult is a mutation batch result (from a write acknowledgement) that arrived before
@@ -104,7 +94,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithPersistence:(id<FSTPersistence>)persistence
-                   garbageCollector:(id<FSTGarbageCollector>)garbageCollector
                         initialUser:(const User &)initialUser {
   if (self = [super init]) {
     _persistence = persistence;
@@ -116,11 +105,6 @@ NS_ASSUME_NONNULL_BEGIN
     _localViewReferences = [[FSTReferenceSet alloc] init];
     [_persistence.referenceDelegate addInMemoryPins:_localViewReferences];
 
-    _garbageCollector = garbageCollector;
-    [_garbageCollector addGarbageSource:_queryCache];
-    [_garbageCollector addGarbageSource:_localViewReferences];
-    [_garbageCollector addGarbageSource:_mutationQueue];
-
     _targetIDs = [NSMutableDictionary dictionary];
     _heldBatchResults = [NSMutableArray array];
 
@@ -131,7 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start {
   [self startMutationQueue];
-  [self startQueryCache];
+  FSTTargetID targetID = [self.queryCache highestTargetID];
+  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
 }
 
 - (void)startMutationQueue {
@@ -158,25 +143,13 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)startQueryCache {
-  [self.queryCache start];
-
-  FSTTargetID targetID = [self.queryCache highestTargetID];
-  _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
-  FSTListenSequenceNumber sequenceNumber = [self.queryCache highestListenSequenceNumber];
-  self.listenSequence = [[FSTListenSequence alloc] initStartingAfter:sequenceNumber];
-}
-
 - (FSTMaybeDocumentDictionary *)userDidChange:(const User &)user {
   // Swap out the mutation queue, grabbing the pending mutation batches before and after.
   NSArray<FSTMutationBatch *> *oldBatches = self.persistence.run(
       "OldBatches",
       [&]() -> NSArray<FSTMutationBatch *> * { return [self.mutationQueue allMutationBatches]; });
 
-  [self.garbageCollector removeGarbageSource:self.mutationQueue];
-
   self.mutationQueue = [self.persistence mutationQueueForUser:user];
-  [self.garbageCollector addGarbageSource:self.mutationQueue];
 
   [self startMutationQueue];
 
@@ -265,7 +238,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
     // TODO(gsoltis): move the sequence number into the reference delegate.
-    FSTListenSequenceNumber sequenceNumber = [self.listenSequence next];
+    FSTListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
     id<FSTQueryCache> queryCache = self.queryCache;
 
     DocumentKeySet authoritativeUpdates;
@@ -334,9 +307,7 @@ NS_ASSUME_NONNULL_BEGIN
             doc.version.timestamp().ToString());
       }
 
-      // The document might be garbage because it was unreferenced by everything.
-      // Make sure to mark it as garbage if it is...
-      [self.garbageCollector addPotentialGarbageKey:key];
+      // If this was a limbo resolution, make sure we mark when it was accessed.
       if (limboDocuments.contains(key)) {
         [self.persistence.referenceDelegate limboDocumentUpdated:key];
       }
@@ -369,15 +340,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
     FSTReferenceSet *localViewReferences = self.localViewReferences;
-    for (FSTLocalViewChanges *view in viewChanges) {
-      FSTQueryData *queryData = [self.queryCache queryDataForQuery:view.query];
-      HARD_ASSERT(queryData, "Local view changes contain unallocated query.");
-      FSTTargetID targetID = queryData.targetID;
-      for (const DocumentKey &key : view.removedKeys) {
-        [self->_persistence.referenceDelegate removeReference:key target:targetID];
+    for (FSTLocalViewChanges *viewChange in viewChanges) {
+      for (const DocumentKey &key : viewChange.removedKeys) {
+        [self->_persistence.referenceDelegate removeReference:key];
       }
-      [localViewReferences addReferencesToKeys:view.addedKeys forID:targetID];
-      [localViewReferences removeReferencesToKeys:view.removedKeys forID:targetID];
+      [localViewReferences addReferencesToKeys:viewChange.addedKeys forID:viewChange.targetID];
+      [localViewReferences removeReferencesToKeys:viewChange.removedKeys forID:viewChange.targetID];
     }
   });
 }
@@ -403,7 +371,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (!cached) {
       cached = [[FSTQueryData alloc] initWithQuery:query
                                           targetID:_targetIDGenerator.NextId()
-                              listenSequenceNumber:[self.listenSequence next]
+                              listenSequenceNumber:self.persistence.currentSequenceNumber
                                            purpose:FSTQueryPurposeListen];
       [self.queryCache addQueryData:cached];
     }
@@ -423,9 +391,6 @@ NS_ASSUME_NONNULL_BEGIN
     HARD_ASSERT(queryData, "Tried to release nonexistent query: %s", query);
 
     [self.localViewReferences removeReferencesForID:queryData.targetID];
-    if (self.garbageCollector.isEager) {
-      [self.queryCache removeQueryData:queryData];
-    }
     [self.persistence.referenceDelegate removeTarget:queryData];
     [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
@@ -446,19 +411,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
   return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
     return [self.queryCache matchingKeysForTargetID:targetID];
-  });
-}
-
-- (void)collectGarbage {
-  self.persistence.run("Garbage Collection", [&]() {
-    // Call collectGarbage regardless of whether isGCEnabled so the referenceSet doesn't continue to
-    // accumulate the garbage keys.
-    std::set<DocumentKey> garbage = [self.garbageCollector collectGarbage];
-    if (garbage.size() > 0) {
-      for (const DocumentKey &key : garbage) {
-        [self.remoteDocumentCache removeEntryForKey:key];
-      }
-    }
   });
 }
 

@@ -4,7 +4,8 @@
     "itName": "Two sequential writes to different documents smoke test.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -151,8 +152,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
         },
         "expect": [
           {
@@ -229,8 +237,15 @@
       },
       {
         "writeAck": {
-          "version": 3000,
-          "expectUserCallback": true
+          "version": 3000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
         },
         "expect": [
           {
@@ -261,7 +276,8 @@
     "itName": "Event is raised for a local set before and after the write ack",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -394,8 +410,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         },
         "expect": [
           {
@@ -426,7 +449,8 @@
     "itName": "Cache will not keep data for an outdated write ack",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -559,8 +583,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         },
         "expect": [
           {
@@ -591,7 +622,8 @@
     "itName": "Cache raises correct event if write is acked before watch delivers it",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -703,8 +735,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -756,7 +795,8 @@
     "itName": "Cache will hold local write until watch catches up",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -868,8 +908,15 @@
       },
       {
         "writeAck": {
-          "version": 3000,
-          "expectUserCallback": true
+          "version": 3000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -958,7 +1005,8 @@
     "itName": "Writes are pipelined",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -1451,8 +1499,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a0"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1499,8 +1554,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a1"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1547,8 +1609,15 @@
       },
       {
         "writeAck": {
-          "version": 3000,
-          "expectUserCallback": true
+          "version": 3000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a2"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1595,8 +1664,15 @@
       },
       {
         "writeAck": {
-          "version": 4000,
-          "expectUserCallback": true
+          "version": 4000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a3"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1643,8 +1719,15 @@
       },
       {
         "writeAck": {
-          "version": 5000,
-          "expectUserCallback": true
+          "version": 5000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a4"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1691,8 +1774,15 @@
       },
       {
         "writeAck": {
-          "version": 6000,
-          "expectUserCallback": true
+          "version": 6000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a5"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1739,8 +1829,15 @@
       },
       {
         "writeAck": {
-          "version": 7000,
-          "expectUserCallback": true
+          "version": 7000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a6"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1787,8 +1884,15 @@
       },
       {
         "writeAck": {
-          "version": 8000,
-          "expectUserCallback": true
+          "version": 8000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a7"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1835,8 +1939,15 @@
       },
       {
         "writeAck": {
-          "version": 9000,
-          "expectUserCallback": true
+          "version": 9000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a8"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1883,8 +1994,15 @@
       },
       {
         "writeAck": {
-          "version": 10000,
-          "expectUserCallback": true
+          "version": 10000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a9"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1931,8 +2049,15 @@
       },
       {
         "writeAck": {
-          "version": 11000,
-          "expectUserCallback": true
+          "version": 11000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a10"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -1979,8 +2104,15 @@
       },
       {
         "writeAck": {
-          "version": 12000,
-          "expectUserCallback": true
+          "version": 12000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a11"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -2027,8 +2159,15 @@
       },
       {
         "writeAck": {
-          "version": 13000,
-          "expectUserCallback": true
+          "version": 13000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a12"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -2075,8 +2214,15 @@
       },
       {
         "writeAck": {
-          "version": 14000,
-          "expectUserCallback": true
+          "version": 14000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a13"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -2123,8 +2269,15 @@
       },
       {
         "writeAck": {
-          "version": 15000,
-          "expectUserCallback": true
+          "version": 15000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a14"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -2176,7 +2329,8 @@
     "itName": "Pipelined writes can fail",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -2658,8 +2812,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a0"
+            ]
+          }
         },
         "expect": [
           {
@@ -2688,8 +2849,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a1"
+            ]
+          }
         },
         "expect": [
           {
@@ -2718,8 +2886,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a2"
+            ]
+          }
         },
         "expect": [
           {
@@ -2748,8 +2923,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a3"
+            ]
+          }
         },
         "expect": [
           {
@@ -2778,8 +2960,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a4"
+            ]
+          }
         },
         "expect": [
           {
@@ -2808,8 +2997,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a5"
+            ]
+          }
         },
         "expect": [
           {
@@ -2838,8 +3034,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a6"
+            ]
+          }
         },
         "expect": [
           {
@@ -2868,8 +3071,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a7"
+            ]
+          }
         },
         "expect": [
           {
@@ -2898,8 +3108,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a8"
+            ]
+          }
         },
         "expect": [
           {
@@ -2928,8 +3145,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a9"
+            ]
+          }
         },
         "expect": [
           {
@@ -2958,8 +3182,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a10"
+            ]
+          }
         },
         "expect": [
           {
@@ -2988,8 +3219,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a11"
+            ]
+          }
         },
         "expect": [
           {
@@ -3018,8 +3256,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a12"
+            ]
+          }
         },
         "expect": [
           {
@@ -3048,8 +3293,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a13"
+            ]
+          }
         },
         "expect": [
           {
@@ -3078,8 +3330,16 @@
         "failWrite": {
           "error": {
             "code": 7
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a14"
+            ]
           },
-          "expectUserCallback": true
+          "numOutstandingWrites": 0
         },
         "expect": [
           {
@@ -3102,10 +3362,7 @@
             "fromCache": true,
             "hasPendingWrites": false
           }
-        ],
-        "stateExpect": {
-          "numOutstandingWrites": 0
-        }
+        ]
       }
     ]
   },
@@ -3114,7 +3371,8 @@
     "itName": "Failed writes are released immediately.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -3226,8 +3484,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -3264,8 +3529,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a"
+            ]
+          }
         },
         "expect": [
           {
@@ -3338,7 +3610,8 @@
     "itName": "Held writes are not re-sent.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -3433,8 +3706,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -3469,8 +3749,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -3536,7 +3823,8 @@
     "itName": "Held writes are not re-sent after disable/enable network.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -3631,10 +3919,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
         },
         "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          },
           "writeStreamRequestCount": 2
         }
       },
@@ -3739,7 +4032,8 @@
     ],
     "comment": "This test expects a new target id for a new listen, but without eager gc, the same target id is reused",
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -3834,8 +4128,15 @@
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -3880,7 +4181,8 @@
     "itName": "Writes that fail with code invalid-argument are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -3939,8 +4241,15 @@
         "failWrite": {
           "error": {
             "code": 3
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -3972,7 +4281,8 @@
     "itName": "Writes that fail with code not-found are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4031,8 +4341,15 @@
         "failWrite": {
           "error": {
             "code": 5
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4064,7 +4381,8 @@
     "itName": "Writes that fail with code already-exists are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4123,8 +4441,15 @@
         "failWrite": {
           "error": {
             "code": 6
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4156,7 +4481,8 @@
     "itName": "Writes that fail with code permission-denied are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4215,8 +4541,15 @@
         "failWrite": {
           "error": {
             "code": 7
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4248,7 +4581,8 @@
     "itName": "Writes that fail with code failed-precondition are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4307,8 +4641,15 @@
         "failWrite": {
           "error": {
             "code": 9
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4340,7 +4681,8 @@
     "itName": "Writes that fail with code aborted are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4399,8 +4741,15 @@
         "failWrite": {
           "error": {
             "code": 10
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4432,7 +4781,8 @@
     "itName": "Writes that fail with code out-of-range are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4491,8 +4841,15 @@
         "failWrite": {
           "error": {
             "code": 11
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4524,7 +4881,8 @@
     "itName": "Writes that fail with code unimplemented are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4583,8 +4941,15 @@
         "failWrite": {
           "error": {
             "code": 12
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4616,7 +4981,8 @@
     "itName": "Writes that fail with code data-loss are rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4675,8 +5041,15 @@
         "failWrite": {
           "error": {
             "code": 15
-          },
-          "expectUserCallback": true
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/key"
+            ]
+          }
         },
         "expect": [
           {
@@ -4708,7 +5081,8 @@
     "itName": "Writes that fail with code resource_exhausted are not rejected",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4768,7 +5142,7 @@
           "error": {
             "code": 8
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       }
     ]
@@ -4778,7 +5152,8 @@
     "itName": "Writes that fail with code cancelled are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4838,13 +5213,20 @@
           "error": {
             "code": 1
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -4909,7 +5291,8 @@
     "itName": "Writes that fail with code unknown are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -4969,13 +5352,20 @@
           "error": {
             "code": 2
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -5040,7 +5430,8 @@
     "itName": "Writes that fail with code deadline-exceeded are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5100,13 +5491,20 @@
           "error": {
             "code": 4
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -5171,7 +5569,8 @@
     "itName": "Writes that fail with code internal are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5231,13 +5630,20 @@
           "error": {
             "code": 13
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -5302,7 +5708,8 @@
     "itName": "Writes that fail with code unavailable are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5362,13 +5769,20 @@
           "error": {
             "code": 14
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -5433,7 +5847,8 @@
     "itName": "Writes that fail with code unauthenticated are retried",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5493,13 +5908,20 @@
           "error": {
             "code": 16
           },
-          "expectUserCallback": false
+          "keepInQueue": true
         }
       },
       {
         "writeAck": {
-          "version": 1000,
-          "expectUserCallback": true
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          }
         }
       },
       {
@@ -5564,7 +5986,8 @@
     "itName": "Ensure correct events after patching a doc (including a delete) and getting watcher events.",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5710,8 +6133,15 @@
       },
       {
         "writeAck": {
-          "version": 2000,
-          "expectUserCallback": true
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/doc"
+            ],
+            "rejectedDocs": []
+          }
         },
         "expect": [
           {
@@ -5745,7 +6175,8 @@
     "itName": "Writes are resent after network disconnect",
     "tags": [],
     "config": {
-      "useGarbageCollection": true
+      "useGarbageCollection": true,
+      "numClients": 1
     },
     "steps": [
       {
@@ -5776,12 +6207,2731 @@
       },
       {
         "writeAck": {
-          "version": 1,
-          "expectUserCallback": false
+          "version": 1
         },
         "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/key"
+            ],
+            "rejectedDocs": []
+          },
           "numOutstandingWrites": 0
         }
+      }
+    ]
+  },
+  "New writes are sent after write failure": {
+    "describeName": "Writes:",
+    "itName": "New writes are sent after write failure",
+    "tags": [],
+    "config": {
+      "useGarbageCollection": true,
+      "numClients": 1
+    },
+    "steps": [
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ]
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a"
+            ]
+          }
+        }
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "v": 1
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
+        }
+      }
+    ]
+  },
+  "Primary client acknowledges write": {
+    "describeName": "Writes:",
+    "itName": "Primary client acknowledges write",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Primary client rejects write": {
+    "describeName": "Writes:",
+    "itName": "Primary client rejects write",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a"
+            ]
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Pending writes are shared between clients": {
+    "describeName": "Writes:",
+    "itName": "Pending writes are shared between clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-500"
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 2
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "modified": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 2
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "modified": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 2
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 3
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "modified": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 3
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "modified": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 3
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      }
+    ]
+  },
+  "Pending write is acknowledged by primary client": {
+    "describeName": "Writes:",
+    "itName": "Pending write is acknowledged by primary client",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-500"
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "v": 1
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "metadata": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "metadata": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Pending write is rejected by primary client": {
+    "describeName": "Writes:",
+    "itName": "Pending write is rejected by primary client",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-500"
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/a"
+            ]
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Held write is released by primary client": {
+    "describeName": "Writes:",
+    "itName": "Held write is released by primary client",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-500"
+        ],
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 500
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "v": 1
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 0
+      },
+      {
+        "watchSnapshot": {
+          "version": 2000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "metadata": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "v": 1
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Write are sequenced by multiple clients": {
+    "describeName": "Writes:",
+    "itName": "Write are sequenced by multiple clients",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 4
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "userSet": [
+          "collection/c",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 3
+      },
+      {
+        "userSet": [
+          "collection/d",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 3
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 3000
+        },
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/c"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/d"
+            ]
+          }
+        },
+        "clientIndex": 3
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/f",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/g",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "userSet": [
+          "collection/h",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 3
+      },
+      {
+        "userSet": [
+          "collection/i",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 3
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 4000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/f"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 5000
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 6000
+        },
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/g"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/h"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/i"
+            ]
+          }
+        },
+        "clientIndex": 3
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 3
+      },
+      {
+        "userSet": [
+          "collection/j",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 3
+      },
+      {
+        "userSet": [
+          "collection/k",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 3
+      },
+      {
+        "userSet": [
+          "collection/l",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 3
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 7000
+        },
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 8000
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/j",
+              "collection/l"
+            ],
+            "rejectedDocs": [
+              "collection/k"
+            ]
+          }
+        },
+        "clientIndex": 3
+      }
+    ]
+  },
+  "Write is executed after primary tab failover": {
+    "describeName": "Writes:",
+    "itName": "Write is executed after primary tab failover",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "visibility": "visible"
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 0
+      },
+      {
+        "shutdown": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      },
+      {
+        "runTimer": "client_metadata_refresh",
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Secondary tabs handle user change": {
+    "describeName": "Writes:",
+    "itName": "Secondary tabs handle user change",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "changeUser": "user1",
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "changeUser": "user1",
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "changeUser": "user2",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "removed": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ],
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/c",
+          {
+            "v": 1
+          }
+        ],
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/c",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "changeUser": "user2",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/c",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "removed": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ],
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "changeUser": "user1",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ],
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "removed": [
+              [
+                "collection/c",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "changeUser": "user1",
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ],
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "removed": [
+              [
+                "collection/c",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      }
+    ]
+  },
+  "Mutations are scoped by user": {
+    "describeName": "Writes:",
+    "itName": "Mutations are scoped by user",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "changeUser": "user1",
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "changeUser": "user2",
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/b",
+                0,
+                {
+                  "v": 1
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Mutation recovers after primary takeover": {
+    "describeName": "Writes:",
+    "itName": "Mutation recovers after primary takeover",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "k": "a"
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "k": "a"
+                },
+                "local"
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": true
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "applyClientState": {
+          "primary": true
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 1
+      },
+      {
+        "watchAck": [
+          2
+        ],
+        "clientIndex": 1
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            [
+              "collection/a",
+              1000,
+              {
+                "k": "a"
+              }
+            ]
+          ],
+          "targets": [
+            2
+          ]
+        },
+        "clientIndex": 1
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ],
+        "clientIndex": 1
+      },
+      {
+        "watchSnapshot": {
+          "version": 1000
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "metadata": [
+              [
+                "collection/a",
+                1000,
+                {
+                  "k": "a"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      }
+    ]
+  },
+  "Write is sent by newly started primary": {
+    "describeName": "Writes:",
+    "itName": "Write is sent by newly started primary",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 3
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": false
+        },
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "v": 1
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "shutdown": true,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true,
+          "numOutstandingWrites": 1
+        },
+        "clientIndex": 2
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Unresponsive primary ignores acknowledged write": {
+    "describeName": "Writes:",
+    "itName": "Unresponsive primary ignores acknowledged write",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 3
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "k": "a"
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "k": "b"
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "applyClientState": {
+          "primary": true
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 2000,
+          "keepInQueue": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Unresponsive primary ignores rejected write": {
+    "describeName": "Writes:",
+    "itName": "Unresponsive primary ignores rejected write",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 3
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "k": "a"
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "k": "b"
+          }
+        ],
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "applyClientState": {
+          "primary": true
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 0
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          },
+          "keepInQueue": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 2
+      },
+      {
+        "failWrite": {
+          "error": {
+            "code": 9
+          }
+        },
+        "clientIndex": 2
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [],
+            "rejectedDocs": [
+              "collection/b"
+            ]
+          }
+        },
+        "clientIndex": 1
+      }
+    ]
+  },
+  "Mutation are not sent twice after primary failover": {
+    "describeName": "Writes:",
+    "itName": "Mutation are not sent twice after primary failover",
+    "tags": [
+      "multi-client"
+    ],
+    "config": {
+      "useGarbageCollection": false,
+      "numClients": 2
+    },
+    "steps": [
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/a",
+          {
+            "k": "a"
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "userSet": [
+          "collection/b",
+          {
+            "k": "b"
+          }
+        ],
+        "clientIndex": 0
+      },
+      {
+        "drainQueue": true,
+        "clientIndex": 1
+      },
+      {
+        "applyClientState": {
+          "primary": true
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 1
+      },
+      {
+        "writeAck": {
+          "version": 1000
+        },
+        "clientIndex": 1
+      },
+      {
+        "drainQueue": true,
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/a"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "applyClientState": {
+          "primary": true
+        },
+        "stateExpect": {
+          "isPrimary": true
+        },
+        "clientIndex": 0
+      },
+      {
+        "writeAck": {
+          "version": 2000
+        },
+        "stateExpect": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/b"
+            ],
+            "rejectedDocs": []
+          }
+        },
+        "clientIndex": 0
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "added": [
+              [
+                "collection/a",
+                0,
+                {
+                  "k": "a"
+                }
+              ],
+              [
+                "collection/b",
+                0,
+                {
+                  "k": "b"
+                }
+              ]
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ],
+        "clientIndex": 0
       }
     ]
   }

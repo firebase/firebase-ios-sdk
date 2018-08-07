@@ -46,11 +46,10 @@ NS_ASSUME_NONNULL_BEGIN
   return dir;
 }
 
-+ (FSTLevelDB *)levelDBPersistence {
++ (FSTLevelDB *)levelDBPersistenceWithDir:(NSString *)dir {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"p", "d"};
 
-  NSString *dir = [self levelDBDir];
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
@@ -65,9 +64,25 @@ NS_ASSUME_NONNULL_BEGIN
   return db;
 }
 
-+ (FSTMemoryPersistence *)memoryPersistence {
++ (FSTLevelDB *)levelDBPersistence {
+  return [self levelDBPersistenceWithDir:[self levelDBDir]];
+}
+
++ (FSTMemoryPersistence *)eagerGCMemoryPersistence {
   NSError *error;
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistence];
+  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithEagerGC];
+  BOOL success = [persistence start:&error];
+  if (!success) {
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Failed to start memory persistence: %@", error];
+  }
+
+  return persistence;
+}
+
++ (FSTMemoryPersistence *)lruMemoryPersistence {
+  NSError *error;
+  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithLRUGC];
   BOOL success = [persistence start:&error];
   if (!success) {
     [NSException raise:NSInternalInconsistencyException

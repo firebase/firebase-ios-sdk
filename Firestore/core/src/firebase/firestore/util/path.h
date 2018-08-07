@@ -20,37 +20,125 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-struct Path {
-  /**
-   * Returns the unqualified trailing part of the pathname, e.g. "c" for
-   * "/a/b/c".
-   */
-  static absl::string_view Basename(absl::string_view pathname);
+/**
+ * An immutable native pathname string. Paths can be absolute or relative. Paths
+ * internally maintain their filesystem-native encoding.
+ *
+ * The intent of the API is that high-level code generally just uses UTF-8-
+ * encoded string-literals or strings for the segments and constructs a
+ * filesystem-native Path using APIs like Path::JoinUtf8.
+ *
+ * Lower level code may need to construct derived Paths from values obtained
+ * from the filesystem that already are in the right encoding.
+ */
+class Path {
+ public:
+#if defined(_WIN32)
+  using char_type = wchar_t;
+#else
+  using char_type = char;
+#endif
+
+  using string_type = std::basic_string<char_type>;
+
+  static constexpr size_t npos = static_cast<size_t>(-1);
 
   /**
-   * Returns the parent directory name, e.g. "/a/b" for "/a/b/c".
+   * Creates a new Path from a UTF-8-encoded pathname.
+   */
+  static Path FromUtf8(absl::string_view utf8_pathname);
+
+#if defined(_WIN32)
+  /**
+   * Creates a new Path from a UTF-16-encoded pathname.
+   */
+  // absl::wstring_view does not exist :-(.
+  static Path FromUtf16(const wchar_t* begin, size_t size);
+#endif
+
+#if defined(__OBJC__)
+  /**
+   * Creates a new Path from the given NSString pathname.
+   */
+  static Path FromNSString(NSString* path) {
+    return FromUtf8(MakeStringView(path));
+  }
+#endif
+
+  Path() {
+  }
+
+  const string_type& native_value() const {
+    return pathname_;
+  }
+
+  const char_type* c_str() const {
+    return pathname_.c_str();
+  }
+
+  size_t size() const {
+    return pathname_.size();
+  }
+
+#if defined(_WIN32)
+  std::string ToUtf8String() const;
+#else
+  const std::string& ToUtf8String() const;
+#endif  // defined(_WIN32)
+
+#if defined(__OBJC__)
+  NSString* ToNSString() const {
+    return WrapNSString(native_value());
+  }
+#endif
+
+  /**
+   * Returns a new Path containing the unqualified trailing part of this path,
+   * e.g. "c" for "/a/b/c".
+   */
+  Path Basename() const;
+
+  /**
+   * Returns a new Path containing the parent directory of this path, e.g.
+   * "/a/b" for "/a/b/c".
    *
    * Note:
    *   * Trailing slashes are treated as a separator between an empty path
-   *     segment and the dirname, so Dirname("/a/b/c/") is "/a/b/c".
+   *     segment and the dirname, so the Dirname of "/a/b/c/" is "/a/b/c".
    *   * Runs of more than one slash are treated as a single separator, so
-   *     Dirname("/a/b//c") is "/a/b".
-   *   * Paths are not canonicalized, so Dirname("/a//b//c") is "/a//b".
-   *   * Presently only UNIX style paths are supported (but compilation
-   *     intentionally fails on Windows to prompt implementation there).
+   *     the Dirname of "/a/b//c" is "/a/b".
+   *   * Paths are not canonicalized, so the Dirname of "/a//b//c" is "/a//b".
    */
-  static absl::string_view Dirname(absl::string_view pathname);
+  Path Dirname() const;
 
   /**
-   * Returns true if the given `pathname` is an absolute path.
+   * Returns true if this Path is an absolute path.
    */
-  static bool IsAbsolute(absl::string_view pathname);
+  bool IsAbsolute() const;
+
+  /**
+   * Returns a new Path with the given UTF-8 encoded path segment appended,
+   * as if by calling `Append(Path::FromUtf8(path))`.
+   */
+  Path AppendUtf8(absl::string_view path) const;
+  Path AppendUtf8(const char* path, size_t size) const {
+    return AppendUtf8(absl::string_view{path, size});
+  }
+
+#if defined(_WIN32)
+  Path AppendUtf16(const wchar_t* path, size_t size) const {
+    Path result{*this};
+    result.MutableAppendSegment(path, size);
+    return result;
+  }
+#endif
 
   /**
    * Returns the paths separated by path separators.
@@ -59,39 +147,66 @@ struct Path {
    *     value. Otherwise the first argument is copied.
    * @param paths The rest of the path segments.
    */
-  template <typename S1, typename... SA>
-  static std::string Join(S1&& base, const SA&... paths) {
-    std::string result{std::forward<S1>(base)};
-    JoinAppend(&result, paths...);
+  template <typename P1, typename... PA>
+  static Path JoinUtf8(P1&& base, const PA&... paths) {
+    Path result = Path::FromUtf8(base);
+    result.MutableAppendUtf8(paths...);
     return result;
   }
 
-  /**
-   * Returns the paths separated by path separators.
-   */
-  static std::string Join() {
-    return {};
+  friend bool operator==(const Path& lhs, const Path& rhs);
+  friend bool operator!=(const Path& lhs, const Path& rhs) {
+    return !(lhs == rhs);
   }
 
  private:
+  explicit Path(string_type&& native_pathname)
+      : pathname_{std::move(native_pathname)} {
+  }
+
   /**
-   * Joins the given base path with a suffix. If `path` is relative, appends it
-   * to the given base path. If `path` is absolute, replaces `base`.
+   * If `path` is relative, appends it to `*this`. If `path` is absolute,
+   * replaces `*this`.
    */
-  static void JoinAppend(std::string* base, absl::string_view path);
-
-  template <typename... S>
-  static void JoinAppend(std::string* base,
-                         absl::string_view path,
-                         const S&... rest) {
-    JoinAppend(base, path);
-    JoinAppend(base, rest...);
+  template <typename... P>
+  void MutableAppend(const Path& path, const P&... rest) {
+    MutableAppendSegment(path.c_str(), path.size());
+    MutableAppend(rest...);
   }
-
-  static void JoinAppend(std::string* base) {
+  void MutableAppend() {
     // Recursive base case; nothing to do.
-    (void)base;
   }
+  void MutableAppendSegment(const char_type* path, size_t size);
+
+  /**
+   * If `path` is relative, appends it to `*this`. If `path` is absolute,
+   * replaces `*this`.
+   */
+  template <typename P1, typename... P>
+  void MutableAppendUtf8(const P1& path, const P&... rest) {
+    MutableAppendUtf8Segment(path);
+    MutableAppendUtf8(rest...);
+  }
+  void MutableAppendUtf8Segment(absl::string_view path);
+  void MutableAppendUtf8Segment(const Path& path) {
+    // Allow existing Paths to be passed to Path::JoinUtf8.
+    MutableAppendSegment(path.c_str(), path.size());
+  }
+  void MutableAppendUtf8() {
+    // Recursive base case; nothing to do.
+  }
+
+  /**
+   * Returns a copy of the given path.
+   *
+   * This non-public variant of FromUtf8 allows JoinUtf8 to take a Path as its
+   * first argument.
+   */
+  static Path FromUtf8(const Path& path) {
+    return path;
+  }
+
+  string_type pathname_;
 };
 
 }  // namespace util
