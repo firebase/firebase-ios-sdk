@@ -129,6 +129,10 @@ static const int kMaxPendingWrites = 10;
     _pendingWrites = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
 
+    // Create streams (but note they're not started yet)
+    _watchStream = [self.datastore createWatchStreamWithDelegate:self];
+    _writeStream = [self.datastore createWriteStreamWithDelegate:self];
+
     _isNetworkEnabled = NO;
   }
   return self;
@@ -161,13 +165,6 @@ static const int kMaxPendingWrites = 10;
   }
 
   _isNetworkEnabled = YES;
-  
-  // Create new streams (but note they're not started yet).
-  if (!_watchStream) {
-    HARD_ASSERT(!_writeStream, "TODO OBC");
-    _watchStream = [self.datastore createWatchStreamWithDelegate:self];
-    _writeStream = [self.datastore createWriteStreamWithDelegate:self];
-  }
 
   // Load any saved stream token from persistent storage
   _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);

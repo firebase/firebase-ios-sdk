@@ -39,7 +39,7 @@ void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
     return;
   }
 
-  buffer_.push_back(std::move(bytes));
+  buffer_.insert(buffer_.begin(), std::move(bytes));
   TryWrite();
 }
 
