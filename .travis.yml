@@ -188,6 +188,15 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
+    # Run fuzz tests only on cron jobs.
+    - stage: fuzz_test
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
+      script:
+        - travis_wait ./scripts/if_cron.sh xcodebuild -workspace Firestore/Example/Firestore.xcworkspace -scheme Firestore_FuzzTests_iOS -destination 'platform=iOS Simulator,name=iPhone 7' FUZZING_TARGET="RANDOM" test
+
     # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
     # need to make them fatal for the purposes of the test run.
 

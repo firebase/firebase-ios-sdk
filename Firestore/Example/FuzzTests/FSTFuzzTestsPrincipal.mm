@@ -31,8 +31,10 @@ using firebase::firestore::util::MakeString;
 namespace fuzzing = firebase::firestore::fuzzing;
 
 // A list of targets to fuzz test. Should be kept in sync with the method
-// GetFuzzingTarget().
-enum class FuzzingTarget { kNone, kSerializer, kFieldPath };
+// GetFuzzingTarget(). kNone must always be kept the first value and kRandom
+// the last value. kRandom instructs GetFuzzingTarget() to choose a random enum
+// value between kNone and kRandom, exclusive.
+enum class FuzzingTarget { kNone, kSerializer, kFieldPath, kRandom };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
 // end because libFuzzer prepends this path to the crashing input file name.
@@ -64,6 +66,11 @@ FuzzingTarget GetFuzzingTarget() {
   }
   if (fuzzing_target == "FIELDPATH") {
     return FuzzingTarget::kFieldPath;
+  }
+  if (fuzzing_target == "RANDOM") {
+    // Choose a random enum value between kNone and kRandom, exclusive.
+    srand(time(NULL));
+    return static_cast<FuzzingTarget>(rand() % (int(FuzzingTarget::kRandom) - 1) + 1);
   }
   LOG_WARN("Invalid fuzzing target: %s", fuzzing_target);
   return FuzzingTarget::kNone;
@@ -121,6 +128,9 @@ int RunFuzzTestingMain() {
   // The directory in which libFuzzer writes crashing inputs.
   std::string prefix_arg = std::string("-artifact_prefix=") + MakeString(kCrashingInputsDirectory);
 
+  // Run fuzzing for a maximum of 1 hour.
+  std::string time_arg = "-max_total_time=3600";
+
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
   // libFuzzer expects the non-const argument 'char ***argv' and it does not
@@ -128,6 +138,7 @@ int RunFuzzTestingMain() {
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
       const_cast<char *>(prefix_arg.c_str()),    // Crashing inputs directory.
+      const_cast<char *>(time_arg.c_str()),      // Maximum total time.
       const_cast<char *>(dict_arg.c_str()),      // Dictionary arg.
       const_cast<char *>(corpus_arg.c_str())     // Corpus must be the last arg.
   };
