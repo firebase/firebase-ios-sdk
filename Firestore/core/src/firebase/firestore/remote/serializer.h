@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -152,6 +153,8 @@ class Serializer {
 
   static void EncodeTimestamp(nanopb::Writer* writer,
                               const Timestamp& timestamp_value);
+  static absl::optional<model::SnapshotVersion> DecodeSnapshotVersion(
+      nanopb::Reader* reader);
   static absl::optional<Timestamp> DecodeTimestamp(nanopb::Reader* reader);
 
   static absl::optional<core::Query> DecodeQueryTarget(nanopb::Reader* reader);

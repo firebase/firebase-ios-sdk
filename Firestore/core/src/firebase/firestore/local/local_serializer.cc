@@ -148,7 +148,7 @@ void LocalSerializer::EncodeNoDocument(Writer* writer,
 std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader) const {
   std::string name;
-  absl::optional<Timestamp> version = Timestamp{};
+  absl::optional<SnapshotVersion> version = SnapshotVersion::None();
 
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
@@ -157,8 +157,8 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
         break;
 
       case firestore_client_NoDocument_read_time_tag:
-        version = reader->ReadNestedMessage<Timestamp>(
-            rpc_serializer_.DecodeTimestamp);
+        version = reader->ReadNestedMessage<SnapshotVersion>(
+            rpc_serializer_.DecodeSnapshotVersion);
         break;
 
       default:
@@ -169,7 +169,7 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
-                                       SnapshotVersion{*version});
+                                       *std::move(version));
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
@@ -209,7 +209,7 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     Reader* reader) const {
   model::TargetId target_id = 0;
-  absl::optional<Timestamp> version = Timestamp{};
+  absl::optional<SnapshotVersion> version = SnapshotVersion::None();
   std::vector<uint8_t> resume_token;
   absl::optional<Query> query = Query::Invalid();
 
@@ -221,8 +221,8 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
         break;
 
       case firestore_client_Target_snapshot_version_tag:
-        version = reader->ReadNestedMessage<Timestamp>(
-            rpc_serializer_.DecodeTimestamp);
+        version = reader->ReadNestedMessage<SnapshotVersion>(
+            rpc_serializer_.DecodeSnapshotVersion);
         break;
 
       case firestore_client_Target_resume_token_tag:
@@ -250,8 +250,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
 
   if (!reader->status().ok()) return absl::nullopt;
   return QueryData(*std::move(query), target_id, QueryPurpose::kListen,
-                   SnapshotVersion{*std::move(version)},
-                   std::move(resume_token));
+                   *std::move(version), std::move(resume_token));
 }
 
 }  // namespace local

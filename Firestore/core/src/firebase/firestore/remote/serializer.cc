@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
@@ -502,7 +501,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
 std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   std::string name;
   ObjectValue::Map fields_internal;
-  absl::optional<Timestamp> version = Timestamp{};
+  absl::optional<SnapshotVersion> version = SnapshotVersion::None();
 
   while (reader->good()) {
     switch (reader->ReadTag().field_number) {
@@ -528,7 +527,8 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
         // the existing SnapshotVersion (if any). Less relevant here, since it's
         // just two numbers which are both expected to be present, but if the
         // proto evolves that might change.
-        version = reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
+        version =
+            reader->ReadNestedMessage<SnapshotVersion>(DecodeSnapshotVersion);
         break;
 
       case google_firestore_v1beta1_Document_create_time_tag:
@@ -542,7 +542,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(
       FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name),
-      SnapshotVersion{*std::move(version)},
+      *std::move(version),
       /*has_local_modifications=*/false);
 }
 
@@ -713,6 +713,13 @@ void Serializer::EncodeFieldsEntry(Writer* writer,
   writer->WriteTag({PB_WT_STRING, value_tag});
   writer->WriteNestedMessage(
       [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
+}
+
+absl::optional<SnapshotVersion> Serializer::DecodeSnapshotVersion(
+    nanopb::Reader* reader) {
+  absl::optional<Timestamp> version = DecodeTimestamp(reader);
+  if (!reader->status().ok()) return absl::nullopt;
+  return SnapshotVersion{*version};
 }
 
 absl::optional<Timestamp> Serializer::DecodeTimestamp(nanopb::Reader* reader) {
