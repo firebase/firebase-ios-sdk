@@ -24,6 +24,7 @@
 #include <grpcpp/support/byte_buffer.h>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
@@ -49,7 +50,7 @@ class WatchStreamSerializer {
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
-  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message) const;
+  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message, std::string* out_error) const;
 
  private:
   FSTSerializerBeta* serializer_;
@@ -73,7 +74,7 @@ class WriteStreamSerializer {
   NSArray<FSTMutationResult*>* ToMutationResults(
       GCFSWriteResponse* proto) const;
 
-  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message) const;
+  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message, std::string* out_error) const;
 
   grpc::ByteBuffer CreateHandshake() const;
 
@@ -90,7 +91,7 @@ class WatchStreamDelegate {
   void NotifyDelegateOnOpen();
   void NotifyDelegateOnChange(FSTWatchChange* change,
                               const model::SnapshotVersion& snapshot_version);
-  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
+  void NotifyDelegateOnStreamFinished(const util::Status& status);
 
  private:
   id delegate_;
@@ -105,7 +106,7 @@ class WriteStreamDelegate {
   void NotifyDelegateOnHandshakeComplete();
   void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
                               NSArray<FSTMutationResult*>* results);
-  void NotifyDelegateOnStreamFinished(FirestoreErrorCode error_code);
+  void NotifyDelegateOnStreamFinished(const util::Status& status);
 
  private:
   id delegate_;

@@ -58,7 +58,7 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
 }
 
 template <typename Proto>
-Proto* ToProto(const grpc::ByteBuffer& message) {
+Proto* ToProto(const grpc::ByteBuffer& message, std::string* out_error) {
   NSError* error;
   auto* proto = [Proto parseFromData:ToNsData(message) error:&error];
   // FIXME OBC
@@ -66,10 +66,10 @@ Proto* ToProto(const grpc::ByteBuffer& message) {
     NSDictionary* info = @{
       NSLocalizedDescriptionKey : @"Unable to parse response from the server",
       NSUnderlyingErrorKey : error,
-      @"Expected class" : [proto class],
+      @"Expected class" : [Proto class],
       @"Received value" : ToNsData(message),
     };
-    LOG_DEBUG("%s", [info description]);
+    *out_error = util::MakeString([info description]);
 
     return nil;
   }
@@ -79,13 +79,6 @@ Proto* ToProto(const grpc::ByteBuffer& message) {
 grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
   const grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
-}
-
-NSError* ToNsError(const FirestoreErrorCode error_code) {
-  if (error_code == FirestoreErrorCode::Ok) {
-    return nil;
-  }
-  return util::MakeNSError(error_code, "Server error");  // TODO
 }
 
 }  // namespace
@@ -142,8 +135,8 @@ SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
 }
 
 GCFSListenResponse* WatchStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message) const {
-  return ToProto<GCFSListenResponse>(message);
+    const grpc::ByteBuffer& message, std::string* out_error) const {
+  return ToProto<GCFSListenResponse>(message, out_error);
 }
 
 void WriteStreamSerializer::UpdateLastStreamToken(
@@ -168,8 +161,8 @@ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
 }
 
 GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message) const {
-  return ToProto<GCFSWriteResponse>(message);
+    const grpc::ByteBuffer& message, std::string* out_error) const {
+  return ToProto<GCFSWriteResponse>(message, out_error);
 }
 
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
@@ -184,9 +177,9 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
 }
 
 void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
-    const FirestoreErrorCode error_code) {
+const util::Status& status) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:ToNsError(error_code)];
+  [delegate watchStreamWasInterruptedWithError:util::MakeNSError(status)];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
@@ -208,9 +201,9 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
 }
 
 void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
-    const FirestoreErrorCode error_code) {
+const util::Status& status) {
   id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamWasInterruptedWithError:ToNsError(error_code)];
+  [delegate writeStreamWasInterruptedWithError:util::MakeNSError(status)];
 }
 }
 }

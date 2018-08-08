@@ -155,7 +155,7 @@ Stream::Stream(AsyncQueue* const async_queue,
 void Stream::Start() {
   EnsureOnQueue();
 
-  if (state_ == State::GrpcError) {
+  if (state_ == State::Error) {
     BackoffAndTryRestarting();
     return;
   }
@@ -233,7 +233,7 @@ void Stream::BackoffAndTryRestarting() {
   // *)self);
   EnsureOnQueue();
 
-  HARD_ASSERT(state_ == State::GrpcError,
+  HARD_ASSERT(state_ == State::Error,
               "Should only perform backoff in an error case");
 
   backoff_.BackoffAndRun([this] { ResumeStartFromBackoff(); });
@@ -304,7 +304,7 @@ void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
   }
 
   // OBC: remove negation to easily test retry logic
-  client_side_error_ = !DoOnStreamRead(message);
+  client_side_error_ = DoOnStreamRead(message);
   if (client_side_error_) {
     OnConnectionBroken();
     return;
@@ -338,9 +338,9 @@ void Stream::Stop() {
   }
   ++generation_;
 
-  client_side_error_ = false;
+  client_side_error_ = {FirestoreErrorCode::Ok, ""};
   buffered_writer_.Stop();
-  HalfCloseConnection(false);
+  HalfCloseConnection();
   // If this is an intentional close, ensure we don't delay our next connection
   // attempt.
   ResetBackoff();
@@ -356,19 +356,19 @@ void Stream::OnConnectionBroken() {
   }
 
   buffered_writer_.Stop();
-  HalfCloseConnection(true);
+  HalfCloseConnection();
 
-  state_ = State::GrpcError;
+  state_ = State::Error;
 }
 
-void Stream::HalfCloseConnection(const bool is_broken) {
+void Stream::HalfCloseConnection() {
   EnsureOnQueue();
   if (!IsOpen()) {
     return;
   }
 
   // TODO OBC explain
-  const bool cancel_pending_operations = !is_broken;
+  const bool cancel_pending_operations = client_side_error_.has_value();
   Execute<StreamFinish>(cancel_pending_operations);
   // After a GRPC call finishes, it will no longer be valid, so there is no reason
   // to hold on to it now that a finish operation has been added (the operation
@@ -376,27 +376,29 @@ void Stream::HalfCloseConnection(const bool is_broken) {
   grpc_call_.reset();
 }
 
-void Stream::OnStreamFinish(const util::Status status) {
+void Stream::OnStreamFinish(const util::Status& server_status) {
   EnsureOnQueue();
 
-  const FirestoreErrorCode error = [&] {
-    if (client_side_error_ && status.code() == FirestoreErrorCode::Ok) {
-      return FirestoreErrorCode::Internal;
+  const util::Status status = [&] {
+    if (client_side_error_) {
+      HARD_ASSERT(server_status.code() ==
+          FirestoreErrorCode::Ok || server_status.code() == FirestoreErrorCode::Cancelled, "OBC TODO");
+      return client_side_error_.value();
     }
-    return status.code();
+    return server_status;
   }();
+  client_side_error_.reset();
 
-  if (error == FirestoreErrorCode::ResourceExhausted) {
+  if (status.code() == FirestoreErrorCode::ResourceExhausted) {
     // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
     // backend.", [self class],
     //       (__bridge void *)self);
     backoff_.ResetToMax();
-  } else if (error == FirestoreErrorCode::Unauthenticated) {
+  } else if (status.code() == FirestoreErrorCode::Unauthenticated) {
     credentials_provider_->InvalidateToken();
   }
-  client_side_error_ = false;
 
-  DoOnStreamFinish(error);
+  DoOnStreamFinish(status);
 }
 
 void Stream::StopDueToIdleness() {
@@ -470,24 +472,25 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-bool WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
-  // TODO OBC proper error handling?
-  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message);
-  if (response) {
-    delegate_bridge_.NotifyDelegateOnChange(
-        serializer_bridge_.ToWatchChange(response),
-        serializer_bridge_.ToSnapshotVersion(response));
-    return true;
+absl::optional<util::Status> WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+  std::string error;
+  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message, &error);
+  if (!response) {
+    return util::Status{FirestoreErrorCode::Internal, error};
   }
-  return false;
+
+  delegate_bridge_.NotifyDelegateOnChange(
+      serializer_bridge_.ToWatchChange(response),
+      serializer_bridge_.ToSnapshotVersion(response));
+  return {};
 }
 
 void WatchStream::DoOnStreamWrite() {
   // Nothing to do.
 }
 
-void WatchStream::DoOnStreamFinish(const FirestoreErrorCode error) {
-  delegate_bridge_.NotifyDelegateOnStreamFinished(error);
+void WatchStream::DoOnStreamFinish(const util::Status& status) {
+  delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
 // Write stream
@@ -557,20 +560,21 @@ void WriteStream::DoOnStreamWrite() {
   // }
 }
 
-void WriteStream::DoOnStreamFinish(const FirestoreErrorCode error) {
-  delegate_bridge_.NotifyDelegateOnStreamFinished(error);
+void WriteStream::DoOnStreamFinish(const util::Status& status) {
+  delegate_bridge_.NotifyDelegateOnStreamFinished(status);
   // TODO OBC explain that order is important here
   is_handshake_complete_ = false;
 }
 
-bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+absl::optional<util::Status> WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   // LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self,
   // response);
   EnsureOnQueue();
 
-  auto* response = serializer_bridge_.ParseResponse(message);
+  std::string error;
+  auto* response = serializer_bridge_.ParseResponse(message, &error);
   if (!response) {
-    return false;
+    return util::Status{FirestoreErrorCode::Internal, error};
   }
 
   serializer_bridge_.UpdateLastStreamToken(response);
@@ -590,7 +594,7 @@ bool WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
         serializer_bridge_.ToMutationResults(response));
   }
 
-  return true;
+  return {};
 }
 
 }  // namespace remote

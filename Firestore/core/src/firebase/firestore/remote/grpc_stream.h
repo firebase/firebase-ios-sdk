@@ -70,7 +70,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void OnStreamStart(bool ok);
   void OnStreamRead(bool ok, const grpc::ByteBuffer& message);
   void OnStreamWrite(bool ok);
-  void OnStreamFinish(util::Status status);
+  void OnStreamFinish(const util::Status& status);
 
   // ClearError?
   void CancelBackoff();
@@ -93,17 +93,17 @@ class Stream : public std::enable_shared_from_this<Stream> {
     Initial,
     Starting,
     Open,
-    GrpcError,
+    Error,
     ReconnectingWithBackoff
   };
 
   virtual std::shared_ptr<GrpcCall> DoCreateGrpcCall(
       Datastore* datastore, absl::string_view token) = 0;
   virtual void DoOnStreamStart() = 0;
-  virtual bool DoOnStreamRead(
+  virtual absl::optional<util::Status> DoOnStreamRead(
       const grpc::ByteBuffer& message) = 0;
   virtual void DoOnStreamWrite() = 0;
-  virtual void DoOnStreamFinish(FirestoreErrorCode error) = 0;
+  virtual void DoOnStreamFinish(const util::Status& status) = 0;
 
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
 
@@ -114,7 +114,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void Write(const grpc::ByteBuffer& message);
 
   void OnConnectionBroken();
-  void HalfCloseConnection(bool is_broken);
+  void HalfCloseConnection();
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
@@ -138,7 +138,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   // Generation is incremented in each call to `Finish`.
   int generation_ = 0;
 
-  bool client_side_error_ = false;
+  absl::optional<util::Status> client_side_error_;
 };
 
 class WatchStream : public Stream {
@@ -156,9 +156,9 @@ class WatchStream : public Stream {
   std::shared_ptr<GrpcCall> DoCreateGrpcCall(
       Datastore* datastore, const absl::string_view token) override;
   void DoOnStreamStart() override;
-  bool DoOnStreamRead(const grpc::ByteBuffer& message) override;
+  absl::optional<util::Status> DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
-  void DoOnStreamFinish(FirestoreErrorCode error) override;
+  void DoOnStreamFinish(const util::Status& status) override;
 
   bridge::WatchStreamSerializer serializer_bridge_;
   bridge::WatchStreamDelegate delegate_bridge_;
@@ -186,9 +186,9 @@ class WriteStream : public Stream {
   std::shared_ptr<GrpcCall> DoCreateGrpcCall(
       Datastore* datastore, const absl::string_view token) override;
   void DoOnStreamStart() override;
-  bool DoOnStreamRead(const grpc::ByteBuffer& message) override;
+  absl::optional<util::Status> DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
-  void DoOnStreamFinish(FirestoreErrorCode error) override;
+  void DoOnStreamFinish(const util::Status& status) override;
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;

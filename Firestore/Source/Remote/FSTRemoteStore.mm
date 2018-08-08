@@ -192,7 +192,7 @@ static const int kMaxPendingWrites = 10;
 
     [self cleanUpWatchStreamState];
     [self cleanUpWriteStreamState];
-    
+
     _isNetworkEnabled = NO;
   }
 }
