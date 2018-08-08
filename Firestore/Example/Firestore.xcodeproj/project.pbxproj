@@ -90,10 +90,8 @@
 		5492E0A42021552D00B64F25 /* FSTMemoryQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08B2021552B00B64F25 /* FSTMemoryQueryCacheTests.mm */; };
 		5492E0A52021552D00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08C2021552B00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm */; };
 		5492E0A62021552D00B64F25 /* FSTPersistenceTestHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08D2021552B00B64F25 /* FSTPersistenceTestHelpers.mm */; };
-		5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */; };
 		5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */; };
 		5492E0AA2021552D00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */; };
-		5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0932021552B00B64F25 /* StringViewTests.mm */; };
 		5492E0AC2021552D00B64F25 /* FSTMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0962021552C00B64F25 /* FSTMutationQueueTests.mm */; };
 		5492E0AD2021552D00B64F25 /* FSTMemoryMutationQueueTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0972021552C00B64F25 /* FSTMemoryMutationQueueTests.mm */; };
 		5492E0AE2021552D00B64F25 /* FSTLevelDBQueryCacheTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E0982021552C00B64F25 /* FSTLevelDBQueryCacheTests.mm */; };
@@ -357,11 +355,9 @@
 		5492E08B2021552B00B64F25 /* FSTMemoryQueryCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMemoryQueryCacheTests.mm; sourceTree = "<group>"; };
 		5492E08C2021552B00B64F25 /* FSTMemoryRemoteDocumentCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMemoryRemoteDocumentCacheTests.mm; sourceTree = "<group>"; };
 		5492E08D2021552B00B64F25 /* FSTPersistenceTestHelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTPersistenceTestHelpers.mm; sourceTree = "<group>"; };
-		5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBKeyTests.mm; sourceTree = "<group>"; };
 		5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBLocalStoreTests.mm; sourceTree = "<group>"; };
 		5492E0912021552B00B64F25 /* FSTLocalStoreTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTLocalStoreTests.h; sourceTree = "<group>"; };
 		5492E0922021552B00B64F25 /* FSTLevelDBRemoteDocumentCacheTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBRemoteDocumentCacheTests.mm; sourceTree = "<group>"; };
-		5492E0932021552B00B64F25 /* StringViewTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringViewTests.mm; sourceTree = "<group>"; };
 		5492E0942021552C00B64F25 /* FSTMutationQueueTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTMutationQueueTests.h; sourceTree = "<group>"; };
 		5492E0952021552C00B64F25 /* FSTQueryCacheTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSTQueryCacheTests.h; sourceTree = "<group>"; };
 		5492E0962021552C00B64F25 /* FSTMutationQueueTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTMutationQueueTests.mm; sourceTree = "<group>"; };
@@ -1051,7 +1047,6 @@
 			children = (
 				5CC9650120A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.h */,
 				5CC9650220A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm */,
-				5492E08E2021552B00B64F25 /* FSTLevelDBKeyTests.mm */,
 				5CC9650620A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm */,
 				5492E08F2021552B00B64F25 /* FSTLevelDBLocalStoreTests.mm */,
 				5492E0862021552A00B64F25 /* FSTLevelDBMigrationsTests.mm */,
@@ -1076,7 +1071,6 @@
 				5492E09A2021552C00B64F25 /* FSTReferenceSetTests.mm */,
 				5492E0852021552A00B64F25 /* FSTRemoteDocumentCacheTests.h */,
 				5492E09C2021552D00B64F25 /* FSTRemoteDocumentCacheTests.mm */,
-				5492E0932021552B00B64F25 /* StringViewTests.mm */,
 			);
 			path = Local;
 			sourceTree = "<group>";
@@ -1813,7 +1807,6 @@
 				DE2EF0871F3D0B6E003D0CDC /* FSTImmutableSortedSet+Testing.m in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
 				5CC9650320A0E93200A2D6A1 /* FSTLRUGarbageCollectorTests.mm in Sources */,
-				5492E0A72021552D00B64F25 /* FSTLevelDBKeyTests.mm in Sources */,
 				5CC9650720A0E9C600A2D6A1 /* FSTLevelDBLRUGarbageCollectorTests.mm in Sources */,
 				5492E0A82021552D00B64F25 /* FSTLevelDBLocalStoreTests.mm in Sources */,
 				5492E09F2021552D00B64F25 /* FSTLevelDBMigrationsTests.mm in Sources */,
@@ -1848,7 +1841,6 @@
 				5492E065202154B900B64F25 /* FSTViewTests.mm in Sources */,
 				5492E0C62021557E00B64F25 /* FSTWatchChange+Testing.mm in Sources */,
 				5492E0CA2021557E00B64F25 /* FSTWatchChangeTests.mm in Sources */,
-				5492E0AB2021552D00B64F25 /* StringViewTests.mm in Sources */,
 				5492E03C2021401F00B64F25 /* XCTestCase+Await.mm in Sources */,
 				618BBEAF20B89AAC00B5BCE7 /* annotations.pb.cc in Sources */,
 				5467FB08203E6A44009C9584 /* app_testing.mm in Sources */,
