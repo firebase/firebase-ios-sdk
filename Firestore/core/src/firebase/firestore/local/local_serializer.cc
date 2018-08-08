@@ -98,9 +98,9 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   }
 
   if (!result) {
-    reader->update_status(Status(FirestoreErrorCode::DataLoss,
-                                 "Invalid MaybeDocument message: Neither "
-                                 "'no_document' nor 'document' fields set."));
+    reader->Fail(
+        "Invalid MaybeDocument message: Neither 'no_document' nor 'document' "
+        "fields set.");
     return nullptr;
   }
   return result;

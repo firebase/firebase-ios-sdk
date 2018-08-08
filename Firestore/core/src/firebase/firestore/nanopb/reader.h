@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/strings/string_view.h"
 #include "absl/types/optional.h"
 
 namespace firebase {
@@ -167,8 +168,16 @@ class Reader {
     status_ = status;
   }
 
-  void update_status(const util::Status& status) {
-    status_.Update(status);
+  /**
+   * Ensures this Reader's status is `!ok().
+   *
+   * If this Reader's status is already !ok(), then this may augment the
+   * description, but will otherwise leave it alone. Otherwise, this Reader's
+   * status will be set to FirestoreErrorCode::DataLoss with the specified
+   * description.
+   */
+  void Fail(const absl::string_view description) {
+    status_.Update(util::Status(FirestoreErrorCode::DataLoss, description));
   }
 
  private:
