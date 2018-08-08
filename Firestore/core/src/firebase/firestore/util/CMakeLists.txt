@@ -125,7 +125,7 @@ cc_library(
   firebase_firestore_util_filesystem_posix
   SOURCES
     filesystem.h
-    filesystem_detail.cc
+    filesystem_common.cc
     filesystem_detail.h
     filesystem_posix.cc
     path.cc
@@ -140,8 +140,8 @@ cc_library(
   firebase_firestore_util_filesystem_win
   SOURCES
     filesystem.h
+    filesystem_common.cc
     filesystem_detail.h
-    filesystem_detail.cc
     filesystem_win.cc
     path.cc
     path.h
