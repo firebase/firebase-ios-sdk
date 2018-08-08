@@ -68,8 +68,11 @@ class Reader {
    * calls to ReadX will use the stored last tag to verify that the type is
    * correct (and will otherwise set the status of this Reader object to a
    * non-ok value with the code set to FirestoreErrorCode::DataLoss).
+   *
+   * @return The field number of the tag. Technically, this differs slightly
+   * from the tag itself insomuch as it doesn't include the wire type.
    */
-  Tag ReadTag();
+  uint32_t ReadTag();
 
   const Tag& last_tag() const {
     return last_tag_;
@@ -103,7 +106,7 @@ class Reader {
    * either an optional or a unique_ptr.
    *
    * @param read_message_fn Function to read the submessage. Note that this
-   * function is expected to return {} (or nullptr/nullopt) on error.
+   * function should return {} (or nullptr/nullopt) on error.
    * @return Empty (i.e. nullptr/nullopt) on failure, else the deserialized
    * value.
    */

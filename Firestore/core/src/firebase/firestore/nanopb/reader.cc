@@ -30,26 +30,33 @@ Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
   return Reader{pb_istream_from_buffer(bytes, length)};
 }
 
-Tag Reader::ReadTag() {
+uint32_t Reader::ReadTag() {
   Tag tag;
-  if (!status_.ok()) return tag;
+  if (!status_.ok()) return 0;
 
   bool eof;
   if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
     Fail(PB_GET_ERROR(&stream_));
-    return tag;
+    return 0;
   }
 
   // nanopb code always returns a false status when setting eof.
   HARD_ASSERT(!eof, "nanopb set both ok status and eof to true");
 
   last_tag_ = tag;
-  return tag;
+  return tag.field_number;
 }
 
 bool Reader::RequireWireType(pb_wire_type_t wire_type) {
   if (!status_.ok()) return false;
   if (wire_type != last_tag_.wire_type) {
+    // TODO(rsgowman): We need to add much more context to the error messages so
+    // that we'll have a hope of debugging them when a customer reports these
+    // errors. Ideally:
+    // - last_tag_'s field_number and wire_type.
+    // - containing message type
+    // - anything else that we can possibly get our hands on.
+    // Here, and throughout nanopb/*.cc, remote/*.cc, local/*.cc.
     Fail(
         "Input proto bytes cannot be parsed (mismatch between the wiretype and "
         "the field number (tag))");

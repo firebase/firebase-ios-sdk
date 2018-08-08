@@ -77,7 +77,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   std::unique_ptr<MaybeDocument> result;
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case firestore_client_MaybeDocument_document_tag:
         // TODO(rsgowman): If multiple 'document' values are found, we should
         // merge them (rather than using the last one.)
@@ -151,7 +151,7 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
   absl::optional<SnapshotVersion> version = SnapshotVersion::None();
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case firestore_client_NoDocument_name_tag:
         name = reader->ReadString();
         break;
@@ -214,7 +214,7 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
   absl::optional<Query> query = Query::Invalid();
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case firestore_client_Target_target_id_tag:
         // TODO(rsgowman): How to handle truncation of integer types?
         target_id = static_cast<model::TargetId>(reader->ReadInteger());

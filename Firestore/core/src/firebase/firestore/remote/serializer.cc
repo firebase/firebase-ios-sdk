@@ -109,10 +109,10 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
   absl::optional<FieldValue> value;
 
   while (reader->good()) {
-    Tag tag = reader->ReadTag();
-    if (tag.field_number == key_tag) {
+    uint32_t tag = reader->ReadTag();
+    if (tag == key_tag) {
       key = reader->ReadString();
-    } else if (tag.field_number == value_tag) {
+    } else if (tag == value_tag) {
       value =
           reader->ReadNestedMessage<FieldValue>(Serializer::DecodeFieldValue);
     } else {
@@ -142,7 +142,7 @@ absl::optional<ObjectValue::Map> DecodeMapValue(Reader* reader) {
   ObjectValue::Map result;
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_MapValue_fields_tag: {
         absl::optional<ObjectValue::Map::value_type> fv =
             reader->ReadNestedMessage<ObjectValue::Map::value_type>(
@@ -233,7 +233,7 @@ absl::optional<StructuredQuery::CollectionSelector> DecodeCollectionSelector(
   StructuredQuery::CollectionSelector collection_selector{};
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case v1beta1::StructuredQuery_CollectionSelector_collection_id_tag:
         collection_selector.collection_id = reader->ReadString();
         break;
@@ -252,7 +252,7 @@ absl::optional<StructuredQuery> DecodeStructuredQuery(Reader* reader) {
   StructuredQuery query{};
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_StructuredQuery_from_tag: {
         absl::optional<StructuredQuery::CollectionSelector>
             collection_selector =
@@ -343,7 +343,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
   FieldValue result = FieldValue::NullValue();
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_Value_null_value_tag:
         reader->ReadNull();
         result = FieldValue::NullValue();
@@ -450,7 +450,7 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
   absl::optional<Timestamp> read_time = Timestamp{};
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
         // 'found' and 'missing' are part of a oneof. The proto docs claim that
         // if both are set on the wire, the last one wins.
@@ -504,7 +504,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   absl::optional<SnapshotVersion> version = SnapshotVersion::None();
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_Document_name_tag:
         name = reader->ReadString();
         break;
@@ -609,7 +609,7 @@ absl::optional<Query> Serializer::DecodeQueryTarget(nanopb::Reader* reader) {
   absl::optional<StructuredQuery> query = StructuredQuery{};
 
   while (reader->good()) {
-    switch (reader->ReadTag().field_number) {
+    switch (reader->ReadTag()) {
       case google_firestore_v1beta1_Target_QueryTarget_parent_tag:
         path = DecodeQueryPath(reader->ReadString());
         break;
