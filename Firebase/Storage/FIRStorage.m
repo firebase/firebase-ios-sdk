@@ -37,6 +37,7 @@ static NSMutableDictionary<
 static GTMSessionFetcherRetryBlock _retryWhenOffline;
 
 @interface FIRStorage () {
+  /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
   id<FIRAuthInterop> _Nullable _auth;
 }
 @end

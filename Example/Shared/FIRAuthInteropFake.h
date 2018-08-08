@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// A fake class to handle Auth interaction.
+/// A fake class to handle Auth interaction. To be used for unit testing only.
 @interface FIRAuthInteropFake : NSObject <FIRAuthInterop>
 
 /// The error returned in the `getToken` callback.
@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// The user ID to be returned from `getUserID`.
 @property(nonatomic, nullable, strong, readonly) NSString *userID;
 
+/// Default initializer. Initializes the object with all the necessary properties.
 - (instancetype)initWithToken:(nullable NSString *)token
                        userID:(nullable NSString *)userID
                         error:(nullable NSError *)error NS_DESIGNATED_INITIALIZER;
