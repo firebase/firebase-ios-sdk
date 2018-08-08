@@ -211,6 +211,27 @@ TEST(FilesystemTest, RecursivelyDelete) {
   EXPECT_OK(RecursivelyDelete(nested_file));
 }
 
+TEST(FilesystemTest, RecursivelyDeleteTree) {
+  Path root_dir = Path::JoinUtf8(TempDir(), TestFilename());
+  Path middle_dir = Path::JoinUtf8(root_dir, "middle");
+  Path leaf1_dir = Path::JoinUtf8(middle_dir, "leaf1");
+  Path leaf2_dir = Path::JoinUtf8(middle_dir, "leaf2");
+  ASSERT_OK(RecursivelyCreateDir(leaf1_dir));
+  ASSERT_OK(RecursivelyCreateDir(leaf2_dir));
+
+  Touch(Path::JoinUtf8(middle_dir, "a"));
+  Touch(Path::JoinUtf8(middle_dir, "b"));
+  Touch(Path::JoinUtf8(leaf1_dir, "1"));
+  Touch(Path::JoinUtf8(leaf1_dir, "2"));
+  Touch(Path::JoinUtf8(leaf2_dir, "A"));
+  Touch(Path::JoinUtf8(leaf2_dir, "B"));
+  Touch(Path::JoinUtf8(leaf2_dir, "C"));
+
+  EXPECT_OK(RecursivelyDelete(root_dir));
+  EXPECT_NOT_FOUND(IsDirectory(root_dir));
+  EXPECT_NOT_FOUND(IsDirectory(leaf1_dir));
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
