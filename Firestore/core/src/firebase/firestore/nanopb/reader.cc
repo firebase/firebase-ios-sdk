@@ -36,7 +36,7 @@ Tag Reader::ReadTag() {
 
   bool eof;
   if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
     return tag;
   }
 
@@ -50,9 +50,9 @@ Tag Reader::ReadTag() {
 bool Reader::RequireWireType(pb_wire_type_t wire_type) {
   if (!status_.ok()) return false;
   if (wire_type != last_tag_.wire_type) {
-    set_status(Status(FirestoreErrorCode::DataLoss,
-                      "Input proto bytes cannot be parsed (mismatch between "
-                      "the wiretype and the field number (tag))"));
+    Fail(
+        "Input proto bytes cannot be parsed (mismatch between the wiretype and "
+        "the field number (tag))");
     return false;
   }
   return true;
@@ -62,7 +62,7 @@ void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
   if (!status_.ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -81,7 +81,7 @@ uint64_t Reader::ReadVarint() {
 
   uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
   }
   return varint_value;
 }
@@ -91,8 +91,7 @@ void Reader::ReadNull() {
   if (!status_.ok()) return;
 
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    status_ = Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (invalid null value)");
+    Fail("Input proto bytes cannot be parsed (invalid null value)");
   }
 }
 
@@ -106,9 +105,7 @@ bool Reader::ReadBool() {
     case 1:
       return true;
     default:
-      status_ =
-          Status(FirestoreErrorCode::DataLoss,
-                 "Input proto bytes cannot be parsed (invalid bool value)");
+      Fail("Input proto bytes cannot be parsed (invalid bool value)");
       return false;
   }
 }
@@ -123,14 +120,14 @@ std::string Reader::ReadString() {
 
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
     return "";
   }
 
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&substream));
+    Fail(PB_GET_ERROR(&substream));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -160,7 +157,7 @@ void Reader::SkipUnknown() {
   if (!status_.ok()) return;
 
   if (!pb_skip_field(&stream_, last_tag_.wire_type)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
   }
 }
 
