@@ -42,6 +42,8 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
 
 /**
  * Implements FSTWatchStreamDelegate and FSTWriteStreamDelegate and supports waiting on callbacks
@@ -166,6 +168,8 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   MockCredentialsProvider _credentials;
   FSTStreamStatusDelegate *_delegate;
   FSTDatastore *_datastore;
+  std::shared_ptr<WatchStream> _watchStream;
+  std::shared_ptr<WriteStream> _writeStream;
 
   /** Single mutation to send to the write stream. */
   NSArray<FSTMutation *> *_mutations;
@@ -193,6 +197,21 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   _mutations = @[ FSTTestSetMutation(@"foo/bar", @{}) ];
 }
 
+- (void)tearDown {
+  [super tearDown];
+  if (_watchStream) {
+      [_workerDispatchQueue dispatchSync:^{
+    _watchStream->Stop();
+    }];
+  }
+  if (_writeStream) {
+     [_workerDispatchQueue dispatchSync:^{
+    _writeStream->Stop();
+    }];
+  }
+  [_datastore shutdown];
+}
+
 - (std::shared_ptr<firebase::firestore::remote::WatchStream>)setUpWatchStream {
   return [_datastore createWatchStreamWithDelegate:_delegate];
 }
@@ -216,21 +235,21 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
 /** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
 - (void)testWatchStreamStopBeforeHandshake {
-  auto watchStream = [self setUpWatchStream];
+  _watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    watchStream->Start();
+    _watchStream->Start();
   }];
 
   // Stop must not call watchStreamDidClose because the full implementation of the delegate could
   // attempt to restart the stream in the event it had pending watches.
   [_workerDispatchQueue dispatchAsync:^{
-    watchStream->Stop();
+    _watchStream->Stop();
   }];
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    watchStream->OnStreamFinish(util::Status::OK());
+    _watchStream->OnStreamFinish(util::Status::OK());
   }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen", @"watchStreamWasInterrupted" ]];
@@ -238,10 +257,10 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
 /** Verifies that the write stream does not issue an onClose callback after a call to stop(). */
 - (void)testWriteStreamStopBeforeHandshake {
-  auto writeStream = [self setUpWriteStream];
+  _writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->Start();
+    _writeStream->Start();
   }];
 
   // Don't start the handshake.
@@ -249,40 +268,40 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   // Stop must not call watchStreamDidClose because the full implementation of the delegate could
   // attempt to restart the stream in the event it had pending watches.
   [_workerDispatchQueue dispatchAsync:^{
-    writeStream->Stop();
+    _writeStream->Stop();
   }];
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    writeStream->OnStreamFinish(util::Status::OK());
+    _writeStream->OnStreamFinish(util::Status::OK());
   }];
 
   [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen", @"writeStreamWasInterrupted" ]];
 }
 
 - (void)testWriteStreamStopAfterHandshake {
-  auto writeStream = [self setUpWriteStream];
+  _writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->Start();
+    _writeStream->Start();
   }];
 
   // Writing before the handshake should throw
   [_workerDispatchQueue dispatchSync:^{
-    XCTAssertThrows(writeStream->WriteMutations(_mutations));
+    XCTAssertThrows(_writeStream->WriteMutations(_mutations));
   }];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->WriteHandshake();
+    _writeStream->WriteHandshake();
   }];
 
   // Now writes should succeed
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->WriteMutations(_mutations);
+    _writeStream->WriteMutations(_mutations);
   }];
 
   [_workerDispatchQueue dispatchAsync:^{
-    writeStream->Stop();
+    _writeStream->Stop();
   }];
 
   [self verifyDelegateObservedStates:@[
@@ -292,18 +311,18 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 }
 
 - (void)testStreamClosesWhenIdle {
-  auto writeStream = [self setUpWriteStream];
+  _writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->Start();
+    _writeStream->Start();
   }];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->WriteHandshake();
+    _writeStream->WriteHandshake();
   }];
 
   [_workerDispatchQueue dispatchAsync:^{
-    writeStream->MarkIdle();
+    _writeStream->MarkIdle();
     XCTAssertTrue(
         [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
   }];
@@ -311,7 +330,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
 
   [_workerDispatchQueue dispatchSync:^{
-    XCTAssertFalse(writeStream->IsOpen());
+    XCTAssertFalse(_writeStream->IsOpen());
   }];
 
   [self verifyDelegateObservedStates:@[
@@ -320,28 +339,28 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 }
 
 - (void)testStreamCancelsIdleOnWrite {
-  auto writeStream = [self setUpWriteStream];
+  _writeStream = [self setUpWriteStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->Start();
+    _writeStream->Start();
   }];
 
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->WriteHandshake();
+    _writeStream->WriteHandshake();
   }];
 
   // Mark the stream idle, but immediately cancel the idle timer by issuing another write.
   [_delegate awaitNotificationFromBlock:^{
-    writeStream->MarkIdle();
+    _writeStream->MarkIdle();
     XCTAssertTrue(
         [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
-    writeStream->WriteMutations(_mutations);
+    _writeStream->WriteMutations(_mutations);
     XCTAssertFalse(
         [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
   }];
 
   [_workerDispatchQueue dispatchSync:^{
-    XCTAssertTrue(writeStream->IsOpen());
+    XCTAssertTrue(_writeStream->IsOpen());
   }];
 
   [self verifyDelegateObservedStates:@[
@@ -351,35 +370,41 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 }
 
 - (void)testStreamRefreshesTokenUponExpiration {
-  auto watchStream = [self setUpWatchStream];
+  _watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    watchStream->Start();
+    _watchStream->Start();
   }];
 
   // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
    [_workerDispatchQueue dispatchAsync:^{
-    watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unauthenticated, ""});
+    _watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unauthenticated, ""});
   }];
   // Drain the queue.
   [_workerDispatchQueue dispatchSync:^{}];
 
   // Try reconnecting.
-  // Calling `OnStreamFinish` manually breaks the state machine (it's normally called by GRPC after either graceful stop or disconnect).
-  // Restarting will fail, it's easiest to juts recreate the stream.
-  watchStream = [self setUpWatchStream];
+  // Calling `OnStreamFinish` manually doesn't update the state machine (it's normally called by
+  // GRPC after either graceful stop or disconnect). Need to call `Stop`, or `Start` will fail. Note
+  // that this will result in two "interrupted" notifications to the delegate, which is fine for the
+  // purposes of this test.
+  [_workerDispatchQueue dispatchSync:^{
+    _watchStream->Stop();
+    }];
   [_delegate awaitNotificationFromBlock:^{
-    watchStream->Start();
+    _watchStream->Start();
   }];
   // Simulate a different error -- token should not be invalidated this time.
   [_workerDispatchQueue dispatchAsync:^{
-    watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unavailable, ""});
+    _watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unavailable, ""});
   }];
    [_workerDispatchQueue dispatchSync:^{}];
 
-  watchStream = [self setUpWatchStream];
+   [_workerDispatchQueue dispatchSync:^{
+    _watchStream->Stop();
+    }];
   [_delegate awaitNotificationFromBlock:^{
-    watchStream->Start();
+    _watchStream->Start();
   }];
    [_workerDispatchQueue dispatchSync:^{
                 }];

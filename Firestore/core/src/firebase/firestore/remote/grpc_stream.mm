@@ -370,7 +370,7 @@ void Stream::HalfCloseConnection(const bool is_broken) {
   // TODO OBC explain
   const bool cancel_pending_operations = !is_broken;
   Execute<StreamFinish>(cancel_pending_operations);
-  // After a GRPC call finishes, it will no longer valid, so there is no reason
+  // After a GRPC call finishes, it will no longer be valid, so there is no reason
   // to hold on to it now that a finish operation has been added (the operation
   // has its own `shared_ptr` to the call).
   grpc_call_.reset();
