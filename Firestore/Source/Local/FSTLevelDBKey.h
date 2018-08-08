@@ -70,17 +70,6 @@ NS_ASSUME_NONNULL_BEGIN
 //   - tableName: string = "remote_document"
 //   - path: ResourcePath
 
-/** Helpers for any LevelDB key. */
-@interface FSTLevelDBKey : NSObject
-
-/**
- * Parses the given key and returns a human readable description of its contents, suitable for
- * error messages and logging.
- */
-+ (NSString *)descriptionForKey:(Firestore::StringView)key;
-
-@end
-
 /** A key to a singleton row storing the version of the schema. */
 @interface FSTLevelDBVersionKey : NSObject
 

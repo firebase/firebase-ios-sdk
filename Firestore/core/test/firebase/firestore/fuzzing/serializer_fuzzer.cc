@@ -25,7 +25,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::nanopb::Reader;
 using firebase::firestore::remote::Serializer;
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
   try {
     // Try to decode the received data using the serializer.

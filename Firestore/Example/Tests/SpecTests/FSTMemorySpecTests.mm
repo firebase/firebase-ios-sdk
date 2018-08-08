@@ -42,10 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
-  return YES;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

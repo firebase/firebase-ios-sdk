@@ -56,7 +56,9 @@ class LevelDbTransaction {
     /**
      * Returns true if this iterator points to an entry
      */
-    bool Valid();
+    bool Valid() {
+      return is_valid_;
+    }
 
     /**
      * Seeks this iterator to the first key equal to or greater than the given
@@ -204,6 +206,13 @@ class LevelDbTransaction {
   int32_t version_;
   std::string label_;
 };
+
+/**
+ * Returns a description of the current key if the iterator is Valid, otherwise
+ * the string "the end of the table."
+ */
+std::string DescribeKey(
+    const std::unique_ptr<LevelDbTransaction::Iterator>& iterator);
 
 }  // namespace local
 }  // namespace firestore

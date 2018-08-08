@@ -4,8 +4,10 @@ Pod::Spec.new do |s|
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC
-  INTERNAL ONLY: A set of protocols that other Firebase SDKs can use to interoperate with Auth in a
-  safe and reliable manner.
+  Not for public use.
+
+  A set of protocols that other Firebase SDKs can use to interoperate with FirebaseAuth in a safe
+  and reliable manner.
                        DESC
 
   s.homepage         = 'https://firebase.google.com'
@@ -16,9 +18,7 @@ Pod::Spec.new do |s|
   # other.
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-# TODO: Remove this once it is merged in master and ready for release in M30.
-# :tag => 'AuthInterop-' + s.version.to_s
-    :tag => 'pre-AuthInterop-' + s.version.to_s
+    :tag => 'AuthInterop-' + s.version.to_s
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
