@@ -44,15 +44,21 @@ Status RecursivelyCreateDir(const Path& path) {
 }
 
 Status RecursivelyDelete(const Path& path) {
-  bool is_dir = false;
-  if (!Exists(path, &is_dir)) {
-    return Status::OK();
-  }
+  Status status = IsDirectory(path);
+  switch (status.code()) {
+    case FirestoreErrorCode::Ok:
+      return detail::RecursivelyDeleteDir(path);
 
-  if (is_dir) {
-    return detail::RecursivelyDeleteDir(path);
-  } else {
-    return detail::DeleteFile(path);
+    case FirestoreErrorCode::FailedPrecondition:
+      // Could be a file or something else. Attempt to delete it as a file
+      // but otherwise allow that to fail if it's not a file.
+      return detail::DeleteFile(path);
+
+    case FirestoreErrorCode::NotFound:
+      return Status::OK();
+
+    default:
+      return status;
   }
 }
 
