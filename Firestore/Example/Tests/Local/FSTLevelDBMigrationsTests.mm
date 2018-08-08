@@ -22,11 +22,11 @@
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -38,6 +38,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueueKey;
+using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbTargetDocumentKey;
+using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::util::OrderedCode;
 using firebase::firestore::testutil::Key;
@@ -119,19 +125,19 @@ using leveldb::Status;
   FSTDocumentKey *key2 = Key("documents/2");
 
   std::string targetKeys[] = {
-      [FSTLevelDBTargetKey keyWithTargetID:targetID],
-      [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key1],
-      [FSTLevelDBTargetDocumentKey keyWithTargetID:targetID documentKey:key2],
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key1 targetID:targetID],
-      [FSTLevelDBDocumentTargetKey keyWithDocumentKey:key2 targetID:targetID],
-      [FSTLevelDBQueryTargetKey keyWithCanonicalID:"foo.bar.baz" targetID:targetID],
+      LevelDbTargetKey::Key(targetID),
+      LevelDbTargetDocumentKey::Key(targetID, key1),
+      LevelDbTargetDocumentKey::Key(targetID, key2),
+      LevelDbDocumentTargetKey::Key(key1, targetID),
+      LevelDbDocumentTargetKey::Key(key2, targetID),
+      LevelDbQueryTargetKey::Key("foo.bar.baz", targetID),
   };
 
   // Keys that should not be modified by the dropping the query cache
   std::string preservedKeys[] = {
       [self dummyKeyForTable:"targetA"],
-      [FSTLevelDBMutationQueueKey keyWithUserID:userID],
-      [FSTLevelDBMutationKey keyWithUserID:userID batchID:batchID],
+      LevelDbMutationQueueKey::Key(userID),
+      LevelDbMutationKey::Key(userID, batchID),
   };
 
   [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
@@ -169,7 +175,7 @@ using leveldb::Status;
     // Setup some targets to be destroyed.
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries setup");
     for (int i = 0; i < 10000; ++i) {
-      transaction.Put([FSTLevelDBTargetKey keyWithTargetID:i], "");
+      transaction.Put(LevelDbTargetKey::Key(i), "");
     }
     transaction.Commit();
   }
@@ -177,7 +183,7 @@ using leveldb::Status;
   [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:3];
   {
     LevelDbTransaction transaction(_db.get(), "Verify");
-    std::string prefix = [FSTLevelDBTargetKey keyPrefix];
+    std::string prefix = LevelDbTargetKey::KeyPrefix();
 
     auto it = transaction.NewIterator();
     std::vector<std::string> found_keys;

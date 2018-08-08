@@ -19,7 +19,6 @@
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/Local/FSTRemoteDocumentCacheTests.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "leveldb/db.h"
