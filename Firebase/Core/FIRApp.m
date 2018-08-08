@@ -331,7 +331,7 @@ static NSMutableDictionary *sLibraryVersions;
   if ([self.name isEqualToString:kFIRDefaultAppName]) {
     Class firAnalyticsClass = NSClassFromString(@"FIRAnalytics");
     if (!firAnalyticsClass) {
-      FIRLogError(kFIRLoggerCore, @"I-COR000022", @"Firebase Analytics is not available.");
+      FIRLogWarning(kFIRLoggerCore, @"I-COR000022", @"Firebase Analytics is not available.");
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
