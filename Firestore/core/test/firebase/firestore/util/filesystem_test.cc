@@ -197,11 +197,9 @@ TEST(FilesystemTest, RecursivelyDelete) {
   Touch(file);
   EXPECT_FAILED_PRECONDITION(IsDirectory(file));
 
-  // Deleting some random path below a file doesn't work. Filesystem commands
-  // fail attempting to access the path and don't blindly succeed.
-  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
-  EXPECT_FAILED_PRECONDITION(RecursivelyDelete(nested_file));
-  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
+  EXPECT_OK(RecursivelyDelete(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
 
   EXPECT_OK(RecursivelyDelete(file));
   EXPECT_NOT_FOUND(IsDirectory(file));

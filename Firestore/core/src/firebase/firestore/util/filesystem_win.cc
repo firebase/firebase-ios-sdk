@@ -41,6 +41,19 @@ bool Exists(const Path& path, bool* is_directory) {
   return true;
 }
 
+Status IsDirectory(const Path& path) {
+  DWORD attrs = ::GetFileAttributesW(path.c_str());
+  if (attrs == INVALID_FILE_ATTRIBUTES) {
+    DWORD error = ::GetLastError();
+    return Status::FromLastError(error, path.ToUtf8String());
+  }
+  if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
+    return Status::OK();
+  }
+
+  return Status{FirestoreErrorCode::FailedPrecondition, path.ToUtf8String()};
+}
+
 Path TempDir() {
   // Returns a null-terminated string with a trailing backslash.
   wchar_t buffer[MAX_PATH + 1];
