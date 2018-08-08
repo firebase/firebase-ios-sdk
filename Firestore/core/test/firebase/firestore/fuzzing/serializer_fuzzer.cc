@@ -18,16 +18,19 @@
 #include <cstdint>
 
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::nanopb::Reader;
 using firebase::firestore::remote::Serializer;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
   try {
     // Try to decode the received data using the serializer.
-    auto val = serializer.DecodeFieldValue(data, size);
+    Reader reader = Reader::Wrap(data, size);
+    auto val = serializer.DecodeFieldValue(&reader);
   } catch (...) {
     // Ignore caught errors and assertions because fuzz testing is looking for
     // crashes and memory errors.
