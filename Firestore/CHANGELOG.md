@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.13.1
 - [fixed] Fixed an issue where `get(source:.Cache)` could throw an
   "unrecognized selector" error if the SDK has previously cached the
   non-existence of the document (#1632).
