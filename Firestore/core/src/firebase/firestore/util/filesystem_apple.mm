@@ -18,23 +18,30 @@
 
 #import <Foundation/Foundation.h>
 
+#include <sys/stat.h>
+
+#include <cerrno>
+
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
-bool Exists(const Path& path, bool* is_directory) {
-  NSString* ns_path = path.ToNSString();
-
-  BOOL is_directory_native;
-  if ([[NSFileManager defaultManager] fileExistsAtPath:ns_path
-                                           isDirectory:&is_directory_native]) {
-    if (is_directory) {
-      *is_directory = is_directory_native;
-    }
-    return true;
+Status IsDirectory(const Path& path) {
+  struct stat buffer {};
+  if (::stat(path.c_str(), &buffer)) {
+    return Status::FromErrno(
+        errno, StringFormat("Path %s is not a directory", path.ToUtf8String()));
   }
 
-  return false;
+  if (!S_ISDIR(buffer.st_mode)) {
+    return Status{FirestoreErrorCode::FailedPrecondition,
+                  StringFormat("Path %s exists but is not a directory",
+                               path.ToUtf8String())};
+  }
+
+  return Status::OK();
 }
 
 Status RecursivelyCreateDir(const Path& path) {
@@ -55,7 +62,7 @@ Status RecursivelyDelete(const Path& path) {
   NSError* error = nil;
   if (![[NSFileManager defaultManager] removeItemAtPath:ns_path error:&error]) {
     Status status = Status::FromNSError(error);
-    if (!status.ok() && status.code() == FirestoreErrorCode::NotFound) {
+    if (status.code() == FirestoreErrorCode::NotFound) {
       // Successful by definition
       return Status::OK();
     }

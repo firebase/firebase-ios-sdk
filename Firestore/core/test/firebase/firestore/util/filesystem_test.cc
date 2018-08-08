@@ -38,7 +38,6 @@ namespace util {
 static void Touch(const Path& path) {
   std::ofstream out{path.native_value()};
   ASSERT_TRUE(out.good());
-  out.close();
 }
 
 /** Creates a random filename that doesn't exist. */
@@ -46,11 +45,26 @@ static Path TestFilename() {
   return Path::FromUtf8("firestore-testing-" + CreateAutoId());
 }
 
+#define ASSERT_NOT_FOUND(expression)                              \
+  do {                                                            \
+    ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
+  } while (0)
+
+#define EXPECT_NOT_FOUND(expression)                              \
+  do {                                                            \
+    ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
+  } while (0)
+
+#define EXPECT_FAILED_PRECONDITION(expression)                              \
+  do {                                                                      \
+    ASSERT_EQ(FirestoreErrorCode::FailedPrecondition, (expression).code()); \
+  } while (0)
+
 TEST(FilesystemTest, Exists) {
-  EXPECT_TRUE(Exists(Path::FromUtf8("/")));
+  EXPECT_OK(IsDirectory(Path::FromUtf8("/")));
 
   Path file = Path::JoinUtf8("/", TestFilename());
-  EXPECT_FALSE(Exists(file));
+  EXPECT_NOT_FOUND(IsDirectory(file));
 }
 
 #if defined(_WIN32)
@@ -141,13 +155,14 @@ TEST(FilesystemTest, RecursivelyCreateDir) {
   Path parent = Path::JoinUtf8(TempDir(), TestFilename());
   Path dir = Path::JoinUtf8(parent, "middle", "leaf");
 
-  Status status = RecursivelyCreateDir(dir);
-  ASSERT_OK(status);
-  ASSERT_TRUE(Exists(dir));
+  ASSERT_OK(RecursivelyCreateDir(dir));
+  ASSERT_OK(IsDirectory(dir));
 
-  status = RecursivelyDelete(parent);
-  ASSERT_OK(status);
-  ASSERT_FALSE(Exists(dir));
+  // Creating a directory that exists should succeed.
+  ASSERT_OK(RecursivelyCreateDir(dir));
+
+  ASSERT_OK(RecursivelyDelete(parent));
+  ASSERT_NOT_FOUND(IsDirectory(dir));
 }
 
 TEST(FilesystemTest, RecursivelyCreateDirFailure) {
@@ -160,25 +175,40 @@ TEST(FilesystemTest, RecursivelyCreateDirFailure) {
   Status status = RecursivelyCreateDir(subdir);
   EXPECT_EQ(FirestoreErrorCode::FailedPrecondition, status.code());
 
-  status = RecursivelyDelete(dir);
-  EXPECT_OK(status);
+  EXPECT_OK(RecursivelyDelete(dir));
 }
 
 TEST(FilesystemTest, RecursivelyDelete) {
   Path tmp_dir = TempDir();
-  ASSERT_TRUE(Exists(tmp_dir));
+  ASSERT_OK(IsDirectory(tmp_dir));
 
   Path file = Path::JoinUtf8(tmp_dir, TestFilename());
-  Status status = RecursivelyDelete(file);
-  EXPECT_OK(status);
-  EXPECT_FALSE(Exists(file));
+  EXPECT_NOT_FOUND(IsDirectory(file));
+
+  // Deleting a something that doesn't exist should succeed.
+  EXPECT_OK(RecursivelyDelete(file));
+  EXPECT_NOT_FOUND(IsDirectory(file));
+
+  Path nested_file = Path::JoinUtf8(file, TestFilename());
+  EXPECT_OK(RecursivelyDelete(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(file));
 
   Touch(file);
-  EXPECT_TRUE(Exists(file));
+  EXPECT_FAILED_PRECONDITION(IsDirectory(file));
 
-  status = RecursivelyDelete(file);
-  EXPECT_OK(status);
-  EXPECT_FALSE(Exists(file));
+  // Deleting some random path below a file doesn't work. Filesystem commands
+  // fail attempting to access the path and don't blindly succeed.
+  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
+  EXPECT_FAILED_PRECONDITION(RecursivelyDelete(nested_file));
+  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
+
+  EXPECT_OK(RecursivelyDelete(file));
+  EXPECT_NOT_FOUND(IsDirectory(file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
+
+  // Deleting some highly nested path should work.
+  EXPECT_OK(RecursivelyDelete(nested_file));
 }
 
 }  // namespace util
