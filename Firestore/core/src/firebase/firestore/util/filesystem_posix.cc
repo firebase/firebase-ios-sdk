@@ -106,9 +106,6 @@ Status DeleteFile(const Path& path) {
   return Status::OK();
 }
 
-/**
- * Recursively deletes a path known to be a directory.
- */
 Status RecursivelyDeleteDir(const Path& parent) {
   DIR* dir = ::opendir(parent.c_str());
   if (!dir) {

@@ -39,7 +39,8 @@ Status CreateDir(const Path& path);
 /**
  * Deletes the given directory if it exists.
  *
- * @return Ok if the directory was deleted or did not exist.
+ * @return Ok if the directory was deleted or did not exist. Fails if the
+ * directory is non-empty.
  */
 Status DeleteDir(const Path& path);
 
@@ -51,9 +52,8 @@ Status DeleteDir(const Path& path);
 Status DeleteFile(const Path& path);
 
 /**
- * Recursively deletes the contents of the given pathname. If the pathname is
- * a file, deletes just that file. The the pathname is a directory, deletes
- * everything within the directory.
+ * Recursively deletes the contents of the given pathname that is known to be
+ * a directory.
  *
  * @return Ok if the directory was deleted or did not exist.
  */

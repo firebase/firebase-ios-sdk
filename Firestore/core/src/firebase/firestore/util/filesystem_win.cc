@@ -82,11 +82,11 @@ Status CreateDir(const Path& path) {
 }
 
 Status DeleteDir(const Path& path) {
-  if (RemoveDirectoryW(path.c_str())) {
+  if (::RemoveDirectoryW(path.c_str())) {
     return Status::OK();
   }
 
-  DWORD error = GetLastError();
+  DWORD error = ::GetLastError();
   if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) {
     return Status::OK();
   }
@@ -97,11 +97,11 @@ Status DeleteDir(const Path& path) {
 }
 
 Status DeleteFile(const Path& path) {
-  if (DeleteFileW(path.c_str())) {
+  if (::DeleteFileW(path.c_str())) {
     return Status::OK();
   }
 
-  DWORD error = GetLastError();
+  DWORD error = ::GetLastError();
   if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND) {
     return Status::OK();
   }
@@ -110,9 +110,6 @@ Status DeleteFile(const Path& path) {
       error, StringFormat("Could not delete file %s", path.ToUtf8String()));
 }
 
-/**
- * Recursively deletes a path known to be a directory.
- */
 Status RecursivelyDeleteDir(const Path& parent) {
   Status result;
   auto fail = [&](DWORD error) {
