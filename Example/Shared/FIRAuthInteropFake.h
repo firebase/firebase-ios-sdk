@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// A fake class to handle Auth interaction.
-@interface FIRAuthInteropFake : NSObject<FIRAuthInterop>
+@interface FIRAuthInteropFake : NSObject <FIRAuthInterop>
 
 /// The error returned in the `getToken` callback.
 @property(nonatomic, nullable, strong, readonly) NSError *error;

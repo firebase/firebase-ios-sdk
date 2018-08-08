@@ -583,6 +583,9 @@
 		EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
+		EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
+		EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1262,6 +1265,8 @@
 		EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRAnalyticsConfigurationTest.m; sourceTree = "<group>"; };
 		EDD53E23211A442D00376BFF /* FIRAuthInteropFake.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRAuthInteropFake.h; path = Shared/FIRAuthInteropFake.h; sourceTree = "<group>"; };
 		EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRAuthInteropFake.m; path = Shared/FIRAuthInteropFake.m; sourceTree = "<group>"; };
+		EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRComponentTestUtilities.m; path = Shared/FIRComponentTestUtilities.m; sourceTree = "<group>"; };
+		EDD53E29211B08A300376BFF /* FIRComponentTestUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRComponentTestUtilities.h; path = Shared/FIRComponentTestUtilities.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1671,6 +1676,8 @@
 		AFC8BAA01EC24B1600B8EEAE /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				EDD53E29211B08A300376BFF /* FIRComponentTestUtilities.h */,
+				EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */,
 				EDD53E23211A442D00376BFF /* FIRAuthInteropFake.h */,
 				EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */,
 				AFC8BAA21EC257D800B8EEAE /* FIRSampleAppUtilities.h */,
@@ -3647,6 +3654,7 @@
 				D0EDB2E81EDA06CB00B6C31B /* FIRStorageTestHelpers.m in Sources */,
 				D0EDB2E91EDA06CB00B6C31B /* FIRStorageMetadataTests.m in Sources */,
 				ED981886211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
+				EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
 				D0EDB2EA1EDA06CB00B6C31B /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				D0EDB2EB1EDA06CB00B6C31B /* FIRStorageReferenceTests.m in Sources */,
 				D0EDB2EC1EDA06CB00B6C31B /* FIRStoragePathTests.m in Sources */,
@@ -4106,6 +4114,7 @@
 				DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */,
 				DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */,
 				ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
+				EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
 				DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */,
 				DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */,
 				DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */,
@@ -4135,6 +4144,7 @@
 				DEB13A2C1E73518B00AC236D /* FIRStorageTestHelpers.m in Sources */,
 				DEB13A291E73518B00AC236D /* FIRStorageMetadataTests.m in Sources */,
 				ED981885211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
+				EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
 				DEB13A2E1E73518B00AC236D /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEB13A2B1E73518B00AC236D /* FIRStorageReferenceTests.m in Sources */,
 				DEB13A2A1E73518B00AC236D /* FIRStoragePathTests.m in Sources */,

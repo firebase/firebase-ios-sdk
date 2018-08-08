@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRTestCase.h"
+#import <XCTest/XCTest.h>
 
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentRegistrant.h>
@@ -25,19 +25,21 @@
 @interface FIRStorageComponent () <FIRComponentRegistrant>
 @end
 
-@interface FIRStorageComponentTests : FIRTestCase
+@interface FIRStorageComponentTests : XCTestCase
 @end
 
 @implementation FIRStorageComponentTests
 
 - (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+  [super setUp];
+  // Put setup code here. This method is called before the invocation of each test method in the
+  // class.
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+  // Put teardown code here. This method is called after the invocation of each test method in the
+  // class.
+  [super tearDown];
 }
 
 #pragma mark - Interoperability Tests

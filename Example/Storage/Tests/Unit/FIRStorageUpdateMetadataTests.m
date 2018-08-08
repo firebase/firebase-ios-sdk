@@ -36,7 +36,7 @@
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket.appspot.com");
 
-  self.mockApp = OCMClassMock([FIRApp class]);
+  self.mockApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([self.mockApp name]).andReturn(kFIRStorageAppName);
   OCMStub([(FIRApp *)self.mockApp options]).andReturn(mockOptions);
 

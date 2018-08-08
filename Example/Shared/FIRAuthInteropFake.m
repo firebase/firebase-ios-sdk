@@ -18,6 +18,8 @@
 
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @implementation FIRAuthInteropFake
 
 - (instancetype)initWithToken:(nullable NSString *)token
@@ -32,10 +34,14 @@
   return self;
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(nonnull FIRTokenCallback)callback {
+- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback {
   callback(self.token, self.error);
+}
+
+- (nullable NSString *)getUserID {
+  return _userID;
 }
 
 @end
 
-
+NS_ASSUME_NONNULL_END

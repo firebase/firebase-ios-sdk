@@ -16,10 +16,11 @@
 
 #import <FirebaseCore/FIRAppInternal.h>
 
+#import "FIRAuthInteropFake.h"
+
 @interface FIRStorageTokenAuthorizerTests : XCTestCase
 
 @property(strong, nonatomic) GTMSessionFetcher *fetcher;
-@property(strong, nonatomic) id mockApp;
 
 @end
 
@@ -30,19 +31,16 @@
   NSURLRequest *fetchRequest = [NSURLRequest requestWithURL:[FIRStorageTestHelpers objectURL]];
   self.fetcher = [GTMSessionFetcher fetcherWithRequest:fetchRequest];
 
-  self.mockApp = OCMClassMock([FIRApp class]);
-
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  FIRAuthFake *auth = [[FIRAuthFake alloc] initWithToken:kFIRStorageTestAuthToken uid:nil];
-  self.fetcher.authorizer =
-      [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
-                                              fetcherService:fetcherService
-                                                authProvider:auth];
+  FIRAuthInteropFake *auth =
+      [[FIRAuthInteropFake alloc] initWithToken:kFIRStorageTestAuthToken userID:nil error:nil];
+  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                                                    fetcherService:fetcherService
+                                                                      authProvider:auth];
 }
 
 - (void)tearDown {
   self.fetcher = nil;
-  self.mockApp = nil;
   [super tearDown];
 }
 
@@ -80,15 +78,12 @@
   NSError *authError = [NSError errorWithDomain:FIRStorageErrorDomain
                                            code:FIRStorageErrorCodeUnauthenticated
                                        userInfo:nil];
-  id unsuccessfulApp = OCMClassMock([FIRApp class]);
-  OCMStub([unsuccessfulApp getTokenImplementation])
-      .andReturn(^{
-      });
-  FIRTokenCallback mockCallback = [OCMArg invokeBlockWithArgs:[NSNull null], authError, nil];
-  OCMStub([unsuccessfulApp getTokenForcingRefresh:NO withCallback:mockCallback]);
+  FIRAuthInteropFake *failedAuth =
+      [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:authError];
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  self.fetcher.authorizer =
-      [[FIRStorageTokenAuthorizer alloc] initWithApp:unsuccessfulApp fetcherService:fetcherService];
+  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                                                    fetcherService:fetcherService
+                                                                      authProvider:failedAuth];
 
   self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
 #pragma clang diagnostic push
@@ -119,11 +114,11 @@
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testSuccessfulUnauthenticatedAuth"];
 
-  // Note that self.mockApp is left with null properties--this simulates no token present
-  self.mockApp = OCMClassMock([FIRApp class]);
+  // Simulate Auth not being included at all.
   GTMSessionFetcherService *fetcherService = [[GTMSessionFetcherService alloc] init];
-  self.fetcher.authorizer =
-      [[FIRStorageTokenAuthorizer alloc] initWithApp:self.mockApp fetcherService:fetcherService];
+  self.fetcher.authorizer = [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
+                                                                    fetcherService:fetcherService
+                                                                      authProvider:nil];
 
   self.fetcher.testBlock = ^(GTMSessionFetcher *fetcher, GTMSessionFetcherTestResponse response) {
 #pragma clang diagnostic push
