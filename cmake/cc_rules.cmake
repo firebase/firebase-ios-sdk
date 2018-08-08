@@ -112,24 +112,56 @@ function(cc_test name)
   target_link_libraries(${name} ${cct_DEPENDS})
 endfunction()
 
-# cc_binary(
+# cc_fuzz_test(
 #   target
-#   SOURCES sources...
-#   DEPENDS libraries...
+#   DICTIONARY dict_file
+#   CORPUS     corpus_dir
+#   SOURCES    sources...
+#   DEPENDS    libraries...
 # )
 #
-# Defines a new executable target with the given target name, sources, and
-# dependencies.
-function(cc_binary name)
-  set(multi DEPENDS SOURCES)
-  cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
+# Defines a new executable fuzz testing target with the given target name,
+# (optional) dictionary file, (optional) corpus directory, sources, and
+# dependencies. Implicitly adds DEPENDS on 'Fuzzer', which corresponds to
+# libFuzzer if fuzzing runs locally or a provided fuzzing library if fuzzing
+# runs on OSS Fuzz. If provided, copies the DICTIONARY file as '${target}.dict'
+# and copies the CORPUS directory as '${target}_seed_corpus' after building the
+# target. This naming convention is critical for OSS Fuzz build script to
+# capture new fuzzing targets.
+function(cc_fuzz_test name)
+  # Finds the fuzzer library that is either provided by OSS Fuzz or libFuzzer
+  # that is manually built from sources.
+  find_package(Fuzzer REQUIRED)
 
-  maybe_remove_objc_sources(sources ${ccb_SOURCES})
+  # Parse arguments of the cc_fuzz_test macro.
+  set(single DICTIONARY CORPUS)
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(ccf "" "${single}" "${multi}" ${ARGN})
+
+  list(APPEND ccf_DEPENDS Fuzzer)
+
+  maybe_remove_objc_sources(sources ${ccf_SOURCES})
   add_executable(${name} ${sources})
-  add_objc_flags(${name} ccb)
+  add_objc_flags(${name} ccf)
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
-  target_link_libraries(${name} ${ccb_DEPENDS})
+  target_link_libraries(${name} ${ccf_DEPENDS})
+
+  # Copy the dictionary file and corpus directory, if they are defined.
+  if(DEFINED ccf_DICTIONARY)
+    add_custom_command(
+      TARGET ${name} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy
+          ${ccf_DICTIONARY} ${name}.dict
+    )
+  endif()
+  if(DEFINED ccf_CORPUS)
+    add_custom_command(
+      TARGET ${name} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${ccf_CORPUS} ${name}_seed_corpus
+    )
+  endif()
 endfunction()
 
 # maybe_remove_objc_sources(output_var sources...)
