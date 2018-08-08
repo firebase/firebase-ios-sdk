@@ -21,16 +21,15 @@
 
 using firebase::firestore::model::ResourcePath;
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   const char* str_ptr = reinterpret_cast<const char*>(data);
   absl::string_view str_view{str_ptr, size};
 
   try {
     ResourcePath rp = ResourcePath::FromString(str_view);
   } catch (...) {
-    // Ignore caught errors and assertions
+    // Ignore caught errors and assertions.
   }
 
   return 0;
 }
-
