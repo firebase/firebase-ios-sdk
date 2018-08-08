@@ -293,6 +293,7 @@ class SerializerTest : public ::testing::Test {
         serializer.DecodeFieldValue(&reader);
     EXPECT_OK(reader.status());
     EXPECT_EQ(type, actual_model->type());
+    ASSERT_TRUE(actual_model.has_value());
     EXPECT_EQ(model, *actual_model);
   }
 

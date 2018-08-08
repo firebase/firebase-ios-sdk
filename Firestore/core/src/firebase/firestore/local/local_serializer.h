@@ -65,7 +65,7 @@ class LocalSerializer {
    * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
    * model.
    *
-   * Check writer->status() to determine if an error occured while decoding.
+   * Check reader->status() to determine if an error occured while decoding.
    *
    * @param reader The reader object containing the bytes to convert. It's
    * assumed that exactly all of the bytes will be used by this conversion.

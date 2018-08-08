@@ -24,6 +24,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -70,7 +71,7 @@ class Reader {
    */
   Tag ReadTag();
 
-  const Tag& last_tag() {
+  const Tag& last_tag() const {
     return last_tag_;
   }
 
@@ -154,7 +155,7 @@ class Reader {
   }
 
   /**
-   * True IFF the stream still has bytes left, and the status is ok.
+   * True if the stream still has bytes left, and the status is ok.
    */
   bool good() const {
     return stream_.bytes_left && status_.ok();
@@ -275,7 +276,7 @@ T Reader::ReadNestedMessageImpl(
     return (serializer.*read_message_member_fn)(reader);
   };
 
-  return ReadNestedMessageImpl(read_message_fn);
+  return ReadNestedMessageImpl(std::move(read_message_fn));
 }
 
 }  // namespace nanopb
