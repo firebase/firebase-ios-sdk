@@ -33,16 +33,20 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-bool Exists(const Path& path, bool* is_directory) {
+Status IsDirectory(const Path& path) {
   struct stat buffer {};
   if (::stat(path.c_str(), &buffer)) {
-    return false;
+    return Status::FromErrno(
+        errno, StringFormat("Path %s is not a directory", path.ToUtf8String()));
   }
 
-  if (is_directory) {
-    *is_directory = S_ISDIR(buffer.st_mode);
+  if (!S_ISDIR(buffer.st_mode)) {
+    return Status{FirestoreErrorCode::FailedPrecondition,
+                  StringFormat("Path %s exists but is not a directory",
+                               path.ToUtf8String())};
   }
-  return true;
+
+  return Status::OK();
 }
 
 Path TempDir() {
