@@ -47,3 +47,12 @@ cc_fuzz_test(
   SOURCES    fieldpath_fuzzer.cc
   DEPENDS    firebase_firestore_model
 )
+
+# ResourcePath fuzzing target. Use the same corpus and dict as FieldPath.
+cc_fuzz_test(
+  resourcepath_fuzzer
+  DICTIONARY ${fuzzing_resources}/FieldPath/fieldpath.dictionary
+  CORPUS     ${fuzzing_resources}/FieldPath/Corpus
+  SOURCES    resourcepath_fuzzer.cc
+  DEPENDS    firebase_firestore_model
+)
