@@ -19,14 +19,16 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRComponentContainer (TestingPrivate)
-// Internal property exposed for testing purposes.
+// Expose the private property in FIRComponentContainer for manually setting in the custom
+// constructor.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
 
 @end
 
 @implementation FIRComponentContainer (TestingPrivate)
 
-// Dynamic so the internal property exposed above doesn't get overridden.
+// Dynamic so the internal property exposed above doesn't get overridden by compiler generated
+// getters and setters.
 @dynamic components;
 
 - (instancetype)initWithApp:(FIRApp *)app

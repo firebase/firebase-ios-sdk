@@ -16,11 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-// Include any interop interfaces if they're available for import.
-#if __has_include(<FirebaseAuthInterop/FIRAuthInterop.h>)
-#import <FirebaseAuthInterop/FIRAuthInterop.h>
-#endif
-
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainerInternal.h>
