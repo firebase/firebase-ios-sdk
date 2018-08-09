@@ -731,13 +731,6 @@ TEST_F(SerializerTest, IncompleteTag) {
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
 
-TEST_F(SerializerTest, FailOnInvalidInputBytes) {
-  // Invalid inputs should fail gracefully without assertions.
-  std::vector<uint8_t> bytes = {0x32, 0x02, 0x0a, 0x00};
-  ExpectFailedStatusDuringFieldValueDecode(
-      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
-}
-
 TEST_F(SerializerTest, EncodesKey) {
   EXPECT_EQ("projects/p/databases/d/documents", serializer.EncodeKey(Key("")));
   EXPECT_EQ("projects/p/databases/d/documents/one/two/three/four",
