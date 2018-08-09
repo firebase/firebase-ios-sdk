@@ -61,6 +61,7 @@ if(APPLE)
     SOURCES
       hard_assert_test.cc
       log_test.cc
+      string_apple_test.mm
     DEPENDS
       firebase_firestore_util_base_apple
   )
