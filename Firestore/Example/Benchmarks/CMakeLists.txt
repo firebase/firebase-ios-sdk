@@ -1,4 +1,4 @@
-# Copyright 2017 Google
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-add_subdirectory(Example/Benchmarks)
-add_subdirectory(Protos)
-add_subdirectory(core)
-add_subdirectory(fuzzing)
+cc_binary(
+  firebase_firestore_util_string_apple_benchmark
+  SOURCES
+    string_apple_benchmark.mm
+  DEPENDS
+    benchmark
+    benchmark_main
+    firebase_firestore_util_base_apple
+)
