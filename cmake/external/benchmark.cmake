@@ -12,21 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
+include(ExternalProject)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+if(TARGET benchmark)
+  return()
+endif()
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+set(commit v1.4.1)
+
+ExternalProject_Add(
+  benchmark
+
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  DOWNLOAD_NAME benchmark-${commit}.tar.gz
+  URL https://github.com/google/benchmark/archive/${commit}.tar.gz
+  URL_HASH SHA256=f8e525db3c42efc9c7f3bc5176a8fa893a9a9920bbd08cef30fb56a51854d60d
+
+  PREFIX ${PROJECT_BINARY_DIR}
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
 )
-
-include(benchmark)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
