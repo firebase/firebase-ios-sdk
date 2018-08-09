@@ -14,3 +14,4 @@
 
 add_subdirectory(Protos)
 add_subdirectory(core)
+add_subdirectory(fuzzing)
