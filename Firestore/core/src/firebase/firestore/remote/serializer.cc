@@ -501,8 +501,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     return absl::make_unique<NoDocument>(
         DecodeKey(missing), SnapshotVersion{*std::move(read_time)});
   } else {
-    reader->Fail("Invalid BatchGetDocumentsReponse message: "
-                 "Neither 'found' nor 'missing' fields set.");
+    reader->Fail(
+        "Invalid BatchGetDocumentsReponse message: "
+        "Neither 'found' nor 'missing' fields set.");
     return nullptr;
   }
 }
