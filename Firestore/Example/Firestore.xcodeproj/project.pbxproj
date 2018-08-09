@@ -1152,11 +1152,11 @@
 				54DA12A01F315EE100DD57A1 /* listen_spec_test.json */,
 				54DA12A11F315EE100DD57A1 /* offline_spec_test.json */,
 				54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */,
+				D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */,
 				54DA12A31F315EE100DD57A1 /* persistence_spec_test.json */,
 				3B843E4A1F3930A400548890 /* remote_store_spec_test.json */,
 				54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */,
 				54DA12A51F315EE100DD57A1 /* write_spec_test.json */,
-				D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */,
 			);
 			path = json;
 			sourceTree = "<group>";
@@ -1441,11 +1441,11 @@
 				54DA12AA1F315EE100DD57A1 /* listen_spec_test.json in Resources */,
 				54DA12AB1F315EE100DD57A1 /* offline_spec_test.json in Resources */,
 				54DA12AC1F315EE100DD57A1 /* orderby_spec_test.json in Resources */,
+				D5B25CBF07F65E885C9D68AB /* perf_spec_test.json in Resources */,
 				54DA12AD1F315EE100DD57A1 /* persistence_spec_test.json in Resources */,
 				3B843E4C1F3A182900548890 /* remote_store_spec_test.json in Resources */,
 				54DA12AE1F315EE100DD57A1 /* resume_token_spec_test.json in Resources */,
 				54DA12AF1F315EE100DD57A1 /* write_spec_test.json in Resources */,
-				D5B25CBF07F65E885C9D68AB /* perf_spec_test.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
