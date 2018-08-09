@@ -120,7 +120,18 @@ absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
     }
   }
 
-  if (!value.has_value()) return absl::nullopt;
+  if (key.empty()) {
+    reader->Fail(
+        "Invalid message: Empty key while decoding a Map field value.");
+    return absl::nullopt;
+  }
+
+  if (!value.has_value()) {
+    reader->Fail(
+        "Invalid message: Empty value while decoding a Map field value.");
+    return absl::nullopt;
+  }
+
   return ObjectValue::Map::value_type{key, *std::move(value)};
 }
 
@@ -335,8 +346,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
 
   // There needs to be at least one entry in the FieldValue.
   if (reader->bytes_left() == 0) {
-    reader->set_status(Status(FirestoreErrorCode::DataLoss,
-                              "Input Value proto missing contents"));
+    reader->Fail("Input Value proto missing contents");
     return absl::nullopt;
   }
 
@@ -491,9 +501,9 @@ std::unique_ptr<MaybeDocument> Serializer::DecodeBatchGetDocumentsResponse(
     return absl::make_unique<NoDocument>(
         DecodeKey(missing), SnapshotVersion{*std::move(read_time)});
   } else {
-    reader->set_status(Status(FirestoreErrorCode::DataLoss,
-                              "Invalid BatchGetDocumentsReponse message: "
-                              "Neither 'found' nor 'missing' fields set."));
+    reader->Fail(
+        "Invalid BatchGetDocumentsReponse message: "
+        "Neither 'found' nor 'missing' fields set.");
     return nullptr;
   }
 }
