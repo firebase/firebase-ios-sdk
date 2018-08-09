@@ -102,10 +102,11 @@ class StreamWrite : public StreamOperation {
 class StreamFinish : public StreamOperation {
  public:
   StreamFinish(Stream* const stream,
-              const std::shared_ptr<GrpcCall>& call,
-              const int generation,
-              const bool cancel_pending_operations)
-      : StreamOperation{stream, call, generation}, cancel_pending_operations_{cancel_pending_operations} {
+               const std::shared_ptr<GrpcCall>& call,
+               const int generation,
+               const bool cancel_pending_operations)
+      : StreamOperation{stream, call, generation},
+        cancel_pending_operations_{cancel_pending_operations} {
   }
 
  private:
@@ -134,7 +135,8 @@ class StreamFinish : public StreamOperation {
   grpc::Status grpc_status_;
   bool cancel_pending_operations_ = false;
 };
-}
+
+} // namespace
 
 Stream::Stream(AsyncQueue* const async_queue,
                CredentialsProvider* const credentials_provider,
@@ -170,21 +172,22 @@ void Stream::Start() {
   // deleted object.
   std::weak_ptr<Stream> weak_self{shared_from_this()};
   const int auth_generation = generation();
-  // TODO OBC: refactor, way too nested.
-  credentials_provider_->GetToken(
-      [weak_self, auth_generation](util::StatusOr<Token> maybe_token) {
-        if (auto live_instance = weak_self.lock()) {
-          live_instance->firestore_queue_->EnqueueRelaxed(
-              [maybe_token, weak_self, auth_generation] {
-                if (auto live_instance = weak_self.lock()) {
-                  // Streams can be stopped while waiting for authorization.
-                  if (live_instance->generation_ == auth_generation) {
-                    live_instance->ResumeStartAfterAuth(maybe_token);
-                  }
-                }
-              });
-        }
-      });
+  credentials_provider_->GetToken([weak_self, auth_generation](
+                                      util::StatusOr<Token> maybe_token) {
+    auto live_instance = weak_self.lock();
+    if (!live_instance) {
+      return;
+    }
+    live_instance->firestore_queue_->EnqueueRelaxed([maybe_token, weak_self,
+                                                     auth_generation] {
+      auto live_instance = weak_self.lock();
+      // Streams can be stopped while waiting for authorization, so need to check generation.
+      if (!live_instance || live_instance->generation() != auth_generation) {
+        return;
+      }
+      live_instance->ResumeStartAfterAuth(maybe_token);
+    });
+  });
 }
 
 void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
@@ -303,7 +306,6 @@ void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
     return;
   }
 
-  // OBC: remove negation to easily test retry logic
   client_side_error_ = DoOnStreamRead(message);
   if (client_side_error_) {
     OnConnectionBroken();
@@ -336,6 +338,7 @@ void Stream::Stop() {
   if (!IsStarted()) {
     return;
   }
+  // TODO OBC comment on how this interplays with finishing GRPC
   ++generation_;
 
   client_side_error_ = {FirestoreErrorCode::Ok, ""};
@@ -370,9 +373,9 @@ void Stream::HalfCloseConnection() {
   // TODO OBC explain
   const bool cancel_pending_operations = client_side_error_.has_value();
   Execute<StreamFinish>(cancel_pending_operations);
-  // After a GRPC call finishes, it will no longer be valid, so there is no reason
-  // to hold on to it now that a finish operation has been added (the operation
-  // has its own `shared_ptr` to the call).
+  // After a GRPC call finishes, it will no longer be valid, so there is no
+  // reason to hold on to it now that a finish operation has been added (the
+  // operation has its own `shared_ptr` to the call).
   grpc_call_.reset();
 }
 
@@ -381,8 +384,9 @@ void Stream::OnStreamFinish(const util::Status& server_status) {
 
   const util::Status status = [&] {
     if (client_side_error_) {
-      HARD_ASSERT(server_status.code() ==
-          FirestoreErrorCode::Ok || server_status.code() == FirestoreErrorCode::Cancelled, "OBC TODO");
+      HARD_ASSERT(server_status.code() == FirestoreErrorCode::Ok ||
+                      server_status.code() == FirestoreErrorCode::Cancelled,
+                  "OBC TODO");
       return client_side_error_.value();
     }
     return server_status;
@@ -472,9 +476,11 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-absl::optional<util::Status> WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+absl::optional<util::Status> WatchStream::DoOnStreamRead(
+    const grpc::ByteBuffer& message) {
   std::string error;
-  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message, &error);
+  GCFSListenResponse* response =
+      serializer_bridge_.ParseResponse(message, &error);
   if (!response) {
     return util::Status{FirestoreErrorCode::Internal, error};
   }
@@ -566,7 +572,8 @@ void WriteStream::DoOnStreamFinish(const util::Status& status) {
   is_handshake_complete_ = false;
 }
 
-absl::optional<util::Status> WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+absl::optional<util::Status> WriteStream::DoOnStreamRead(
+    const grpc::ByteBuffer& message) {
   // LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self,
   // response);
   EnsureOnQueue();
