@@ -297,8 +297,8 @@ void Stream::CancelIdleCheck() {
 // Read/write
 
 // Called by `BufferedWriter`.
-void Stream::Write(const grpc::ByteBuffer& message) {
-  Execute<StreamWrite>(message);
+void Stream::Write(grpc::ByteBuffer&& message) {
+  Execute<StreamWrite>(std::move(message));
 }
 
 void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {

@@ -111,7 +111,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void ResumeStartFromBackoff();
   void StopDueToIdleness();
 
-  void Write(const grpc::ByteBuffer& message);
+  void Write(grpc::ByteBuffer&& message);
 
   void OnConnectionBroken();
   void HalfCloseConnection();

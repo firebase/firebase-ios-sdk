@@ -59,7 +59,7 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  stream_->Write(buffer_.back());
+  stream_->Write(std::move(buffer_.back()));
   buffer_.pop_back();
 }
 
