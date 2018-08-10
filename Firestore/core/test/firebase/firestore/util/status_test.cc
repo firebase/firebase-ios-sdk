@@ -150,6 +150,12 @@ TEST(Status, CausedBy_Chain) {
             result.ToString());
 }
 
+TEST(Status, CauseBy_Self) {
+  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status result = not_found.CausedBy(not_found);
+  EXPECT_EQ(not_found, result);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase

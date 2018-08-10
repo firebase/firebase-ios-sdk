@@ -37,7 +37,7 @@ void Status::Update(const Status& new_status) {
 }
 
 Status& Status::CausedBy(const Status& cause) {
-  if (cause.ok()) {
+  if (cause.ok() || this == &cause) {
     return *this;
   }
 
