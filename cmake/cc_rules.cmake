@@ -89,6 +89,27 @@ function(cc_select library_name)
   message(FATAL_ERROR "Could not find implementation for ${library_name}")
 endfunction()
 
+# cc_binary(
+#   target
+#   SOURCES sources...
+#   DEPENDS libraries...
+# )
+#
+# Defines a new executable target with the given target name, sources, and
+# dependencies.
+function(cc_binary name)
+  set(multi DEPENDS SOURCES)
+  cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
+
+  maybe_remove_objc_sources(sources ${ccb_SOURCES})
+  add_executable(${name} ${sources})
+  add_objc_flags(${name} ccb)
+  add_test(${name} ${name})
+
+  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
+  target_link_libraries(${name} ${ccb_DEPENDS})
+endfunction()
+
 # cc_test(
 #   target
 #   SOURCES sources...
@@ -140,12 +161,11 @@ function(cc_fuzz_test name)
 
   list(APPEND ccf_DEPENDS Fuzzer)
 
-  maybe_remove_objc_sources(sources ${ccf_SOURCES})
-  add_executable(${name} ${sources})
-  add_objc_flags(${name} ccf)
-
-  target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
-  target_link_libraries(${name} ${ccf_DEPENDS})
+  cc_binary(
+    ${name}
+    SOURCES ${ccf_SOURCES}
+    DEPENDS ${ccf_DEPENDS}
+  )
 
   # Copy the dictionary file and corpus directory, if they are defined.
   if(DEFINED ccf_DICTIONARY)
