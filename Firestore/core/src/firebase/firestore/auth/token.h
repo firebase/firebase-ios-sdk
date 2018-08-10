@@ -42,7 +42,7 @@ namespace auth {
 // TODO(zxu123): Make this support token-type for desktop workflow.
 class Token {
  public:
-  Token(absl::string_view token, const User& user);
+  Token(std::string token, User user);
 
   /** The actual raw token. */
   const std::string& token() const {
