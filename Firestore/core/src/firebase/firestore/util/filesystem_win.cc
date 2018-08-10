@@ -122,7 +122,7 @@ Status RecursivelyDeleteDir(const Path& parent) {
   };
 
   WIN32_FIND_DATAW find_data;
-  Path pattern = parent.AppendUtf16(L"*", 1);
+  Path pattern = parent.AppendUtf16(L"\\*", 1);
   HANDLE find_handle = ::FindFirstFileW(pattern.c_str(), &find_data);
   if (find_handle == INVALID_HANDLE_VALUE) {
     DWORD error = ::GetLastError();

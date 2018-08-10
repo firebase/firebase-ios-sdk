@@ -230,6 +230,25 @@ TEST(FilesystemTest, RecursivelyDeleteTree) {
   EXPECT_NOT_FOUND(IsDirectory(leaf1_dir));
 }
 
+TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
+  Path root_dir = Path::JoinUtf8(TempDir(), TestFilename());
+
+  // Ensure that when deleting a directory we don't delete any directory that
+  // has a name that's a suffix of that directory. (This matters because on
+  // Win32 directories are traversed with a glob which can easily over-match.)
+  Path child = Path::JoinUtf8(root_dir, "child");
+  Path child_suffix = Path::JoinUtf8(root_dir, "child_suffix");
+
+  ASSERT_OK(RecursivelyCreateDir(child));
+  ASSERT_OK(RecursivelyCreateDir(child_suffix));
+  ASSERT_OK(IsDirectory(child_suffix));
+
+  ASSERT_OK(RecursivelyDelete(child));
+  ASSERT_OK(IsDirectory(child_suffix));
+
+  EXPECT_OK(RecursivelyDelete(root_dir));
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
