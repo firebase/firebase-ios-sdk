@@ -23,6 +23,7 @@
 #import <FirebaseCore/FIROptions.h>
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #import "FIRFirestoreSettings.h"
@@ -158,14 +159,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   return [provider firestoreForDatabase:database];
 }
 
-- (instancetype)initWithProjectID:(const absl::string_view)projectID
-                         database:(const absl::string_view)database
+- (instancetype)initWithProjectID:(std::string)projectID
+                         database:(std::string)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
               workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
-    _databaseID = DatabaseId(projectID, database);
+    _databaseID = DatabaseId{std::move(projectID), std::move(database)};
     FSTPreConverterBlock block = ^id _Nullable(id _Nullable input) {
       if ([input isKindOfClass:[FIRDocumentReference class]]) {
         FIRDocumentReference *documentReference = (FIRDocumentReference *)input;
