@@ -36,8 +36,28 @@ namespace util {
 Status IsDirectory(const Path& path) {
   struct stat buffer {};
   if (::stat(path.c_str(), &buffer)) {
-    return Status::FromErrno(
-        errno, StringFormat("Path %s is not a directory", path.ToUtf8String()));
+    if (errno == ENOENT) {
+      // Expected common error case.
+      return Status{FirestoreErrorCode::NotFound, path.ToUtf8String()};
+
+    } else if (errno == ENOTDIR) {
+      // This is a case where POSIX and Windows differ in behavior in a way
+      // that's hard to reconcile from Windows. Under POSIX, ENOTDIR indicates
+      // that not only does the path not exist, but that some parent of the
+      // path also isn't a directory.
+      //
+      // Windows, OTOH, returns ERROR_FILE_NOT_FOUND if the file doesn't exist,
+      // its immediate parent exists, and the parent is a directory. Otherwise
+      // Windows returns ERROR_PATH_NOT_FOUND. To emulate POSIX behavior you
+      // have to find the leaf-most existing parent and figure out if it's not a
+      // directory.
+      //
+      // Since we really don't care about this distinction it's easier to
+      // resolve this by returning NotFound here.
+      return Status{FirestoreErrorCode::NotFound, path.ToUtf8String()};
+    } else {
+      return Status::FromErrno(errno, path.ToUtf8String());
+    }
   }
 
   if (!S_ISDIR(buffer.st_mode)) {
