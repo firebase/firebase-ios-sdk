@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
+#if defined(__APPLE__)
+
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -39,10 +41,9 @@ std::string MakeString(CFStringRef str) {
   HARD_ASSERT(converted == num_chars);
 
   std::string result(static_cast<size_t>(num_bytes), '\0');
-  CFIndex check_num_bytes = 0;
   auto buffer = reinterpret_cast<UInt8*>(&result[0]);
   converted = CFStringGetBytes(str, range, kCFStringEncodingUTF8, 0u, false,
-                               buffer, num_bytes, &check_num_bytes);
+                               buffer, num_bytes, nullptr);
   HARD_ASSERT(converted == num_chars);
 
   return result;
@@ -51,3 +52,5 @@ std::string MakeString(CFStringRef str) {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(__APPLE__)

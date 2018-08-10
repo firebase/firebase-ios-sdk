@@ -80,12 +80,6 @@ inline std::string MakeString(NSString* str) {
   return MakeString(cf_str);
 }
 
-// Creates a std::string wrapper for the contents of the given NSString.
-inline std::string MakeStringOld(NSString* str) {
-  return std::string([str UTF8String],
-                     [str lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
-}
-
 #endif  // defined(__OBJC__)
 
 }  // namespace util
