@@ -159,8 +159,8 @@ using firebase::firestore::model::SnapshotVersion;
   _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
   _workerDispatchQueue = [[FSTDispatchQueue alloc] initWithQueue:_testQueue];
 
-  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
-                               settings.sslEnabled);
+  _databaseInfo =
+      DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
   _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
 

@@ -16,19 +16,21 @@
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 
+#include <utility>
+
 namespace firebase {
 namespace firestore {
 namespace core {
 
 DatabaseInfo::DatabaseInfo(
     const firebase::firestore::model::DatabaseId& database_id,
-    const absl::string_view persistence_key,
-    const absl::string_view host,
+    std::string persistence_key,
+    std::string host,
     bool ssl_enabled)
-    : database_id_(database_id),
-      persistence_key_(persistence_key),
-      host_(host),
-      ssl_enabled_(ssl_enabled) {
+    : database_id_{database_id},
+      persistence_key_{std::move(persistence_key)},
+      host_{std::move(host)},
+      ssl_enabled_{ssl_enabled} {
 }
 
 }  // namespace core

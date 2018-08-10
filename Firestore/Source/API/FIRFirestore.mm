@@ -251,8 +251,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
             "follow these steps, YOUR APP MAY BREAK.");
       }
 
-      const DatabaseInfo database_info(*self.databaseID, util::MakeStringView(_persistenceKey),
-                                       util::MakeStringView(_settings.host), _settings.sslEnabled);
+      const DatabaseInfo database_info(*self.databaseID, util::MakeString(_persistenceKey),
+                                       util::MakeString(_settings.host), _settings.sslEnabled);
 
       std::unique_ptr<Executor> userExecutor =
           absl::make_unique<ExecutorLibdispatch>(_settings.dispatchQueue);
