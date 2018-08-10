@@ -117,8 +117,8 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
         if (error.domain == FIRFirestoreErrorDomain) {
           error_code = static_cast<FirestoreErrorCode>(error.code);
         }
-        completion(util::Status(error_code,
-                                util::MakeString(error.localizedDescription)));
+        completion(util::Status(
+            error_code, util::MakeString(error.localizedDescription)));
       }
     }
   };

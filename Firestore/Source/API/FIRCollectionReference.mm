@@ -112,7 +112,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!documentPath) {
     FSTThrowInvalidArgument(@"Document path cannot be nil.");
   }
-  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(documentPath));
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeString(documentPath));
   const ResourcePath path = self.query.path.Append(subPath);
   return [FIRDocumentReference referenceWithPath:path firestore:self.firestore];
 }

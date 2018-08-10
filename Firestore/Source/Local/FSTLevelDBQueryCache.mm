@@ -46,8 +46,8 @@ using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::util::MakeString;
 using firebase::firestore::util::OrderedCode;
-using firebase::firestore::util::MakeStringView;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
@@ -241,7 +241,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
   NSString *canonicalID = queryData.query.canonicalID;
   std::string indexKey =
-      LevelDbQueryTargetKey::Key(MakeStringView(canonicalID), queryData.targetID);
+      LevelDbQueryTargetKey::Key(MakeString(canonicalID), queryData.targetID);
   std::string emptyBuffer;
   _db.currentTransaction->Put(indexKey, emptyBuffer);
 
@@ -267,7 +267,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   _db.currentTransaction->Delete(key);
 
   std::string indexKey =
-      LevelDbQueryTargetKey::Key(MakeStringView(queryData.query.canonicalID), targetID);
+      LevelDbQueryTargetKey::Key(MakeString(queryData.query.canonicalID), targetID);
   _db.currentTransaction->Delete(indexKey);
   self.metadata.targetCount -= 1;
   _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
@@ -315,7 +315,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   // Scan the query-target index starting with a prefix starting with the given query's canonicalID.
   // Note that this is a scan rather than a get because canonicalIDs are not required to be unique
   // per target.
-  absl::string_view canonicalID = MakeStringView(query.canonicalID);
+  std::string canonicalID = MakeString(query.canonicalID);
   auto indexItererator = _db.currentTransaction->NewIterator();
   std::string indexPrefix = LevelDbQueryTargetKey::KeyPrefix(canonicalID);
   indexItererator->Seek(indexPrefix);

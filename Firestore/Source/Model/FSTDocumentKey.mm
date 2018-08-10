@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)keyWithPathString:(NSString *)resourcePath {
-  return [FSTDocumentKey keyWithPath:ResourcePath::FromString(util::MakeStringView(resourcePath))];
+  return [FSTDocumentKey keyWithPath:ResourcePath::FromString(util::MakeString(resourcePath))];
 }
 
 /** Designated initializer. */

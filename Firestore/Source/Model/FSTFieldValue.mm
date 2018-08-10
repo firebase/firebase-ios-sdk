@@ -356,7 +356,7 @@ template <>
 struct Comparator<NSString *> {
   bool operator()(NSString *left, NSString *right) const {
     Comparator<absl::string_view> lessThan;
-    return lessThan(MakeStringView(left), MakeStringView(right));
+    return lessThan(MakeString(left), MakeString(right));
   }
 };
 
