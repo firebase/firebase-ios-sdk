@@ -118,7 +118,7 @@ class Stream : public std::enable_shared_from_this<Stream> {
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
-    auto* operation = new Op(this, grpc_call_, generation(), args...);
+    auto* operation = new Op(this, grpc_call_, generation(), std::move(args)...);
     operation->Execute();
   }
 

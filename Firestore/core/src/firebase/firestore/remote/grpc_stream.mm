@@ -84,19 +84,20 @@ class StreamWrite : public StreamOperation {
   StreamWrite(Stream* const stream,
               const std::shared_ptr<GrpcCall>& call,
               const int generation,
-              const grpc::ByteBuffer& message)
-      : StreamOperation{stream, call, generation}, message_{&message} {
+              grpc::ByteBuffer&& message)
+      : StreamOperation{stream, call, generation}, message_{std::move(message)} {
   }
 
  private:
   void DoExecute(GrpcCall* const call) override {
-    call->Write(*message_, this);
+    call->Write(message_, this);
   }
   void OnCompletion(Stream* const stream, const bool ok) override {
     stream->OnStreamWrite(ok);
   }
 
-  const grpc::ByteBuffer* message_;
+  // OBC comment! https://github.com/grpc/grpc/issues/13019, 5)
+  grpc::ByteBuffer message_;
 };
 
 class StreamFinish : public StreamOperation {
@@ -343,7 +344,7 @@ void Stream::Stop() {
   ++generation_;
   // TODO OBC backoff_.Cancel(); (see Android; iOS doesn't do it)
 
-  client_side_error_ = {FirestoreErrorCode::Ok, ""};
+  client_side_error_ = util::Status{};
   buffered_writer_.Stop();
   HalfCloseConnection();
   // If this is an intentional close, ensure we don't delay our next connection
