@@ -91,7 +91,7 @@ if(APPLE)
   )
 endif()
 
-if(NOT WIN32)
+if(NOT APPLE AND NOT WIN32)
   cc_test(
     firebase_firestore_util_filesystem_posix_test
     SOURCES

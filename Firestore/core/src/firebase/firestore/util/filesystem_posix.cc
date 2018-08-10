@@ -69,6 +69,8 @@ Status IsDirectory(const Path& path) {
   return Status::OK();
 }
 
+#if !defined(__APPLE__)
+// See filesystem_apple.mm for an alternative implementation.
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
   if (env_tmpdir) {
@@ -90,6 +92,7 @@ Path TempDir() {
   return Path::FromUtf8("/tmp");
 #endif  // defined(__ANDROID__)
 }
+#endif  // !defined(__APPLE__)
 
 namespace detail {
 
