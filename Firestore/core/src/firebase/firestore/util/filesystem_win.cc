@@ -29,18 +29,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-bool Exists(const Path& path, bool* is_directory) {
-  DWORD attrs = ::GetFileAttributesW(path.c_str());
-  if (attrs == INVALID_FILE_ATTRIBUTES) {
-    return false;
-  }
-
-  if (is_directory) {
-    *is_directory = attrs & FILE_ATTRIBUTE_DIRECTORY;
-  }
-  return true;
-}
-
 Status IsDirectory(const Path& path) {
   DWORD attrs = ::GetFileAttributesW(path.c_str());
   if (attrs == INVALID_FILE_ATTRIBUTES) {
@@ -60,6 +48,7 @@ Path TempDir() {
   DWORD count = ::GetTempPathW(MAX_PATH, buffer);
   HARD_ASSERT(count > 0, "Failed to determine temporary directory %s",
               ::GetLastError());
+  HARD_ASSERT(count <= MAX_PATH, "Invalid temporary path longer than MAX_PATH");
 
   return Path::FromUtf16(buffer, count);
 }
