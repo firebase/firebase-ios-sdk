@@ -36,6 +36,20 @@ void Status::Update(const Status& new_status) {
   }
 }
 
+Status& Status::CausedBy(const Status& cause) {
+  if (cause.ok() || this == &cause) {
+    return *this;
+  }
+
+  if (ok()) {
+    *this = cause;
+    return *this;
+  }
+
+  absl::StrAppend(&state_->msg, ": ", cause.error_message());
+  return *this;
+}
+
 void Status::SlowCopyFrom(const State* src) {
   if (src == nullptr) {
     state_ = nullptr;
