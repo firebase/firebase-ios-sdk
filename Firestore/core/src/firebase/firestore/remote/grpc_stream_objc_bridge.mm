@@ -60,6 +60,9 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
 template <typename Proto>
 Proto* ToProto(const grpc::ByteBuffer& message, std::string* out_error) {
   NSError* error;
+  // NSMutableData* bad = [NSMutableData dataWithData:;
+  // [bad appendBytes:"OBC" length:2];
+  // auto* proto = [Proto parseFromData:bad error:&error];
   auto* proto = [Proto parseFromData:ToNsData(message) error:&error];
   // FIXME OBC
   if (error) {

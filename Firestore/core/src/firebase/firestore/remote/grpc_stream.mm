@@ -210,7 +210,8 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
 
   Execute<StreamStart>();
   // TODO OBC: set state to open here, or only upon successful completion?
-  // Objective-C does it here. C++, for now at least, does it upon successful
+  // Objective-C does it here. Java does it in onOpen (though it can't do it any other way due to
+  // the way GRPC handles Auth). C++, for now at least, does it upon successful
   // completion.
 }
 
@@ -340,6 +341,7 @@ void Stream::Stop() {
   }
   // TODO OBC comment on how this interplays with finishing GRPC
   ++generation_;
+  // TODO OBC backoff_.Cancel(); (see Android; iOS doesn't do it)
 
   client_side_error_ = {FirestoreErrorCode::Ok, ""};
   buffered_writer_.Stop();
