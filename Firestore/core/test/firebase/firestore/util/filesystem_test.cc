@@ -153,7 +153,7 @@ TEST(FilesystemTest, RecursivelyDelete) {
   Path file = Path::JoinUtf8(tmp_dir, TestFilename());
   EXPECT_NOT_FOUND(IsDirectory(file));
 
-  // Deleting a something that doesn't exist should succeed.
+  // Deleting something that doesn't exist should succeed.
   EXPECT_OK(RecursivelyDelete(file));
   EXPECT_NOT_FOUND(IsDirectory(file));
 
