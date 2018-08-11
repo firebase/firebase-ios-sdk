@@ -31,7 +31,7 @@ if [[ "${xcode_major}" -lt 9 ]]; then
 fi
 
 # Total time allowed for fuzzing in seconds (4 minutes for now).
-ALLOWED_TIME=240
+ALLOWED_TIME=2400
 
 # Helper to run fuzz tests using xcodebuild. Takes the fuzzing target as the
 # first argument and the fuzzing duration as the second argument.
@@ -52,7 +52,7 @@ FUZZING_TARGETS_LINE="$(run_xcode_fuzzing "INVALID_TARGET" "0" \
     | grep "Available targets: {")"
 
 # The FUZZING_TARGETS_LINE string contains { TARGET1 TARGET2 ... TARGETN }.
-# The following command extracts the target and splits them into an array
+# The following command extracts the targets and splits them into an array
 # in the variable ALL_FUZZING_TARGETS.
 read -r -a ALL_FUZZING_TARGETS <<< "$(echo ${FUZZING_TARGETS_LINE} \
     | cut -d "{" -f2 | cut -d "}" -f1)"
