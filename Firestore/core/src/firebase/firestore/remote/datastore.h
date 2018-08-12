@@ -34,7 +34,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Stream;
+class GrpcOperationsObserver;
 
 class Datastore {
  public:
@@ -43,7 +43,7 @@ class Datastore {
 
   std::shared_ptr<GrpcCall> CreateGrpcCall(absl::string_view token,
                                            absl::string_view path,
-                                           Stream* observer);
+                                           GrpcOperationsObserver* observer);
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   // TODO?

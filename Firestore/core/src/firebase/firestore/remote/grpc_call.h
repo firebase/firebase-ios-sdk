@@ -61,14 +61,13 @@ private:
 
 } // internal
 
-class Stream;
+class GrpcOperationsObserver;
 
 class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
  public:
-  static std::shared_ptr<GrpcCall> MakeGrpcCall(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      Stream* observer);
+  GrpcCall(std::unique_ptr<grpc::ClientContext> context,
+           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+           GrpcOperationsObserver* observer);
 
   void Start();
   void Read();
@@ -95,18 +94,7 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
   };
 
  private:
-  GrpcCall(std::unique_ptr<grpc::ClientContext> context,
-           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-           Stream* const observer,
-           const int generation)
-      : context_{std::move(context)},
-        call_{std::move(call)},
-        observer_{observer},
-        generation_{generation},
-        buffered_writer_{this} {
-  }
-
-  friend class BufferedWriter;
+  friend class internal::BufferedWriter;
   void WriteImmediately(grpc::ByteBuffer&& buffer);
 
   template <typename Op, typename... Args>
@@ -118,7 +106,7 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   std::unique_ptr<grpc::ClientContext> context_;
 
-  Stream* observer_ = nullptr;
+  GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
   internal::BufferedWriter buffered_writer_;
 
@@ -127,32 +115,6 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
   // For sanity checks
   bool is_started_ = false;
   bool has_pending_read_ = false;
-};
-
-class GrpcOperation {
- public:
-  explicit GrpcOperation(GrpcCall::Delegate&& delegate)
-      : delegate_{std::move(delegate)} {
-  }
-
-  virtual ~GrpcOperation() {
-  }
-
-  virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
-                       grpc::ClientContext* context) = 0;
-
-  void Complete(const bool ok) {
-    if (ok) {
-      DoComplete();
-    } else {
-      delegate_.OnOperationFailed();
-    }
-  }
-
- private:
-  virtual void DoComplete() = 0;
-
-  GrpcCall::Delegate delegate_;
 };
 
 }  // namespace remote

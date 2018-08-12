@@ -16,7 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 
-#include "Firestore/core/src/firebase/firestore/remote/stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
 namespace firebase {
 namespace firestore {
@@ -98,7 +99,7 @@ class ServerInitiatedFinish : public GrpcOperation {
  private:
   void DoComplete() override {
     // Note: calling Finish on a GRPC call should never fail, according to the docs
-    delegate_.OnFinishedWithServerError(ToFirestoreStatus(grpc_status_));
+    delegate_.OnFinishedWithServerError(grpc_status_);
   }
 
   grpc::Status grpc_status_;
@@ -168,12 +169,14 @@ void BufferedWriter::OnSuccessfulWrite() {
 
 } // internal
 
-std::shared_ptr<GrpcCall> GrpcCall::MakeGrpcCall(
-    std::unique_ptr<grpc::ClientContext> context,
-    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    Stream* const observer) {
-  return std::make_shared<GrpcCall>(std::move(context), std::move(call),
-                                    observer, observer->generation());
+GrpcCall::GrpcCall(std::unique_ptr<grpc::ClientContext> context,
+          std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+          GrpcOperationsObserver* const observer)
+    : context_{std::move(context)},
+      call_{std::move(call)},
+      observer_{observer},
+      generation_{observer->generation()},
+      buffered_writer_{this} {
 }
 
 void GrpcCall::Start() {
@@ -200,7 +203,7 @@ void GrpcCall::Finish() {
 }
 
 // Called by `BufferedWriter`.
-void Stream::ImmediateWrite(grpc::ByteBuffer&& message) {
+void GrpcCall::WriteImmediately(grpc::ByteBuffer&& message) {
   Execute<StreamWrite>(std::move(message));
 }
 
@@ -247,7 +250,7 @@ void GrpcCall::Delegate::OnWrite() {
 
 void GrpcCall::Delegate::OnFinishedWithServerError(const grpc::Status& status) {
   if (SameGeneration()) {
-    call_->observer_->OnStreamError(status);
+    call_->observer_->OnStreamError(ToFirestoreStatus(status));
   }
 }
 

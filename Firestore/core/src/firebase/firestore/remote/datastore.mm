@@ -20,12 +20,12 @@
 #include <sstream>
 
 #include <grpcpp/create_channel.h>
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -107,10 +107,14 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path, Stream* const observer) {
+std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
+    absl::string_view token,
+    absl::string_view path,
+    GrpcOperationsObserver *const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return GrpcCall::MakeGrpcCall(std::move(context), std::move(reader_writer), observer);
+  return std::make_shared<GrpcCall>(std::move(context),
+                                    std::move(reader_writer), observer);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
@@ -136,13 +140,14 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
   // backend.
   const model::DatabaseId db_id = database_info_->database_id();
   context->AddMetadata(kGoogleCloudResourcePrefix,
-                       StringFormat("projects/%s/databases/%s", db_id.project_id(),
-                                    db_id.database_id()));
+                       StringFormat("projects/%s/databases/%s",
+                                    db_id.project_id(), db_id.database_id()));
   return context;
 }
 
-std::unique_ptr<grpc::GenericClientAsyncReaderWriter> Datastore::CreateGrpcReaderWriter(
-    grpc::ClientContext *context, const absl::string_view path) {
+std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
+Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
+                                  const absl::string_view path) {
   return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 

@@ -34,6 +34,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -53,7 +54,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Stream : public std::enable_shared_from_this<Stream> {
+class Stream : public GrpcOperationsObserver, public std::enable_shared_from_this<Stream> {
  public:
   Stream(util::AsyncQueue* async_queue,
          auth::CredentialsProvider* credentials_provider,
@@ -66,19 +67,19 @@ class Stream : public std::enable_shared_from_this<Stream> {
   bool IsStarted() const;
   bool IsOpen() const;
 
-  void OnStreamStart();
-  void OnStreamRead(const grpc::ByteBuffer& message);
-  void OnStreamWrite();
+  void OnStreamStart() override;
+  void OnStreamRead(const grpc::ByteBuffer& message) override;
+  void OnStreamWrite() override;
   // TODO OBC set state to error immediately when operation failed, or only in
   // OnServerError?
-  void OnStreamError(const util::Status& status);
+  void OnStreamError(const util::Status& status) override;
 
   // ClearError?
   void CancelBackoff();
   void MarkIdle();
   void CancelIdleCheck();
 
-  int generation() const {
+  int generation() const override {
     return generation_;
   }
 
