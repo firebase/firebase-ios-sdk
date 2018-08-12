@@ -252,7 +252,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     _watchStream->OnStreamError(util::Status::OK());
   }];
 
-  [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen", @"watchStreamWasInterrupted" ]];
+  [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen", @"watchStreamWasInterrupted", @"watchStreamWasInterrupted" ]];
 }
 
 /** Verifies that the write stream does not issue an onClose callback after a call to stop(). */
@@ -276,7 +276,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
     _writeStream->OnStreamError(util::Status::OK());
   }];
 
-  [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen", @"writeStreamWasInterrupted" ]];
+  [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen", @"writeStreamWasInterrupted", @"writeStreamWasInterrupted" ]];
 }
 
 - (void)testWriteStreamStopAfterHandshake {
@@ -306,7 +306,8 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   [self verifyDelegateObservedStates:@[
     @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
-    @"writeStreamDidReceiveResponseWithVersion"
+    @"writeStreamDidReceiveResponseWithVersion",
+    @"writeStreamWasInterrupted"
   ]];
 }
 
@@ -378,16 +379,13 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
    [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->Stop();
     _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unauthenticated, ""});
   }];
   // Drain the queue.
   [_workerDispatchQueue dispatchSync:^{}];
 
   // Try reconnecting.
-  // Calling `OnStreamError` manually doesn't update the state machine (it's normally called by
-  // GRPC after either graceful stop or disconnect). Need to call `Stop`, or `Start` will fail. Note
-  // that this will result in two "interrupted" notifications to the delegate, which is fine for the
-  // purposes of this test.
   [_workerDispatchQueue dispatchSync:^{
     _watchStream->Stop();
     }];
@@ -396,13 +394,11 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   }];
   // Simulate a different error -- token should not be invalidated this time.
   [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->Stop();
     _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unavailable, ""});
   }];
    [_workerDispatchQueue dispatchSync:^{}];
-
-   [_workerDispatchQueue dispatchSync:^{
-    _watchStream->Stop();
-    }];
+  
   [_delegate awaitNotificationFromBlock:^{
     _watchStream->Start();
   }];

@@ -103,8 +103,8 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
     operation->Execute(call_.get(), context_.get());
   }
 
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   std::unique_ptr<grpc::ClientContext> context_;
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;

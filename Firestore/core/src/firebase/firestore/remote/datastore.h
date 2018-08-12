@@ -46,8 +46,8 @@ class Datastore {
                                            GrpcOperationsObserver* observer);
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
-  // TODO?
   void Shutdown();
+  // TODO?
   // Datastore::~Datastore() {
   //   grpc_queue_.Shutdown();
   //   dedicated_executor_->ExecuteBlocking([] {});

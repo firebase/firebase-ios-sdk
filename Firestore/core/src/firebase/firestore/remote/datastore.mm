@@ -108,8 +108,8 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
 }
 
 std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
-    absl::string_view token,
-    absl::string_view path,
+    const absl::string_view token,
+    const absl::string_view path,
     GrpcOperationsObserver *const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);

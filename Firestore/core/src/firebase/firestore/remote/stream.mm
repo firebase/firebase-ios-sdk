@@ -130,7 +130,6 @@ void Stream::OnStreamStart() {
   EnsureOnQueue();
 
   state_ = State::Open;
-
   grpc_call_->Read();
 
   DoOnStreamStart();
@@ -236,11 +235,14 @@ void Stream::Stop() {
   // TODO OBC comment on how this interplays with finishing GRPC
   ++generation_;
 
-  FinishGrpcCall(grpc_call_.get());
-  // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
-  // reason to hold on to it now that a finish operation has been added (the
-  // operation has its own `shared_ptr` to the call).
-  ResetGrpcCall();
+  // If the stream is in the auth stage, call might not have been started yet.
+  if (grpc_call_) {
+    FinishGrpcCall(grpc_call_.get());
+    // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
+    // reason to hold on to it now that a finish operation has been added (the
+    // operation has its own `shared_ptr` to the call).
+    ResetGrpcCall();
+  }
 
   state_ = State::Initial;
   // Don't wait for GRPC to produce status -- stopping the stream was initiated by the client, so we
@@ -457,7 +459,9 @@ util::Status WriteStream::DoOnStreamRead(
 }
 
 void WriteStream::FinishGrpcCall(GrpcCall* const call) {
+  // TODO OBC make WriteAndFinish work during shutdown
   call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
+  // call->Finish();
 }
 
 }  // namespace remote

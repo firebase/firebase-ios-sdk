@@ -187,13 +187,13 @@ static const int kMaxPendingWrites = 10;
 /** Disables the network, setting the FSTOnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
   if ([self isNetworkEnabled]) {
+    _isNetworkEnabled = NO;
+
     _watchStream->Stop();
     _writeStream->Stop();
 
     [self cleanUpWatchStreamState];
     [self cleanUpWriteStreamState];
-
-    _isNetworkEnabled = NO;
   }
 }
 

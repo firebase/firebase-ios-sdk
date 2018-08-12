@@ -256,6 +256,9 @@ void GrpcCall::Delegate::OnFinishedWithServerError(const grpc::Status& status) {
 
 void GrpcCall::Delegate::OnOperationFailed() {
   call_->buffered_writer_.Stop();
+  if (call_->write_and_finish_ && call_->buffered_writer_.empty()) {
+    return;
+  }
   if (SameGeneration()) {
     call_->Execute<ServerInitiatedFinish>();
   }
