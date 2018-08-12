@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/stream.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -31,32 +33,6 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
 }
 
 // Operations
-
-class GrpcOperation {
- public:
-  explicit GrpcOperation(GrpcCall::Delegate&& delegate)
-      : delegate_{std::move(delegate)} {
-  }
-
-  virtual ~GrpcOperation() {
-  }
-
-  virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
-                       grpc::ClientContext* context) = 0;
-
-  void Complete(const bool ok) {
-    if (ok) {
-      DoComplete();
-    } else {
-      delegate_.OnOperationFailed();
-    }
-  }
-
- private:
-  virtual void DoComplete() = 0;
-
-  GrpcCall::Delegate delegate_;
-};
 
 class StreamStart : public GrpcOperation {
  public:
@@ -191,6 +167,14 @@ void BufferedWriter::OnSuccessfulWrite() {
 }
 
 } // internal
+
+std::shared_ptr<GrpcCall> GrpcCall::MakeGrpcCall(
+    std::unique_ptr<grpc::ClientContext> context,
+    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+    Stream* const observer) {
+  return std::make_shared<GrpcCall>(std::move(context), std::move(call),
+                                    observer, observer->generation());
+}
 
 void GrpcCall::Start() {
   HARD_ASSERT(!is_started_, "Call is already started");

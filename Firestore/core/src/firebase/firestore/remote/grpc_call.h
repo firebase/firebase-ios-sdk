@@ -24,7 +24,6 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
-#include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -45,7 +44,7 @@ public:
   void Clear();
 
   bool empty() const {
-    return buffer.empty();
+    return buffer_.empty();
   }
 
   void Enqueue(grpc::ByteBuffer&& bytes);
@@ -62,16 +61,14 @@ private:
 
 } // internal
 
+class Stream;
+
 class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
  public:
   static std::shared_ptr<GrpcCall> MakeGrpcCall(
       std::unique_ptr<grpc::ClientContext> context,
       std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      Stream* const observer,
-      const int generation) {
-    return std::make_shared<GrpcCall>(std::move(context), std::move(call),
-                                      observer, generation);
-  }
+      Stream* observer);
 
   void Start();
   void Read();
@@ -130,6 +127,32 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
   // For sanity checks
   bool is_started_ = false;
   bool has_pending_read_ = false;
+};
+
+class GrpcOperation {
+ public:
+  explicit GrpcOperation(GrpcCall::Delegate&& delegate)
+      : delegate_{std::move(delegate)} {
+  }
+
+  virtual ~GrpcOperation() {
+  }
+
+  virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
+                       grpc::ClientContext* context) = 0;
+
+  void Complete(const bool ok) {
+    if (ok) {
+      DoComplete();
+    } else {
+      delegate_.OnOperationFailed();
+    }
+  }
+
+ private:
+  virtual void DoComplete() = 0;
+
+  GrpcCall::Delegate delegate_;
 };
 
 }  // namespace remote

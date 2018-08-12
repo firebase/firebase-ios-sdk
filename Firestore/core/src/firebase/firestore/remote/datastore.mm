@@ -20,12 +20,12 @@
 #include <sstream>
 
 #include <grpcpp/create_channel.h>
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -80,7 +80,7 @@ void Datastore::PollGrpcQueue() {
   void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto *operation = static_cast<StreamOperation *>(tag);
+    auto *operation = static_cast<GrpcOperation *>(tag);
     firestore_queue_->Enqueue([operation, ok] {
       operation->Complete(ok);
       delete operation;
@@ -107,11 +107,10 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path) {
+std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(absl::string_view token, absl::string_view path, Stream* const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return std::make_shared<GrpcCall>(std::move(context),
-                                    std::move(reader_writer));
+  return GrpcCall::MakeGrpcCall(std::move(context), std::move(reader_writer), observer);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(

@@ -34,13 +34,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class Stream;
+
 class Datastore {
  public:
   Datastore(util::AsyncQueue* firestore_queue,
             const core::DatabaseInfo& database_info);
 
   std::shared_ptr<GrpcCall> CreateGrpcCall(absl::string_view token,
-                                           absl::string_view path);
+                                           absl::string_view path,
+                                           Stream* observer);
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   // TODO?

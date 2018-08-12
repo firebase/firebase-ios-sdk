@@ -35,7 +35,7 @@
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
-#include "Firestore/core/src/firebase/firestore//remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore//remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
