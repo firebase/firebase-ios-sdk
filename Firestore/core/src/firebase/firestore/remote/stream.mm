@@ -117,7 +117,7 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  grpc_call_ = DoCreateGrpcCall(datastore_, token);
+  grpc_call_ = CreateGrpcCall(datastore_, token);
 
   grpc_call_->Start();
   // TODO OBC: set state to open here, or only upon successful completion?
@@ -236,7 +236,7 @@ void Stream::Stop() {
   // TODO OBC comment on how this interplays with finishing GRPC
   ++generation_;
 
-  DoFinishCall(grpc_call_.get());
+  FinishGrpcCall(grpc_call_.get());
   // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
   // reason to hold on to it now that a finish operation has been added (the
   // operation has its own `shared_ptr` to the call).
@@ -321,7 +321,7 @@ void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   Write(serializer_bridge_.ToByteBuffer(target_id));
 }
 
-std::shared_ptr<GrpcCall> WatchStream::DoCreateGrpcCall(
+std::shared_ptr<GrpcCall> WatchStream::CreateGrpcCall(
     Datastore* const datastore, const absl::string_view token) {
   return datastore->CreateGrpcCall(
       token, "/google.firestore.v1beta1.Firestore/Listen", this);
@@ -354,7 +354,7 @@ void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
-void WatchStream::DoFinishCall(GrpcCall* const call) {
+void WatchStream::FinishGrpcCall(GrpcCall* const call) {
   call->Finish();
 }
 
@@ -404,7 +404,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
 // Private interface
 
-std::shared_ptr<GrpcCall> WriteStream::DoCreateGrpcCall(
+std::shared_ptr<GrpcCall> WriteStream::CreateGrpcCall(
     Datastore* const datastore, const absl::string_view token) {
   return datastore->CreateGrpcCall(token,
                                    "/google.firestore.v1beta1.Firestore/Write", this);
@@ -456,7 +456,7 @@ util::Status WriteStream::DoOnStreamRead(
   return util::Status::OK();
 }
 
-void WriteStream::DoFinishCall(GrpcCall* const call) {
+void WriteStream::FinishGrpcCall(GrpcCall* const call) {
   call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
 }
 

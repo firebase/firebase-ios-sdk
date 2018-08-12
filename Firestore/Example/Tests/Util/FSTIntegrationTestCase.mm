@@ -44,7 +44,7 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;

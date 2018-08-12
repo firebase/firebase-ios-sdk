@@ -40,7 +40,6 @@
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 #include <memory>
 
@@ -97,10 +96,11 @@ class Stream : public GrpcOperationsObserver, public std::enable_shared_from_thi
     ReconnectingWithBackoff
   };
 
-  virtual std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+  virtual std::shared_ptr<GrpcCall> CreateGrpcCall(
       Datastore* datastore, absl::string_view token) = 0;
+  virtual void FinishGrpcCall(GrpcCall* call) = 0;
   virtual void DoOnStreamStart() = 0;
-  virtual absl::optional<util::Status> DoOnStreamRead(
+  virtual util::Status DoOnStreamRead(
       const grpc::ByteBuffer& message) = 0;
   virtual void DoOnStreamWrite() = 0;
   virtual void DoOnStreamFinish(const util::Status& status) = 0;
@@ -141,10 +141,11 @@ class WatchStream : public Stream {
   void UnwatchTargetId(FSTTargetID target_id);
 
  private:
-  std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+  std::shared_ptr<GrpcCall> CreateGrpcCall(
       Datastore* datastore, const absl::string_view token) override;
+  void FinishGrpcCall(GrpcCall* call) override;
   void DoOnStreamStart() override;
-  absl::optional<util::Status> DoOnStreamRead(const grpc::ByteBuffer& message) override;
+  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
   void DoOnStreamFinish(const util::Status& status) override;
 
@@ -171,10 +172,11 @@ class WriteStream : public Stream {
   void SetHandshakeComplete() { is_handshake_complete_ = true; }
 
  private:
-  std::shared_ptr<GrpcCall> DoCreateGrpcCall(
+  std::shared_ptr<GrpcCall> CreateGrpcCall(
       Datastore* datastore, const absl::string_view token) override;
+  void FinishGrpcCall(GrpcCall* call) override;
   void DoOnStreamStart() override;
-  absl::optional<util::Status> DoOnStreamRead(const grpc::ByteBuffer& message) override;
+  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
   void DoOnStreamFinish(const util::Status& status) override;
 

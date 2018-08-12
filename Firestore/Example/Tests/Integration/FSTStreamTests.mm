@@ -249,7 +249,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    _watchStream->OnStreamFinish(util::Status::OK());
+    _watchStream->OnStreamError(util::Status::OK());
   }];
 
   [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen", @"watchStreamWasInterrupted" ]];
@@ -273,7 +273,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   // Simulate a final callback from GRPC
   [_workerDispatchQueue dispatchAsync:^{
-    _writeStream->OnStreamFinish(util::Status::OK());
+    _writeStream->OnStreamError(util::Status::OK());
   }];
 
   [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen", @"writeStreamWasInterrupted" ]];
@@ -378,13 +378,13 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
 
   // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
    [_workerDispatchQueue dispatchAsync:^{
-    _watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unauthenticated, ""});
+    _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unauthenticated, ""});
   }];
   // Drain the queue.
   [_workerDispatchQueue dispatchSync:^{}];
 
   // Try reconnecting.
-  // Calling `OnStreamFinish` manually doesn't update the state machine (it's normally called by
+  // Calling `OnStreamError` manually doesn't update the state machine (it's normally called by
   // GRPC after either graceful stop or disconnect). Need to call `Stop`, or `Start` will fail. Note
   // that this will result in two "interrupted" notifications to the delegate, which is fine for the
   // purposes of this test.
@@ -396,7 +396,7 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   }];
   // Simulate a different error -- token should not be invalidated this time.
   [_workerDispatchQueue dispatchAsync:^{
-    _watchStream->OnStreamFinish(util::Status{FirestoreErrorCode::Unavailable, ""});
+    _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unavailable, ""});
   }];
    [_workerDispatchQueue dispatchSync:^{}];
 
