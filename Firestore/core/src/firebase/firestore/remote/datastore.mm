@@ -77,10 +77,8 @@ void Datastore::PollGrpcQueue() {
               "PollGrpcQueue should only be called on the "
               "dedicated Datastore executor");
 
-  void *tag = nullptr;
   bool ok = false;
-  while (grpc_queue_.Next(&tag, &ok)) {
-    auto *operation = static_cast<GrpcOperation *>(tag);
+  while (GrpcOperation* operation = grpc_queue_.Next(&ok)) {
     firestore_queue_->Enqueue([operation, ok] {
       operation->Complete(ok);
       delete operation;
@@ -114,7 +112,7 @@ std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
   return std::make_shared<GrpcCall>(std::move(context),
-                                    std::move(reader_writer), observer);
+                                    std::move(reader_writer), observer, &grpc_queue_);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
@@ -148,7 +146,7 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
 std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
 Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
                                   const absl::string_view path) {
-  return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
+  return grpc_stub_.PrepareCall(context, path.data(), grpc_queue_.queue());
 }
 
 FirestoreErrorCode Datastore::ToFirestoreErrorCode(

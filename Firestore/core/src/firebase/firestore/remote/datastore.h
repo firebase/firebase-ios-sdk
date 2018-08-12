@@ -20,11 +20,11 @@
 #include <memory>
 
 #include <grpc/grpc.h>
-#include <grpcpp/completion_queue.h>
 #include <grpcpp/generic/generic_stub.h>
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 
@@ -77,7 +77,7 @@ class Datastore {
 
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
   grpc::GenericStub grpc_stub_;
-  grpc::CompletionQueue grpc_queue_;
+  GrpcCompletionQueue grpc_queue_;
 };
 
 }  // namespace remote

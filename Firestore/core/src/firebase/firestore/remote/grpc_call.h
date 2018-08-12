@@ -24,6 +24,7 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -67,7 +68,8 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
  public:
   GrpcCall(std::unique_ptr<grpc::ClientContext> context,
            std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-           GrpcOperationsObserver* observer);
+           GrpcOperationsObserver* observer,
+           GrpcCompletionQueue* grpc_queue);
 
   void Start();
   void Read();
@@ -99,18 +101,23 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
+    if (grpc_queue_->IsShuttingDown()) {
+      return;
+    }
     auto* operation = new Op(Delegate{shared_from_this()}, std::move(args)...);
     operation->Execute(call_.get(), context_.get());
   }
 
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+  GrpcCompletionQueue* grpc_queue_;
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
   internal::BufferedWriter buffered_writer_;
 
   bool write_and_finish_ = false;
+  bool global_shutdown_ = false;
 
   // For sanity checks
   bool is_started_ = false;

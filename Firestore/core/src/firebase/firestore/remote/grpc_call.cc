@@ -171,10 +171,11 @@ void BufferedWriter::OnSuccessfulWrite() {
 
 GrpcCall::GrpcCall(std::unique_ptr<grpc::ClientContext> context,
           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-          GrpcOperationsObserver* const observer)
+          GrpcOperationsObserver* const observer, GrpcCompletionQueue* const grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
+      grpc_queue_{grpc_queue},
       generation_{observer->generation()},
       buffered_writer_{this} {
 }
