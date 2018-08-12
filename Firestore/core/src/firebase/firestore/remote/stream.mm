@@ -49,94 +49,6 @@ const AsyncQueue::Milliseconds kBackoffInitialDelay{std::chrono::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{std::chrono::seconds(60)};
 const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
-// Operations
-
-class StreamStart : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(GrpcCall* const call) override {
-    call->Start(this);
-  }
-  void OnCompletion(Stream* const stream, const bool ok) override {
-    stream->OnStreamStart(ok);
-  }
-};
-
-class StreamRead : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(GrpcCall* const call) override {
-    call->Read(&message_, this);
-  }
-  void OnCompletion(Stream* const stream, const bool ok) override {
-    stream->OnStreamRead(ok, message_);
-  }
-
-  grpc::ByteBuffer message_;
-};
-
-class StreamWrite : public StreamOperation {
- public:
-  StreamWrite(Stream* const stream,
-              const std::shared_ptr<GrpcCall>& call,
-              const int generation,
-              grpc::ByteBuffer&& message)
-      : StreamOperation{stream, call, generation}, message_{std::move(message)} {
-  }
-
- private:
-  void DoExecute(GrpcCall* const call) override {
-    call->Write(message_, this);
-  }
-  void OnCompletion(Stream* const stream, const bool ok) override {
-    stream->OnStreamWrite(ok);
-  }
-
-  // OBC comment! https://github.com/grpc/grpc/issues/13019, 5)
-  grpc::ByteBuffer message_;
-};
-
-class StreamFinish : public StreamOperation {
- public:
-  StreamFinish(Stream* const stream,
-               const std::shared_ptr<GrpcCall>& call,
-               const int generation,
-               const bool cancel_pending_operations)
-      : StreamOperation{stream, call, generation},
-        cancel_pending_operations_{cancel_pending_operations} {
-  }
-
- private:
-  void DoExecute(GrpcCall* const call) override {
-    if (cancel_pending_operations_) {
-      call->TryCancel();
-    }
-    call->Finish(&grpc_status_, this);
-  }
-
-  void OnCompletion(Stream* stream, const bool ok) override {
-    HARD_ASSERT(ok,
-                "Calling Finish on a GRPC call should never fail, "
-                "according to the docs");
-    stream->OnStreamFinish(ToFirestoreStatus(grpc_status_));
-  }
-
-  static util::Status ToFirestoreStatus(const grpc::Status from) {
-    if (from.ok()) {
-      return {};
-    }
-    return {Datastore::ToFirestoreErrorCode(from.error_code()),
-            from.error_message()};
-  }
-
-  grpc::Status grpc_status_;
-  bool cancel_pending_operations_ = false;
-};
-
 } // namespace
 
 Stream::Stream(AsyncQueue* const async_queue,
@@ -147,7 +59,6 @@ Stream::Stream(AsyncQueue* const async_queue,
     : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
-      buffered_writer_{this},
       backoff_{firestore_queue_, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
       idle_timer_id_{idle_timer_id} {
@@ -198,7 +109,7 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
               "State should still be 'Starting' (was %s)", state_);
 
   if (!maybe_token.ok()) {
-    OnStreamFinish(maybe_token.status());
+    OnStreamError(maybe_token.status());
     return;
   }
 
@@ -209,24 +120,19 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
   }();
   grpc_call_ = DoCreateGrpcCall(datastore_, token);
 
-  Execute<StreamStart>();
+  grpc_call_->Start();
   // TODO OBC: set state to open here, or only upon successful completion?
   // Objective-C does it here. Java does it in onOpen (though it can't do it any other way due to
   // the way GRPC handles Auth). C++, for now at least, does it upon successful
   // completion.
 }
 
-void Stream::OnStreamStart(const bool ok) {
+void Stream::OnStreamStart() {
   EnsureOnQueue();
-  if (!ok) {
-    OnConnectionBroken();
-    return;
-  }
 
   state_ = State::Open;
 
-  buffered_writer_.Start();
-  Execute<StreamRead>();
+  grpc_call_->Read();
 
   DoOnStreamStart();
 }
@@ -286,7 +192,7 @@ void Stream::MarkIdle() {
   EnsureOnQueue();
   if (IsOpen() && !idleness_timer_) {
     idleness_timer_ = firestore_queue_->EnqueueAfterDelay(
-        kIdleTimeout, idle_timer_id_, [this] { StopDueToIdleness(); });
+        kIdleTimeout, idle_timer_id_, [this] { Stop(); });
   }
 }
 
@@ -296,40 +202,28 @@ void Stream::CancelIdleCheck() {
 
 // Read/write
 
-// Called by `BufferedWriter`.
-void Stream::Write(grpc::ByteBuffer&& message) {
-  Execute<StreamWrite>(std::move(message));
-}
-
-void Stream::OnStreamRead(const bool ok, const grpc::ByteBuffer& message) {
+void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   EnsureOnQueue();
-  if (!ok) {
-    OnConnectionBroken();
-    return;
-  }
 
-  client_side_error_ = DoOnStreamRead(message);
-  if (client_side_error_) {
-    OnConnectionBroken();
+  const util::Status read_status = DoOnStreamRead(message);
+  if (!read_status.ok()) {
+    grpc_call_->Finish();
+    // Don't wait for GRPC to produce status -- since the error happened on the client, we have all
+    // the information we need.
+    OnStreamError(read_status);
     return;
   }
 
   if (IsOpen()) {
-    // While `Stop` hasn't been called, continue waiting for new messages
+    // While the stream is open, continue waiting for new messages
     // indefinitely.
-    Execute<StreamRead>();
+    grpc_call_->Read();
   }
 }
 
-void Stream::OnStreamWrite(const bool ok) {
+void Stream::OnStreamWrite() {
   EnsureOnQueue();
-  if (!ok) {
-    OnConnectionBroken();
-    return;
-  }
-
   DoOnStreamWrite();
-  buffered_writer_.OnSuccessfulWrite();
 }
 
 // Stopping
@@ -342,59 +236,23 @@ void Stream::Stop() {
   }
   // TODO OBC comment on how this interplays with finishing GRPC
   ++generation_;
-  // TODO OBC backoff_.Cancel(); (see Android; iOS doesn't do it)
 
-  client_side_error_ = util::Status{};
-  buffered_writer_.Stop();
-  HalfCloseConnection();
-  // If this is an intentional close, ensure we don't delay our next connection
-  // attempt.
-  ResetBackoff();
-
-  state_ = State::Initial;
-}
-
-void Stream::OnConnectionBroken() {
-  EnsureOnQueue();
-
-  if (!IsOpen()) {
-    return;
-  }
-
-  buffered_writer_.Stop();
-  HalfCloseConnection();
-
-  state_ = State::Error;
-}
-
-void Stream::HalfCloseConnection() {
-  EnsureOnQueue();
-  if (!IsOpen()) {
-    return;
-  }
-
-  // TODO OBC explain
-  const bool cancel_pending_operations = client_side_error_.has_value();
-  Execute<StreamFinish>(cancel_pending_operations);
-  // After a GRPC call finishes, it will no longer be valid, so there is no
+  DoFinishCall(grpc_call_.get());
+  // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
   // reason to hold on to it now that a finish operation has been added (the
   // operation has its own `shared_ptr` to the call).
-  grpc_call_.reset();
+  ResetGrpcCall();
+
+  state_ = State::Initial;
+  // Don't wait for GRPC to produce status -- stopping the stream was initiated by the client, so we
+  // have all the information we need.
+  DoOnStreamFinish(util::Status::OK());
 }
 
-void Stream::OnStreamFinish(const util::Status& server_status) {
-  EnsureOnQueue();
+  // TODO OBC explain cancelling pending operations
 
-  const util::Status status = [&] {
-    if (client_side_error_) {
-      HARD_ASSERT(server_status.code() == FirestoreErrorCode::Ok ||
-                      server_status.code() == FirestoreErrorCode::Cancelled,
-                  "OBC TODO");
-      return client_side_error_.value();
-    }
-    return server_status;
-  }();
-  client_side_error_.reset();
+void Stream::OnStreamError(const util::Status& status) {
+  EnsureOnQueue();
 
   if (status.code() == FirestoreErrorCode::ResourceExhausted) {
     // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
@@ -405,20 +263,15 @@ void Stream::OnStreamFinish(const util::Status& server_status) {
     credentials_provider_->InvalidateToken();
   }
 
+  ResetGrpcCall();
+
+  state_ = State::Error;
   DoOnStreamFinish(status);
 }
 
-void Stream::StopDueToIdleness() {
-  EnsureOnQueue();
-  if (!IsOpen()) {
-    return;
-  }
-
-  Stop();
-  // When timing out an idle stream there's no reason to force the stream
-  // into backoff when it restarts.
-  ResetBackoff();
-  state_ = State::Initial;
+void Stream::ResetGrpcCall() {
+  grpc_call_.reset();
+  backoff_.Cancel(); // OBC iOS doesn't do it, but other platforms do
 }
 
 // Check state
@@ -441,9 +294,9 @@ void Stream::EnsureOnQueue() const {
   firestore_queue_->VerifyIsCurrentQueue();
 }
 
-void Stream::BufferedWrite(grpc::ByteBuffer&& message) {
+void Stream::Write(grpc::ByteBuffer&& message) {
   CancelIdleCheck();
-  buffered_writer_.Enqueue(std::move(message));
+  grpc_call_->Write(std::move(message));
 }
 
 // Watch stream
@@ -461,12 +314,12 @@ WatchStream::WatchStream(AsyncQueue* const async_queue,
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
   EnsureOnQueue();
-  BufferedWrite(serializer_bridge_.ToByteBuffer(query));
+  Write(serializer_bridge_.ToByteBuffer(query));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   EnsureOnQueue();
-  BufferedWrite(serializer_bridge_.ToByteBuffer(target_id));
+  Write(serializer_bridge_.ToByteBuffer(target_id));
 }
 
 std::shared_ptr<GrpcCall> WatchStream::DoCreateGrpcCall(
@@ -479,7 +332,7 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-absl::optional<util::Status> WatchStream::DoOnStreamRead(
+util::Status WatchStream::DoOnStreamRead(
     const grpc::ByteBuffer& message) {
   std::string error;
   GCFSListenResponse* response =
@@ -491,7 +344,7 @@ absl::optional<util::Status> WatchStream::DoOnStreamRead(
   delegate_bridge_.NotifyDelegateOnChange(
       serializer_bridge_.ToWatchChange(response),
       serializer_bridge_.ToSnapshotVersion(response));
-  return {};
+  return util::Status::OK();
 }
 
 void WatchStream::DoOnStreamWrite() {
@@ -500,6 +353,10 @@ void WatchStream::DoOnStreamWrite() {
 
 void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
+}
+
+void WatchStream::DoFinishCall(GrpcCall* const call) {
+  call->Finish();
 }
 
 // Write stream
@@ -530,7 +387,7 @@ void WriteStream::WriteHandshake() {
 
   // LOG_DEBUG("WriteStream %s initial request: %s", this, [request
   // description]);
-  BufferedWrite(serializer_bridge_.CreateHandshake());
+  Write(serializer_bridge_.CreateHandshake());
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -543,7 +400,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
   // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
   // request);
-  BufferedWrite(serializer_bridge_.ToByteBuffer(mutations));
+  Write(serializer_bridge_.ToByteBuffer(mutations));
 }
 
 // Private interface
@@ -559,14 +416,7 @@ void WriteStream::DoOnStreamStart() {
 }
 
 void WriteStream::DoOnStreamWrite() {
-  // OBC is this logic necessary? We finish the stream gracefully.
-  // (void) tearDown {
-  // if ([self isHandshakeComplete]) {
-  //   // Send an empty write request to the backend to indicate imminent stream
-  //   closure. This allows
-  //   // the backend to clean up resources.
-  //   [self writeMutations:@[]];
-  // }
+  // Nothing to do
 }
 
 void WriteStream::DoOnStreamFinish(const util::Status& status) {
@@ -575,7 +425,7 @@ void WriteStream::DoOnStreamFinish(const util::Status& status) {
   is_handshake_complete_ = false;
 }
 
-absl::optional<util::Status> WriteStream::DoOnStreamRead(
+util::Status WriteStream::DoOnStreamRead(
     const grpc::ByteBuffer& message) {
   // LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self,
   // response);
@@ -604,7 +454,11 @@ absl::optional<util::Status> WriteStream::DoOnStreamRead(
         serializer_bridge_.ToMutationResults(response));
   }
 
-  return {};
+  return util::Status::OK();
+}
+
+void WriteStream::DoFinishCall(GrpcCall* const call) {
+  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
 }
 
 }  // namespace remote

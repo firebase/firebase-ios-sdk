@@ -24,30 +24,112 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class StreamOperation;
-    
-class GrpcCall {
- public:
-  GrpcCall(std::unique_ptr<grpc::ClientContext> context,
-           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call)
-      : context_{std::move(context)}, call_{std::move(call)} {
+class GrpcCall;
+
+namespace internal {
+
+class BufferedWriter {
+public:
+  explicit BufferedWriter(GrpcCall* const call) : call_{call} {
   }
 
-  void Start(StreamOperation* operation);
-  void Read(grpc::ByteBuffer* buffer, StreamOperation* operation);
-  void Write(const grpc::ByteBuffer& buffer, StreamOperation* operation);
-  void Finish(grpc::Status* status, StreamOperation* operation);
-  void TryCancel();
+  void Start();
+  void Stop();
+  void Clear();
+
+  bool empty() const {
+    return buffer.empty();
+  }
+
+  void Enqueue(grpc::ByteBuffer&& bytes);
+  void OnSuccessfulWrite();
+
+private:
+  void TryWrite();
+
+  GrpcCall* call_ = nullptr;
+  std::vector<grpc::ByteBuffer> buffer_;
+  bool has_pending_write_ = false;
+  bool is_started_ = false;
+};
+
+} // internal
+
+class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
+ public:
+  static std::shared_ptr<GrpcCall> MakeGrpcCall(
+      std::unique_ptr<grpc::ClientContext> context,
+      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+      Stream* const observer,
+      const int generation) {
+    return std::make_shared<GrpcCall>(std::move(context), std::move(call),
+                                      observer, generation);
+  }
+
+  void Start();
+  void Read();
+  void Write(grpc::ByteBuffer&& buffer);
+  void WriteAndFinish(grpc::ByteBuffer&& buffer);
+  void Finish();
+
+  class Delegate {
+   public:
+    explicit Delegate(std::shared_ptr<GrpcCall>&& call) : call_{call} {
+    }
+
+    void OnStart();
+    void OnRead(const grpc::ByteBuffer& message);
+    void OnWrite();
+    void OnOperationFailed();
+    void OnFinishedWithServerError(const grpc::Status& status);
+
+   private:
+    bool SameGeneration() const;
+
+    // TODO: explain ownership
+    std::shared_ptr<GrpcCall> call_;
+  };
 
  private:
-  std::unique_ptr<grpc::ClientContext> context_;
+  GrpcCall(std::unique_ptr<grpc::ClientContext> context,
+           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+           Stream* const observer,
+           const int generation)
+      : context_{std::move(context)},
+        call_{std::move(call)},
+        observer_{observer},
+        generation_{generation},
+        buffered_writer_{this} {
+  }
+
+  friend class BufferedWriter;
+  void WriteImmediately(grpc::ByteBuffer&& buffer);
+
+  template <typename Op, typename... Args>
+  void Execute(Args... args) {
+    auto* operation = new Op(Delegate{shared_from_this()}, std::move(args)...);
+    operation->Execute(call_.get(), context_.get());
+  }
+
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+  std::unique_ptr<grpc::ClientContext> context_;
+
+  Stream* observer_ = nullptr;
+  int generation_ = -1;
+  internal::BufferedWriter buffered_writer_;
+
+  bool write_and_finish_ = false;
+
+  // For sanity checks
+  bool is_started_ = false;
+  bool has_pending_read_ = false;
 };
 
 }  // namespace remote

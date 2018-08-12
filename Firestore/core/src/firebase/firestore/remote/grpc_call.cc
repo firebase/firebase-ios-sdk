@@ -20,27 +20,258 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-void GrpcCall::Start(StreamOperation* const operation) {
-  call_->StartCall(operation);
+namespace {
+
+util::Status ToFirestoreStatus(const grpc::Status& from) {
+  if (from.ok()) {
+    return {};
+  }
+  return {Datastore::ToFirestoreErrorCode(from.error_code()),
+          from.error_message()};
 }
 
-void GrpcCall::Read(grpc::ByteBuffer* const buffer,
-                    StreamOperation* const operation) {
-  call_->Read(buffer, operation);
+// Operations
+
+class GrpcOperation {
+ public:
+  explicit GrpcOperation(GrpcCall::Delegate&& delegate)
+      : delegate_{std::move(delegate)} {
+  }
+
+  virtual ~GrpcOperation() {
+  }
+
+  virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
+                       grpc::ClientContext* context) = 0;
+
+  void Complete(const bool ok) {
+    if (ok) {
+      DoComplete();
+    } else {
+      delegate_.OnOperationFailed();
+    }
+  }
+
+ private:
+  virtual void DoComplete() = 0;
+
+  GrpcCall::Delegate delegate_;
+};
+
+class StreamStart : public GrpcOperation {
+ public:
+  using GrpcOperation::GrpcOperation;
+
+  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+               grpc::ClientContext* const context) override {
+    call->StartCall(this);
+  }
+
+ private:
+  void DoComplete() override {
+    delegate_.OnStart();
+  }
+};
+
+class StreamRead : public GrpcOperation {
+ public:
+  using GrpcOperation::GrpcOperation;
+
+  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+               grpc::ClientContext* const context) override {
+    call->Read(&message_, this);
+  }
+
+ private:
+  void DoComplete() override {
+    delegate_.OnRead(message_);
+  }
+
+  grpc::ByteBuffer message_;
+};
+
+class StreamWrite : public GrpcOperation {
+ public:
+  StreamWrite(GrpcCall::Delegate&& delegate, grpc::ByteBuffer&& message)
+      : GrpcOperation{std::move(delegate)}, message_{std::move(message)} {
+  }
+
+  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+               grpc::ClientContext* context) override {
+    call->Write(message_, this);
+  }
+
+ private:
+  void DoComplete() override {
+    delegate_.OnWrite();
+  }
+
+  // OBC comment! https://github.com/grpc/grpc/issues/13019, 5)
+  grpc::ByteBuffer message_;
+};
+
+class ServerInitiatedFinish : public GrpcOperation {
+ public:
+  using GrpcOperation::GrpcOperation;
+
+  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+               grpc::ClientContext* const context) override {
+    call->Finish(&grpc_status_, this);
+  }
+
+ private:
+  void DoComplete() override {
+    // Note: calling Finish on a GRPC call should never fail, according to the docs
+    delegate_.OnFinishedWithServerError(ToFirestoreStatus(grpc_status_));
+  }
+
+  grpc::Status grpc_status_;
+};
+
+class ClientInitiatedFinish : public GrpcOperation {
+ public:
+  using GrpcOperation::GrpcOperation;
+
+  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+               grpc::ClientContext* const context) override {
+    context->TryCancel();
+    call->Finish(&unused_status_, this);
+  }
+
+ private:
+  void DoComplete() override {
+    // Nothing to do
+  }
+
+  grpc::Status unused_status_;
+};
+
+}  // namespace
+
+namespace internal {
+
+void BufferedWriter::Start() {
+  is_started_ = true;
+  TryWrite();
 }
 
-void GrpcCall::Write(const grpc::ByteBuffer& buffer,
-                     StreamOperation* const operation) {
-  call_->Write(buffer, operation);
+void BufferedWriter::Stop() {
+  is_started_ = false;
 }
 
-void GrpcCall::Finish(grpc::Status* const status,
-                      StreamOperation* const operation) {
-  call_->Finish(status, operation);
+void BufferedWriter::Clear() {
+  buffer_.clear();
 }
 
-void GrpcCall::TryCancel() {
-  context_->TryCancel();
+void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
+  if (!is_started_) {
+    return;
+  }
+
+  buffer_.insert(buffer_.begin(), std::move(bytes));
+  TryWrite();
+}
+
+void BufferedWriter::TryWrite() {
+  if (!is_started_ || empty()) {
+    return;
+  }
+  if (has_pending_write_) {
+    return;
+  }
+
+  has_pending_write_ = true;
+  call_->WriteImmediately(std::move(buffer_.back()));
+  buffer_.pop_back();
+}
+
+void BufferedWriter::OnSuccessfulWrite() {
+  has_pending_write_ = false;
+  TryWrite();
+}
+
+} // internal
+
+void GrpcCall::Start() {
+  HARD_ASSERT(!is_started_, "Call is already started");
+  is_started_ = true;
+  Execute<StreamStart>();
+}
+
+void GrpcCall::Read() {
+  HARD_ASSERT(!has_pending_read_,
+              "Cannot schedule another read operation before the previous read "
+              "finishes");
+  has_pending_read_ = true;
+  Execute<StreamRead>();
+}
+
+void GrpcCall::Write(grpc::ByteBuffer&& message) {
+  buffered_writer_.Enqueue(std::move(message));
+}
+
+void GrpcCall::Finish() {
+  buffered_writer_.Stop();
+  Execute<ClientInitiatedFinish>();
+}
+
+// Called by `BufferedWriter`.
+void Stream::ImmediateWrite(grpc::ByteBuffer&& message) {
+  Execute<StreamWrite>(std::move(message));
+}
+
+void GrpcCall::WriteAndFinish(grpc::ByteBuffer&& message) {
+  write_and_finish_ = true;
+  // Write the last message as soon as possible by discarding anything else that
+  // might be buffered.
+  buffered_writer_.Clear();
+  buffered_writer_.Enqueue(std::move(message));
+}
+
+// Delegate
+
+bool GrpcCall::Delegate::SameGeneration() const {
+  return call_->generation_ == call_->observer_->generation();
+}
+
+void GrpcCall::Delegate::OnStart() {
+  if (SameGeneration()) {
+    call_->buffered_writer_.Start();
+    call_->observer_->OnStreamStart();
+  }
+}
+
+void GrpcCall::Delegate::OnRead(const grpc::ByteBuffer& message) {
+  call_->has_pending_read_ = false;
+  if (SameGeneration()) {
+    call_->observer_->OnStreamRead(message);
+  }
+}
+
+void GrpcCall::Delegate::OnWrite() {
+  if (call_->write_and_finish_ && call_->buffered_writer_.empty()) {
+    // Final write succeeded.
+    call_->Finish();
+    return;
+  }
+
+  if (SameGeneration()) {
+    call_->buffered_writer_.OnSuccessfulWrite();
+    call_->observer_->OnStreamWrite();
+  }
+}
+
+void GrpcCall::Delegate::OnFinishedWithServerError(const grpc::Status& status) {
+  if (SameGeneration()) {
+    call_->observer_->OnStreamError(status);
+  }
+}
+
+void GrpcCall::Delegate::OnOperationFailed() {
+  call_->buffered_writer_.Stop();
+  if (SameGeneration()) {
+    call_->Execute<ServerInitiatedFinish>();
+  }
 }
 
 }  // namespace remote

@@ -31,7 +31,6 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
@@ -67,10 +66,12 @@ class Stream : public std::enable_shared_from_this<Stream> {
   bool IsStarted() const;
   bool IsOpen() const;
 
-  void OnStreamStart(bool ok);
-  void OnStreamRead(bool ok, const grpc::ByteBuffer& message);
-  void OnStreamWrite(bool ok);
-  void OnStreamFinish(const util::Status& status);
+  void OnStreamStart();
+  void OnStreamRead(const grpc::ByteBuffer& message);
+  void OnStreamWrite();
+  // TODO OBC set state to error immediately when operation failed, or only in
+  // OnServerError?
+  void OnStreamError(const util::Status& status);
 
   // ClearError?
   void CancelBackoff();
@@ -83,12 +84,10 @@ class Stream : public std::enable_shared_from_this<Stream> {
 
  protected:
   void EnsureOnQueue() const;
-  void BufferedWrite(grpc::ByteBuffer&& message);
+  void Write(grpc::ByteBuffer&& message);
   void ResetBackoff();
 
  private:
-  friend class BufferedWriter;
-
   enum class State {
     Initial,
     Starting,
@@ -111,20 +110,10 @@ class Stream : public std::enable_shared_from_this<Stream> {
   void ResumeStartFromBackoff();
   void StopDueToIdleness();
 
-  void Write(grpc::ByteBuffer&& message);
-
-  void OnConnectionBroken();
-  void HalfCloseConnection();
-
-  template <typename Op, typename... Args>
-  void Execute(Args... args) {
-    auto* operation = new Op(this, grpc_call_, generation(), std::move(args)...);
-    operation->Execute();
-  }
+  void ResetGrpcCall();
 
   State state_ = State::Initial;
 
-  BufferedWriter buffered_writer_;
   std::shared_ptr<GrpcCall> grpc_call_;
 
   auth::CredentialsProvider* credentials_provider_;
@@ -135,10 +124,8 @@ class Stream : public std::enable_shared_from_this<Stream> {
   util::TimerId idle_timer_id_{};
   util::DelayedOperation idleness_timer_;
 
-  // Generation is incremented in each call to `Finish`.
+  // Generation is incremented in each call to `Stop`.
   int generation_ = 0;
-
-  absl::optional<util::Status> client_side_error_;
 };
 
 class WatchStream : public Stream {
