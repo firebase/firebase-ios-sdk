@@ -187,11 +187,11 @@ NS_ASSUME_NONNULL_BEGIN
   // array without element.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
     @"array" : @[
-      @{ @"a" : @42 },
-      @{ @"a" : @[ @42, @43 ] },
-      @{ @"b" : @[ @42 ] },
-      @{ @"a" : @[ @42 ],
-         @"b" : @42 }
+      @{@"a" : @42},
+      @{@"a" : @[ @42, @43 ]},
+      @{@"b" : @[ @42 ]},
+      @{@"a" : @[ @42 ],
+        @"b" : @42}
     ]
   },
                                 NO);
