@@ -25,6 +25,7 @@
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
 version=$(clang-format --version)
+echo "Found: $version"
 
 # Remove leading "clang-format version"
 version="${version/*version /}"
