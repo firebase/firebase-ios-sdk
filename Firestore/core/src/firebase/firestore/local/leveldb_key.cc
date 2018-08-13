@@ -35,16 +35,16 @@ namespace local {
 
 namespace {
 
-const char *kVersionGlobalTable = "version";
-const char *kMutationsTable = "mutation";
-const char *kDocumentMutationsTable = "document_mutation";
-const char *kMutationQueuesTable = "mutation_queue";
-const char *kTargetGlobalTable = "target_global";
-const char *kTargetsTable = "target";
-const char *kQueryTargetsTable = "query_target";
-const char *kTargetDocumentsTable = "target_document";
-const char *kDocumentTargetsTable = "document_target";
-const char *kRemoteDocumentsTable = "remote_document";
+const char* kVersionGlobalTable = "version";
+const char* kMutationsTable = "mutation";
+const char* kDocumentMutationsTable = "document_mutation";
+const char* kMutationQueuesTable = "mutation_queue";
+const char* kTargetGlobalTable = "target_global";
+const char* kTargetsTable = "target";
+const char* kQueryTargetsTable = "query_target";
+const char* kTargetDocumentsTable = "target_document";
+const char* kDocumentTargetsTable = "document_target";
+const char* kRemoteDocumentsTable = "remote_document";
 
 /**
  * Labels for the components of keys. These serve to make keys self-describing.
@@ -118,6 +118,9 @@ class Reader {
   explicit Reader(leveldb::Slice src) : src_(src), ok_(true) {
   }
 
+  explicit Reader(absl::string_view src) : Reader{MakeSlice(src)} {
+  }
+
   /** Returns true if the Reader has encountered no errors. */
   bool ok() const {
     return ok_;
@@ -133,7 +136,7 @@ class Reader {
    */
   std::string Describe();
 
-  void ReadTableNameMatching(const char *expected_table_name) {
+  void ReadTableNameMatching(const char* expected_table_name) {
     if (!ReadLabeledStringMatching(ComponentLabel::TableName,
                                    expected_table_name)) {
       Fail();
@@ -331,7 +334,7 @@ class Reader {
    */
   ABSL_MUST_USE_RESULT
   bool ReadLabeledStringMatching(ComponentLabel expected_label,
-                                 const char *expected_value) {
+                                 const char* expected_value) {
     std::string value = ReadLabeledString(expected_label);
     if (ok_) {
       // Value mismatch does not constitute a failure:
@@ -479,7 +482,7 @@ class Writer {
     OrderedCode::WriteSignedNumIncreasing(&dest_, ComponentLabel::Terminator);
   }
 
-  void WriteTableName(const char *table_name) {
+  void WriteTableName(const char* table_name) {
     WriteLabeledString(ComponentLabel::TableName, table_name);
   }
 
@@ -504,8 +507,8 @@ class Writer {
    * ComponentLabel::PathSegment component label and a string containing the
    * path segment.
    */
-  void WriteResourcePath(const ResourcePath &path) {
-    for (const auto &segment : path) {
+  void WriteResourcePath(const ResourcePath& path) {
+    for (const auto& segment : path) {
       WriteComponentLabel(ComponentLabel::PathSegment);
       OrderedCode::WriteString(&dest_, segment);
     }
@@ -539,9 +542,21 @@ class Writer {
 
 }  // namespace
 
-std::string Describe(leveldb::Slice key) {
+std::string DescribeKey(leveldb::Slice key) {
   Reader reader{key};
   return reader.Describe();
+}
+
+std::string DescribeKey(absl::string_view key) {
+  return DescribeKey(MakeSlice(key));
+}
+
+std::string DescribeKey(const std::string& key) {
+  return DescribeKey(leveldb::Slice{key});
+}
+
+std::string DescribeKey(const char* key) {
+  return DescribeKey(leveldb::Slice{key});
 }
 
 std::string LevelDbVersionKey::Key() {
@@ -574,7 +589,7 @@ std::string LevelDbMutationKey::Key(absl::string_view user_id,
   return writer.result();
 }
 
-bool LevelDbMutationKey::Decode(leveldb::Slice key) {
+bool LevelDbMutationKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kMutationsTable);
   user_id_ = reader.ReadUserId();
@@ -597,7 +612,7 @@ std::string LevelDbDocumentMutationKey::KeyPrefix(absl::string_view user_id) {
 }
 
 std::string LevelDbDocumentMutationKey::KeyPrefix(
-    absl::string_view user_id, const ResourcePath &resource_path) {
+    absl::string_view user_id, const ResourcePath& resource_path) {
   Writer writer;
   writer.WriteTableName(kDocumentMutationsTable);
   writer.WriteUserId(user_id);
@@ -606,7 +621,7 @@ std::string LevelDbDocumentMutationKey::KeyPrefix(
 }
 
 std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
-                                            const DocumentKey &document_key,
+                                            const DocumentKey& document_key,
                                             model::BatchId batch_id) {
   Writer writer;
   writer.WriteTableName(kDocumentMutationsTable);
@@ -617,7 +632,7 @@ std::string LevelDbDocumentMutationKey::Key(absl::string_view user_id,
   return writer.result();
 }
 
-bool LevelDbDocumentMutationKey::Decode(leveldb::Slice key) {
+bool LevelDbDocumentMutationKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kDocumentMutationsTable);
   user_id_ = reader.ReadUserId();
@@ -708,7 +723,7 @@ std::string LevelDbQueryTargetKey::Key(absl::string_view canonical_id,
   return writer.result();
 }
 
-bool LevelDbQueryTargetKey::Decode(leveldb::Slice key) {
+bool LevelDbQueryTargetKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kQueryTargetsTable);
   canonical_id_ = reader.ReadCanonicalId();
@@ -731,7 +746,7 @@ std::string LevelDbTargetDocumentKey::KeyPrefix(model::TargetId target_id) {
 }
 
 std::string LevelDbTargetDocumentKey::Key(model::TargetId target_id,
-                                          const DocumentKey &document_key) {
+                                          const DocumentKey& document_key) {
   Writer writer;
   writer.WriteTableName(kTargetDocumentsTable);
   writer.WriteTargetId(target_id);
@@ -740,7 +755,7 @@ std::string LevelDbTargetDocumentKey::Key(model::TargetId target_id,
   return writer.result();
 }
 
-bool LevelDbTargetDocumentKey::Decode(leveldb::Slice key) {
+bool LevelDbTargetDocumentKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kTargetDocumentsTable);
   target_id_ = reader.ReadTargetId();
@@ -756,14 +771,14 @@ std::string LevelDbDocumentTargetKey::KeyPrefix() {
 }
 
 std::string LevelDbDocumentTargetKey::KeyPrefix(
-    const ResourcePath &resource_path) {
+    const ResourcePath& resource_path) {
   Writer writer;
   writer.WriteTableName(kDocumentTargetsTable);
   writer.WriteResourcePath(resource_path);
   return writer.result();
 }
 
-std::string LevelDbDocumentTargetKey::Key(const DocumentKey &document_key,
+std::string LevelDbDocumentTargetKey::Key(const DocumentKey& document_key,
                                           model::TargetId target_id) {
   Writer writer;
   writer.WriteTableName(kDocumentTargetsTable);
@@ -773,7 +788,12 @@ std::string LevelDbDocumentTargetKey::Key(const DocumentKey &document_key,
   return writer.result();
 }
 
-bool LevelDbDocumentTargetKey::Decode(leveldb::Slice key) {
+std::string LevelDbDocumentTargetKey::SentinelKey(
+    const DocumentKey& document_key) {
+  return Key(document_key, kInvalidTargetId);
+}
+
+bool LevelDbDocumentTargetKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kDocumentTargetsTable);
   document_key_ = reader.ReadDocumentKey();
@@ -789,14 +809,14 @@ std::string LevelDbRemoteDocumentKey::KeyPrefix() {
 }
 
 std::string LevelDbRemoteDocumentKey::KeyPrefix(
-    const ResourcePath &resource_path) {
+    const ResourcePath& resource_path) {
   Writer writer;
   writer.WriteTableName(kRemoteDocumentsTable);
   writer.WriteResourcePath(resource_path);
   return writer.result();
 }
 
-std::string LevelDbRemoteDocumentKey::Key(const DocumentKey &key) {
+std::string LevelDbRemoteDocumentKey::Key(const DocumentKey& key) {
   Writer writer;
   writer.WriteTableName(kRemoteDocumentsTable);
   writer.WriteResourcePath(key.path());
@@ -804,7 +824,7 @@ std::string LevelDbRemoteDocumentKey::Key(const DocumentKey &key) {
   return writer.result();
 }
 
-bool LevelDbRemoteDocumentKey::Decode(leveldb::Slice key) {
+bool LevelDbRemoteDocumentKey::Decode(absl::string_view key) {
   Reader reader{key};
   reader.ReadTableNameMatching(kRemoteDocumentsTable);
   document_key_ = reader.ReadDocumentKey();

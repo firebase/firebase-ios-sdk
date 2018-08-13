@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,91 +53,56 @@ class LocalSerializer {
    * @brief Encodes a MaybeDocument model to the equivalent bytes for local
    * storage.
    *
+   * Any errors that occur during encoding are fatal.
+   *
+   * @param writer The serialized output will be written to the provided writer.
    * @param maybe_doc the model to convert.
-   * @param[out] out_bytes A buffer to place the output. The bytes will be
-   * appended to this vector.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
    */
-  // TODO(rsgowman): If we never support any output except to a vector, it may
-  // make sense to have LocalSerializer own the vector and provide an accessor
-  // rather than asking the user to create it first.
-  util::Status EncodeMaybeDocument(const model::MaybeDocument& maybe_doc,
-                                   std::vector<uint8_t>* out_bytes) const;
+  void EncodeMaybeDocument(nanopb::Writer* writer,
+                           const model::MaybeDocument& maybe_doc) const;
 
   /**
    * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
    * model.
    *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating what went
-   * wrong.
-   */
-  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
-      const uint8_t* bytes, size_t length) const;
-
-  /**
-   * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
-   * model.
+   * Check reader->status() to determine if an error occured while decoding.
    *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The model equivalent of the bytes or a Status indicating what went
-   * wrong.
+   * @param reader The reader object containing the bytes to convert. It's
+   * assumed that exactly all of the bytes will be used by this conversion.
+   * @return The model equivalent of the bytes or nullopt if an error occurred.
+   * @post (reader->status().ok() && result) ||
+   * (!reader->status().ok() && !result)
    */
-  util::StatusOr<std::unique_ptr<model::MaybeDocument>> DecodeMaybeDocument(
-      const std::vector<uint8_t>& bytes) const {
-    return DecodeMaybeDocument(bytes.data(), bytes.size());
-  }
+  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
+      nanopb::Reader* reader) const;
 
   /**
    * @brief Encodes a QueryData to the equivalent bytes, representing a
    * ::firestore::proto::Target, for local storage.
    *
-   * @param[out] out_bytes A buffer to place the output. The bytes will be
-   * appended to this vector.
-   * @return A Status, which if not ok(), indicates what went wrong. Note that
-   * errors during encoding generally indicate a serious/fatal error.
+   * Any errors that occur during encoding are fatal.
+   *
+   * @param writer The serialized output will be written to the provided writer.
    */
-  // TODO(rsgowman): If we never support any output except to a vector, it may
-  // make sense to have LocalSerializer own the vector and provide an accessor
-  // rather than asking the user to create it first.
-  util::Status EncodeQueryData(const QueryData& query_data,
-                               std::vector<uint8_t>* out_bytes) const;
+  void EncodeQueryData(nanopb::Writer* writer,
+                       const QueryData& query_data) const;
 
   /**
    * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
    * equivalent QueryData.
    *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The QueryData equivalent of the bytes or a Status indicating what
-   * went wrong.
-   */
-  util::StatusOr<QueryData> DecodeQueryData(const uint8_t* bytes,
-                                            size_t length) const;
-
-  /**
-   * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
-   * equivalent QueryData.
+   * Check writer->status() to determine if an error occured while decoding.
    *
-   * @param bytes The bytes to convert. It's assumed that exactly all of the
-   * bytes will be used by this conversion.
-   * @return The QueryData equivalent of the bytes or a Status indicating what
-   * went wrong.
+   * @param reader The reader object containing the bytes to convert. It's
+   * assumed that exactly all of the bytes will be used by this conversion.
+   * @return The QueryData equivalent of the bytes or nullopt if an error
+   * occurred.
+   * @post (reader->status().ok() && result.has_value()) ||
+   * (!reader->status().ok() && !result.has_value())
    */
-  util::StatusOr<QueryData> DecodeQueryData(
-      const std::vector<uint8_t>& bytes) const {
-    return DecodeQueryData(bytes.data(), bytes.size());
-  }
+  absl::optional<QueryData> DecodeQueryData(nanopb::Reader* reader) const;
 
  private:
-  void EncodeMaybeDocument(nanopb::Writer* writer,
-                           const model::MaybeDocument& maybe_doc) const;
-  std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
-      nanopb::Reader* reader) const;
-
   /**
    * Encodes a Document for local storage. This differs from the v1beta1 RPC
    * serializer for Documents in that it preserves the updateTime, which is
@@ -149,10 +115,6 @@ class LocalSerializer {
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
       nanopb::Reader* reader) const;
-
-  void EncodeQueryData(nanopb::Writer* writer,
-                       const QueryData& query_data) const;
-  QueryData DecodeQueryData(nanopb::Reader* reader) const;
 
   const remote::Serializer& rpc_serializer_;
 };

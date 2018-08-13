@@ -19,9 +19,9 @@
 #include <string>
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/macros.h"
 #include "absl/memory/memory.h"
@@ -46,7 +46,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static FSTLevelDBSchemaVersion kSchemaVersion = 3;
 
+using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbTargetDocumentKey;
+using firebase::firestore::local::LevelDbTargetGlobalKey;
+using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::LevelDbVersionKey;
 using leveldb::Iterator;
 using leveldb::Status;
 using leveldb::Slice;
@@ -58,7 +64,7 @@ using leveldb::WriteOptions;
  * @param transaction The transaction in which to save the new version number
  */
 static void SaveVersion(FSTLevelDBSchemaVersion version, LevelDbTransaction *transaction) {
-  std::string key = [FSTLevelDBVersionKey key];
+  std::string key = LevelDbVersionKey::Key();
   std::string version_string = std::to_string(version);
   transaction->Put(key, version_string);
 }
@@ -84,15 +90,15 @@ static void DeleteEverythingWithPrefix(const std::string &prefix, leveldb::DB *d
 
 /** Migration 3. */
 static void ClearQueryCache(leveldb::DB *db) {
-  DeleteEverythingWithPrefix([FSTLevelDBTargetKey keyPrefix], db);
-  DeleteEverythingWithPrefix([FSTLevelDBDocumentTargetKey keyPrefix], db);
-  DeleteEverythingWithPrefix([FSTLevelDBTargetDocumentKey keyPrefix], db);
-  DeleteEverythingWithPrefix([FSTLevelDBQueryTargetKey keyPrefix], db);
+  DeleteEverythingWithPrefix(LevelDbTargetKey::KeyPrefix(), db);
+  DeleteEverythingWithPrefix(LevelDbDocumentTargetKey::KeyPrefix(), db);
+  DeleteEverythingWithPrefix(LevelDbTargetDocumentKey::KeyPrefix(), db);
+  DeleteEverythingWithPrefix(LevelDbQueryTargetKey::KeyPrefix(), db);
 
   LevelDbTransaction transaction(db, "Drop query cache");
 
   // Reset the target global entry too (to reset the target count).
-  transaction.Put([FSTLevelDBTargetGlobalKey key], [FSTPBTargetGlobal message]);
+  transaction.Put(LevelDbTargetGlobalKey::Key(), [FSTPBTargetGlobal message]);
 
   SaveVersion(3, &transaction);
   transaction.Commit();
@@ -102,7 +108,7 @@ static void ClearQueryCache(leveldb::DB *db) {
 
 + (FSTLevelDBSchemaVersion)schemaVersionWithTransaction:
     (firebase::firestore::local::LevelDbTransaction *)transaction {
-  std::string key = [FSTLevelDBVersionKey key];
+  std::string key = LevelDbVersionKey::Key();
   std::string version_string;
   Status status = transaction->Get(key, &version_string);
   if (status.IsNotFound()) {

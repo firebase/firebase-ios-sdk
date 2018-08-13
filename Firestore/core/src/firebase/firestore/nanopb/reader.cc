@@ -30,28 +30,36 @@ Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
   return Reader{pb_istream_from_buffer(bytes, length)};
 }
 
-Tag Reader::ReadTag() {
+uint32_t Reader::ReadTag() {
   Tag tag;
-  if (!status_.ok()) return tag;
+  if (!status_.ok()) return 0;
 
   bool eof;
   if (!pb_decode_tag(&stream_, &tag.wire_type, &tag.field_number, &eof)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
-    return tag;
+    Fail(PB_GET_ERROR(&stream_));
+    return 0;
   }
 
   // nanopb code always returns a false status when setting eof.
   HARD_ASSERT(!eof, "nanopb set both ok status and eof to true");
 
-  return tag;
+  last_tag_ = tag;
+  return tag.field_number;
 }
 
-bool Reader::RequireWireType(pb_wire_type_t wire_type, Tag tag) {
+bool Reader::RequireWireType(pb_wire_type_t wire_type) {
   if (!status_.ok()) return false;
-  if (wire_type != tag.wire_type) {
-    set_status(Status(FirestoreErrorCode::DataLoss,
-                      "Input proto bytes cannot be parsed (mismatch between "
-                      "the wiretype and the field number (tag))"));
+  if (wire_type != last_tag_.wire_type) {
+    // TODO(rsgowman): We need to add much more context to the error messages so
+    // that we'll have a hope of debugging them when a customer reports these
+    // errors. Ideally:
+    // - last_tag_'s field_number and wire_type.
+    // - containing message type
+    // - anything else that we can possibly get our hands on.
+    // Here, and throughout nanopb/*.cc, remote/*.cc, local/*.cc.
+    Fail(
+        "Input proto bytes cannot be parsed (mismatch between the wiretype and "
+        "the field number (tag))");
     return false;
   }
   return true;
@@ -61,7 +69,7 @@ void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
   if (!status_.ok()) return;
 
   if (!pb_decode(&stream_, fields, dest_struct)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
   }
 }
 
@@ -75,11 +83,12 @@ void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
  * @return The decoded varint as a uint64_t.
  */
 uint64_t Reader::ReadVarint() {
+  RequireWireType(PB_WT_VARINT);
   if (!status_.ok()) return 0;
 
   uint64_t varint_value = 0;
   if (!pb_decode_varint(&stream_, &varint_value)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
   }
   return varint_value;
 }
@@ -89,8 +98,7 @@ void Reader::ReadNull() {
   if (!status_.ok()) return;
 
   if (varint != google_protobuf_NullValue_NULL_VALUE) {
-    status_ = Status(FirestoreErrorCode::DataLoss,
-                     "Input proto bytes cannot be parsed (invalid null value)");
+    Fail("Input proto bytes cannot be parsed (invalid null value)");
   }
 }
 
@@ -104,9 +112,7 @@ bool Reader::ReadBool() {
     case 1:
       return true;
     default:
-      status_ =
-          Status(FirestoreErrorCode::DataLoss,
-                 "Input proto bytes cannot be parsed (invalid bool value)");
+      Fail("Input proto bytes cannot be parsed (invalid bool value)");
       return false;
   }
 }
@@ -116,18 +122,19 @@ int64_t Reader::ReadInteger() {
 }
 
 std::string Reader::ReadString() {
+  RequireWireType(PB_WT_STRING);
   if (!status_.ok()) return "";
 
   pb_istream_t substream;
   if (!pb_make_string_substream(&stream_, &substream)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+    Fail(PB_GET_ERROR(&stream_));
     return "";
   }
 
   std::string result(substream.bytes_left, '\0');
   if (!pb_read(&substream, reinterpret_cast<pb_byte_t*>(&result[0]),
                substream.bytes_left)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&substream));
+    Fail(PB_GET_ERROR(&substream));
     pb_close_string_substream(&stream_, &substream);
     return "";
   }
@@ -153,11 +160,11 @@ std::vector<uint8_t> Reader::ReadBytes() {
   return std::vector<uint8_t>(bytes.begin(), bytes.end());
 }
 
-void Reader::SkipField(const Tag& tag) {
+void Reader::SkipUnknown() {
   if (!status_.ok()) return;
 
-  if (!pb_skip_field(&stream_, tag.wire_type)) {
-    status_ = Status(FirestoreErrorCode::DataLoss, PB_GET_ERROR(&stream_));
+  if (!pb_skip_field(&stream_, last_tag_.wire_type)) {
+    Fail(PB_GET_ERROR(&stream_));
   }
 }
 

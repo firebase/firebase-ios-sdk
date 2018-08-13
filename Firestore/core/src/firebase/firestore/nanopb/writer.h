@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -34,7 +33,7 @@ namespace nanopb {
 
 /**
  * Docs TODO(rsgowman). But currently, this just wraps the underlying nanopb
- * pb_ostream_t. Also doc how to check status.
+ * pb_ostream_t. All errors are considered fatal.
  */
 class Writer {
  public:
@@ -101,13 +100,7 @@ class Writer {
     return stream_.bytes_written;
   }
 
-  util::Status status() const {
-    return status_;
-  }
-
  private:
-  util::Status status_ = util::Status::OK();
-
   /**
    * Creates a new Writer, based on the given nanopb pb_ostream_t. Note that
    * a shallow copy will be taken. (Non-null pointers within this struct must

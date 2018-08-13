@@ -38,6 +38,8 @@
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/timestamp_internal.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
@@ -59,6 +61,8 @@ using firebase::firestore::model::MaybeDocument;
 using firebase::firestore::model::NoDocument;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::nanopb::Reader;
+using firebase::firestore::nanopb::Writer;
 using firebase::firestore::remote::Serializer;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::Status;
@@ -148,17 +152,18 @@ class SerializerTest : public ::testing::Test {
    */
   void ExpectFailedStatusDuringFieldValueDecode(
       Status status, const std::vector<uint8_t>& bytes) {
-    StatusOr<FieldValue> bad_status = serializer.DecodeFieldValue(bytes);
-    ASSERT_NOT_OK(bad_status);
-    EXPECT_EQ(status.code(), bad_status.status().code());
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    serializer.DecodeFieldValue(&reader);
+    ASSERT_NOT_OK(reader.status());
+    EXPECT_EQ(status.code(), reader.status().code());
   }
 
   void ExpectFailedStatusDuringMaybeDocumentDecode(
       Status status, const std::vector<uint8_t>& bytes) {
-    StatusOr<std::unique_ptr<MaybeDocument>> bad_status =
-        serializer.DecodeMaybeDocument(bytes);
-    ASSERT_NOT_OK(bad_status);
-    EXPECT_EQ(status.code(), bad_status.status().code());
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    serializer.DecodeMaybeDocument(&reader);
+    ASSERT_NOT_OK(reader.status());
+    EXPECT_EQ(status.code(), reader.status().code());
   }
 
   v1beta1::Value ValueProto(std::nullptr_t) {
@@ -174,8 +179,8 @@ class SerializerTest : public ::testing::Test {
   std::vector<uint8_t> EncodeFieldValue(Serializer* serializer,
                                         const FieldValue& fv) {
     std::vector<uint8_t> bytes;
-    Status status = serializer->EncodeFieldValue(fv, &bytes);
-    EXPECT_OK(status);
+    Writer writer = Writer::Wrap(&bytes);
+    serializer->EncodeFieldValue(&writer, fv);
     return bytes;
   }
 
@@ -183,9 +188,8 @@ class SerializerTest : public ::testing::Test {
                                       const DocumentKey& key,
                                       const FieldValue& value) {
     std::vector<uint8_t> bytes;
-    Status status =
-        serializer->EncodeDocument(key, value.object_value(), &bytes);
-    EXPECT_OK(status);
+    Writer writer = Writer::Wrap(&bytes);
+    serializer->EncodeDocument(&writer, key, value.object_value());
     return bytes;
   }
 
@@ -284,12 +288,13 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
-    StatusOr<FieldValue> actual_model_status =
-        serializer.DecodeFieldValue(bytes);
-    EXPECT_OK(actual_model_status);
-    FieldValue actual_model = actual_model_status.ValueOrDie();
-    EXPECT_EQ(type, actual_model.type());
-    EXPECT_EQ(model, actual_model);
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+    absl::optional<FieldValue> actual_model =
+        serializer.DecodeFieldValue(&reader);
+    EXPECT_OK(reader.status());
+    EXPECT_EQ(type, actual_model->type());
+    ASSERT_TRUE(actual_model.has_value());
+    EXPECT_EQ(model, *actual_model);
   }
 
   void ExpectSerializationRoundTrip(
@@ -334,8 +339,9 @@ class SerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes(size);
     bool status = proto.SerializeToArray(bytes.data(), static_cast<int>(size));
     EXPECT_TRUE(status);
+    Reader reader = Reader::Wrap(bytes.data(), bytes.size());
     StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
-        serializer.DecodeMaybeDocument(bytes);
+        serializer.DecodeMaybeDocument(&reader);
     EXPECT_OK(actual_model_status);
     std::unique_ptr<MaybeDocument> actual_model =
         std::move(actual_model_status).ValueOrDie();
@@ -528,14 +534,15 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   bytes.resize(stream.bytes_written);
 
   // Decode the bytes into the model
-  StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
-  EXPECT_OK(actual_model_status);
-  FieldValue actual_model = actual_model_status.ValueOrDie();
+  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+  absl::optional<FieldValue> actual_model =
+      serializer.DecodeFieldValue(&reader);
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::IntegerValue(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
+  EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
@@ -670,15 +677,15 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   bytes.resize(stream.bytes_written);
 
   // Decode the bytes into the model
-  StatusOr<FieldValue> actual_model_status = serializer.DecodeFieldValue(bytes);
-  Status s = actual_model_status.status();
-  EXPECT_OK(actual_model_status);
-  FieldValue actual_model = actual_model_status.ValueOrDie();
+  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
+  absl::optional<FieldValue> actual_model =
+      serializer.DecodeFieldValue(&reader);
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::BooleanValue(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
-  EXPECT_EQ(expected_model, actual_model);
+  EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
@@ -720,6 +727,15 @@ TEST_F(SerializerTest, IncompleteFieldValue) {
 
 TEST_F(SerializerTest, IncompleteTag) {
   std::vector<uint8_t> bytes;
+  ExpectFailedStatusDuringFieldValueDecode(
+      Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
+}
+
+TEST_F(SerializerTest, FailOnInvalidInputBytes) {
+  // Invalid inputs should fail gracefully without assertions. The following
+  // bytes correspond to a Map FieldValue with an empty value. It was
+  // generated by our fuzz tests and used to trigger an assertion.
+  std::vector<uint8_t> bytes = {0x32, 0x02, 0x0a, 0x00};
   ExpectFailedStatusDuringFieldValueDecode(
       Status(FirestoreErrorCode::DataLoss, "ignored"), bytes);
 }
@@ -865,16 +881,15 @@ TEST_F(SerializerTest,
   bytes.resize(stream.bytes_written);
 
   // Decode the bytes into the model
-  StatusOr<std::unique_ptr<MaybeDocument>> actual_model_status =
-      serializer.DecodeMaybeDocument(bytes);
-  EXPECT_OK(actual_model_status);
+  Reader reader = Reader::Wrap(bytes.data(), bytes.size());
   std::unique_ptr<MaybeDocument> actual_model =
-      std::move(actual_model_status).ValueOrDie();
+      serializer.DecodeMaybeDocument(&reader);
+  EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   NoDocument expected_model =
       NoDocument(Key("one/two"), SnapshotVersion::None());
-  EXPECT_EQ(expected_model, *actual_model.get());
+  EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, DecodesNoDocument) {

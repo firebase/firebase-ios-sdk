@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode9.3
+osx_image: xcode9.4
 language: objective-c
 cache:
   - bundler
@@ -57,7 +57,7 @@ jobs:
         # manually pushed to a temporary Specs repo. See
         # https://guides.cocoapods.org/making/private-cocoapods.
         # ALT_SOURCES="--sources=git@github.com:paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
-        - ALT_SOURCES="--sources=https://github.com/paulb777/Specs.git,https://github.com/CocoaPods/Specs.git"
+        - ALT_SOURCES=
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:

@@ -112,7 +112,7 @@ absl::optional<std::string> GetEnv(const char* name) {
   if (!value) return absl::nullopt;
 
   return std::string{value};
-#endif
+#endif  // defined(_WIN32)
 }
 
 int SetEnv(const char* env_var, const char* value) {
@@ -185,7 +185,7 @@ TEST(FilesystemTest, RecursivelyDelete) {
   Path file = Path::JoinUtf8(tmp_dir, TestFilename());
   EXPECT_NOT_FOUND(IsDirectory(file));
 
-  // Deleting a something that doesn't exist should succeed.
+  // Deleting something that doesn't exist should succeed.
   EXPECT_OK(RecursivelyDelete(file));
   EXPECT_NOT_FOUND(IsDirectory(file));
 

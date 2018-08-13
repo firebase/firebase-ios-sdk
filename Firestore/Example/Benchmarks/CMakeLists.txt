@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+cc_binary(
+  firebase_firestore_util_string_apple_benchmark
+  SOURCES
+    string_apple_benchmark.mm
+  DEPENDS
+    benchmark
+    benchmark_main
+    firebase_firestore_util_base_apple
 )
-
-include(benchmark)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
