@@ -240,8 +240,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   [self saveQueryData:queryData];
 
   NSString *canonicalID = queryData.query.canonicalID;
-  std::string indexKey =
-      LevelDbQueryTargetKey::Key(MakeString(canonicalID), queryData.targetID);
+  std::string indexKey = LevelDbQueryTargetKey::Key(MakeString(canonicalID), queryData.targetID);
   std::string emptyBuffer;
   _db.currentTransaction->Put(indexKey, emptyBuffer);
 
