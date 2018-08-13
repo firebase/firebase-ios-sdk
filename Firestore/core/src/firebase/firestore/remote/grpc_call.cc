@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 
 namespace firebase {
 namespace firestore {
@@ -98,7 +98,8 @@ class ServerInitiatedFinish : public GrpcOperation {
 
  private:
   void DoComplete() override {
-    // Note: calling Finish on a GRPC call should never fail, according to the docs
+    // Note: calling Finish on a GRPC call should never fail, according to the
+    // docs
     delegate_.OnFinishedWithServerError(grpc_status_);
   }
 
@@ -158,7 +159,7 @@ void BufferedWriter::TryWrite() {
   }
 
   has_pending_write_ = true;
-  call_->WriteImmediately(std::move(buffer_.back()));
+  write_func_(std::move(buffer_.back()));
   buffer_.pop_back();
 }
 
@@ -167,17 +168,20 @@ void BufferedWriter::OnSuccessfulWrite() {
   TryWrite();
 }
 
-} // internal
+}  // namespace internal
 
 GrpcCall::GrpcCall(std::unique_ptr<grpc::ClientContext> context,
-          std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-          GrpcOperationsObserver* const observer, GrpcCompletionQueue* const grpc_queue)
+                   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+                   GrpcOperationsObserver* const observer,
+                   GrpcCompletionQueue* const grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
       grpc_queue_{grpc_queue},
       generation_{observer->generation()},
-      buffered_writer_{this} {
+      buffered_writer_{[this](grpc::ByteBuffer&& message) {
+        WriteImmediately(std::move(message));
+      }} {
 }
 
 void GrpcCall::Start() {
@@ -195,6 +199,9 @@ void GrpcCall::Read() {
 }
 
 void GrpcCall::Write(grpc::ByteBuffer&& message) {
+  if (write_and_finish_) {
+    return;
+  }
   buffered_writer_.Enqueue(std::move(message));
 }
 
@@ -209,6 +216,12 @@ void GrpcCall::WriteImmediately(grpc::ByteBuffer&& message) {
 }
 
 void GrpcCall::WriteAndFinish(grpc::ByteBuffer&& message) {
+  if (!buffered_writer_.IsStarted()) {
+    // Ignore the write if the call didn't have a chance to open yet.
+    Finish();
+    return;
+  }
+
   write_and_finish_ = true;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
