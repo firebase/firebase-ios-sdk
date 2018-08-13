@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
 
-#include <functional>
 #include <memory>
 #include <utility>
 
@@ -25,50 +24,13 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
+#include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-namespace internal {
-
-class BufferedWriter {
- public:
-  using WriteFunction = std::function<void(grpc::ByteBuffer&&)>;
-
-  explicit BufferedWriter(WriteFunction&& write_func)
-      : write_func_{std::move(write_func)} {
-    HARD_ASSERT(write_func_, "BufferedWriter needs a non-empty write function");
-  }
-
-  void Start();
-  void Stop();
-  void Clear();
-
-  bool empty() const {
-    return buffer_.empty();
-  }
-
-  bool IsStarted() const {
-    return is_started_;
-  }
-
-  void Enqueue(grpc::ByteBuffer&& bytes);
-  void OnSuccessfulWrite();
-
- private:
-  void TryWrite();
-
-  WriteFunction write_func_;
-
-  std::vector<grpc::ByteBuffer> buffer_;
-  bool has_pending_write_ = false;
-  bool is_started_ = false;
-};
-
-}  // namespace internal
 
 class GrpcOperationsObserver;
 
@@ -121,7 +83,7 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
-  internal::BufferedWriter buffered_writer_;
+  BufferedWriter buffered_writer_;
 
   bool write_and_finish_ = false;
   bool global_shutdown_ = false;

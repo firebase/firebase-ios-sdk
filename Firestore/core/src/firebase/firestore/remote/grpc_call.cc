@@ -126,50 +126,6 @@ class ClientInitiatedFinish : public GrpcOperation {
 
 }  // namespace
 
-namespace internal {
-
-void BufferedWriter::Start() {
-  is_started_ = true;
-  TryWrite();
-}
-
-void BufferedWriter::Stop() {
-  is_started_ = false;
-}
-
-void BufferedWriter::Clear() {
-  buffer_.clear();
-}
-
-void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
-  if (!is_started_) {
-    return;
-  }
-
-  buffer_.insert(buffer_.begin(), std::move(bytes));
-  TryWrite();
-}
-
-void BufferedWriter::TryWrite() {
-  if (!is_started_ || empty()) {
-    return;
-  }
-  if (has_pending_write_) {
-    return;
-  }
-
-  has_pending_write_ = true;
-  write_func_(std::move(buffer_.back()));
-  buffer_.pop_back();
-}
-
-void BufferedWriter::OnSuccessfulWrite() {
-  has_pending_write_ = false;
-  TryWrite();
-}
-
-}  // namespace internal
-
 GrpcCall::GrpcCall(std::unique_ptr<grpc::ClientContext> context,
                    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
                    GrpcOperationsObserver* const observer,
@@ -210,7 +166,6 @@ void GrpcCall::Finish() {
   Execute<ClientInitiatedFinish>();
 }
 
-// Called by `BufferedWriter`.
 void GrpcCall::WriteImmediately(grpc::ByteBuffer&& message) {
   Execute<StreamWrite>(std::move(message));
 }
