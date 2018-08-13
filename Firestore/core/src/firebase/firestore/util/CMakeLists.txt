@@ -88,6 +88,7 @@ cc_library(
     hard_assert_apple.mm
     log.h
     log_apple.mm
+    string_apple.cc
     string_apple.h
     string_format.cc
     string_format.h
