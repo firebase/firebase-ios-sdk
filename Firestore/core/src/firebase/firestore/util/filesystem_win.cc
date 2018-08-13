@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
+#if defined(_WIN32)
+
 #include <windows.h>
 
 #include <cerrno>
@@ -163,3 +165,5 @@ Status RecursivelyDeleteDir(const Path& parent) {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(_WIN32)

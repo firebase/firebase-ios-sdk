@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+#if defined(__APPLE__)
+
 #import <FirebaseCore/FIRLogger.h>
 #import <Foundation/Foundation.h>
 
@@ -72,3 +74,5 @@ void LogMessage(LogLevel level, const std::string& message) {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(__APPLE__)
