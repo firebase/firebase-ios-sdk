@@ -121,14 +121,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTRemoteEvent : NSObject
 
 - (instancetype)
-initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-          targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
-       targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
-        documentUpdates:
-            (std::unordered_map<firebase::firestore::model::DocumentKey,
-                                FSTMaybeDocument *,
-                                firebase::firestore::model::DocumentKeyHash>)documentUpdates
-         limboDocuments:(firebase::firestore::model::DocumentKeySet)limboDocuments;
+    initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
+              targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
+           targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
+            documentUpdates:
+                (std::unordered_map<firebase::firestore::model::DocumentKey,
+                                    FSTMaybeDocument *,
+                                    firebase::firestore::model::DocumentKeyHash>)documentUpdates
+             limboDocuments:(firebase::firestore::model::DocumentKeySet)limboDocuments;
 
 /** The snapshot version this event brings us up to. */
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;

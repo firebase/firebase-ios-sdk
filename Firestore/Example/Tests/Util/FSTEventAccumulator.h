@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^FSTValueEventHandler)(id _Nullable, NSError *_Nullable error);
 
-@interface FSTEventAccumulator <EventType> : NSObject
+@interface FSTEventAccumulator<EventType> : NSObject
 
 + (instancetype)accumulatorForTest:(XCTestCase *)testCase;
 

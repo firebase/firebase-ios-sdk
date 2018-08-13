@@ -67,19 +67,19 @@ using firebase::firestore::model::TransformOperation;
 }
 
 - (void)testAppliesPatchesToDocuments {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
+  NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   FSTMutation *patch = FSTTestPatchMutation("collection/key", @{@"foo.bar" : @"new-bar-value"}, {});
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
-  NSDictionary *expectedData = @{ @"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value" };
+  NSDictionary *expectedData = @{@"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value"};
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 0, expectedData, YES));
 }
 
 - (void)testDeletesValuesFromTheFieldMask {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"} };
+  NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value", @"baz" : @"baz-value"}};
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   DocumentKey key = testutil::Key("collection/key");
@@ -90,7 +90,7 @@ using firebase::firestore::model::TransformOperation;
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
-  NSDictionary *expectedData = @{ @"foo" : @{@"baz" : @"baz-value"} };
+  NSDictionary *expectedData = @{@"foo" : @{@"baz" : @"baz-value"}};
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 0, expectedData, YES));
 }
 
@@ -102,7 +102,7 @@ using firebase::firestore::model::TransformOperation;
   FSTMaybeDocument *patchedDoc =
       [patch applyTo:baseDoc baseDocument:baseDoc localWriteTime:_timestamp];
 
-  NSDictionary *expectedData = @{ @"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value" };
+  NSDictionary *expectedData = @{@"foo" : @{@"bar" : @"new-bar-value"}, @"baz" : @"baz-value"};
   XCTAssertEqualObjects(patchedDoc, FSTTestDoc("collection/key", 0, expectedData, YES));
 }
 
@@ -115,7 +115,7 @@ using firebase::firestore::model::TransformOperation;
 }
 
 - (void)testAppliesLocalServerTimestampTransformToDocuments {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
+  NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   FSTMutation *transform = FSTTestTransformMutation(
@@ -125,8 +125,8 @@ using firebase::firestore::model::TransformOperation;
 
   // Server timestamps aren't parsed, so we manually insert it.
   FSTObjectValue *expectedData = FSTTestObjectValue(
-      @{ @"foo" : @{@"bar" : @"<server-timestamp>"},
-         @"baz" : @"baz-value" });
+      @{@"foo" : @{@"bar" : @"<server-timestamp>"},
+        @"baz" : @"baz-value"});
   expectedData =
       [expectedData objectBySettingValue:[FSTServerTimestampValue
                                              serverTimestampValueWithLocalWriteTime:_timestamp
@@ -148,7 +148,7 @@ using firebase::firestore::model::TransformOperation;
     @"foo" : [FIRFieldValue fieldValueForArrayUnion:@[ @"tag" ]],
     @"bar.baz" :
         [FIRFieldValue fieldValueForArrayUnion:@[ @YES,
-                                                  @{ @"nested" : @{@"a" : @[ @1, @2 ]} } ]]
+                                                  @{@"nested" : @{@"a" : @[ @1, @2 ]}} ]]
   });
   XCTAssertEqual(transform.fieldTransforms.size(), 2);
 
@@ -164,7 +164,7 @@ using firebase::firestore::model::TransformOperation;
   XCTAssertEqual(second.path(), FieldPath({"bar", "baz"}));
   {
     std::vector<FSTFieldValue *> expectedElements {
-      FSTTestFieldValue(@YES), FSTTestFieldValue(@{ @"nested" : @{@"a" : @[ @1, @2 ]} })
+      FSTTestFieldValue(@YES), FSTTestFieldValue(@{@"nested" : @{@"a" : @[ @1, @2 ]}})
     };
     ArrayTransform expected(TransformOperation::Type::ArrayUnion, expectedElements);
     XCTAssertEqual(static_cast<const ArrayTransform &>(second.transformation()), expected);
@@ -190,101 +190,101 @@ using firebase::firestore::model::TransformOperation;
 
 - (void)testAppliesLocalArrayUnionTransformToMissingField {
   auto baseDoc = @{};
-  auto transform = @{ @"missing" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]] };
-  auto expected = @{ @"missing" : @[ @1, @2 ] };
+  auto transform = @{@"missing" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]};
+  auto expected = @{@"missing" : @[ @1, @2 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformToNonArrayField {
-  auto baseDoc = @{ @"non-array" : @42 };
-  auto transform = @{ @"non-array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]] };
-  auto expected = @{ @"non-array" : @[ @1, @2 ] };
+  auto baseDoc = @{@"non-array" : @42};
+  auto transform = @{@"non-array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @2 ]]};
+  auto expected = @{@"non-array" : @[ @1, @2 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithNonExistingElements {
-  auto baseDoc = @{ @"array" : @[ @1, @3 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @4 ]] };
-  auto expected = @{ @"array" : @[ @1, @3, @2, @4 ] };
+  auto baseDoc = @{@"array" : @[ @1, @3 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @4 ]]};
+  auto expected = @{@"array" : @[ @1, @3, @2, @4 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithExistingElements {
-  auto baseDoc = @{ @"array" : @[ @1, @3 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @3 ]] };
-  auto expected = @{ @"array" : @[ @1, @3 ] };
+  auto baseDoc = @{@"array" : @[ @1, @3 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @1, @3 ]]};
+  auto expected = @{@"array" : @[ @1, @3 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithDuplicateExistingElements {
   // Duplicate entries in your existing array should be preserved.
-  auto baseDoc = @{ @"array" : @[ @1, @2, @2, @3 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2 ]] };
-  auto expected = @{ @"array" : @[ @1, @2, @2, @3 ] };
+  auto baseDoc = @{@"array" : @[ @1, @2, @2, @3 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2 ]]};
+  auto expected = @{@"array" : @[ @1, @2, @2, @3 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithDuplicateUnionElements {
   // Duplicate entries in your union array should only be added once.
-  auto baseDoc = @{ @"array" : @[ @1, @3 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @2 ]] };
-  auto expected = @{ @"array" : @[ @1, @3, @2 ] };
+  auto baseDoc = @{@"array" : @[ @1, @3 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @2, @2 ]]};
+  auto expected = @{@"array" : @[ @1, @3, @2 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithNonPrimitiveElements {
   // Union nested object values (one existing, one not).
-  auto baseDoc = @{ @"array" : @[ @1, @{@"a" : @"b"} ] };
+  auto baseDoc = @{@"array" : @[ @1, @{@"a" : @"b"} ]};
   auto transform =
-      @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]] };
-  auto expected = @{ @"array" : @[ @1, @{@"a" : @"b"}, @{@"c" : @"d"} ] };
+      @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
+  auto expected = @{@"array" : @[ @1, @{@"a" : @"b"}, @{@"c" : @"d"} ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayUnionTransformWithPartiallyOverlappingElements {
   // Union objects that partially overlap an existing object.
-  auto baseDoc = @{ @"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"} ] };
+  auto baseDoc = @{@"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"} ]};
   auto transform =
-      @{ @"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]] };
+      @{@"array" : [FIRFieldValue fieldValueForArrayUnion:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
   auto expected =
-      @{ @"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"}, @{@"a" : @"b"}, @{@"c" : @"d"} ] };
+      @{@"array" : @[ @1, @{@"a" : @"b", @"c" : @"d"}, @{@"a" : @"b"}, @{@"c" : @"d"} ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformToMissingField {
   auto baseDoc = @{};
-  auto transform = @{ @"missing" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]] };
-  auto expected = @{ @"missing" : @[] };
+  auto transform = @{@"missing" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]};
+  auto expected = @{@"missing" : @[]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformToNonArrayField {
-  auto baseDoc = @{ @"non-array" : @42 };
-  auto transform = @{ @"non-array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]] };
-  auto expected = @{ @"non-array" : @[] };
+  auto baseDoc = @{@"non-array" : @42};
+  auto transform = @{@"non-array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @2 ]]};
+  auto expected = @{@"non-array" : @[]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithNonExistingElements {
-  auto baseDoc = @{ @"array" : @[ @1, @3 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @2, @4 ]] };
-  auto expected = @{ @"array" : @[ @1, @3 ] };
+  auto baseDoc = @{@"array" : @[ @1, @3 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @2, @4 ]]};
+  auto expected = @{@"array" : @[ @1, @3 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithExistingElements {
-  auto baseDoc = @{ @"array" : @[ @1, @2, @3, @4 ] };
-  auto transform = @{ @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @3 ]] };
-  auto expected = @{ @"array" : @[ @2, @4 ] };
+  auto baseDoc = @{@"array" : @[ @1, @2, @3, @4 ]};
+  auto transform = @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @1, @3 ]]};
+  auto expected = @{@"array" : @[ @2, @4 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
 - (void)testAppliesLocalArrayRemoveTransformWithNonPrimitiveElements {
   // Remove nested object values (one existing, one not).
-  auto baseDoc = @{ @"array" : @[ @1, @{@"a" : @"b"} ] };
+  auto baseDoc = @{@"array" : @[ @1, @{@"a" : @"b"} ]};
   auto transform =
-      @{ @"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]] };
-  auto expected = @{ @"array" : @[ @1 ] };
+      @{@"array" : [FIRFieldValue fieldValueForArrayRemove:@[ @{@"a" : @"b"}, @{@"c" : @"d"} ]]};
+  auto expected = @{@"array" : @[ @1 ]};
   [self transformBaseDoc:baseDoc with:transform expecting:expected];
 }
 
@@ -308,7 +308,7 @@ using firebase::firestore::model::TransformOperation;
 }
 
 - (void)testAppliesServerAckedServerTimestampTransformToDocuments {
-  NSDictionary *docData = @{ @"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value" };
+  NSDictionary *docData = @{@"foo" : @{@"bar" : @"bar-value"}, @"baz" : @"baz-value"};
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   FSTMutation *transform = FSTTestTransformMutation(
@@ -323,14 +323,12 @@ using firebase::firestore::model::TransformOperation;
                                          localWriteTime:_timestamp
                                          mutationResult:mutationResult];
 
-  NSDictionary *expectedData =
-      @{ @"foo" : @{@"bar" : _timestamp.dateValue},
-         @"baz" : @"baz-value" };
+  NSDictionary *expectedData = @{@"foo" : @{@"bar" : _timestamp.dateValue}, @"baz" : @"baz-value"};
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
 }
 
 - (void)testAppliesServerAckedArrayTransformsToDocuments {
-  NSDictionary *docData = @{ @"array_1" : @[ @1, @2 ], @"array_2" : @[ @"a", @"b" ] };
+  NSDictionary *docData = @{@"array_1" : @[ @1, @2 ], @"array_2" : @[ @"a", @"b" ]};
   FSTDocument *baseDoc = FSTTestDoc("collection/key", 0, docData, NO);
 
   FSTMutation *transform = FSTTestTransformMutation(@"collection/key", @{
@@ -348,7 +346,7 @@ using firebase::firestore::model::TransformOperation;
                                          localWriteTime:_timestamp
                                          mutationResult:mutationResult];
 
-  NSDictionary *expectedData = @{ @"array_1" : @[ @1, @2, @3 ], @"array_2" : @[ @"b" ] };
+  NSDictionary *expectedData = @{@"array_1" : @[ @1, @2, @3 ], @"array_2" : @[ @"b" ]};
   XCTAssertEqualObjects(transformedDoc, FSTTestDoc("collection/key", 0, expectedData, NO));
 }
 

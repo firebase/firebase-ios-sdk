@@ -249,16 +249,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                     listener:(FIRDocumentSnapshotBlock)listener {
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(FIRDocumentSnapshotBlock)listener {
   FSTListenOptions *options =
       [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                              listener:(FIRDocumentSnapshotBlock)listener {
+    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
+                                  listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
   FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
   const DocumentKey key = self.key;
