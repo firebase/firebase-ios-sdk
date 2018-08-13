@@ -92,13 +92,12 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   } else {
     if (error) {
-      *error =
-          [NSError errorWithDomain:FIRFirestoreErrorDomain
-                              code:FIRFirestoreErrorCodeFailedPrecondition
-                          userInfo:@{
-                            NSLocalizedDescriptionKey :
-                                @"A document cannot be read twice within a single transaction."
-                          }];
+      *error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                                   code:FIRFirestoreErrorCodeFailedPrecondition
+                               userInfo:@{
+                                 NSLocalizedDescriptionKey :
+                                     @"A document cannot be read twice within a single transaction."
+                               }];
     }
     return NO;
   }

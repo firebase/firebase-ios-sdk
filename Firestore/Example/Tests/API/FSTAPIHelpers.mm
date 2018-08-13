@@ -91,17 +91,15 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   for (NSString *key in oldDocs) {
-    oldDocuments = [oldDocuments
-        documentSetByAddingDocument:FSTTestDoc(util::MakeStringView([NSString
-                                                   stringWithFormat:@"%s/%@", path.data(), key]),
-                                               1, oldDocs[key], hasPendingWrites)];
+    oldDocuments =
+        [oldDocuments documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key),
+                                                             1, oldDocs[key], hasPendingWrites)];
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
-        FSTTestDoc(util::MakeStringView([NSString stringWithFormat:@"%s/%@", path.data(), key]), 1,
-                   docsToAdd[key], hasPendingWrites);
+        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key], hasPendingWrites);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange

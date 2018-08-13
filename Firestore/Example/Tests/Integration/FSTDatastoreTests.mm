@@ -168,10 +168,10 @@ NS_ASSUME_NONNULL_BEGIN
     [GRPCCall useInsecureConnectionsForHost:settings.host];
   }
 
-  DatabaseId database_id(util::MakeStringView(projectID), DatabaseId::kDefault);
+  DatabaseId database_id(util::MakeString(projectID), DatabaseId::kDefault);
 
-  _databaseInfo = DatabaseInfo(database_id, "test-key", util::MakeStringView(settings.host),
-                               settings.sslEnabled);
+  _databaseInfo =
+      DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
 
   _testWorkerQueue = [FSTDispatchQueue
       queueWith:dispatch_queue_create("com.google.firestore.FSTDatastoreTestsWorkerQueue",

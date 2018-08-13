@@ -186,7 +186,7 @@
 }
 
 - (void)testEncodeMap {
-  NSDictionary *input = @{ @"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ] };
+  NSDictionary *input = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ]};
   NSDictionary *expected = @{
     @"foo" : @1,
     @"bar" : @"hello",
@@ -212,7 +212,7 @@
       }
     ]
   };
-  NSDictionary *expected = @{ @"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ] };
+  NSDictionary *expected = @{@"foo" : @1, @"bar" : @"hello", @"baz" : @[ @3, @4L ]};
   FUNSerializer *serializer = [[FUNSerializer alloc] init];
   NSError *error = nil;
   XCTAssertEqualObjects(expected, [serializer decode:input error:&error]);

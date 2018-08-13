@@ -165,12 +165,10 @@ FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path,
   return [FSTDeletedDocument documentWithKey:key version:testutil::Version(version)];
 }
 
-FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
-                                    const absl::string_view database,
-                                    NSString *path) {
+FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string database, NSString *path) {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static std::list<DatabaseId> database_ids;
-  database_ids.emplace_back(projectID, database);
+  database_ids.emplace_back(std::move(projectID), std::move(database));
   return [[FSTDocumentKeyReference alloc] initWithKey:FSTTestDocKey(path)
                                            databaseID:&database_ids.back()];
 }

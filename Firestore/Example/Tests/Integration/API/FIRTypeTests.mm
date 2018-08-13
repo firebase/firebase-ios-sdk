@@ -35,14 +35,11 @@
 }
 
 - (void)testCanReadAndWriteNullFields {
-  [self assertSuccessfulRoundtrip:@{ @"a" : @1, @"b" : [NSNull null] }];
+  [self assertSuccessfulRoundtrip:@{@"a" : @1, @"b" : [NSNull null]}];
 }
 
 - (void)testCanReadAndWriteArrayFields {
-  [self assertSuccessfulRoundtrip:@{
-    @"array" : @[ @1, @"foo",
-                  @{ @"deep" : @YES }, [NSNull null] ]
-  }];
+  [self assertSuccessfulRoundtrip:@{@"array" : @[ @1, @"foo", @{@"deep" : @YES}, [NSNull null] ]}];
 }
 
 - (void)testCanReadAndWriteBlobFields {
@@ -77,12 +74,12 @@
 
 - (void)testCanReadAndWriteDocumentReferences {
   FIRDocumentReference *docRef = [self documentRef];
-  [self assertSuccessfulRoundtrip:@{ @"a" : @42, @"ref" : docRef }];
+  [self assertSuccessfulRoundtrip:@{@"a" : @42, @"ref" : docRef}];
 }
 
 - (void)testCanReadAndWriteDocumentReferencesInArrays {
   FIRDocumentReference *docRef = [self documentRef];
-  [self assertSuccessfulRoundtrip:@{ @"a" : @42, @"refs" : @[ docRef ] }];
+  [self assertSuccessfulRoundtrip:@{@"a" : @42, @"refs" : @[ docRef ]}];
 }
 
 @end

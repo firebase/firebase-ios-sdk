@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, FSTServerTimestampBehavior) {
  *  - Array
  *  - Object
  */
-@interface FSTFieldValue <__covariant T> : NSObject
+@interface FSTFieldValue<__covariant T> : NSObject
 
 /** Returns the FSTTypeOrder for this value. */
 - (FSTTypeOrder)typeOrder;

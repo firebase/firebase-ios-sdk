@@ -41,7 +41,7 @@ class User {
   User();
 
   /** Construct an authenticated user with the given UID. */
-  explicit User(absl::string_view uid);
+  explicit User(std::string uid);
 
   const std::string& uid() const {
     return uid_;
@@ -65,7 +65,7 @@ class User {
     if (uid == nil) {
       return Unauthenticated();
     } else {
-      return User(util::MakeStringView(uid));
+      return User{util::MakeString(uid)};
     }
   }
 #endif  // defined(__OBJC__)
