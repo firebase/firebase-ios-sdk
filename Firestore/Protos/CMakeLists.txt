@@ -97,3 +97,55 @@ target_include_directories(
   firebase_firestore_protos_libprotobuf PUBLIC
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
+
+set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator/)
+
+# Build nanopb protoc plugin. (Heavily "inspired" by
+# https://github.com/nanopb/nanopb/blob/master/extra/FindNanopb.cmake)
+set(NANOPB_GENERATOR_SRC
+  ${NANOPB_GENERATOR_DIR}/proto/nanopb.proto
+  ${NANOPB_GENERATOR_DIR}/proto/plugin.proto
+)
+set(NANOPB_GENERATOR_PYTHON_SRC)
+foreach (FIL ${NANOPB_GENERATOR_SRC})
+  get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
+  get_filename_component(FIL_WE ${FIL} NAME_WE)
+  set(output "${NANOPB_GENERATOR_DIR}/proto/${FIL_WE}_pb2.py")
+  set(NANOPB_GENERATOR_PYTHON_SRC ${NANOPB_GENERATOR_PYTHON_SRC} ${output})
+  add_custom_command(
+    OUTPUT ${output}
+    COMMAND
+      protoc
+        -I${NANOPB_GENERATOR_DIR}/proto
+        --python_out=${NANOPB_GENERATOR_DIR}/proto
+        ${ABS_FIL}
+    DEPENDS
+      protoc
+      ${ABS_FIL}
+  )
+endforeach()
+
+# Custom target that runs a script to generate the proto sources. This isn't
+# hooked into the build, so must be run manually. (It would be easy enough to
+# hook into the (posix) cmake build, but for consistency with windows and xcode
+# builds, we require this to be run manually with the results checked into
+# source control.)
+add_custom_target(
+  generate_protos
+  COMMENT "Generating proto sources"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  VERBATIM
+
+  COMMAND
+    mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
+  COMMAND
+    ./build-protos.sh
+      "$<TARGET_FILE:protoc>"
+      "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
+      "${NANOPB_GENERATOR_DIR}"
+      "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
+
+  DEPENDS
+    protoc
+    ${NANOPB_GENERATOR_PYTHON_SRC}
+)
