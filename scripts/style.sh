@@ -25,7 +25,11 @@
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
 version=$(clang-format --version)
-echo "Found: $version"
+
+# Log the version in non-interactive use as it can be useful in travis logs.
+if [[ ! -t 1 ]]; then
+  echo "Found: $version"
+fi
 
 # Remove leading "clang-format version"
 version="${version/*version /}"
