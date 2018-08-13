@@ -26,7 +26,7 @@ namespace remote {
 
 BufferedWriter::BufferedWriter(WriteFunction&& write_func)
     : write_func_{std::move(write_func)} {
-  HARD_ASSERT(write_func_, "BufferedWriter needs a non-empty write function");
+  HARD_ASSERT(write_func_, "BufferedWriter needs a non-empty writing function");
 }
 
 void BufferedWriter::Start() {
