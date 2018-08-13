@@ -59,10 +59,6 @@
   return [self.checkinService hasValidCheckinInfo];
 }
 
-- (BOOL)hasValidCheckinInfo {
-  return [self.checkinService hasValidCheckinInfo];
-}
-
 #pragma mark - Subscribe/Unsubscribe
 
 - (void)updateSubscriptionToTopic:(NSString *)topic
