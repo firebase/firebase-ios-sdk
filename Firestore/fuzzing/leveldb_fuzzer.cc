@@ -16,21 +16,149 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 
-using firebase::firestore::local::Reader;
+using firebase::firestore::local::LevelDbDocumentMutationKey;
+using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbMutationQueueKey;
+using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbRemoteDocumentKey;
+using firebase::firestore::local::LevelDbTargetDocumentKey;
+using firebase::firestore::local::LevelDbTargetGlobalKey;
+using firebase::firestore::local::LevelDbTargetKey;
+using firebase::firestore::model::ResourcePath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   const char* str_ptr = reinterpret_cast<const char*>(data);
   absl::string_view str{str_ptr, size};
+  leveldb::Slice slice = firebase::firestore::local::MakeSlice(str);
 
+  // Test DescribeKey(std::string) which calls MakeSlice(std::string).
   try {
-    Reader reader(str);
+    (void)firebase::firestore::local::DescribeKey(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
+
+  // Test LevelDbMutationKey methods.
+  try {
+    (void)LevelDbMutationKey::KeyPrefix(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    (void)LevelDbMutationKey::Key(str, static_cast<int>(size));
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbMutationKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbDocumentMutationKey methods.
+  try {
+    (void)LevelDbDocumentMutationKey::KeyPrefix(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbDocumentMutationKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbMutationQueueKey methods.
+  try {
+    (void)LevelDbMutationQueueKey::Key(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbMutationQueueKey key;
+    (void)key.Decode(slice);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbTargetGlobalKey methods.
+  try {
+    LevelDbTargetGlobalKey key;
+    (void)key.Decode(slice);
+  } catch (...) {
+    // ignore caught errors and assertions.
+  }
+
+  // Test LevelDbTargetKey methods.
+  try {
+    LevelDbTargetKey key;
+    (void)key.Decode(slice);
+  } catch (...) {
+    // ignore caught errors and assertions.
+  }
+
+  // Test LevelDbQueryTargetKey methods.
+  try {
+    (void)LevelDbQueryTargetKey::KeyPrefix(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbQueryTargetKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbTargetDocumentKey methods.
+  try {
+    LevelDbTargetDocumentKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbDocumentTargetKey methods.
+  try {
+    ResourcePath rp = ResourcePath::FromString(str);
+    (void)LevelDbDocumentTargetKey::KeyPrefix(rp);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbDocumentTargetKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  // Test LevelDbRemoteDocumentKey methods.
+  try {
+    ResourcePath rp = ResourcePath::FromString(str);
+    (void)LevelDbRemoteDocumentKey::KeyPrefix(rp);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
+  try {
+    LevelDbRemoteDocumentKey key;
+    (void)key.Decode(str);
+  } catch (...) {
+    // Ignore caught errors and assertions.
+  }
+
   return 0;
 }
-
