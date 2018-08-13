@@ -249,12 +249,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)
-initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
-          targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
-       targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
-        documentUpdates:
-            (std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)documentUpdates
-         limboDocuments:(DocumentKeySet)limboDocuments {
+    initWithSnapshotVersion:(SnapshotVersion)snapshotVersion
+              targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
+           targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
+            documentUpdates:(std::unordered_map<DocumentKey, FSTMaybeDocument *, DocumentKeyHash>)
+                                documentUpdates
+             limboDocuments:(DocumentKeySet)limboDocuments {
   self = [super init];
   if (self) {
     _snapshotVersion = std::move(snapshotVersion);

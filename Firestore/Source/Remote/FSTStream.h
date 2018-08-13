@@ -87,13 +87,14 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * See https://github.com/grpc/grpc/issues/10957 for the kinds of things we're trying to avoid.
  */
-@interface FSTStream <__covariant FSTStreamDelegate> : NSObject
+@interface FSTStream<__covariant FSTStreamDelegate> : NSObject
 
 - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
                connectionTimerID:(FSTTimerID)connectionTimerID
                      idleTimerID:(FSTTimerID)idleTimerID
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)credentials  // no passing ownership
+                     credentials:(firebase::firestore::auth::CredentialsProvider *)
+                                     credentials  // no passing ownership
             responseMessageClass:(Class)responseMessageClass NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;

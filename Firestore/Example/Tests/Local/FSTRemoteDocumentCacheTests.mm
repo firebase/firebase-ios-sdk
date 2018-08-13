@@ -45,7 +45,7 @@ static const int kVersion = 42;
   [super setUp];
 
   // essentially a constant, but can't be a compile-time one.
-  _kDocData = @{ @"a" : @1, @"b" : @2 };
+  _kDocData = @{@"a" : @1, @"b" : @2};
 }
 
 - (void)tearDown {
@@ -98,7 +98,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{ @"data" : @2 }, NO);
+    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, NO);
     [self.remoteDocumentCache addEntry:newDoc];
     XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], newDoc);
   });
