@@ -89,8 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 
       NSString *persistenceKey = self.app.name;
       NSString *projectID = self.app.options.projectID;
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                 database:util::MakeStringView(database)
+      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
+                                                 database:util::MakeString(database)
                                            persistenceKey:persistenceKey
                                       credentialsProvider:std::move(credentials_provider)
                                       workerDispatchQueue:workerDispatchQueue

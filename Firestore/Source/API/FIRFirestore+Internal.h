@@ -17,6 +17,7 @@
 #import "FIRFirestore.h"
 
 #include <memory>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -34,8 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a Firestore object with all the required parameters directly. This exists so that
  * tests can create FIRFirestore objects without needing FIRApp.
  */
-- (instancetype)initWithProjectID:(const absl::string_view)projectID
-                         database:(const absl::string_view)database
+- (instancetype)initWithProjectID:(std::string)projectID
+                         database:(std::string)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)
                                       credentialsProvider

@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#include <string>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
@@ -235,9 +236,7 @@ FSTDeletedDocument *FSTTestDeletedDoc(const absl::string_view path, FSTTestSnaps
 /**
  * A convenience method for creating a document reference from a path string.
  */
-FSTDocumentKeyReference *FSTTestRef(const absl::string_view projectID,
-                                    const absl::string_view databaseID,
-                                    NSString *path);
+FSTDocumentKeyReference *FSTTestRef(std::string projectID, std::string databaseID, NSString *path);
 
 /** A convenience method for creating a query for the given path (without any other filters). */
 FSTQuery *FSTTestQuery(const absl::string_view path);

@@ -154,7 +154,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
 
-  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
+  FIRFirestore *firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
                                                 credentialsProvider:std::move(credentials_provider)
