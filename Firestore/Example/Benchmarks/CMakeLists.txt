@@ -12,26 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_library(
-  LIBFUZZER_LIBRARY
-  NAMES Fuzzer
-  HINTS
-    ${FIREBASE_BINARY_DIR}/external/src/libfuzzer
-)
-
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(
-  LibFuzzer
-  DEFAULT_MSG
-  LIBFUZZER_LIBRARY
-)
-
-if(LIBFUZZER_FOUND)
-  if (NOT TARGET LibFuzzer)
-    add_library(LibFuzzer STATIC IMPORTED)
-    set_target_properties(
-      LibFuzzer PROPERTIES
-      IMPORTED_LOCATION ${LIBFUZZER_LIBRARY}
-    )
-  endif()
-endif(LIBFUZZER_FOUND)
+if(APPLE)
+  cc_binary(
+    firebase_firestore_util_string_apple_benchmark
+    SOURCES
+      string_apple_benchmark.mm
+    DEPENDS
+      benchmark
+      benchmark_main
+      firebase_firestore_util_base_apple
+  )
+endif()

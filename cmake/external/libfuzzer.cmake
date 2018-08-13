@@ -16,7 +16,7 @@
 # provided by libFuzzer to compile the sources and produce a library with the
 # name libFuzzer.a in the same directory as the sources because we have
 # BUILD_IN_SOURCES set to TRUE.
-#
+
 # This build method might not work on all systems. See the build.sh script of
 # libFuzzer here:
 # (https://github.com/llvm-mirror/compiler-rt/blob/master/lib/fuzzer/build.sh).
@@ -24,6 +24,15 @@
 include(ExternalProject)
 
 if(TARGET libfuzzer)
+  return()
+endif()
+
+# Mark libfuzzer target as done if: (a) fuzzing is not enabled and libFuzzer is
+# not needed; (b) a fuzzing library is already provided in LIB_FUZZING_ENGINE
+# environment variable as in OSS Fuzz and there is no need to build it; and
+# (c) on Windows because fuzzing is not supported.
+if(NOT FUZZING OR DEFINED ENV{LIB_FUZZING_ENGINE} OR WIN32)
+  add_custom_target(libfuzzer)
   return()
 endif()
 

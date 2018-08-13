@@ -39,6 +39,10 @@ extern NSString *const kNoLRUTag;
  * + override -persistence to create and return an appropriate id<FSTPersistence> implementation.
  */
 @interface FSTSpecTests : XCTestCase
+
+/** Based on its tags, determine whether the test case should run. */
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags;
+
 @end
 
 NS_ASSUME_NONNULL_END

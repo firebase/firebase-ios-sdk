@@ -20,7 +20,7 @@
 
 #import "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 
-#import "Firestore/Source/Public/FIRFieldPath.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
 namespace firebase {
 namespace firestore {
@@ -31,6 +31,13 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // Convert the raw bytes to a string with UTF-8 format.
     NSData *d = [NSData dataWithBytes:data length:size];
     NSString *str = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+
+    // Create a FieldPath object from a string.
+    @try {
+      [FIRFieldPath pathWithDotSeparatedString:str];
+    } @catch (...) {
+      // Ignore caught exceptions.
+    }
 
     // Fuzz test creating a FieldPath from an array with a single string.
     NSArray *str_arr1 = [NSArray arrayWithObjects:str, nil];

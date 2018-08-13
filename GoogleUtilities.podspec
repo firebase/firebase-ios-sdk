@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'GoogleUtilities'
-  s.version          = '5.2.1'
+  s.version          = '5.2.2'
   s.summary          = 'Google Utilities for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
@@ -72,6 +72,7 @@ other Google CocoaPods. They're not intended for direct public usage.
     adss.private_header_files = 'GoogleUtilities/AppDelegateSwizzler/Private/*.h'
     adss.dependency 'GoogleUtilities/Logger'
     adss.dependency 'GoogleUtilities/Network'
+    adss.dependency 'GoogleUtilities/Environment'
   end
 
   s.subspec 'ISASwizzler' do |iss|

@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (!firestore) {
       std::string queue_name{"com.google.firebase.firestore"};
       if (!self.app.isDefaultApp) {
-        absl::StrAppend(&queue_name, ".", util::MakeStringView(self.app.name));
+        absl::StrAppend(&queue_name, ".", util::MakeString(self.app.name));
       }
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL)];
@@ -89,8 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
 
       NSString *persistenceKey = self.app.name;
       NSString *projectID = self.app.options.projectID;
-      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeStringView(projectID)
-                                                 database:util::MakeStringView(database)
+      firestore = [[FIRFirestore alloc] initWithProjectID:util::MakeString(projectID)
+                                                 database:util::MakeString(database)
                                            persistenceKey:persistenceKey
                                       credentialsProvider:std::move(credentials_provider)
                                       workerDispatchQueue:workerDispatchQueue

@@ -17,20 +17,19 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/serializer.h"
+#include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 
-using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::Serializer;
+using firebase::firestore::model::ResourcePath;
 
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-  Serializer serializer{DatabaseId{"project", DatabaseId::kDefault}};
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  const char* str_ptr = reinterpret_cast<const char*>(data);
+  absl::string_view str_view{str_ptr, size};
+
   try {
-    // Try to decode the received data using the serializer.
-    auto val = serializer.DecodeFieldValue(data, size);
+    ResourcePath rp = ResourcePath::FromString(str_view);
   } catch (...) {
-    // Ignore caught errors and assertions because fuzz testing is looking for
-    // crashes and memory errors.
+    // Ignore caught errors and assertions.
   }
+
   return 0;
 }

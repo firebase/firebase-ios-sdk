@@ -70,6 +70,14 @@ add_alias(GTest::Main gtest_main)
 add_alias(GMock::GMock gmock)
 
 
+# Benchmark
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Firestore disabled")
+set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "Firestore disabled")
+set(BENCHMARK_ENABLE_INSTALL OFF CACHE BOOL "Firestore disabled")
+set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Firestore disabled")
+add_external_subdirectory(benchmark)
+
+
 # Abseil-cpp
 # Force disable Abseil's tests, which don't compile under VS2017.
 set(old_build_testing ${BUILD_TESTING})

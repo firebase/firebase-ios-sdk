@@ -253,7 +253,7 @@
 
   NSDictionary *update = [metadata updatedMetadata];
 
-  NSDictionary *expectedUpdate = @{ kFIRStorageMetadataCustomMetadata : @{} };
+  NSDictionary *expectedUpdate = @{kFIRStorageMetadataCustomMetadata : @{}};
   XCTAssertEqualObjects(update, expectedUpdate);
 }
 

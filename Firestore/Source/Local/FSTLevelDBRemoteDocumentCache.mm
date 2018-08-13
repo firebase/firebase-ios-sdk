@@ -21,12 +21,12 @@
 #import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBKey.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Model/FSTDocumentSet.h"
 
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -35,6 +35,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using leveldb::DB;
@@ -69,7 +70,7 @@ using leveldb::Status;
 }
 
 - (nullable FSTMaybeDocument *)entryForKey:(const DocumentKey &)documentKey {
-  std::string key = [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:documentKey];
+  std::string key = LevelDbRemoteDocumentKey::Key(documentKey);
   std::string value;
   Status status = _db.currentTransaction->Get(key, &value);
   if (status.IsNotFound()) {
@@ -87,14 +88,14 @@ using leveldb::Status;
 
   // Documents are ordered by key, so we can use a prefix scan to narrow down
   // the documents we need to match the query against.
-  std::string startKey = [FSTLevelDBRemoteDocumentKey keyPrefixWithResourcePath:query.path];
+  std::string startKey = LevelDbRemoteDocumentKey::KeyPrefix(query.path);
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(startKey);
 
-  FSTLevelDBRemoteDocumentKey *currentKey = [[FSTLevelDBRemoteDocumentKey alloc] init];
-  for (; it->Valid() && [currentKey decodeKey:it->key()]; it->Next()) {
+  LevelDbRemoteDocumentKey currentKey;
+  for (; it->Valid() && currentKey.Decode(it->key()); it->Next()) {
     FSTMaybeDocument *maybeDoc =
-        [self decodeMaybeDocument:it->value() withKey:currentKey.documentKey];
+        [self decodeMaybeDocument:it->value() withKey:currentKey.document_key()];
     if (!query.path.IsPrefixOf(maybeDoc.key.path())) {
       break;
     } else if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
@@ -106,7 +107,7 @@ using leveldb::Status;
 }
 
 - (std::string)remoteDocumentKey:(const DocumentKey &)key {
-  return [FSTLevelDBRemoteDocumentKey keyWithDocumentKey:key];
+  return LevelDbRemoteDocumentKey::Key(key);
 }
 
 - (FSTMaybeDocument *)decodeMaybeDocument:(absl::string_view)encoded

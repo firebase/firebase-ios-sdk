@@ -383,8 +383,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return The transform results array.
  */
 - (NSArray<FSTFieldValue *> *)
-serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
-                serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
+    serverTransformResultsWithBaseDocument:(nullable FSTMaybeDocument *)baseDocument
+                    serverTransformResults:(NSArray<FSTFieldValue *> *)serverTransformResults {
   NSMutableArray<FSTFieldValue *> *transformResults = [NSMutableArray array];
   HARD_ASSERT(self.fieldTransforms.size() == serverTransformResults.count,
               "server transform result count (%s) should match field transforms count (%s)",

@@ -17,12 +17,12 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 
 #include "Firestore/Protos/nanopb/google/firestore/v1beta1/document.nanopb.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-using firebase::firestore::util::Status;
 using std::int64_t;
 using std::int8_t;
 using std::uint64_t;
@@ -55,8 +55,6 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
 }
 
 void Writer::WriteTag(Tag tag) {
-  if (!status_.ok()) return;
-
   if (!pb_encode_tag(&stream_, tag.wire_type, tag.field_number)) {
     HARD_FAIL(PB_GET_ERROR(&stream_));
   }
@@ -64,8 +62,6 @@ void Writer::WriteTag(Tag tag) {
 
 void Writer::WriteNanopbMessage(const pb_field_t fields[],
                                 const void* src_struct) {
-  if (!status_.ok()) return;
-
   if (!pb_encode(&stream_, fields, src_struct)) {
     HARD_FAIL(PB_GET_ERROR(&stream_));
   }
@@ -76,8 +72,6 @@ void Writer::WriteSize(size_t size) {
 }
 
 void Writer::WriteVarint(uint64_t value) {
-  if (!status_.ok()) return;
-
   if (!pb_encode_varint(&stream_, value)) {
     HARD_FAIL(PB_GET_ERROR(&stream_));
   }
@@ -96,8 +90,6 @@ void Writer::WriteInteger(int64_t integer_value) {
 }
 
 void Writer::WriteString(const std::string& string_value) {
-  if (!status_.ok()) return;
-
   if (!pb_encode_string(
           &stream_, reinterpret_cast<const pb_byte_t*>(string_value.c_str()),
           string_value.length())) {
@@ -106,8 +98,6 @@ void Writer::WriteString(const std::string& string_value) {
 }
 
 void Writer::WriteBytes(const std::vector<uint8_t>& bytes) {
-  if (!status_.ok()) return;
-
   if (!pb_encode_string(&stream_,
                         reinterpret_cast<const pb_byte_t*>(bytes.data()),
                         bytes.size())) {
@@ -117,18 +107,13 @@ void Writer::WriteBytes(const std::vector<uint8_t>& bytes) {
 
 void Writer::WriteNestedMessage(
     const std::function<void(Writer*)>& write_message_fn) {
-  if (!status_.ok()) return;
-
   // First calculate the message size using a non-writing substream.
   Writer sizer = Writer::Sizing();
   write_message_fn(&sizer);
-  status_ = sizer.status();
-  if (!status_.ok()) return;
   size_t size = sizer.bytes_written();
 
   // Write out the size to the output writer.
   WriteSize(size);
-  if (!status_.ok()) return;
 
   // If this stream is itself a sizing stream, then we don't need to actually
   // parse field_value a second time; just update the bytes_written via a call
@@ -155,8 +140,6 @@ void Writer::WriteNestedMessage(
                  /*max_size=*/size, /*bytes_written=*/0,
                  /*errmsg=*/nullptr});
   write_message_fn(&writer);
-  status_ = writer.status();
-  if (!status_.ok()) return;
 
   stream_.bytes_written += writer.stream_.bytes_written;
   stream_.state = writer.stream_.state;
