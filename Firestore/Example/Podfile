@@ -17,11 +17,7 @@ target 'Firestore_Example_iOS' do
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
   pod 'FirebaseFirestore', :path => '../../'
-  pod 'gRPC'
   pod 'gRPC-C++'
-  pod 'gRPC-Core'
-  pod 'gRPC-ProtoRPC'
-  pod 'gRPC-RxLibrary'
 
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
