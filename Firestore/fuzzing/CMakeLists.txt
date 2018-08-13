@@ -56,3 +56,10 @@ cc_fuzz_test(
   SOURCES    resourcepath_fuzzer.cc
   DEPENDS    firebase_firestore_model
 )
+
+# Path fuzzer.
+#cc_fuzz_test(
+#  leveldb_fuzzer
+#  SOURCES leveldb_fuzzer.cc
+#  DEPENDS firebase_firestore_local_persistence_leveldb
+#)
