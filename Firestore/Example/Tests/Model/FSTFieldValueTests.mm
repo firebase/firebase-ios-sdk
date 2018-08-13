@@ -270,10 +270,10 @@ union DoubleBits {
 
 - (void)testWrapsSimpleObjects {
   FSTObjectValue *actual = FSTTestObjectValue(
-      @{ @"a" : @"foo",
-         @"b" : @(1L),
-         @"c" : @YES,
-         @"d" : [NSNull null] });
+      @{@"a" : @"foo",
+        @"b" : @(1L),
+        @"c" : @YES,
+        @"d" : [NSNull null]});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [FSTStringValue stringValue:@"foo"],
     @"b" : [FSTIntegerValue integerValue:1LL],
@@ -284,7 +284,7 @@ union DoubleBits {
 }
 
 - (void)testWrapsNestedObjects {
-  FSTObjectValue *actual = FSTTestObjectValue(@{ @"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES} });
+  FSTObjectValue *actual = FSTTestObjectValue(@{@"a" : @{@"b" : @{@"c" : @"foo"}, @"d" : @YES}});
   FSTObjectValue *expected = [[FSTObjectValue alloc] initWithDictionary:@{
     @"a" : [[FSTObjectValue alloc] initWithDictionary:@{
       @"b" :
@@ -296,7 +296,7 @@ union DoubleBits {
 }
 
 - (void)testExtractsFields {
-  FSTObjectValue *obj = FSTTestObjectValue(@{ @"foo" : @{@"a" : @YES, @"b" : @"string"} });
+  FSTObjectValue *obj = FSTTestObjectValue(@{@"foo" : @{@"a" : @YES, @"b" : @"string"}});
   FSTAssertIsKindOfClass(obj, FSTObjectValue);
 
   FSTAssertIsKindOfClass([obj valueForPath:testutil::Field("foo")], FSTObjectValue);
@@ -332,7 +332,7 @@ union DoubleBits {
   mod = [old objectBySettingValue:FSTTestFieldValue(@1) forPath:testutil::Field("b")];
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @"mod"}));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @"mod", @"b" : @1 }));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @"mod", @"b" : @1}));
 }
 
 - (void)testImplicitlyCreatesObjects {
@@ -342,73 +342,72 @@ union DoubleBits {
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @"old"}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(
-                                 @{ @"a" : @"old",
-                                    @"b" : @{@"c" : @{@"d" : @"mod"}} }));
+                                 @{@"a" : @"old",
+                                   @"b" : @{@"c" : @{@"d" : @"mod"}}}));
 }
 
 - (void)testCanOverwritePrimitivesWithObjects {
-  FSTObjectValue *old = FSTTestObjectValue(@{ @"a" : @{@"b" : @"old"} });
+  FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @"old"}});
   FSTObjectValue *mod =
       [old objectBySettingValue:FSTTestFieldValue(@{@"b" : @"mod"}) forPath:testutil::Field("a")];
   XCTAssertNotEqual(old, mod);
-  XCTAssertEqualObjects(old, FSTTestFieldValue(@{ @"a" : @{@"b" : @"old"} }));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @"mod"} }));
+  XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @"old"}}));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @"mod"}}));
 }
 
 - (void)testAddsToNestedObjects {
-  FSTObjectValue *old = FSTTestObjectValue(@{ @"a" : @{@"b" : @"old"} });
+  FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @"old"}});
   FSTObjectValue *mod =
       [old objectBySettingValue:FSTTestFieldValue(@"mod") forPath:testutil::Field("a.c")];
   XCTAssertNotEqual(old, mod);
-  XCTAssertEqualObjects(old, FSTTestFieldValue(@{ @"a" : @{@"b" : @"old"} }));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @"old", @"c" : @"mod"} }));
+  XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @"old"}}));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @"old", @"c" : @"mod"}}));
 }
 
 - (void)testDeletesKeys {
-  FSTObjectValue *old = FSTTestObjectValue(@{ @"a" : @1, @"b" : @2 });
+  FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @1, @"b" : @2});
   FSTObjectValue *mod = [old objectByDeletingPath:testutil::Field("a")];
   XCTAssertNotEqual(old, mod);
-  XCTAssertEqualObjects(old, FSTTestFieldValue(@{ @"a" : @1, @"b" : @2 }));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"b" : @2 }));
+  XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @1, @"b" : @2}));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"b" : @2}));
 
   FSTObjectValue *empty = [mod objectByDeletingPath:testutil::Field("b")];
   XCTAssertNotEqual(mod, empty);
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"b" : @2 }));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"b" : @2}));
   XCTAssertEqualObjects(empty, FSTTestFieldValue(@{}));
 }
 
 - (void)testDeletesHandleMissingKeys {
-  FSTObjectValue *old = FSTTestObjectValue(@{ @"a" : @{@"b" : @1, @"c" : @2} });
+  FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @1, @"c" : @2}});
   FSTObjectValue *mod = [old objectByDeletingPath:testutil::Field("b")];
   XCTAssertEqualObjects(old, mod);
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @1, @"c" : @2} }));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @2}}));
 
   mod = [old objectByDeletingPath:testutil::Field("a.d")];
   XCTAssertEqualObjects(old, mod);
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @1, @"c" : @2} }));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @2}}));
 
   mod = [old objectByDeletingPath:testutil::Field("a.b.c")];
   XCTAssertEqualObjects(old, mod);
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @1, @"c" : @2} }));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @2}}));
 }
 
 - (void)testDeletesNestedKeys {
-  FSTObjectValue *old = FSTTestObjectValue(
-      @{ @"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}} });
+  FSTObjectValue *old = FSTTestObjectValue(@{@"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}}});
   FSTObjectValue *mod = [old objectByDeletingPath:testutil::Field("a.c.d")];
   XCTAssertNotEqual(old, mod);
   XCTAssertEqualObjects(old, FSTTestFieldValue(
-                                 @{ @"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}} }));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @1, @"c" : @{@"e" : @3}} }));
+                                 @{@"a" : @{@"b" : @1, @"c" : @{@"d" : @2, @"e" : @3}}}));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @{@"e" : @3}}}));
 
   old = mod;
   mod = [old objectByDeletingPath:testutil::Field("a.c")];
-  XCTAssertEqualObjects(old, FSTTestFieldValue(@{ @"a" : @{@"b" : @1, @"c" : @{@"e" : @3}} }));
-  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{ @"a" : @{@"b" : @1} }));
+  XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @1, @"c" : @{@"e" : @3}}}));
+  XCTAssertEqualObjects(mod, FSTTestFieldValue(@{@"a" : @{@"b" : @1}}));
 
   old = mod;
   mod = [old objectByDeletingPath:testutil::Field("a")];
-  XCTAssertEqualObjects(old, FSTTestFieldValue(@{ @"a" : @{@"b" : @1} }));
+  XCTAssertEqualObjects(old, FSTTestFieldValue(@{@"a" : @{@"b" : @1}}));
   XCTAssertEqualObjects(mod, FSTTestFieldValue(@{}));
 }
 
@@ -472,20 +471,20 @@ union DoubleBits {
     @[ FSTTestFieldValue(@[ @"foo", @"bar", @"baz" ]) ], @[ FSTTestFieldValue(@[ @"foo" ]) ],
     @[
       FSTTestFieldValue(
-          @{ @"bar" : @1,
-             @"foo" : @2 }),
+          @{@"bar" : @1,
+            @"foo" : @2}),
       FSTTestFieldValue(
-          @{ @"foo" : @2,
-             @"bar" : @1 })
+          @{@"foo" : @2,
+            @"bar" : @1})
     ],
     @[ FSTTestFieldValue(
-        @{ @"bar" : @2,
-           @"foo" : @1 }) ],
+        @{@"bar" : @2,
+          @"foo" : @1}) ],
     @[ FSTTestFieldValue(
-        @{ @"bar" : @1,
-           @"foo" : @1 }) ],
+        @{@"bar" : @1,
+          @"foo" : @1}) ],
     @[ FSTTestFieldValue(
-        @{ @"foo" : @1 }) ]
+        @{@"foo" : @1}) ]
   ];
 
   FSTAssertEqualityGroups(groups);
@@ -544,17 +543,17 @@ union DoubleBits {
 
     // Objects
     @[
-      @{ @"bar" : @0 }
+      @{@"bar" : @0}
     ],
     @[
-      @{ @"bar" : @0,
-         @"foo" : @1 }
+      @{@"bar" : @0,
+        @"foo" : @1}
     ],
     @[
-      @{ @"foo" : @1 }
+      @{@"foo" : @1}
     ],
     @[
-      @{ @"foo" : @2 }
+      @{@"foo" : @2}
     ],
     @[ @{@"foo" : @"0"} ]
   ];
@@ -565,7 +564,7 @@ union DoubleBits {
 
 - (void)testValue {
   NSDate *date = [NSDate date];
-  id input = @{ @"array" : @[ @1, date ], @"obj" : @{@"date" : date, @"string" : @"hi"} };
+  id input = @{@"array" : @[ @1, date ], @"obj" : @{@"date" : date, @"string" : @"hi"}};
   FSTObjectValue *value = FSTTestObjectValue(input);
   id output = [value value];
   {

@@ -33,13 +33,12 @@
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
 
   // From GRPCCall -startNextRead
-  error =
-      [NSError errorWithDomain:FIRFirestoreErrorDomain
-                          code:FIRFirestoreErrorCodeResourceExhausted
-                      userInfo:@{
-                        NSLocalizedDescriptionKey :
-                            @"Client does not have enough memory to hold the server response."
-                      }];
+  error = [NSError errorWithDomain:FIRFirestoreErrorDomain
+                              code:FIRFirestoreErrorCodeResourceExhausted
+                          userInfo:@{
+                            NSLocalizedDescriptionKey :
+                                @"Client does not have enough memory to hold the server response."
+                          }];
   XCTAssertFalse([FSTDatastore isPermanentWriteError:error]);
 
   // From GRPCCall -startWithWriteable

@@ -168,7 +168,7 @@
         XCTAssertNotNil(error);
         XCTAssertEqual(FIRFunctionsErrorCodeOutOfRange, error.code);
         XCTAssertEqualObjects(@"explicit nope", error.userInfo[NSLocalizedDescriptionKey]);
-        NSDictionary *expectedDetails = @{ @"start" : @10, @"end" : @20, @"long" : @30L };
+        NSDictionary *expectedDetails = @{@"start" : @10, @"end" : @20, @"long" : @30L};
         XCTAssertEqualObjects(expectedDetails, error.userInfo[FIRFunctionsErrorDetailsKey]);
         [expectation fulfill];
       }];

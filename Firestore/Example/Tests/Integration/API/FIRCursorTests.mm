@@ -72,20 +72,20 @@
   FIRQuerySnapshot *querySnapshot =
       [self readDocumentSetForRef:[query queryStartingAtDocument:snapshot]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshot), (@[
-                          @{ @"v" : @"c",
-                             @"sort" : @2.0 },
-                          @{ @"v" : @"d",
-                             @"sort" : @2.0 }
+                          @{@"v" : @"c",
+                            @"sort" : @2.0},
+                          @{@"v" : @"d",
+                            @"sort" : @2.0}
                         ]));
 
   querySnapshot = [self readDocumentSetForRef:[query queryEndingBeforeDocument:snapshot]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshot), (@[
-                          @{ @"v" : @"e",
-                             @"sort" : @0.0 },
-                          @{ @"v" : @"a",
-                             @"sort" : @1.0 },
-                          @{ @"v" : @"b",
-                             @"sort" : @2.0 }
+                          @{@"v" : @"e",
+                            @"sort" : @0.0},
+                          @{@"v" : @"a",
+                            @"sort" : @1.0},
+                          @{@"v" : @"b",
+                            @"sort" : @2.0}
                         ]));
 }
 
@@ -103,20 +103,20 @@
   FIRQuerySnapshot *querySnapshot =
       [self readDocumentSetForRef:[query queryStartingAtValues:@[ @2.0 ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshot), (@[
-                          @{ @"v" : @"b",
-                             @"sort" : @2.0 },
-                          @{ @"v" : @"c",
-                             @"sort" : @2.0 },
-                          @{ @"v" : @"d",
-                             @"sort" : @2.0 }
+                          @{@"v" : @"b",
+                            @"sort" : @2.0},
+                          @{@"v" : @"c",
+                            @"sort" : @2.0},
+                          @{@"v" : @"d",
+                            @"sort" : @2.0}
                         ]));
 
   querySnapshot = [self readDocumentSetForRef:[query queryEndingBeforeValues:@[ @2.0 ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshot), (@[
-                          @{ @"v" : @"e",
-                             @"sort" : @0.0 },
-                          @{ @"v" : @"a",
-                             @"sort" : @1.0 }
+                          @{@"v" : @"e",
+                            @"sort" : @0.0},
+                          @{@"v" : @"a",
+                            @"sort" : @1.0}
                         ]));
 }
 
@@ -178,18 +178,18 @@
 
   FIRQuerySnapshot *snapshot = [self readDocumentSetForRef:[query queryStartingAtValues:@[ @2.0 ]]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{ @"v" : @"c",
-                             @"sort" : @2.0 },
-                          @{ @"v" : @"b",
-                             @"sort" : @2.0 },
-                          @{ @"v" : @"a",
-                             @"sort" : @1.0 },
-                          @{ @"v" : @"e",
-                             @"sort" : @0.0 }
+                          @{@"v" : @"c",
+                            @"sort" : @2.0},
+                          @{@"v" : @"b",
+                            @"sort" : @2.0},
+                          @{@"v" : @"a",
+                            @"sort" : @1.0},
+                          @{@"v" : @"e",
+                            @"sort" : @0.0}
                         ]));
 
   snapshot = [self readDocumentSetForRef:[query queryEndingBeforeValues:@[ @2.0 ]]];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ @{ @"v" : @"d", @"sort" : @3.0 } ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[ @{@"v" : @"d", @"sort" : @3.0} ]));
 }
 
 FIRTimestamp *TimestampWithMicros(int64_t seconds, int32_t micros) {
