@@ -68,7 +68,7 @@ class Path {
    * Creates a new Path from the given NSString pathname.
    */
   static Path FromNSString(NSString* path) {
-    return FromUtf8(MakeStringView(path));
+    return FromUtf8(MakeString(path));
   }
 #endif
 

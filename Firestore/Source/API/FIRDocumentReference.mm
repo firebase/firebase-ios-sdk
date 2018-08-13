@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));
   const ResourcePath path = self.key.path().Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }

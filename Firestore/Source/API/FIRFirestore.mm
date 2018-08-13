@@ -276,7 +276,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   [self ensureClientConfigured];
-  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(collectionPath));
+  const ResourcePath path = ResourcePath::FromString(util::MakeString(collectionPath));
   return [FIRCollectionReference referenceWithPath:path firestore:self];
 }
 
@@ -289,7 +289,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
   }
 
   [self ensureClientConfigured];
-  const ResourcePath path = ResourcePath::FromString(util::MakeStringView(documentPath));
+  const ResourcePath path = ResourcePath::FromString(util::MakeString(documentPath));
   return [FIRDocumentReference referenceWithPath:path firestore:self];
 }
 

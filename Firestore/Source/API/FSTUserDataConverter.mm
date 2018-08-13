@@ -282,7 +282,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                                         arrayElement:NO
                                                      fieldTransforms:_fieldTransforms
                                                            fieldMask:_fieldMask];
-  [context validatePathSegment:util::MakeStringView(fieldName)];
+  [context validatePathSegment:util::MakeString(fieldName)];
   return context;
 }
 

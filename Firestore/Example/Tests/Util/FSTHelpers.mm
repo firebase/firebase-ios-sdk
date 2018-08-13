@@ -243,7 +243,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
   __block FSTObjectValue *objectValue = [FSTObjectValue objectValue];
   __block std::vector<FieldPath> fieldMaskPaths;
   [values enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    const FieldPath path = testutil::Field(util::MakeStringView(key));
+    const FieldPath path = testutil::Field(util::MakeString(key));
     fieldMaskPaths.push_back(path);
     if (![value isEqual:kDeleteSentinel]) {
       FSTFieldValue *parsedValue = FSTTestFieldValue(value);
@@ -260,7 +260,7 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 }
 
 FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
-  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeStringView(path))];
+  FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeString(path))];
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
   FSTParsedUpdateData *result = [converter parsedUpdateData:data];
   HARD_ASSERT(result.data.value.count == 0,
@@ -448,11 +448,11 @@ FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
                                         NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;
   for (NSString *keyPath in addedKeys) {
-    added = added.insert(testutil::Key(util::MakeStringView(keyPath)));
+    added = added.insert(testutil::Key(util::MakeString(keyPath)));
   }
   DocumentKeySet removed;
   for (NSString *keyPath in removedKeys) {
-    removed = removed.insert(testutil::Key(util::MakeStringView(keyPath)));
+    removed = removed.insert(testutil::Key(util::MakeString(keyPath)));
   }
   return [FSTLocalViewChanges changesForTarget:targetID
                                      addedKeys:std::move(added)

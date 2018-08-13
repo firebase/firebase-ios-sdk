@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
     if (!firestore) {
       std::string queue_name{"com.google.firebase.firestore"};
       if (!self.app.isDefaultApp) {
-        absl::StrAppend(&queue_name, ".", util::MakeStringView(self.app.name));
+        absl::StrAppend(&queue_name, ".", util::MakeString(self.app.name));
       }
       FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
           queueWith:dispatch_queue_create(queue_name.c_str(), DISPATCH_QUEUE_SERIAL)];
