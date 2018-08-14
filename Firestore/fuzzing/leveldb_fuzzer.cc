@@ -30,6 +30,7 @@ using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTargetKey;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::ResourcePath;
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
@@ -52,7 +53,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   }
 
   try {
-    LevelDbMutationKey::Key(str, static_cast<int>(size));
+    BatchId batch_id{static_cast<int>(size)};
+    LevelDbMutationKey::Key(str, batch_id);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
