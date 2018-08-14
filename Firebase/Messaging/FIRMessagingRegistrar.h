@@ -46,13 +46,6 @@
  */
 - (BOOL)tryToLoadValidCheckinInfo;
 
-/**
- *  Check if we have a valid checkin info in memory.
- *
- *  @return YES if we have valid checkin info in memory else NO.
- */
-- (BOOL)hasValidCheckinInfo;
-
 #pragma mark - Subscribe/Unsubscribe
 
 /**

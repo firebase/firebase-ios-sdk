@@ -88,6 +88,7 @@ cc_library(
     hard_assert_apple.mm
     log.h
     log_apple.mm
+    string_apple.cc
     string_apple.h
     string_format.cc
     string_format.h
@@ -103,6 +104,28 @@ cc_select(
   firebase_firestore_util_base
   APPLE   firebase_firestore_util_base_apple
   DEFAULT firebase_firestore_util_base_stdio
+)
+
+
+## filesystem
+
+cc_library(
+  firebase_firestore_util_filesystem_apple
+  SOURCES
+    filesystem.h
+    filesystem_apple.mm
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util_status
+  EXCLUDE_FROM_ALL
+)
+
+cc_select(
+  firebase_firestore_util_filesystem
+  APPLE   firebase_firestore_util_filesystem_apple
+  DEFAULT ""
 )
 
 
@@ -171,10 +194,17 @@ configure_file(
 )
 
 cc_library(
-  firebase_firestore_util
+  firebase_firestore_util_autoid
   SOURCES
     autoid.cc
     autoid.h
+  DEPENDS
+    firebase_firestore_util_random
+)
+
+cc_library(
+  firebase_firestore_util
+  SOURCES
     bits.cc
     bits.h
     comparator_holder.h
@@ -185,8 +215,6 @@ cc_library(
     iterator_adaptors.h
     ordered_code.cc
     ordered_code.h
-    path.cc
-    path.h
     range.h
     string_util.cc
     string_util.h
@@ -194,6 +222,7 @@ cc_library(
   DEPENDS
     absl_base
     firebase_firestore_util_async
+    firebase_firestore_util_autoid
     firebase_firestore_util_base
     firebase_firestore_util_random
     firebase_firestore_util_status

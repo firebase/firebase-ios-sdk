@@ -51,10 +51,10 @@
                                       queryLimitedTo:2]];
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{ @"k" : @"d",
-                             @"sort" : @2 },
-                          @{ @"k" : @"c",
-                             @"sort" : @1 }
+                          @{@"k" : @"d",
+                            @"sort" : @2},
+                          @{@"k" : @"c",
+                            @"sort" : @1}
                         ]));
 }
 
@@ -88,8 +88,8 @@
                                             isEqualTo:@(NAN)]];
 
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(results), (@[
-                          @{ @"null" : [NSNull null],
-                             @"nan" : @(NAN) }
+                          @{@"null" : [NSNull null],
+                            @"nan" : @(NAN)}
                         ]));
 }
 
@@ -136,7 +136,7 @@
   FIRQuerySnapshot *results =
       [self readDocumentSetForRef:[collRef queryWhereField:@"inf" isEqualTo:@(INFINITY)]];
 
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(results), (@[ @{ @"inf" : @(INFINITY) } ]));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(results), (@[ @{@"inf" : @(INFINITY)} ]));
 }
 
 - (void)testCanExplicitlySortByDocumentID {
@@ -250,7 +250,7 @@
                                            listener:self.eventAccumulator.valueEventHandler];
 
   FIRQuerySnapshot *querySnap = [self.eventAccumulator awaitEventWithName:@"initial event"];
-  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{ @"foo" : @1 } ]);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnap), @[ @{@"foo" : @1} ]);
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
 
   [self disableNetwork];
@@ -273,9 +273,7 @@
   FIRCollectionReference *col = [self collectionRef];
 
   // set a few docs to known values
-  NSDictionary *initialDocs =
-      @{ @"doc1" : @{@"key1" : @"value1"},
-         @"doc2" : @{@"key2" : @"value2"} };
+  NSDictionary *initialDocs = @{@"doc1" : @{@"key1" : @"value1"}, @"doc2" : @{@"key2" : @"value2"}};
   [self writeAllDocuments:initialDocs toCollection:col];
 
   // go offline for the rest of this test
@@ -297,7 +295,7 @@
     @"a" : @{@"array" : @[ @42 ]},
     @"b" : @{@"array" : @[ @"a", @42, @"c" ]},
     @"c" : @{@"array" : @[ @41.999, @"42",
-                           @{ @"a" : @[ @42 ] } ]},
+                           @{@"a" : @[ @42 ]} ]},
     @"d" : @{@"array" : @[ @42 ], @"array2" : @[ @"bingo" ]}
   };
   FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
@@ -306,10 +304,10 @@
   FIRQuerySnapshot *snapshot =
       [self readDocumentSetForRef:[collection queryWhereField:@"array" arrayContains:@42]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetData(snapshot), (@[
-                          @{ @"array" : @[ @42 ] },
-                          @{ @"array" : @[ @"a", @42, @"c" ] },
-                          @{ @"array" : @[ @42 ],
-                             @"array2" : @[ @"bingo" ] }
+                          @{@"array" : @[ @42 ]},
+                          @{@"array" : @[ @"a", @42, @"c" ]},
+                          @{@"array" : @[ @42 ],
+                            @"array2" : @[ @"bingo" ]}
                         ]));
 
   // NOTE: The backend doesn't currently support null, NaN, objects, or arrays, so there isn't much

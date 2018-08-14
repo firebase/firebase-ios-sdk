@@ -55,7 +55,7 @@
   };
 
   // Base and update data used for update tests.
-  _initialData = @{ @"a" : @42 };
+  _initialData = @{@"a" : @42};
   _updateData = @{
     @"when" : [FIRFieldValue fieldValueForServerTimestamp],
     @"deep" : @{@"when" : [FIRFieldValue fieldValueForServerTimestamp]}
@@ -80,7 +80,7 @@
 
 /** Returns the expected data, with the specified timestamp substituted in. */
 - (NSDictionary *)expectedDataWithTimestamp:(nullable id)timestamp {
-  return @{ @"a" : @42, @"when" : timestamp, @"deep" : @{@"when" : timestamp} };
+  return @{@"a" : @42, @"when" : timestamp, @"deep" : @{@"when" : timestamp}};
 }
 
 /** Writes _initialData and waits for the corresponding snapshot. */
@@ -137,10 +137,11 @@
 /** Runs a transaction block. */
 - (void)runTransactionBlock:(void (^)(FIRTransaction *transaction))transactionBlock {
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
-  [_docRef.firestore runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
-    transactionBlock(transaction);
-    return nil;
-  }
+  [_docRef.firestore
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+        transactionBlock(transaction);
+        return nil;
+      }
       completion:^(id result, NSError *error) {
         XCTAssertNil(error);
         [expectation fulfill];
@@ -244,7 +245,7 @@
       [localSnapshot valueForField:@"a" serverTimestampBehavior:FIRServerTimestampBehaviorPrevious],
       @42);
 
-  [_docRef updateData:@{ @"a" : @1337 }];
+  [_docRef updateData:@{@"a" : @1337}];
   localSnapshot = [_accumulator awaitLocalEvent];
   XCTAssertEqualObjects([localSnapshot valueForField:@"a"], @1337);
 
@@ -290,10 +291,11 @@
 
 - (void)testServerTimestampsFailViaTransactionUpdateOnNonexistentDocument {
   XCTestExpectation *expectation = [self expectationWithDescription:@"transaction complete"];
-  [_docRef.firestore runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
-    [transaction updateData:_updateData forDocument:_docRef];
-    return nil;
-  }
+  [_docRef.firestore
+      runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+        [transaction updateData:_updateData forDocument:_docRef];
+        return nil;
+      }
       completion:^(id result, NSError *error) {
         XCTAssertNotNil(error);
         XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);

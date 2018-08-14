@@ -92,6 +92,11 @@ class ABSL_MUST_USE_RESULT Status {
   ///   `overall_status.Update(new_status);`
   void Update(const Status& new_status);
 
+  /// \brief Adds the message in the given cause to this Status.
+  ///
+  /// \return *this
+  Status& CausedBy(const Status& cause);
+
   /// \brief Return a string representation of this status suitable for
   /// printing. Returns the string `"OK"` for success.
   std::string ToString() const;

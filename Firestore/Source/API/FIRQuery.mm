@@ -153,15 +153,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                     listener:(FIRQuerySnapshotBlock)listener {
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(FIRQuerySnapshotBlock)listener {
   auto options = [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                              listener:(FIRQuerySnapshotBlock)listener {
+    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
+                                  listener:(FIRQuerySnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
   FSTQuery *query = self.query;
 

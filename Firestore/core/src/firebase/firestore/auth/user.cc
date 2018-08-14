@@ -16,17 +16,19 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace auth {
 
-User::User() : is_authenticated_(false) {
+User::User() : is_authenticated_{false} {
 }
 
-User::User(const absl::string_view uid) : uid_(uid), is_authenticated_(true) {
-  HARD_ASSERT(!uid.empty());
+User::User(std::string uid) : uid_{std::move(uid)}, is_authenticated_{true} {
+  HARD_ASSERT(!uid_.empty());
 }
 
 const User& User::Unauthenticated() {

@@ -18,6 +18,7 @@ include(CMakeParseArguments)
 #   target
 #   SOURCES sources...
 #   DEPENDS libraries...
+#   [EXCLUDE_FROM_ALL]
 # )
 #
 # Defines a new library target with the given target name, sources, and
@@ -93,13 +94,15 @@ endfunction()
 #   target
 #   SOURCES sources...
 #   DEPENDS libraries...
+#   [EXCLUDE_FROM_ALL]
 # )
 #
 # Defines a new executable target with the given target name, sources, and
 # dependencies.
 function(cc_binary name)
+  set(flag EXCLUDE_FROM_ALL)
   set(multi DEPENDS SOURCES)
-  cmake_parse_arguments(ccb "" "" "${multi}" ${ARGN})
+  cmake_parse_arguments(ccb "${flag}" "" "${multi}" ${ARGN})
 
   maybe_remove_objc_sources(sources ${ccb_SOURCES})
   add_executable(${name} ${sources})
@@ -108,6 +111,13 @@ function(cc_binary name)
 
   target_include_directories(${name} PUBLIC ${FIREBASE_SOURCE_DIR})
   target_link_libraries(${name} ${ccb_DEPENDS})
+
+  if(ccb_EXCLUDE_FROM_ALL)
+    set_property(
+      TARGET ${name}
+      PROPERTY EXCLUDE_FROM_ALL ON
+    )
+  endif()
 endfunction()
 
 # cc_test(

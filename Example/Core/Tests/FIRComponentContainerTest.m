@@ -55,7 +55,7 @@
 }
 
 - (void)testComponentsPopulatedOnInit {
-  FIRComponentContainer *container = [self containerWithRegistrants:@[ [FIRTestClass class] ]];
+  FIRComponentContainer *container = [self containerWithRegistrants:@ [[FIRTestClass class]]];
 
   // Verify that the block is stored.
   NSString *protocolName = NSStringFromProtocol(@protocol(FIRTestProtocol));
@@ -66,8 +66,7 @@
 #pragma mark - Caching Tests
 
 - (void)testInstanceCached {
-  FIRComponentContainer *container =
-      [self containerWithRegistrants:@[ [FIRTestClassCached class] ]];
+  FIRComponentContainer *container = [self containerWithRegistrants:@ [[FIRTestClassCached class]]];
 
   // Fetch an instance for `FIRTestProtocolCached`, then fetch it again to assert it's cached.
   id<FIRTestProtocolCached> instance1 = FIR_COMPONENT(FIRTestProtocolCached, container);
@@ -78,7 +77,7 @@
 }
 
 - (void)testInstanceNotCached {
-  FIRComponentContainer *container = [self containerWithRegistrants:@[ [FIRTestClass class] ]];
+  FIRComponentContainer *container = [self containerWithRegistrants:@ [[FIRTestClass class]]];
 
   // Retrieve an instance from the container, then fetch it again and ensure it's not the same
   // instance.
@@ -90,9 +89,9 @@
 }
 
 - (void)testRemoveAllCachedInstances {
-  FIRComponentContainer *container = [self containerWithRegistrants:@[
-    [FIRTestClass class], [FIRTestClassCached class], [FIRTestClassEagerCached class]
-  ]];
+  FIRComponentContainer *container =
+      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassCached class],
+                                        [FIRTestClassEagerCached class]]];
 
   // Retrieve an instance of FIRTestClassCached to ensure it's cached.
   id<FIRTestProtocolCached> cachedInstance1 = FIR_COMPONENT(FIRTestProtocolCached, container);
@@ -121,7 +120,7 @@
   // implementation for `FIRTestProtocolEagerCached` and requires eager instantiation as well as
   // caching so the test can verify it was eagerly instantiated.
   FIRComponentContainer *container =
-      [self containerWithRegistrants:@[ [FIRTestClassEagerCached class] ]];
+      [self containerWithRegistrants:@ [[FIRTestClassEagerCached class]]];
   NSString *protocolName = NSStringFromProtocol(@protocol(FIRTestProtocolEagerCached));
   XCTAssertNotNil(container.cachedInstances[protocolName]);
 }
@@ -135,7 +134,7 @@
   // change in the future.
   // TODO(wilsonryan): Assert that the log gets called warning that it's already been registered.
   FIRComponentContainer *container =
-      [self containerWithRegistrants:@[ [FIRTestClass class], [FIRTestClassDuplicate class] ]];
+      [self containerWithRegistrants:@ [[FIRTestClass class], [FIRTestClassDuplicate class]]];
   XCTAssert(container.components.count == 1);
 }
 

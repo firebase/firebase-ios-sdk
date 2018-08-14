@@ -37,7 +37,7 @@ TEST(Status, OK) {
   EXPECT_TRUE(s.ok());
 }
 
-TEST(DeathStatus, CheckOK) {
+TEST(Status, DeathCheckOK) {
   Status status(FirestoreErrorCode::InvalidArgument, "Invalid");
   ASSERT_ANY_THROW(STATUS_CHECK_OK(status));
 }
@@ -111,6 +111,49 @@ TEST(Status, FromErrno) {
       a.ToString(),
       testing::MatchesRegex(
           "Already exists: Cannot write file \\(errno .*: File exists\\)"));
+}
+
+TEST(Status, CausedBy_OK) {
+  Status result = Status::OK();
+  result.CausedBy(Status::OK());
+  EXPECT_EQ(Status::OK(), result);
+}
+
+TEST(Status, CausedBy_CauseOK) {
+  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+
+  Status result = not_found;
+  result.CausedBy(Status::OK());
+  EXPECT_EQ(not_found, result);
+}
+
+TEST(Status, CausedBy_OuterOK) {
+  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+
+  Status result = Status::OK();
+  result.CausedBy(not_found);
+  EXPECT_EQ(not_found, result);
+}
+
+TEST(Status, CausedBy_Chain) {
+  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status not_ready(FirestoreErrorCode::FailedPrecondition, "DB not ready");
+
+  Status result = not_ready;
+  result.CausedBy(not_found);
+  EXPECT_NE(not_found, result);
+  EXPECT_NE(not_ready, result);
+
+  // Outer should prevail
+  EXPECT_EQ(not_ready.code(), result.code());
+  EXPECT_EQ("Failed precondition: DB not ready: file not found",
+            result.ToString());
+}
+
+TEST(Status, CauseBy_Self) {
+  Status not_found(FirestoreErrorCode::NotFound, "file not found");
+  Status result = not_found.CausedBy(not_found);
+  EXPECT_EQ(not_found, result);
 }
 
 }  // namespace util

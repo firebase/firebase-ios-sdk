@@ -32,7 +32,7 @@ Status Status::FromNSError(NSError* error) {
   while (error) {
     if ([error.domain isEqualToString:NSPOSIXErrorDomain]) {
       return FromErrno(static_cast<int>(error.code),
-                       MakeStringView(original.localizedDescription));
+                       MakeString(original.localizedDescription));
     }
 
     error = error.userInfo[NSUnderlyingErrorKey];

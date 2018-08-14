@@ -111,7 +111,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (!collectionPath) {
     FSTThrowInvalidArgument(@"Collection path cannot be nil.");
   }
-  const ResourcePath subPath = ResourcePath::FromString(util::MakeStringView(collectionPath));
+  const ResourcePath subPath = ResourcePath::FromString(util::MakeString(collectionPath));
   const ResourcePath path = self.key.path().Append(subPath);
   return [FIRCollectionReference referenceWithPath:path firestore:self.firestore];
 }
@@ -249,16 +249,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
-                                     listener:(FIRDocumentSnapshotBlock)listener {
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(FIRDocumentSnapshotBlock)listener {
   FSTListenOptions *options =
       [self internalOptionsForIncludeMetadataChanges:includeMetadataChanges];
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
 - (id<FIRListenerRegistration>)
-addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
-                              listener:(FIRDocumentSnapshotBlock)listener {
+    addSnapshotListenerInternalWithOptions:(FSTListenOptions *)internalOptions
+                                  listener:(FIRDocumentSnapshotBlock)listener {
   FIRFirestore *firestore = self.firestore;
   FSTQuery *query = [FSTQuery queryWithPath:self.key.path()];
   const DocumentKey key = self.key;

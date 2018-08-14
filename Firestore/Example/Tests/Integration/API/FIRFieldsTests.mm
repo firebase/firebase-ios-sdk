@@ -27,7 +27,7 @@
 @end
 
 NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
-  return @{ @"timestamp" : timestamp, @"nested" : @{@"timestamp2" : timestamp} };
+  return @{@"timestamp" : timestamp, @"nested" : @{@"timestamp2" : timestamp}};
 }
 
 @implementation FIRFieldsTests
@@ -71,7 +71,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 
   FIRDocumentReference *doc = [self documentRef];
   [self writeDocumentRef:doc data:testData];
-  [self updateDocumentRef:doc data:@{ @"metadata.deep.field" : @100, @"metadata.added" : @200 }];
+  [self updateDocumentRef:doc data:@{@"metadata.deep.field" : @100, @"metadata.added" : @200}];
 
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(
@@ -166,7 +166,7 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
                      }];
 
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
-  XCTAssertEqualObjects(result.data, (@{ @"a" : @"field 1", @"b.dot" : @100, @"c\\slash" : @200 }));
+  XCTAssertEqualObjects(result.data, (@{@"a" : @"field 1", @"b.dot" : @100, @"c\\slash" : @200}));
 }
 
 - (void)testFieldsWithSpecialCharsCanBeUsedInQueryFilters {
@@ -228,8 +228,8 @@ NSDictionary<NSString *, id> *testDataWithTimestamps(FIRTimestamp *timestamp) {
 - (FIRDocumentSnapshot *)snapshotWithTimestamps:(FIRTimestamp *)timestamp {
   FIRDocumentReference *doc = [self documentRef];
   NSDictionary<NSString *, id> *data =
-      @{ @"timestamp" : timestamp,
-         @"nested" : @{@"timestamp2" : timestamp} };
+      @{@"timestamp" : timestamp,
+        @"nested" : @{@"timestamp2" : timestamp}};
   [self writeDocumentRef:doc data:data];
   return [self readDocumentForRef:doc];
 }

@@ -61,6 +61,7 @@ if(APPLE)
     SOURCES
       hard_assert_test.cc
       log_test.cc
+      string_apple_test.mm
     DEPENDS
       firebase_firestore_util_base_apple
   )
@@ -74,6 +75,22 @@ cc_test(
   DEPENDS
     firebase_firestore_util_base_stdio
 )
+
+
+## filesystem
+
+if(APPLE)
+  cc_test(
+    firebase_firestore_util_filesystem_apple_test
+    SOURCES
+      filesystem_test.cc
+      path_test.cc
+    DEPENDS
+      absl_optional
+      firebase_firestore_util_autoid
+      firebase_firestore_util_filesystem_apple
+  )
+endif()
 
 
 ## random
@@ -110,7 +127,6 @@ cc_test(
     hashing_test.cc
     iterator_adaptors_test.cc
     ordered_code_test.cc
-    path_test.cc
     status_test.cc
     status_test_util.h
     statusor_test.cc

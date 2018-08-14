@@ -131,11 +131,11 @@ NSString *const kNoLRUTag = @"no-lru";
 
 - (nullable FSTQuery *)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
-    return FSTTestQuery(util::MakeStringView((NSString *)querySpec));
+    return FSTTestQuery(util::MakeString((NSString *)querySpec));
   } else if ([querySpec isKindOfClass:[NSDictionary class]]) {
     NSDictionary *queryDict = (NSDictionary *)querySpec;
     NSString *path = queryDict[@"path"];
-    __block FSTQuery *query = FSTTestQuery(util::MakeStringView(path));
+    __block FSTQuery *query = FSTTestQuery(util::MakeString(path));
     if (queryDict[@"limit"]) {
       NSNumber *limit = queryDict[@"limit"];
       query = [query queryBySettingLimit:limit.integerValue];
@@ -144,16 +144,16 @@ NSString *const kNoLRUTag = @"no-lru";
       NSArray *filters = queryDict[@"filters"];
       [filters enumerateObjectsUsingBlock:^(NSArray *_Nonnull filter, NSUInteger idx,
                                             BOOL *_Nonnull stop) {
-        query = [query queryByAddingFilter:FSTTestFilter(util::MakeStringView(filter[0]), filter[1],
-                                                         filter[2])];
+        query = [query
+            queryByAddingFilter:FSTTestFilter(util::MakeString(filter[0]), filter[1], filter[2])];
       }];
     }
     if (queryDict[@"orderBys"]) {
       NSArray *orderBys = queryDict[@"orderBys"];
       [orderBys enumerateObjectsUsingBlock:^(NSArray *_Nonnull orderBy, NSUInteger idx,
                                              BOOL *_Nonnull stop) {
-        query = [query
-            queryByAddingSortOrder:FSTTestOrderBy(util::MakeStringView(orderBy[0]), orderBy[1])];
+        query =
+            [query queryByAddingSortOrder:FSTTestOrderBy(util::MakeString(orderBy[0]), orderBy[1])];
       }];
     }
     return query;
@@ -176,7 +176,7 @@ NSString *const kNoLRUTag = @"no-lru";
   }
   NSNumber *version = change[1];
   XCTAssert([change[0] isKindOfClass:[NSString class]]);
-  FSTDocument *doc = FSTTestDoc(util::MakeStringView((NSString *)change[0]), version.longLongValue,
+  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)change[0]), version.longLongValue,
                                 change[2], hasMutations);
   return [FSTDocumentViewChange changeWithDocument:doc type:type];
 }
@@ -202,7 +202,7 @@ NSString *const kNoLRUTag = @"no-lru";
 
 - (void)doPatch:(NSArray *)patchSpec {
   [self.driver
-      writeUserMutation:FSTTestPatchMutation(util::MakeStringView(patchSpec[0]), patchSpec[1], {})];
+      writeUserMutation:FSTTestPatchMutation(util::MakeString(patchSpec[0]), patchSpec[1], {})];
 }
 
 - (void)doDelete:(NSString *)key {
