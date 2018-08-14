@@ -14,6 +14,7 @@ jobs:
       before_install:
         - brew install clang-format
         - brew install swiftformat
+        - pip install six
       script:
         - ./scripts/check_whitespace.sh
         - ./scripts/check_copyright.sh
