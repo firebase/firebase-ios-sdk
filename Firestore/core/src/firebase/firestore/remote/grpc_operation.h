@@ -31,8 +31,9 @@ namespace firestore {
 namespace remote {
 
 class GrpcOperationsObserver {
-  public:
-  virtual ~GrpcOperationsObserver() {}
+ public:
+  virtual ~GrpcOperationsObserver() {
+  }
 
   virtual void OnStreamStart() = 0;
   virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
@@ -63,8 +64,8 @@ class GrpcOperation {
   }
 
  protected:
-   GrpcCall::Delegate delegate_;
-  
+  GrpcCall::Delegate delegate_;
+
  private:
   virtual void DoComplete() = 0;
 };

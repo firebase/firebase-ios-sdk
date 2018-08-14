@@ -49,7 +49,8 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
 
   class Delegate {
    public:
-    explicit Delegate(std::shared_ptr<GrpcCall>&& call) : call_{call} {
+    explicit Delegate(std::shared_ptr<GrpcCall>&& call)
+        : call_{std::move(call)} {
     }
 
     void OnStart();
@@ -79,14 +80,13 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
 
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
-  GrpcCompletionQueue* grpc_queue_;
+  GrpcCompletionQueue* grpc_queue_ = nullptr;
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
   BufferedWriter buffered_writer_;
 
   bool write_and_finish_ = false;
-  bool global_shutdown_ = false;
 
   // For sanity checks
   bool is_started_ = false;
