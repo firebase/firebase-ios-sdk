@@ -15,6 +15,7 @@
 # Fail on an trailing whitespace characters, excluding
 #   * binary files (-I)
 #   * nanopb-generated files
+#   * protoc-generated files
 #
 # Note: specifying revisions we care about makes this go slower than just
 # grepping through the whole repo.
@@ -25,7 +26,8 @@ options=(
 )
 
 git grep "${options[@]}" \
-    -- ':(exclude)Firestore/Protos/nanopb' ':(exclude)Firestore/Protos/cpp'
+    -- ':(exclude)Firestore/Protos/nanopb' ':(exclude)Firestore/Protos/cpp' \
+    ':(exclude)Firestore/Protos/objc'
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."
   exit 1
