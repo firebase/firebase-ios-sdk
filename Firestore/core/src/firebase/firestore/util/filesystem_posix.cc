@@ -110,7 +110,7 @@ Status CreateDir(const Path& path) {
 
 Status DeleteDir(const Path& path) {
   if (::rmdir(path.c_str())) {
-    if (errno != ENOENT && errno != ENOTDIR) {
+    if (errno != ENOENT) {
       return Status::FromErrno(
           errno,
           StringFormat("Could not delete directory %s", path.ToUtf8String()));
@@ -132,6 +132,10 @@ Status DeleteFile(const Path& path) {
 Status RecursivelyDeleteDir(const Path& parent) {
   DIR* dir = ::opendir(parent.c_str());
   if (!dir) {
+    if (errno == ENOENT) {
+      return Status::OK();
+    }
+
     return Status::FromErrno(errno, StringFormat("Could not read directory %s",
                                                  parent.ToUtf8String()));
   }

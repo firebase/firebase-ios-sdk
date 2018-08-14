@@ -64,6 +64,8 @@ Status CreateDir(const Path& path) {
 
   DWORD error = ::GetLastError();
   if (error == ERROR_ALREADY_EXISTS) {
+    // POSIX returns ENOTDIR if the path exists but isn't a directory. Win32
+    // doesn't make this distinction, so figure this out after the fact.
     DWORD attrs = ::GetFileAttributesW(path.c_str());
     if (attrs == INVALID_FILE_ATTRIBUTES) {
       error = ::GetLastError();

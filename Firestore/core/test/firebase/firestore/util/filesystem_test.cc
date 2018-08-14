@@ -220,14 +220,13 @@ TEST(FilesystemTest, RecursivelyDeleteTree) {
   Touch(Path::JoinUtf8(middle_dir, "a"));
   Touch(Path::JoinUtf8(middle_dir, "b"));
   Touch(Path::JoinUtf8(leaf1_dir, "1"));
-  Touch(Path::JoinUtf8(leaf1_dir, "2"));
   Touch(Path::JoinUtf8(leaf2_dir, "A"));
   Touch(Path::JoinUtf8(leaf2_dir, "B"));
-  Touch(Path::JoinUtf8(leaf2_dir, "C"));
 
   EXPECT_OK(RecursivelyDelete(root_dir));
   EXPECT_NOT_FOUND(IsDirectory(root_dir));
   EXPECT_NOT_FOUND(IsDirectory(leaf1_dir));
+  EXPECT_NOT_FOUND(IsDirectory(Path::JoinUtf8(leaf2_dir, "A")));
 }
 
 TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
