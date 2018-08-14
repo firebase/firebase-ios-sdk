@@ -101,7 +101,7 @@ jobs:
       script:
         # TBD - non-portable path warnings
         # The travis_wait is necessary because the command takes more than 10 minutes.
-        - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh --use-libraries --allow-warnings --no-subspecs
+        - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     # Alternative platforms
 
