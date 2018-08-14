@@ -34,9 +34,9 @@ namespace remote {
 
 class GrpcOperationsObserver;
 
-class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
+class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
  public:
-  GrpcCall(std::unique_ptr<grpc::ClientContext> context,
+  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
            std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
            GrpcOperationsObserver* observer,
            GrpcCompletionQueue* grpc_queue);
@@ -44,15 +44,11 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
   void Start();
   void Read();
   void Write(grpc::ByteBuffer&& buffer);
-  void WriteAndFinish(grpc::ByteBuffer&& buffer);
   void Finish();
+  void WriteAndFinish(grpc::ByteBuffer&& buffer);
 
   class Delegate {
    public:
-    explicit Delegate(std::shared_ptr<GrpcCall>&& call)
-        : call_{std::move(call)} {
-    }
-
     void OnStart();
     void OnRead(const grpc::ByteBuffer& message);
     void OnWrite();
@@ -60,13 +56,20 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
     void OnFinishedWithServerError(const grpc::Status& status);
 
    private:
+    explicit Delegate(std::shared_ptr<GrpcStream>&& call)
+        : stream_{std::move(call)} {
+    }
+
     bool SameGeneration() const;
 
     // TODO: explain ownership
-    std::shared_ptr<GrpcCall> call_;
+    std::shared_ptr<GrpcStream> stream_;
   };
 
  private:
+  // `Delegate` is public to easily allow all derived operations to
+  friend class Delegate;
+
   void WriteImmediately(grpc::ByteBuffer&& buffer);
 
   template <typename Op, typename... Args>
@@ -75,7 +78,7 @@ class GrpcCall : public std::enable_shared_from_this<GrpcCall> {
       return;
     }
     auto* operation = new Op(Delegate{shared_from_this()}, std::move(args)...);
-    operation->Execute(call_.get(), context_.get());
+    operation->Execute(stream_.get(), context_.get());
   }
 
   std::unique_ptr<grpc::ClientContext> context_;

@@ -23,7 +23,6 @@
 #include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
 namespace firebase {
@@ -45,29 +44,13 @@ class GrpcOperationsObserver {
 
 class GrpcOperation {
  public:
-  explicit GrpcOperation(GrpcCall::Delegate&& delegate)
-      : delegate_{std::move(delegate)} {
-  }
-
   virtual ~GrpcOperation() {
   }
 
   virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
                        grpc::ClientContext* context) = 0;
 
-  void Complete(const bool ok) {
-    if (ok) {
-      DoComplete();
-    } else {
-      delegate_.OnOperationFailed();
-    }
-  }
-
- protected:
-  GrpcCall::Delegate delegate_;
-
- private:
-  virtual void DoComplete() = 0;
+  virtual void Complete(bool ok) = 0;
 };
 
 }  // namespace remote
