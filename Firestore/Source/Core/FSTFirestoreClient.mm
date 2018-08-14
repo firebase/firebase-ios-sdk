@@ -128,8 +128,8 @@ NS_ASSUME_NONNULL_BEGIN
     auto userPromise = std::make_shared<std::promise<User>>();
 
     __weak typeof(self) weakSelf = self;
-    auto userChangeListener = [initialized = false, userPromise, weakSelf,
-                               workerDispatchQueue](User user) mutable {
+    auto credentialChangeListener = [initialized = false, userPromise, weakSelf,
+                                     workerDispatchQueue](User user) mutable {
       typeof(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
@@ -138,14 +138,14 @@ NS_ASSUME_NONNULL_BEGIN
         userPromise->set_value(user);
       } else {
         [workerDispatchQueue dispatchAsync:^{
-          [strongSelf userDidChange:user];
+          [strongSelf credentialDidChangeWithUser:user];
         }];
       }
     };
 
-    _credentialsProvider->SetUserChangeListener(userChangeListener);
+    _credentialsProvider->SetCredentialChangeListener(credentialChangeListener);
 
-    // Defer initialization until we get the current user from the userChangeListener. This is
+    // Defer initialization until we get the current user from the credentialChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
     [_workerDispatchQueue dispatchAsync:^{
@@ -159,6 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
   // Do all of our initialization on our own dispatch queue.
   [self.workerDispatchQueue verifyIsCurrentQueue];
+  LOG_DEBUG("Initializing. Current user: %s", user.uid());
 
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
@@ -213,11 +214,11 @@ NS_ASSUME_NONNULL_BEGIN
   [_remoteStore start];
 }
 
-- (void)userDidChange:(const User &)user {
+- (void)credentialDidChangeWithUser:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  LOG_DEBUG("User Changed: %s", user.uid());
-  [self.syncEngine userDidChange:user];
+  LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
+  [self.syncEngine credentialDidChangeWithUser:user];
 }
 
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
@@ -245,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    self->_credentialsProvider->SetUserChangeListener(nullptr);
+    self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
     [self.remoteStore shutdown];
     [self.persistence shutdown];

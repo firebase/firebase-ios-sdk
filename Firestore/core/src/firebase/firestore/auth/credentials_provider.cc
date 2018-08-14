@@ -20,7 +20,7 @@ namespace firebase {
 namespace firestore {
 namespace auth {
 
-CredentialsProvider::CredentialsProvider() : user_change_listener_(nullptr) {
+CredentialsProvider::CredentialsProvider() : change_listener_(nullptr) {
 }
 
 CredentialsProvider::~CredentialsProvider() {
