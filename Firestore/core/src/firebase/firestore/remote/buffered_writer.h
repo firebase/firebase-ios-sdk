@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 
 #include <functional>
-#include <vector>
+#include <queue>
 
 #include <grpcpp/support/byte_buffer.h>
 
@@ -54,15 +54,8 @@ class BufferedWriter {
 
   explicit BufferedWriter(WriteFunction&& write_func);
 
-  void Start();
-  void Stop();
-
   bool empty() const {
-    return buffer_.empty();
-  }
-
-  bool IsStarted() const {
-    return is_started_;
+    return queue_.empty();
   }
 
   void Enqueue(grpc::ByteBuffer&& bytes);
@@ -77,9 +70,8 @@ class BufferedWriter {
 
   WriteFunction write_func_;
 
-  std::vector<grpc::ByteBuffer> buffer_;
+  std::queue<grpc::ByteBuffer> queue_;
   bool has_pending_write_ = false;
-  bool is_started_ = false;
 };
 
 }  // namespace remote

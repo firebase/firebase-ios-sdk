@@ -33,8 +33,8 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -96,9 +96,9 @@ class Stream : public GrpcOperationsObserver, public std::enable_shared_from_thi
     ReconnectingWithBackoff
   };
 
-  virtual std::shared_ptr<GrpcCall> CreateGrpcCall(
+  virtual std::shared_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) = 0;
-  virtual void FinishGrpcCall(GrpcCall* call) = 0;
+  virtual void FinishGrpcStream(GrpcStream* call) = 0;
   virtual void DoOnStreamStart() = 0;
   virtual util::Status DoOnStreamRead(
       const grpc::ByteBuffer& message) = 0;
@@ -111,11 +111,11 @@ class Stream : public GrpcOperationsObserver, public std::enable_shared_from_thi
   void ResumeStartFromBackoff();
   void StopDueToIdleness();
 
-  void ResetGrpcCall();
+  void ResetGrpcStream();
 
   State state_ = State::Initial;
 
-  std::shared_ptr<GrpcCall> grpc_call_;
+  std::shared_ptr<GrpcStream> grpc_call_;
 
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
@@ -141,9 +141,9 @@ class WatchStream : public Stream {
   void UnwatchTargetId(FSTTargetID target_id);
 
  private:
-  std::shared_ptr<GrpcCall> CreateGrpcCall(
+  std::shared_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, const absl::string_view token) override;
-  void FinishGrpcCall(GrpcCall* call) override;
+  void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;
@@ -172,9 +172,9 @@ class WriteStream : public Stream {
   void SetHandshakeComplete() { is_handshake_complete_ = true; }
 
  private:
-  std::shared_ptr<GrpcCall> CreateGrpcCall(
+  std::shared_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, const absl::string_view token) override;
-  void FinishGrpcCall(GrpcCall* call) override;
+  void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamWrite() override;

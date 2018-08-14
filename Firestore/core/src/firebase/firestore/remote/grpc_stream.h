@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -56,6 +57,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
     void OnFinishedWithServerError(const grpc::Status& status);
 
    private:
+    friend class GrpcStream;
     explicit Delegate(std::shared_ptr<GrpcStream>&& call)
         : stream_{std::move(call)} {
     }
@@ -67,9 +69,6 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   };
 
  private:
-  // `Delegate` is public to easily allow all derived operations to
-  friend class Delegate;
-
   void WriteImmediately(grpc::ByteBuffer&& buffer);
 
   template <typename Op, typename... Args>
@@ -78,7 +77,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
       return;
     }
     auto* operation = new Op(Delegate{shared_from_this()}, std::move(args)...);
-    operation->Execute(stream_.get(), context_.get());
+    operation->Execute(call_.get(), context_.get());
   }
 
   std::unique_ptr<grpc::ClientContext> context_;
@@ -87,7 +86,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
-  BufferedWriter buffered_writer_;
+  absl::optional<BufferedWriter> buffered_writer_;
 
   bool write_and_finish_ = false;
 

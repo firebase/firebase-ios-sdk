@@ -155,16 +155,13 @@ class ClientInitiatedFinish : public StreamOperation {
 
 GrpcStream::GrpcStream(std::unique_ptr<grpc::ClientContext> context,
                    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-                   StreamOperationsObserver* observer,
+                   GrpcOperationsObserver* observer,
                    GrpcCompletionQueue* grpc_queue)
     : context_{std::move(context)},
-      stream_{std::move(call)},
+      call_{std::move(call)},
       observer_{observer},
       grpc_queue_{grpc_queue},
-      generation_{observer->generation()},
-      buffered_writer_{[this](grpc::ByteBuffer&& message) {
-        WriteImmediately(std::move(message));
-      }} {
+      generation_{observer->generation()} {
 }
 
 void GrpcStream::Start() {
@@ -189,7 +186,7 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
   if (write_and_finish_) {
     return;
   }
-  buffered_writer_.Enqueue(std::move(message));
+  buffered_writer_->Enqueue(std::move(message));
 }
 
 void GrpcStream::WriteImmediately(grpc::ByteBuffer&& message) {
@@ -199,12 +196,12 @@ void GrpcStream::WriteImmediately(grpc::ByteBuffer&& message) {
 }
 
 void GrpcStream::Finish() {
-  buffered_writer_.Stop();
+  buffered_writer_.reset();
   Execute<ClientInitiatedFinish>();
 }
 
 void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
-  if (!buffered_writer_.IsStarted()) {
+  if (!buffered_writer_) {
     // Ignore the write part if the call didn't have a chance to open yet.
     Finish();
     return;
@@ -213,8 +210,8 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   write_and_finish_ = true;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
-  buffered_writer_.Clear();
-  buffered_writer_.Enqueue(std::move(message));
+  buffered_writer_->Clear();
+  buffered_writer_->Enqueue(std::move(message));
 }
 
 // Delegate
@@ -225,7 +222,9 @@ bool GrpcStream::Delegate::SameGeneration() const {
 
 void GrpcStream::Delegate::OnStart() {
   if (SameGeneration()) {
-    stream_->buffered_writer_.Start();
+    stream_->buffered_writer_ = BufferedWriter{[this](grpc::ByteBuffer&& message) {
+        stream_->WriteImmediately(std::move(message));
+      }};
     stream_->observer_->OnStreamStart();
   }
 }
@@ -238,14 +237,14 @@ void GrpcStream::Delegate::OnRead(const grpc::ByteBuffer& message) {
 }
 
 void GrpcStream::Delegate::OnWrite() {
-  if (stream_->write_and_finish_ && stream_->buffered_writer_.empty()) {
+  if (stream_->write_and_finish_ && stream_->buffered_writer_->empty()) {
     // Final write succeeded.
     stream_->Finish();
     return;
   }
 
   if (SameGeneration()) {
-    stream_->buffered_writer_.OnSuccessfulWrite();
+    stream_->buffered_writer_->OnSuccessfulWrite();
     stream_->observer_->OnStreamWrite();
   }
 }
@@ -257,10 +256,10 @@ void GrpcStream::Delegate::OnFinishedWithServerError(const grpc::Status& status)
 }
 
 void GrpcStream::Delegate::OnOperationFailed() {
-  stream_->buffered_writer_.Stop();
-  if (stream_->write_and_finish_ && stream_->buffered_writer_.empty()) {
+  if (stream_->write_and_finish_ && stream_->buffered_writer_->empty()) {
     return;
   }
+  stream_->buffered_writer_.reset();
   if (SameGeneration()) {
     stream_->Execute<ServerInitiatedFinish>();
   }

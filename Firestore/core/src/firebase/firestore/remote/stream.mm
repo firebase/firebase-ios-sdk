@@ -117,7 +117,7 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  grpc_call_ = CreateGrpcCall(datastore_, token);
+  grpc_call_ = CreateGrpcStream(datastore_, token);
 
   grpc_call_->Start();
   // TODO OBC: set state to open here, or only upon successful completion?
@@ -237,11 +237,11 @@ void Stream::Stop() {
 
   // If the stream is in the auth stage, call might not have been started yet.
   if (grpc_call_) {
-    FinishGrpcCall(grpc_call_.get());
+    FinishGrpcStream(grpc_call_.get());
     // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
     // reason to hold on to it now that a finish operation has been added (the
     // operation has its own `shared_ptr` to the call).
-    ResetGrpcCall();
+    ResetGrpcStream();
   }
 
   state_ = State::Initial;
@@ -264,13 +264,13 @@ void Stream::OnStreamError(const util::Status& status) {
     credentials_provider_->InvalidateToken();
   }
 
-  ResetGrpcCall();
+  ResetGrpcStream();
 
   state_ = State::Error;
   DoOnStreamFinish(status);
 }
 
-void Stream::ResetGrpcCall() {
+void Stream::ResetGrpcStream() {
   grpc_call_.reset();
   backoff_.Cancel(); // OBC iOS doesn't do it, but other platforms do
 }
@@ -323,9 +323,9 @@ void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   Write(serializer_bridge_.ToByteBuffer(target_id));
 }
 
-std::shared_ptr<GrpcCall> WatchStream::CreateGrpcCall(
+std::shared_ptr<GrpcStream> WatchStream::CreateGrpcStream(
     Datastore* const datastore, const absl::string_view token) {
-  return datastore->CreateGrpcCall(
+  return datastore->CreateGrpcStream(
       token, "/google.firestore.v1beta1.Firestore/Listen", this);
 }
 
@@ -356,7 +356,7 @@ void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
-void WatchStream::FinishGrpcCall(GrpcCall* const call) {
+void WatchStream::FinishGrpcStream(GrpcStream* const call) {
   call->Finish();
 }
 
@@ -406,9 +406,9 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
 // Private interface
 
-std::shared_ptr<GrpcCall> WriteStream::CreateGrpcCall(
+std::shared_ptr<GrpcStream> WriteStream::CreateGrpcStream(
     Datastore* const datastore, const absl::string_view token) {
-  return datastore->CreateGrpcCall(token,
+  return datastore->CreateGrpcStream(token,
                                    "/google.firestore.v1beta1.Firestore/Write", this);
 }
 
@@ -458,7 +458,7 @@ util::Status WriteStream::DoOnStreamRead(
   return util::Status::OK();
 }
 
-void WriteStream::FinishGrpcCall(GrpcCall* const call) {
+void WriteStream::FinishGrpcStream(GrpcStream* const call) {
   // TODO OBC what if the write hangs during shutdown?
   call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
 }

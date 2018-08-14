@@ -105,13 +105,13 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcCall> Datastore::CreateGrpcCall(
+std::shared_ptr<GrpcStream> Datastore::CreateGrpcStream(
     const absl::string_view token,
     const absl::string_view path,
     GrpcOperationsObserver *const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return std::make_shared<GrpcCall>(std::move(context),
+  return std::make_shared<GrpcStream>(std::move(context),
                                     std::move(reader_writer), observer, &grpc_queue_);
 }
 
