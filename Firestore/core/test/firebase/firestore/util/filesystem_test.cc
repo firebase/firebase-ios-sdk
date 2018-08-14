@@ -67,22 +67,10 @@ TEST(FilesystemTest, Exists) {
   EXPECT_NOT_FOUND(IsDirectory(file));
 }
 
-#if defined(_WIN32)
-#define ASSERT_USEFUL_TEMP_DIR(dir)                          \
-  do {                                                       \
-    ASSERT_TRUE(absl::StartsWith(tmp.ToUtf8String(), "C:")); \
-  } while (0)
-
-#else
-#define ASSERT_USEFUL_TEMP_DIR(dir)                         \
-  do {                                                      \
-    ASSERT_TRUE(absl::StartsWith(tmp.ToUtf8String(), "/")); \
-  } while (0)
-#endif  // defined(_WIN32)
-
 TEST(FilesystemTest, GetTempDir) {
   Path tmp = TempDir();
-  ASSERT_USEFUL_TEMP_DIR(tmp);
+  ASSERT_NE("", tmp.ToUtf8String());
+  ASSERT_OK(IsDirectory(tmp));
 }
 
 absl::optional<std::string> GetEnv(const char* name) {
@@ -142,7 +130,8 @@ TEST(FilesystemTest, GetTempDirNoTmpdir) {
   }
 
   Path tmp = TempDir();
-  ASSERT_USEFUL_TEMP_DIR(tmp);
+  ASSERT_NE("", tmp.ToUtf8String());
+  ASSERT_OK(IsDirectory(tmp));
 
   // Return old value of TMPDIR, if set
   if (old_tmpdir) {
@@ -240,7 +229,6 @@ TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
 
   ASSERT_OK(RecursivelyCreateDir(child));
   ASSERT_OK(RecursivelyCreateDir(child_suffix));
-  ASSERT_OK(IsDirectory(child_suffix));
 
   ASSERT_OK(RecursivelyDelete(child));
   ASSERT_OK(IsDirectory(child_suffix));

@@ -30,24 +30,27 @@ namespace detail {
 
 /**
  * Creates the given directory. The immediate parent directory must already
- * exist.
+ * exist and not already be a file.
  *
- * @return Ok if the directory was created or already existed.
+ * @return Ok if the directory was created or already existed. On some systems
+ *     this may also return Ok if a regular file exists at the given path.
  */
 Status CreateDir(const Path& path);
 
 /**
  * Deletes the given directory if it exists.
  *
- * @return Ok if the directory was deleted or did not exist. Fails if the
- * directory is non-empty.
+ * @return Ok if the directory was deleted or did not exist. Returns a
+ *     system-defined error if the path is not a directory or the directory is
+ *     non-empty.
  */
 Status DeleteDir(const Path& path);
 
 /**
  * Deletes the given file if it exists.
  *
- * @return Ok if the file was deleted or did not exist.
+ * @return Ok if the file was deleted or did not exist. Returns a system-defined
+ *     error if the path exists but is not a regular file.
  */
 Status DeleteFile(const Path& path);
 
@@ -55,7 +58,9 @@ Status DeleteFile(const Path& path);
  * Recursively deletes the contents of the given pathname that is known to be
  * a directory.
  *
- * @return Ok if the directory was deleted or did not exist.
+ * @return Ok if the directory was deleted or did not exist. Returns a
+ *     system-defined
+ *
  */
 Status RecursivelyDeleteDir(const Path& path);
 
