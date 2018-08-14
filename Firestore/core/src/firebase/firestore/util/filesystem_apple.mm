@@ -16,61 +16,13 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 
+#if defined(__APPLE__)
+
 #import <Foundation/Foundation.h>
-
-#include <sys/stat.h>
-
-#include <cerrno>
-
-#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
-
-Status IsDirectory(const Path& path) {
-  struct stat buffer {};
-  if (::stat(path.c_str(), &buffer)) {
-    return Status::FromErrno(
-        errno, StringFormat("Path %s is not a directory", path.ToUtf8String()));
-  }
-
-  if (!S_ISDIR(buffer.st_mode)) {
-    return Status{FirestoreErrorCode::FailedPrecondition,
-                  StringFormat("Path %s exists but is not a directory",
-                               path.ToUtf8String())};
-  }
-
-  return Status::OK();
-}
-
-Status RecursivelyCreateDir(const Path& path) {
-  NSString* ns_path = path.ToNSString();
-
-  NSError* error = nil;
-  if (![[NSFileManager defaultManager] createDirectoryAtPath:ns_path
-                                 withIntermediateDirectories:YES
-                                                  attributes:nil
-                                                       error:&error]) {
-    return Status::FromNSError(error);
-  }
-  return Status::OK();
-}
-
-Status RecursivelyDelete(const Path& path) {
-  NSString* ns_path = path.ToNSString();
-  NSError* error = nil;
-  if (![[NSFileManager defaultManager] removeItemAtPath:ns_path error:&error]) {
-    Status status = Status::FromNSError(error);
-    if (status.code() == FirestoreErrorCode::NotFound) {
-      // Successful by definition
-      return Status::OK();
-    }
-
-    return status;
-  }
-  return Status::OK();
-}
 
 Path TempDir() {
   const char* env_tmpdir = getenv("TMPDIR");
@@ -89,3 +41,5 @@ Path TempDir() {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(__APPLE__)
