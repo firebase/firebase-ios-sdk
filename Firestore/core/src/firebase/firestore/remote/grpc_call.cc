@@ -39,8 +39,8 @@ class StreamStart : public GrpcOperation {
  public:
   using GrpcOperation::GrpcOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
-               grpc::ClientContext* const context) override {
+  void Execute(grpc::GenericClientAsyncReaderWriter* call,
+               grpc::ClientContext* context) override {
     call->StartCall(this);
   }
 
@@ -54,8 +54,8 @@ class StreamRead : public GrpcOperation {
  public:
   using GrpcOperation::GrpcOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
-               grpc::ClientContext* const context) override {
+  void Execute(grpc::GenericClientAsyncReaderWriter* call,
+               grpc::ClientContext* context) override {
     call->Read(&message_, this);
   }
 
@@ -73,7 +73,7 @@ class StreamWrite : public GrpcOperation {
       : GrpcOperation{std::move(delegate)}, message_{std::move(message)} {
   }
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
+  void Execute(grpc::GenericClientAsyncReaderWriter* call,
                grpc::ClientContext* context) override {
     call->Write(message_, this);
   }
@@ -91,8 +91,8 @@ class ServerInitiatedFinish : public GrpcOperation {
  public:
   using GrpcOperation::GrpcOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
-               grpc::ClientContext* const context) override {
+  void Execute(grpc::GenericClientAsyncReaderWriter* call,
+               grpc::ClientContext* context) override {
     call->Finish(&grpc_status_, this);
   }
 
@@ -110,8 +110,8 @@ class ClientInitiatedFinish : public GrpcOperation {
  public:
   using GrpcOperation::GrpcOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* const call,
-               grpc::ClientContext* const context) override {
+  void Execute(grpc::GenericClientAsyncReaderWriter* call,
+               grpc::ClientContext* context) override {
     context->TryCancel();
     call->Finish(&unused_status_, this);
   }
@@ -128,8 +128,8 @@ class ClientInitiatedFinish : public GrpcOperation {
 
 GrpcCall::GrpcCall(std::unique_ptr<grpc::ClientContext> context,
                    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-                   GrpcOperationsObserver* const observer,
-                   GrpcCompletionQueue* const grpc_queue)
+                   GrpcOperationsObserver* observer,
+                   GrpcCompletionQueue* grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
