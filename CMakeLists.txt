@@ -181,7 +181,7 @@ add_external_subdirectory(nanopb)
 
 target_compile_definitions(
   protobuf-nanopb
-  PUBLIC -DPB_FIELD_16BIT
+  PUBLIC -DPB_FIELD_32BIT
 )
 
 target_include_directories(
