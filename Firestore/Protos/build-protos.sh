@@ -40,9 +40,11 @@
 #
 #
 # Direct usage (only expected via cmake):
-#   ./build-protos-cmake.sh PROTOC_BIN PROTOBUF_PYTHONPATH NANOPB_GENERATOR_DIR OUT_DIR
+#   ./build-protos-cmake.sh PROTOC_BIN GRPC_OBJC_PLUGIN PROTOBUF_PYTHONPATH \
+#       NANOPB_GENERATOR_DIR OUT_DIR
 # Params:
 #   PROTOC_BIN - path to protoc binary.
+#   GRPC_OBJC_PLUGIN - path to grpc_objective_c_plugin binary.
 #   PROTOBUF_PYTHONPATH - path to python protobuf library. Must match the
 #     version of the PROTOC_BIN (or else protoc will notice and error out).
 #   NANOPB_GENERATOR_DIR - The directory where the nanopb protoc plugin has been
@@ -50,26 +52,32 @@
 #   OUT_DIR - The output directory for the generated protos. A subdirectory will
 #     be created for each variant (eg objc, cpp, nanopb)
 
-if [ $# -ne 4 ] ; then
+if [ $# -ne 5 ] ; then
   echo "Direct usage strongly discouraged. Use via cmake instead."
   exit 1
 fi
 
 readonly PROTOC_BIN="$1"
-readonly PROTOBUF_PYTHONPATH="$2"
-readonly NANOPB_GENERATOR_DIR="$3"
-readonly OUT_DIR="$4"
+readonly GRPC_OBJC_PLUGIN="$2"
+readonly PROTOBUF_PYTHONPATH="$3"
+readonly NANOPB_GENERATOR_DIR="$4"
+readonly OUT_DIR="$5"
 
 # Create the output directories for each variant.
 mkdir -p "${OUT_DIR}/cpp" "${OUT_DIR}/objc" "${OUT_DIR}/nanopb"
 
 # Generate the proto sources for all variants.
+# TODO(rsgowman): Eventually, we'll need to run this separately for each
+# variant, since grpc only allows a single output directory. For now, we only
+# generate the grpc sources for objc, so we don't care.
 PYTHONPATH="${PROTOBUF_PYTHONPATH}" "${PROTOC_BIN}" \
   --plugin="${NANOPB_GENERATOR_DIR}"/protoc-gen-nanopb \
+  --plugin=protoc-gen-grpc="${GRPC_OBJC_PLUGIN}" \
   -I ./protos/ \
   -I "${NANOPB_GENERATOR_DIR}/proto/" \
   --cpp_out="${OUT_DIR}/cpp" \
   --objc_out="${OUT_DIR}/objc" \
+  --grpc_out="${OUT_DIR}/objc" \
   --nanopb_out="--options-file=protos/%s.options --extension=.nanopb:${OUT_DIR}/nanopb" \
   $(find protos -name *.proto -print | xargs)
 

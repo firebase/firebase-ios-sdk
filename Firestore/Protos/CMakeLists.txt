@@ -141,6 +141,7 @@ add_custom_target(
   COMMAND
     ./build-protos.sh
       "$<TARGET_FILE:protoc>"
+      "$<TARGET_FILE:grpc_objective_c_plugin>"
       "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
       "${NANOPB_GENERATOR_DIR}"
       "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
@@ -148,4 +149,5 @@ add_custom_target(
   DEPENDS
     protoc
     ${NANOPB_GENERATOR_PYTHON_SRC}
+    grpc_objective_c_plugin
 )
