@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@
 
 /**
  * Gets multiple documents.
- *
+ * 
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
@@ -159,7 +159,7 @@
 // Returns a not-yet-started RPC object.
 /**
  * Gets multiple documents.
- *
+ * 
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
