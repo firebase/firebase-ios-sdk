@@ -39,55 +39,55 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
   // Test DescribeKey(std::string) which calls MakeSlice(std::string).
   try {
-    (void)firebase::firestore::local::DescribeKey(str);
+    firebase::firestore::local::DescribeKey(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   // Test LevelDbMutationKey methods.
   try {
-    (void)LevelDbMutationKey::KeyPrefix(str);
+    LevelDbMutationKey::KeyPrefix(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
-    (void)LevelDbMutationKey::Key(str, static_cast<int>(size));
+    LevelDbMutationKey::Key(str, static_cast<int>(size));
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbMutationKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   // Test LevelDbDocumentMutationKey methods.
   try {
-    (void)LevelDbDocumentMutationKey::KeyPrefix(str);
+    LevelDbDocumentMutationKey::KeyPrefix(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbDocumentMutationKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   // Test LevelDbMutationQueueKey methods.
   try {
-    (void)LevelDbMutationQueueKey::Key(str);
+    LevelDbMutationQueueKey::Key(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbMutationQueueKey key;
-    (void)key.Decode(slice);
+    key.Decode(slice);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -95,7 +95,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetGlobalKey methods.
   try {
     LevelDbTargetGlobalKey key;
-    (void)key.Decode(slice);
+    key.Decode(slice);
   } catch (...) {
     // ignore caught errors and assertions.
   }
@@ -103,21 +103,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetKey methods.
   try {
     LevelDbTargetKey key;
-    (void)key.Decode(slice);
+    key.Decode(slice);
   } catch (...) {
     // ignore caught errors and assertions.
   }
 
   // Test LevelDbQueryTargetKey methods.
   try {
-    (void)LevelDbQueryTargetKey::KeyPrefix(str);
+    LevelDbQueryTargetKey::KeyPrefix(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbQueryTargetKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -125,7 +125,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbTargetDocumentKey methods.
   try {
     LevelDbTargetDocumentKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -133,14 +133,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbDocumentTargetKey methods.
   try {
     ResourcePath rp = ResourcePath::FromString(str);
-    (void)LevelDbDocumentTargetKey::KeyPrefix(rp);
+    LevelDbDocumentTargetKey::KeyPrefix(rp);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbDocumentTargetKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
@@ -148,14 +148,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   // Test LevelDbRemoteDocumentKey methods.
   try {
     ResourcePath rp = ResourcePath::FromString(str);
-    (void)LevelDbRemoteDocumentKey::KeyPrefix(rp);
+    LevelDbRemoteDocumentKey::KeyPrefix(rp);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
 
   try {
     LevelDbRemoteDocumentKey key;
-    (void)key.Decode(str);
+    key.Decode(str);
   } catch (...) {
     // Ignore caught errors and assertions.
   }
