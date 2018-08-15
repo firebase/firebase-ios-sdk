@@ -4060,7 +4060,7 @@
   "Persists global resume tokens on unlisten": {
     "describeName": "Listens:",
     "itName": "Persists global resume tokens on unlisten",
-    "tags": ["no-ios"],
+    "tags": [],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
@@ -4248,7 +4248,7 @@
   "Omits global resume tokens for a short while": {
     "describeName": "Listens:",
     "itName": "Omits global resume tokens for a short while",
-    "tags": ["no-ios"],
+    "tags": [],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
@@ -4423,7 +4423,7 @@
   "Persists global resume tokens if the snapshot is old enough": {
     "describeName": "Listens:",
     "itName": "Persists global resume tokens if the snapshot is old enough",
-    "tags": ["no-ios"],
+    "tags": [],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
