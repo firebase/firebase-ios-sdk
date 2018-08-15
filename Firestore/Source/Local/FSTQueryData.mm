@@ -23,8 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
-using firebase::firestore::model::SnapshotVersion;
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                     targetID:(FSTTargetID)targetID
+                     targetID:(TargetId)targetID
          listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(SnapshotVersion)snapshotVersion
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                     targetID:(FSTTargetID)targetID
+                     targetID:(TargetId)targetID
          listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose {
   return [self initWithQuery:query

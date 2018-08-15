@@ -26,8 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 /** FSTBatchID is a locally assigned ID for a batch of mutations that have been applied. */
 typedef firebase::firestore::model::BatchId FSTBatchID;
 
-typedef firebase::firestore::model::TargetId FSTTargetID;
-
 typedef int64_t FSTListenSequenceNumber;
 
 typedef NSNumber FSTBoxedTargetID;

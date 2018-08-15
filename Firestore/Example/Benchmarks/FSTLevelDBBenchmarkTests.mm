@@ -28,12 +28,14 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::TargetId;
 
 namespace {
 
@@ -113,7 +115,7 @@ class LevelDBFixture : public benchmark::Fixture {
  protected:
   void WriteIndex(LevelDbTransaction &txn, FSTDocumentKey *docKey) {
     // Arbitrary target ID
-    FSTTargetID targetID = 1;
+    TargetId targetID = 1;
     txn.Put(LevelDbDocumentTargetKey::Key(docKey, targetID), emptyBuffer_);
     txn.Put(LevelDbTargetDocumentKey::Key(targetID, docKey), emptyBuffer_);
   }

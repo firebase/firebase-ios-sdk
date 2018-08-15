@@ -34,6 +34,7 @@ using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -75,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(versionZero, queryCache.lastRemoteSnapshotVersion);
 
   FSTListenSequenceNumber minimumSequenceNumber = 1234;
-  FSTTargetID lastTargetId = 5;
+  TargetId lastTargetId = 5;
   SnapshotVersion lastVersion(Timestamp(1, 2));
 
   db1.run("add query data", [&]() {
