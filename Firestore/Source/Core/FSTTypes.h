@@ -25,8 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef int64_t FSTListenSequenceNumber;
 
-typedef NSNumber FSTBoxedTargetID;
-
 /**
  * FSTVoidBlock is a block that's called when a specific event happens but that otherwise has
  * no information associated with it.

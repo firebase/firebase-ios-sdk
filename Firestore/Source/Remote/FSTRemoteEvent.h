@@ -21,7 +21,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"

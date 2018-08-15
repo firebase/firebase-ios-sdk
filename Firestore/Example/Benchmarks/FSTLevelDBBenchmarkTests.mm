@@ -20,7 +20,6 @@
 
 #include "benchmark/benchmark.h"
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Model/FSTDocumentKey.h"

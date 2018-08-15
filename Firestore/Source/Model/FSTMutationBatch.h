@@ -18,15 +18,14 @@
 
 #include <unordered_map>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
-@class FSTMutation;
 @class FIRTimestamp;
+@class FSTMaybeDocument;
+@class FSTMutation;
 @class FSTMutationResult;
 @class FSTMutationBatchResult;
 
