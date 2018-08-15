@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 
 #include <functional>
-#include <vector>
+#include <queue>
 
 #include <grpcpp/support/byte_buffer.h>
 
@@ -26,60 +26,44 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// GRPC doesn't allow issuing a write operation before the previous write has
-// finished. This class helps keep track of pending writes and whether there
-// currently is a write operation in progress; it doesn't communicate with GRPC
-// directly and expects the following to function correctly:
-// - the constructor should be given a function that actually issues the GRPC
-//   write operation;
-// - each time a write operation finishes, `OnSuccessfulWrite` must be called.
-// The invariant is that `BufferedWriter` will never invoke the writing function
-// if `OnSuccessfulWrite` hasn't been called since the previous invocation.
-//
-// The main methods are `Enqueue` and `OnSuccessfulWrite`. `Enqueue` will invoke
-// the writing function immediately if there is no operation in progress;
-// otherwise, the given `bytes` will be stored in the buffer.
-// `OnSuccessfulWrite` will invoke the writing function with the next write in
-// buffer, as long as the buffer is not empty (in FIFO order).
-
-// `BufferedWriter` can be `Start`ed and `Stop`ped, which is expected to reflect
-// the state of the GRPC call. When `BufferedWriter` is not started, writes can
-// be enqueued, but the writing function will not be invoked. Once the
-// `BufferedWriter` is started, it will immediately invoke the writing function
-// if the buffer is non-empty. When the `BufferedWriter` is first created, it's
-// in the stopped state. `BufferedWriter` can be restarted.
+/**
+ * `BufferedWriter` accepts `ByteBuffer`s ("writes") on its queue and writes
+ * them one by one. Only one write may be in progress ("active") at any given
+ * time.
+ *
+ * Writes are put on the queue using `Enqueue`; if no other write is currently
+ * in progress, it will become active immediately, otherwise, it will put on the
+ * queue. When a write becomes active, `WriteFunction` is invoked on it. A write
+ * is active from the moment `WriteFunction` is invoked and until `DequeueNext`
+ * is called on the `BufferedWriter`. `DequeueNext` makes the next write active,
+ * if any.
+ *
+ * This class exists to help Firestore streams adhere to GRPC requirement that
+ * only one write operation may be active at any given time.
+ */
 class BufferedWriter {
  public:
   using WriteFunction = std::function<void(grpc::ByteBuffer&&)>;
 
   explicit BufferedWriter(WriteFunction&& write_func);
 
-  void Start();
-  void Stop();
-
   bool empty() const {
-    return buffer_.empty();
+    return queue_.empty();
   }
 
-  bool IsStarted() const {
-    return is_started_;
-  }
+  void Enqueue(grpc::ByteBuffer&& write);
+  void DequeueNext();
 
-  void Enqueue(grpc::ByteBuffer&& bytes);
-  void OnSuccessfulWrite();
-
-  // Clears (but doesn't stop) the buffer. If there is an operation in progress,
-  // `OnSuccessfulWrite` must still be called for it.
-  void Clear();
+  // Doesn't affect the write that is currently in progress.
+  void DiscardUnstartedWrites();
 
  private:
   void TryWrite();
 
   WriteFunction write_func_;
 
-  std::vector<grpc::ByteBuffer> buffer_;
-  bool has_pending_write_ = false;
-  bool is_started_ = false;
+  std::queue<grpc::ByteBuffer> queue_;
+  bool has_active_write_ = false;
 };
 
 }  // namespace remote
