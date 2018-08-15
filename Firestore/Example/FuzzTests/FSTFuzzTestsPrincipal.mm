@@ -76,7 +76,7 @@ FuzzingTarget GetFuzzingTarget() {
   // is needed by the script /firebase-ios-sdk/script/fuzzing_travis.sh, which parses
   // this message to retrieve a list of the available targets.
   std::vector<std::string> all_keys;
-  for (const auto& kv : fuzzing_target_names) {
+  for (const auto &kv : fuzzing_target_names) {
     all_keys.push_back(kv.first);
   }
   const std::string all_keys_str = absl::StrJoin(all_keys, " ");
