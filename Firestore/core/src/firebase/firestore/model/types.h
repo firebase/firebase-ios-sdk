@@ -30,6 +30,13 @@ namespace model {
 using BatchId = int32_t;
 
 /**
+ * A sequence number that's incremented on each "interesting" action in the
+ * local store that establishes the order in which items can be garbage
+ * collected.
+ */
+using ListenSequenceNumber = int64_t;
+
+/**
  * TargetId is a stable numeric identifier assigned for a specific query
  * applied.
  */
