@@ -27,16 +27,16 @@ namespace firestore {
 namespace remote {
 
 /**
- * `BufferedWriter` accepts `ByteBuffer`s ("writes") on its queue and writes
- * them one by one. Only one write may be in progress ("active") at any given
- * time.
+ * `BufferedWriter` accepts GRPC write operations ("writes") on its queue and
+ * writes them one by one. Only one write may be in progress ("active") at any
+ * given time.
  *
  * Writes are put on the queue using `Enqueue`; if no other write is currently
- * in progress, it will become active immediately, otherwise, it will put on the
- * queue. When a write becomes active, `WriteFunction` is invoked on it. A write
- * is active from the moment `WriteFunction` is invoked and until `DequeueNext`
- * is called on the `BufferedWriter`. `DequeueNext` makes the next write active,
- * if any.
+ * in progress, it will become active immediately, otherwise, it will be put on
+ * the queue. When a write becomes active, it is executed (via `Execute`);
+ * a write is active from the moment it is executed and until `DequeueNext` is
+ * called on the `BufferedWriter`. `DequeueNext` makes the next write active, if
+ * any.
  *
  * This class exists to help Firestore streams adhere to GRPC requirement that
  * only one write operation may be active at any given time.
