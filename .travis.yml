@@ -107,6 +107,8 @@ jobs:
     # Alternative platforms
 
     - stage: test
+      before_install:
+        - pip install six
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake
       before_install:
@@ -164,6 +166,8 @@ jobs:
     # usable on its own, too).
 
     - stage: test
+      before_install:
+        - pip install six
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=asan
       before_install:
@@ -172,6 +176,8 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
+      before_install:
+        - pip install six
       env:
         - PROJECT=Firestore PLATFORM=macOS METHOD=cmake SANITIZERS=tsan
       before_install:
