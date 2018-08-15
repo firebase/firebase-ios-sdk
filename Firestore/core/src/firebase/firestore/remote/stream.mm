@@ -130,8 +130,6 @@ void Stream::OnStreamStart() {
   EnsureOnQueue();
 
   state_ = State::Open;
-  grpc_call_->Read();
-
   DoOnStreamStart();
 }
 
@@ -210,12 +208,6 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
     // the information we need.
     OnStreamError(read_status);
     return;
-  }
-
-  if (IsOpen()) {
-    // While the stream is open, continue waiting for new messages
-    // indefinitely.
-    grpc_call_->Read();
   }
 }
 

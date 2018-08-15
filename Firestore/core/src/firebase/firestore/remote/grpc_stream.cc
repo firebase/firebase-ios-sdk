@@ -33,11 +33,40 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
           from.error_message()};
 }
 
+// StreamDelegate
+
+class StreamDelegate {
+ public:
+  explicit StreamDelegate(std::shared_ptr<GrpcStream>&& stream)
+      : stream_{std::move(stream)} {
+  }
+
+  void OnStart() {
+    stream_->OnStart();
+  }
+  void OnRead(const grpc::ByteBuffer& message) {
+    stream_->OnRead(message);
+  }
+  void OnWrite() {
+    stream_->OnWrite();
+  }
+  void OnOperationFailed() {
+    stream_->OnOperationFailed();
+  }
+  void OnFinishedWithServerError(const grpc::Status& status) {
+    stream_->OnFinishedWithServerError(status);
+  }
+
+ private:
+  // TODO: explain ownership
+  std::shared_ptr<GrpcStream> stream_;
+};
+
 // Operations
 
 class StreamOperation : public GrpcOperation {
  public:
-  StreamOperation(GrpcStream::Delegate&& delegate,
+  StreamOperation(StreamDelegate&& delegate,
                   grpc::GenericClientAsyncReaderWriter* call,
                   GrpcCompletionQueue* grpc_queue)
       : delegate_{std::move(delegate)}, call_{call}, grpc_queue_{grpc_queue} {
@@ -58,7 +87,7 @@ class StreamOperation : public GrpcOperation {
   }
 
  protected:
-  GrpcStream::Delegate delegate_;
+  StreamDelegate delegate_;
 
  private:
   virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
@@ -100,7 +129,7 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  StreamWrite(GrpcStream::Delegate&& delegate,
+  StreamWrite(StreamDelegate&& delegate,
               grpc::GenericClientAsyncReaderWriter* call,
               GrpcCompletionQueue* grpc_queue,
               grpc::ByteBuffer&& message)
@@ -227,53 +256,56 @@ void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
   buffered_writer_->Enqueue(std::move(write_operation));
 }
 
-// Delegate
-
-bool GrpcStream::Delegate::SameGeneration() const {
-  return stream_->generation_ == stream_->observer_->generation();
+bool GrpcStream::SameGeneration() const {
+  return generation_ == observer_->generation();
 }
 
-void GrpcStream::Delegate::OnStart() {
+// Callbacks
+
+void GrpcStream::OnStart() {
   if (SameGeneration()) {
-    stream_->buffered_writer_ = BufferedWriter{};
-    stream_->observer_->OnStreamStart();
+    buffered_writer_ = BufferedWriter{};
+    observer_->OnStreamStart();
+    Read();
   }
 }
 
-void GrpcStream::Delegate::OnRead(const grpc::ByteBuffer& message) {
-  stream_->has_pending_read_ = false;
+void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
+  has_pending_read_ = false;
   if (SameGeneration()) {
-    stream_->observer_->OnStreamRead(message);
+    observer_->OnStreamRead(message);
+    // While the stream is open, continue waiting for new messages
+    // indefinitely.
+    Read();
   }
 }
 
-void GrpcStream::Delegate::OnWrite() {
-  if (stream_->write_and_finish_ && stream_->buffered_writer_->empty()) {
+void GrpcStream::OnWrite() {
+  if (write_and_finish_ && buffered_writer_->empty()) {
     // Final write succeeded.
-    stream_->Finish();
+    Finish();
     return;
   }
 
   if (SameGeneration()) {
-    stream_->buffered_writer_->DequeueNext();
-    stream_->observer_->OnStreamWrite();
+    buffered_writer_->DequeueNext();
+    observer_->OnStreamWrite();
   }
 }
 
-void GrpcStream::Delegate::OnFinishedWithServerError(
-    const grpc::Status& status) {
+void GrpcStream::OnFinishedWithServerError(const grpc::Status& status) {
   if (SameGeneration()) {
-    stream_->observer_->OnStreamError(ToFirestoreStatus(status));
+    observer_->OnStreamError(ToFirestoreStatus(status));
   }
 }
 
-void GrpcStream::Delegate::OnOperationFailed() {
-  if (stream_->write_and_finish_ && stream_->buffered_writer_->empty()) {
+void GrpcStream::OnOperationFailed() {
+  if (write_and_finish_ && buffered_writer_->empty()) {
     return;
   }
-  stream_->buffered_writer_.reset();
+  buffered_writer_.reset();
   if (SameGeneration()) {
-    stream_->Execute<ServerInitiatedFinish>();
+    Execute<ServerInitiatedFinish>();
   }
 }
 

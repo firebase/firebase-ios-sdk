@@ -43,37 +43,19 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
              GrpcCompletionQueue* grpc_queue);
 
   void Start();
-  void Read();
   void Write(grpc::ByteBuffer&& buffer);
   void Finish();
   void WriteAndFinish(grpc::ByteBuffer&& buffer);
 
-  class Delegate {
-   public:
-    void OnStart();
-    void OnRead(const grpc::ByteBuffer& message);
-    void OnWrite();
-    void OnOperationFailed();
-    void OnFinishedWithServerError(const grpc::Status& status);
-
-   private:
-    friend class GrpcStream;
-    explicit Delegate(std::shared_ptr<GrpcStream>&& stream)
-        : stream_{std::move(stream)} {
-    }
-
-    bool SameGeneration() const;
-
-    // TODO: explain ownership
-    std::shared_ptr<GrpcStream> stream_;
-  };
-
  private:
+  friend class StreamDelegate;
+
   void BufferedWrite(grpc::ByteBuffer&& buffer);
+  bool SameGeneration() const;
 
   template <typename Op, typename... Args>
   Op* MakeOperation(Args... args) {
-    return new Op(Delegate{shared_from_this()}, call_.get(), grpc_queue_,
+    return new Op(StreamDelegate{shared_from_this()}, call_.get(), grpc_queue_,
                   std::move(args)...);
   }
 
@@ -101,4 +83,3 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
