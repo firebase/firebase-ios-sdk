@@ -51,6 +51,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -118,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
+- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   HARD_FAIL("Not implemented");
 }
 

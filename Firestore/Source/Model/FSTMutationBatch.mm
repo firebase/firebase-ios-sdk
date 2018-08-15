@@ -30,14 +30,15 @@ using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 
-const FSTBatchID kFSTBatchIDUnknown = -1;
+const BatchId kFSTBatchIDUnknown = -1;
 
 @implementation FSTMutationBatch
 
-- (instancetype)initWithBatchID:(FSTBatchID)batchID
+- (instancetype)initWithBatchID:(BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations {
   self = [super init];

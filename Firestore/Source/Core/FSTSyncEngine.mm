@@ -53,6 +53,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -162,7 +163,7 @@ class LimboResolution {
   /** Used for creating the TargetId for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
 
-  /** Stores user completion blocks, indexed by user and FSTBatchID. */
+  /** Stores user completion blocks, indexed by user and BatchId. */
   std::unordered_map<User, NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *, HashUser>
       _mutationCompletionBlocks;
 
@@ -246,7 +247,7 @@ class LimboResolution {
   [self.remoteStore fillWritePipeline];
 }
 
-- (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(FSTBatchID)batchID {
+- (void)addMutationCompletionBlock:(FSTVoidErrorBlock)completion batchID:(BatchId)batchID {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
       _mutationCompletionBlocks[_currentUser];
   if (!completionBlocks) {
@@ -407,7 +408,7 @@ class LimboResolution {
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 }
 
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
+- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
 
   // The local store may or may not be able to apply the write result and raise events immediately
@@ -419,7 +420,7 @@ class LimboResolution {
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 }
 
-- (void)processUserCallbacksForBatchID:(FSTBatchID)batchID error:(NSError *_Nullable)error {
+- (void)processUserCallbacksForBatchID:(BatchId)batchID error:(NSError *_Nullable)error {
   NSMutableDictionary<NSNumber *, FSTVoidErrorBlock> *completionBlocks =
       _mutationCompletionBlocks[_currentUser];
 

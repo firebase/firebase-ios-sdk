@@ -45,6 +45,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -83,7 +84,7 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listenTargets;
 
-@property(nonatomic, assign) FSTBatchID lastBatchSeen;
+@property(nonatomic, assign) BatchId lastBatchSeen;
 
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 

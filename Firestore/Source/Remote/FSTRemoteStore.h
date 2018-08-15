@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDatastore;
 @class FSTLocalStore;
@@ -72,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Rejects the batch, removing the batch from the mutation queue, recomputing the local view of
  * any documents affected by the batch and then, emitting snapshots with the reverted value.
  */
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error;
+- (void)rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID error:(NSError *)error;
 
 /**
  * Returns the set of remote document keys for the given target ID. This list includes the

@@ -51,6 +51,7 @@ using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
+using firebase::firestore::model::BatchId;
 
 @interface FSTLevelDBMigrationsTests : XCTestCase
 @end
@@ -119,7 +120,7 @@ using leveldb::Status;
 
 - (void)testDropsTheQueryCache {
   std::string userID{"user"};
-  FSTBatchID batchID = 1;
+  BatchId batchID = 1;
   TargetId targetID = 2;
 
   FSTDocumentKey *key1 = Key("documents/1");
