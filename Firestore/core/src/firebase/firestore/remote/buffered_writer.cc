@@ -29,12 +29,12 @@ BufferedWriter::BufferedWriter(WriteFunction&& write_func)
   HARD_ASSERT(write_func_, "BufferedWriter needs a non-empty writing function");
 }
 
-void BufferedWriter::Clear() {
+void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::Enqueue(grpc::ByteBuffer&& bytes) {
-  queue_.push(std::move(bytes));
+void BufferedWriter::Enqueue(grpc::ByteBuffer&& write) {
+  queue_.push(std::move(write));
   TryWrite();
 }
 
@@ -42,17 +42,17 @@ void BufferedWriter::TryWrite() {
   if (empty()) {
     return;
   }
-  if (has_pending_write_) {
+  if (has_active_write_) {
     return;
   }
 
-  has_pending_write_ = true;
+  has_active_write_ = true;
   write_func_(std::move(queue_.back()));
   queue_.pop();
 }
 
-void BufferedWriter::OnSuccessfulWrite() {
-  has_pending_write_ = false;
+void BufferedWriter::DequeueNext() {
+  has_active_write_ = false;
   TryWrite();
 }
 

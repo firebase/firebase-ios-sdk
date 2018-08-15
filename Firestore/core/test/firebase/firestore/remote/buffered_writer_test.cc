@@ -47,18 +47,18 @@ TEST_F(BufferedWriterTest, CanDoBufferedWrites) {
   writer.Enqueue({});
   EXPECT_EQ(writes_count, 1);
 
-  writer.OnSuccessfulWrite();
+  writer.DequeueNext();
   EXPECT_EQ(writes_count, 2);
 
-  writer.OnSuccessfulWrite();
+  writer.DequeueNext();
   EXPECT_EQ(writes_count, 3);
 
-  // An extra call to `OnSuccessfulWrite` should be a no-op.
-  writer.OnSuccessfulWrite();
+  // An extra call to `DequeueNext` should be a no-op.
+  writer.DequeueNext();
   EXPECT_EQ(writes_count, 3);
 }
 
-TEST_F(BufferedWriterTest, CanClear) {
+TEST_F(BufferedWriterTest, CanDiscardUnstartedWrites) {
   EXPECT_EQ(writes_count, 0);
 
   writer.Enqueue({});
@@ -68,7 +68,7 @@ TEST_F(BufferedWriterTest, CanClear) {
   EXPECT_EQ(writes_count, 1);
 
   EXPECT_FALSE(writer.empty());
-  writer.Clear();
+  writer.DiscardUnstartedWrites();
   EXPECT_TRUE(writer.empty());
 
   writer.Enqueue({});
@@ -76,13 +76,13 @@ TEST_F(BufferedWriterTest, CanClear) {
   // writer shouldn't do an immediate write. Clearing the writer shouldn't
   // affect the writer still waiting for the previous operation to complete.
   EXPECT_EQ(writes_count, 1);
-  writer.OnSuccessfulWrite();
+  writer.DequeueNext();
   EXPECT_EQ(writes_count, 2);
 
   // The previously enqueued operations should be cleared.
-  writer.OnSuccessfulWrite();
-  writer.OnSuccessfulWrite();
-  writer.OnSuccessfulWrite();
+  writer.DequeueNext();
+  writer.DequeueNext();
+  writer.DequeueNext();
   EXPECT_EQ(writes_count, 2);
 }
 

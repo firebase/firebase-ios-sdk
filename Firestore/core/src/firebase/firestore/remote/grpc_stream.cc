@@ -210,7 +210,7 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   write_and_finish_ = true;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
-  buffered_writer_->Clear();
+  buffered_writer_->DiscardUnstartedWrites();
   buffered_writer_->Enqueue(std::move(message));
 }
 
@@ -244,7 +244,7 @@ void GrpcStream::Delegate::OnWrite() {
   }
 
   if (SameGeneration()) {
-    stream_->buffered_writer_->OnSuccessfulWrite();
+    stream_->buffered_writer_->DequeueNext();
     stream_->observer_->OnStreamWrite();
   }
 }
