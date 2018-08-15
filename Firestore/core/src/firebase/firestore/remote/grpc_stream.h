@@ -33,6 +33,10 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace internal {
+class GrpcStreamDelegate;
+}
+
 class GrpcOperationsObserver;
 
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
@@ -48,16 +52,21 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   void WriteAndFinish(grpc::ByteBuffer&& buffer);
 
  private:
-  friend class StreamDelegate;
+  friend class internal::GrpcStreamDelegate;
 
-  void BufferedWrite(grpc::ByteBuffer&& buffer);
+  void Read();
+  void BufferedWrite(grpc::ByteBuffer&& message);
+
+  void OnStart();
+  void OnRead(const grpc::ByteBuffer& message);
+  void OnWrite();
+  void OnOperationFailed();
+  void OnFinishedWithServerError(const grpc::Status& status);
+
   bool SameGeneration() const;
 
   template <typename Op, typename... Args>
-  Op* MakeOperation(Args... args) {
-    return new Op(StreamDelegate{shared_from_this()}, call_.get(), grpc_queue_,
-                  std::move(args)...);
-  }
+  Op* MakeOperation(Args... args);
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
@@ -79,7 +88,45 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   bool has_pending_read_ = false;
 };
 
+namespace internal {
+
+class GrpcStreamDelegate {
+ public:
+  explicit GrpcStreamDelegate(std::shared_ptr<GrpcStream>&& stream)
+      : stream_{std::move(stream)} {
+  }
+
+  void OnStart() {
+    stream_->OnStart();
+  }
+  void OnRead(const grpc::ByteBuffer& message) {
+    stream_->OnRead(message);
+  }
+  void OnWrite() {
+    stream_->OnWrite();
+  }
+  void OnOperationFailed() {
+    stream_->OnOperationFailed();
+  }
+  void OnFinishedWithServerError(const grpc::Status& status) {
+    stream_->OnFinishedWithServerError(status);
+  }
+
+ private:
+  // TODO: explain ownership
+  std::shared_ptr<GrpcStream> stream_;
+};
+
+} // internal
+
+template <typename Op, typename... Args>
+Op* GrpcStream::MakeOperation(Args... args) {
+  return new Op{internal::GrpcStreamDelegate{shared_from_this()}, call_.get(),
+                grpc_queue_, std::move(args)...};
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H

@@ -33,40 +33,11 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
           from.error_message()};
 }
 
-// StreamDelegate
-
-class StreamDelegate {
- public:
-  explicit StreamDelegate(std::shared_ptr<GrpcStream>&& stream)
-      : stream_{std::move(stream)} {
-  }
-
-  void OnStart() {
-    stream_->OnStart();
-  }
-  void OnRead(const grpc::ByteBuffer& message) {
-    stream_->OnRead(message);
-  }
-  void OnWrite() {
-    stream_->OnWrite();
-  }
-  void OnOperationFailed() {
-    stream_->OnOperationFailed();
-  }
-  void OnFinishedWithServerError(const grpc::Status& status) {
-    stream_->OnFinishedWithServerError(status);
-  }
-
- private:
-  // TODO: explain ownership
-  std::shared_ptr<GrpcStream> stream_;
-};
-
 // Operations
 
 class StreamOperation : public GrpcOperation {
  public:
-  StreamOperation(StreamDelegate&& delegate,
+  StreamOperation(internal::GrpcStreamDelegate&& delegate,
                   grpc::GenericClientAsyncReaderWriter* call,
                   GrpcCompletionQueue* grpc_queue)
       : delegate_{std::move(delegate)}, call_{call}, grpc_queue_{grpc_queue} {
@@ -87,7 +58,7 @@ class StreamOperation : public GrpcOperation {
   }
 
  protected:
-  StreamDelegate delegate_;
+  internal::GrpcStreamDelegate delegate_;
 
  private:
   virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
@@ -129,7 +100,7 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  StreamWrite(StreamDelegate&& delegate,
+  StreamWrite(internal::GrpcStreamDelegate&& delegate,
               grpc::GenericClientAsyncReaderWriter* call,
               GrpcCompletionQueue* grpc_queue,
               grpc::ByteBuffer&& message)
