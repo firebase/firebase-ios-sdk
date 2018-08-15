@@ -24,7 +24,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
@@ -175,7 +174,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param batchID The batch to search after, or -1 for the first mutation in the queue.
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(firebase::firestore::model::BatchId)batchID;
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 @end
 

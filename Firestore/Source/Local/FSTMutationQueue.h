@@ -86,7 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(firebase::firestore::model::BatchId)batchID;
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 /** Gets all mutation batches in the mutation queue. */
 // TODO(mikelehen): PERF: Current consumer only needs mutated keys; if we can provide that
@@ -105,7 +106,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 // TODO(mcg): This should really return NSEnumerator and the caller should be adjusted to only
 // loop through these once.
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(firebase::firestore::model::BatchId)batchID;
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 /**
  * Finds all mutation batches that could @em possibly affect the given document key. Not all

@@ -21,8 +21,8 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "leveldb/db.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "leveldb/db.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;

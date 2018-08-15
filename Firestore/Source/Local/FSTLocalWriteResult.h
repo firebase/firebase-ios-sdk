@@ -26,7 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** The result of a write to the local store. */
 @interface FSTLocalWriteResult : NSObject
 
-+ (instancetype)resultForBatchID:(firebase::firestore::model::BatchId)batchID changes:(FSTMaybeDocumentDictionary *)changes;
++ (instancetype)resultForBatchID:(firebase::firestore::model::BatchId)batchID
+                         changes:(FSTMaybeDocumentDictionary *)changes;
 
 - (id)init __attribute__((unavailable("Use resultForBatchID:changes:")));
 
