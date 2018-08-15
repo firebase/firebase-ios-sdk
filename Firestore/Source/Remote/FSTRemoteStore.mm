@@ -83,21 +83,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listenTargets;
 
-/**
- * A mapping of targetId to pending acks needed.
- *
- * If a targetId is present in this map, then we're waiting for watch to
- * acknowledge a removal or addition of the target. If a target is not in this
- * mapping, and it's in the listenTargets map, then we consider the target to
- * be active.
- *
- * We increment the count here everytime we issue a request over the stream to
- * watch or unwatch. We then decrement the count everytime we get a target
- * added or target removed message from the server. Once the count is equal to
- * 0 we know that the client and server are in the same state (once this state
- * is reached the targetId is removed from the map to free the memory).
- */
-
 @property(nonatomic, assign) FSTBatchID lastBatchSeen;
 
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
