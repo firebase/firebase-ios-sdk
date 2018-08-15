@@ -271,7 +271,7 @@ void GrpcStream::OnFinishedWithServerError(const grpc::Status& status) {
 }
 
 void GrpcStream::OnOperationFailed() {
-  if (write_and_finish_ && buffered_writer_->empty()) {
+  if (write_and_finish_ && buffered_writer_ && buffered_writer_->empty()) {
     return;
   }
   buffered_writer_.reset();
