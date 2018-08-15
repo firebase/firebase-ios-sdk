@@ -453,7 +453,6 @@ static const int64_t kResumeTokenMaxAgeMicros = 5 * 60 * 1000 * 1000;  // 5 minu
     [self.localViewReferences removeReferencesForID:targetID];
     [self.targetIDs removeObjectForKey:boxedTargetID];
     [self.persistence.referenceDelegate removeTarget:queryData];
-    [self.targetIDs removeObjectForKey:boxedTargetID];
 
     // If this was the last watch target, then we won't get any more watch snapshots, so we should
     // release any held batch results.

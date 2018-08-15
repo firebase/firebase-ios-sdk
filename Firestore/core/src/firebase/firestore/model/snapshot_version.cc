@@ -34,12 +34,9 @@ const SnapshotVersion& SnapshotVersion::None() {
 int64_t SnapshotVersion::ToMicroseconds() const {
   namespace chr = std::chrono;
 
-  auto second_part =
-      chr::duration_cast<chr::microseconds>(chr::seconds(timestamp_.seconds()));
-  auto nanosecond_part = chr::duration_cast<chr::microseconds>(
-      chr::nanoseconds(timestamp_.nanoseconds()));
-  auto result = second_part + nanosecond_part;
-  return static_cast<int64_t>(result.count());
+  auto microseconds = chr::duration_cast<chr::microseconds>(
+      timestamp_.ToTimePoint().time_since_epoch());
+  return static_cast<int64_t>(microseconds.count());
 }
 
 }  // namespace model
