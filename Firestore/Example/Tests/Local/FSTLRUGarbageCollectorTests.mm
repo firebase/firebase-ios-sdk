@@ -34,9 +34,9 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;

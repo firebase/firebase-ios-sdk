@@ -26,8 +26,8 @@
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
-#include "absl/strings/string_view.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "absl/strings/string_view.h"
 
 @class FIRGeoPoint;
 @class FSTDeleteMutation;

@@ -117,7 +117,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Removes all the keys in the query results of the given target ID. */
 - (void)removeMatchingKeysForTargetID:(firebase::firestore::model::TargetId)targetID;
 
-- (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:(firebase::firestore::model::TargetId)targetID;
+- (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Checks to see if there are any references to a document with the given key.

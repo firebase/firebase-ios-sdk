@@ -150,7 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the keys of the documents that are associated with the given targetID in the remote
  * table.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:(firebase::firestore::model::TargetId)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.

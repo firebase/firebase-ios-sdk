@@ -71,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTExistenceFilterWatchChange : FSTWatchChange
 
-+ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter targetID:(firebase::firestore::model::TargetId)targetID;
++ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter
+                        targetID:(firebase::firestore::model::TargetId)targetID;
 
 - (instancetype)init NS_UNAVAILABLE;
 
