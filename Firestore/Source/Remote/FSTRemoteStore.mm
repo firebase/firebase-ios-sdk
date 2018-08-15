@@ -44,6 +44,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -250,7 +251,7 @@ static const int kMaxPendingWrites = 10;
   [self.watchStream watchQuery:queryData];
 }
 
-- (void)stopListeningToTargetID:(FSTTargetID)targetID {
+- (void)stopListeningToTargetID:(TargetId)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
   HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
@@ -369,7 +370,7 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Re-establish listens for the targets that have been invalidated by existence filter mismatches.
-  for (FSTTargetID targetID : remoteEvent.targetMismatches) {
+  for (TargetId targetID : remoteEvent.targetMismatches) {
     FSTQueryData *queryData = self.listenTargets[@(targetID)];
 
     if (!queryData) {

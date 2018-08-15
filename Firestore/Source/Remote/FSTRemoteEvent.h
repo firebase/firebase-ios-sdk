@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocument;
 @class FSTExistenceFilter;
@@ -122,8 +123,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)
     initWithSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-              targetChanges:(std::unordered_map<FSTTargetID, FSTTargetChange *>)targetChanges
-           targetMismatches:(std::unordered_set<FSTTargetID>)targetMismatches
+              targetChanges:(std::unordered_map<firebase::firestore::model::TargetId, FSTTargetChange *>)targetChanges
+           targetMismatches:(std::unordered_set<firebase::firestore::model::TargetId>)targetMismatches
             documentUpdates:
                 (std::unordered_map<firebase::firestore::model::DocumentKey,
                                     FSTMaybeDocument *,
@@ -139,13 +140,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (const firebase::firestore::model::DocumentKeySet &)limboDocumentChanges;
 
 /** A map from target to changes to the target. See TargetChange. */
-- (const std::unordered_map<FSTTargetID, FSTTargetChange *> &)targetChanges;
+- (const std::unordered_map<firebase::firestore::model::TargetId, FSTTargetChange *> &)targetChanges;
 
 /**
  * A set of targets that is known to be inconsistent. Listens for these targets should be
  * re-established without resume tokens.
  */
-- (const std::unordered_set<FSTTargetID> &)targetMismatches;
+- (const std::unordered_set<firebase::firestore::model::TargetId> &)targetMismatches;
 
 /**
  * A set of which documents have changed or been deleted, along with the doc's new values (if not
@@ -177,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)handleTargetChange:(FSTWatchTargetChange *)targetChange;
 
 /** Removes the in-memory state for the provided target. */
-- (void)removeTarget:(FSTTargetID)targetID;
+- (void)removeTarget:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Handles existence filters and synthesizes deletes for filter mismatches. Targets that are

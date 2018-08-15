@@ -68,6 +68,7 @@ using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -291,8 +292,8 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 @implementation FSTTestTargetMetadataProvider {
-  std::unordered_map<FSTTargetID, DocumentKeySet> _syncedKeys;
-  std::unordered_map<FSTTargetID, FSTQueryData *> _queryData;
+  std::unordered_map<TargetId, DocumentKeySet> _syncedKeys;
+  std::unordered_map<TargetId, FSTQueryData *> _queryData;
 }
 
 + (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
@@ -443,7 +444,7 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
   return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
+FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;

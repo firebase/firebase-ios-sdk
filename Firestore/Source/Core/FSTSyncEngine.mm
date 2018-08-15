@@ -53,6 +53,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -69,7 +70,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 @interface FSTQueryView : NSObject
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                     targetID:(FSTTargetID)targetID
+                     targetID:(TargetId)targetID
                   resumeToken:(NSData *)resumeToken
                          view:(FSTView *)view NS_DESIGNATED_INITIALIZER;
 
@@ -79,7 +80,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 @property(nonatomic, strong, readonly) FSTQuery *query;
 
 /** The targetID created by the client that is used in the watch stream to identify this query. */
-@property(nonatomic, assign, readonly) FSTTargetID targetID;
+@property(nonatomic, assign, readonly) TargetId targetID;
 
 /**
  * An identifier from the datastore backend that indicates the last state of the results that
@@ -100,7 +101,7 @@ static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
 @implementation FSTQueryView
 
 - (instancetype)initWithQuery:(FSTQuery *)query
-                     targetID:(FSTTargetID)targetID
+                     targetID:(TargetId)targetID
                   resumeToken:(NSData *)resumeToken
                          view:(FSTView *)view {
   if (self = [super init]) {
@@ -159,7 +160,7 @@ class LimboResolution {
 @end
 
 @implementation FSTSyncEngine {
-  /** Used for creating the FSTTargetIDs for the listens used to resolve limbo documents. */
+  /** Used for creating the TargetId for the listens used to resolve limbo documents. */
   TargetIdGenerator _targetIdGenerator;
 
   /** Stores user completion blocks, indexed by user and FSTBatchID. */
@@ -198,7 +199,7 @@ class LimboResolution {
   return self;
 }
 
-- (FSTTargetID)listenToQuery:(FSTQuery *)query {
+- (TargetId)listenToQuery:(FSTQuery *)query {
   [self assertDelegateExistsForSelector:_cmd];
   HARD_ASSERT(self.queryViewsByQuery[query] == nil, "We already listen to query: %s", query);
 
@@ -313,7 +314,7 @@ class LimboResolution {
 
   // Update `receivedDocument` as appropriate for any limbo targets.
   for (const auto &entry : remoteEvent.targetChanges) {
-    FSTTargetID targetID = entry.first;
+    TargetId targetID = entry.first;
     FSTTargetChange *change = entry.second;
     const auto iter = _limboResolutionsByTarget.find(targetID);
     if (iter != _limboResolutionsByTarget.end()) {
@@ -502,7 +503,7 @@ class LimboResolution {
 
 /** Updates the limbo document state for the given targetID. */
 - (void)updateTrackedLimboDocumentsWithChanges:(NSArray<FSTLimboDocumentChange *> *)limboChanges
-                                      targetID:(FSTTargetID)targetID {
+                                      targetID:(TargetId)targetID {
   for (FSTLimboDocumentChange *limboChange in limboChanges) {
     switch (limboChange.type) {
       case FSTLimboDocumentChangeTypeAdded:

@@ -22,11 +22,12 @@
 #import "Firestore/Source/Model/FSTDocument.h"
 
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLocalViewChanges ()
-- (instancetype)initWithTarget:(FSTTargetID)targetID
+- (instancetype)initWithTarget:(TargetId)targetID
                      addedKeys:(DocumentKeySet)addedKeys
                    removedKeys:(DocumentKeySet)removedKeys NS_DESIGNATED_INITIALIZER;
 @end
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)changesForViewSnapshot:(FSTViewSnapshot *)viewSnapshot
-                          withTargetID:(FSTTargetID)targetID {
+                          withTargetID:(TargetId)targetID {
   DocumentKeySet addedKeys;
   DocumentKeySet removedKeys;
 
@@ -62,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
                     removedKeys:std::move(removedKeys)];
 }
 
-+ (instancetype)changesForTarget:(FSTTargetID)targetID
++ (instancetype)changesForTarget:(TargetId)targetID
                        addedKeys:(DocumentKeySet)addedKeys
                      removedKeys:(DocumentKeySet)removedKeys {
   return [[FSTLocalViewChanges alloc] initWithTarget:targetID
@@ -70,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
                                          removedKeys:std::move(removedKeys)];
 }
 
-- (instancetype)initWithTarget:(FSTTargetID)targetID
+- (instancetype)initWithTarget:(TargetId)targetID
                      addedKeys:(DocumentKeySet)addedKeys
                    removedKeys:(DocumentKeySet)removedKeys {
   self = [super init];

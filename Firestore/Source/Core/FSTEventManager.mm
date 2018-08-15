@@ -22,6 +22,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::TargetId;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTListenOptions
@@ -65,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTQueryListenersInfo : NSObject
 @property(nonatomic, strong, nullable, readwrite) FSTViewSnapshot *viewSnapshot;
-@property(nonatomic, assign, readwrite) FSTTargetID targetID;
+@property(nonatomic, assign, readwrite) TargetId targetID;
 @property(nonatomic, strong, readonly) NSMutableArray<FSTQueryListener *> *listeners;
 @end
 
@@ -257,7 +259,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTTargetID)addListener:(FSTQueryListener *)listener {
+- (TargetId)addListener:(FSTQueryListener *)listener {
   FSTQuery *query = listener.query;
   BOOL firstListen = NO;
 

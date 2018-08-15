@@ -51,6 +51,7 @@ using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
+using firebase::firestore::model::TargetId;
 
 namespace {
 
@@ -150,7 +151,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 #pragma mark - FSTQueryCache implementation
 
-- (FSTTargetID)highestTargetID {
+- (TargetId)highestTargetID {
   return self.metadata.highestTargetId;
 }
 
@@ -216,7 +217,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)saveQueryData:(FSTQueryData *)queryData {
-  FSTTargetID targetID = queryData.targetID;
+  TargetId targetID = queryData.targetID;
   std::string key = LevelDbTargetKey::Key(targetID);
   _db.currentTransaction->Put(key, [self.serializer encodedQueryData:queryData]);
 }
@@ -258,7 +259,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)removeQueryData:(FSTQueryData *)queryData {
-  FSTTargetID targetID = queryData.targetID;
+  TargetId targetID = queryData.targetID;
 
   [self removeMatchingKeysForTargetID:targetID];
 
@@ -358,7 +359,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 
 #pragma mark Matching Key tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
   // Store an empty value in the index which is equivalent to serializing a GPBEmpty message. In the
   // future if we wanted to store some other kind of value here, we can parse these empty values as
   // with some other protocol buffer (and the parser will see all default values).
@@ -371,7 +372,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   };
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
   for (const DocumentKey &key : keys) {
     self->_db.currentTransaction->Delete(LevelDbTargetDocumentKey::Key(targetID, key));
     self->_db.currentTransaction->Delete(LevelDbDocumentTargetKey::Key(key, targetID));
@@ -379,7 +380,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   }
 }
 
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeysForTargetID:(TargetId)targetID {
   std::string indexPrefix = LevelDbTargetDocumentKey::KeyPrefix(targetID);
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);
@@ -400,7 +401,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   }
 }
 
-- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(TargetId)targetID {
   std::string indexPrefix = LevelDbTargetDocumentKey::KeyPrefix(targetID);
   auto indexIterator = _db.currentTransaction->NewIterator();
   indexIterator->Seek(indexPrefix);

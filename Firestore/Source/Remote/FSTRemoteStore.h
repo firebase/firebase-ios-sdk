@@ -20,6 +20,7 @@
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDatastore;
 @class FSTLocalStore;
@@ -135,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData;
 
 /** Stops listening to the target with the given target ID. */
-- (void)stopListeningToTargetID:(FSTTargetID)targetID;
+- (void)stopListeningToTargetID:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Tells the FSTRemoteStore that there are new mutations to process in the queue. This is typically

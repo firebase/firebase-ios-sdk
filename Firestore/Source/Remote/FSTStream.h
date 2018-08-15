@@ -22,6 +22,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDispatchQueue;
 @class FSTMutation;
@@ -230,7 +231,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)watchQuery:(FSTQueryData *)query;
 
 /** Unregisters interest in the results of the query associated with the given target ID. */
-- (void)unwatchTargetID:(FSTTargetID)targetID;
+- (void)unwatchTargetID:(firebase::firestore::model::TargetId)targetID;
 
 @end
 

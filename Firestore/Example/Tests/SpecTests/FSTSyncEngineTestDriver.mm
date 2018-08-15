@@ -50,6 +50,7 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -309,7 +310,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FSTTargetID)addUserListenerWithQuery:(FSTQuery *)query {
+- (TargetId)addUserListenerWithQuery:(FSTQuery *)query {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
@@ -326,7 +327,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self.events addObject:event];
       }];
   self.queryListeners[query] = listener;
-  __block FSTTargetID targetID;
+  __block TargetId targetID;
   [self.dispatchQueue dispatchSync:^{
     targetID = [self.eventManager addListener:listener];
   }];

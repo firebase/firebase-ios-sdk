@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "absl/strings/string_view.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FIRGeoPoint;
 @class FSTDeleteMutation;
@@ -304,7 +305,7 @@ FSTRemoteEvent *FSTTestUpdateRemoteEventWithLimboTargets(FSTMaybeDocument *doc,
                                                          NSArray<NSNumber *> *limboTargets);
 
 /** Creates a test view changes. */
-FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
+FSTLocalViewChanges *FSTTestViewChanges(firebase::firestore::model::TargetId targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys);
 

@@ -36,18 +36,20 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
+using firebase::firestore::model::TargetId;
 namespace testutil = firebase::firestore::testutil;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLRUGarbageCollectorTests {
-  FSTTargetID _previousTargetID;
+  TargetId _previousTargetID;
   int _previousDocNum;
   FSTObjectValue *_testValue;
   FSTObjectValue *_bigObjectValue;
@@ -121,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)nextTestQuery {
-  FSTTargetID targetID = ++_previousTargetID;
+  TargetId targetID = ++_previousTargetID;
   FSTListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
   FSTQuery *query = FSTTestQuery(absl::StrCat("path", targetID));
   return [[FSTQueryData alloc] initWithQuery:query
@@ -175,11 +177,11 @@ NS_ASSUME_NONNULL_BEGIN
   [_persistence.referenceDelegate removeMutationReference:docKey];
 }
 
-- (void)addDocument:(const DocumentKey &)docKey toTarget:(FSTTargetID)targetId {
+- (void)addDocument:(const DocumentKey &)docKey toTarget:(TargetId)targetId {
   [_queryCache addMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
 }
 
-- (void)removeDocument:(const DocumentKey &)docKey fromTarget:(FSTTargetID)targetId {
+- (void)removeDocument:(const DocumentKey &)docKey fromTarget:(TargetId)targetId {
   [_queryCache removeMatchingKeys:DocumentKeySet{docKey} forTargetID:targetId];
 }
 
