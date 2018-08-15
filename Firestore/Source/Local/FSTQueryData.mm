@@ -23,9 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-namespace util = firebase::firestore::util;
 
 NS_ASSUME_NONNULL_BEGIN
 

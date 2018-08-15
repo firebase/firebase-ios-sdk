@@ -38,13 +38,13 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/strings/str_cat.h"
 
+namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
-namespace testutil = firebase::firestore::testutil;
 
 NS_ASSUME_NONNULL_BEGIN
 

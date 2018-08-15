@@ -50,9 +50,8 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::TargetId;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
