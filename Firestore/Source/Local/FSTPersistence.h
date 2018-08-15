@@ -16,11 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 @class FSTDocumentKey;
 @protocol FSTMutationQueue;
@@ -100,7 +99,8 @@ struct FSTTransactionRunner;
  */
 @property(nonatomic, readonly, strong) id<FSTReferenceDelegate> referenceDelegate;
 
-@property(nonatomic, readonly) firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
+@property(nonatomic, readonly)
+    firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
 
 @end
 
@@ -156,7 +156,8 @@ struct FSTTransactionRunner;
  */
 - (void)limboDocumentUpdated:(const firebase::firestore::model::DocumentKey &)key;
 
-@property(nonatomic, readonly) firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
+@property(nonatomic, readonly)
+    firebase::firestore::model::ListenSequenceNumber currentSequenceNumber;
 
 @end
 

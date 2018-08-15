@@ -20,8 +20,8 @@
 
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
-#include "leveldb/db.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "leveldb/db.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;

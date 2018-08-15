@@ -97,9 +97,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - helpers
 
 - (ListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
-  return _persistence.run("gc", [&]() -> ListenSequenceNumber {
-    return [_gc sequenceNumberForQueryCount:queryCount];
-  });
+  return _persistence.run(
+      "gc", [&]() -> ListenSequenceNumber { return [_gc sequenceNumberForQueryCount:queryCount]; });
 }
 
 - (int)queryCountForPercentile:(int)percentile {
