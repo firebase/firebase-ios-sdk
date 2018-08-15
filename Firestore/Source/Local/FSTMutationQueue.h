@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /**
- * Returns the next firebase::firestore::model::BatchId that will be assigned to a new mutation batch.
+ * Returns the next BatchId that will be assigned to a new mutation batch.
  *
  * Callers generally don't care about this value except to test that the mutation queue is
  * properly maintaining the invariant that highestAcknowledgedBatchID is less than nextBatchID.

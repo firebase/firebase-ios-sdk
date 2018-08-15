@@ -47,7 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  * A BatchID that was searched for and not found or a batch ID value known to be before all known
  * batches.
  *
- * firebase::firestore::model::BatchId values from the local store are non-negative so this value is before all batches.
+ * BatchId values from the local store are non-negative so this value is before all batches.
  */
 extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
 
