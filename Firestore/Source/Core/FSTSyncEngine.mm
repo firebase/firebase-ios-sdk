@@ -560,15 +560,18 @@ class LimboResolution {
   return _limboTargetsByKey;
 }
 
-- (void)userDidChange:(const User &)user {
+- (void)credentialDidChangeWithUser:(const firebase::firestore::auth::User &)user {
+  BOOL userChanged = (_currentUser != user);
   _currentUser = user;
 
-  // Notify local store and emit any resulting events from swapping out the mutation queue.
-  FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];
-  [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
+  if (userChanged) {
+    // Notify local store and emit any resulting events from swapping out the mutation queue.
+    FSTMaybeDocumentDictionary *changes = [self.localStore userDidChange:user];
+    [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
+  }
 
   // Notify remote store so it can restart its streams.
-  [self.remoteStore userDidChange:user];
+  [self.remoteStore credentialDidChange];
 }
 
 - (firebase::firestore::model::DocumentKeySet)remoteKeysForTarget:(FSTBoxedTargetID *)targetId {

@@ -250,7 +250,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)changeUser:(const User &)user {
   _currentUser = user;
   [self.dispatchQueue dispatchSync:^{
-    [self.syncEngine userDidChange:user];
+    [self.syncEngine credentialDidChangeWithUser:user];
   }];
 }
 
