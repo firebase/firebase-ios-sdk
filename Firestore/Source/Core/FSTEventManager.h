@@ -20,6 +20,7 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;
@@ -63,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot;
 - (void)queryDidError:(NSError *)error;
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 

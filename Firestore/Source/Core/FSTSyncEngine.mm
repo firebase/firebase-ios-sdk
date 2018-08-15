@@ -55,6 +55,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::OnlineState;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -346,7 +347,7 @@ class LimboResolution {
   [self emitNewSnapshotsWithChanges:changes remoteEvent:remoteEvent];
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   NSMutableArray<FSTViewSnapshot *> *newViewSnapshots = [NSMutableArray array];
   [self.queryViewsByQuery
       enumerateKeysAndObjectsUsingBlock:^(FSTQuery *query, FSTQueryView *queryView, BOOL *stop) {
