@@ -46,13 +46,12 @@ NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 // Default target is kNone if the environment variable is empty, not set, or
 // could not be interpreted. Should be kept in sync with FuzzingTarget.
 FuzzingTarget GetFuzzingTarget() {
-  // Map a string value to a FuzzingTarget enum value.
   std::unordered_map<std::string, FuzzingTarget> fuzzing_target_names;
   fuzzing_target_names["NONE"] = FuzzingTarget::kNone;
   fuzzing_target_names["SERIALIZER"] = FuzzingTarget::kSerializer;
   fuzzing_target_names["FIELDPATH"] = FuzzingTarget::kFieldPath;
 
-  char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
+  const char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
 
   if (fuzzing_target_env == nullptr) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
@@ -65,39 +64,37 @@ FuzzingTarget GetFuzzingTarget() {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
-  // Find the FuzzingTarget enum value that corresponds to the provided
-  // FUZZING_TARGET string value.
-  std::unordered_map<std::string, FuzzingTarget>::const_iterator t =
-      fuzzing_target_names.find(fuzzing_target);
-  if (t == fuzzing_target_names.end()) {
-    // Get all avilable keys in the map and put them in a string.
-    std::vector<std::string> all_keys;
-    for (std::unordered_map<std::string, FuzzingTarget>::iterator it = fuzzing_target_names.begin();
-         it != fuzzing_target_names.end(); it++) {
-      all_keys.push_back(it->first);
-    }
-    // Print error message with all available targets, which must be enclosed in
-    // curly brackets and separated by spaces.
-    const std::string all_keys_str = absl::StrJoin(all_keys.begin(), all_keys.end(), " ");
-    LOG_WARN("Invalid fuzzing target: %s. Available targets: { %s }.", fuzzing_target, all_keys_str);
-    return FuzzingTarget::kNone;
+
+  // Return the value of the fuzzing_target key if it exists in the
+  // fuzzing_target_names map.
+  if (fuzzing_target_names.find(fuzzing_target) != fuzzing_target_names.end()) {
+    return fuzzing_target_names[fuzzing_target];
   }
-  return t->second;
+
+  // If the target is not found, print an error message with all available targets.
+  // The targets must be enclosed in curly brackets and separated by spaces. This format
+  // is needed by the script /firebase-ios-sdk/script/fuzzing_travis.sh, which parses
+  // this message to retrieve a list of the available targets.
+  std::vector<std::string> all_keys;
+  for (const auto& kv : fuzzing_target_names) {
+    all_keys.push_back(kv.first);
+  }
+  const std::string all_keys_str = absl::StrJoin(all_keys, " ");
+  LOG_WARN("Invalid fuzzing target: %s. Available targets: { %s }.", fuzzing_target, all_keys_str);
+  return FuzzingTarget::kNone;
 }
 
-// Retrieves fuzzing duration (in seconds) from the FUZZING_DURATION
-// environment variable. Defaults to 0 if the environment variable is empty,
-// not set, or invalid integer value, which corresponds to running indefinitely.
-int GetFuzzingDuration() {
-  char *fuzzing_duration_env = std::getenv("FUZZING_DURATION");
+// Retrieves fuzzing duration from the FUZZING_DURATION environment variable.
+// Defaults to "0" if the environment variable is empty, which corresponds to
+// running indefinitely.
+std::string GetFuzzingDuration() {
+  const char *fuzzing_duration_env = std::getenv("FUZZING_DURATION");
 
   if (fuzzing_duration_env == nullptr) {
-    return 0;
+    return "0";
   }
 
-  // The function 'atoi' returns 0 if the string could not be correctly parsed.
-  int duration = std::atoi(fuzzing_duration_env);
-  return duration;
+  return std::string{fuzzing_duration_env};
 }
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
@@ -107,8 +104,6 @@ int GetFuzzingDuration() {
 int RunFuzzTestingMain() {
   // Get the fuzzing target.
   FuzzingTarget fuzzing_target = GetFuzzingTarget();
-  // Get the fuzzing duration.
-  int fuzzing_duration = GetFuzzingDuration();
   // All fuzzing resources.
   std::string resources_location = "Firestore_FuzzTests_iOS.xctest/FuzzingResources";
   // The dictionary location for the fuzzing target.
@@ -155,7 +150,7 @@ int RunFuzzTestingMain() {
   std::string prefix_arg = std::string("-artifact_prefix=") + MakeString(kCrashingInputsDirectory);
 
   // Run fuzzing for the defined fuzzing duration.
-  std::string time_arg = "-max_total_time=" + std::to_string(fuzzing_duration);
+  std::string time_arg = "-max_total_time=" + GetFuzzingDuration();
 
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of

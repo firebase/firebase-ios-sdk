@@ -19,6 +19,22 @@
 # duration is split equally over the rest of the fuzzing targets. Must be run
 # from the project root directory.
 
+# Total time allowed for fuzzing in seconds (4 minutes for now).
+readonly ALLOWED_TIME=240
+
+# An invalid target that is used to retrieve the list of available targets in
+# the returned error message.
+readonly INVALID_TARGET="INVALID_TARGET"
+# The NONE target that does not perform fuzzing. It is valid but useless.
+readonly NONE_TARGET="NONE"
+
+# Script exit codes. Travis treats 0 as success and non-zero as failure.
+readonly EXIT_SUCCESS=0
+readonly EXIT_FAILURE=1
+
+# Get day of the year to use it when selecting a main target.
+readonly DOY="$(date +%j)"
+
 # Run fuzz testing only if executing on xcode >= 9 because fuzzing requires
 # Clang that supports -fsanitize-coverage=trace-pc-guard.
 xcode_version="$(xcodebuild -version | head -n 1)"
@@ -27,11 +43,8 @@ xcode_major="${xcode_version/.*/}"
 
 if [[ "${xcode_major}" -lt 9 ]]; then
   echo "Unsupported version of xcode."
-  return 0;
+  exit ${EXIT_SUCCESS}
 fi
-
-# Total time allowed for fuzzing in seconds (4 minutes for now).
-ALLOWED_TIME=2400
 
 # Helper to run fuzz tests using xcodebuild. Takes the fuzzing target as the
 # first argument and the fuzzing duration as the second argument.
@@ -47,58 +60,57 @@ function run_xcode_fuzzing() {
 }
 
 # Run fuzz testing with an INVALID_TARGET and grep the response message line
-# that contains 'Available targets'.
-FUZZING_TARGETS_LINE="$(run_xcode_fuzzing "INVALID_TARGET" "0" \
+# that contains the string 'Available targets: {'.
+fuzzing_targets_line="$(run_xcode_fuzzing ${INVALID_TARGET} "0" \
     | grep "Available targets: {")"
 
-# The FUZZING_TARGETS_LINE string contains { TARGET1 TARGET2 ... TARGETN }.
+# The fuzzing_targets_line string contains { TARGET1 TARGET2 ... TARGETN }.
 # The following command extracts the targets and splits them into an array
-# in the variable ALL_FUZZING_TARGETS.
-read -r -a ALL_FUZZING_TARGETS <<< "$(echo ${FUZZING_TARGETS_LINE} \
+# in the variable all_fuzzing_targets.
+read -r -a all_fuzzing_targets <<< "$(echo ${fuzzing_targets_line} \
     | cut -d "{" -f2 | cut -d "}" -f1)"
 
-# Remove "NONE" from targets, if it exists.
-for i in "${!ALL_FUZZING_TARGETS[@]}"; do
-  if [[ "${ALL_FUZZING_TARGETS[${i}]}" = "NONE" ]]; then
-    unset ALL_FUZZING_TARGETS[${i}]
+# Remove the NONE target, if it exists.
+for i in "${!all_fuzzing_targets[@]}"; do
+  if [[ "${all_fuzzing_targets[${i}]}" == ${NONE_TARGET} ]]; then
+    unset all_fuzzing_targets[${i}]
   fi
 done
 
 # Count all targets.
-FUZZING_TARGETS_COUNT="${#ALL_FUZZING_TARGETS[@]}"
+readonly fuzzing_targets_count="${#all_fuzzing_targets[@]}"
 
-# Get day of the year and use it to select a target.
-DOY="$(date +%j)"
-TARGET="$(( ${DOY} % ${FUZZING_TARGETS_COUNT} ))"
+# Select a primary target to fuzz test for longer. Changes daily. The variable
+# todays_primary_target contains the index of the target selected as primary.
+todays_primary_target="$(( ${DOY} % ${fuzzing_targets_count} ))"
 
-# Spend half of allowed time on the selected target and half on the remaining
-# targets.
-TARGET_TIME="$(( ${ALLOWED_TIME} / 2 ))"
-REMAINING_TIME="$(( ${ALLOWED_TIME} / 2 / $(( ${FUZZING_TARGETS_COUNT} - 1)) ))"
+# Spend half of allowed time on the selected primary target and half on the
+# remaining targets.
+primary_target_time="$(( ${ALLOWED_TIME} / 2 ))"
+other_targets_time="$(( ${ALLOWED_TIME} / 2 / $(( ${fuzzing_targets_count} - 1)) ))"
 
-# Return value; 0 is success and non-zero means fail.
-SCRIPT_RETURN=0
-for i in "${!ALL_FUZZING_TARGETS[@]}"; do
-  FUZZING_DURATION="${REMAINING_TIME}"
-  if [[ "${i}" -eq "${TARGET}" ]]; then
-    FUZZING_DURATION="${TARGET_TIME}"
+script_return=${EXIT_SUCCESS}
+for i in "${!all_fuzzing_targets[@]}"; do
+  fuzzing_duration="${other_targets_time}"
+  if [[ "${i}" -eq "${todays_primary_target}" ]]; then
+    fuzzing_duration="${primary_target_time}"
   fi
-  FUZZING_TARGET="${ALL_FUZZING_TARGETS[${i}]}"
+  fuzzing_target="${all_fuzzing_targets[${i}]}"
 
-  echo "Running fuzzing target ${FUZZING_TARGET} for ${FUZZING_DURATION} seconds..."
-  FUZZING_RESULTS="$(run_xcode_fuzzing "${FUZZING_TARGET}" "${FUZZING_DURATION}")"
+  echo "Running fuzzing target ${fuzzing_target} for ${fuzzing_duration} seconds..."
+  fuzzing_results="$(run_xcode_fuzzing "${fuzzing_target}" "${fuzzing_duration}")"
   # Get the last line of the fuzzing results.
-  FUZZING_RESULTS_LAST_LINE="$(echo "${FUZZING_RESULTS}" | tail -n1)"
+  fuzzing_results_last_line="$(echo "${fuzzing_results}" | tail -n1)"
   # If fuzzing succeeded, the last line will start with "Done"; otherwise,
   # print all fuzzing results.
-  if [[ "${FUZZING_RESULTS_LAST_LINE}" == Done* ]]; then
-    echo "Fuzz testing for target ${FUZZING_TARGET} succeeded. Disregard the ** TEST FAILED ** message."
+  if [[ "${fuzzing_results_last_line}" == Done* ]]; then
+    echo "Fuzz testing for target ${fuzzing_target} succeeded. Ignore the ** TEST FAILED ** message."
   else
-    echo "Error: Fuzz testing for target ${FUZZING_TARGET} failed."
-    SCRIPT_RETURN=-1
+    echo "Error: Fuzz testing for target ${fuzzing_target} failed."
+    script_return=${EXIT_FAILURE}
     echo "Fuzzing logs:"
-    echo "${FUZZING_RESULTS}"
+    echo "${fuzzing_results}"
   fi
 done
 
-exit ${SCRIPT_RETURN}
+exit ${script_return}
