@@ -45,8 +45,9 @@ using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
-using firebase::firestore::util::OrderedCode;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::testutil::Key;
+using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
@@ -119,7 +120,7 @@ using leveldb::Status;
 - (void)testDropsTheQueryCache {
   std::string userID{"user"};
   FSTBatchID batchID = 1;
-  FSTTargetID targetID = 2;
+  TargetId targetID = 2;
 
   FSTDocumentKey *key1 = Key("documents/1");
   FSTDocumentKey *key2 = Key("documents/2");

@@ -67,6 +67,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -1183,7 +1184,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTExistenceFilterWatchChange *)decodedExistenceFilterWatchChange:(GCFSExistenceFilter *)filter {
   // TODO(dimond): implement existence filter parsing
   FSTExistenceFilter *existenceFilter = [FSTExistenceFilter filterWithCount:filter.count];
-  FSTTargetID targetID = filter.targetId;
+  TargetId targetID = filter.targetId;
   return [FSTExistenceFilterWatchChange changeWithFilter:existenceFilter targetID:targetID];
 }
 

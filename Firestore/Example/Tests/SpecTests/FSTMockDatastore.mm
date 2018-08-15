@@ -36,6 +36,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 @class GRPCProtoCall;
 
@@ -126,7 +127,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.activeTargets[@(query.targetID)] = sentQueryData;
 }
 
-- (void)unwatchTargetID:(FSTTargetID)targetID {
+- (void)unwatchTargetID:(TargetId)targetID {
   LOG_DEBUG("unwatchTargetID: %s", targetID);
   [self.activeTargets removeObjectForKey:@(targetID)];
 }

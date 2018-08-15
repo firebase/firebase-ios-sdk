@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
@@ -149,7 +150,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the keys of the documents that are associated with the given targetID in the remote
  * table.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.

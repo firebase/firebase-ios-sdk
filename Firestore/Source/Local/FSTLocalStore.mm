@@ -46,9 +46,10 @@
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -123,7 +124,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 - (void)start {
   [self startMutationQueue];
-  FSTTargetID targetID = [self.queryCache highestTargetID];
+  TargetId targetID = [self.queryCache highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
 }
 
@@ -251,7 +252,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
-      FSTTargetID targetID = entry.first;
+      TargetId targetID = entry.first;
       FSTBoxedTargetID *boxedTargetID = @(targetID);
       FSTTargetChange *change = entry.second;
 
@@ -439,7 +440,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
     HARD_ASSERT(queryData, "Tried to release nonexistent query: %s", query);
 
-    FSTTargetID targetID = queryData.targetID;
+    TargetId targetID = queryData.targetID;
     FSTBoxedTargetID *boxedTargetID = @(targetID);
 
     FSTQueryData *cachedQueryData = self.targetIDs[boxedTargetID];
@@ -469,7 +470,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
+- (DocumentKeySet)remoteDocumentKeysForTarget:(TargetId)targetID {
   return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
     return [self.queryCache matchingKeysForTargetID:targetID];
   });
