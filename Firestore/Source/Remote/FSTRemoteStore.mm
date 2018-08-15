@@ -42,8 +42,9 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,21 +82,6 @@ static const int kMaxPendingWrites = 10;
  * without waiting for confirmation from the listen stream. */
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listenTargets;
-
-/**
- * A mapping of targetId to pending acks needed.
- *
- * If a targetId is present in this map, then we're waiting for watch to
- * acknowledge a removal or addition of the target. If a target is not in this
- * mapping, and it's in the listenTargets map, then we consider the target to
- * be active.
- *
- * We increment the count here everytime we issue a request over the stream to
- * watch or unwatch. We then decrement the count everytime we get a target
- * added or target removed message from the server. Once the count is equal to
- * 0 we know that the client and server are in the same state (once this state
- * is reached the targetId is removed from the map to free the memory).
- */
 
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 
@@ -261,7 +247,7 @@ static const int kMaxPendingWrites = 10;
   [self.watchStream watchQuery:queryData];
 }
 
-- (void)stopListeningToTargetID:(FSTTargetID)targetID {
+- (void)stopListeningToTargetID:(TargetId)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
   HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
@@ -380,7 +366,7 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Re-establish listens for the targets that have been invalidated by existence filter mismatches.
-  for (FSTTargetID targetID : remoteEvent.targetMismatches) {
+  for (TargetId targetID : remoteEvent.targetMismatches) {
     FSTQueryData *queryData = self.listenTargets[@(targetID)];
 
     if (!queryData) {

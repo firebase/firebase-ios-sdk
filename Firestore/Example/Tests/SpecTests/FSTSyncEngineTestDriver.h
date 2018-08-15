@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocumentKey;
 @class FSTMutation;
@@ -123,7 +124,7 @@ typedef std::unordered_map<firebase::firestore::auth::User,
  * @param query A valid query to execute against the backend.
  * @return The target ID assigned by the system to track the query.
  */
-- (FSTTargetID)addUserListenerWithQuery:(FSTQuery *)query;
+- (firebase::firestore::model::TargetId)addUserListenerWithQuery:(FSTQuery *)query;
 
 /**
  * Removes a listener from the FSTSyncEngine as if the user had removed a listener corresponding

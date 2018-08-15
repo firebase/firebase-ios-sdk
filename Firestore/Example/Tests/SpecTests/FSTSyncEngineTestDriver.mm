@@ -309,7 +309,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FSTTargetID)addUserListenerWithQuery:(FSTQuery *)query {
+- (TargetId)addUserListenerWithQuery:(FSTQuery *)query {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
@@ -326,7 +326,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self.events addObject:event];
       }];
   self.queryListeners[query] = listener;
-  __block FSTTargetID targetID;
+  __block TargetId targetID;
   [self.dispatchQueue dispatchSync:^{
     targetID = [self.eventManager addListener:listener];
   }];

@@ -185,9 +185,9 @@ NSString *const kNoLRUTag = @"no-lru";
 
 - (void)doListen:(NSArray *)listenSpec {
   FSTQuery *query = [self parseQuery:listenSpec[1]];
-  FSTTargetID actualID = [self.driver addUserListenerWithQuery:query];
+  TargetId actualID = [self.driver addUserListenerWithQuery:query];
 
-  FSTTargetID expectedID = [listenSpec[0] intValue];
+  TargetId expectedID = [listenSpec[0] intValue];
   XCTAssertEqual(actualID, expectedID, @"targetID assigned to listen");
 }
 
@@ -579,7 +579,7 @@ NSString *const kNoLRUTag = @"no-lru";
       [expected[@"activeTargets"] enumerateKeysAndObjectsUsingBlock:^(NSString *targetIDString,
                                                                       NSDictionary *queryData,
                                                                       BOOL *stop) {
-        FSTTargetID targetID = [targetIDString intValue];
+        TargetId targetID = [targetIDString intValue];
         FSTQuery *query = [self parseQuery:queryData[@"query"]];
         NSData *resumeToken = [queryData[@"resumeToken"] dataUsingEncoding:NSUTF8StringEncoding];
         // TODO(mcg): populate the purpose of the target once it's possible to encode that in the

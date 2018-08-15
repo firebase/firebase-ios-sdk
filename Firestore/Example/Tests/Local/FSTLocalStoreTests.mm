@@ -46,6 +46,7 @@ namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *batches;
 @property(nonatomic, strong, readwrite, nullable) FSTMaybeDocumentDictionary *lastChanges;
-@property(nonatomic, assign, readwrite) FSTTargetID lastTargetID;
+@property(nonatomic, assign, readwrite) TargetId lastTargetID;
 
 @end
 
@@ -144,7 +145,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.lastChanges = [self.localStore rejectBatchID:batch.batchID];
 }
 
-- (FSTTargetID)allocateQuery:(FSTQuery *)query {
+- (TargetId)allocateQuery:(FSTQuery *)query {
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
   self.lastTargetID = queryData.targetID;
   return queryData.targetID;
@@ -240,7 +241,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self
       applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"changed"}, NO),
@@ -254,7 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start a query that requires acks to be held.
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
@@ -285,7 +286,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDeletedDoc("foo/bar", 2), @[ @(targetID) ],
                                                   @[])];
@@ -318,7 +319,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestSetMutation(@"foo/bar", @{@"foo" : @"bar"})];
   FSTAssertChanged(@[ FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES) ]);
@@ -334,7 +335,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Start a query that requires acks to be held.
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"it" : @"base"}, NO),
                                                  @[ @(targetID) ])];
@@ -377,7 +378,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"foo/bar");
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                  @[ @(targetID) ])];
@@ -410,7 +411,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertNotContains(@"foo/bar");
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -437,7 +438,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -463,7 +464,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self writeMutation:FSTTestDeleteMutation(@"foo/bar")];
   FSTAssertRemoved(@[ @"foo/bar" ]);
@@ -491,7 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -524,7 +525,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTAssertContains(FSTTestDoc("foo/bar", 0, @{@"foo" : @"bar"}, YES));
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"it" : @"base"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -631,7 +632,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 2, @{@"foo" : @"bar"}, NO),
                                                  @[ @(targetID) ])];
@@ -648,7 +649,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -683,7 +684,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestUpdateRemoteEvent(FSTTestDoc("foo/bar", 0, @{@"foo" : @"old"}, NO),
                                                   @[ @(targetID) ], @[])];
@@ -718,7 +719,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (![self gcIsEager]) return;
 
   FSTQuery *query = FSTTestQuery("foo");
-  FSTTargetID targetID = [self allocateQuery:query];
+  TargetId targetID = [self allocateQuery:query];
 
   [self applyRemoteEvent:FSTTestAddedRemoteEvent(FSTTestDoc("foo/bar", 1, @{@"foo" : @"bar"}, NO),
                                                  @[ @(targetID) ])];
@@ -749,7 +750,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([self isTestBaseClass]) return;
   if (![self gcIsEager]) return;
 
-  FSTTargetID targetID = 321;
+  TargetId targetID = 321;
   [self applyRemoteEvent:FSTTestUpdateRemoteEventWithLimboTargets(FSTTestDoc("foo/bar", 1, @{}, NO),
                                                                   @[], @[], @[ @(targetID) ])];
 

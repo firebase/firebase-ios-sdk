@@ -20,6 +20,7 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDispatchQueue;
 @class FSTLocalStore;
@@ -74,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the target ID assigned to the query.
  */
-- (FSTTargetID)listenToQuery:(FSTQuery *)query;
+- (firebase::firestore::model::TargetId)listenToQuery:(FSTQuery *)query;
 
 /** Stops listening to a query previously listened to via listenToQuery:. */
 - (void)stopListeningToQuery:(FSTQuery *)query;

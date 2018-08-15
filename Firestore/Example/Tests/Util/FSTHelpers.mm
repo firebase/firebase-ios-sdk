@@ -54,8 +54,8 @@
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
 #include "absl/memory/memory.h"
 
-namespace util = firebase::firestore::util;
 namespace testutil = firebase::firestore::testutil;
+namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -67,6 +67,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::model::TransformOperation;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -291,8 +292,8 @@ FSTViewSnapshot *_Nullable FSTTestApplyChanges(FSTView *view,
 }
 
 @implementation FSTTestTargetMetadataProvider {
-  std::unordered_map<FSTTargetID, DocumentKeySet> _syncedKeys;
-  std::unordered_map<FSTTargetID, FSTQueryData *> _queryData;
+  std::unordered_map<TargetId, DocumentKeySet> _syncedKeys;
+  std::unordered_map<TargetId, FSTQueryData *> _queryData;
 }
 
 + (instancetype)providerWithSingleResultForKey:(DocumentKey)documentKey
@@ -443,7 +444,7 @@ NSData *_Nullable FSTTestResumeTokenFromSnapshotVersion(FSTTestSnapshotVersion s
   return [snapshotString dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-FSTLocalViewChanges *FSTTestViewChanges(FSTTargetID targetID,
+FSTLocalViewChanges *FSTTestViewChanges(TargetId targetID,
                                         NSArray<NSString *> *addedKeys,
                                         NSArray<NSString *> *removedKeys) {
   DocumentKeySet added;

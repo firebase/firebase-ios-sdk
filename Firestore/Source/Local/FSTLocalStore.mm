@@ -46,9 +46,10 @@
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -115,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)start {
   [self startMutationQueue];
-  FSTTargetID targetID = [self.queryCache highestTargetID];
+  TargetId targetID = [self.queryCache highestTargetID];
   _targetIDGenerator = TargetIdGenerator::LocalStoreTargetIdGenerator(targetID);
 }
 
@@ -243,7 +244,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     DocumentKeySet authoritativeUpdates;
     for (const auto &entry : remoteEvent.targetChanges) {
-      FSTTargetID targetID = entry.first;
+      TargetId targetID = entry.first;
       FSTBoxedTargetID *boxedTargetID = @(targetID);
       FSTTargetChange *change = entry.second;
 
@@ -408,7 +409,7 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID {
+- (DocumentKeySet)remoteDocumentKeysForTarget:(TargetId)targetID {
   return self.persistence.run("RemoteDocumentKeysForTarget", [&]() -> DocumentKeySet {
     return [self.queryCache matchingKeysForTargetID:targetID];
   });

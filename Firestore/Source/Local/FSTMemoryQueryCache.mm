@@ -29,6 +29,7 @@
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -41,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTReferenceSet *references;
 
 /** The highest numbered target ID encountered. */
-@property(nonatomic, assign) FSTTargetID highestTargetID;
+@property(nonatomic, assign) TargetId highestTargetID;
 
 @property(nonatomic, assign) FSTListenSequenceNumber highestListenSequenceNumber;
 
@@ -66,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTQueryCache implementation
 #pragma mark Query tracking
 
-- (FSTTargetID)highestTargetID {
+- (TargetId)highestTargetID {
   return _highestTargetID;
 }
 
@@ -140,25 +141,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark Reference tracking
 
-- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
   [self.references addReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate addReference:key];
   }
 }
 
-- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeys:(const DocumentKeySet &)keys forTargetID:(TargetId)targetID {
   [self.references removeReferencesToKeys:keys forID:targetID];
   for (const DocumentKey &key : keys) {
     [_persistence.referenceDelegate removeReference:key];
   }
 }
 
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKeysForTargetID:(TargetId)targetID {
   [self.references removeReferencesForID:targetID];
 }
 
-- (DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID {
+- (DocumentKeySet)matchingKeysForTargetID:(TargetId)targetID {
   return [self.references referencedKeysForID:targetID];
 }
 
