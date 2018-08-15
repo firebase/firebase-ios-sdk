@@ -100,7 +100,7 @@ NS_ASSUME_NONNULL_BEGIN
                    updateBlock:(FSTTransactionBlock)updateBlock
                     completion:(FSTVoidIDErrorBlock)completion;
 
-- (void)userDidChange:(const firebase::firestore::auth::User &)user;
+- (void)credentialDidChangeWithUser:(const firebase::firestore::auth::User &)user;
 
 /** Applies an FSTOnlineState change to the sync engine and notifies any views of the change. */
 - (void)applyChangedOnlineState:(FSTOnlineState)onlineState;

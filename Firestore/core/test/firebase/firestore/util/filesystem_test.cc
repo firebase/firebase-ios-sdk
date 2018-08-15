@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/util/string_win.h"
 #include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
@@ -66,21 +67,40 @@ TEST(FilesystemTest, Exists) {
   EXPECT_NOT_FOUND(IsDirectory(file));
 }
 
-#define ASSERT_USEFUL_TEMP_DIR(dir)                         \
-  do {                                                      \
-    ASSERT_TRUE(absl::StartsWith(tmp.ToUtf8String(), "/")); \
-  } while (0)
-
 TEST(FilesystemTest, GetTempDir) {
   Path tmp = TempDir();
-  ASSERT_USEFUL_TEMP_DIR(tmp);
+  ASSERT_NE("", tmp.ToUtf8String());
+  ASSERT_OK(IsDirectory(tmp));
 }
 
 absl::optional<std::string> GetEnv(const char* name) {
+#if defined(_WIN32)
+  // The required buffer size (not the length of the value)
+  size_t value_size = 0;
+  errno_t result = getenv_s(&value_size, nullptr, 0, name);
+  if (result) {
+    ADD_FAILURE() << "getenv_s failed with errno=" << result;
+    return absl::nullopt;
+  }
+  if (value_size == 0) return absl::nullopt;
+
+  std::string value(value_size, '\0');
+  result = getenv_s(&value_size, &value[0], value_size, name);
+  if (result) {
+    ADD_FAILURE() << "getenv_s failed with errno=" << result;
+    return absl::nullopt;
+  }
+
+  value.resize(value_size - 1);
+
+  return value;
+
+#else
   const char* value = getenv(name);
   if (!value) return absl::nullopt;
 
   return std::string{value};
+#endif  // defined(_WIN32)
 }
 
 int SetEnv(const char* env_var, const char* value) {
@@ -110,7 +130,8 @@ TEST(FilesystemTest, GetTempDirNoTmpdir) {
   }
 
   Path tmp = TempDir();
-  ASSERT_USEFUL_TEMP_DIR(tmp);
+  ASSERT_NE("", tmp.ToUtf8String());
+  ASSERT_OK(IsDirectory(tmp));
 
   // Return old value of TMPDIR, if set
   if (old_tmpdir) {
@@ -165,11 +186,9 @@ TEST(FilesystemTest, RecursivelyDelete) {
   Touch(file);
   EXPECT_FAILED_PRECONDITION(IsDirectory(file));
 
-  // Deleting some random path below a file doesn't work. Filesystem commands
-  // fail attempting to access the path and don't blindly succeed.
-  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
-  EXPECT_FAILED_PRECONDITION(RecursivelyDelete(nested_file));
-  EXPECT_FAILED_PRECONDITION(IsDirectory(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
+  EXPECT_OK(RecursivelyDelete(nested_file));
+  EXPECT_NOT_FOUND(IsDirectory(nested_file));
 
   EXPECT_OK(RecursivelyDelete(file));
   EXPECT_NOT_FOUND(IsDirectory(file));
@@ -177,6 +196,44 @@ TEST(FilesystemTest, RecursivelyDelete) {
 
   // Deleting some highly nested path should work.
   EXPECT_OK(RecursivelyDelete(nested_file));
+}
+
+TEST(FilesystemTest, RecursivelyDeleteTree) {
+  Path root_dir = Path::JoinUtf8(TempDir(), TestFilename());
+  Path middle_dir = Path::JoinUtf8(root_dir, "middle");
+  Path leaf1_dir = Path::JoinUtf8(middle_dir, "leaf1");
+  Path leaf2_dir = Path::JoinUtf8(middle_dir, "leaf2");
+  ASSERT_OK(RecursivelyCreateDir(leaf1_dir));
+  ASSERT_OK(RecursivelyCreateDir(leaf2_dir));
+
+  Touch(Path::JoinUtf8(middle_dir, "a"));
+  Touch(Path::JoinUtf8(middle_dir, "b"));
+  Touch(Path::JoinUtf8(leaf1_dir, "1"));
+  Touch(Path::JoinUtf8(leaf2_dir, "A"));
+  Touch(Path::JoinUtf8(leaf2_dir, "B"));
+
+  EXPECT_OK(RecursivelyDelete(root_dir));
+  EXPECT_NOT_FOUND(IsDirectory(root_dir));
+  EXPECT_NOT_FOUND(IsDirectory(leaf1_dir));
+  EXPECT_NOT_FOUND(IsDirectory(Path::JoinUtf8(leaf2_dir, "A")));
+}
+
+TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
+  Path root_dir = Path::JoinUtf8(TempDir(), TestFilename());
+
+  // Ensure that when deleting a directory we don't delete any directory that
+  // has a name that's a suffix of that directory. (This matters because on
+  // Win32 directories are traversed with a glob which can easily over-match.)
+  Path child = Path::JoinUtf8(root_dir, "child");
+  Path child_suffix = Path::JoinUtf8(root_dir, "child_suffix");
+
+  ASSERT_OK(RecursivelyCreateDir(child));
+  ASSERT_OK(RecursivelyCreateDir(child_suffix));
+
+  ASSERT_OK(RecursivelyDelete(child));
+  ASSERT_OK(IsDirectory(child_suffix));
+
+  EXPECT_OK(RecursivelyDelete(root_dir));
 }
 
 }  // namespace util

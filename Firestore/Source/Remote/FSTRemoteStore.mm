@@ -209,12 +209,12 @@ static const int kMaxPendingWrites = 10;
   [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
 }
 
-- (void)userDidChange:(const User &)user {
-  LOG_DEBUG("FSTRemoteStore %s changing users: %s", (__bridge void *)self, user.uid());
+- (void)credentialDidChange {
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
+    LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
     [self disableNetworkInternal];
     [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
     [self enableNetwork];

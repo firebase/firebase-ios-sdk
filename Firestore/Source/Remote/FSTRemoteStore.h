@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
  * In response the remote store tears down streams and clears up any tracked operations that should
  * not persist across users. Restarts the streams if appropriate.
  */
-- (void)userDidChange:(const firebase::firestore::auth::User &)user;
+- (void)credentialDidChange;
 
 /** Listens to the target identified by the given FSTQueryData. */
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData;

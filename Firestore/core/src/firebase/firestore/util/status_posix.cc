@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
-#if !defined(_WIN32)
-
 #include <cerrno>
 
 #include "Firestore/core/src/firebase/firestore/util/strerror.h"
@@ -195,5 +193,3 @@ Status Status::FromErrno(int errno_code, absl::string_view msg) {
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // !defined(_WIN32)

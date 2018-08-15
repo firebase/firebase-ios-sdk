@@ -33,8 +33,8 @@ namespace auth {
 // `TokenErrorListener` is a listener that gets a token or an error.
 using TokenListener = std::function<void(util::StatusOr<Token>)>;
 
-// Listener notified with a User change.
-using UserChangeListener = std::function<void(User user)>;
+// Listener notified with a credential change.
+using CredentialChangeListener = std::function<void(User user)>;
 
 /**
  * Provides methods for getting the uid and token for the current user and
@@ -56,22 +56,24 @@ class CredentialsProvider {
   virtual void InvalidateToken() = 0;
 
   /**
-   * Sets the listener to be notified of user changes (sign-in / sign-out). It
-   * is immediately called once with the initial user.
+   * Sets the listener to be notified of credential changes (sign-in /
+   * sign-out, token changes). It is immediately called once with the initial
+   * user.
    *
    * Call with nullptr to remove previous listener.
    */
-  virtual void SetUserChangeListener(UserChangeListener listener) = 0;
+  virtual void SetCredentialChangeListener(
+      CredentialChangeListener changeListener) = 0;
 
  protected:
   /**
-   * A listener to be notified of user changes (sign-in / sign-out). It is
-   * immediately called once with the initial user.
+   * A listener to be notified of credential changes (sign-in / sign-out, token
+   * changes). It is immediately called once with the initial user.
    *
    * Note that this block will be called back on an arbitrary thread that is not
    * the normal Firestore worker thread.
    */
-  UserChangeListener user_change_listener_;
+  CredentialChangeListener change_listener_;
 };
 
 }  // namespace auth

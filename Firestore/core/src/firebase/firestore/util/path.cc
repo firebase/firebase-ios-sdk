@@ -105,12 +105,12 @@ Path::string_type CanonicalPath(const Path::string_type& path) {
   // in a root path name (which can have a drive letter).
   std::wstring copy{path};
   size_t rel_path_begin = OffsetAfterDriveLetter(copy.c_str(), copy.size());
-  if (rel_path_begin < copy.size() && IsSeparator(copy[min])) {
+  if (rel_path_begin < copy.size() && IsSeparator(copy[rel_path_begin])) {
     rel_path_begin += 1;
   }
 
   size_t non_slash = LastNonSeparator(copy.c_str(), copy.size());
-  if (non_slash != npos) {
+  if (non_slash != Path::npos) {
     size_t last_slash = std::max(non_slash + 1, rel_path_begin);
     copy.resize(last_slash);
   }

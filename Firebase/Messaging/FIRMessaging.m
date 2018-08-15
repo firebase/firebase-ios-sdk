@@ -31,10 +31,12 @@
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingPubSub.h"
 #import "FIRMessagingReceiver.h"
+#import "FIRMessagingRemoteNotificationsProxy.h"
 #import "FIRMessagingRmqManager.h"
 #import "FIRMessagingSyncMessageManager.h"
 #import "FIRMessagingUtilities.h"
 #import "FIRMessagingVersionUtilities.h"
+#import "FIRMessaging_Private.h"
 
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
@@ -189,6 +191,45 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 }
 
 #pragma mark - Config
+
++ (void)load {
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(didReceiveConfigureSDKNotification:)
+                                               name:kFIRAppReadyToConfigureSDKNotification
+                                             object:nil];
+}
+
++ (void)didReceiveConfigureSDKNotification:(NSNotification *)notification {
+  NSDictionary *appInfoDict = notification.userInfo;
+  NSNumber *isDefaultApp = appInfoDict[kFIRAppIsDefaultAppKey];
+  if (![isDefaultApp boolValue]) {
+    // Only configure for the default FIRApp.
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeFIRApp001,
+                            @"Firebase Messaging only works with the default app.");
+    return;
+  }
+
+  NSString *appName = appInfoDict[kFIRAppNameKey];
+  FIRApp *app = [FIRApp appNamed:appName];
+  [[FIRMessaging messaging] configureMessaging:app];
+}
+
+- (void)configureMessaging:(FIRApp *)app {
+  // Swizzle remote-notification-related methods (app delegate and UNUserNotificationCenter)
+  if ([FIRMessagingRemoteNotificationsProxy canSwizzleMethods]) {
+    NSString *docsURLString = @"https://firebase.google.com/docs/cloud-messaging/ios/client"
+                              @"#method_swizzling_in_firebase_messaging";
+    FIRMessagingLoggerNotice(kFIRMessagingMessageCodeFIRApp000,
+                             @"FIRMessaging Remote Notifications proxy enabled, will swizzle "
+                             @"remote notification receiver handlers. If you'd prefer to manually "
+                             @"integrate Firebase Messaging, add \"%@\" to your Info.plist, "
+                             @"and set it to NO. Follow the instructions at:\n%@\nto ensure "
+                             @"proper integration.",
+                             kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey,
+                             docsURLString);
+    [FIRMessagingRemoteNotificationsProxy swizzleMethods];
+  }
+}
 
 - (void)start {
   // Print the library version for logging.
