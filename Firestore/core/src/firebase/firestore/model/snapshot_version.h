@@ -43,9 +43,6 @@ class SnapshotVersion {
   /** Creates a new version that is smaller than all other versions. */
   static const SnapshotVersion& None();
 
-  /** Returns a number representation of the version. */
-  int64_t ToMicroseconds() const;
-
 #if __OBJC__
   size_t Hash() const {
     return std::hash<Timestamp>{}(timestamp_);

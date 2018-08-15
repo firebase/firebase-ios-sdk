@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
  * frequently than this) but short enough that restarting after crashing will still have a pretty
  * recent resume token.
  */
-static const int64_t kResumeTokenMaxAgeMicros = 5 * 60 * 1000 * 1000;  // 5 minutes
+static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
 @interface FSTLocalStore ()
 
@@ -372,9 +372,10 @@ static const int64_t kResumeTokenMaxAgeMicros = 5 * 60 * 1000 * 1000;  // 5 minu
   // up-to-date after a crash and avoids needing to loop over all active queries on shutdown.
   // Especially in the browser we may not get time to do anything interesting while the current
   // tab is closing.
-  int64_t timeDelta =
-      newQueryData.snapshotVersion.ToMicroseconds() - oldQueryData.snapshotVersion.ToMicroseconds();
-  if (timeDelta >= kResumeTokenMaxAgeMicros) return YES;
+  int64_t newSeconds = newQueryData.snapshotVersion.timestamp().seconds();
+  int64_t oldSeconds = oldQueryData.snapshotVersion.timestamp().seconds();
+  int64_t timeDelta = newSeconds - oldSeconds;
+  if (timeDelta >= kResumeTokenMaxAgeSeconds) return YES;
 
   // Otherwise if the only thing that has changed about a target is its resume token it's not
   // worth persisting. Note that the RemoteStore keeps an in-memory view of the currently active

@@ -31,14 +31,6 @@ const SnapshotVersion& SnapshotVersion::None() {
   return kNone;
 }
 
-int64_t SnapshotVersion::ToMicroseconds() const {
-  namespace chr = std::chrono;
-
-  auto microseconds = chr::duration_cast<chr::microseconds>(
-      timestamp_.ToTimePoint().time_since_epoch());
-  return static_cast<int64_t>(microseconds.count());
-}
-
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
