@@ -18,14 +18,30 @@
 
 #include "gtest/gtest.h"
 
+#include "absl/memory/memory.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+class TestOperation : public GrpcOperation {
+ public:
+  explicit TestOperation(int* writes_count) : writes_count_{writes_count} {
+  }
+  void Execute() override {
+    ++(*writes_count_);
+  }
+  void Complete(bool ok) override {
+  }
+
+ private:
+  int* writes_count_ = nullptr;
+};
+
 class BufferedWriterTest : public testing::Test {
  public:
-  BufferedWriterTest()
-      : writer{[this](grpc::ByteBuffer&&) { ++writes_count; }} {
+  std::unique_ptr<TestOperation> MakeOperation() {
+    return absl::make_unique<TestOperation>(&writes_count);
   }
 
   int writes_count = 0;
@@ -35,16 +51,16 @@ class BufferedWriterTest : public testing::Test {
 TEST_F(BufferedWriterTest, CanDoImmediateWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue({});
+  writer.Enqueue(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 }
 
 TEST_F(BufferedWriterTest, CanDoBufferedWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue({});
-  writer.Enqueue({});
-  writer.Enqueue({});
+  writer.Enqueue(MakeOperation());
+  writer.Enqueue(MakeOperation());
+  writer.Enqueue(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 
   writer.DequeueNext();
@@ -61,17 +77,17 @@ TEST_F(BufferedWriterTest, CanDoBufferedWrites) {
 TEST_F(BufferedWriterTest, CanDiscardUnstartedWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue({});
-  writer.Enqueue({});
-  writer.Enqueue({});
-  writer.Enqueue({});
+  writer.Enqueue(MakeOperation());
+  writer.Enqueue(MakeOperation());
+  writer.Enqueue(MakeOperation());
+  writer.Enqueue(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 
   EXPECT_FALSE(writer.empty());
   writer.DiscardUnstartedWrites();
   EXPECT_TRUE(writer.empty());
 
-  writer.Enqueue({});
+  writer.Enqueue(MakeOperation());
   // We still haven't acknowledged that the previous write finished, so the
   // writer shouldn't do an immediate write. Clearing the writer shouldn't
   // affect the writer still waiting for the previous operation to complete.

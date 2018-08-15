@@ -17,10 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 
-#include <functional>
+#include <memory>
 #include <queue>
 
-#include <grpcpp/support/byte_buffer.h>
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,15 +43,11 @@ namespace remote {
  */
 class BufferedWriter {
  public:
-  using WriteFunction = std::function<void(grpc::ByteBuffer&&)>;
-
-  explicit BufferedWriter(WriteFunction&& write_func);
-
   bool empty() const {
     return queue_.empty();
   }
 
-  void Enqueue(grpc::ByteBuffer&& write);
+  void Enqueue(std::unique_ptr<GrpcOperation> write);
   void DequeueNext();
 
   // Doesn't affect the write that is currently in progress.
@@ -60,9 +56,7 @@ class BufferedWriter {
  private:
   void TryWrite();
 
-  WriteFunction write_func_;
-
-  std::queue<grpc::ByteBuffer> queue_;
+  std::queue<std::unique_ptr<GrpcOperation>> queue_;
   bool has_active_write_ = false;
 };
 

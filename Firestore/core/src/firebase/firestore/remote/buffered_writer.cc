@@ -24,16 +24,12 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-BufferedWriter::BufferedWriter(WriteFunction&& write_func)
-    : write_func_{std::move(write_func)} {
-  HARD_ASSERT(write_func_, "BufferedWriter needs a non-empty writing function");
-}
-
 void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::Enqueue(grpc::ByteBuffer&& write) {
+void BufferedWriter::Enqueue(std::unique_ptr<GrpcOperation> write) {
+  HARD_ASSERT(write, "Trying to enqueue a null write operation");
   queue_.push(std::move(write));
   TryWrite();
 }
@@ -47,8 +43,10 @@ void BufferedWriter::TryWrite() {
   }
 
   has_active_write_ = true;
-  write_func_(std::move(queue_.back()));
+  GrpcOperation* write_operation = queue_.front().release();
+  HARD_ASSERT(write_operation, "Trying to execute a null operation");
   queue_.pop();
+  write_operation->Execute();
 }
 
 void BufferedWriter::DequeueNext() {

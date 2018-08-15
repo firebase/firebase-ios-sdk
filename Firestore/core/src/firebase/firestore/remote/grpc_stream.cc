@@ -37,8 +37,16 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
 
 class StreamOperation : public GrpcOperation {
  public:
-  explicit StreamOperation(GrpcStream::Delegate&& delegate)
-      : delegate_{std::move(delegate)} {
+  StreamOperation(GrpcStream::Delegate&& delegate,
+                  grpc::GenericClientAsyncReaderWriter* call,
+                  GrpcCompletionQueue* grpc_queue)
+      : delegate_{std::move(delegate)}, call_{call}, grpc_queue_{grpc_queue} {
+  }
+
+  void Execute() override {
+    if (!grpc_queue_->IsShuttingDown()) {
+      DoExecute(call_);
+    }
   }
 
   void Complete(bool ok) override {
@@ -53,19 +61,22 @@ class StreamOperation : public GrpcOperation {
   GrpcStream::Delegate delegate_;
 
  private:
+  virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
   virtual void DoComplete() = 0;
+
+  grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
+  GrpcCompletionQueue* grpc_queue_ = nullptr;
 };
 
 class StreamStart : public StreamOperation {
  public:
   using StreamOperation::StreamOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* call,
-               grpc::ClientContext* context) override {
+ private:
+  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override {
     call->StartCall(this);
   }
 
- private:
   void DoComplete() override {
     delegate_.OnStart();
   }
@@ -75,12 +86,11 @@ class StreamRead : public StreamOperation {
  public:
   using StreamOperation::StreamOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* call,
-               grpc::ClientContext* context) override {
+ private:
+  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override {
     call->Read(&message_, this);
   }
 
- private:
   void DoComplete() override {
     delegate_.OnRead(message_);
   }
@@ -90,16 +100,19 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  StreamWrite(GrpcStream::Delegate&& delegate, grpc::ByteBuffer&& message)
-      : StreamOperation{std::move(delegate)}, message_{std::move(message)} {
-  }
-
-  void Execute(grpc::GenericClientAsyncReaderWriter* call,
-               grpc::ClientContext* context) override {
-    call->Write(message_, this);
+  StreamWrite(GrpcStream::Delegate&& delegate,
+              grpc::GenericClientAsyncReaderWriter* call,
+              GrpcCompletionQueue* grpc_queue,
+              grpc::ByteBuffer&& message)
+      : StreamOperation{std::move(delegate), call, grpc_queue},
+        message_{std::move(message)} {
   }
 
  private:
+  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override {
+    call->Write(message_, this);
+  }
+
   void DoComplete() override {
     delegate_.OnWrite();
   }
@@ -116,8 +129,7 @@ class ServerInitiatedFinish : public StreamOperation {
  public:
   using StreamOperation::StreamOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* call,
-               grpc::ClientContext* context) override {
+  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override {
     call->Finish(&grpc_status_, this);
   }
 
@@ -135,13 +147,11 @@ class ClientInitiatedFinish : public StreamOperation {
  public:
   using StreamOperation::StreamOperation;
 
-  void Execute(grpc::GenericClientAsyncReaderWriter* call,
-               grpc::ClientContext* context) override {
-    context->TryCancel();
+ private:
+  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override {
     call->Finish(&unused_status_, this);
   }
 
- private:
   void DoComplete() override {
     // Nothing to do
   }
@@ -153,10 +163,11 @@ class ClientInitiatedFinish : public StreamOperation {
 
 // Call
 
-GrpcStream::GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-                   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-                   GrpcOperationsObserver* observer,
-                   GrpcCompletionQueue* grpc_queue)
+GrpcStream::GrpcStream(
+    std::unique_ptr<grpc::ClientContext> context,
+    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+    GrpcOperationsObserver* observer,
+    GrpcCompletionQueue* grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
@@ -186,17 +197,13 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
   if (write_and_finish_) {
     return;
   }
-  buffered_writer_->Enqueue(std::move(message));
-}
 
-void GrpcStream::WriteImmediately(grpc::ByteBuffer&& message) {
-  HARD_ASSERT(is_started_,
-              "WriteImmediately called before the call has started");
-  Execute<StreamWrite>(std::move(message));
+  BufferedWrite(std::move(message));
 }
 
 void GrpcStream::Finish() {
   buffered_writer_.reset();
+  context_->TryCancel();
   Execute<ClientInitiatedFinish>();
 }
 
@@ -211,7 +218,13 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
   buffered_writer_->DiscardUnstartedWrites();
-  buffered_writer_->Enqueue(std::move(message));
+  BufferedWrite(std::move(message));
+}
+
+void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
+  std::unique_ptr<StreamWrite> write_operation{
+      MakeOperation<StreamWrite>(std::move(message))};
+  buffered_writer_->Enqueue(std::move(write_operation));
 }
 
 // Delegate
@@ -222,9 +235,7 @@ bool GrpcStream::Delegate::SameGeneration() const {
 
 void GrpcStream::Delegate::OnStart() {
   if (SameGeneration()) {
-    stream_->buffered_writer_ = BufferedWriter{[this](grpc::ByteBuffer&& message) {
-        stream_->WriteImmediately(std::move(message));
-      }};
+    stream_->buffered_writer_ = BufferedWriter{};
     stream_->observer_->OnStreamStart();
   }
 }
@@ -249,7 +260,8 @@ void GrpcStream::Delegate::OnWrite() {
   }
 }
 
-void GrpcStream::Delegate::OnFinishedWithServerError(const grpc::Status& status) {
+void GrpcStream::Delegate::OnFinishedWithServerError(
+    const grpc::Status& status) {
   if (SameGeneration()) {
     stream_->observer_->OnStreamError(ToFirestoreStatus(status));
   }

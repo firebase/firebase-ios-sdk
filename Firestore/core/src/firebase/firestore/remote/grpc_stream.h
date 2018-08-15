@@ -38,9 +38,9 @@ class GrpcOperationsObserver;
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
  public:
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-           std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-           GrpcOperationsObserver* observer,
-           GrpcCompletionQueue* grpc_queue);
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             GrpcOperationsObserver* observer,
+             GrpcCompletionQueue* grpc_queue);
 
   void Start();
   void Read();
@@ -58,8 +58,8 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
 
    private:
     friend class GrpcStream;
-    explicit Delegate(std::shared_ptr<GrpcStream>&& call)
-        : stream_{std::move(call)} {
+    explicit Delegate(std::shared_ptr<GrpcStream>&& stream)
+        : stream_{std::move(stream)} {
     }
 
     bool SameGeneration() const;
@@ -69,15 +69,17 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   };
 
  private:
-  void WriteImmediately(grpc::ByteBuffer&& buffer);
+  void BufferedWrite(grpc::ByteBuffer&& buffer);
+
+  template <typename Op, typename... Args>
+  Op* MakeOperation(Args... args) {
+    return new Op(Delegate{shared_from_this()}, call_.get(), grpc_queue_,
+                  std::move(args)...);
+  }
 
   template <typename Op, typename... Args>
   void Execute(Args... args) {
-    if (grpc_queue_->IsShuttingDown()) {
-      return;
-    }
-    auto* operation = new Op(Delegate{shared_from_this()}, std::move(args)...);
-    operation->Execute(call_.get(), context_.get());
+    MakeOperation<Op>(args...)->Execute();
   }
 
   std::unique_ptr<grpc::ClientContext> context_;

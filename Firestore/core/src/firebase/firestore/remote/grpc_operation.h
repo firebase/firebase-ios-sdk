@@ -19,8 +19,6 @@
 
 #include <utility>
 
-#include <grpcpp/client_context.h>
-#include <grpcpp/generic/generic_stub.h>
 #include <grpcpp/support/byte_buffer.h>
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -47,9 +45,7 @@ class GrpcOperation {
   virtual ~GrpcOperation() {
   }
 
-  virtual void Execute(grpc::GenericClientAsyncReaderWriter* call,
-                       grpc::ClientContext* context) = 0;
-
+  virtual void Execute() = 0;
   virtual void Complete(bool ok) = 0;
 };
 
