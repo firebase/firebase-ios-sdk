@@ -24,9 +24,9 @@
 #include "Firestore/core/src/firebase/firestore/util/hashing.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -35,8 +35,9 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
-using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 using firebase::firestore::model::ListenSequenceNumber;
+
+using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 
 NS_ASSUME_NONNULL_BEGIN
 

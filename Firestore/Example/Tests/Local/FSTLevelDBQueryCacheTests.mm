@@ -32,10 +32,10 @@
 
 using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 

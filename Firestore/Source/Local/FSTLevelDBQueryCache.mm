@@ -45,6 +45,7 @@ using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::MakeString;
@@ -52,7 +53,6 @@ using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
-using firebase::firestore::model::ListenSequenceNumber;
 
 namespace {
 

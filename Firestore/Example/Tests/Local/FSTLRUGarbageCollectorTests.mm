@@ -42,9 +42,9 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 

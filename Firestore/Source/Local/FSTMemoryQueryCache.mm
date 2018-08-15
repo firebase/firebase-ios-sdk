@@ -26,11 +26,11 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::TargetId;
+using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 

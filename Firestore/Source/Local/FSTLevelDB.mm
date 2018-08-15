@@ -55,6 +55,7 @@ using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
@@ -62,7 +63,6 @@ using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
-using firebase::firestore::model::ListenSequenceNumber;
 
 static NSString *const kReservedPathComponent = @"firestore";
 
