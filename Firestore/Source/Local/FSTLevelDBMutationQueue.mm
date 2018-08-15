@@ -51,6 +51,7 @@ using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::local::MakeStringView;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
@@ -61,7 +62,6 @@ using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteBatch;
 using leveldb::WriteOptions;
-using firebase::firestore::model::BatchId;
 
 @interface FSTLevelDBMutationQueue ()
 

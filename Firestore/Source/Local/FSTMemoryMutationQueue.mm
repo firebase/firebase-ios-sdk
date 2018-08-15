@@ -29,10 +29,10 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
-using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 

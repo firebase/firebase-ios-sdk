@@ -45,12 +45,12 @@
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 

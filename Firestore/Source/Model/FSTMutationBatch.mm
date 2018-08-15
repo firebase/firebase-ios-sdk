@@ -25,12 +25,12 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
-using firebase::firestore::model::BatchId;
+using firebase::firestore::model::SnapshotVersion;
 
 NS_ASSUME_NONNULL_BEGIN
 

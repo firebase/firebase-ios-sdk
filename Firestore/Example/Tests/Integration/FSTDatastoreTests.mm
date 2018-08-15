@@ -47,11 +47,11 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::model::BatchId;
 
 NS_ASSUME_NONNULL_BEGIN
 

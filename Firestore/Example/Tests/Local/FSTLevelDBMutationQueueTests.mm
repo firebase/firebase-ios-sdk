@@ -36,12 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
-using firebase::firestore::model::BatchId;
 
 // A dummy mutation value, useful for testing code that's known to examine only mutation keys.
 static const char *kDummy = "1";

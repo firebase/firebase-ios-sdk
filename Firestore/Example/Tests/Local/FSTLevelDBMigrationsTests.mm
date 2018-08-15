@@ -45,13 +45,13 @@ using firebase::firestore::local::LevelDbQueryTargetKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
-using firebase::firestore::model::BatchId;
 
 @interface FSTLevelDBMigrationsTests : XCTestCase
 @end
