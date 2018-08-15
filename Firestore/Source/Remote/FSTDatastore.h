@@ -18,12 +18,18 @@
 
 #include <vector>
 
+#include <grpcpp/client_context.h>
+#include <memory>
+
 #import "Firestore/Source/Core/FSTTypes.h"
 
+#include "Firestore/core/src/firebase/firestore//remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
 @class FSTDispatchQueue;
@@ -32,7 +38,6 @@
 @class FSTQueryData;
 @class FSTSerializerBeta;
 @class FSTWatchChange;
-@class FSTWatchStream;
 @class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
@@ -67,6 +72,8 @@ NS_ASSUME_NONNULL_BEGIN
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;
 
+- (void)shutdown;
+
 /**
  * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
  * (for logging purposes).
@@ -97,10 +104,10 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (FSTWatchStream *)createWatchStream;
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:(id)delegate;
 
 /** Creates a new write stream. */
-- (FSTWriteStream *)createWriteStream;
+- (std::shared_ptr<firebase::firestore::remote::WriteStream>)createWriteStreamWithDelegate:(id)delegate;
 
 /** The name of the database and the backend. */
 // Does not own this DatabaseInfo.

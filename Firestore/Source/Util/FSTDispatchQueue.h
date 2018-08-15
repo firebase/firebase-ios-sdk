@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -141,6 +143,8 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;
+
+- (firebase::firestore::util::AsyncQueue*)implementation;
 
 @end
 

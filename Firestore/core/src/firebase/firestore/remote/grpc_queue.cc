@@ -14,16 +14,28 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-Datastore::Datastore() {
+void GrpcCompletionQueue::Shutdown() {
+  HARD_ASSERT(!is_shutting_down_, "GRPC queue shut down twice");
+  is_shutting_down_ = true;
+  queue_.Shutdown();
 }
 
-Datastore::~Datastore() {
+GrpcOperation* GrpcCompletionQueue::Next(bool* const ok) {
+  void *tag = nullptr;
+  const bool has_more = queue_.Next(&tag, ok);
+  if (!has_more) {
+    return nullptr;
+  }
+  return static_cast<GrpcOperation *>(tag);
 }
 
 }  // namespace remote

@@ -33,18 +33,17 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
-
-/** Exposes otherwise private methods for testing. */
-@interface FSTStream (Testing)
-@property(nonatomic, strong, readwrite) id<GRXWriteable> callbackFilter;
-@end
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
 
 /**
  * Implements FSTWatchStreamDelegate and FSTWriteStreamDelegate and supports waiting on callbacks
@@ -138,198 +137,6 @@ using firebase::firestore::model::SnapshotVersion;
 
 @end
 
-@implementation FSTStreamTests {
-  dispatch_queue_t _testQueue;
-  FSTDispatchQueue *_workerDispatchQueue;
-  DatabaseInfo _databaseInfo;
-  EmptyCredentialsProvider _credentials;
-  FSTStreamStatusDelegate *_delegate;
-
-  /** Single mutation to send to the write stream. */
-  NSArray<FSTMutation *> *_mutations;
-}
-
-- (void)setUp {
-  [super setUp];
-
-  FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
-  DatabaseId database_id(util::MakeString([FSTIntegrationTestCase projectID]),
-                         DatabaseId::kDefault);
-
-  _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
-  _workerDispatchQueue = [[FSTDispatchQueue alloc] initWithQueue:_testQueue];
-
-  _databaseInfo =
-      DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
-
-  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
-
-  _mutations = @[ FSTTestSetMutation(@"foo/bar", @{}) ];
-}
-
-- (FSTWriteStream *)setUpWriteStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                   workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:&_credentials];
-  return [datastore createWriteStream];
-}
-
-- (FSTWatchStream *)setUpWatchStream {
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                   workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:&_credentials];
-  return [datastore createWatchStream];
-}
-
-/**
- * Drains the test queue and asserts that all the observed callbacks (up to this point) match
- * 'expectedStates'. Clears the list of observed callbacks on completion.
- */
-- (void)verifyDelegateObservedStates:(NSArray<NSString *> *)expectedStates {
-  // Drain queue
-  dispatch_sync(_testQueue, ^{
-                });
-
-  XCTAssertEqualObjects(_delegate.states, expectedStates);
-  [_delegate.states removeAllObjects];
-}
-
-/** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
-- (void)testWatchStreamStopBeforeHandshake {
-  FSTWatchStream *watchStream = [self setUpWatchStream];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [watchStream startWithDelegate:_delegate];
-  }];
-
-  // Stop must not call watchStreamDidClose because the full implementation of the delegate could
-  // attempt to restart the stream in the event it had pending watches.
-  [_workerDispatchQueue dispatchAsync:^{
-    [watchStream stop];
-  }];
-
-  // Simulate a final callback from GRPC
-  [_workerDispatchQueue dispatchAsync:^{
-    [watchStream.callbackFilter writesFinishedWithError:nil];
-  }];
-
-  [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen" ]];
-}
-
-/** Verifies that the write stream does not issue an onClose callback after a call to stop(). */
-- (void)testWriteStreamStopBeforeHandshake {
-  FSTWriteStream *writeStream = [self setUpWriteStream];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream startWithDelegate:_delegate];
-  }];
-
-  // Don't start the handshake.
-
-  // Stop must not call watchStreamDidClose because the full implementation of the delegate could
-  // attempt to restart the stream in the event it had pending watches.
-  [_workerDispatchQueue dispatchAsync:^{
-    [writeStream stop];
-  }];
-
-  // Simulate a final callback from GRPC
-  [_workerDispatchQueue dispatchAsync:^{
-    [writeStream.callbackFilter writesFinishedWithError:nil];
-  }];
-
-  [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen" ]];
-}
-
-- (void)testWriteStreamStopAfterHandshake {
-  FSTWriteStream *writeStream = [self setUpWriteStream];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream startWithDelegate:_delegate];
-  }];
-
-  // Writing before the handshake should throw
-  [_workerDispatchQueue dispatchSync:^{
-    XCTAssertThrows([writeStream writeMutations:_mutations]);
-  }];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream writeHandshake];
-  }];
-
-  // Now writes should succeed
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream writeMutations:_mutations];
-  }];
-
-  [_workerDispatchQueue dispatchAsync:^{
-    [writeStream stop];
-  }];
-
-  [self verifyDelegateObservedStates:@[
-    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
-    @"writeStreamDidReceiveResponseWithVersion"
-  ]];
-}
-
-- (void)testStreamClosesWhenIdle {
-  FSTWriteStream *writeStream = [self setUpWriteStream];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream startWithDelegate:_delegate];
-  }];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream writeHandshake];
-  }];
-
-  [_workerDispatchQueue dispatchAsync:^{
-    [writeStream markIdle];
-    XCTAssertTrue(
-        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
-  }];
-
-  [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
-
-  [_workerDispatchQueue dispatchSync:^{
-    XCTAssertFalse([writeStream isOpen]);
-  }];
-
-  [self verifyDelegateObservedStates:@[
-    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted"
-  ]];
-}
-
-- (void)testStreamCancelsIdleOnWrite {
-  FSTWriteStream *writeStream = [self setUpWriteStream];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream startWithDelegate:_delegate];
-  }];
-
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream writeHandshake];
-  }];
-
-  // Mark the stream idle, but immediately cancel the idle timer by issuing another write.
-  [_delegate awaitNotificationFromBlock:^{
-    [writeStream markIdle];
-    XCTAssertTrue(
-        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
-    [writeStream writeMutations:_mutations];
-    XCTAssertFalse(
-        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
-  }];
-
-  [_workerDispatchQueue dispatchSync:^{
-    XCTAssertTrue([writeStream isOpen]);
-  }];
-
-  [self verifyDelegateObservedStates:@[
-    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
-    @"writeStreamDidReceiveResponseWithVersion"
-  ]];
-}
-
 class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentialsProvider {
  public:
   MockCredentialsProvider() {
@@ -354,50 +161,252 @@ class MockCredentialsProvider : public firebase::firestore::auth::EmptyCredentia
   NSMutableArray<NSString *> *observed_states_;
 };
 
-- (void)testStreamRefreshesTokenUponExpiration {
-  MockCredentialsProvider credentials;
-  FSTDatastore *datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
-                                                   workerDispatchQueue:_workerDispatchQueue
-                                                           credentials:&credentials];
-  FSTWatchStream *watchStream = [datastore createWatchStream];
+@implementation FSTStreamTests {
+  dispatch_queue_t _testQueue;
+  FSTDispatchQueue *_workerDispatchQueue;
+  DatabaseInfo _databaseInfo;
+  MockCredentialsProvider _credentials;
+  FSTStreamStatusDelegate *_delegate;
+  FSTDatastore *_datastore;
+  std::shared_ptr<WatchStream> _watchStream;
+  std::shared_ptr<WriteStream> _writeStream;
+
+  /** Single mutation to send to the write stream. */
+  NSArray<FSTMutation *> *_mutations;
+}
+
+- (void)setUp {
+  [super setUp];
+
+  FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
+  DatabaseId database_id(util::MakeString([FSTIntegrationTestCase projectID]),
+                         DatabaseId::kDefault);
+
+  _testQueue = dispatch_queue_create("FSTStreamTestWorkerQueue", DISPATCH_QUEUE_SERIAL);
+  _workerDispatchQueue = [[FSTDispatchQueue alloc] initWithQueue:_testQueue];
+
+  _databaseInfo =
+      DatabaseInfo(database_id, "test-key", util::MakeString(settings.host), settings.sslEnabled);
+
+  _delegate = [[FSTStreamStatusDelegate alloc] initWithTestCase:self queue:_workerDispatchQueue];
+
+  _datastore = [[FSTDatastore alloc] initWithDatabaseInfo:&_databaseInfo
+                                      workerDispatchQueue:_workerDispatchQueue
+                                              credentials:&_credentials];
+
+  _mutations = @[ FSTTestSetMutation(@"foo/bar", @{}) ];
+}
+
+- (void)tearDown {
+  [super tearDown];
+  if (_watchStream) {
+      [_workerDispatchQueue dispatchSync:^{
+    _watchStream->Stop();
+    }];
+  }
+  if (_writeStream) {
+     [_workerDispatchQueue dispatchSync:^{
+    _writeStream->Stop();
+    }];
+  }
+  [_datastore shutdown];
+}
+
+- (std::shared_ptr<firebase::firestore::remote::WatchStream>)setUpWatchStream {
+  return [_datastore createWatchStreamWithDelegate:_delegate];
+}
+
+- (std::shared_ptr<firebase::firestore::remote::WriteStream>)setUpWriteStream {
+  return [_datastore createWriteStreamWithDelegate:_delegate];
+}
+
+/**
+ * Drains the test queue and asserts that all the observed callbacks (up to this point) match
+ * 'expectedStates'. Clears the list of observed callbacks on completion.
+ */
+- (void)verifyDelegateObservedStates:(NSArray<NSString *> *)expectedStates {
+  // Drain queue
+  dispatch_sync(_testQueue, ^{
+                });
+
+  XCTAssertEqualObjects(_delegate.states, expectedStates);
+  [_delegate.states removeAllObjects];
+}
+
+/** Verifies that the watch stream does not issue an onClose callback after a call to stop(). */
+- (void)testWatchStreamStopBeforeHandshake {
+  _watchStream = [self setUpWatchStream];
 
   [_delegate awaitNotificationFromBlock:^{
-    [watchStream startWithDelegate:_delegate];
+    _watchStream->Start();
+  }];
+
+  // Stop must not call watchStreamDidClose because the full implementation of the delegate could
+  // attempt to restart the stream in the event it had pending watches.
+  [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->Stop();
+  }];
+
+  // Simulate a final callback from GRPC
+  [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->OnStreamError(util::Status::OK());
+  }];
+
+  [self verifyDelegateObservedStates:@[ @"watchStreamDidOpen", @"watchStreamWasInterrupted", @"watchStreamWasInterrupted" ]];
+}
+
+/** Verifies that the write stream does not issue an onClose callback after a call to stop(). */
+- (void)testWriteStreamStopBeforeHandshake {
+  _writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->Start();
+  }];
+
+  // Don't start the handshake.
+
+  // Stop must not call watchStreamDidClose because the full implementation of the delegate could
+  // attempt to restart the stream in the event it had pending watches.
+  [_workerDispatchQueue dispatchAsync:^{
+    _writeStream->Stop();
+  }];
+
+  // Simulate a final callback from GRPC
+  [_workerDispatchQueue dispatchAsync:^{
+    _writeStream->OnStreamError(util::Status::OK());
+  }];
+
+  [self verifyDelegateObservedStates:@[ @"writeStreamDidOpen", @"writeStreamWasInterrupted", @"writeStreamWasInterrupted" ]];
+}
+
+- (void)testWriteStreamStopAfterHandshake {
+  _writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->Start();
+  }];
+
+  // Writing before the handshake should throw
+  [_workerDispatchQueue dispatchSync:^{
+    XCTAssertThrows(_writeStream->WriteMutations(_mutations));
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->WriteHandshake();
+  }];
+
+  // Now writes should succeed
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->WriteMutations(_mutations);
+  }];
+
+  [_workerDispatchQueue dispatchAsync:^{
+    _writeStream->Stop();
+  }];
+
+  [self verifyDelegateObservedStates:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
+    @"writeStreamDidReceiveResponseWithVersion",
+    @"writeStreamWasInterrupted"
+  ]];
+}
+
+- (void)testStreamClosesWhenIdle {
+  _writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->Start();
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->WriteHandshake();
+  }];
+
+  [_workerDispatchQueue dispatchAsync:^{
+    _writeStream->MarkIdle();
+    XCTAssertTrue(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
+  }];
+
+  [_workerDispatchQueue runDelayedCallbacksUntil:FSTTimerIDWriteStreamIdle];
+
+  [_workerDispatchQueue dispatchSync:^{
+    XCTAssertFalse(_writeStream->IsOpen());
+  }];
+
+  [self verifyDelegateObservedStates:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake", @"writeStreamWasInterrupted"
+  ]];
+}
+
+- (void)testStreamCancelsIdleOnWrite {
+  _writeStream = [self setUpWriteStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->Start();
+  }];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->WriteHandshake();
+  }];
+
+  // Mark the stream idle, but immediately cancel the idle timer by issuing another write.
+  [_delegate awaitNotificationFromBlock:^{
+    _writeStream->MarkIdle();
+    XCTAssertTrue(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
+    _writeStream->WriteMutations(_mutations);
+    XCTAssertFalse(
+        [_workerDispatchQueue containsDelayedCallbackWithTimerID:FSTTimerIDWriteStreamIdle]);
+  }];
+
+  [_workerDispatchQueue dispatchSync:^{
+    XCTAssertTrue(_writeStream->IsOpen());
+  }];
+
+  [self verifyDelegateObservedStates:@[
+    @"writeStreamDidOpen", @"writeStreamDidCompleteHandshake",
+    @"writeStreamDidReceiveResponseWithVersion"
+  ]];
+}
+
+- (void)testStreamRefreshesTokenUponExpiration {
+  _watchStream = [self setUpWatchStream];
+
+  [_delegate awaitNotificationFromBlock:^{
+    _watchStream->Start();
   }];
 
   // Simulate callback from GRPC with an unauthenticated error -- this should invalidate the token.
-  NSError *unauthenticatedError = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                                      code:FIRFirestoreErrorCodeUnauthenticated
-                                                  userInfo:nil];
-  dispatch_async(_testQueue, ^{
-    [watchStream.callbackFilter writesFinishedWithError:unauthenticatedError];
-  });
+   [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->Stop();
+    _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unauthenticated, ""});
+  }];
   // Drain the queue.
-  dispatch_sync(_testQueue, ^{
-                });
+  [_workerDispatchQueue dispatchSync:^{}];
 
   // Try reconnecting.
+  [_workerDispatchQueue dispatchSync:^{
+    _watchStream->Stop();
+    }];
   [_delegate awaitNotificationFromBlock:^{
-    [watchStream startWithDelegate:_delegate];
+    _watchStream->Start();
   }];
   // Simulate a different error -- token should not be invalidated this time.
-  NSError *unavailableError = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                                  code:FIRFirestoreErrorCodeUnavailable
-                                              userInfo:nil];
-  dispatch_async(_testQueue, ^{
-    [watchStream.callbackFilter writesFinishedWithError:unavailableError];
-  });
-  dispatch_sync(_testQueue, ^{
-                });
-
-  [_delegate awaitNotificationFromBlock:^{
-    [watchStream startWithDelegate:_delegate];
+  [_workerDispatchQueue dispatchAsync:^{
+    _watchStream->Stop();
+    _watchStream->OnStreamError(util::Status{FirestoreErrorCode::Unavailable, ""});
   }];
-  dispatch_sync(_testQueue, ^{
-                });
+   [_workerDispatchQueue dispatchSync:^{}];
+  
+  [_delegate awaitNotificationFromBlock:^{
+    _watchStream->Start();
+  }];
+   [_workerDispatchQueue dispatchSync:^{
+                }];
 
   NSArray<NSString *> *expected = @[ @"GetToken", @"InvalidateToken", @"GetToken", @"GetToken" ];
-  XCTAssertEqualObjects(credentials.observed_states(), expected);
+  XCTAssertEqualObjects(_credentials.observed_states(), expected);
 }
 
 @end

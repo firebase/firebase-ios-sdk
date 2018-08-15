@@ -44,10 +44,13 @@
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
+#include "Firestore/core/src/firebase/firestore/remote/stream.h"
+
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::Datastore;
 using firebase::firestore::util::CreateAutoId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -133,6 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
            "has been run.");
     }
     [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
+    Datastore::SetTestCertificatePath([certsPath cStringUsingEncoding:NSASCIIStringEncoding]);
   }
   settings.host = host;
   settings.persistenceEnabled = YES;

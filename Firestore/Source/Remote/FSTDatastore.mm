@@ -18,7 +18,10 @@
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
+#include <grpcpp/client_context.h>
+#include <grpcpp/security/credentials.h>
 
+#include <cstring>
 #include <map>
 #include <memory>
 #include <vector>
@@ -44,13 +47,14 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "absl/memory/memory.h"
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
-using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DatabaseId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -87,7 +91,13 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
 
 @end
 
-@implementation FSTDatastore
+using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
+
+@implementation FSTDatastore {
+  std::unique_ptr<Datastore> _datastore;
+}
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
@@ -111,8 +121,14 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
+
+    _datastore = absl::make_unique<Datastore>([_workerDispatchQueue implementation], *_databaseInfo);
   }
   return self;
+}
+
+- (void)shutdown {
+  _datastore->Shutdown();
 }
 
 - (NSString *)description {
@@ -333,18 +349,14 @@ typedef GRPCProtoCall * (^RPCFactory)(void);
   });
 }
 
-- (FSTWatchStream *)createWatchStream {
-  return [[FSTWatchStream alloc] initWithDatabase:_databaseInfo
-                              workerDispatchQueue:_workerDispatchQueue
-                                      credentials:_credentials
-                                       serializer:_serializer];
+- (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:(id)delegate {
+  return std::make_shared<WatchStream>(
+      [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
 }
 
-- (FSTWriteStream *)createWriteStream {
-  return [[FSTWriteStream alloc] initWithDatabase:_databaseInfo
-                              workerDispatchQueue:_workerDispatchQueue
-                                      credentials:_credentials
-                                       serializer:_serializer];
+- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id)delegate {
+  return std::make_shared<WriteStream>(
+      [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
 }
 
 /** Adds headers to the RPC including any OAuth access token if provided .*/

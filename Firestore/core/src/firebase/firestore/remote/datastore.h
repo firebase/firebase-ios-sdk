@@ -17,20 +17,67 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
+#include <memory>
+
+#include <grpc/grpc.h>
+#include <grpcpp/generic/generic_stub.h>
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor.h"
+
+#include "absl/strings/string_view.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+class GrpcOperationsObserver;
+
 class Datastore {
  public:
-  Datastore();
-  ~Datastore();
+  Datastore(util::AsyncQueue* firestore_queue,
+            const core::DatabaseInfo& database_info);
+
+  std::shared_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
+                                           absl::string_view path,
+                                           GrpcOperationsObserver* observer);
+  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
+
+  void Shutdown();
+  // TODO?
+  // Datastore::~Datastore() {
+  //   grpc_queue_.Shutdown();
+  //   dedicated_executor_->ExecuteBlocking([] {});
+  // }
+
+  static void SetTestCertificatePath(const std::string& path) {
+    test_certificate_path_ = path;
+  }
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
-
   Datastore& operator=(const Datastore& other) = delete;
   Datastore& operator=(Datastore&& other) = delete;
+
+ private:
+  void PollGrpcQueue();
+  grpc::GenericStub CreateGrpcStub() const;
+  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
+      absl::string_view token) const;
+  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
+      grpc::ClientContext* context, absl::string_view path);
+
+  static std::string test_certificate_path_;
+
+  util::AsyncQueue* firestore_queue_;
+  const core::DatabaseInfo* database_info_;
+
+  std::unique_ptr<util::internal::Executor> dedicated_executor_;
+  grpc::GenericStub grpc_stub_;
+  GrpcCompletionQueue grpc_queue_;
 };
 
 }  // namespace remote
