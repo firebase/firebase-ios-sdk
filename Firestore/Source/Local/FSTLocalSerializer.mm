@@ -39,6 +39,7 @@ using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 @interface FSTLocalSerializer ()
 
@@ -189,7 +190,7 @@ using firebase::firestore::model::TargetId;
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   TargetId targetID = target.targetId;
-  FSTListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
+  ListenSequenceNumber sequenceNumber = target.lastListenSequenceNumber;
   SnapshotVersion version = [remoteSerializer decodedVersion:target.snapshotVersion];
   NSData *resumeToken = target.resumeToken;
 

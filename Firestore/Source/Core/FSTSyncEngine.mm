@@ -54,12 +54,13 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
 // Limbo documents don't use persistence, and are eagerly GC'd. So, listens for them don't need
 // real sequence numbers.
-static const FSTListenSequenceNumber kIrrelevantSequenceNumber = -1;
+static const ListenSequenceNumber kIrrelevantSequenceNumber = -1;
 
 #pragma mark - FSTQueryView
 

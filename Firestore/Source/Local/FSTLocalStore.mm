@@ -51,6 +51,7 @@ using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -248,7 +249,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 - (FSTMaybeDocumentDictionary *)applyRemoteEvent:(FSTRemoteEvent *)remoteEvent {
   return self.persistence.run("Apply remote event", [&]() -> FSTMaybeDocumentDictionary * {
     // TODO(gsoltis): move the sequence number into the reference delegate.
-    FSTListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
+    ListenSequenceNumber sequenceNumber = self.persistence.currentSequenceNumber;
     id<FSTQueryCache> queryCache = self.queryCache;
 
     DocumentKeySet authoritativeUpdates;

@@ -26,6 +26,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(TargetId)targetID
-         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+         listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose
               snapshotVersion:(SnapshotVersion)snapshotVersion
                   resumeToken:(NSData *)resumeToken {
@@ -53,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithQuery:(FSTQuery *)query
                      targetID:(TargetId)targetID
-         listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+         listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                       purpose:(FSTQueryPurpose)purpose {
   return [self initWithQuery:query
                     targetID:targetID
@@ -97,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)queryDataByReplacingSnapshotVersion:(SnapshotVersion)snapshotVersion
                                         resumeToken:(NSData *)resumeToken
-                                     sequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+                                     sequenceNumber:(ListenSequenceNumber)sequenceNumber {
   return [[FSTQueryData alloc] initWithQuery:self.query
                                     targetID:self.targetID
                         listenSequenceNumber:sequenceNumber

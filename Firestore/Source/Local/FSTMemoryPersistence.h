@@ -19,6 +19,7 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -51,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence;
 
-- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
+- (BOOL)isPinnedAtSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound
                         document:(const firebase::firestore::model::DocumentKey &)key;
 
 @end

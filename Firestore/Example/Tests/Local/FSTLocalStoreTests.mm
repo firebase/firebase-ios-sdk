@@ -47,6 +47,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -817,7 +818,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTQuery *query = FSTTestQuery("foo/bar");
   FSTQueryData *queryData = [self.localStore allocateQuery:query];
-  FSTListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
+  ListenSequenceNumber initialSequenceNumber = queryData.sequenceNumber;
   FSTBoxedTargetID *targetID = @(queryData.targetID);
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(1000);
 
@@ -844,7 +845,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(queryData2.resumeToken, resumeToken);
 
   // The sequence number should have been bumped when we saved the new resume token.
-  FSTListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;
+  ListenSequenceNumber newSequenceNumber = queryData2.sequenceNumber;
   XCTAssertGreaterThan(newSequenceNumber, initialSequenceNumber);
 }
 

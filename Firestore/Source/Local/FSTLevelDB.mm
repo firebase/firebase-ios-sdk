@@ -62,6 +62,7 @@ using leveldb::Options;
 using leveldb::ReadOptions;
 using leveldb::Status;
 using leveldb::WriteOptions;
+using firebase::firestore::model::ListenSequenceNumber;
 
 static NSString *const kReservedPathComponent = @"firestore";
 
@@ -87,7 +88,7 @@ static NSString *const kReservedPathComponent = @"firestore";
   // weak to avoid retain cycle.
   __weak FSTLevelDB *_db;
   FSTReferenceSet *_additionalReferences;
-  FSTListenSequenceNumber _currentSequenceNumber;
+  ListenSequenceNumber _currentSequenceNumber;
   FSTListenSequence *_listenSequence;
 }
 
@@ -102,7 +103,7 @@ static NSString *const kReservedPathComponent = @"firestore";
 }
 
 - (void)start {
-  FSTListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
+  ListenSequenceNumber highestSequenceNumber = _db.queryCache.highestListenSequenceNumber;
   _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
 }
 
@@ -116,7 +117,7 @@ static NSString *const kReservedPathComponent = @"firestore";
   _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
 }
 
-- (FSTListenSequenceNumber)currentSequenceNumber {
+- (ListenSequenceNumber)currentSequenceNumber {
   HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
@@ -177,16 +178,16 @@ static NSString *const kReservedPathComponent = @"firestore";
 }
 
 - (void)enumerateMutationsUsingBlock:
-    (void (^)(const DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   [queryCache enumerateOrphanedDocumentsUsingBlock:block];
 }
 
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   __block int count = 0;
   [queryCache enumerateOrphanedDocumentsUsingBlock:^(
-                  const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+                  const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop) {
     if (sequenceNumber <= upperBound) {
       if (![self isPinned:docKey]) {
         count++;
@@ -197,7 +198,7 @@ static NSString *const kReservedPathComponent = @"firestore";
   return count;
 }
 
-- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   FSTLevelDBQueryCache *queryCache = _db.queryCache;
   return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
@@ -457,7 +458,7 @@ static NSString *const kReservedPathComponent = @"firestore";
   return _referenceDelegate;
 }
 
-- (FSTListenSequenceNumber)currentSequenceNumber {
+- (ListenSequenceNumber)currentSequenceNumber {
   return [_referenceDelegate currentSequenceNumber];
 }
 

@@ -34,12 +34,13 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryCacheTests {
   FSTQuery *_queryRooms;
-  FSTListenSequenceNumber _previousSequenceNumber;
+  ListenSequenceNumber _previousSequenceNumber;
   TargetId _previousTargetID;
   FSTTestSnapshotVersion _previousSnapshotVersion;
 }
@@ -365,7 +366,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTQueryData *)queryDataWithQuery:(FSTQuery *)query
                             targetID:(TargetId)targetID
-                listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                              version:(FSTTestSnapshotVersion)version {
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(version);
   return [[FSTQueryData alloc] initWithQuery:query

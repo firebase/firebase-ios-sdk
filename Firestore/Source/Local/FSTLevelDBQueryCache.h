@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTQueryCache.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "leveldb/db.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTLevelDB;
 @class FSTLocalSerializer;
@@ -58,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
     (void (^)(const firebase::firestore::model::DocumentKey &docKey,
-              FSTListenSequenceNumber sequenceNumber,
+              firebase::firestore::model::ListenSequenceNumber sequenceNumber,
               BOOL *stop))block;
 
 @end

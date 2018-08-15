@@ -24,6 +24,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -80,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-         throughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+         throughSequenceNumber:(ListenSequenceNumber)upperBound {
   int count = 0;
   FSTMaybeDocumentDictionary *updatedDocs = self.docs;
   for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
