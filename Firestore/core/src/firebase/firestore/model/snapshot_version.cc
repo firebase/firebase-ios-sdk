@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
+#include <chrono>  // NOLINT(build/c++11)
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -27,6 +29,17 @@ SnapshotVersion::SnapshotVersion(const Timestamp& timestamp)
 const SnapshotVersion& SnapshotVersion::None() {
   static const SnapshotVersion kNone(Timestamp{});
   return kNone;
+}
+
+int64_t SnapshotVersion::ToMicroseconds() const {
+  namespace chr = std::chrono;
+
+  auto second_part =
+      chr::duration_cast<chr::microseconds>(chr::seconds(timestamp_.seconds()));
+  auto nanosecond_part = chr::duration_cast<chr::microseconds>(
+      chr::nanoseconds(timestamp_.nanoseconds()));
+  auto result = second_part + nanosecond_part;
+  return static_cast<int64_t>(result.count());
 }
 
 }  // namespace model

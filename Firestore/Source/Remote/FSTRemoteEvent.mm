@@ -20,6 +20,7 @@
 #include <set>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
@@ -39,6 +40,7 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -338,8 +340,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)handleTargetChange:(FSTWatchTargetChange *)targetChange {
-  for (FSTBoxedTargetID *boxedTargetID in targetChange.targetIDs) {
-    int targetID = boxedTargetID.intValue;
+  for (TargetId targetID : [self targetIdsForChange:targetChange]) {
     FSTTargetState *targetState = [self ensureTargetStateForTarget:targetID];
     switch (targetChange.state) {
       case FSTWatchTargetChangeStateNoChange:
@@ -385,6 +386,27 @@ NS_ASSUME_NONNULL_BEGIN
         HARD_FAIL("Unknown target watch change state: %s", targetChange.state);
     }
   }
+}
+
+/**
+ * Returns all targetIds that the watch change applies to: either the targetIds explicitly listed
+ * in the change or the targetIds of all currently active targets.
+ */
+- (std::vector<TargetId>)targetIdsForChange:(FSTWatchTargetChange *)targetChange {
+  NSArray<NSNumber *> *targetIDs = targetChange.targetIDs;
+  std::vector<TargetId> result;
+  if (targetIDs.count > 0) {
+    result.reserve(targetIDs.count);
+    for (NSNumber *targetID in targetIDs) {
+      result.push_back(targetID.intValue);
+    }
+  } else {
+    result.reserve(_targetStates.size());
+    for (const auto &entry : _targetStates) {
+      result.push_back(entry.first);
+    }
+  }
+  return result;
 }
 
 - (void)removeTarget:(FSTTargetID)targetID {
