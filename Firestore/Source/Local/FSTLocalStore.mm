@@ -378,7 +378,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   int64_t timeDelta = newSeconds - oldSeconds;
   if (timeDelta >= kResumeTokenMaxAgeSeconds) return YES;
 
-  // Otherwise if the only thing that has changed about a target is its resume token it's not
+  // Otherwise if the only thing that has changed about a target is its resume token then it's not
   // worth persisting. Note that the RemoteStore keeps an in-memory view of the currently active
   // targets which includes the current resume token, so stream failure or user changes will still
   // use an up-to-date resume token regardless of what we do here.
