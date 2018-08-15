@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-
 namespace firebase {
 namespace firestore {
 namespace model {
