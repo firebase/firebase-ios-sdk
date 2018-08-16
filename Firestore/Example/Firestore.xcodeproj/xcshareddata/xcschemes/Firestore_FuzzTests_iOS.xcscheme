@@ -56,6 +56,11 @@
             value = "$(FUZZING_TARGET)"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "FUZZING_DURATION"
+            value = "$(FUZZING_DURATION)"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>

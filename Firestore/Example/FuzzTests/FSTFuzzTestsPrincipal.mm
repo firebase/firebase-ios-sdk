@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-#import <Foundation/NSObject.h>
-#include <string>
+#import <Foundation/Foundation.h>
 
-#include "LibFuzzer/FuzzerDefs.h"
+#include <cstdlib>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
-
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "LibFuzzer/FuzzerDefs.h"
+#include "absl/strings/str_join.h"
 
 namespace {
 
 using firebase::firestore::util::MakeString;
 namespace fuzzing = firebase::firestore::fuzzing;
 
-// A list of targets to fuzz test. Should be kept in sync with the method
-// GetFuzzingTarget().
+// A list of targets to fuzz test. Should be kept in sync with
+// GetFuzzingTarget() fuzzing_target_names map object.
 enum class FuzzingTarget { kNone, kSerializer, kFieldPath };
 
 // Directory to which crashing inputs are written. Must include the '/' at the
@@ -43,9 +46,14 @@ NSString *kCrashingInputsDirectory = NSTemporaryDirectory();
 // Default target is kNone if the environment variable is empty, not set, or
 // could not be interpreted. Should be kept in sync with FuzzingTarget.
 FuzzingTarget GetFuzzingTarget() {
-  char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
+  std::unordered_map<std::string, FuzzingTarget> fuzzing_target_names;
+  fuzzing_target_names["NONE"] = FuzzingTarget::kNone;
+  fuzzing_target_names["SERIALIZER"] = FuzzingTarget::kSerializer;
+  fuzzing_target_names["FIELDPATH"] = FuzzingTarget::kFieldPath;
 
-  if (fuzzing_target_env == nullptr) {
+  const char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
+
+  if (!fuzzing_target_env) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
@@ -56,17 +64,37 @@ FuzzingTarget GetFuzzingTarget() {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
-  if (fuzzing_target == "NONE") {
-    return FuzzingTarget::kNone;
+
+  // Return the value of the fuzzing_target key if it exists in the
+  // fuzzing_target_names map.
+  if (fuzzing_target_names.find(fuzzing_target) != fuzzing_target_names.end()) {
+    return fuzzing_target_names[fuzzing_target];
   }
-  if (fuzzing_target == "SERIALIZER") {
-    return FuzzingTarget::kSerializer;
+
+  // If the target is not found, print an error message with all available targets.
+  // The targets must be enclosed in curly brackets and separated by spaces. This format
+  // is needed by the script /firebase-ios-sdk/script/fuzzing_travis.sh, which parses
+  // this message to retrieve a list of the available targets.
+  std::vector<std::string> all_keys;
+  for (const auto &kv : fuzzing_target_names) {
+    all_keys.push_back(kv.first);
   }
-  if (fuzzing_target == "FIELDPATH") {
-    return FuzzingTarget::kFieldPath;
-  }
-  LOG_WARN("Invalid fuzzing target: %s", fuzzing_target);
+  const std::string all_keys_str = absl::StrJoin(all_keys, " ");
+  LOG_WARN("Invalid fuzzing target: %s. Available targets: { %s }.", fuzzing_target, all_keys_str);
   return FuzzingTarget::kNone;
+}
+
+// Retrieves fuzzing duration from the FUZZING_DURATION environment variable.
+// Defaults to "0" if the environment variable is empty, which corresponds to
+// running indefinitely.
+std::string GetFuzzingDuration() {
+  const char *fuzzing_duration_env = std::getenv("FUZZING_DURATION");
+
+  if (!fuzzing_duration_env) {
+    return "0";
+  }
+
+  return std::string{fuzzing_duration_env};
 }
 
 // Simulates calling the main() function of libFuzzer (FuzzerMain.cpp).
@@ -121,6 +149,9 @@ int RunFuzzTestingMain() {
   // The directory in which libFuzzer writes crashing inputs.
   std::string prefix_arg = std::string("-artifact_prefix=") + MakeString(kCrashingInputsDirectory);
 
+  // Run fuzzing for the defined fuzzing duration.
+  std::string time_arg = "-max_total_time=" + GetFuzzingDuration();
+
   // Arguments to libFuzzer main() function should be added to this array,
   // e.g., dictionaries, corpus, number of runs, jobs, etc. The FuzzerDriver of
   // libFuzzer expects the non-const argument 'char ***argv' and it does not
@@ -128,6 +159,7 @@ int RunFuzzTestingMain() {
   char *program_args[] = {
       const_cast<char *>("RunFuzzTestingMain"),  // First arg is program name.
       const_cast<char *>(prefix_arg.c_str()),    // Crashing inputs directory.
+      const_cast<char *>(time_arg.c_str()),      // Maximum total time.
       const_cast<char *>(dict_arg.c_str()),      // Dictionary arg.
       const_cast<char *>(corpus_arg.c_str())     // Corpus must be the last arg.
   };
