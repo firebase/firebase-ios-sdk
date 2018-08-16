@@ -22,8 +22,8 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
-using firebase::firestore::model::TargetId;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -56,9 +56,8 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
-
-using firebase::firestore::util::internal::Executor;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
 
