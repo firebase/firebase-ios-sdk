@@ -53,6 +53,14 @@ using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * The maximum time to leave a resume token buffered without writing it out. This value is
+ * arbitrary: it's long enough to avoid several writes (possibly indefinitely if updates come more
+ * frequently than this) but short enough that restarting after crashing will still have a pretty
+ * recent resume token.
+ */
+static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
+
 @interface FSTLocalStore ()
 
 /** Manages our in-memory or durable persistence. */
@@ -277,11 +285,15 @@ NS_ASSUME_NONNULL_BEGIN
       // than documents that were previously removed from this target.
       NSData *resumeToken = change.resumeToken;
       if (resumeToken.length > 0) {
+        FSTQueryData *oldQueryData = queryData;
         queryData = [queryData queryDataByReplacingSnapshotVersion:remoteEvent.snapshotVersion
                                                        resumeToken:resumeToken
                                                     sequenceNumber:sequenceNumber];
         self.targetIDs[boxedTargetID] = queryData;
-        [self.queryCache updateQueryData:queryData];
+
+        if ([self shouldPersistQueryData:queryData oldQueryData:oldQueryData change:change]) {
+          [self.queryCache updateQueryData:queryData];
+        }
       }
     }
 
@@ -338,6 +350,43 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
+/**
+ * Returns YES if the newQueryData should be persisted during an update of an active target.
+ * QueryData should always be persisted when a target is being released and should not call this
+ * function.
+ *
+ * While the target is active, QueryData updates can be omitted when nothing about the target has
+ * changed except metadata like the resume token or snapshot version. Occasionally it's worth the
+ * extra write to prevent these values from getting too stale after a crash, but this doesn't have
+ * to be too frequent.
+ */
+- (BOOL)shouldPersistQueryData:(FSTQueryData *)newQueryData
+                  oldQueryData:(FSTQueryData *)oldQueryData
+                        change:(FSTTargetChange *)change {
+  // Avoid clearing any existing value
+  if (newQueryData.resumeToken.length == 0) return NO;
+
+  // Any resume token is interesting if there isn't one already.
+  if (oldQueryData.resumeToken.length == 0) return YES;
+
+  // Don't allow resume token changes to be buffered indefinitely. This allows us to be reasonably
+  // up-to-date after a crash and avoids needing to loop over all active queries on shutdown.
+  // Especially in the browser we may not get time to do anything interesting while the current
+  // tab is closing.
+  int64_t newSeconds = newQueryData.snapshotVersion.timestamp().seconds();
+  int64_t oldSeconds = oldQueryData.snapshotVersion.timestamp().seconds();
+  int64_t timeDelta = newSeconds - oldSeconds;
+  if (timeDelta >= kResumeTokenMaxAgeSeconds) return YES;
+
+  // Otherwise if the only thing that has changed about a target is its resume token then it's not
+  // worth persisting. Note that the RemoteStore keeps an in-memory view of the currently active
+  // targets which includes the current resume token, so stream failure or user changes will still
+  // use an up-to-date resume token regardless of what we do here.
+  size_t changes = change.addedDocuments.size() + change.modifiedDocuments.size() +
+                   change.removedDocuments.size();
+  return changes > 0;
+}
+
 - (void)notifyLocalViewChanges:(NSArray<FSTLocalViewChanges *> *)viewChanges {
   self.persistence.run("NotifyLocalViewChanges", [&]() {
     FSTReferenceSet *localViewReferences = self.localViewReferences;
@@ -391,9 +440,21 @@ NS_ASSUME_NONNULL_BEGIN
     FSTQueryData *queryData = [self.queryCache queryDataForQuery:query];
     HARD_ASSERT(queryData, "Tried to release nonexistent query: %s", query);
 
-    [self.localViewReferences removeReferencesForID:queryData.targetID];
+    TargetId targetID = queryData.targetID;
+    FSTBoxedTargetID *boxedTargetID = @(targetID);
+
+    FSTQueryData *cachedQueryData = self.targetIDs[boxedTargetID];
+    if (cachedQueryData.snapshotVersion > queryData.snapshotVersion) {
+      // If we've been avoiding persisting the resumeToken (see shouldPersistQueryData for
+      // conditions and rationale) we need to persist the token now because there will no
+      // longer be an in-memory version to fall back on.
+      queryData = cachedQueryData;
+      [self.queryCache updateQueryData:queryData];
+    }
+
+    [self.localViewReferences removeReferencesForID:targetID];
+    [self.targetIDs removeObjectForKey:boxedTargetID];
     [self.persistence.referenceDelegate removeTarget:queryData];
-    [self.targetIDs removeObjectForKey:@(queryData.targetID)];
 
     // If this was the last watch target, then we won't get any more watch snapshots, so we should
     // release any held batch results.

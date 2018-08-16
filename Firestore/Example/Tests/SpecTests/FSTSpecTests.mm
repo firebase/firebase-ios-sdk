@@ -78,6 +78,10 @@ static NSString *const kBenchmarkTag = @"benchmark";
 
 NSString *const kNoLRUTag = @"no-lru";
 
+static NSString *Describe(NSData *data) {
+  return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
@@ -660,7 +664,7 @@ NSString *const kNoLRUTag = @"no-lru";
       XCTAssertEqualObjects(actual.query, queryData.query);
       XCTAssertEqual(actual.targetID, queryData.targetID);
       XCTAssertEqual(actual.snapshotVersion, queryData.snapshotVersion);
-      XCTAssertEqualObjects(actual.resumeToken, queryData.resumeToken);
+      XCTAssertEqualObjects(Describe(actual.resumeToken), Describe(queryData.resumeToken));
     }
 
     [actualTargets removeObjectForKey:targetID];
