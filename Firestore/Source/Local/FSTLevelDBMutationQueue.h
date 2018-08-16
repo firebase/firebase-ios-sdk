@@ -21,6 +21,7 @@
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "leveldb/db.h"
 
 @class FSTLevelDB;
@@ -47,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns one larger than the largest batch ID that has been stored. If there are no mutations
  * returns 0. Note that batch IDs are global.
  */
-+ (FSTBatchID)loadNextBatchIDFromDB:(leveldb::DB *)db;
++ (firebase::firestore::model::BatchId)loadNextBatchIDFromDB:(leveldb::DB *)db;
 
 @end
 

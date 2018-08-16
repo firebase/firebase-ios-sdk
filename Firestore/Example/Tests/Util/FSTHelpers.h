@@ -19,7 +19,6 @@
 #include <string>
 #include <vector>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 

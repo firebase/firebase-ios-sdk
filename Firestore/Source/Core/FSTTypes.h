@@ -23,12 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSTMaybeDocument;
 @class FSTTransaction;
 
-/** FSTBatchID is a locally assigned ID for a batch of mutations that have been applied. */
-typedef firebase::firestore::model::BatchId FSTBatchID;
-
 typedef int64_t FSTListenSequenceNumber;
-
-typedef NSNumber FSTBoxedTargetID;
 
 /**
  * FSTVoidBlock is a block that's called when a specific event happens but that otherwise has

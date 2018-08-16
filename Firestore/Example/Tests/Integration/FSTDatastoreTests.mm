@@ -47,6 +47,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
@@ -118,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
+- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   HARD_FAIL("Not implemented");
 }
 

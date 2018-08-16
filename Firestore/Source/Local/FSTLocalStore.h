@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -119,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The resulting (modified) documents.
  */
-- (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID;
+- (FSTMaybeDocumentDictionary *)rejectBatchID:(firebase::firestore::model::BatchId)batchID;
 
 /** Returns the last recorded stream token for the current user. */
 - (nullable NSData *)lastStreamToken;
@@ -174,7 +173,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param batchID The batch to search after, or -1 for the first mutation in the queue.
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID;
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 @end
 

@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  * and a document key that the target or batch references.
  *
  * A reference can be from either listen targets (identified by their TargetId) or mutation batches
- * (identified by their FSTBatchID). See FSTGarbageCollector for more details.
+ * (identified by their BatchId). See FSTGarbageCollector for more details.
  *
  * Not to be confused with FIRDocumentReference.
  */

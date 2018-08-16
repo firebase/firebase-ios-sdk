@@ -19,7 +19,6 @@
 #include <map>
 #include <unordered_map>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 

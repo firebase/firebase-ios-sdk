@@ -45,6 +45,7 @@
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentVersionMap;
@@ -139,7 +140,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 
     // TODO(mikelehen): This is the only usage of getAllMutationBatchesThroughBatchId:. Consider
     // removing it in favor of a getAcknowledgedBatches method.
-    FSTBatchID highestAck = [self.mutationQueue highestAcknowledgedBatchID];
+    BatchId highestAck = [self.mutationQueue highestAcknowledgedBatchID];
     if (highestAck != kFSTBatchIDUnknown) {
       NSArray<FSTMutationBatch *> *batches =
           [self.mutationQueue allMutationBatchesThroughBatchID:highestAck];
@@ -215,12 +216,12 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID {
+- (FSTMaybeDocumentDictionary *)rejectBatchID:(BatchId)batchID {
   return self.persistence.run("Reject batch", [&]() -> FSTMaybeDocumentDictionary * {
     FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
-    FSTBatchID lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
+    BatchId lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
     HARD_ASSERT(batchID > lastAcked, "Acknowledged batches can't be rejected.");
 
     DocumentKeySet affected = [self removeMutationBatch:toReject];
@@ -400,7 +401,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   });
 }
 
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
   FSTMutationBatch *result =
       self.persistence.run("NextMutationBatchAfterBatchID", [&]() -> FSTMutationBatch * {
         return [self.mutationQueue nextMutationBatchAfterBatchID:batchID];
