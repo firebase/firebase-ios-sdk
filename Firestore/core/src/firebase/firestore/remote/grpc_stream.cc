@@ -37,6 +37,9 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
 
 // Operations
 
+// An operation that notifies the corresponding stream on its completion (via
+// `GrpcStreamDelegate`). The stream is guaranteed to be valid as long as the
+// operation exists.
 class StreamOperation : public GrpcOperation {
  public:
   StreamOperation(GrpcStreamDelegate&& delegate,
@@ -65,8 +68,10 @@ class StreamOperation : public GrpcOperation {
   virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
   virtual void DoComplete(GrpcStreamDelegate* delegate) = 0;
 
+  // Delegate contains a strong reference to the stream.
   GrpcStreamDelegate delegate_;
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
+  // Make execution a no-op if the queue is shutting down.
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 };
 
@@ -145,6 +150,7 @@ class ServerInitiatedFinish : public StreamOperation {
   grpc::Status grpc_status_;
 };
 
+// Unlike `ServerInitiatedFinish`, the observer is not interested in the status.
 class ClientInitiatedFinish : public StreamOperation {
  public:
   using StreamOperation::StreamOperation;
@@ -155,6 +161,7 @@ class ClientInitiatedFinish : public StreamOperation {
   }
 
   void DoComplete(GrpcStreamDelegate* delegate) override {
+    // TODO(varconst): log if status is not "ok" or "canceled".
     delegate->OnFinishedByClient();
   }
 
@@ -215,12 +222,14 @@ void GrpcStream::Finish() {
 }
 
 void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
-  if (!buffered_writer_) {
+  if (state_ < State::Open) {
     // Ignore the write part if the call didn't have a chance to open yet.
     Finish();
     return;
   }
 
+  HARD_ASSERT(buffered_writer_,
+              "Write requested when there is no valid buffered_writer_");
   state_ = State::FinishingWithWrite;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
@@ -229,6 +238,8 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 }
 
 void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
+  HARD_ASSERT(buffered_writer_,
+              "Write requested when there is no valid buffered_writer_");
   std::unique_ptr<StreamWrite> write_operation{
       MakeOperation<StreamWrite>(std::move(message))};
   buffered_writer_->Enqueue(std::move(write_operation));
@@ -242,10 +253,11 @@ bool GrpcStream::SameGeneration() const {
 
 void GrpcStream::OnStart() {
   state_ = State::Open;
+  buffered_writer_ = BufferedWriter{};
 
   if (SameGeneration()) {
-    buffered_writer_ = BufferedWriter{};
     observer_->OnStreamStart();
+    // Start listening for new messages.
     Read();
   }
 }
@@ -284,12 +296,14 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
 
 void GrpcStream::OnFinishedByClient() {
   state_ = State::Finished;
-  // The observer is not interested in this event.
+  // The observer is not interested in this event -- since it initiated the
+  // finish operation, the observer must know the reason.
 }
 
 void GrpcStream::OnOperationFailed() {
-  HARD_ASSERT(state_ != State::Finished, "Operation failed after stream was "
-      "finished. Finish operation should be the last one to complete");
+  HARD_ASSERT(state_ != State::Finished,
+              "Operation failed after stream was "
+              "finished. Finish operation should be the last one to complete");
   if (state_ >= State::Finishing) {
     // `Finish` itself cannot fail. If another failed operation already
     // triggered `Finish`, there's nothing to do.
@@ -299,8 +313,11 @@ void GrpcStream::OnOperationFailed() {
   buffered_writer_.reset();
 
   if (SameGeneration()) {
+    state_ = State::Finishing;
     Execute<ServerInitiatedFinish>();
   } else {
+    // The only reason to finish would be to get the status; if the observer is
+    // no longer interested, there is no need to do that.
     state_ = State::Finished;
   }
 }
