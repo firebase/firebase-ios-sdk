@@ -177,8 +177,7 @@ GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     GrpcStreamObserver* observer,
-    GrpcCompletionQueue* grpc_queue,
-    MakeSharedWorkaround)
+    GrpcCompletionQueue* grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},

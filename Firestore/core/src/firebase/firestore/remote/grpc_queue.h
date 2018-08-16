@@ -27,8 +27,10 @@ namespace remote {
 
 class GrpcOperation;
 
-// An owning wrapper around `grpc::CompletionQueue` that allows checking whether
-// the queue has been shut down.
+/**
+ * An owning wrapper around `grpc::CompletionQueue` that allows checking whether
+ * the queue has been shut down.
+ */
 class GrpcCompletionQueue {
  public:
   ~GrpcCompletionQueue();
