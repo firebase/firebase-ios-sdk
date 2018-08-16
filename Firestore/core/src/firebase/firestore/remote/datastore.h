@@ -17,8 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
-#include <memory>
-
 #include <grpcpp/support/status_code_enum.h>
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 

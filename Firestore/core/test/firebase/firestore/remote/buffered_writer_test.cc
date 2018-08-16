@@ -51,54 +51,54 @@ class BufferedWriterTest : public testing::Test {
 TEST_F(BufferedWriterTest, CanDoImmediateWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 }
 
 TEST_F(BufferedWriterTest, CanDoBufferedWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue(MakeOperation());
-  writer.Enqueue(MakeOperation());
-  writer.Enqueue(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 
-  writer.DequeueNext();
+  writer.DequeueNextWrite();
   EXPECT_EQ(writes_count, 2);
 
-  writer.DequeueNext();
+  writer.DequeueNextWrite();
   EXPECT_EQ(writes_count, 3);
 
-  // An extra call to `DequeueNext` should be a no-op.
-  writer.DequeueNext();
+  // An extra call to `DequeueNextWrite` should be a no-op.
+  writer.DequeueNextWrite();
   EXPECT_EQ(writes_count, 3);
 }
 
 TEST_F(BufferedWriterTest, CanDiscardUnstartedWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.Enqueue(MakeOperation());
-  writer.Enqueue(MakeOperation());
-  writer.Enqueue(MakeOperation());
-  writer.Enqueue(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
   EXPECT_EQ(writes_count, 1);
 
   EXPECT_FALSE(writer.empty());
   writer.DiscardUnstartedWrites();
   EXPECT_TRUE(writer.empty());
 
-  writer.Enqueue(MakeOperation());
+  writer.EnqueueWrite(MakeOperation());
   // We still haven't acknowledged that the previous write finished, so the
   // writer shouldn't do an immediate write. Clearing the writer shouldn't
   // affect the writer still waiting for the previous operation to complete.
   EXPECT_EQ(writes_count, 1);
-  writer.DequeueNext();
+  writer.DequeueNextWrite();
   EXPECT_EQ(writes_count, 2);
 
   // The previously enqueued operations should be cleared.
-  writer.DequeueNext();
-  writer.DequeueNext();
-  writer.DequeueNext();
+  writer.DequeueNextWrite();
+  writer.DequeueNextWrite();
+  writer.DequeueNextWrite();
   EXPECT_EQ(writes_count, 2);
 }
 
