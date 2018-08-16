@@ -53,7 +53,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Stream : public GrpcOperationsObserver, public std::enable_shared_from_this<Stream> {
+class Stream : public GrpcStreamObserver, public std::enable_shared_from_this<Stream> {
  public:
   Stream(util::AsyncQueue* async_queue,
          auth::CredentialsProvider* credentials_provider,

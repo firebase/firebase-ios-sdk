@@ -25,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -108,10 +107,10 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
 std::shared_ptr<GrpcStream> Datastore::CreateGrpcStream(
     const absl::string_view token,
     const absl::string_view path,
-    GrpcOperationsObserver *const observer) {
+    GrpcStreamObserver *const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return std::make_shared<GrpcStream>(std::move(context),
+  return GrpcStream::MakeStream(std::move(context),
                                     std::move(reader_writer), observer, &grpc_queue_);
 }
 

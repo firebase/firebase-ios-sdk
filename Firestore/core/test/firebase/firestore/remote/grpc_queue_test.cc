@@ -24,9 +24,9 @@ namespace remote {
 
 TEST(GrpcCompletionQueueTest, IsShuttingDown) {
   GrpcCompletionQueue queue;
-  EXPECT_FALSE(queue.IsShuttingDown());
+  EXPECT_FALSE(queue.IsShutDown());
   queue.Shutdown();
-  EXPECT_TRUE(queue.IsShuttingDown());
+  EXPECT_TRUE(queue.IsShutDown());
 }
 
 TEST(GrpcCompletionQueueTest, NextReturnsNullAfterShutdown) {

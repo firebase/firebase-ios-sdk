@@ -24,6 +24,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
@@ -34,8 +35,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcOperationsObserver;
-
 class Datastore {
  public:
   Datastore(util::AsyncQueue* firestore_queue,
@@ -43,7 +42,7 @@ class Datastore {
 
   std::shared_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
                                            absl::string_view path,
-                                           GrpcOperationsObserver* observer);
+                                           GrpcStreamObserver* observer);
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   void Shutdown();

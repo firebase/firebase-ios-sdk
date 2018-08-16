@@ -25,6 +25,7 @@
 #include <grpcpp/support/byte_buffer.h>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
@@ -37,20 +38,37 @@ namespace internal {
 class GrpcStreamDelegate;
 }
 
-class GrpcStreamObserver;
-
+// A GRPC bidirectional stream that notifies the given `observer` about stream
+// events.
+//
+// The stream is disposable; once it finishes, it cannot be restarted.
+// This class is a wrapper over `grpc::GenericClientAsyncReaderWriter`.
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
+ private:
+  struct MakeSharedWorkaround {};
+
  public:
-  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             GrpcStreamObserver* observer,
-             GrpcCompletionQueue* grpc_queue);
+  // Implementation of the stream relies on its memory being managed by
+  // `shared_ptr`.
+  static std::shared_ptr<GrpcStream> MakeStream(
+      std::unique_ptr<grpc::ClientContext> context,
+      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+      GrpcStreamObserver* observer,
+      GrpcCompletionQueue* grpc_queue);
 
   void Start();
   void Finish();
 
   void Write(grpc::ByteBuffer&& buffer);
   void WriteAndFinish(grpc::ByteBuffer&& buffer);
+
+  // Logically, this constructor is private; it's public for technical reasons.
+  // Use `MakeStream` instead.
+  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             GrpcStreamObserver* observer,
+             GrpcCompletionQueue* grpc_queue,
+             MakeSharedWorkaround);
 
  private:
   friend class internal::GrpcStreamDelegate;
@@ -135,7 +153,7 @@ class GrpcStreamDelegate {
   std::shared_ptr<GrpcStream> stream_;
 };
 
-} // internal
+}  // namespace internal
 
 template <typename Op, typename... Args>
 Op* GrpcStream::MakeOperation(Args... args) {

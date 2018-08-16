@@ -37,7 +37,7 @@ namespace remote {
 
 // TODO(varconst): can we force-finish operations so that Observer is actually
 // triggered?
-class Observer : public GrpcOperationsObserver {
+class Observer : public GrpcStreamObserver {
  public:
   void OnStreamStart() override {
     observed_states.push_back("OnStreamStart");
@@ -68,7 +68,7 @@ class GrpcStreamTest : public testing::Test {
     auto grpc_call =
         grpc_stub.PrepareCall(grpc_context.get(), "", grpc_queue.queue());
     observer = absl::make_unique<Observer>();
-    stream = std::make_shared<GrpcStream>(std::move(grpc_context),
+    stream = GrpcStream::MakeStream(std::move(grpc_context),
                                           std::move(grpc_call), observer.get(),
                                           &grpc_queue);
   }

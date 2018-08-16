@@ -17,7 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 
 namespace firebase {
 namespace firestore {
@@ -49,7 +48,7 @@ class StreamOperation : public GrpcOperation {
   }
 
   void Execute() override {
-    if (!grpc_queue_->IsShuttingDown()) {
+    if (!grpc_queue_->IsShutDown()) {
       DoExecute(call_);
     }
   }
@@ -178,12 +177,22 @@ GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     GrpcStreamObserver* observer,
-    GrpcCompletionQueue* grpc_queue)
+    GrpcCompletionQueue* grpc_queue,
+    MakeSharedWorkaround)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
       grpc_queue_{grpc_queue},
       generation_{observer->generation()} {
+}
+
+std::shared_ptr<GrpcStream> GrpcStream::MakeStream(
+    std::unique_ptr<grpc::ClientContext> context,
+    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+    GrpcStreamObserver* observer,
+    GrpcCompletionQueue* grpc_queue) {
+  return std::make_shared<GrpcStream>(std::move(context), std::move(call),
+                                      observer, grpc_queue, MakeSharedWorkaround{});
 }
 
 void GrpcStream::Start() {
