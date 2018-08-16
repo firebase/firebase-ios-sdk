@@ -43,6 +43,8 @@ void BufferedWriter::TryWrite() {
   }
 
   has_active_write_ = true;
+  // Once an operation is executed, the ownership is (implicitly) transferred to
+  // the completion queue.
   GrpcOperation* write_operation = queue_.front().release();
   HARD_ASSERT(write_operation, "Trying to execute a null operation");
   queue_.pop();
