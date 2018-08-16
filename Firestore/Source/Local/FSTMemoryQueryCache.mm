@@ -26,9 +26,10 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-using firebase::firestore::model::SnapshotVersion;
-using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -44,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** The highest numbered target ID encountered. */
 @property(nonatomic, assign) TargetId highestTargetID;
 
-@property(nonatomic, assign) FSTListenSequenceNumber highestListenSequenceNumber;
+@property(nonatomic, assign) ListenSequenceNumber highestListenSequenceNumber;
 
 @end
 
@@ -71,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _highestTargetID;
 }
 
-- (FSTListenSequenceNumber)highestListenSequenceNumber {
+- (ListenSequenceNumber)highestListenSequenceNumber {
   return _highestListenSequenceNumber;
 }
 
@@ -123,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
       }];
 }
 
-- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   NSMutableArray<FSTQuery *> *toRemove = [NSMutableArray array];
   [self.queries

@@ -45,6 +45,7 @@ using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::MakeString;
@@ -55,8 +56,8 @@ using leveldb::Status;
 
 namespace {
 
-FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
-  FSTListenSequenceNumber decoded;
+ListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
+  ListenSequenceNumber decoded;
   absl::string_view tmp(slice.data(), slice.size());
   if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
     HARD_FAIL("Failed to read sequence number from a sentinel row");
@@ -155,7 +156,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   return self.metadata.highestTargetId;
 }
 
-- (FSTListenSequenceNumber)highestListenSequenceNumber {
+- (ListenSequenceNumber)highestListenSequenceNumber {
   return self.metadata.highestListenSequenceNumber;
 }
 
@@ -183,11 +184,11 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
 }
 
 - (void)enumerateOrphanedDocumentsUsingBlock:
-    (void (^)(const DocumentKey &docKey, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(const DocumentKey &docKey, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
   std::string documentTargetPrefix = LevelDbDocumentTargetKey::KeyPrefix();
   auto it = _db.currentTransaction->NewIterator();
   it->Seek(documentTargetPrefix);
-  FSTListenSequenceNumber nextToReport = 0;
+  ListenSequenceNumber nextToReport = 0;
   DocumentKey keyToReport;
   LevelDbDocumentTargetKey key;
   BOOL stop = NO;
@@ -273,7 +274,7 @@ FSTListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
   _db.currentTransaction->Put(LevelDbTargetGlobalKey::Key(), self.metadata);
 }
 
-- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   int count = 0;
   std::string targetPrefix = LevelDbTargetKey::KeyPrefix();

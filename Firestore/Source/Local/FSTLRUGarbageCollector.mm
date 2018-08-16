@@ -23,8 +23,9 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ListenSequenceNumber;
 
-const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
+const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 /**
  * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be
@@ -33,18 +34,18 @@ const FSTListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 class RollingSequenceNumberBuffer {
  public:
   explicit RollingSequenceNumberBuffer(size_t max_elements)
-      : max_elements_(max_elements), queue_(std::priority_queue<FSTListenSequenceNumber>()) {
+      : max_elements_(max_elements), queue_(std::priority_queue<ListenSequenceNumber>()) {
   }
 
   RollingSequenceNumberBuffer(const RollingSequenceNumberBuffer &other) = delete;
 
   RollingSequenceNumberBuffer &operator=(const RollingSequenceNumberBuffer &other) = delete;
 
-  void AddElement(FSTListenSequenceNumber sequence_number) {
+  void AddElement(ListenSequenceNumber sequence_number) {
     if (queue_.size() < max_elements_) {
       queue_.push(sequence_number);
     } else {
-      FSTListenSequenceNumber highestValue = queue_.top();
+      ListenSequenceNumber highestValue = queue_.top();
       if (sequence_number < highestValue) {
         queue_.pop();
         queue_.push(sequence_number);
@@ -52,7 +53,7 @@ class RollingSequenceNumberBuffer {
     }
   }
 
-  FSTListenSequenceNumber max_value() const {
+  ListenSequenceNumber max_value() const {
     return queue_.top();
   }
 
@@ -61,7 +62,7 @@ class RollingSequenceNumberBuffer {
   }
 
  private:
-  std::priority_queue<FSTListenSequenceNumber> queue_;
+  std::priority_queue<ListenSequenceNumber> queue_;
   const size_t max_elements_;
 };
 
@@ -91,7 +92,7 @@ class RollingSequenceNumberBuffer {
   return setSize;
 }
 
-- (FSTListenSequenceNumber)sequenceNumberForQueryCount:(NSUInteger)queryCount {
+- (ListenSequenceNumber)sequenceNumberForQueryCount:(NSUInteger)queryCount {
   if (queryCount == 0) {
     return kFSTListenSequenceNumberInvalid;
   }
@@ -102,19 +103,19 @@ class RollingSequenceNumberBuffer {
     ptr_to_buffer->AddElement(queryData.sequenceNumber);
   }];
   [_delegate enumerateMutationsUsingBlock:^(const DocumentKey &docKey,
-                                            FSTListenSequenceNumber sequenceNumber, BOOL *stop) {
+                                            ListenSequenceNumber sequenceNumber, BOOL *stop) {
     ptr_to_buffer->AddElement(sequenceNumber);
   }];
   return buffer.max_value();
 }
 
-- (int)removeQueriesUpThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesUpThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                                 liveQueries:
                                     (NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_delegate removeTargetsThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
   return [_delegate removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
 }
 

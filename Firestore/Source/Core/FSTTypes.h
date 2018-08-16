@@ -23,8 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSTMaybeDocument;
 @class FSTTransaction;
 
-typedef int64_t FSTListenSequenceNumber;
-
 /**
  * FSTVoidBlock is a block that's called when a specific event happens but that otherwise has
  * no information associated with it.

@@ -42,6 +42,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
 
@@ -57,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTRemoteDocumentCache> _documentCache;
   id<FSTMutationQueue> _mutationQueue;
   FSTLRUGarbageCollector *_gc;
-  FSTListenSequenceNumber _initialSequenceNumber;
+  ListenSequenceNumber _initialSequenceNumber;
   User _user;
 }
 
@@ -82,7 +83,7 @@ NS_ASSUME_NONNULL_BEGIN
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
-  _initialSequenceNumber = _persistence.run("start querycache", [&]() -> FSTListenSequenceNumber {
+  _initialSequenceNumber = _persistence.run("start querycache", [&]() -> ListenSequenceNumber {
     [_mutationQueue start];
     _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
     return _persistence.currentSequenceNumber;
@@ -95,10 +96,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - helpers
 
-- (FSTListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
-  return _persistence.run("gc", [&]() -> FSTListenSequenceNumber {
-    return [_gc sequenceNumberForQueryCount:queryCount];
-  });
+- (ListenSequenceNumber)sequenceNumberForQueryCount:(int)queryCount {
+  return _persistence.run(
+      "gc", [&]() -> ListenSequenceNumber { return [_gc sequenceNumberForQueryCount:queryCount]; });
 }
 
 - (int)queryCountForPercentile:(int)percentile {
@@ -106,7 +106,7 @@ NS_ASSUME_NONNULL_BEGIN
                           [&]() -> int { return [_gc queryCountForPercentile:percentile]; });
 }
 
-- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeQueriesUpThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
@@ -115,7 +115,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Removes documents that are not part of a target or a mutation and have a sequence number
 // less than or equal to the given sequence number.
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber {
   return _persistence.run("gc", [&]() -> int {
     return [_gc removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
   });
@@ -123,7 +123,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FSTQueryData *)nextTestQuery {
   TargetId targetID = ++_previousTargetID;
-  FSTListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
+  ListenSequenceNumber listenSequenceNumber = _persistence.currentSequenceNumber;
   FSTQuery *query = FSTTestQuery(absl::StrCat("path", targetID));
   return [[FSTQueryData alloc] initWithQuery:query
                                     targetID:targetID
@@ -586,8 +586,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Add a couple docs from the newest target to the oldest (preserves them past the point where
   // newest was removed)
   // upperBound is the sequence number right before middleTarget is updated, then removed.
-  FSTListenSequenceNumber upperBound = _persistence.run(
-      "Add a couple docs from the newest target to the oldest", [&]() -> FSTListenSequenceNumber {
+  ListenSequenceNumber upperBound = _persistence.run(
+      "Add a couple docs from the newest target to the oldest", [&]() -> ListenSequenceNumber {
         [self updateTargetInTransaction:oldestTarget];
         for (const DocumentKey &docKey : newestDocsToAddToOldest) {
           [self addDocument:docKey toTarget:oldestTarget.targetID];

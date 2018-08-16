@@ -16,8 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
+
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 - (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-         throughSequenceNumber:(FSTListenSequenceNumber)upperBound;
+         throughSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound;
 
 @end
 
