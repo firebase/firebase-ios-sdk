@@ -16,26 +16,30 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-void GrpcCompletionQueue::Shutdown() {
-  HARD_ASSERT(!is_shutting_down_, "GRPC queue shut down twice");
-  is_shutting_down_ = true;
-  queue_.Shutdown();
+TEST(GrpcCompletionQueueTest, IsShuttingDown) {
+  GrpcCompletionQueue queue;
+  EXPECT_FALSE(queue.IsShuttingDown());
+  queue.Shutdown();
+  EXPECT_TRUE(queue.IsShuttingDown());
 }
 
-GrpcOperation* GrpcCompletionQueue::Next(bool* ok) {
-  void *tag = nullptr;
-  bool has_more = queue_.Next(&tag, ok);
-  if (!has_more) {
-    return nullptr;
-  }
-  return static_cast<GrpcOperation *>(tag);
+TEST(GrpcCompletionQueueTest, NextReturnsNullAfterShutdown) {
+  GrpcCompletionQueue queue;
+  queue.Shutdown();
+  bool ok = false;
+  EXPECT_EQ(queue.Next(&ok), nullptr);
+}
+
+TEST(GrpcCompletionQueueTest, CannotShutDownTwice) {
+  GrpcCompletionQueue queue;
+  EXPECT_NO_THROW(queue.Shutdown());
+  EXPECT_ANY_THROW(queue.Shutdown());
 }
 
 }  // namespace remote

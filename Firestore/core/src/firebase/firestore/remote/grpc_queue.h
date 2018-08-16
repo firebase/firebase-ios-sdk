@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 
+#include <chrono>  // NOLINT(build/c++11)
+
 #include <grpcpp/completion_queue.h>
 
 namespace firebase {

@@ -137,7 +137,7 @@ class ServerInitiatedFinish : public StreamOperation {
   void DoComplete() override {
     // Note: calling Finish on a GRPC call should never fail, according to the
     // docs
-    delegate_.OnFinishedWithServerError(grpc_status_);
+    delegate_.OnFinishedByServer(grpc_status_);
   }
 
   grpc::Status grpc_status_;
@@ -153,7 +153,7 @@ class ClientInitiatedFinish : public StreamOperation {
   }
 
   void DoComplete() override {
-    // Nothing to do
+    delegate_.OnFinishedByClient();
   }
 
   grpc::Status unused_status_;
@@ -176,8 +176,8 @@ GrpcStream::GrpcStream(
 }
 
 void GrpcStream::Start() {
-  HARD_ASSERT(!is_started_, "Call is already started");
-  is_started_ = true;
+  HARD_ASSERT(state_ == State::NotStarted, "Call is already started");
+  state_ = State::Started;
   Execute<StreamStart>();
 }
 
@@ -185,23 +185,26 @@ void GrpcStream::Read() {
   HARD_ASSERT(!has_pending_read_,
               "Cannot schedule another read operation before the previous read "
               "finishes");
-  if (write_and_finish_) {
-    return;
-  }
+  HARD_ASSERT(state_ == State::Open, "Read called when the stream is not open");
 
   has_pending_read_ = true;
   Execute<StreamRead>();
 }
 
 void GrpcStream::Write(grpc::ByteBuffer&& message) {
-  if (write_and_finish_) {
-    return;
-  }
-
+  HARD_ASSERT(state_ == State::Open,
+              "Write called when the stream is not open");
   BufferedWrite(std::move(message));
 }
 
 void GrpcStream::Finish() {
+  if (state_ == State::NotStarted) {
+    return;
+  }
+
+  HARD_ASSERT(state_ <= State::Open, "Finish called twice");
+  state_ = State::Finishing;
+
   buffered_writer_.reset();
   context_->TryCancel();
   Execute<ClientInitiatedFinish>();
@@ -214,7 +217,7 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
     return;
   }
 
-  write_and_finish_ = true;
+  state_ = State::FinishingWithWrite;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
   buffered_writer_->DiscardUnstartedWrites();
@@ -234,6 +237,7 @@ bool GrpcStream::SameGeneration() const {
 // Callbacks
 
 void GrpcStream::OnStart() {
+  state_ = State::Open;
   if (SameGeneration()) {
     buffered_writer_ = BufferedWriter{};
     observer_->OnStreamStart();
@@ -252,7 +256,7 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 }
 
 void GrpcStream::OnWrite() {
-  if (write_and_finish_ && buffered_writer_->empty()) {
+  if (state_ == State::FinishingWithWrite && buffered_writer_->empty()) {
     // Final write succeeded.
     Finish();
     return;
@@ -264,19 +268,32 @@ void GrpcStream::OnWrite() {
   }
 }
 
-void GrpcStream::OnFinishedWithServerError(const grpc::Status& status) {
+void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
+  state_ = State::Finished;
   if (SameGeneration()) {
     observer_->OnStreamError(ToFirestoreStatus(status));
   }
 }
 
+void GrpcStream::OnFinishedByClient() {
+  state_ = State::Finished;
+  // The observer is not interested in this event.
+}
+
 void GrpcStream::OnOperationFailed() {
-  if (write_and_finish_ && buffered_writer_ && buffered_writer_->empty()) {
+  HARD_ASSERT(state_ != State::Finished, "Operation failed after stream was "
+      "finished");
+  if (state_ >= State::Finishing) {
+    // `Finish` itself cannot fail. If another failed operation already
+    // triggered `Finish`, there's nothing to do.
     return;
   }
+
   buffered_writer_.reset();
   if (SameGeneration()) {
     Execute<ServerInitiatedFinish>();
+  } else {
+    state_ = State::Finished;
   }
 }
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
 
 #include <memory>
 #include <utility>
@@ -61,7 +61,8 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   void OnRead(const grpc::ByteBuffer& message);
   void OnWrite();
   void OnOperationFailed();
-  void OnFinishedWithServerError(const grpc::Status& status);
+  void OnFinishedByServer(const grpc::Status& status);
+  void OnFinishedByClient();
 
   bool SameGeneration() const;
 
@@ -81,10 +82,17 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   int generation_ = -1;
   absl::optional<BufferedWriter> buffered_writer_;
 
-  bool write_and_finish_ = false;
+  enum class State {
+    NotStarted,
+    Started,
+    Open,
+    Finishing,
+    FinishingWithWrite,
+    Finished
+  };
+  State state_ = State::NotStarted;
 
   // For sanity checks
-  bool is_started_ = false;
   bool has_pending_read_ = false;
 };
 
@@ -108,8 +116,11 @@ class GrpcStreamDelegate {
   void OnOperationFailed() {
     stream_->OnOperationFailed();
   }
-  void OnFinishedWithServerError(const grpc::Status& status) {
-    stream_->OnFinishedWithServerError(status);
+  void OnFinishedByServer(const grpc::Status& status) {
+    stream_->OnFinishedByServer(status);
+  }
+  void OnFinishedByClient() {
+    stream_->OnFinishedByClient();
   }
 
  private:
@@ -129,4 +140,4 @@ Op* GrpcStream::MakeOperation(Args... args) {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
