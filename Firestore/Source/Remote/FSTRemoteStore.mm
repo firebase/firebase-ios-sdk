@@ -449,7 +449,7 @@ static const int kMaxPendingWrites = 10;
  * Starts the write stream if necessary.
  */
 - (void)fillWritePipeline {
-  FSTBatchID lastBatchIDRetrieved =
+  BatchId lastBatchIDRetrieved =
       self.writePipeline.count == 0 ? kFSTBatchIDUnknown : self.writePipeline.lastObject.batchID;
   while ([self canAddToWritePipeline]) {
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
