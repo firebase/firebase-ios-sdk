@@ -252,7 +252,7 @@ void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
               "Write requested when there is no valid buffered_writer_");
   std::unique_ptr<StreamWrite> write_operation{
       MakeOperation<StreamWrite>(std::move(message))};
-  buffered_writer_->Enqueue(std::move(write_operation));
+  buffered_writer_->EnqueueWrite(std::move(write_operation));
 }
 
 bool GrpcStream::SameGeneration() const {
@@ -291,7 +291,7 @@ void GrpcStream::OnWrite() {
   }
 
   if (SameGeneration()) {
-    buffered_writer_->DequeueNext();
+    buffered_writer_->DequeueNextWrite();
     observer_->OnStreamWrite();
   }
 }

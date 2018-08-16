@@ -30,6 +30,9 @@ class GrpcOperation;
 /**
  * An owning wrapper around `grpc::CompletionQueue` that allows checking whether
  * the queue has been shut down.
+ *
+ * Because `grpc::CompletionQueue` only provides polling methods, this class too
+ * cannot be used to add operations to the queue.
  */
 class GrpcCompletionQueue {
  public:
