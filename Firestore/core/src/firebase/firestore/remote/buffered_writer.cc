@@ -28,13 +28,13 @@ void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::EnqueueWrite(std::unique_ptr<GrpcOperation> write) {
+void BufferedWriter::Enqueue(std::unique_ptr<GrpcOperation> write) {
   HARD_ASSERT(write, "Trying to enqueue a null write operation");
   queue_.push(std::move(write));
-  TryStartWrite();
+  TryWrite();
 }
 
-void BufferedWriter::TryStartWrite() {
+void BufferedWriter::TryWrite() {
   if (empty()) {
     return;
   }
@@ -43,17 +43,15 @@ void BufferedWriter::TryStartWrite() {
   }
 
   has_active_write_ = true;
-  // Once an operation is executed, the ownership is (implicitly) transferred to
-  // the completion queue.
   GrpcOperation* write_operation = queue_.front().release();
   HARD_ASSERT(write_operation, "Trying to execute a null operation");
   queue_.pop();
   write_operation->Execute();
 }
 
-void BufferedWriter::DequeueNextWrite() {
+void BufferedWriter::DequeueNext() {
   has_active_write_ = false;
-  TryStartWrite();
+  TryWrite();
 }
 
 }  // namespace remote

@@ -14,30 +14,34 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
+#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 
-#include <memory>
-
-#include <grpcpp/support/status_code_enum.h>
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Datastore {
- public:
-  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
+TEST(GrpcCompletionQueueTest, IsShuttingDown) {
+  GrpcCompletionQueue queue;
+  EXPECT_FALSE(queue.IsShutDown());
+  queue.Shutdown();
+  EXPECT_TRUE(queue.IsShutDown());
+}
 
-  Datastore(const Datastore& other) = delete;
-  Datastore(Datastore&& other) = delete;
-  Datastore& operator=(const Datastore& other) = delete;
-  Datastore& operator=(Datastore&& other) = delete;
-};
+TEST(GrpcCompletionQueueTest, NextReturnsNullAfterShutdown) {
+  GrpcCompletionQueue queue;
+  queue.Shutdown();
+  bool ok = false;
+  EXPECT_EQ(queue.Next(&ok), nullptr);
+}
+
+TEST(GrpcCompletionQueueTest, CannotShutDownTwice) {
+  GrpcCompletionQueue queue;
+  EXPECT_NO_THROW(queue.Shutdown());
+  EXPECT_ANY_THROW(queue.Shutdown());
+}
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_

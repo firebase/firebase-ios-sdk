@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include <memory>
-
-#include <grpcpp/support/status_code_enum.h>
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Datastore {
- public:
-  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
-
-  Datastore(const Datastore& other) = delete;
-  Datastore(Datastore&& other) = delete;
-  Datastore& operator=(const Datastore& other) = delete;
-  Datastore& operator=(Datastore&& other) = delete;
-};
+FirestoreErrorCode Datastore::ToFirestoreErrorCode(
+    grpc::StatusCode grpc_error) {
+  HARD_ASSERT(
+      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
+      "Unknown GRPC error code: %s", grpc_error);
+  return static_cast<FirestoreErrorCode>(grpc_error);
+}
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
