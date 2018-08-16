@@ -28,13 +28,13 @@ void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::Enqueue(std::unique_ptr<GrpcOperation> write) {
+void BufferedWriter::EnqueueWrite(std::unique_ptr<GrpcOperation> write) {
   HARD_ASSERT(write, "Trying to enqueue a null write operation");
   queue_.push(std::move(write));
-  TryWrite();
+  TryStartWrite();
 }
 
-void BufferedWriter::TryWrite() {
+void BufferedWriter::TryStartWrite() {
   if (empty()) {
     return;
   }
@@ -51,9 +51,9 @@ void BufferedWriter::TryWrite() {
   write_operation->Execute();
 }
 
-void BufferedWriter::DequeueNext() {
+void BufferedWriter::DequeueNextWrite() {
   has_active_write_ = false;
-  TryWrite();
+  TryStartWrite();
 }
 
 }  // namespace remote
