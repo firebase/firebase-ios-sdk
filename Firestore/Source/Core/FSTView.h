@@ -144,7 +144,7 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
                               targetChange:(nullable FSTTargetChange *)targetChange;
 
 /**
- * Applies an firebase::firestore::model::OnlineState change to the view, potentially generating an FSTViewChange if the
+ * Applies an OnlineState change to the view, potentially generating an FSTViewChange if the
  * view's syncState changes as a result.
  */
 - (FSTViewChange *)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;

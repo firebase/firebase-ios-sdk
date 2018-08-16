@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
   FSTTimerIDWriteStreamConnectionBackoff,
 
   /**
-   * A timer used in FSTOnlineStateTracker to transition from firebase::firestore::model::OnlineState Unknown to Offline
+   * A timer used in FSTOnlineStateTracker to transition from OnlineState Unknown to Offline
    * after a set timeout, rather than waiting indefinitely for success or failure.
    */
   FSTTimerIDOnlineStateTimeout
