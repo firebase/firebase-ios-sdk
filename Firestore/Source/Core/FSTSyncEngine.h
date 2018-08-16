@@ -21,7 +21,6 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDispatchQueue;
 @class FSTLocalStore;
@@ -104,7 +103,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)credentialDidChangeWithUser:(const firebase::firestore::auth::User &)user;
 
-/** Applies an firebase::firestore::model::OnlineState change to the sync engine and notifies any views of the change. */
+/** Applies an OnlineState change to the sync engine and notifies any views of the change. */
 - (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @end

@@ -380,11 +380,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
 
   [listener applyChangedOnlineState:OnlineState::Online];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // no event
   [listener applyChangedOnlineState:OnlineState::Offline];  // event
   [listener applyChangedOnlineState:OnlineState::Unknown];  // no event
   [listener applyChangedOnlineState:OnlineState::Offline];  // no event
-  [listener queryDidChangeViewSnapshot:snap2];               // another event
+  [listener queryDidChangeViewSnapshot:snap2];              // another event
 
   FSTDocumentViewChange *change1 =
       [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded];
@@ -420,7 +420,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
   [listener applyChangedOnlineState:OnlineState::Online];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // no event
   [listener applyChangedOnlineState:OnlineState::Offline];  // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
@@ -446,7 +446,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
   [listener applyChangedOnlineState:OnlineState::Offline];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // event
+  [listener queryDidChangeViewSnapshot:snap1];              // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query

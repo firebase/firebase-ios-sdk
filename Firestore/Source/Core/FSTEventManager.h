@@ -20,7 +20,6 @@
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
-#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;

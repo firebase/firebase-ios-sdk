@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * strongly-typed enum to an integral type that could be passed to an NSNumber
  * initializer.
  */
-static NSNumber* ToNSNumber(OnlineState state) {
+static NSNumber *ToNSNumber(OnlineState state) {
   return @(static_cast<std::underlying_type<OnlineState>::type>(state));
 }
 
@@ -155,7 +155,8 @@ static NSNumber* ToNSNumber(OnlineState state) {
   OCMStub([fakeListener query]).andReturn(query);
   OCMStub([fakeListener applyChangedOnlineState:OnlineState::Unknown])
       .andDo(^(NSInvocation *invocation) {
-        [events addObject:@(static_cast<std::underlying_type<OnlineState>::type>(OnlineState::Unknown))];
+        [events addObject:@(static_cast<std::underlying_type<OnlineState>::type>(
+                              OnlineState::Unknown))];
       });
   OCMStub([fakeListener applyChangedOnlineState:OnlineState::Online])
       .andDo(^(NSInvocation *invocation) {
@@ -169,7 +170,8 @@ static NSNumber* ToNSNumber(OnlineState state) {
   [eventManager addListener:fakeListener];
   XCTAssertEqualObjects(events, @[ ToNSNumber(OnlineState::Unknown) ]);
   [eventManager applyChangedOnlineState:OnlineState::Online];
-  XCTAssertEqualObjects(events, (@[ ToNSNumber(OnlineState::Unknown), ToNSNumber(OnlineState::Online) ]));
+  XCTAssertEqualObjects(events,
+                        (@[ ToNSNumber(OnlineState::Unknown), ToNSNumber(OnlineState::Online) ]));
 }
 
 @end
