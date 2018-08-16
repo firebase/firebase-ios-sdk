@@ -37,13 +37,13 @@ namespace internal {
 class GrpcStreamDelegate;
 }
 
-class GrpcOperationsObserver;
+class GrpcStreamObserver;
 
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
  public:
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             GrpcOperationsObserver* observer,
+             GrpcStreamObserver* observer,
              GrpcCompletionQueue* grpc_queue);
 
   void Start();
@@ -84,7 +84,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 
-  GrpcOperationsObserver* observer_ = nullptr;
+  GrpcStreamObserver* observer_ = nullptr;
   int generation_ = -1;
   // Buffered writer is created once the stream opens.
   absl::optional<BufferedWriter> buffered_writer_;

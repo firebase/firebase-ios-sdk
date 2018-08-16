@@ -36,6 +36,7 @@ class GrpcCompletionQueue {
   // Retrieves the next completed operation; this is a blocking function.
   //
   // The caller is responsible for deallocating the returned `GrpcOperation`.
+  //
   // In case a non-null operation is returned, the given `ok` pointer will be
   // updated to indicate whether the operation has finished. If a null pointer
   // is returned, `ok` will be unchanged.
@@ -50,8 +51,8 @@ class GrpcCompletionQueue {
   // drained (`Next` has returned a null pointer).
   // Calling this function mroe than once is invalid.
   void Shutdown();
-  bool IsShuttingDown() const {
-    return is_shutting_down_;
+  bool IsShutDown() const {
+    return is_shut_down_;
   }
 
   // Returns the underlying GRPC object.
@@ -61,7 +62,7 @@ class GrpcCompletionQueue {
 
  private:
   grpc::CompletionQueue queue_;
-  bool is_shutting_down_ = false;
+  bool is_shut_down_ = false;
 };
 
 }  // namespace remote

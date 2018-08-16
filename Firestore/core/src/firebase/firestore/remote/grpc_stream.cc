@@ -170,7 +170,7 @@ class ClientInitiatedFinish : public StreamOperation {
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    GrpcOperationsObserver* observer,
+    GrpcStreamObserver* observer,
     GrpcCompletionQueue* grpc_queue)
     : context_{std::move(context)},
       call_{std::move(call)},

@@ -27,16 +27,27 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcOperationsObserver {
+// Observer that gets notified of events on a GRPC stream.
+class GrpcStreamObserver {
  public:
-  virtual ~GrpcOperationsObserver() {
+  virtual ~GrpcStreamObserver() {
   }
 
+  // Stream has been successfully established.
   virtual void OnStreamStart() = 0;
+  // A message has been received from the server.
   virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
+  // The stream is ready to accept another write operation. Note that this
+  // doesn't mean the write has been sent on the wire yet.
   virtual void OnStreamWrite() = 0;
+  // Connection has been broken, perhaps by the server.
   virtual void OnStreamError(const util::Status& status) = 0;
 
+  // Incrementally increasing number used to check whether this observer is
+  // still interested in the completion of previously executed operations.
+  // GRPC streams are expected to be tagged by a generation number corresponding
+  // to the observer; once the observer is no longer interested in that stream,
+  // it should increase its generation number.
   virtual int generation() const = 0;
 };
 

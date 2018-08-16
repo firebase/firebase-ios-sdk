@@ -23,13 +23,14 @@ namespace firestore {
 namespace remote {
 
 GrpcCompletionQueue::~GrpcCompletionQueue() {
-  HARD_ASSERT(is_shutting_down_,
-              "GRPC queue is being destroyed without proper shutdown");
+  if (!is_shut_down_) {
+    Shutdown();
+  }
 }
 
 void GrpcCompletionQueue::Shutdown() {
-  HARD_ASSERT(!is_shutting_down_, "GRPC queue shut down twice");
-  is_shutting_down_ = true;
+  HARD_ASSERT(!is_shut_down_, "GRPC queue shut down twice");
+  is_shut_down_ = true;
   queue_.Shutdown();
 }
 
