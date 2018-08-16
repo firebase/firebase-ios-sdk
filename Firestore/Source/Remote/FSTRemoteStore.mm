@@ -96,8 +96,8 @@ static const int kMaxPendingWrites = 10;
  * A list of up to kMaxPendingWrites writes that we have fetched from the LocalStore via
  * fillWritePipeline and have or will send to the write stream.
  *
- * Whenever writePipeline is not empty the RemoteStore will attempt to start or restart the write
- * stream. When the stream is established the writes in the pipeline will be sent in order.
+ * Whenever writePipeline is not empty, the RemoteStore will attempt to start or restart the write
+ * stream. When the stream is established, the writes in the pipeline will be sent in order.
  *
  * Writes remain in writePipeline until they are acknowledged by the backend and thus will
  * automatically be re-sent if the stream is interrupted / restarted before they're acknowledged.
