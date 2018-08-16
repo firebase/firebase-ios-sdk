@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import <Foundation/NSObject.h>
+#import <Foundation/Foundation.h>
+
+#include <cstdlib>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include "LibFuzzer/FuzzerDefs.h"
-#include "absl/strings/str_join.h"
-
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestFieldPath.h"
 #include "Firestore/Example/FuzzTests/FuzzingTargets/FSTFuzzTestSerializer.h"
-
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "LibFuzzer/FuzzerDefs.h"
+#include "absl/strings/str_join.h"
 
 namespace {
 
@@ -53,7 +53,7 @@ FuzzingTarget GetFuzzingTarget() {
 
   const char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
 
-  if (fuzzing_target_env == nullptr) {
+  if (!fuzzing_target_env) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
     return FuzzingTarget::kNone;
   }
@@ -90,7 +90,7 @@ FuzzingTarget GetFuzzingTarget() {
 std::string GetFuzzingDuration() {
   const char *fuzzing_duration_env = std::getenv("FUZZING_DURATION");
 
-  if (fuzzing_duration_env == nullptr) {
+  if (!fuzzing_duration_env) {
     return "0";
   }
 
