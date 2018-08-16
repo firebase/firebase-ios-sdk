@@ -16,15 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include "grpc/grpc.h"
-
 #include "gtest/gtest.h"
 
-TEST(Datastore, CanLinkToGrpc) {
-  // This test doesn't actually do anything interesting as far as actually
-  // using gRPC is concerned but that it can run at all is proof that all the
-  // libraries required for gRPC to work are actually linked correctly into the
-  // test.
-  grpc_init();
-  grpc_shutdown();
-}
+// TODO(varconst): implement
