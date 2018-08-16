@@ -56,7 +56,7 @@ using firebase::firestore::model::TargetId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTRemoteStore (Tests)
-- (void)commitBatch:(FSTMutationBatch *)batch;
+- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch;
 @end
 
 #pragma mark - FSTRemoteStoreEventCapture
@@ -225,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
-    [_remoteStore commitBatch:batch];
+    [_remoteStore addBatchToWritePipeline:batch];
   }];
 
   [self awaitExpectations];
