@@ -185,7 +185,7 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        - ./scripts/if_cron.sh ./scripts/fuzzing_travis.sh
+        - ./scripts/if_cron.sh ./scripts/fuzzing_ci.sh
 
     # TODO(varconst): UBSan for CMake. UBSan failures are non-fatal by default,
     # need to make them fatal for the purposes of the test run.
