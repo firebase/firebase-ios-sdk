@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/** A delegate to be notified on firebase::firestore::model::OnlineState changes. */
+/** A delegate to be notified on OnlineState changes. */
 @property(nonatomic, weak) id<FSTOnlineStateDelegate> onlineStateDelegate;
 
 /**

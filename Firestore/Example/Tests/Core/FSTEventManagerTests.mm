@@ -33,7 +33,7 @@ using firebase::firestore::model::OnlineState;
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Convertes an OnlineState to an NSNumber, usually for the purpose of additing
+ * Converts an OnlineState to an NSNumber, usually for the purpose of adding
  * it to an NSArray or similar container. There's no direct conversion from a
  * strongly-typed enum to an integral type that could be passed to an NSNumber
  * initializer.
@@ -155,8 +155,7 @@ static NSNumber *ToNSNumber(OnlineState state) {
   OCMStub([fakeListener query]).andReturn(query);
   OCMStub([fakeListener applyChangedOnlineState:OnlineState::Unknown])
       .andDo(^(NSInvocation *invocation) {
-        [events addObject:@(static_cast<std::underlying_type<OnlineState>::type>(
-                              OnlineState::Unknown))];
+        [events addObject:ToNSNumber(OnlineState::Unknown)];
       });
   OCMStub([fakeListener applyChangedOnlineState:OnlineState::Online])
       .andDo(^(NSInvocation *invocation) {
