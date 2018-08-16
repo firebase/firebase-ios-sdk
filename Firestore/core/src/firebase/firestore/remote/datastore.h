@@ -43,6 +43,7 @@ class Datastore {
   std::shared_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
                                            absl::string_view path,
                                            GrpcStreamObserver* observer);
+
   static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
 
   void Shutdown();

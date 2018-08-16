@@ -27,7 +27,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-// Observer that gets notified of events on a GRPC stream.
+/** Observer that gets notified of events on a GRPC stream. */
 class GrpcStreamObserver {
  public:
   virtual ~GrpcStreamObserver() {

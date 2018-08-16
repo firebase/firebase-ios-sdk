@@ -191,8 +191,10 @@ std::shared_ptr<GrpcStream> GrpcStream::MakeStream(
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     GrpcStreamObserver* observer,
     GrpcCompletionQueue* grpc_queue) {
-  return std::make_shared<GrpcStream>(std::move(context), std::move(call),
-                                      observer, grpc_queue, MakeSharedWorkaround{});
+  // `make_shared` requires a public constructor. There are workarounds, but
+  // efficiency is not a big concern here.
+  return std::shared_ptr<GrpcStream>(new GrpcStream{
+      std::move(context), std::move(call), observer, grpc_queue});
 }
 
 void GrpcStream::Start() {
@@ -222,7 +224,7 @@ void GrpcStream::Finish() {
     return;
   }
 
-  HARD_ASSERT(state_ <= State::Open, "Finish called twice");
+  HARD_ASSERT(state_ < State::Finishing, "Finish called twice");
   state_ = State::Finishing;
 
   buffered_writer_.reset();

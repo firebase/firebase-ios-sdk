@@ -38,15 +38,24 @@ namespace internal {
 class GrpcStreamDelegate;
 }
 
-// A GRPC bidirectional stream that notifies the given `observer` about stream
-// events.
-//
-// The stream is disposable; once it finishes, it cannot be restarted.
-// This class is a wrapper over `grpc::GenericClientAsyncReaderWriter`.
+/**
+ * A GRPC bidirectional stream that notifies the given `observer` about stream
+ * events.
+ *
+ * The stream has to be explicitly opened (via `Start`) before it can be used.
+ * The stream is always listening for new messages from the server. The stream
+ * can be used to send messages to the server (via `Write`); messages are queued
+ * and sent out one by one.
+ *
+ * The stream stores the generation number of the observer at the time of its
+ * creation; once observer increases its generation number, the stream will stop
+ * notifying it of events.
+ *
+ * The stream is disposable; once it finishes, it cannot be restarted.
+ *
+ * This class is a wrapper over `grpc::GenericClientAsyncReaderWriter`.
+ */
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
- private:
-  struct MakeSharedWorkaround {};
-
  public:
   // Implementation of the stream relies on its memory being managed by
   // `shared_ptr`.
@@ -57,25 +66,36 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
       GrpcCompletionQueue* grpc_queue);
 
   void Start();
+
+  void Write(grpc::ByteBuffer&& message);
+
+  // Does not produce a notification. Once this method is called, the stream can
+  // no longer be used.
+  //
+  // Can be called on a stream before it opens. It is invalid to finish a stream
+  // more than once.
   void Finish();
 
-  void Write(grpc::ByteBuffer&& buffer);
-  void WriteAndFinish(grpc::ByteBuffer&& buffer);
-
-  // Logically, this constructor is private; it's public for technical reasons.
-  // Use `MakeStream` instead.
-  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             GrpcStreamObserver* observer,
-             GrpcCompletionQueue* grpc_queue,
-             MakeSharedWorkaround);
+  // Writes the given message and finishes the stream as soon as the write
+  // succeeds. Any non-started writes will be discarded. Neither write nor
+  // finish will notify the observer.
+  //
+  // If the stream hasn't opened yet, `WriteAndFinish` is equivalent to
+  // `Finish` -- the write will be ignored.
+  void WriteAndFinish(grpc::ByteBuffer&& message);
 
  private:
   friend class internal::GrpcStreamDelegate;
 
+  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             GrpcStreamObserver* observer,
+             GrpcCompletionQueue* grpc_queue);
+
   void Read();
   void BufferedWrite(grpc::ByteBuffer&& message);
 
+  // Called by `GrpcStreamDelegate`.
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
   void OnWrite();
@@ -94,12 +114,17 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
     MakeOperation<Op>(args...)->Execute();
   }
 
+  // The GRPC objects that have to be valid until the last GRPC operation
+  // associated with this call finishes. Note that `grpc::ClientContext` is not
+  // reference-counted.
+  //
   // Important: `call_` has to be destroyed before `context_`, so declaration
   // order matters here. Despite the unique pointer, `call_` is actually
   // a non-owning handle, and the memory it refers to will be released once
   // `context_` (which is owning) is released.
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
+
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
@@ -123,6 +148,14 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
 
 namespace internal {
 
+// The link between `GrpcStream` and `StreamOperation`s that is used by
+// operations to notify the stream once they are completed.
+//
+// The delegate has a `shared_ptr` to the stream to ensure that the stream's
+// lifetime lasts as long as any of the operations it issued still exists.
+//
+// The delegate allows making `GrpcStream::OnStream[Event]` functions private
+// without too much proliferation of friendship.
 class GrpcStreamDelegate {
  public:
   explicit GrpcStreamDelegate(std::shared_ptr<GrpcStream>&& stream)
@@ -149,7 +182,6 @@ class GrpcStreamDelegate {
   }
 
  private:
-  // TODO: explain ownership
   std::shared_ptr<GrpcStream> stream_;
 };
 
