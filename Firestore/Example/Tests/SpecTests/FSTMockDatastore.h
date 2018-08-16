@@ -19,6 +19,7 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
