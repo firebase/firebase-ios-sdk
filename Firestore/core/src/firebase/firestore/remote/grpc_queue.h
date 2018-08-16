@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 
-#include <chrono>  // NOLINT(build/c++11)
-
 #include <grpcpp/completion_queue.h>
+
+#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,18 +27,41 @@ namespace remote {
 
 class GrpcOperation;
 
+// An owning wrapper around `grpc::CompletionQueue` that allows checking whether
+// the queue has been shut down.
 class GrpcCompletionQueue {
-  public:
-    void Shutdown();
-    bool IsShuttingDown() const { return is_shutting_down_; }
+ public:
+  ~GrpcCompletionQueue();
 
-    GrpcOperation* Next(bool* ok);
+  // Retrieves the next completed operation; this is a blocking function.
+  //
+  // The caller is responsible for deallocating the returned `GrpcOperation`.
+  // In case a non-null operation is returned, the given `ok` pointer will be
+  // updated to indicate whether the operation has finished. If a null pointer
+  // is returned, `ok` will be unchanged.
+  //
+  // Will return a null pointer to indicate the queue has been shut down and
+  // fully drained; calling `Next` after the previous call has returned a null
+  // pointer is invalid.
+  GrpcOperation* Next(bool* ok);
 
-    grpc::CompletionQueue* queue() { return &queue_; }
+  // Initiates a shutdown of the underlying GRPC completion queue. Queue can
+  // be destroyed once `Shutdown` has been called and the queue has been fully
+  // drained (`Next` has returned a null pointer).
+  // Calling this function mroe than once is invalid.
+  void Shutdown();
+  bool IsShuttingDown() const {
+    return is_shutting_down_;
+  }
 
-  private:
-    grpc::CompletionQueue queue_;
-    bool is_shutting_down_ = false;
+  // Returns the underlying GRPC object.
+  grpc::CompletionQueue* queue() {
+    return &queue_;
+  }
+
+ private:
+  grpc::CompletionQueue queue_;
+  bool is_shutting_down_ = false;
 };
 
 }  // namespace remote

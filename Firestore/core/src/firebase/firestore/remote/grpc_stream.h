@@ -47,8 +47,9 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
              GrpcCompletionQueue* grpc_queue);
 
   void Start();
-  void Write(grpc::ByteBuffer&& buffer);
   void Finish();
+
+  void Write(grpc::ByteBuffer&& buffer);
   void WriteAndFinish(grpc::ByteBuffer&& buffer);
 
  private:
@@ -69,17 +70,23 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   template <typename Op, typename... Args>
   Op* MakeOperation(Args... args);
 
+  // Creates and immediately executes an operation; ownership is released.
   template <typename Op, typename... Args>
   void Execute(Args... args) {
     MakeOperation<Op>(args...)->Execute();
   }
 
+  // Important: `call_` has to be destroyed before `context_`, so declaration
+  // order matters here. Despite the unique pointer, `call_` is actually
+  // a non-owning handle, and the memory it refers to will be released once
+  // `context_` (which is owning) is released.
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 
   GrpcOperationsObserver* observer_ = nullptr;
   int generation_ = -1;
+  // Buffered writer is created once the stream opens.
   absl::optional<BufferedWriter> buffered_writer_;
 
   enum class State {

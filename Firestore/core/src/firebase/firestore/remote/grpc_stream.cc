@@ -23,6 +23,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using internal::GrpcStreamDelegate;
+
 namespace {
 
 util::Status ToFirestoreStatus(const grpc::Status& from) {
@@ -37,7 +39,7 @@ util::Status ToFirestoreStatus(const grpc::Status& from) {
 
 class StreamOperation : public GrpcOperation {
  public:
-  StreamOperation(internal::GrpcStreamDelegate&& delegate,
+  StreamOperation(GrpcStreamDelegate&& delegate,
                   grpc::GenericClientAsyncReaderWriter* call,
                   GrpcCompletionQueue* grpc_queue)
       : delegate_{std::move(delegate)}, call_{call}, grpc_queue_{grpc_queue} {
@@ -51,19 +53,19 @@ class StreamOperation : public GrpcOperation {
 
   void Complete(bool ok) override {
     if (ok) {
-      DoComplete();
+      DoComplete(&delegate_);
     } else {
+      // Failed operation means this stream is irrecoverably broken; use the
+      // same error-handling policy for all operations.
       delegate_.OnOperationFailed();
     }
   }
 
- protected:
-  internal::GrpcStreamDelegate delegate_;
-
  private:
   virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
-  virtual void DoComplete() = 0;
+  virtual void DoComplete(GrpcStreamDelegate* delegate) = 0;
 
+  GrpcStreamDelegate delegate_;
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 };
@@ -77,8 +79,8 @@ class StreamStart : public StreamOperation {
     call->StartCall(this);
   }
 
-  void DoComplete() override {
-    delegate_.OnStart();
+  void DoComplete(GrpcStreamDelegate* delegate) override {
+    delegate->OnStart();
   }
 };
 
@@ -91,8 +93,8 @@ class StreamRead : public StreamOperation {
     call->Read(&message_, this);
   }
 
-  void DoComplete() override {
-    delegate_.OnRead(message_);
+  void DoComplete(GrpcStreamDelegate* delegate) override {
+    delegate->OnRead(message_);
   }
 
   grpc::ByteBuffer message_;
@@ -100,7 +102,7 @@ class StreamRead : public StreamOperation {
 
 class StreamWrite : public StreamOperation {
  public:
-  StreamWrite(internal::GrpcStreamDelegate&& delegate,
+  StreamWrite(GrpcStreamDelegate&& delegate,
               grpc::GenericClientAsyncReaderWriter* call,
               GrpcCompletionQueue* grpc_queue,
               grpc::ByteBuffer&& message)
@@ -113,8 +115,8 @@ class StreamWrite : public StreamOperation {
     call->Write(message_, this);
   }
 
-  void DoComplete() override {
-    delegate_.OnWrite();
+  void DoComplete(GrpcStreamDelegate* delegate) override {
+    delegate->OnWrite();
   }
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
@@ -134,10 +136,10 @@ class ServerInitiatedFinish : public StreamOperation {
   }
 
  private:
-  void DoComplete() override {
+  void DoComplete(GrpcStreamDelegate* delegate) override {
     // Note: calling Finish on a GRPC call should never fail, according to the
     // docs
-    delegate_.OnFinishedByServer(grpc_status_);
+    delegate->OnFinishedByServer(grpc_status_);
   }
 
   grpc::Status grpc_status_;
@@ -152,10 +154,12 @@ class ClientInitiatedFinish : public StreamOperation {
     call->Finish(&unused_status_, this);
   }
 
-  void DoComplete() override {
-    delegate_.OnFinishedByClient();
+  void DoComplete(GrpcStreamDelegate* delegate) override {
+    delegate->OnFinishedByClient();
   }
 
+  // Firestore stream isn't interested in the status when finishing is initiated
+  // by client.
   grpc::Status unused_status_;
 };
 
@@ -238,6 +242,7 @@ bool GrpcStream::SameGeneration() const {
 
 void GrpcStream::OnStart() {
   state_ = State::Open;
+
   if (SameGeneration()) {
     buffered_writer_ = BufferedWriter{};
     observer_->OnStreamStart();
@@ -247,6 +252,7 @@ void GrpcStream::OnStart() {
 
 void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
   has_pending_read_ = false;
+
   if (SameGeneration()) {
     observer_->OnStreamRead(message);
     // While the stream is open, continue waiting for new messages
@@ -270,6 +276,7 @@ void GrpcStream::OnWrite() {
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
   state_ = State::Finished;
+
   if (SameGeneration()) {
     observer_->OnStreamError(ToFirestoreStatus(status));
   }
@@ -282,7 +289,7 @@ void GrpcStream::OnFinishedByClient() {
 
 void GrpcStream::OnOperationFailed() {
   HARD_ASSERT(state_ != State::Finished, "Operation failed after stream was "
-      "finished");
+      "finished. Finish operation should be the last one to complete");
   if (state_ >= State::Finishing) {
     // `Finish` itself cannot fail. If another failed operation already
     // triggered `Finish`, there's nothing to do.
@@ -290,6 +297,7 @@ void GrpcStream::OnOperationFailed() {
   }
 
   buffered_writer_.reset();
+
   if (SameGeneration()) {
     Execute<ServerInitiatedFinish>();
   } else {
