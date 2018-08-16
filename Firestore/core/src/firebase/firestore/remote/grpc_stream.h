@@ -45,7 +45,8 @@ class GrpcStreamDelegate;
  * The stream has to be explicitly opened (via `Start`) before it can be used.
  * The stream is always listening for new messages from the server. The stream
  * can be used to send messages to the server (via `Write`); messages are queued
- * and sent out one by one.
+ * and sent out one by one. Both sent and received messages are raw bytes;
+ * serialization and deserialization are left to the caller.
  *
  * The stream stores the generation number of the observer at the time of its
  * creation; once observer increases its generation number, the stream will stop
@@ -59,6 +60,9 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
  public:
   // Implementation of the stream relies on its memory being managed by
   // `shared_ptr`.
+  //
+  // The given `grpc_queue` must wrap the same underlying completion queue as
+  // the `call`.
   static std::shared_ptr<GrpcStream> MakeStream(
       std::unique_ptr<grpc::ClientContext> context,
       std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
