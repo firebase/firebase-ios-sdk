@@ -21,31 +21,22 @@
 
 #include <grpcpp/support/byte_buffer.h>
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcOperationsObserver {
- public:
-  virtual ~GrpcOperationsObserver() {
-  }
-
-  virtual void OnStreamStart() = 0;
-  virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
-  virtual void OnStreamWrite() = 0;
-  virtual void OnStreamError(const util::Status& status) = 0;
-
-  virtual int generation() const = 0;
-};
-
+/* Interface for an operation submitted to GRPC completion queue. */
 class GrpcOperation {
  public:
   virtual ~GrpcOperation() {
   }
 
+  // The operation is expected to be put on the completion queue once this
+  // function finishes.
   virtual void Execute() = 0;
+  // Expected to be called once the operation is retrieved from the completion
+  // queue. If `ok` is false, the operation has failed, and the GRPC call is
+  // unrepairably broken.
   virtual void Complete(bool ok) = 0;
 };
 
