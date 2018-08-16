@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -102,8 +103,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)credentialDidChangeWithUser:(const firebase::firestore::auth::User &)user;
 
-/** Applies an FSTOnlineState change to the sync engine and notifies any views of the change. */
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+/** Applies an OnlineState change to the sync engine and notifies any views of the change. */
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @end
 

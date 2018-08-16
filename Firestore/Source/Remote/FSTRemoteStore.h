@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
@@ -91,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FSTOnlineStateDelegate <NSObject>
 
 /** Called whenever the online state of the watch stream changes */
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @end
 

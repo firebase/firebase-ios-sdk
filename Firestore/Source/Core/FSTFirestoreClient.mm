@@ -56,7 +56,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
-
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -221,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.syncEngine credentialDidChangeWithUser:user];
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
   [self.eventManager applyChangedOnlineState:onlineState];
 }

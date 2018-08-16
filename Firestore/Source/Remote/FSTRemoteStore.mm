@@ -44,6 +44,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -164,7 +165,7 @@ static const int kMaxPendingWrites = 10;
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
   } else {
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
   }
 
   [self fillWritePipeline];  // This may start the writeStream.
@@ -172,11 +173,11 @@ static const int kMaxPendingWrites = 10;
 
 - (void)disableNetwork {
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to Offline so get()s return from cache, etc.
-  [self.onlineStateTracker updateState:FSTOnlineStateOffline];
+  // Set the OnlineState to Offline so get()s return from cache, etc.
+  [self.onlineStateTracker updateState:OnlineState::Offline];
 }
 
-/** Disables the network, setting the FSTOnlineState to the specified targetOnlineState. */
+/** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
   if ([self isNetworkEnabled]) {
     // NOTE: We're guaranteed not to get any further events from these streams (not even a close
@@ -202,9 +203,9 @@ static const int kMaxPendingWrites = 10;
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
+  // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+  [self.onlineStateTracker updateState:OnlineState::Unknown];
 }
 
 - (void)credentialDidChange {
@@ -214,7 +215,7 @@ static const int kMaxPendingWrites = 10;
     // (since mutations are per-user).
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
     [self disableNetworkInternal];
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
     [self enableNetwork];
   }
 }
@@ -289,7 +290,7 @@ static const int kMaxPendingWrites = 10;
 - (void)watchStreamDidChange:(FSTWatchChange *)change
              snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   // Mark the connection as Online because we got a message from the server.
-  [self.onlineStateTracker updateState:FSTOnlineStateOnline];
+  [self.onlineStateTracker updateState:OnlineState::Online];
 
   if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
     FSTWatchTargetChange *watchTargetChange = (FSTWatchTargetChange *)change;
@@ -334,7 +335,7 @@ static const int kMaxPendingWrites = 10;
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
   }
 }
 

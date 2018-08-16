@@ -26,7 +26,21 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+
+using firebase::firestore::model::OnlineState;
+
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Converts an OnlineState to an NSNumber, usually for the purpose of adding
+ * it to an NSArray or similar container. There's no direct conversion from a
+ * strongly-typed enum to an integral type that could be passed to an NSNumber
+ * initializer.
+ */
+static NSNumber *ToNSNumber(OnlineState state) {
+  return @(static_cast<std::underlying_type<OnlineState>::type>(state));
+}
 
 // FSTEventManager implements this delegate privately
 @interface FSTEventManager () <FSTSyncEngineDelegate>
@@ -139,13 +153,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQueryListener *fakeListener = OCMClassMock([FSTQueryListener class]);
   NSMutableArray *events = [NSMutableArray array];
   OCMStub([fakeListener query]).andReturn(query);
-  OCMStub([fakeListener applyChangedOnlineState:FSTOnlineStateUnknown])
+  OCMStub([fakeListener applyChangedOnlineState:OnlineState::Unknown])
       .andDo(^(NSInvocation *invocation) {
-        [events addObject:@(FSTOnlineStateUnknown)];
+        [events addObject:ToNSNumber(OnlineState::Unknown)];
       });
-  OCMStub([fakeListener applyChangedOnlineState:FSTOnlineStateOnline])
+  OCMStub([fakeListener applyChangedOnlineState:OnlineState::Online])
       .andDo(^(NSInvocation *invocation) {
-        [events addObject:@(FSTOnlineStateOnline)];
+        [events addObject:ToNSNumber(OnlineState::Online)];
       });
 
   FSTSyncEngine *syncEngineMock = OCMClassMock([FSTSyncEngine class]);
@@ -153,9 +167,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTEventManager *eventManager = [FSTEventManager eventManagerWithSyncEngine:syncEngineMock];
 
   [eventManager addListener:fakeListener];
-  XCTAssertEqualObjects(events, @[ @(FSTOnlineStateUnknown) ]);
-  [eventManager applyChangedOnlineState:FSTOnlineStateOnline];
-  XCTAssertEqualObjects(events, (@[ @(FSTOnlineStateUnknown), @(FSTOnlineStateOnline) ]));
+  XCTAssertEqualObjects(events, @[ ToNSNumber(OnlineState::Unknown) ]);
+  [eventManager applyChangedOnlineState:OnlineState::Online];
+  XCTAssertEqualObjects(events,
+                        (@[ ToNSNumber(OnlineState::Unknown), ToNSNumber(OnlineState::Online) ]));
 }
 
 @end

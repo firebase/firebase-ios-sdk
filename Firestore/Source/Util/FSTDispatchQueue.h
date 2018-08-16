@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/types.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -37,7 +39,7 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
   FSTTimerIDWriteStreamConnectionBackoff,
 
   /**
-   * A timer used in FSTOnlineStateTracker to transition from FSTOnlineState Unknown to Offline
+   * A timer used in FSTOnlineStateTracker to transition from OnlineState Unknown to Offline
    * after a set timeout, rather than waiting indefinitely for success or failure.
    */
   FSTTimerIDOnlineStateTimeout

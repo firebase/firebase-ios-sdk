@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot;
 - (void)queryDidError:(NSError *)error;
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 

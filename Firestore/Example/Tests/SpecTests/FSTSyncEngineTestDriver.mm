@@ -48,6 +48,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -180,7 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
   [self.eventManager applyChangedOnlineState:onlineState];
 }

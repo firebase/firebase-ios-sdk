@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -97,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign, readwrite) BOOL raisedInitialEvent;
 
 /** The last online state this query listener got. */
-@property(nonatomic, assign, readwrite) FSTOnlineState onlineState;
+@property(nonatomic, assign, readwrite) OnlineState onlineState;
 
 /** The FSTViewSnapshotHandler associated with this query listener. */
 @property(nonatomic, copy, nullable) FSTViewSnapshotHandler viewSnapshotHandler;
@@ -154,7 +155,7 @@ NS_ASSUME_NONNULL_BEGIN
   self.viewSnapshotHandler(nil, error);
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   self.onlineState = onlineState;
   if (self.snapshot && !self.raisedInitialEvent &&
       [self shouldRaiseInitialEventForSnapshot:self.snapshot onlineState:onlineState]) {
@@ -163,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (BOOL)shouldRaiseInitialEventForSnapshot:(FSTViewSnapshot *)snapshot
-                               onlineState:(FSTOnlineState)onlineState {
+                               onlineState:(OnlineState)onlineState {
   HARD_ASSERT(!self.raisedInitialEvent,
               "Determining whether to raise initial event, but already had first event.");
 
@@ -174,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // NOTE: We consider OnlineState.Unknown as online (it should become Offline or Online if we
   // wait long enough).
-  BOOL maybeOnline = onlineState != FSTOnlineStateOffline;
+  BOOL maybeOnline = onlineState != OnlineState::Offline;
   // Don't raise the event if we're online, aren't synced yet (checked
   // above) and are waiting for a sync.
   if (self.options.waitForSyncWhenOnline && maybeOnline) {
@@ -183,7 +184,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Raise data from cache if we have any documents or we are offline
-  return !snapshot.documents.isEmpty || onlineState == FSTOnlineStateOffline;
+  return !snapshot.documents.isEmpty || onlineState == OnlineState::Offline;
 }
 
 - (BOOL)shouldRaiseEventForSnapshot:(FSTViewSnapshot *)snapshot {
@@ -239,7 +240,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTQuery *, FSTQueryListenersInfo *> *queries;
-@property(nonatomic, assign) FSTOnlineState onlineState;
+@property(nonatomic, assign) OnlineState onlineState;
 
 @end
 
@@ -324,7 +325,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.queries removeObjectForKey:query];
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   self.onlineState = onlineState;
   for (FSTQueryListenersInfo *info in self.queries.objectEnumerator) {
     for (FSTQueryListener *listener in info.listeners) {
