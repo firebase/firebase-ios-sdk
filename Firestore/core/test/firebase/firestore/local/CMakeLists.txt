@@ -17,6 +17,7 @@ if(HAVE_LEVELDB)
     firebase_firestore_local_persistence_leveldb_test
     SOURCES
       leveldb_key_test.cc
+      leveldb_util_test.cc
     DEPENDS
       firebase_firestore_local_persistence_leveldb
   )

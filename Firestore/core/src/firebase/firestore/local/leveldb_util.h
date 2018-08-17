@@ -19,8 +19,10 @@
 
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 #include "leveldb/slice.h"
+#include "leveldb/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,6 +37,9 @@ inline leveldb::Slice MakeSlice(absl::string_view view) {
 inline absl::string_view MakeStringView(leveldb::Slice slice) {
   return absl::string_view{slice.data(), slice.size()};
 }
+
+/** Converts the given LevelDB status to a Firestore status. */
+util::Status ConvertStatus(const leveldb::Status& status);
 
 }  // namespace local
 }  // namespace firestore
