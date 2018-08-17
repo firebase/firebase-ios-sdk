@@ -140,8 +140,10 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
     NotStarted,
     Started,
     Open,
+    // The stream is waiting to send the last write and will finish as soon as
+    // it completes.
+    LastWrite,
     Finishing,
-    FinishingWithWrite,
     Finished
   };
   State state_ = State::NotStarted;

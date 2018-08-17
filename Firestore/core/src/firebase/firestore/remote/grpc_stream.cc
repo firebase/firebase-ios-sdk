@@ -240,7 +240,7 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 
   HARD_ASSERT(buffered_writer_,
               "Write requested when there is no valid buffered_writer_");
-  state_ = State::FinishingWithWrite;
+  state_ = State::LastWrite;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
   buffered_writer_->DiscardUnstartedWrites();
@@ -284,7 +284,7 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 }
 
 void GrpcStream::OnWrite() {
-  if (state_ == State::FinishingWithWrite && buffered_writer_->empty()) {
+  if (state_ == State::LastWrite && buffered_writer_->empty()) {
     // Final write succeeded.
     Finish();
     return;
@@ -314,7 +314,7 @@ void GrpcStream::OnOperationFailed() {
   HARD_ASSERT(state_ != State::Finished,
               "Operation failed after stream was "
               "finished. Finish operation should be the last one to complete");
-  if (state_ >= State::Finishing) {
+  if (state_ >= State::LastWrite) {
     // `Finish` itself cannot fail. If another failed operation already
     // triggered `Finish`, there's nothing to do.
     return;
