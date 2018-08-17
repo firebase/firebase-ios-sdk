@@ -22,9 +22,6 @@
 
 # Total time allowed for fuzzing in seconds (40 minutes for now).
 readonly ALLOWED_TIME=2400
-# Maximum time allowed for a target. Set to 9.5 minutes because travis kills
-# jobs when they do not produce an output for 10 minutes.
-readonly MAX_TIME_PER_TARGET=570
 
 # An invalid target that is used to retrieve the list of available targets in
 # the returned error message.
@@ -99,12 +96,6 @@ for i in "${!all_fuzzing_targets[@]}"; do
   if [[ "${i}" -eq "${todays_primary_target}" ]]; then
     fuzzing_duration="${primary_target_time}"
   fi
-
-  # Do not fuzz more than the max allowed time.
-  if [[ "${fuzzing_duration}" -gt "${MAX_TIME_PER_TARGET}" ]]; then
-    fuzzing_duration="${MAX_TIME_PER_TARGET}"
-  fi
-
   fuzzing_target="${all_fuzzing_targets[${i}]}"
 
   echo "Running fuzzing target ${fuzzing_target} for ${fuzzing_duration} seconds..."
