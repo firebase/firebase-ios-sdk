@@ -23,15 +23,15 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+// TODO(rsgowman): find a better home for this constant.
+// A document is defined to have a max size of 1MiB - 4 bytes.
+static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
+
 using std::int64_t;
 using std::int8_t;
 using std::uint64_t;
 
 Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
-  // TODO(rsgowman): find a better home for this constant.
-  // A document is defined to have a max size of 1MiB - 4 bytes.
-  static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
-
   // Construct a nanopb output stream.
   //
   // Set the max_size to be the max document size (as an upper bound; one would
@@ -43,11 +43,28 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   pb_ostream_t raw_stream = {
       /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
                       size_t count) -> bool {
-        auto* out_bytes = static_cast<std::vector<uint8_t>*>(stream->state);
-        out_bytes->insert(out_bytes->end(), buf, buf + count);
+        auto* output = static_cast<std::vector<uint8_t>*>(stream->state);
+        output->insert(output->end(), buf, buf + count);
         return true;
       },
       /*state=*/out_bytes,
+      /*max_size=*/kMaxDocumentSize,
+      /*bytes_written=*/0,
+      /*errmsg=*/nullptr};
+  return Writer(raw_stream);
+}
+
+Writer Writer::Wrap(std::string* out_string) {
+  // Construct a nanopb output stream. See notes in Wrap(vector*).
+
+  pb_ostream_t raw_stream = {
+      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
+                      size_t count) -> bool {
+        auto* output = static_cast<std::string*>(stream->state);
+        output->insert(output->end(), buf, buf + count);
+        return true;
+      },
+      /*state=*/out_string,
       /*max_size=*/kMaxDocumentSize,
       /*bytes_written=*/0,
       /*errmsg=*/nullptr};

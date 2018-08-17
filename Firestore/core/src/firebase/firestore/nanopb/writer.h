@@ -49,6 +49,17 @@ class Writer {
   static Writer Wrap(std::vector<std::uint8_t>* out_bytes);
 
   /**
+   * Creates an output stream that writes to the specified string. Note that
+   * this string pointer must remain valid for the lifetime of this Writer.
+   *
+   * (This is roughly equivalent to the nanopb function
+   * pb_ostream_from_buffer())
+   *
+   * @param out_string where the output should be serialized to.
+   */
+  static Writer Wrap(std::string* out_string);
+
+  /**
    * Creates a non-writing output stream used to calculate the size of
    * the serialized output.
    */
