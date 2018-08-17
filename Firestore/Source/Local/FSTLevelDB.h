@@ -68,35 +68,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (firebase::firestore::util::Status)start;
 
-// What follows is the Objective-C++ extension to the API.
 /**
  * @return A standard set of read options
  */
 + (const leveldb::ReadOptions)standardReadOptions;
-
-/**
- * Creates an NSError based on the given status if the status is not ok.
- *
- * @param status The status of the preceding LevelDB operation.
- * @param description A printf-style format string describing what kind of failure happened if
- *     @a status is not ok. Additional parameters are substituted into the placeholders in this
- *     format string.
- *
- * @return An NSError with its localizedDescription composed from the description format and its
- *     localizedFailureReason composed from any error message embedded in @a status.
- */
-+ (nullable NSError *)errorWithStatus:(leveldb::Status)status
-                          description:(NSString *)description, ... NS_FORMAT_FUNCTION(2, 3);
-
-/**
- * Converts the given @a status to an NSString describing the status condition, suitable for
- * logging or inclusion in an NSError.
- *
- * @param status The status of the preceding LevelDB operation.
- *
- * @return An NSString describing the status (even if the status was ok).
- */
-+ (NSString *)descriptionOfStatus:(leveldb::Status)status;
 
 /** The native db pointer, allocated during start. */
 @property(nonatomic, assign, readonly) leveldb::DB *ptr;

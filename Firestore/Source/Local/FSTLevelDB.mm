@@ -443,34 +443,6 @@ static const char *kReservedPathComponent = "firestore";
   return [_referenceDelegate currentSequenceNumber];
 }
 
-#pragma mark - Error and Status
-
-+ (nullable NSError *)errorWithStatus:(Status)status description:(NSString *)description, ... {
-  if (status.ok()) {
-    return nil;
-  }
-
-  va_list args;
-  va_start(args, description);
-
-  NSString *message = [[NSString alloc] initWithFormat:description arguments:args];
-  NSString *reason = [self descriptionOfStatus:status];
-  NSError *result = [NSError errorWithDomain:FIRFirestoreErrorDomain
-                                        code:FIRFirestoreErrorCodeInternal
-                                    userInfo:@{
-                                      NSLocalizedDescriptionKey : message,
-                                      NSLocalizedFailureReasonErrorKey : reason
-                                    }];
-
-  va_end(args);
-
-  return result;
-}
-
-+ (NSString *)descriptionOfStatus:(Status)status {
-  return [NSString stringWithCString:status.ToString().c_str() encoding:NSUTF8StringEncoding];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
