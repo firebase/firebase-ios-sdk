@@ -16,12 +16,14 @@ if(HAVE_LEVELDB)
   cc_library(
     firebase_firestore_local_persistence_leveldb
     SOURCES
-      leveldb_key.h
       leveldb_key.cc
-      leveldb_transaction.h
+      leveldb_key.h
+      leveldb_migrations.cc
+      leveldb_migrations.h
       leveldb_transaction.cc
-      leveldb_util.h
+      leveldb_transaction.h
       leveldb_util.cc
+      leveldb_util.h
     DEPENDS
       LevelDB::LevelDB
       absl_strings
