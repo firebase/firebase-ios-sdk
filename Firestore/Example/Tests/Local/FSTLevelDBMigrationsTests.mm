@@ -49,6 +49,7 @@ using firebase::firestore::model::BatchId;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
+using firebase::firestore::util::Path;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
@@ -65,9 +66,9 @@ using leveldb::Status;
   options.error_if_exists = true;
   options.create_if_missing = true;
 
-  NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = [FSTPersistenceTestHelpers levelDBDir];
   DB *db;
-  Status status = DB::Open(options, [dir UTF8String], &db);
+  Status status = DB::Open(options, dir.ToUtf8String(), &db);
   XCTAssert(status.ok(), @"Failed to create db: %s", status.ToString().c_str());
   _db.reset(db);
 }

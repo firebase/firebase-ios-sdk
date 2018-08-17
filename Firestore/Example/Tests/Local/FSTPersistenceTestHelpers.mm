@@ -16,6 +16,8 @@
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 
+#include <utility>
+
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -30,12 +32,13 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::util::Path;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
 
-+ (NSString *)levelDBDir {
++ (Path)levelDBDir {
   Path dir = util::TempDir().AppendUtf8("FSTPersistenceTestHelpers");
 
   // Delete the directory first to ensure isolation between runs.
@@ -46,22 +49,21 @@ NS_ASSUME_NONNULL_BEGIN
         format:@"Failed to clean up leveldb path %s: %s", dir.c_str(), status.ToString().c_str()];
   }
 
-  return dir.ToNSString();
+  return dir;
 }
 
-+ (FSTLevelDB *)levelDBPersistenceWithDir:(NSString *)dir {
++ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
   // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
   static DatabaseId database_id{"p", "d"};
 
   FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
   FSTLocalSerializer *serializer =
       [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
-  NSError *error;
-  BOOL success = [db start:&error];
-  if (!success) {
+  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
+  Status status = [db start];
+  if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to create leveldb path %@: %@", dir, error];
+                format:@"Failed to start leveldb persistence: %s", status.ToString().c_str()];
   }
 
   return db;
@@ -72,24 +74,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence {
-  NSError *error;
   FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithEagerGC];
-  BOOL success = [persistence start:&error];
-  if (!success) {
+  Status status = [persistence start];
+  if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %@", error];
+                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
   }
 
   return persistence;
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
-  NSError *error;
   FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithLRUGC];
-  BOOL success = [persistence start:&error];
-  if (!success) {
+  Status status = [persistence start];
+  if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
-                format:@"Failed to start memory persistence: %@", error];
+                format:@"Failed to start memory persistence: %s", status.ToString().c_str()];
   }
 
   return persistence;
