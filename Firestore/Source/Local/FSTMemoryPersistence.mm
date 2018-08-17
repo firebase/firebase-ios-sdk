@@ -36,6 +36,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::util::Status;
 
 using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 
@@ -101,11 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (BOOL)start:(NSError **)error {
+- (Status)start {
   // No durable state to read on startup.
   HARD_ASSERT(!self.isStarted, "FSTMemoryPersistence double-started!");
   self.started = YES;
-  return YES;
+  return Status::OK();
 }
 
 - (void)shutdown {

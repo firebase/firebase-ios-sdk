@@ -57,6 +57,8 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::Path;
+using firebase::firestore::util::Status;
 using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -165,26 +167,27 @@ NS_ASSUME_NONNULL_BEGIN
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
   if (usePersistence) {
-    NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
-                                             documentsDirectory:[FSTLevelDB documentsDirectory]];
+    Path dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
+                                        documentsDirectory:[FSTLevelDB documentsDirectory]];
 
     FSTSerializerBeta *remoteSerializer =
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 
-    _persistence = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+    _persistence = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
 
-  NSError *error;
-  if (![_persistence start:&error]) {
+  Status status = [_persistence start];
+  if (!status.ok()) {
     // If local storage fails to start then just throw up our hands: the error is unrecoverable.
     // There's nothing an end-user can do and nearly all failures indicate the developer is doing
     // something grossly wrong so we should stop them cold in their tracks with a failure they
     // can't ignore.
-    [NSException raise:NSInternalInconsistencyException format:@"Failed to open DB: %@", error];
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
 
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];

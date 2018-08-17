@@ -36,6 +36,7 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence shutdown];
   self.persistence = nil;
 
-  NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = [FSTPersistenceTestHelpers levelDBDir];
 
   FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
   FSTLevelDBQueryCache *queryCache = [db1 queryCache];
