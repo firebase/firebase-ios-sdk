@@ -227,7 +227,14 @@ void GrpcStream::Finish() {
   state_ = State::Finishing;
 
   buffered_writer_.reset();
-  context_->TryCancel();
+  // Important: since the stream always has a pending read operation,
+  // cancellation has to be called, or else the read would hang forever, and
+  // finish operation will never get completed (an operation cannot be completed
+  // before all previously-enqueued operations complete).
+  //
+  // On the other hand, when an operation fails, cancellation should not be
+  // called, otherwise the real failure cause will be overwritten by status
+  // "canceled".
   Execute<ClientInitiatedFinish>();
 }
 
