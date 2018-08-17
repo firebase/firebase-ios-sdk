@@ -173,7 +173,7 @@ class LevelDbTransaction {
    * Schedules the row identified by `key` to be set to `value` when this
    * transaction commits.
    */
-  void Put(absl::string_view key, absl::string_view value);
+  void Put(std::string key, std::string value);
 
   /**
    * Sets the contents of `value` to the latest known value for the given key,
