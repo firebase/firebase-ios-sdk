@@ -77,6 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTLocalStore *localStore;
 @property(nonatomic, strong, readonly) FSTSyncEngine *syncEngine;
 @property(nonatomic, strong, readonly) FSTDispatchQueue *dispatchQueue;
+@property(nonatomic, strong, readonly) id<FSTPersistence> persistence;
 
 #pragma mark - Data structures for holding events sent by the watch stream.
 
@@ -129,6 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
     dispatch_queue_t queue =
         dispatch_queue_create("sync_engine_test_driver", DISPATCH_QUEUE_SERIAL);
     _dispatchQueue = [FSTDispatchQueue queueWith:queue];
+    _persistence = persistence;
     _localStore = [[FSTLocalStore alloc] initWithPersistence:persistence initialUser:initialUser];
     _datastore = [[FSTMockDatastore alloc] initWithDatabaseInfo:&_databaseInfo
                                             workerDispatchQueue:_dispatchQueue
@@ -203,6 +205,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)shutdown {
   [self.dispatchQueue dispatchSync:^{
     [self.remoteStore shutdown];
+    [self.persistence shutdown];
   }];
 }
 
