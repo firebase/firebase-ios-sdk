@@ -27,7 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 // To deal with transient failures, we allow multiple stream attempts before giving up and
 // transitioning from OnlineState Unknown to Offline.
-static const int kMaxWatchStreamFailures = 2;
+// TODO(mikelehen): This used to be set to 2 as a mitigation for b/66228394. @jdimond thinks that
+// bug is sufficiently fixed so that we can set this back to 1. If that works okay, we could
+// potentially remove this logic entirely.
+static const int kMaxWatchStreamFailures = 1;
 
 // To deal with stream attempts that don't succeed or fail in a timely manner, we have a
 // timeout for OnlineState to reach Online or Offline. If the timeout is reached, we transition
