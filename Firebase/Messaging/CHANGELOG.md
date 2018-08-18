@@ -1,3 +1,7 @@
+# 2018-08-28 -- v3.1.1
+- Ensure NSUserDefaults is persisted properly before app close. (#1646)
+- Internal code cleanup. (#1666)
+
 # 2018-07-31 -- v3.1.0
 - Added support for global Firebase data collection flag. (#1219)
 - Fixed an issue where Messaging wouldn't properly unswizzle swizzled delegate

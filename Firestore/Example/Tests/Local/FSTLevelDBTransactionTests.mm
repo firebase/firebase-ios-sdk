@@ -34,13 +34,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::util::Path;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::ReadOptions;
-using leveldb::WriteOptions;
 using leveldb::Status;
-using firebase::firestore::local::LevelDbMutationKey;
-using firebase::firestore::local::LevelDbTransaction;
+using leveldb::WriteOptions;
 
 @interface FSTLevelDBTransactionTests : XCTestCase
 @end
@@ -54,9 +55,9 @@ using firebase::firestore::local::LevelDbTransaction;
   options.error_if_exists = true;
   options.create_if_missing = true;
 
-  NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = [FSTPersistenceTestHelpers levelDBDir];
   DB *db;
-  Status status = DB::Open(options, [dir UTF8String], &db);
+  Status status = DB::Open(options, dir.ToUtf8String(), &db);
   XCTAssert(status.ok(), @"Failed to create db: %s", status.ToString().c_str());
   _db.reset(db);
 }

@@ -20,6 +20,8 @@ if(HAVE_LEVELDB)
       leveldb_key.cc
       leveldb_transaction.h
       leveldb_transaction.cc
+      leveldb_util.h
+      leveldb_util.cc
     DEPENDS
       LevelDB::LevelDB
       absl_strings
