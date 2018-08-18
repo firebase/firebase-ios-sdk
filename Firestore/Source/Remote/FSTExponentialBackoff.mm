@@ -18,6 +18,7 @@
 
 #include <random>
 
+#import "Firestore/Source/Util/FSTClasses.h"
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -33,6 +34,7 @@ using firebase::firestore::util::SecureRandom;
 @property(nonatomic) NSTimeInterval initialDelay;
 @property(nonatomic) NSTimeInterval maxDelay;
 @property(nonatomic) NSTimeInterval currentBase;
+@property(nonatomic) NSTimeInterval lastAttemptTime;
 @property(nonatomic, strong, nullable) FSTDelayedCallback *timerCallback;
 @end
 
@@ -51,6 +53,7 @@ using firebase::firestore::util::SecureRandom;
     _initialDelay = initialDelay;
     _backoffFactor = backoffFactor;
     _maxDelay = maxDelay;
+    _lastAttemptTime = [[NSDate date] timeIntervalSince1970];
 
     [self reset];
   }
@@ -69,13 +72,34 @@ using firebase::firestore::util::SecureRandom;
   [self cancel];
 
   // First schedule the block using the current base (which may be 0 and should be honored as such).
-  NSTimeInterval delayWithJitter = _currentBase + [self jitterDelay];
+  NSTimeInterval desiredDelayWithJitter = _currentBase + [self jitterDelay];
+
+  // Guard against lastAttemptTime being in the future due to a clock change.
+  NSTimeInterval delaySoFar = MAX(0, [[NSDate date] timeIntervalSince1970] - self.lastAttemptTime);
+
+  // Guard against the backoff delay already being past.
+  NSTimeInterval remainingDelay = MAX(0, desiredDelayWithJitter - delaySoFar);
+
   if (_currentBase > 0) {
-    LOG_DEBUG("Backing off for %s seconds (base delay: %s seconds)", delayWithJitter, _currentBase);
+    LOG_DEBUG(
+        "Backing off for %s seconds ("
+        "base delay: %s seconds, "
+        "delay with jitter: %s seconds, "
+        "last attempt: %s seconds ago)",
+        remainingDelay, _currentBase, desiredDelayWithJitter, delaySoFar);
   }
 
-  self.timerCallback =
-      [self.dispatchQueue dispatchAfterDelay:delayWithJitter timerID:self.timerID block:block];
+  FSTWeakify(self);
+  self.timerCallback = [self.dispatchQueue
+      dispatchAfterDelay:remainingDelay
+                 timerID:self.timerID
+                   block:^{
+                     FSTStrongify(self);
+                     if (self) {
+                       self.lastAttemptTime = [[NSDate date] timeIntervalSince1970];
+                       block();
+                     }
+                   }];
 
   // Apply backoff factor to determine next delay and ensure it is within bounds.
   _currentBase *= _backoffFactor;
