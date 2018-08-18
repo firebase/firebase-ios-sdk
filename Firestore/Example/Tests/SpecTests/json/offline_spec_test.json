@@ -37,15 +37,6 @@
             "message": "Simulated Backend Error"
           },
           "runBackoffTimer": true
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -115,15 +106,6 @@
         "watchAck": [
           2
         ]
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
-        }
       },
       {
         "watchStreamClose": {
@@ -216,15 +198,6 @@
             "message": "Simulated Backend Error"
           },
           "runBackoffTimer": true
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -281,15 +254,6 @@
               "resumeToken": ""
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -420,15 +384,6 @@
               "resumeToken": "resume-token-1000"
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -658,15 +613,6 @@
               "resumeToken": "resume-token-1001"
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -955,15 +901,6 @@
               "resumeToken": ""
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
