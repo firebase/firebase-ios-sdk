@@ -22,7 +22,6 @@
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
-#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 #import "Firestore/Source/Local/FSTLevelDBRemoteDocumentCache.h"
@@ -33,6 +32,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_transaction.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_util.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
@@ -58,6 +58,7 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::local::ConvertStatus;
 using firebase::firestore::local::LevelDbDocumentMutationKey;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::DatabaseId;
@@ -352,7 +353,7 @@ static const char *kReservedPathComponent = "firestore";
   }
   _ptr = std::move(database).ValueOrDie();
 
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_ptr.get()];
+  LevelDbMigrations::RunMigrations(_ptr.get());
   LevelDbTransaction transaction(_ptr.get(), "Start LevelDB");
   _users = [FSTLevelDB collectUserSet:&transaction];
   transaction.Commit();
