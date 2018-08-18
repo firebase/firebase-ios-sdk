@@ -179,9 +179,9 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     # Run fuzz tests only on cron jobs.
-    - stage: fuzz_test
+    - stage: test
       env:
-        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+        - PROJECT=Firestore PLATFORM=iOS METHOD=fuzz
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
