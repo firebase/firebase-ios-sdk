@@ -90,14 +90,16 @@ using firebase::firestore::util::SecureRandom;
   }
 
   FSTWeakify(self);
-  self.timerCallback = [self.dispatchQueue dispatchAfterDelay:remainingDelay
-                                                      timerID:self.timerID
-                                                        block:^{
-                                                          FSTStrongify(self);
-                                                          self.lastAttemptTime =
-                                                              [[NSDate date] timeIntervalSince1970];
-                                                          block();
-                                                        }];
+  self.timerCallback = [self.dispatchQueue
+      dispatchAfterDelay:remainingDelay
+                 timerID:self.timerID
+                   block:^{
+                     FSTStrongify(self);
+                     if (self) {
+                       self.lastAttemptTime = [[NSDate date] timeIntervalSince1970];
+                       block();
+                     }
+                   }];
 
   // Apply backoff factor to determine next delay and ensure it is within bounds.
   _currentBase *= _backoffFactor;
