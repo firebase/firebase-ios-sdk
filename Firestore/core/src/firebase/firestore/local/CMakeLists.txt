@@ -25,9 +25,14 @@ if(HAVE_LEVELDB)
       leveldb_util.cc
       leveldb_util.h
     DEPENDS
+      # TODO(b/111328563) Force nanopb first to work around ODR violations
+      protobuf-nanopb
+
       LevelDB::LevelDB
       absl_strings
       firebase_firestore_model
+      firebase_firestore_nanopb
+      firebase_firestore_protos_nanopb
       firebase_firestore_util
     EXCLUDE_FROM_ALL
   )
