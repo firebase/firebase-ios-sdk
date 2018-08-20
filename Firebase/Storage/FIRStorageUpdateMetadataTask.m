@@ -61,34 +61,35 @@
   GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
   _fetcher = fetcher;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  __weak FIRStorageUpdateMetadataTask *weakSelf = self;
   _fetcherCompletion = ^(NSData *data, NSError *error) {
-    FIRStorageMetadata *metadata;
-    if (error) {
-      if (!self.error) {
-        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-      }
-    } else {
-      NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
-      if (responseDictionary) {
-        metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
-        [metadata setType:FIRStorageMetadataTypeFile];
+    __strong FIRStorageUpdateMetadataTask *strongSelf = weakSelf;
+    if (strongSelf != nil) {
+      FIRStorageMetadata *metadata;
+      if (error) {
+        if (!strongSelf.error) {
+          strongSelf.error = [FIRStorageErrors errorWithServerError:error
+                                                          reference:strongSelf.reference];
+        }
       } else {
-        self.error = [FIRStorageErrors errorWithInvalidRequest:data];
+        NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
+        if (responseDictionary) {
+          metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+          [metadata setType:FIRStorageMetadataTypeFile];
+        } else {
+          strongSelf.error = [FIRStorageErrors errorWithInvalidRequest:data];
+        }
       }
-    }
 
-    if (callback) {
-      callback(metadata, self.error);
+      if (callback) {
+        callback(metadata, strongSelf.error);
+      }
+      strongSelf->_fetcherCompletion = nil;
     }
-    self->_fetcherCompletion = nil;
   };
-#pragma clang diagnostic pop
 
   fetcher.comment = @"UpdateMetadataTask";
 
-  __weak FIRStorageUpdateMetadataTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);
   }];
