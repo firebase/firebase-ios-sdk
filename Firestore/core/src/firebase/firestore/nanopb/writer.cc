@@ -23,15 +23,27 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
-// TODO(rsgowman): find a better home for this constant.
-// A document is defined to have a max size of 1MiB - 4 bytes.
-static const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
-
 using std::int64_t;
 using std::int8_t;
 using std::uint64_t;
 
-Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
+namespace {
+
+// TODO(rsgowman): find a better home for this constant.
+// A document is defined to have a max size of 1MiB - 4 bytes.
+const size_t kMaxDocumentSize = 1 * 1024 * 1024 - 4;
+
+/**
+ * Creates a pb_ostream_t to the specified STL container. Note that this pointer
+ * must remain valid for the lifetime of the stream.
+ *
+ * (This is roughly equivalent to the nanopb function pb_ostream_from_buffer().)
+ *
+ * @tparm Container an STL container whose value_type is a char type.
+ * @param out_container where the output should be serialized to.
+ */
+template <typename Container>
+pb_ostream_t WrapContainer(Container* out_container) {
   // Construct a nanopb output stream.
   //
   // Set the max_size to be the max document size (as an upper bound; one would
@@ -40,35 +52,26 @@ Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
   // bytes_written is (always) initialized to 0. (NB: nanopb does not know or
   // care about the underlying output vector, so where we are in the vector
   // itself is irrelevant. i.e. don't use out_bytes->size())
-  pb_ostream_t raw_stream = {
-      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
-                      size_t count) -> bool {
-        auto* output = static_cast<std::vector<uint8_t>*>(stream->state);
-        output->insert(output->end(), buf, buf + count);
-        return true;
-      },
-      /*state=*/out_bytes,
-      /*max_size=*/kMaxDocumentSize,
-      /*bytes_written=*/0,
-      /*errmsg=*/nullptr};
-  return Writer(raw_stream);
+  return {/*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
+                          size_t count) -> bool {
+            auto* output = static_cast<Container*>(stream->state);
+            output->insert(output->end(), buf, buf + count);
+            return true;
+          },
+          /*state=*/out_container,
+          /*max_size=*/kMaxDocumentSize,
+          /*bytes_written=*/0,
+          /*errmsg=*/nullptr};
+}
+
+}  // namespace
+
+Writer Writer::Wrap(std::vector<uint8_t>* out_bytes) {
+  return Writer{WrapContainer(out_bytes)};
 }
 
 Writer Writer::Wrap(std::string* out_string) {
-  // Construct a nanopb output stream. See notes in Wrap(vector*).
-
-  pb_ostream_t raw_stream = {
-      /*callback=*/[](pb_ostream_t* stream, const pb_byte_t* buf,
-                      size_t count) -> bool {
-        auto* output = static_cast<std::string*>(stream->state);
-        output->insert(output->end(), buf, buf + count);
-        return true;
-      },
-      /*state=*/out_string,
-      /*max_size=*/kMaxDocumentSize,
-      /*bytes_written=*/0,
-      /*errmsg=*/nullptr};
-  return Writer(raw_stream);
+  return Writer{WrapContainer(out_string)};
 }
 
 void Writer::WriteTag(Tag tag) {
