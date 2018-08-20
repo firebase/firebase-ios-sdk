@@ -19,6 +19,9 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "grpcpp/support/status.h"
+
 #include <grpc/grpc.h>
 #include <grpcpp/generic/generic_stub.h>
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -44,7 +47,7 @@ class Datastore {
                                            absl::string_view path,
                                            GrpcStreamObserver* observer);
 
-  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
+  static util::Status ToFirestoreStatus(grpc::Status grpc_error);
 
   void Shutdown();
   // TODO?

@@ -148,12 +148,17 @@ Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
   return grpc_stub_.PrepareCall(context, path.data(), grpc_queue_.queue());
 }
 
-FirestoreErrorCode Datastore::ToFirestoreErrorCode(
-    grpc::StatusCode grpc_error) {
+util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
+  if (from.ok()) {
+    return {};
+  }
+
+  grpc::StatusCode error_code = from.error_code();
   HARD_ASSERT(
-      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
-      "Unknown GRPC error code: %s", grpc_error);
-  return static_cast<FirestoreErrorCode>(grpc_error);
+      error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
+      "Unknown gRPC error code: %s", error_code);
+
+  return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
 }
 
 }  // namespace remote
