@@ -22,15 +22,14 @@
 #include <utility>
 #include <vector>
 
-#include <grpcpp/client_context.h>
-#include <grpcpp/create_channel.h>
-#include <grpcpp/generic/generic_stub.h>
-#include <grpcpp/support/byte_buffer.h>
-#include "gtest/gtest.h"
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "absl/memory/memory.h"
+#include "grpcpp/client_context.h"
+#include "grpcpp/create_channel.h"
+#include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/byte_buffer.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {

@@ -17,9 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 
-#include <grpcpp/completion_queue.h>
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "grpcpp/completion_queue.h"
 
 namespace firebase {
 namespace firestore {

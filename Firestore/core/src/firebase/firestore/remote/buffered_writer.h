@@ -44,6 +44,8 @@ class BufferedWriter {
  public:
   BufferedWriter() = default;
   ~BufferedWriter();
+  BufferedWriter(BufferedWriter&&) = default;
+
   // Disallow copying for simplicity (there is no use case for it).
   BufferedWriter(const BufferedWriter&) = delete;
   BufferedWriter& operator=(const BufferedWriter&) = delete;

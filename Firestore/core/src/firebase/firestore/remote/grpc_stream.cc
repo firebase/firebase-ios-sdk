@@ -26,14 +26,6 @@ using internal::GrpcStreamDelegate;
 
 namespace {
 
-util::Status ToFirestoreStatus(const grpc::Status& from) {
-  if (from.ok()) {
-    return {};
-  }
-  return {Datastore::ToFirestoreErrorCode(from.error_code()),
-          from.error_message()};
-}
-
 // Operations
 
 // An operation that notifies the corresponding stream on its completion (via
@@ -171,7 +163,7 @@ class ClientInitiatedFinish : public StreamOperation {
 
 }  // namespace
 
-// Call
+// Stream
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
@@ -257,9 +249,8 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
   HARD_ASSERT(buffered_writer_,
               "Write requested when there is no valid buffered_writer_");
-  std::unique_ptr<StreamWrite> write_operation{
-      MakeOperation<StreamWrite>(std::move(message))};
-  buffered_writer_->EnqueueWrite(std::move(write_operation));
+  StreamWrite* write_operation = MakeOperation<StreamWrite>(std::move(message));
+  buffered_writer_->EnqueueWrite(write_operation);
 }
 
 bool GrpcStream::SameGeneration() const {
@@ -270,7 +261,7 @@ bool GrpcStream::SameGeneration() const {
 
 void GrpcStream::OnStart() {
   state_ = State::Open;
-  buffered_writer_ = BufferedWriter{};
+  buffered_writer_.emplace(BufferedWriter{});
 
   if (SameGeneration()) {
     observer_->OnStreamStart();
@@ -307,7 +298,7 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
   state_ = State::Finished;
 
   if (SameGeneration()) {
-    observer_->OnStreamError(ToFirestoreStatus(status));
+    observer_->OnStreamError(Datastore::ToFirestoreStatus(status));
   }
 }
 

@@ -20,15 +20,14 @@
 #include <memory>
 #include <utility>
 
-#include <grpcpp/client_context.h>
-#include <grpcpp/generic/generic_stub.h>
-#include <grpcpp/support/byte_buffer.h>
-
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
+#include "grpcpp/client_context.h"
+#include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -39,7 +38,7 @@ class GrpcStreamDelegate;
 }
 
 /**
- * A GRPC bidirectional stream that notifies the given `observer` about stream
+ * A gRPC bidirectional stream that notifies the given `observer` about stream
  * events.
  *
  * The stream has to be explicitly opened (via `Start`) before it can be used.
@@ -118,7 +117,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
     MakeOperation<Op>(args...)->Execute();
   }
 
-  // The GRPC objects that have to be valid until the last GRPC operation
+  // The gRPC objects that have to be valid until the last gRPC operation
   // associated with this call finishes. Note that `grpc::ClientContext` is not
   // reference-counted.
   //

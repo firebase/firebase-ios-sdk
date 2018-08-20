@@ -16,18 +16,24 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-FirestoreErrorCode Datastore::ToFirestoreErrorCode(
-    grpc::StatusCode grpc_error) {
+util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
+  if (from.ok()) {
+    return {};
+  }
+
+  grpc::StatusCode error_code = from.error_code();
   HARD_ASSERT(
-      grpc_error >= grpc::CANCELLED && grpc_error <= grpc::UNAUTHENTICATED,
-      "Unknown GRPC error code: %s", grpc_error);
-  return static_cast<FirestoreErrorCode>(grpc_error);
+      error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
+      "Unknown gRPC error code: %s", error_code);
+
+  return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
 }
 
 }  // namespace remote

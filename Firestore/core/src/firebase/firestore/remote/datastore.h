@@ -17,8 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
-#include <grpcpp/support/status_code_enum.h>
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -26,7 +26,7 @@ namespace remote {
 
 class Datastore {
  public:
-  static FirestoreErrorCode ToFirestoreErrorCode(grpc::StatusCode grpc_error);
+  static util::Status ToFirestoreStatus(grpc::Status grpc_error);
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
