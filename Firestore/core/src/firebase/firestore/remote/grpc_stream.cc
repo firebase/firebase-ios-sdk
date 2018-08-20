@@ -24,6 +24,31 @@ namespace remote {
 
 using internal::GrpcStreamDelegate;
 
+// `GrpcStream` communicates with gRPC via `StreamOperation`s:
+//
+// - for each method in its public API that wraps an invocation of a method on
+//   `grpc::GenericClientAsyncReaderWriter`, `GrpcStream` creates a new
+//   `StreamOperation` (`GrpcStream` itself doesn't invoke a single method on
+//   `grpc::GenericClientAsyncReaderWriter`);
+// - `StreamOperation` knows how to execute itself. `StreamOperation::Execute`
+//   will call the underlying call to gRPC and place the operation itself on
+//   gRPC completion queue;
+// - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
+//   completed tags off gRPC completion queue, call `OnComplete` on them and
+//   delete them. Thus, operations are unowned by the stream;
+// - `StreamOperation::OnComplete` will invoke a corresponding callback on the
+//   `GrpcStream`. In turn, `GrpcStream` will decide whether to notify the
+//   observer.
+// - `StreamOperation` stores a `GrpcStreamDelegate` and actually invokes
+//   callbacks on this class, which straightforwardly redirects them to
+//   `GrpcStream`. The delegate has a shared pointer to the `GrpcStream`. This
+//   means that even after the caller lets go of its `shared_ptr` to
+//   `GrpcStream`, the stream object will still be valid until the last
+//   operation issued by the stream completes.
+// - `GrpcStream` doesn't know anything about Firestore `AsyncQueue`s. It's the
+//   responsibility of the callers to invoke its methods in appropriate
+//   execution contexts.
+
 namespace {
 
 // Operations
@@ -49,7 +74,7 @@ class StreamOperation : public GrpcOperation {
     if (ok) {
       DoComplete(&delegate_);
     } else {
-      // Failed operation means this stream is irrecoverably broken; use the
+      // Failed operation means this stream is unrecoverably broken; use the
       // same error-handling policy for all operations.
       delegate_.OnOperationFailed();
     }
@@ -190,7 +215,7 @@ std::shared_ptr<GrpcStream> GrpcStream::MakeStream(
 }
 
 void GrpcStream::Start() {
-  HARD_ASSERT(state_ == State::NotStarted, "Call is already started");
+  HARD_ASSERT(state_ == State::NotStarted, "Stream is already started");
   state_ = State::Started;
   Execute<StreamStart>();
 }
