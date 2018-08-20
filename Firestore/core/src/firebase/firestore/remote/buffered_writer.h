@@ -37,25 +37,17 @@ namespace remote {
  * moment it is executed and until `DequeueNextWrite` is called on the
  * `BufferedWriter`. `DequeueNextWrite` makes the next write active, if any.
  *
+ * `BufferedWriter` does not own any operations it stores.
+ *
  * This class exists to help Firestore streams adhere to the gRPC requirement
  * that only one write operation may be active at any given time.
  */
 class BufferedWriter {
  public:
-  BufferedWriter() = default;
-  ~BufferedWriter();
-  BufferedWriter(BufferedWriter&&) = default;
-
-  // Disallow copying for simplicity (there is no use case for it).
-  BufferedWriter(const BufferedWriter&) = delete;
-  BufferedWriter& operator=(const BufferedWriter&) = delete;
-
   bool empty() const {
     return queue_.empty();
   }
 
-  // Pending writes are owned by the `BufferedWriter`. Once a write becomes
-  // active, `BufferedWriter` releases ownership.
   void EnqueueWrite(GrpcOperation* write);
   void DequeueNextWrite();
 

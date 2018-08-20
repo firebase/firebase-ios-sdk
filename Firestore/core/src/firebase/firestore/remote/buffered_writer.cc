@@ -24,15 +24,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-BufferedWriter::~BufferedWriter() {
-  DiscardUnstartedWrites();
-}
-
 void BufferedWriter::DiscardUnstartedWrites() {
-  while (!queue_.empty()) {
-    delete queue_.front();
-    queue_.pop();
-  }
+  queue_ = {};
 }
 
 void BufferedWriter::EnqueueWrite(GrpcOperation* write) {

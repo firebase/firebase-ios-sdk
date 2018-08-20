@@ -35,7 +35,8 @@ namespace remote {
 
 namespace internal {
 class GrpcStreamDelegate;
-}
+class StreamOperation;
+}  // namespace internal
 
 /**
  * A gRPC bidirectional stream that notifies the given `observer` about stream
@@ -120,14 +121,17 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   void OnOperationFailed();
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
+  void RemoveOperation(const internal::StreamOperation* to_remove);
 
   // Whether this stream belongs to the same generation as the observer.
   bool SameGeneration() const;
 
+  // Creates an operation, stores a `unique_ptr` to it, and returns a plain
+  // pointer.
   template <typename Op, typename... Args>
   Op* MakeOperation(Args... args);
 
-  // Creates and immediately executes an operation; ownership is released.
+  // Creates and immediately executes an operation.
   template <typename Op, typename... Args>
   void Execute(Args... args) {
     MakeOperation<Op>(args...)->Execute();
@@ -150,6 +154,8 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   int generation_ = -1;
   // Buffered writer is created once the stream opens.
   absl::optional<BufferedWriter> buffered_writer_;
+
+  std::vector<std::unique_ptr<internal::StreamOperation>> operations_;
 
   // The order of stream states is linear: a stream can never transition to an
   // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
@@ -206,6 +212,10 @@ class GrpcStreamDelegate {
     stream_->OnFinishedByClient();
   }
 
+  void RemoveOperation(const internal::StreamOperation* to_remove) {
+    stream_->RemoveOperation(to_remove);
+  }
+
  private:
   std::shared_ptr<GrpcStream> stream_;
 };
@@ -214,8 +224,11 @@ class GrpcStreamDelegate {
 
 template <typename Op, typename... Args>
 Op* GrpcStream::MakeOperation(Args... args) {
-  return new Op{internal::GrpcStreamDelegate{shared_from_this()}, call_.get(),
-                grpc_queue_, std::move(args)...};
+  auto op =
+      absl::make_unique<Op>(internal::GrpcStreamDelegate{shared_from_this()},
+                            call_.get(), grpc_queue_, std::move(args)...);
+  operations_.push_back(std::move(op));
+  return static_cast<Op*>(operations_.back().get());
 }
 
 }  // namespace remote

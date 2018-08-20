@@ -22,34 +22,43 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using internal::GrpcStreamDelegate;
-
 // `GrpcStream` communicates with gRPC via `StreamOperation`s:
 //
 // - for each method in its public API that wraps an invocation of a method on
 //   `grpc::GenericClientAsyncReaderWriter`, `GrpcStream` creates a new
 //   `StreamOperation` (`GrpcStream` itself doesn't invoke a single method on
 //   `grpc::GenericClientAsyncReaderWriter`);
+//
 // - `StreamOperation` knows how to execute itself. `StreamOperation::Execute`
 //   will call the underlying call to gRPC and place the operation itself on
 //   gRPC completion queue;
+//
 // - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
-//   completed tags off gRPC completion queue, call `OnComplete` on them and
-//   delete them. Thus, operations are unowned by the stream;
-// - `StreamOperation::OnComplete` will invoke a corresponding callback on the
+//   completed tags off gRPC completion queue and call `Complete` on them;
+//
+// - `StreamOperation::Complete` will invoke a corresponding callback on the
 //   `GrpcStream`. In turn, `GrpcStream` will decide whether to notify the
-//   observer.
+//   observer;
+//
 // - `StreamOperation` stores a `GrpcStreamDelegate` and actually invokes
 //   callbacks on this class, which straightforwardly redirects them to
 //   `GrpcStream`. The delegate has a shared pointer to the `GrpcStream`. This
 //   means that even after the caller lets go of its `shared_ptr` to
 //   `GrpcStream`, the stream object will still be valid until the last
-//   operation issued by the stream completes.
+//   operation issued by the stream completes;
+//
+// - `StreamOperation`s are owned by the `GrpcStream`. Note that the ownership
+//   goes both ways: the stream is the sole owner of each operation, but each
+//   operation extends the lifetime of the stream as long as it exists.
+//   Operations call `GrpcStream::RemoveOperation` in its
+//   `StreamOperation::Complete` method. If the operation contained the last
+//   reference to the stream, it might trigger `GrpcStream` destruction;
+//
 // - `GrpcStream` doesn't know anything about Firestore `AsyncQueue`s. It's the
 //   responsibility of the callers to invoke its methods in appropriate
 //   execution contexts.
 
-namespace {
+namespace internal {
 
 // Operations
 
@@ -78,6 +87,8 @@ class StreamOperation : public GrpcOperation {
       // same error-handling policy for all operations.
       delegate_.OnOperationFailed();
     }
+
+    delegate_.RemoveOperation(this);
   }
 
  private:
@@ -186,7 +197,9 @@ class ClientInitiatedFinish : public StreamOperation {
   grpc::Status unused_status_;
 };
 
-}  // namespace
+}  // namespace internal
+
+using namespace ::firebase::firestore::remote::internal;
 
 // Stream
 
@@ -355,6 +368,17 @@ void GrpcStream::OnOperationFailed() {
     // no longer interested, there is no need to do that.
     state_ = State::Finished;
   }
+}
+
+void GrpcStream::RemoveOperation(const StreamOperation* to_remove) {
+  auto found = std::find_if(operations_.begin(), operations_.end(),
+                         [to_remove](const std::unique_ptr<StreamOperation>& op) {
+                           return op.get() == to_remove;
+                         });
+  HARD_ASSERT(found != operations_.end(), "Missing StreamOperation");
+  // Note that the operation might have contained the last reference to this
+  // stream, so this call might trigger `GrpcStream::~GrpcStream`.
+  operations_.erase(found);
 }
 
 }  // namespace remote
