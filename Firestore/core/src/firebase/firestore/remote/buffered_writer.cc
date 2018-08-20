@@ -24,13 +24,20 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-void BufferedWriter::DiscardUnstartedWrites() {
-  queue_ = {};
+BufferedWriter::~BufferedWriter() {
+  DiscardUnstartedWrites();
 }
 
-void BufferedWriter::EnqueueWrite(std::unique_ptr<GrpcOperation> write) {
+void BufferedWriter::DiscardUnstartedWrites() {
+  while (!queue_.empty()) {
+    delete queue_.front();
+    queue_.pop();
+  }
+}
+
+void BufferedWriter::EnqueueWrite(GrpcOperation* write) {
   HARD_ASSERT(write, "Trying to enqueue a null write operation");
-  queue_.push(std::move(write));
+  queue_.push(write);
   TryStartWrite();
 }
 
@@ -45,7 +52,7 @@ void BufferedWriter::TryStartWrite() {
   has_active_write_ = true;
   // Once an operation is executed, the ownership is (implicitly) transferred to
   // the completion queue.
-  GrpcOperation* write_operation = queue_.front().release();
+  GrpcOperation* write_operation = queue_.front();
   HARD_ASSERT(write_operation, "Trying to execute a null operation");
   queue_.pop();
   write_operation->Execute();
