@@ -275,8 +275,8 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 
   if (SameGeneration()) {
     observer_->OnStreamRead(message);
-    // While the stream is open, continue waiting for new messages
-    // indefinitely.
+    // Continue waiting for new messages indefinitely as long as there is an
+    // interested observer.
     Read();
   }
 }
@@ -287,9 +287,9 @@ void GrpcStream::OnWrite() {
     Finish();
     return;
   }
+  buffered_writer_->DequeueNextWrite();
 
   if (SameGeneration()) {
-    buffered_writer_->DequeueNextWrite();
     observer_->OnStreamWrite();
   }
 }
