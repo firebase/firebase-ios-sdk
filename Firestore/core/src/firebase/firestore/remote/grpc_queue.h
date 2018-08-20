@@ -55,7 +55,7 @@ class GrpcCompletionQueue {
   // drained (`Next` has returned a null pointer).
   // Calling this function mroe than once is invalid.
   void Shutdown();
-  bool IsShutDown() const {
+  bool is_shut_down() const {
     return is_shut_down_;
   }
 

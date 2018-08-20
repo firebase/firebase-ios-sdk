@@ -74,7 +74,7 @@ class StreamOperation : public GrpcOperation {
   }
 
   void Execute() override {
-    if (!grpc_queue_->IsShutDown()) {
+    if (!grpc_queue_->is_shut_down()) {
       DoExecute(call_);
     }
   }
