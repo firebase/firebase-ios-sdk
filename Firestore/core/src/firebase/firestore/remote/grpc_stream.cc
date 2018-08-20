@@ -33,7 +33,7 @@ namespace remote {
 //   will call the underlying call to gRPC and place the operation itself on
 //   gRPC completion queue;
 //
-// - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
+// - `GrpcStream` expects another class (in practice, `Datastore`) to take
 //   completed tags off gRPC completion queue and call `Complete` on them;
 //
 // - `StreamOperation::Complete` will invoke a corresponding callback on the
