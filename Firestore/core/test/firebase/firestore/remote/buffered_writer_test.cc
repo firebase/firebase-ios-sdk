@@ -43,8 +43,8 @@ class TestOperation : public GrpcOperation {
 
 class BufferedWriterTest : public testing::Test {
  public:
-  std::unique_ptr<TestOperation> MakeOperation() {
-    return absl::make_unique<TestOperation>(&writes_count);
+  TestOperation* MakeOperation() {
+    return new TestOperation{&writes_count};
   }
 
   int writes_count = 0;

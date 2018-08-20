@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
 
-#include <memory>
 #include <queue>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
@@ -43,11 +42,19 @@ namespace remote {
  */
 class BufferedWriter {
  public:
+  BufferedWriter() = default;
+  ~BufferedWriter();
+  // Disallow copying for simplicity (there is no use case for it).
+  BufferedWriter(const BufferedWriter&) = delete;
+  BufferedWriter& operator=(const BufferedWriter&) = delete;
+
   bool empty() const {
     return queue_.empty();
   }
 
-  void EnqueueWrite(std::unique_ptr<GrpcOperation> write);
+  // Pending writes are owned by the `BufferedWriter`. Once a write becomes
+  // active, `BufferedWriter` releases ownership.
+  void EnqueueWrite(GrpcOperation* write);
   void DequeueNextWrite();
 
   // Doesn't affect the write that is currently in progress.
@@ -56,7 +63,7 @@ class BufferedWriter {
  private:
   void TryStartWrite();
 
-  std::queue<std::unique_ptr<GrpcOperation>> queue_;
+  std::queue<GrpcOperation*> queue_;
   bool has_active_write_ = false;
 };
 
