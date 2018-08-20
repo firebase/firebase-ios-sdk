@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H_
 
-#include <memory>
 #include <queue>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
@@ -31,15 +30,17 @@ namespace remote {
  * writes them one by one. Only one write may be in progress ("active") at any
  * given time.
  *
- * Writes are put on the queue using `Enqueue`; if no other write is currently
- * in progress, it will become active immediately, otherwise, it will be put on
- * the queue. When a write becomes active, it is executed (via `Execute`);
- * a write is active from the moment it is executed and until `DequeueNext` is
- * called on the `BufferedWriter`. `DequeueNext` makes the next write active, if
- * any.
+ * Writes are put on the queue using `EnqueueWrite`; if no other write is
+ * currently in progress, it will become active immediately, otherwise, it will
+ * be "buffered" (put on the queue in this `BufferedWriter`). When a write
+ * becomes active, it is executed (via `Execute`); a write is active from the
+ * moment it is executed and until `DequeueNextWrite` is called on the
+ * `BufferedWriter`. `DequeueNextWrite` makes the next write active, if any.
  *
- * This class exists to help Firestore streams adhere to GRPC requirement that
- * only one write operation may be active at any given time.
+ * `BufferedWriter` does not own any operations it stores.
+ *
+ * This class exists to help Firestore streams adhere to the gRPC requirement
+ * that only one write operation may be active at any given time.
  */
 class BufferedWriter {
  public:
@@ -47,16 +48,16 @@ class BufferedWriter {
     return queue_.empty();
   }
 
-  void Enqueue(std::unique_ptr<GrpcOperation> write);
-  void DequeueNext();
+  void EnqueueWrite(GrpcOperation* write);
+  void DequeueNextWrite();
 
   // Doesn't affect the write that is currently in progress.
   void DiscardUnstartedWrites();
 
  private:
-  void TryWrite();
+  void TryStartWrite();
 
-  std::queue<std::unique_ptr<GrpcOperation>> queue_;
+  std::queue<GrpcOperation*> queue_;
   bool has_active_write_ = false;
 };
 
@@ -64,4 +65,4 @@ class BufferedWriter {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_BUFFERED_WRITER_H_

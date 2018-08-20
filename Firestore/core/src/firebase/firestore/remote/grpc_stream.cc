@@ -22,17 +22,43 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-using internal::GrpcStreamDelegate;
+// `GrpcStream` communicates with gRPC via `StreamOperation`s:
+//
+// - for each method in its public API that wraps an invocation of a method on
+//   `grpc::GenericClientAsyncReaderWriter`, `GrpcStream` creates a new
+//   `StreamOperation` (`GrpcStream` itself doesn't invoke a single method on
+//   `grpc::GenericClientAsyncReaderWriter`);
+//
+// - `StreamOperation` knows how to execute itself. `StreamOperation::Execute`
+//   will call the underlying call to gRPC and place the operation itself on
+//   gRPC completion queue;
+//
+// - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
+//   completed tags off gRPC completion queue and call `Complete` on them;
+//
+// - `StreamOperation::Complete` will invoke a corresponding callback on the
+//   `GrpcStream`. In turn, `GrpcStream` will decide whether to notify the
+//   observer;
+//
+// - `StreamOperation` stores a `GrpcStreamDelegate` and actually invokes
+//   callbacks on this class, which straightforwardly redirects them to
+//   `GrpcStream`. The delegate has a shared pointer to the `GrpcStream`. This
+//   means that even after the caller lets go of its `shared_ptr` to
+//   `GrpcStream`, the stream object will still be valid until the last
+//   operation issued by the stream completes;
+//
+// - `StreamOperation`s are owned by the `GrpcStream`. Note that the ownership
+//   goes both ways: the stream is the sole owner of each operation, but each
+//   operation extends the lifetime of the stream as long as it exists.
+//   Operations call `GrpcStream::RemoveOperation` in its
+//   `StreamOperation::Complete` method. If the operation contained the last
+//   reference to the stream, it might trigger `GrpcStream` destruction;
+//
+// - `GrpcStream` doesn't know anything about Firestore `AsyncQueue`s. It's the
+//   responsibility of the callers to invoke its methods in appropriate
+//   execution contexts.
 
-namespace {
-
-util::Status ToFirestoreStatus(const grpc::Status& from) {
-  if (from.ok()) {
-    return {};
-  }
-  return {Datastore::ToFirestoreErrorCode(from.error_code()),
-          from.error_message()};
-}
+namespace internal {
 
 // Operations
 
@@ -48,7 +74,7 @@ class StreamOperation : public GrpcOperation {
   }
 
   void Execute() override {
-    if (!grpc_queue_->IsShutDown()) {
+    if (!grpc_queue_->is_shut_down()) {
       DoExecute(call_);
     }
   }
@@ -57,10 +83,12 @@ class StreamOperation : public GrpcOperation {
     if (ok) {
       DoComplete(&delegate_);
     } else {
-      // Failed operation means this stream is irrecoverably broken; use the
+      // Failed operation means this stream is unrecoverably broken; use the
       // same error-handling policy for all operations.
       delegate_.OnOperationFailed();
     }
+
+    delegate_.RemoveOperation(this);
   }
 
  private:
@@ -169,9 +197,11 @@ class ClientInitiatedFinish : public StreamOperation {
   grpc::Status unused_status_;
 };
 
-}  // namespace
+}  // namespace internal
 
-// Call
+using namespace ::firebase::firestore::remote::internal;
+
+// Stream
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
@@ -182,6 +212,7 @@ GrpcStream::GrpcStream(
       call_{std::move(call)},
       observer_{observer},
       grpc_queue_{grpc_queue},
+      // Store the current generation of the observer.
       generation_{observer->generation()} {
 }
 
@@ -197,7 +228,7 @@ std::shared_ptr<GrpcStream> GrpcStream::MakeStream(
 }
 
 void GrpcStream::Start() {
-  HARD_ASSERT(state_ == State::NotStarted, "Call is already started");
+  HARD_ASSERT(state_ == State::NotStarted, "Stream is already started");
   state_ = State::Started;
   Execute<StreamStart>();
 }
@@ -227,7 +258,14 @@ void GrpcStream::Finish() {
   state_ = State::Finishing;
 
   buffered_writer_.reset();
-  context_->TryCancel();
+  // Important: since the stream always has a pending read operation,
+  // cancellation has to be called, or else the read would hang forever, and
+  // finish operation will never get completed (an operation cannot be completed
+  // before all previously-enqueued operations complete).
+  //
+  // On the other hand, when an operation fails, cancellation should not be
+  // called, otherwise the real failure cause will be overwritten by status
+  // "canceled".
   Execute<ClientInitiatedFinish>();
 }
 
@@ -240,7 +278,7 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 
   HARD_ASSERT(buffered_writer_,
               "Write requested when there is no valid buffered_writer_");
-  state_ = State::FinishingWithWrite;
+  state_ = State::LastWrite;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
   buffered_writer_->DiscardUnstartedWrites();
@@ -250,9 +288,8 @@ void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
   HARD_ASSERT(buffered_writer_,
               "Write requested when there is no valid buffered_writer_");
-  std::unique_ptr<StreamWrite> write_operation{
-      MakeOperation<StreamWrite>(std::move(message))};
-  buffered_writer_->Enqueue(std::move(write_operation));
+  StreamWrite* write_operation = MakeOperation<StreamWrite>(std::move(message));
+  buffered_writer_->EnqueueWrite(write_operation);
 }
 
 bool GrpcStream::SameGeneration() const {
@@ -263,7 +300,7 @@ bool GrpcStream::SameGeneration() const {
 
 void GrpcStream::OnStart() {
   state_ = State::Open;
-  buffered_writer_ = BufferedWriter{};
+  buffered_writer_.emplace(BufferedWriter{});
 
   if (SameGeneration()) {
     observer_->OnStreamStart();
@@ -277,21 +314,25 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 
   if (SameGeneration()) {
     observer_->OnStreamRead(message);
-    // While the stream is open, continue waiting for new messages
-    // indefinitely.
-    Read();
+    if (state_ == State::Open) {
+      // Continue waiting for new messages indefinitely as long as there is an
+      // interested observer and the stream is open.
+      Read();
+    }
   }
 }
 
 void GrpcStream::OnWrite() {
-  if (state_ == State::FinishingWithWrite && buffered_writer_->empty()) {
+  if (state_ == State::LastWrite && buffered_writer_->empty()) {
     // Final write succeeded.
     Finish();
     return;
   }
+  if (state_ <= State::LastWrite) {
+    buffered_writer_->DequeueNextWrite();
+  }
 
   if (SameGeneration()) {
-    buffered_writer_->DequeueNext();
     observer_->OnStreamWrite();
   }
 }
@@ -300,7 +341,7 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
   state_ = State::Finished;
 
   if (SameGeneration()) {
-    observer_->OnStreamError(ToFirestoreStatus(status));
+    observer_->OnStreamError(Datastore::ToFirestoreStatus(status));
   }
 }
 
@@ -311,10 +352,7 @@ void GrpcStream::OnFinishedByClient() {
 }
 
 void GrpcStream::OnOperationFailed() {
-  HARD_ASSERT(state_ != State::Finished,
-              "Operation failed after stream was "
-              "finished. Finish operation should be the last one to complete");
-  if (state_ >= State::Finishing) {
+  if (state_ >= State::LastWrite) {
     // `Finish` itself cannot fail. If another failed operation already
     // triggered `Finish`, there's nothing to do.
     return;
@@ -330,6 +368,17 @@ void GrpcStream::OnOperationFailed() {
     // no longer interested, there is no need to do that.
     state_ = State::Finished;
   }
+}
+
+void GrpcStream::RemoveOperation(const StreamOperation* to_remove) {
+  auto found = std::find_if(operations_.begin(), operations_.end(),
+                         [to_remove](const std::unique_ptr<StreamOperation>& op) {
+                           return op.get() == to_remove;
+                         });
+  HARD_ASSERT(found != operations_.end(), "Missing StreamOperation");
+  // Note that the operation might have contained the last reference to this
+  // stream, so this call might trigger `GrpcStream::~GrpcStream`.
+  operations_.erase(found);
 }
 
 }  // namespace remote

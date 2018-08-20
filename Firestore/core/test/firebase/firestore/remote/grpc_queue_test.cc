@@ -22,11 +22,11 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-TEST(GrpcCompletionQueueTest, IsShuttingDown) {
+TEST(GrpcCompletionQueueTest, IsShutDown) {
   GrpcCompletionQueue queue;
-  EXPECT_FALSE(queue.IsShutDown());
+  EXPECT_FALSE(queue.is_shut_down());
   queue.Shutdown();
-  EXPECT_TRUE(queue.IsShutDown());
+  EXPECT_TRUE(queue.is_shut_down());
 }
 
 TEST(GrpcCompletionQueueTest, NextReturnsNullAfterShutdown) {

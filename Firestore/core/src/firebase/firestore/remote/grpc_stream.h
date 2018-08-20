@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
 #include <memory>
 #include <utility>
-
-#include <grpcpp/client_context.h>
-#include <grpcpp/generic/generic_stub.h>
-#include <grpcpp/support/byte_buffer.h>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
+#include "grpcpp/client_context.h"
+#include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -36,29 +35,47 @@ namespace remote {
 
 namespace internal {
 class GrpcStreamDelegate;
-}
+class StreamOperation;
+}  // namespace internal
 
 /**
- * A GRPC bidirectional stream that notifies the given `observer` about stream
+ * A gRPC bidirectional stream that notifies the given `observer` about stream
  * events.
  *
  * The stream has to be explicitly opened (via `Start`) before it can be used.
  * The stream is always listening for new messages from the server. The stream
  * can be used to send messages to the server (via `Write`); messages are queued
- * and sent out one by one.
+ * and sent out one by one. Both sent and received messages are raw bytes;
+ * serialization and deserialization are left to the caller.
+ *
+ * The observer will be notified about the following events:
+ * - stream has been started;
+ * - stream has received a new message from the server;
+ * - stream write has finished successfully (which only means it's going on the
+ *   wire, not that it has been actually sent);
+ * - stream has been interrupted with an error. All errors are unrecoverable.
+ * Note that the stream will _not_ notify the observer about finish if the
+ * finish was initiated by the client, or about the final write (the write
+ * produced by `WriteAndFinish`).
  *
  * The stream stores the generation number of the observer at the time of its
  * creation; once observer increases its generation number, the stream will stop
- * notifying it of events.
+ * notifying it about events. Moreover, the stream will stop listening to new
+ * messages from the server once it notices that the observer increased its
+ * generation number. Pending writes will still be sent as normal.
  *
  * The stream is disposable; once it finishes, it cannot be restarted.
  *
- * This class is a wrapper over `grpc::GenericClientAsyncReaderWriter`.
+ * This class is essentially a wrapper over
+ * `grpc::GenericClientAsyncReaderWriter`.
  */
 class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
  public:
   // Implementation of the stream relies on its memory being managed by
   // `shared_ptr`.
+  //
+  // The given `grpc_queue` must wrap the same underlying completion queue as
+  // the `call`.
   static std::shared_ptr<GrpcStream> MakeStream(
       std::unique_ptr<grpc::ClientContext> context,
       std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
@@ -76,12 +93,14 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   // more than once.
   void Finish();
 
-  // Writes the given message and finishes the stream as soon as the write
-  // succeeds. Any non-started writes will be discarded. Neither write nor
-  // finish will notify the observer.
-  //
-  // If the stream hasn't opened yet, `WriteAndFinish` is equivalent to
-  // `Finish` -- the write will be ignored.
+  /**
+   * Writes the given message and finishes the stream as soon as the write
+   * succeeds. Any non-started writes will be discarded. Neither write nor
+   * finish will notify the observer.
+   *
+   * If the stream hasn't opened yet, `WriteAndFinish` is equivalent to
+   * `Finish` -- the write will be ignored.
+   */
   void WriteAndFinish(grpc::ByteBuffer&& message);
 
  private:
@@ -102,21 +121,25 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   void OnOperationFailed();
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
+  void RemoveOperation(const internal::StreamOperation* to_remove);
 
+  // Whether this stream belongs to the same generation as the observer.
   bool SameGeneration() const;
 
+  // Creates an operation, stores a `unique_ptr` to it, and returns a plain
+  // pointer.
   template <typename Op, typename... Args>
   Op* MakeOperation(Args... args);
 
-  // Creates and immediately executes an operation; ownership is released.
+  // Creates and immediately executes an operation.
   template <typename Op, typename... Args>
   void Execute(Args... args) {
     MakeOperation<Op>(args...)->Execute();
   }
 
-  // The GRPC objects that have to be valid until the last GRPC operation
-  // associated with this call finishes. Note that `grpc::ClientContext` is not
-  // reference-counted.
+  // The gRPC objects that have to be valid until the last gRPC operation
+  // associated with this call finishes. Note that `grpc::ClientContext` is
+  // _not_ reference-counted.
   //
   // Important: `call_` has to be destroyed before `context_`, so declaration
   // order matters here. Despite the unique pointer, `call_` is actually
@@ -132,12 +155,20 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   // Buffered writer is created once the stream opens.
   absl::optional<BufferedWriter> buffered_writer_;
 
+  std::vector<std::unique_ptr<internal::StreamOperation>> operations_;
+
+  // The order of stream states is linear: a stream can never transition to an
+  // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
+  // to `Open`, but not vice versa). Intermediate states can be skipped (e.g.,
+  // a stream can go from `Started` directly to `Finishing`).
   enum class State {
     NotStarted,
     Started,
     Open,
+    // The stream is waiting to send the last write and will finish as soon as
+    // it completes.
+    LastWrite,
     Finishing,
-    FinishingWithWrite,
     Finished
   };
   State state_ = State::NotStarted;
@@ -155,7 +186,7 @@ namespace internal {
 // lifetime lasts as long as any of the operations it issued still exists.
 //
 // The delegate allows making `GrpcStream::OnStream[Event]` functions private
-// without too much proliferation of friendship.
+// without excessive proliferation of friendship.
 class GrpcStreamDelegate {
  public:
   explicit GrpcStreamDelegate(std::shared_ptr<GrpcStream>&& stream)
@@ -181,6 +212,10 @@ class GrpcStreamDelegate {
     stream_->OnFinishedByClient();
   }
 
+  void RemoveOperation(const internal::StreamOperation* to_remove) {
+    stream_->RemoveOperation(to_remove);
+  }
+
  private:
   std::shared_ptr<GrpcStream> stream_;
 };
@@ -189,12 +224,15 @@ class GrpcStreamDelegate {
 
 template <typename Op, typename... Args>
 Op* GrpcStream::MakeOperation(Args... args) {
-  return new Op{internal::GrpcStreamDelegate{shared_from_this()}, call_.get(),
-                grpc_queue_, std::move(args)...};
+  auto op =
+      absl::make_unique<Op>(internal::GrpcStreamDelegate{shared_from_this()},
+                            call_.get(), grpc_queue_, std::move(args)...);
+  operations_.push_back(std::move(op));
+  return static_cast<Op*>(operations_.back().get());
 }
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_

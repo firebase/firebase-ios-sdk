@@ -17,9 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_QUEUE_H_
 
-#include <grpcpp/completion_queue.h>
-
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "grpcpp/completion_queue.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,6 +29,9 @@ class GrpcOperation;
 /**
  * An owning wrapper around `grpc::CompletionQueue` that allows checking whether
  * the queue has been shut down.
+ *
+ * Because `grpc::CompletionQueue` only provides polling methods, this class too
+ * cannot be used to add operations to the queue.
  */
 class GrpcCompletionQueue {
  public:
@@ -53,7 +55,7 @@ class GrpcCompletionQueue {
   // drained (`Next` has returned a null pointer).
   // Calling this function mroe than once is invalid.
   void Shutdown();
-  bool IsShutDown() const {
+  bool is_shut_down() const {
     return is_shut_down_;
   }
 
