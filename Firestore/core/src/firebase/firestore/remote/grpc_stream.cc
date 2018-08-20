@@ -174,6 +174,7 @@ GrpcStream::GrpcStream(
       call_{std::move(call)},
       observer_{observer},
       grpc_queue_{grpc_queue},
+      // Store the current generation of the observer.
       generation_{observer->generation()} {
 }
 
@@ -275,9 +276,11 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 
   if (SameGeneration()) {
     observer_->OnStreamRead(message);
-    // Continue waiting for new messages indefinitely as long as there is an
-    // interested observer.
-    Read();
+    if (state_ == State::Open) {
+      // Continue waiting for new messages indefinitely as long as there is an
+      // interested observer and the stream is open.
+      Read();
+    }
   }
 }
 
@@ -287,7 +290,9 @@ void GrpcStream::OnWrite() {
     Finish();
     return;
   }
-  buffered_writer_->DequeueNextWrite();
+  if (state_ <= State::LastWrite) {
+    buffered_writer_->DequeueNextWrite();
+  }
 
   if (SameGeneration()) {
     observer_->OnStreamWrite();
@@ -309,9 +314,6 @@ void GrpcStream::OnFinishedByClient() {
 }
 
 void GrpcStream::OnOperationFailed() {
-  HARD_ASSERT(state_ != State::Finished,
-              "Operation failed after stream was "
-              "finished. Finish operation should be the last one to complete");
   if (state_ >= State::LastWrite) {
     // `Finish` itself cannot fail. If another failed operation already
     // triggered `Finish`, there's nothing to do.
