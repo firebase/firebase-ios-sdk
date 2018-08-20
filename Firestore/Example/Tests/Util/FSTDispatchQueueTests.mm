@@ -183,26 +183,6 @@ static const FSTTimerID timerID3 = FSTTimerIDWriteStreamConnectionBackoff;
   XCTAssertNil(caught);
 }
 
-- (void)testEnterCheckedOperationDisallowsNesting {
-  __block NSException *caught = nil;
-  __block NSString *problem = nil;
-  [_queue dispatchSync:^{
-    @try {
-      [self->_queue enterCheckedOperation:^{
-      }];
-      problem = @"Should not have been able to enter nested enterCheckedOperation";
-    } @catch (NSException *ex) {
-      caught = ex;
-    }
-  }];
-  XCTAssertNil(problem);
-  XCTAssertNotNil(caught);
-  XCTAssertTrue(
-      [caught.reason hasPrefix:@"FIRESTORE INTERNAL ASSERTION FAILED: "
-                               @"ExecuteBlocking may not be called before the previous operation "
-                               @"finishes executing"]);
-}
-
 /**
  * Helper to return a block that adds @(n) to _completedSteps when run and fulfils _expectation if
  * the _completedSteps match the _expectedSteps.
