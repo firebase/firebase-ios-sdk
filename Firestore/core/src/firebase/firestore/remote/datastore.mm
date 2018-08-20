@@ -80,7 +80,6 @@ void Datastore::PollGrpcQueue() {
   while (GrpcOperation* operation = grpc_queue_.Next(&ok)) {
     firestore_queue_->Enqueue([operation, ok] {
       operation->Complete(ok);
-      delete operation;
     });
   }
 }
