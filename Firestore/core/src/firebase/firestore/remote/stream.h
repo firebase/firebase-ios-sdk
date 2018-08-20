@@ -35,7 +35,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_objc_bridge.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -53,7 +53,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class Stream : public GrpcStreamObserver, public std::enable_shared_from_this<Stream> {
+class Stream : public GrpcStreamObserver,
+               public std::enable_shared_from_this<Stream> {
  public:
   Stream(util::AsyncQueue* async_queue,
          auth::CredentialsProvider* credentials_provider,
@@ -88,20 +89,13 @@ class Stream : public GrpcStreamObserver, public std::enable_shared_from_this<St
   void ResetBackoff();
 
  private:
-  enum class State {
-    Initial,
-    Starting,
-    Open,
-    Error,
-    ReconnectingWithBackoff
-  };
+  enum class State { Initial, Starting, Open, Error, ReconnectingWithBackoff };
 
   virtual std::shared_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) = 0;
   virtual void FinishGrpcStream(GrpcStream* call) = 0;
   virtual void DoOnStreamStart() = 0;
-  virtual util::Status DoOnStreamRead(
-      const grpc::ByteBuffer& message) = 0;
+  virtual util::Status DoOnStreamRead(const grpc::ByteBuffer& message) = 0;
   virtual void DoOnStreamWrite() = 0;
   virtual void DoOnStreamFinish(const util::Status& status) = 0;
 
@@ -167,9 +161,13 @@ class WriteStream : public Stream {
   void WriteHandshake();
   void WriteMutations(NSArray<FSTMutation*>* mutations);
 
-  bool IsHandshakeComplete() const { return is_handshake_complete_; }
+  bool IsHandshakeComplete() const {
+    return is_handshake_complete_;
+  }
   // FIXME exists for tests
-  void SetHandshakeComplete() { is_handshake_complete_ = true; }
+  void SetHandshakeComplete() {
+    is_handshake_complete_ = true;
+  }
 
  private:
   std::shared_ptr<GrpcStream> CreateGrpcStream(
