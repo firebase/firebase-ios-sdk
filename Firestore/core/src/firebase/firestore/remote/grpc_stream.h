@@ -222,12 +222,4 @@ Op* GrpcStream::MakeOperation(Args... args) {
 }  // namespace firestore
 }  // namespace firebase
 
-/*
-questions:
-- do we need `OnWrite` at all outside the stream? It seems like an
-implementation detail that wrapper should perhaps hide (it's basically to know
-that we can send the next message);
-- do we need to always have pending read? It's simpler conceptually, but need
-to see if it's wasteful.
- */
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H
