@@ -16,9 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 
-#include "gtest/gtest.h"
-
 #include "absl/memory/memory.h"
+#include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,8 +29,12 @@ class TestOperation : public GrpcOperation {
   }
   void Execute() override {
     ++(*writes_count_);
+    // Normally, this would be done by the class that popped the operation from
+    // GRPC completion queue, but these tests don't include normal deletion.
+    delete this;
   }
   void Complete(bool ok) override {
+    // Never called in these tests
   }
 
  private:

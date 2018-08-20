@@ -33,13 +33,13 @@ namespace remote {
  *
  * Writes are put on the queue using `EnqueueWrite`; if no other write is
  * currently in progress, it will become active immediately, otherwise, it will
- * be put on the queue. When a write becomes active, it is executed (via
- * `Execute`); a write is active from the moment it is executed and until
- * `DequeueNextWrite` is called on the `BufferedWriter`. `DequeueNextWrite`
- * makes the next write active, if any.
+ * be "buffered" (put on the queue in this `BufferedWriter`). When a write
+ * becomes active, it is executed (via `Execute`); a write is active from the
+ * moment it is executed and until `DequeueNextWrite` is called on the
+ * `BufferedWriter`. `DequeueNextWrite` makes the next write active, if any.
  *
- * This class exists to help Firestore streams adhere to GRPC requirement that
- * only one write operation may be active at any given time.
+ * This class exists to help Firestore streams adhere to the gRPC requirement
+ * that only one write operation may be active at any given time.
  */
 class BufferedWriter {
  public:

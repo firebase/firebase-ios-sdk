@@ -19,24 +19,31 @@
 
 #include <utility>
 
-#include <grpcpp/support/byte_buffer.h>
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-/* Interface for an operation submitted to GRPC completion queue. */
+/**
+ * A loose interface for an operation submitted to the gRPC completion queue.
+ */
 class GrpcOperation {
  public:
   virtual ~GrpcOperation() {
   }
 
-  // The operation is expected to be put on the completion queue once this
-  // function finishes.
+  /**
+   * Executes the asynchronous gRPC operation. The operation is expected to be
+   * put on the completion queue by this function.
+   */
   virtual void Execute() = 0;
-  // Expected to be called once the operation is retrieved from the completion
-  // queue. If `ok` is false, the operation has failed, and the GRPC call is
-  // unrepairably broken.
+
+  /**
+   * Must to be called once the operation is retrieved from the completion
+   * queue, and provided with a boolean to indicate whether the operation has
+   * completed successfully. A false value of `ok` means unrecoverable failure.
+   */
   virtual void Complete(bool ok) = 0;
 };
 
