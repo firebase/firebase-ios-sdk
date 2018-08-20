@@ -162,11 +162,9 @@ const WriteOptions& LevelDbTransaction::DefaultWriteOptions() {
   return options;
 }
 
-void LevelDbTransaction::Put(absl::string_view key, absl::string_view value) {
-  std::string key_string(key);
-  std::string value_string(value);
-  mutations_[key_string] = value_string;
-  deletions_.erase(key_string);
+void LevelDbTransaction::Put(std::string key, std::string value) {
+  deletions_.erase(key);
+  mutations_.emplace(std::make_pair(std::move(key), std::move(value)));
   version_++;
 }
 

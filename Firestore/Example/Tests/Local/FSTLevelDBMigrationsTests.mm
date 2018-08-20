@@ -22,11 +22,11 @@
 
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Local/FSTLevelDBMigrations.h"
 #import "Firestore/Source/Local/FSTLevelDBMutationQueue.h"
 #import "Firestore/Source/Local/FSTLevelDBQueryCache.h"
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::FirestoreErrorCode;
 using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
@@ -53,6 +54,8 @@ using firebase::firestore::util::Path;
 using leveldb::DB;
 using leveldb::Options;
 using leveldb::Status;
+
+using SchemaVersion = LevelDbMigrations::SchemaVersion;
 
 @interface FSTLevelDBMigrationsTests : XCTestCase
 @end
@@ -80,7 +83,7 @@ using leveldb::Status;
 - (void)testAddsTargetGlobal {
   FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNil(metadata, @"Not expecting metadata yet, we should have an empty db");
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get()];
+  LevelDbMigrations::RunMigrations(_db.get());
 
   metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
   XCTAssertNotNil(metadata, @"Migrations should have added the metadata");
@@ -89,18 +92,16 @@ using leveldb::Status;
 - (void)testSetsVersionNumber {
   {
     LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber before");
-    FSTLevelDBSchemaVersion initial =
-        [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+    SchemaVersion initial = LevelDbMigrations::ReadSchemaVersion(&transaction);
     XCTAssertEqual(0, initial, "No version should be equivalent to 0");
   }
 
   {
     // Pick an arbitrary high migration number and migrate to it.
-    [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get()];
+    LevelDbMigrations::RunMigrations(_db.get());
 
     LevelDbTransaction transaction(_db.get(), "testSetsVersionNumber after");
-    FSTLevelDBSchemaVersion actual =
-        [FSTLevelDBMigrations schemaVersionWithTransaction:&transaction];
+    SchemaVersion actual = LevelDbMigrations::ReadSchemaVersion(&transaction);
     XCTAssertGreaterThan(actual, 0, @"Expected to migrate to a schema version > 0");
   }
 }
@@ -143,7 +144,7 @@ using leveldb::Status;
       LevelDbMutationKey::Key(userID, batchID),
   };
 
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
+  LevelDbMigrations::RunMigrations(_db.get(), 2);
   {
     // Setup some targets to be counted in the migration.
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCache setup");
@@ -156,7 +157,7 @@ using leveldb::Status;
     transaction.Commit();
   }
 
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:3];
+  LevelDbMigrations::RunMigrations(_db.get(), 3);
   {
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCache");
     for (const std::string &key : targetKeys) {
@@ -173,7 +174,7 @@ using leveldb::Status;
 }
 
 - (void)testDropsTheQueryCacheWithThousandsOfEntries {
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:2];
+  LevelDbMigrations::RunMigrations(_db.get(), 2);
   {
     // Setup some targets to be destroyed.
     LevelDbTransaction transaction(_db.get(), "testDropsTheQueryCacheWithThousandsOfEntries setup");
@@ -183,7 +184,7 @@ using leveldb::Status;
     transaction.Commit();
   }
 
-  [FSTLevelDBMigrations runMigrationsWithDatabase:_db.get() upToVersion:3];
+  LevelDbMigrations::RunMigrations(_db.get(), 3);
   {
     LevelDbTransaction transaction(_db.get(), "Verify");
     std::string prefix = LevelDbTargetKey::KeyPrefix();
