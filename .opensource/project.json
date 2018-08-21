@@ -1,0 +1,26 @@
+{
+    "name": "Firebase iOS SDK",
+    "type": "library",
+
+    "platforms": [
+      "iOS"
+    ],
+
+    "content": "README.md",
+
+    // Other markdown pages that should be rendered nicely
+    "pages" : [
+        "ROADMAP.md",
+        "Carthage.md",
+        "CONTRIBUTING.md",
+        "CODE_OF_CONDUCT.md"
+    ],
+
+    // Related projects on Github, in the format $owner/$repo[/$subproject]
+    // where subproject is optional.
+    "related": [
+      "firebase/quickstart-ios",
+      "firebase/firebaseui-ios"
+    ],
+
+}
