@@ -129,7 +129,7 @@
 
   _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
     __strong FIRStorageUploadTask *strongSelf = weakSelf;
-    if (strongSelf != nil) {
+    if (strongSelf) {
       // Fire last progress updates
       [strongSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:strongSelf.snapshot];
 

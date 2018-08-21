@@ -54,7 +54,7 @@
   __weak FIRStorageDeleteTask *weakSelf = self;
   _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
     __strong FIRStorageDeleteTask *strongSelf = weakSelf;
-    if (strongSelf != nil) {
+    if (strongSelf) {
       if (!strongSelf.error) {
         strongSelf.error =
             [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];

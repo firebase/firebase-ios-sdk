@@ -58,7 +58,7 @@
   __weak FIRStorageGetMetadataTask *weakSelf = self;
   _fetcherCompletion = ^(NSData *data, NSError *error) {
     __strong FIRStorageGetMetadataTask *strongSelf = weakSelf;
-    if (strongSelf != nil) {
+    if (strongSelf) {
       FIRStorageMetadata *metadata = nil;
       if (error) {
         if (!strongSelf.error) {

@@ -81,7 +81,7 @@
   __weak FIRStorageGetDownloadURLTask *weakSelf = self;
   _fetcherCompletion = ^(NSData *data, NSError *error) {
     __strong FIRStorageGetDownloadURLTask *strongSelf = weakSelf;
-    if (strongSelf != nil) {
+    if (strongSelf) {
       NSURL *downloadURL;
       if (error) {
         if (!strongSelf.error) {

@@ -106,7 +106,7 @@
 
   _fetcherCompletion = ^(NSData *data, NSError *error) {
     __strong FIRStorageDownloadTask *strongSelf = weakSelf;
-    if (strongSelf != nil) {
+    if (strongSelf) {
       [strongSelf onFetchCompletionWithData:data error:error];
     }
   };
