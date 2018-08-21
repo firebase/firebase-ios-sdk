@@ -62,8 +62,8 @@
       FIRStorageMetadata *metadata = nil;
       if (error) {
         if (!strongSelf.error) {
-          strongSelf.error = [FIRStorageErrors errorWithServerError:error
-                                                          reference:strongSelf.reference];
+          strongSelf.error =
+              [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
         }
       } else {
         NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
@@ -81,7 +81,6 @@
       strongSelf->_fetcherCompletion = nil;
     }
   };
-
 
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);

@@ -136,8 +136,8 @@
       // Handle potential issues with upload
       if (error) {
         strongSelf.state = FIRStorageTaskStateFailed;
-        strongSelf.error = [FIRStorageErrors errorWithServerError:error
-                                                        reference:strongSelf.reference];
+        strongSelf.error =
+            [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
         strongSelf.metadata = strongSelf->_uploadMetadata;
         [strongSelf fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:strongSelf.snapshot];
         [strongSelf removeAllObservers];

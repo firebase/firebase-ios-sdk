@@ -56,8 +56,8 @@
     __strong FIRStorageDeleteTask *strongSelf = weakSelf;
     if (strongSelf != nil) {
       if (!strongSelf.error) {
-        strongSelf.error = [FIRStorageErrors errorWithServerError:error
-                                                        reference:strongSelf.reference];
+        strongSelf.error =
+            [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
       }
       if (callback) {
         callback(strongSelf.error);
