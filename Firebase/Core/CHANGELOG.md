@@ -1,5 +1,8 @@
 # Unreleased
 
+# 2018-08-28 -- v5.1.2 -- M32
+- [fixed] Clarified wording in `FirebaseAnalytics not available` log message. (#1653)
+
 # 2018-07-31 -- v5.1.0 -- M30
 - [feature] Added a global data collection flag to use when individual product flags are not set. (#1583)
 
