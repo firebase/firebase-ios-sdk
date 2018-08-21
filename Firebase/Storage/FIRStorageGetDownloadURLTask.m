@@ -78,37 +78,38 @@
   _fetcher = fetcher;
   fetcher.comment = @"GetDownloadURLTask";
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
+  __weak FIRStorageGetDownloadURLTask *weakSelf = self;
   _fetcherCompletion = ^(NSData *data, NSError *error) {
-    NSURL *downloadURL;
-    if (error) {
-      if (!self.error) {
-        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-      }
-    } else {
-      NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
-      if (responseDictionary != nil) {
-        downloadURL =
-            [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
-        if (!downloadURL) {
-          self.error =
-              [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL."];
+    __strong FIRStorageGetDownloadURLTask *strongSelf = weakSelf;
+    if (strongSelf) {
+      NSURL *downloadURL;
+      if (error) {
+        if (!strongSelf.error) {
+          strongSelf.error =
+              [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
         }
       } else {
-        self.error = [FIRStorageErrors errorWithInvalidRequest:data];
+        NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
+        if (responseDictionary != nil) {
+          downloadURL =
+              [FIRStorageGetDownloadURLTask downloadURLFromMetadataDictionary:responseDictionary];
+          if (!downloadURL) {
+            strongSelf.error =
+                [FIRStorageErrors errorWithCustomMessage:@"Failed to retrieve a download URL."];
+          }
+        } else {
+          strongSelf.error = [FIRStorageErrors errorWithInvalidRequest:data];
+        }
       }
-    }
 
-    if (callback) {
-      callback(downloadURL, self.error);
-    }
+      if (callback) {
+        callback(downloadURL, strongSelf.error);
+      }
 
-    self->_fetcherCompletion = nil;
+      strongSelf->_fetcherCompletion = nil;
+    }
   };
-#pragma clang diagnostic pop
 
-  __weak FIRStorageGetDownloadURLTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);
   }];
