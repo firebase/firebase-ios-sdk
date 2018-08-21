@@ -21,6 +21,7 @@ protocol EmailLoginDelegate {
 }
 
 class EmailLoginViewController: UIViewController {
+
   // MARK: - Public Properties
 
   var delegate: EmailLoginDelegate?
@@ -64,7 +65,8 @@ class EmailLoginViewController: UIViewController {
 
   // MARK: - View Controller Lifecycle
 
-  override func viewDidLoad() {}
+  override func viewDidLoad() {
+  }
 
   // MARK: - Helper Methods
 

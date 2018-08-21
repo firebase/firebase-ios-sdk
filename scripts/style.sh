@@ -59,9 +59,9 @@ system=$(uname -s)
 if [[ "$system" == "Darwin" ]]; then
   version=$(swiftformat --version)
   version="${version/*version /}"
-  # 0.33.8 is the current travis version and 0.35.2 the current version from
-  # brew upgrate. They're currently compatible for our swift sources.
-  if [[ "$version" != "0.33.8" && "$version" != "0.35"* ]]; then
+  # Allow an older swiftformat because travis isn't running High Sierra yet
+  # and the formula hasn't been updated in a while on Sierra :-/.
+  if [[ "$version" != "0.32.0" && "$version" != "0.33"* ]]; then
     echo "Version $version installed. Please upgrade to at least swiftformat 0.33.8"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
