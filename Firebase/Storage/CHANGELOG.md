@@ -1,5 +1,5 @@
 # v3.0.1
-- [fixed] Fixed potential `EXC_BAD_ACCESS` violation in the internal logic for prcoessing finished downloads (#1565, #1721).
+- [fixed] Fixed potential `EXC_BAD_ACCESS` violation in the internal logic for processing finished downloads (#1565, #1721).
 
 # v3.0.0
 - [removed] Removed `downloadURLs` property on `StorageMetadata`. Use `StorageReference.downloadURL(completion:)` to obtain a current download URL.
