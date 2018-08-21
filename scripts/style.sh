@@ -62,7 +62,7 @@ if [[ "$system" == "Darwin" ]]; then
   # Allow an older swiftformat because travis isn't running High Sierra yet
   # and the formula hasn't been updated in a while on Sierra :-/.
   if [[ "$version" != "0.32.0" && "$version" != "0.33"* ]]; then
-    echo "Please upgrade to swiftformat 0.33.3"
+    echo "Version $version installed. Please upgrade to at least swiftformat 0.33.8"
     echo "If it's installed via homebrew you can run: brew upgrade swiftformat"
     exit 1
   fi
