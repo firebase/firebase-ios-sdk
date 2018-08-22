@@ -33,14 +33,14 @@ brew install ninja      # optional
 gem install cocoapods   # may need sudo
 ```
 
-Note that Cocoapods is only needed for its ruby library, no Podfiles actually
+Note that CocoaPods is only needed for its ruby library, no Podfiles actually
 need to be set up and no `pod install` is required for the CMake build.
 
 
 ### Ubuntu
 
-If you're on a relatively recent Linux the system provided CMake may be
-sufficent.
+If you're on a relatively recent Linux, the system-provided CMake may be
+sufficient.
 
 ```
 sudo apt-get install build-essential
@@ -83,7 +83,7 @@ might take a while.
 
 The basic shape of the build is to:
   * create and enter the build tree
-  * run cmake to prepare the build tree
+  * run CMake to prepare the build tree
   * build sources
   * run tests
 
@@ -99,12 +99,12 @@ cmake --build . --target test
 
 ### Useful flags to pass to CMake
 
-Standard CMake flags
+Standard CMake flags:
 
   * `-G Ninja` -- build with Ninja instead of the default.
   * `-DCMAKE_BUILD_TYPE=Release` -- optimized build
 
-Dependencies
+Dependencies:
 
   * `-DOPENSSL_ROOT_DIR=path/to/openssl` -- where to find a pre-built OpenSSL,
     if you prefer that over the default BoringSSL. See `FindOpenSSL.cmake` in

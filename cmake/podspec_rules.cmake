@@ -28,10 +28,10 @@ macro(podspec_framework PODSPEC_FILE)
     set(_properties_file ${_properties_file}.cmake)
 
     # Use bundler only if the current source tree has it set up. Otherwise fall
-    # back on the system ruby setup, which may have cocoapods installed.
-    set(pdf_runner ruby)
+    # back on the system ruby setup, which may have CocoaPods installed.
+    set(psf_runner ruby)
     if(EXISTS ${FIREBASE_SOURCE_DIR}/.bundle)
-      set(pdf_runner bundle exec)
+      set(psf_runner bundle exec)
     endif()
 
     execute_process(
