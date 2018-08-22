@@ -75,8 +75,8 @@ choco install yasm
 CMake builds out-of source, so create a separate build directory for the target
 you want to work on.
 
-The first time you build it will download all dependencies of the project so it
-might take a while.
+The first time you build, it will download all dependencies of the project so
+it might take a while.
 
 
 ### Basic build
