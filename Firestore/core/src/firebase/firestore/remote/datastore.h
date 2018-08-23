@@ -43,7 +43,7 @@ class Datastore {
   Datastore(util::AsyncQueue* firestore_queue,
             const core::DatabaseInfo& database_info);
 
-  std::shared_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
+  std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
                                            absl::string_view path,
                                            GrpcStreamObserver* observer);
 

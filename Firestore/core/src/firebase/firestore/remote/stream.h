@@ -91,7 +91,7 @@ class Stream : public GrpcStreamObserver,
  private:
   enum class State { Initial, Starting, Open, Error, ReconnectingWithBackoff };
 
-  virtual std::shared_ptr<GrpcStream> CreateGrpcStream(
+  virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) = 0;
   virtual void FinishGrpcStream(GrpcStream* call) = 0;
   virtual void DoOnStreamStart() = 0;
@@ -109,7 +109,7 @@ class Stream : public GrpcStreamObserver,
 
   State state_ = State::Initial;
 
-  std::shared_ptr<GrpcStream> grpc_call_;
+  std::unique_ptr<GrpcStream> grpc_call_;
 
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;
@@ -135,7 +135,7 @@ class WatchStream : public Stream {
   void UnwatchTargetId(FSTTargetID target_id);
 
  private:
-  std::shared_ptr<GrpcStream> CreateGrpcStream(
+  std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, const absl::string_view token) override;
   void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;
@@ -170,7 +170,7 @@ class WriteStream : public Stream {
   }
 
  private:
-  std::shared_ptr<GrpcStream> CreateGrpcStream(
+  std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, const absl::string_view token) override;
   void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;

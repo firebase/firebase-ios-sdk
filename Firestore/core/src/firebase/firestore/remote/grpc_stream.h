@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
@@ -69,18 +70,17 @@ class StreamOperation;
  * This class is essentially a wrapper over
  * `grpc::GenericClientAsyncReaderWriter`.
  */
-class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
+class GrpcStream {
  public:
-  // Implementation of the stream relies on its memory being managed by
-  // `shared_ptr`.
-  //
   // The given `grpc_queue` must wrap the same underlying completion queue as
   // the `call`.
-  static std::shared_ptr<GrpcStream> MakeStream(
+  static std::unique_ptr<GrpcStream> MakeStream(
       std::unique_ptr<grpc::ClientContext> context,
       std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
       GrpcStreamObserver* observer,
+      util::AsyncQueue* firestore_queue,
       GrpcCompletionQueue* grpc_queue);
+  ~GrpcStream();
 
   void Start();
 
@@ -109,6 +109,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              GrpcStreamObserver* observer,
+             util::AsyncQueue* firestore_queue,
              GrpcCompletionQueue* grpc_queue);
 
   void Read();
@@ -148,6 +149,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
+  util::AsyncQueue* firestore_queue_ = nullptr;
   GrpcCompletionQueue* grpc_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
@@ -155,7 +157,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   // Buffered writer is created once the stream opens.
   absl::optional<BufferedWriter> buffered_writer_;
 
-  std::vector<std::unique_ptr<internal::StreamOperation>> operations_;
+  std::vector<std::shared_ptr<internal::StreamOperation>> operations_;
 
   // The order of stream states is linear: a stream can never transition to an
   // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
@@ -169,6 +171,7 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
     // it completes.
     LastWrite,
     Finishing,
+    Dying,
     Finished
   };
   State state_ = State::NotStarted;
@@ -189,8 +192,8 @@ namespace internal {
 // without excessive proliferation of friendship.
 class GrpcStreamDelegate {
  public:
-  explicit GrpcStreamDelegate(std::shared_ptr<GrpcStream>&& stream)
-      : stream_{std::move(stream)} {
+  explicit GrpcStreamDelegate(GrpcStream* stream)
+      : stream_{stream} {
   }
 
   void OnStart() {
@@ -217,16 +220,16 @@ class GrpcStreamDelegate {
   }
 
  private:
-  std::shared_ptr<GrpcStream> stream_;
+  GrpcStream* stream_;
 };
 
 }  // namespace internal
 
 template <typename Op, typename... Args>
 Op* GrpcStream::MakeOperation(Args... args) {
-  auto op =
-      absl::make_unique<Op>(internal::GrpcStreamDelegate{shared_from_this()},
-                            call_.get(), grpc_queue_, std::move(args)...);
+  auto op = std::make_shared<Op>(
+      internal::GrpcStreamDelegate{this}, call_.get(),
+      firestore_queue_, grpc_queue_, std::move(args)...);
   operations_.push_back(std::move(op));
   return static_cast<Op*>(operations_.back().get());
 }

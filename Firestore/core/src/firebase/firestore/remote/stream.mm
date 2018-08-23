@@ -230,10 +230,11 @@ void Stream::Stop() {
   // If the stream is in the auth stage, call might not have been started yet.
   if (grpc_call_) {
     FinishGrpcStream(grpc_call_.get());
+    grpc_call_.reset();
     // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
     // reason to hold on to it now that a finish operation has been added (the
     // operation has its own `shared_ptr` to the call).
-    ResetGrpcStream();
+    //ResetGrpcStream();
   }
 
   state_ = State::Initial;
@@ -256,13 +257,16 @@ void Stream::OnStreamError(const util::Status& status) {
     credentials_provider_->InvalidateToken();
   }
 
-  ResetGrpcStream();
+  //ResetGrpcStream();
+  //grpc_call_->Finish();
+  grpc_call_.reset();
 
   state_ = State::Error;
   DoOnStreamFinish(status);
 }
 
 void Stream::ResetGrpcStream() {
+  grpc_call_->Finish();
   grpc_call_.reset();
   backoff_.Cancel(); // OBC iOS doesn't do it, but other platforms do
 }
@@ -315,7 +319,7 @@ void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   Write(serializer_bridge_.ToByteBuffer(target_id));
 }
 
-std::shared_ptr<GrpcStream> WatchStream::CreateGrpcStream(
+std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
     Datastore* const datastore, const absl::string_view token) {
   return datastore->CreateGrpcStream(
       token, "/google.firestore.v1beta1.Firestore/Listen", this);
@@ -398,7 +402,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
 // Private interface
 
-std::shared_ptr<GrpcStream> WriteStream::CreateGrpcStream(
+std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
     Datastore* const datastore, const absl::string_view token) {
   return datastore->CreateGrpcStream(token,
                                    "/google.firestore.v1beta1.Firestore/Write", this);
@@ -452,7 +456,8 @@ util::Status WriteStream::DoOnStreamRead(
 
 void WriteStream::FinishGrpcStream(GrpcStream* const call) {
   // TODO OBC what if the write hangs during shutdown?
-  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
+  // call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
+  call->Finish();
 }
 
 }  // namespace remote

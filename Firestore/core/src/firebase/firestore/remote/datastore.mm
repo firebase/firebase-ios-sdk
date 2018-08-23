@@ -78,9 +78,7 @@ void Datastore::PollGrpcQueue() {
 
   bool ok = false;
   while (GrpcOperation* operation = grpc_queue_.Next(&ok)) {
-    firestore_queue_->Enqueue([operation, ok] {
-      operation->Complete(ok);
-    });
+    operation->Complete(ok);
   }
 }
 
@@ -103,14 +101,14 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
       database_info_->host(), grpc::SslCredentials(options), args)};
 }
 
-std::shared_ptr<GrpcStream> Datastore::CreateGrpcStream(
+std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
     const absl::string_view token,
     const absl::string_view path,
     GrpcStreamObserver *const observer) {
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
   return GrpcStream::MakeStream(std::move(context),
-                                    std::move(reader_writer), observer, &grpc_queue_);
+                                    std::move(reader_writer), observer, firestore_queue_, &grpc_queue_);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(

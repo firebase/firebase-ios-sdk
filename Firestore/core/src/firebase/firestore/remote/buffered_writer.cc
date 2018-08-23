@@ -25,7 +25,10 @@ namespace firestore {
 namespace remote {
 
 void BufferedWriter::DiscardUnstartedWrites() {
-  queue_ = {};
+  while (!queue_.empty()) {
+    queue_.front()->Cancel();
+    queue_.pop();
+  }
 }
 
 void BufferedWriter::EnqueueWrite(GrpcOperation* write) {
