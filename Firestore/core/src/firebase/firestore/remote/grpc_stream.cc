@@ -16,9 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 
+#include <chrono>
 #include <future>
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+
+#include <iostream>
 
 namespace firebase {
 namespace firestore {
@@ -75,20 +78,7 @@ GrpcStream::GrpcStream(
       grpc_queue_{grpc_queue},
       // Store the current generation of the observer.
       generation_{observer->generation()},
-      buffered_writer_{this} {
-}
-
-std::unique_ptr<GrpcStream> GrpcStream::MakeStream(
-    std::unique_ptr<grpc::ClientContext> context,
-    std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    GrpcStreamObserver* observer,
-    AsyncQueue* firestore_queue,
-    GrpcCompletionQueue* grpc_queue) {
-  // `make_shared` requires a public constructor. There are workarounds, but
-  // efficiency is not a big concern here.
-  return std::unique_ptr<GrpcStream>(
-      new GrpcStream{std::move(context), std::move(call), observer,
-                     firestore_queue, grpc_queue});
+      buffered_writer_{this, call_.get(), firestore_queue_} {
 }
 
 GrpcStream::~GrpcStream() {
@@ -98,7 +88,7 @@ GrpcStream::~GrpcStream() {
 
 void GrpcStream::Start() {
   HARD_ASSERT(state_ == State::NotStarted, "Stream is already started");
-  state_ = State::Started;
+  state_ = State::Starting;
   Execute<StreamStart>();
 }
 
@@ -123,15 +113,12 @@ void GrpcStream::Finish() {
     return;
   }
 
-  HARD_ASSERT(state_ < State::Dying, "Finish called twice");
-  state_ = State::Dying;
-
-  buffered_writer_ = BufferedWriter{this};
+  HARD_ASSERT(state_ < State::Finishing, "Finish called twice");
+  state_ = State::Finishing;
 
   // Important: since the stream always has a pending read operation,
   // cancellation has to be called, or else the read would hang forever, and
-  // finish operation will never get completed (an operation cannot be completed
-  // before all previously-enqueued operations complete).
+  // finish operation will never get completed.
   //
   // On the other hand, when an operation fails, cancellation should not be
   // called, otherwise the real failure cause will be overwritten by status
@@ -139,8 +126,16 @@ void GrpcStream::Finish() {
   context_->TryCancel();
   Execute<ClientInitiatedFinish>();  // TODO: is it necessary?
 
+  FastFinishOperationsBlocking();
+
+  state_ = State::Finished;
+}
+
+void GrpcStream::FastFinishOperationsBlocking() {
+  buffered_writer_.DiscardUnstartedWrites();
+
   for (auto operation : operations_) {
-    operation->Cancel();
+    operation->UnsetObserver();
   }
 
   for (auto operation : operations_) {
@@ -149,22 +144,37 @@ void GrpcStream::Finish() {
   operations_.clear();
 }
 
-void GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
-  if (state_ < State::Open) {
-    // Ignore the write part if the call didn't have a chance to open yet.
-    Finish();
-    return;
-  }
+bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
+  HARD_ASSERT(state_ == State::Open,
+              "WriteAndFinish called for a stream "
+              "that is not open");
 
-  state_ = State::LastWrite;
   // Write the last message as soon as possible by discarding anything else that
   // might be buffered.
   buffered_writer_.DiscardUnstartedWrites();
-  BufferedWrite(std::move(message));
+
+  bool did_last_write = false;
+  StreamWrite* last_write_operation = BufferedWrite(std::move(message));
+  if (last_write_operation) {
+    last_write_operation->UnsetObserver();
+    auto status =
+        last_write_operation->WaitUntilOffQueue(std::chrono::milliseconds(1));
+    if (status == std::future_status::ready) {
+      RemoveOperation(last_write_operation);
+      did_last_write = true;
+    }
+  }
+
+  Finish();
+  return did_last_write;
 }
 
-void GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
-  buffered_writer_.EnqueueWrite(std::move(message));
+StreamWrite* GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
+  StreamWrite* maybe_write = buffered_writer_.EnqueueWrite(std::move(message));
+  if (maybe_write) {
+    operations_.push_back(maybe_write);
+  }
+  return maybe_write;
 }
 
 bool GrpcStream::SameGeneration() const {
@@ -174,6 +184,9 @@ bool GrpcStream::SameGeneration() const {
 // Callbacks
 
 void GrpcStream::OnStart() {
+  HARD_ASSERT(state_ == State::Starting,
+              "Expected to be in 'Starting' state "
+              "when OnStart is invoked");
   state_ = State::Open;
 
   if (SameGeneration()) {
@@ -197,21 +210,38 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 }
 
 void GrpcStream::OnWrite() {
-  if (state_ == State::LastWrite && buffered_writer_.empty()) {
-    // Final write succeeded.
-    Finish();
-    return;
+  if (SameGeneration()) {
+    observer_->OnStreamWrite();
+
+    if (state_ == State::Open) {
+      StreamWrite* maybe_write = buffered_writer_.DequeueNextWrite();
+      if (maybe_write) {
+        operations_.push_back(maybe_write);
+      }
+    }
   }
-  if (state_ <= State::LastWrite) {
-    buffered_writer_.DequeueNextWrite();
+}
+
+void GrpcStream::OnOperationFailed() {
+  if (state_ >= State::Finishing) {
+    // `Finish` itself cannot fail. If another failed operation already
+    // triggered `Finish`, there's nothing to do.
+    return;
   }
 
   if (SameGeneration()) {
-    observer_->OnStreamWrite();
+    state_ = State::Finishing;
+    Execute<RemoteInitiatedFinish>();
+  } else {
+    // The only reason to finish would be to get the status; if the observer is
+    // no longer interested, there is no need to do that.
+    FastFinishOperationsBlocking();
+    state_ = State::Finished;
   }
 }
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
+  FastFinishOperationsBlocking();
   state_ = State::Finished;
 
   if (SameGeneration()) {
@@ -220,28 +250,8 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
 }
 
 void GrpcStream::OnFinishedByClient() {
-  state_ = State::Finished;
   // The observer is not interested in this event -- since it initiated the
   // finish operation, the observer must know the reason.
-}
-
-void GrpcStream::OnOperationFailed() {
-  if (state_ >= State::LastWrite) {
-    // `Finish` itself cannot fail. If another failed operation already
-    // triggered `Finish`, there's nothing to do.
-    return;
-  }
-
-  buffered_writer_ = BufferedWriter{this};
-  
-  if (SameGeneration()) {
-    state_ = State::Finishing;
-    Execute<ServerInitiatedFinish>();
-  } else {
-    // The only reason to finish would be to get the status; if the observer is
-    // no longer interested, there is no need to do that.
-    state_ = State::Finished;
-  }
 }
 
 void GrpcStream::RemoveOperation(const StreamOperation* to_remove) {

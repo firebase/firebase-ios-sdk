@@ -61,8 +61,9 @@ Datastore::Datastore(util::AsyncQueue *firestore_queue,
                      const core::DatabaseInfo &database_info)
     : firestore_queue_{firestore_queue},
       database_info_{&database_info},
-      dedicated_executor_{CreateExecutor()},
-      grpc_stub_{CreateGrpcStub()} {
+      grpc_channel_{CreateGrpcChannel()},
+      grpc_stub_{grpc_channel_},
+      dedicated_executor_{CreateExecutor()} {
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
@@ -77,16 +78,16 @@ void Datastore::PollGrpcQueue() {
               "dedicated Datastore executor");
 
   bool ok = false;
-  while (GrpcOperation* operation = grpc_queue_.Next(&ok)) {
+  while (GrpcOperation *operation = grpc_queue_.Next(&ok)) {
     operation->Complete(ok);
   }
 }
 
-grpc::GenericStub Datastore::CreateGrpcStub() const {
+std::shared_ptr<grpc::Channel> Datastore::CreateGrpcChannel() const {
   if (test_certificate_path_.empty()) {
-    return grpc::GenericStub{grpc::CreateChannel(
+    return grpc::CreateChannel(
         database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()))};
+        grpc::SslCredentials(grpc::SslCredentialsOptions()));
   }
 
   std::fstream cert_file{test_certificate_path_};
@@ -97,18 +98,26 @@ grpc::GenericStub Datastore::CreateGrpcStub() const {
 
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride("test_cert_2");
-  return grpc::GenericStub{grpc::CreateCustomChannel(
-      database_info_->host(), grpc::SslCredentials(options), args)};
+  return grpc::CreateCustomChannel(database_info_->host(),
+                                   grpc::SslCredentials(options), args);
+}
+
+void Datastore::EnsureValidGrpcStub() {
+  if (!grpc_channel_ || grpc_channel_->GetState(false) == GRPC_CHANNEL_SHUTDOWN) {
+    grpc_channel_ = CreateGrpcChannel();
+    grpc_stub_ = grpc::GenericStub{grpc_channel_};
+  }
 }
 
 std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
     const absl::string_view token,
     const absl::string_view path,
     GrpcStreamObserver *const observer) {
+  EnsureValidGrpcStub();
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return GrpcStream::MakeStream(std::move(context),
-                                    std::move(reader_writer), observer, firestore_queue_, &grpc_queue_);
+  return absl::make_unique<GrpcStream>(std::move(context), std::move(reader_writer),
+                                observer, firestore_queue_, &grpc_queue_);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(

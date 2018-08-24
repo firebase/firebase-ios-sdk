@@ -455,9 +455,7 @@ util::Status WriteStream::DoOnStreamRead(
 }
 
 void WriteStream::FinishGrpcStream(GrpcStream* const call) {
-  // TODO OBC what if the write hangs during shutdown?
-  // call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
-  call->Finish();
+  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
 }
 
 }  // namespace remote

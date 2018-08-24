@@ -18,9 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -29,28 +26,26 @@ void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
+StreamWrite* BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
   queue_.push(write);
-  TryStartWrite();
+  return TryStartWrite();
 }
 
-void BufferedWriter::TryStartWrite() {
-  if (empty()) {
-    return;
-  }
-  if (has_active_write) {
-    return;
+StreamWrite* BufferedWriter::TryStartWrite() {
+  if (empty() || has_active_write_) {
+    return nullptr;
   }
 
-  has_active_write = true;
+  has_active_write_ = true;
   grpc::ByteBuffer message = std::move(queue_.front());
   queue_.pop();
-  stream_->Execute<StreamWrite>(std::move(message));
+  return StreamOperation::ExecuteOperation<StreamWrite>(
+      stream_, call_, firestore_queue_, std::move(message));
 }
 
-void BufferedWriter::DequeueNextWrite() {
-  has_active_write = false;
-  TryStartWrite();
+StreamWrite* BufferedWriter::DequeueNextWrite() {
+  has_active_write_ = false;
+  return TryStartWrite();
 }
 
 }  // namespace remote

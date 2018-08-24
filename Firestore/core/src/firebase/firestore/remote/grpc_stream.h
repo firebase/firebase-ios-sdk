@@ -25,7 +25,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -69,12 +68,11 @@ class GrpcStream {
  public:
   // The given `grpc_queue` must wrap the same underlying completion queue as
   // the `call`.
-  static std::unique_ptr<GrpcStream> MakeStream(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      GrpcStreamObserver* observer,
-      util::AsyncQueue* firestore_queue,
-      GrpcCompletionQueue* grpc_queue);
+  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             GrpcStreamObserver* observer,
+             util::AsyncQueue* firestore_queue,
+             GrpcCompletionQueue* grpc_queue);
   ~GrpcStream();
 
   void Start();
@@ -96,7 +94,7 @@ class GrpcStream {
    * If the stream hasn't opened yet, `WriteAndFinish` is equivalent to
    * `Finish` -- the write will be ignored.
    */
-  void WriteAndFinish(grpc::ByteBuffer&& message);
+  bool WriteAndFinish(grpc::ByteBuffer&& message);
 
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
@@ -107,29 +105,18 @@ class GrpcStream {
   void RemoveOperation(const StreamOperation* to_remove);
 
  private:
-  friend class BufferedWriter;
-
-  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             GrpcStreamObserver* observer,
-             util::AsyncQueue* firestore_queue,
-             GrpcCompletionQueue* grpc_queue);
-
   void Read();
-  void BufferedWrite(grpc::ByteBuffer&& message);
+  StreamWrite* BufferedWrite(grpc::ByteBuffer&& message);
+  void FastFinishOperationsBlocking();
 
   // Whether this stream belongs to the same generation as the observer.
   bool SameGeneration() const;
 
-  // Creates an operation, stores a `unique_ptr` to it, and returns a plain
-  // pointer.
-  template <typename Op, typename... Args>
-  Op* MakeOperation(Args... args);
-
   // Creates and immediately executes an operation.
   template <typename Op, typename... Args>
   void Execute(Args... args) {
-    MakeOperation<Op>(args...)->Execute();
+    operations_.push_back(StreamOperation::ExecuteOperation<Op>(
+        this, call_.get(), firestore_queue_, args...));
   }
 
   // The gRPC objects that have to be valid until the last gRPC operation
@@ -153,33 +140,21 @@ class GrpcStream {
   std::vector<StreamOperation*> operations_;
 
   // The order of stream states is linear: a stream can never transition to an
-  // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
+  // "earlier" state, only to a "later" one (e.g., stream can go from `Starting`
   // to `Open`, but not vice versa). Intermediate states can be skipped (e.g.,
-  // a stream can go from `Started` directly to `Finishing`).
+  // a stream can go from `Starting` directly to `Finishing`).
   enum class State {
     NotStarted,
-    Started,
+    Starting,
     Open,
-    // The stream is waiting to send the last write and will finish as soon as
-    // it completes.
-    LastWrite,
     Finishing,
-    Dying,
     Finished
   };
   State state_ = State::NotStarted;
 
-  // For sanity checks
+  // For a sanity check
   bool has_pending_read_ = false;
 };
-
-template <typename Op, typename... Args>
-Op* GrpcStream::MakeOperation(Args... args) {
-  auto op = new Op{this, call_.get(), firestore_queue_, grpc_queue_,
-                   std::move(args)...};
-  operations_.push_back(op);
-  return op;
-}
 
 }  // namespace remote
 }  // namespace firestore

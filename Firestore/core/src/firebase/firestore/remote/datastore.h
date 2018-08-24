@@ -19,11 +19,11 @@
 
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/status.h"
-
-#include <grpc/grpc.h>
 #include <grpcpp/generic/generic_stub.h>
+#include <grpcpp/channel.h>
+
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
@@ -67,7 +67,9 @@ class Datastore {
 
  private:
   void PollGrpcQueue();
-  grpc::GenericStub CreateGrpcStub() const;
+
+  void EnsureValidGrpcStub();
+  std::shared_ptr<grpc::Channel> CreateGrpcChannel() const;
   std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
       absl::string_view token) const;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
@@ -79,6 +81,7 @@ class Datastore {
   const core::DatabaseInfo* database_info_;
 
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
+  std::shared_ptr<grpc::Channel> grpc_channel_;
   grpc::GenericStub grpc_stub_;
   GrpcCompletionQueue grpc_queue_;
 };

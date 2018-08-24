@@ -27,41 +27,36 @@ using util::AsyncQueue;
 
 StreamOperation::StreamOperation(GrpcStream* stream,
                                  grpc::GenericClientAsyncReaderWriter* call,
-                                 AsyncQueue* firestore_queue,
-                                 GrpcCompletionQueue* grpc_queue)
-    : stream_{stream},
-      call_{call},
-      firestore_queue_{firestore_queue},
-      grpc_queue_{grpc_queue} {
+                                 AsyncQueue* firestore_queue)
+    : stream_{stream}, call_{call}, firestore_queue_{firestore_queue} {
 }
 
-void StreamOperation::Cancel() {
+void StreamOperation::UnsetObserver() {
   firestore_queue_->VerifyIsCurrentQueue();
-  is_canceled_ = true;
+  stream_ = nullptr;
 }
 
 void StreamOperation::Execute() {
   firestore_queue_->VerifyIsCurrentQueue();
-
-  is_started_ = true;
-  // TODO OBC: grpc_queue should no longer be necessary
-  if (!grpc_queue_->is_shut_down()) {
-    DoExecute(call_);
-  }
+  DoExecute(call_);
 }
 
 void StreamOperation::WaitUntilOffQueue() {
   firestore_queue_->VerifyIsCurrentQueue();
-  HARD_ASSERT(is_started_,
-              "Stream operations must be executed immediately after creation");
   off_queue_.get_future().wait();
+}
+
+std::future_status StreamOperation::WaitUntilOffQueue(
+    std::chrono::milliseconds timeout) {
+  firestore_queue_->VerifyIsCurrentQueue();
+  return off_queue_.get_future().wait_for(timeout);
 }
 
 void StreamOperation::Complete(bool ok) {
   off_queue_.set_value();
 
   firestore_queue_->Enqueue([this, ok] {
-    if (!is_canceled_) {
+    if (stream_) {
       stream_->RemoveOperation(this);
 
       if (ok) {
@@ -107,14 +102,14 @@ void StreamWrite::DoComplete(GrpcStream* stream) {
   stream->OnWrite();
 }
 
-// ServerInitiatedFinish
+// RemoteInitiatedFinish
 
-void ServerInitiatedFinish::DoExecute(
+void RemoteInitiatedFinish::DoExecute(
     grpc::GenericClientAsyncReaderWriter* call) {
   call->Finish(&grpc_status_, this);
 }
 
-void ServerInitiatedFinish::DoComplete(GrpcStream* stream) {
+void RemoteInitiatedFinish::DoComplete(GrpcStream* stream) {
   // Note: calling Finish on a GRPC call should never fail, according to the
   // docs
   stream->OnFinishedByServer(grpc_status_);
@@ -128,7 +123,6 @@ void ClientInitiatedFinish::DoExecute(
 }
 
 void ClientInitiatedFinish::DoComplete(GrpcStream* stream) {
-  // TODO(varconst): log if status is not "ok" or "canceled".
   stream->OnFinishedByClient();
 }
 
