@@ -600,7 +600,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref, SCNetworkReachabi
     FFLog(@"I-RDB034023", @"Unlisten on %@ for %@", path, queryParams);
 
     NSMutableDictionary* request = [NSMutableDictionary dictionaryWithObjectsAndKeys:[path toString], kFWPRequestPath, nil];
-    if (tagId) {
+    if (tagId != nil) {
         [request setObject:queryParams.wireProtocolParams forKey:kFWPRequestQueries];
         [request setObject:tagId forKey:kFWPRequestTag];
     }
