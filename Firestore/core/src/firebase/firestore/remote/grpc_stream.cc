@@ -158,7 +158,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   if (last_write_operation) {
     last_write_operation->UnsetObserver();
     auto status =
-        last_write_operation->WaitUntilOffQueue(std::chrono::milliseconds(1));
+        last_write_operation->WaitUntilOffQueue(std::chrono::milliseconds(100));
     if (status == std::future_status::ready) {
       RemoveOperation(last_write_operation);
       did_last_write = true;

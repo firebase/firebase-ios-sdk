@@ -69,6 +69,7 @@ class StreamOperation : public GrpcOperation {
   util::AsyncQueue* firestore_queue_ = nullptr;
 
   std::promise<void> off_queue_;
+  std::future<void> off_queue_future_;
 };
 
 class StreamStart : public StreamOperation {

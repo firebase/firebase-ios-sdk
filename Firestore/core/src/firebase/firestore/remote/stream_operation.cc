@@ -43,13 +43,19 @@ void StreamOperation::Execute() {
 
 void StreamOperation::WaitUntilOffQueue() {
   firestore_queue_->VerifyIsCurrentQueue();
-  off_queue_.get_future().wait();
+  if (!off_queue_future_.valid()) {
+    off_queue_future_ = off_queue_.get_future();
+  }
+  return off_queue_future_.wait();
 }
 
 std::future_status StreamOperation::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
   firestore_queue_->VerifyIsCurrentQueue();
-  return off_queue_.get_future().wait_for(timeout);
+  if (!off_queue_future_.valid()) {
+    off_queue_future_ = off_queue_.get_future();
+  }
+  return off_queue_future_.wait_for(timeout);
 }
 
 void StreamOperation::Complete(bool ok) {
