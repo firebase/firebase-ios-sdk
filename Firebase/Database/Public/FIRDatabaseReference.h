@@ -697,7 +697,7 @@ is meant to be preserved, you should use setValue:andPriority: instead.
  *
  * @return The key of the location this reference points to.
  */
-@property (strong, readonly, nonatomic) NSString* key;
+@property (strong, readonly, nonatomic, nullable) NSString* key;
 
 /**
  * Gets the URL for the Firebase Database location referenced by this FIRDatabaseReference.

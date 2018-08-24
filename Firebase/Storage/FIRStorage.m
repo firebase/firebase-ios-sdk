@@ -83,15 +83,17 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 + (instancetype)storageForApp:(FIRApp *)app {
-  NSString *url;
-
   if (app.options.storageBucket) {
-    url = [app.options.storageBucket isEqualToString:@""]
-              ? @""
-              : [@"gs://" stringByAppendingString:app.options.storageBucket];
+    NSString *url = [app.options.storageBucket isEqualToString:@""]
+                        ? @""
+                        : [@"gs://" stringByAppendingString:app.options.storageBucket];
+    return [self storageForApp:app URL:url];
+  } else {
+    NSString *const kAppNotConfiguredMessage =
+        @"No default Storage bucket found. Did you configure Firebase Storage properly?";
+    [NSException raise:NSInvalidArgumentException format:kAppNotConfiguredMessage];
+    return nil;
   }
-
-  return [self storageForApp:app URL:url];
 }
 
 + (instancetype)storageWithURL:(NSString *)url {
@@ -99,12 +101,6 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 + (instancetype)storageForApp:(FIRApp *)app URL:(NSString *)url {
-  if (!url) {
-    NSString *const kAppNotConfiguredMessage =
-        @"No default Storage bucket found. Did you configure Firebase Storage properly?";
-    [NSException raise:NSInvalidArgumentException format:kAppNotConfiguredMessage];
-  }
-
   NSString *bucket;
   if ([url isEqualToString:@""]) {
     bucket = @"";

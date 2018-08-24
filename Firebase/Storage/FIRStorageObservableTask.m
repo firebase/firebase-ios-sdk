@@ -49,7 +49,6 @@
 - (FIRStorageHandle)observeStatus:(FIRStorageTaskStatus)status
                           handler:(FIRStorageVoidSnapshot)handler {
   FIRStorageVoidSnapshot callback = handler;
-  handler = nil;
 
   // Note: self.snapshot is synchronized
   FIRStorageTaskSnapshot *snapshot = self.snapshot;
