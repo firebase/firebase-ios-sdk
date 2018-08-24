@@ -104,43 +104,39 @@
 
   _fetcher = fetcher;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *data, NSError *error) {
-    __strong FIRStorageDownloadTask *strongSelf = weakSelf;
-    if (strongSelf) {
-      [strongSelf onFetchCompletionWithData:data error:error];
+    // Fire last progress updates
+    [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
+
+    // Handle potential issues with download
+    if (error) {
+      self.state = FIRStorageTaskStateFailed;
+      self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+      [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+      [self removeAllObservers];
+      self->_fetcherCompletion = nil;
+      return;
     }
+
+    // Download completed successfully, fire completion callbacks
+    self.state = FIRStorageTaskStateSuccess;
+
+    if (data) {
+      self->_downloadData = data;
+    }
+
+    [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
+    [self removeAllObservers];
+    self->_fetcherCompletion = nil;
   };
+#pragma clang diagnostic pop
 
   self.state = FIRStorageTaskStateRunning;
   [self.fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);
   }];
-}
-
-- (void)onFetchCompletionWithData:(NSData *)data error:(NSError *)error {
-  // Fire last progress updates
-  [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
-
-  // Handle potential issues with download
-  if (error) {
-    self.state = FIRStorageTaskStateFailed;
-    self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-    [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
-    [self removeAllObservers];
-    self->_fetcherCompletion = nil;
-    return;
-  }
-
-  // Download completed successfully, fire completion callbacks
-  self.state = FIRStorageTaskStateSuccess;
-
-  if (data) {
-    self->_downloadData = data;
-  }
-
-  [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
-  [self removeAllObservers];
-  self->_fetcherCompletion = nil;
 }
 
 #pragma mark - Download Management
