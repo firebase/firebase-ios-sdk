@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
         FIRAuthUIDelegate.
     @return The initialized instance.
  */
-- (instancetype)initWithViewController:(UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithViewController:(nullable UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
 
 @end
 
@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
   UIViewController *_viewController;
 }
 
-- (instancetype)initWithViewController:(UIViewController *)viewController {
+- (instancetype)initWithViewController:(nullable UIViewController *)viewController {
   self = [super init];
   if (self) {
     _viewController = viewController;
