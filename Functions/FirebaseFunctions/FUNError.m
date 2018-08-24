@@ -141,9 +141,9 @@ NSString *FUNDescriptionForErrorCode(FIRFunctionsErrorCode code) {
   return @"UNKNOWN";
 }
 
-NSError * _Nullable FUNErrorForResponse(NSInteger status,
-                                        NSData *_Nullable body,
-                                        FUNSerializer *serializer) {
+NSError *_Nullable FUNErrorForResponse(NSInteger status,
+                                       NSData *_Nullable body,
+                                       FUNSerializer *serializer) {
   // Start with reasonable defaults from the status code.
   FIRFunctionsErrorCode code = FIRFunctionsErrorCodeForHTTPStatus(status);
   NSString *description = FUNDescriptionForErrorCode(code);
