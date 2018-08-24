@@ -37,9 +37,6 @@ class GrpcStreamObserver {
   virtual void OnStreamStart() = 0;
   // A message has been received from the server.
   virtual void OnStreamRead(const grpc::ByteBuffer& message) = 0;
-  // The stream is ready to accept another write operation. Note that this
-  // doesn't mean the write has been sent on the wire yet.
-  virtual void OnStreamWrite() = 0;
   // Connection has been broken, perhaps by the server.
   virtual void OnStreamError(const util::Status& status) = 0;
 

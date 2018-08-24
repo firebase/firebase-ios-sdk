@@ -211,11 +211,6 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   }
 }
 
-void Stream::OnStreamWrite() {
-  EnsureOnQueue();
-  DoOnStreamWrite();
-}
-
 // Stopping
 
 void Stream::Stop() {
@@ -344,10 +339,6 @@ util::Status WatchStream::DoOnStreamRead(
   return util::Status::OK();
 }
 
-void WatchStream::DoOnStreamWrite() {
-  // Nothing to do.
-}
-
 void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
@@ -410,10 +401,6 @@ std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
 
 void WriteStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
-}
-
-void WriteStream::DoOnStreamWrite() {
-  // Nothing to do
 }
 
 void WriteStream::DoOnStreamFinish(const util::Status& status) {

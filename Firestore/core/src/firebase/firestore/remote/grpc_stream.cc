@@ -21,8 +21,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include <iostream>
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -210,14 +208,11 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 }
 
 void GrpcStream::OnWrite() {
-  if (SameGeneration()) {
-    observer_->OnStreamWrite();
-
-    if (state_ == State::Open) {
-      StreamWrite* maybe_write = buffered_writer_.DequeueNextWrite();
-      if (maybe_write) {
-        operations_.push_back(maybe_write);
-      }
+  // Observer is not interested in this event.
+  if (SameGeneration() && state_ == State::Open) {
+    StreamWrite* maybe_write = buffered_writer_.DequeueNextWrite();
+    if (maybe_write) {
+      operations_.push_back(maybe_write);
     }
   }
 }

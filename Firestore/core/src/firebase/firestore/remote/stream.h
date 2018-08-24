@@ -69,7 +69,6 @@ class Stream : public GrpcStreamObserver,
 
   void OnStreamStart() override;
   void OnStreamRead(const grpc::ByteBuffer& message) override;
-  void OnStreamWrite() override;
   // TODO OBC set state to error immediately when operation failed, or only in
   // OnServerError?
   void OnStreamError(const util::Status& status) override;
@@ -96,7 +95,6 @@ class Stream : public GrpcStreamObserver,
   virtual void FinishGrpcStream(GrpcStream* call) = 0;
   virtual void DoOnStreamStart() = 0;
   virtual util::Status DoOnStreamRead(const grpc::ByteBuffer& message) = 0;
-  virtual void DoOnStreamWrite() = 0;
   virtual void DoOnStreamFinish(const util::Status& status) = 0;
 
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
@@ -140,7 +138,6 @@ class WatchStream : public Stream {
   void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamWrite() override;
   void DoOnStreamFinish(const util::Status& status) override;
 
   bridge::WatchStreamSerializer serializer_bridge_;
@@ -175,7 +172,6 @@ class WriteStream : public Stream {
   void FinishGrpcStream(GrpcStream* call) override;
   void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamWrite() override;
   void DoOnStreamFinish(const util::Status& status) override;
 
   bridge::WriteStreamSerializer serializer_bridge_;
