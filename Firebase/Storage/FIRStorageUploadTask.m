@@ -127,46 +127,46 @@
   // Process fetches
   self.state = FIRStorageTaskStateRunning;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
-    __strong FIRStorageUploadTask *strongSelf = weakSelf;
-    if (strongSelf) {
-      // Fire last progress updates
-      [strongSelf fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:strongSelf.snapshot];
+    // Fire last progress updates
+    [self fireHandlersForStatus:FIRStorageTaskStatusProgress snapshot:self.snapshot];
 
-      // Handle potential issues with upload
-      if (error) {
-        strongSelf.state = FIRStorageTaskStateFailed;
-        strongSelf.error =
-            [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
-        strongSelf.metadata = strongSelf->_uploadMetadata;
-        [strongSelf fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:strongSelf.snapshot];
-        [strongSelf removeAllObservers];
-        strongSelf->_fetcherCompletion = nil;
-        return;
-      }
-
-      // Upload completed successfully, fire completion callbacks
-      strongSelf.state = FIRStorageTaskStateSuccess;
-
-      NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
-      if (responseDictionary) {
-        FIRStorageMetadata *metadata =
-            [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
-        [metadata setType:FIRStorageMetadataTypeFile];
-        strongSelf.metadata = metadata;
-      } else {
-        strongSelf.error = [FIRStorageErrors errorWithInvalidRequest:data];
-      }
-
-      [strongSelf fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:strongSelf.snapshot];
-      [strongSelf removeAllObservers];
-      strongSelf->_fetcherCompletion = nil;
+    // Handle potential issues with upload
+    if (error) {
+      self.state = FIRStorageTaskStateFailed;
+      self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+      self.metadata = self->_uploadMetadata;
+      [self fireHandlersForStatus:FIRStorageTaskStatusFailure snapshot:self.snapshot];
+      [self removeAllObservers];
+      self->_fetcherCompletion = nil;
+      return;
     }
-  };
 
-  [_uploadFetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
-    weakSelf.fetcherCompletion(data, error);
-  }];
+    // Upload completed successfully, fire completion callbacks
+    self.state = FIRStorageTaskStateSuccess;
+
+    NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
+    if (responseDictionary) {
+      FIRStorageMetadata *metadata =
+          [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+      [metadata setType:FIRStorageMetadataTypeFile];
+      self.metadata = metadata;
+    } else {
+      self.error = [FIRStorageErrors errorWithInvalidRequest:data];
+    }
+
+    [self fireHandlersForStatus:FIRStorageTaskStatusSuccess snapshot:self.snapshot];
+    [self removeAllObservers];
+    self->_fetcherCompletion = nil;
+  };
+#pragma clang diagnostic pop
+
+  [_uploadFetcher
+      beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+        weakSelf.fetcherCompletion(data, error);
+      }];
 }
 
 #pragma mark - Upload Management
