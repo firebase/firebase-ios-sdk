@@ -19,11 +19,17 @@
 
 #include <queue>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/byte_buffer.h"
+
+#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class GrpcStream;
 
 /**
  * `BufferedWriter` accepts GRPC write operations ("writes") on its queue and
@@ -44,20 +50,31 @@ namespace remote {
  */
 class BufferedWriter {
  public:
+  explicit BufferedWriter(GrpcStream* stream,
+                          grpc::GenericClientAsyncReaderWriter* call,
+                          util::AsyncQueue* firestore_queue)
+      : stream_{stream}, call_{call}, firestore_queue_{firestore_queue} {
+  }
+
   bool empty() const {
     return queue_.empty();
   }
 
-  void EnqueueWrite(GrpcOperation* write);
-  void DequeueNextWrite();
+  StreamWrite* EnqueueWrite(grpc::ByteBuffer&& write);
+  StreamWrite* DequeueNextWrite();
 
   // Doesn't affect the write that is currently in progress.
   void DiscardUnstartedWrites();
 
  private:
-  void TryStartWrite();
+  StreamWrite* TryStartWrite();
 
-  std::queue<GrpcOperation*> queue_;
+  // This are needed to create new `StreamWrite`s.
+  GrpcStream* stream_ = nullptr;
+  grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
+  util::AsyncQueue* firestore_queue_ = nullptr;
+
+  std::queue<grpc::ByteBuffer> queue_;
   bool has_active_write_ = false;
 };
 

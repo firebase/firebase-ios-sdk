@@ -54,7 +54,7 @@ class BufferedWriterTest : public testing::Test {
 TEST_F(BufferedWriterTest, CanDoImmediateWrites) {
   EXPECT_EQ(writes_count, 0);
 
-  writer.EnqueueWrite(MakeOperation());
+  writer.EnqueueWrite({});
   EXPECT_EQ(writes_count, 1);
 }
 

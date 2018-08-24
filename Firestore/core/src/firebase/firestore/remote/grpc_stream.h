@@ -21,10 +21,9 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -32,11 +31,6 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-namespace internal {
-class GrpcStreamDelegate;
-class StreamOperation;
-}  // namespace internal
 
 /**
  * A gRPC bidirectional stream that notifies the given `observer` about stream
@@ -69,18 +63,15 @@ class StreamOperation;
  * This class is essentially a wrapper over
  * `grpc::GenericClientAsyncReaderWriter`.
  */
-class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
+class GrpcStream {
  public:
-  // Implementation of the stream relies on its memory being managed by
-  // `shared_ptr`.
-  //
   // The given `grpc_queue` must wrap the same underlying completion queue as
   // the `call`.
-  static std::shared_ptr<GrpcStream> MakeStream(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      GrpcStreamObserver* observer,
-      GrpcCompletionQueue* grpc_queue);
+  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             GrpcStreamObserver* observer,
+             util::AsyncQueue* firestore_queue);
+  ~GrpcStream();
 
   void Start();
 
@@ -101,40 +92,29 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
    * If the stream hasn't opened yet, `WriteAndFinish` is equivalent to
    * `Finish` -- the write will be ignored.
    */
-  void WriteAndFinish(grpc::ByteBuffer&& message);
+  bool WriteAndFinish(grpc::ByteBuffer&& message);
 
- private:
-  friend class internal::GrpcStreamDelegate;
-
-  GrpcStream(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             GrpcStreamObserver* observer,
-             GrpcCompletionQueue* grpc_queue);
-
-  void Read();
-  void BufferedWrite(grpc::ByteBuffer&& message);
-
-  // Called by `GrpcStreamDelegate`.
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
   void OnWrite();
   void OnOperationFailed();
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
-  void RemoveOperation(const internal::StreamOperation* to_remove);
+  void RemoveOperation(const StreamOperation* to_remove);
+
+ private:
+  void Read();
+  StreamWrite* BufferedWrite(grpc::ByteBuffer&& message);
+  void FastFinishOperationsBlocking();
 
   // Whether this stream belongs to the same generation as the observer.
   bool SameGeneration() const;
 
-  // Creates an operation, stores a `unique_ptr` to it, and returns a plain
-  // pointer.
-  template <typename Op, typename... Args>
-  Op* MakeOperation(Args... args);
-
   // Creates and immediately executes an operation.
   template <typename Op, typename... Args>
   void Execute(Args... args) {
-    MakeOperation<Op>(args...)->Execute();
+    operations_.push_back(StreamOperation::ExecuteOperation<Op>(
+        this, call_.get(), firestore_queue_, args...));
   }
 
   // The gRPC objects that have to be valid until the last gRPC operation
@@ -148,88 +128,30 @@ class GrpcStream : public std::enable_shared_from_this<GrpcStream> {
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
-  GrpcCompletionQueue* grpc_queue_ = nullptr;
+  util::AsyncQueue* firestore_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
   int generation_ = -1;
-  // Buffered writer is created once the stream opens.
-  absl::optional<BufferedWriter> buffered_writer_;
+  BufferedWriter buffered_writer_;
 
-  std::vector<std::unique_ptr<internal::StreamOperation>> operations_;
+  std::vector<StreamOperation*> operations_;
 
   // The order of stream states is linear: a stream can never transition to an
-  // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
+  // "earlier" state, only to a "later" one (e.g., stream can go from `Starting`
   // to `Open`, but not vice versa). Intermediate states can be skipped (e.g.,
-  // a stream can go from `Started` directly to `Finishing`).
+  // a stream can go from `Starting` directly to `Finishing`).
   enum class State {
     NotStarted,
-    Started,
+    Starting,
     Open,
-    // The stream is waiting to send the last write and will finish as soon as
-    // it completes.
-    LastWrite,
     Finishing,
     Finished
   };
   State state_ = State::NotStarted;
 
-  // For sanity checks
+  // For a sanity check
   bool has_pending_read_ = false;
 };
-
-namespace internal {
-
-// The link between `GrpcStream` and `StreamOperation`s that is used by
-// operations to notify the stream once they are completed.
-//
-// The delegate has a `shared_ptr` to the stream to ensure that the stream's
-// lifetime lasts as long as any of the operations it issued still exists.
-//
-// The delegate allows making `GrpcStream::OnStream[Event]` functions private
-// without excessive proliferation of friendship.
-class GrpcStreamDelegate {
- public:
-  explicit GrpcStreamDelegate(std::shared_ptr<GrpcStream>&& stream)
-      : stream_{std::move(stream)} {
-  }
-
-  void OnStart() {
-    stream_->OnStart();
-  }
-  void OnRead(const grpc::ByteBuffer& message) {
-    stream_->OnRead(message);
-  }
-  void OnWrite() {
-    stream_->OnWrite();
-  }
-  void OnOperationFailed() {
-    stream_->OnOperationFailed();
-  }
-  void OnFinishedByServer(const grpc::Status& status) {
-    stream_->OnFinishedByServer(status);
-  }
-  void OnFinishedByClient() {
-    stream_->OnFinishedByClient();
-  }
-
-  void RemoveOperation(const internal::StreamOperation* to_remove) {
-    stream_->RemoveOperation(to_remove);
-  }
-
- private:
-  std::shared_ptr<GrpcStream> stream_;
-};
-
-}  // namespace internal
-
-template <typename Op, typename... Args>
-Op* GrpcStream::MakeOperation(Args... args) {
-  auto op =
-      absl::make_unique<Op>(internal::GrpcStreamDelegate{shared_from_this()},
-                            call_.get(), grpc_queue_, std::move(args)...);
-  operations_.push_back(std::move(op));
-  return static_cast<Op*>(operations_.back().get());
-}
 
 }  // namespace remote
 }  // namespace firestore

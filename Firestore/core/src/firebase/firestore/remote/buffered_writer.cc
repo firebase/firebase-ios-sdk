@@ -18,8 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -28,32 +26,26 @@ void BufferedWriter::DiscardUnstartedWrites() {
   queue_ = {};
 }
 
-void BufferedWriter::EnqueueWrite(GrpcOperation* write) {
-  HARD_ASSERT(write, "Trying to enqueue a null write operation");
+StreamWrite* BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
   queue_.push(write);
-  TryStartWrite();
+  return TryStartWrite();
 }
 
-void BufferedWriter::TryStartWrite() {
-  if (empty()) {
-    return;
-  }
-  if (has_active_write_) {
-    return;
+StreamWrite* BufferedWriter::TryStartWrite() {
+  if (empty() || has_active_write_) {
+    return nullptr;
   }
 
   has_active_write_ = true;
-  // Once an operation is executed, the ownership is (implicitly) transferred to
-  // the completion queue.
-  GrpcOperation* write_operation = queue_.front();
-  HARD_ASSERT(write_operation, "Trying to execute a null operation");
+  grpc::ByteBuffer message = std::move(queue_.front());
   queue_.pop();
-  write_operation->Execute();
+  return StreamOperation::ExecuteOperation<StreamWrite>(
+      stream_, call_, firestore_queue_, std::move(message));
 }
 
-void BufferedWriter::DequeueNextWrite() {
+StreamWrite* BufferedWriter::DequeueNextWrite() {
   has_active_write_ = false;
-  TryStartWrite();
+  return TryStartWrite();
 }
 
 }  // namespace remote
