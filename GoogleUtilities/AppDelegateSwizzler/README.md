@@ -132,10 +132,18 @@ For eg.
 
 - (void)someInterestingMethod {
     ...
+
+    // Calling this ensures that the app delegate is proxied (has no effect if some other SDK has already done it).
+    [GULAppDelegateSwizzler proxyOriginalDelegate];
+
     MYAppDelegateInterceptor *interceptor = [MYAppDelegateInterceptor sharedInstance];
     [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
 }
 ```
+
+## Disabling App Delegate Swizzling by App Developers
+
+Sometimes app developers that consume our SDKs prefer that we do not swizzle the app delegate. We've added support for developers to disable any sort of app delegate swizzling that we may do, and this is achieved by adding the Plist flag `GoogleUtilitiesAppDelegateProxyEnabled` to `NO` (Boolean). If this is set, even if you call `[GULAppDelegateSwizzler proxyOriginalDelegate]`, it won't have any effect.
 
 
 
