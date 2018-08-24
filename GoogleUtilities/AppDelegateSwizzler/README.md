@@ -2,7 +2,7 @@
 
 ## Overview
 
-The App Delegate Swizzler swizzles certain methods on the AppDelegate and allows interested parties (for eg. other SDKs like Firebase Analytics) to register listeners when certain App Delegate methods are called. 
+The App Delegate Swizzler swizzles certain methods on the AppDelegate and allows interested parties (for eg. other SDKs like Firebase Analytics) to register listeners when certain App Delegate methods are called.
 
 The App Delegate Swizzler uses [isa swizzling](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html) to create a dynamic subclass of the app delegate class and add methods to it that have the logic to add multiple "interceptors".
 
@@ -22,7 +22,7 @@ Note: This method is added only if the original app delegate implements it. See 
     [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623072-application?language=objc)
 
 We are looking into adding support for more methods as we need them.
-    
+
 ## Adopting the swizzler
 
 To start using the app delegate swizzler to intercept app delegate methods do the following:
@@ -76,7 +76,7 @@ MYAppDelegateInterceptor.m
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
             options:(NSDictionary<NSString *, id> *)options {
-  
+
   [MYInterestingClass doSomething];
 
   // Results of this are ORed and NO doesn't affect other delegate interceptors' result.
@@ -107,7 +107,7 @@ MYAppDelegateInterceptor.m
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
-  
+
   [MYInterestingClass doSomething];
 
   // Results of this are ORed and NO doesn't affect other delegate interceptors' result.
