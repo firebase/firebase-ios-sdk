@@ -27,41 +27,7 @@ namespace remote {
 
 using util::AsyncQueue;
 
-// `GrpcStream` communicates with gRPC via `StreamOperation`s:
-//
-// - for each method in its public API that wraps an invocation of a method on
-//   `grpc::GenericClientAsyncReaderWriter`, `GrpcStream` creates a new
-//   `StreamOperation` (`GrpcStream` itself doesn't invoke a single method on
-//   `grpc::GenericClientAsyncReaderWriter`);
-//
-// - `StreamOperation` knows how to execute itself. `StreamOperation::Execute`
-//   will call the underlying call to gRPC and place the operation itself on
-//   gRPC completion queue;
-//
-// - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
-//   completed tags off gRPC completion queue and call `Complete` on them;
-//
-// - `StreamOperation::Complete` will invoke a corresponding callback on the
-//   `GrpcStream`. In turn, `GrpcStream` will decide whether to notify the
-//   observer;
-//
-// - `StreamOperation` stores a `GrpcStreamDelegate` and actually invokes
-//   callbacks on this class, which straightforwardly redirects them to
-//   `GrpcStream`. The delegate has a shared pointer to the `GrpcStream`. This
-//   means that even after the caller lets go of its `shared_ptr` to
-//   `GrpcStream`, the stream object will still be valid until the last
-//   operation issued by the stream completes;
-//
-// - `StreamOperation`s are owned by the `GrpcStream`. Note that the ownership
-//   goes both ways: the stream is the sole owner of each operation, but each
-//   operation extends the lifetime of the stream as long as it exists.
-//   Operations call `GrpcStream::RemoveOperation` in its
-//   `StreamOperation::Complete` method. If the operation contained the last
-//   reference to the stream, it might trigger `GrpcStream` destruction;
-//
-// - `GrpcStream` doesn't know anything about Firestore `AsyncQueue`s. It's the
-//   responsibility of the callers to invoke its methods in appropriate
-//   execution contexts.
+// TODO(varconst): description
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
