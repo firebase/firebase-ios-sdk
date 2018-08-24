@@ -1,0 +1,143 @@
+# App Delegate Swizzler
+
+## Overview
+
+The App Delegate Swizzler swizzles certain methods on the AppDelegate and allows interested parties (for eg. other SDKs like Firebase Analytics) to register listeners when certain App Delegate methods are called. 
+
+The App Delegate Swizzler uses [isa swizzling](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html) to create a dynamic subclass of the app delegate class and add methods to it that have the logic to add multiple "interceptors".
+
+Adding interceptors to the following methods is currently supported by the App Delegate Swizzler.
+
+* `- (BOOL)application:openURL:options:` [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application?language=objc)
+
+Note: This method is added only if the original app delegate implements it. See [the code](https://github.com/firebase/firebase-ios-sdk/blob/a7117ea786f4d8f45b798ceb19b75e5400f2899e/GoogleUtilities/AppDelegateSwizzler/GULAppDelegateSwizzler.m#L313) for a complete explanation.
+
+* `- (BOOL)application:openURL:sourceApplication:annotation:`
+    [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623073-application?language=objc)
+
+* `- (void)application:handleEventsForBackgroundURLSession:completionHandler:`
+    [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622941-application?language=objc)
+
+* `- (BOOL)application:continueUserActivity:restorationHandler:`
+    [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623072-application?language=objc)
+
+We are looking into adding support for more methods as we need them.
+    
+## Adopting the swizzler
+
+To start using the app delegate swizzler to intercept app delegate methods do the following:
+
+The following assumes that you are an SDK that ships using Cocoapods and need to react to one of the app delegate methods listed above.
+
+1. Add a dependency to the app delegate swizzler - `GoogleUtilities/AppDelegateSwizzler:~> 5.2.0`. Note: Pin the version to the minor version because we consider these as internal APIs and can break them with a minor version update. We know this isn't consistent with SemVer and are working to fix it, but for now that's the case.
+
+2. Create an interceptor class that implements the `UIApplicationDelegate` and implements the methods you want to intercept. Note: `GULAppDelegateSwizzler` For eg.
+
+MYAppDelegateInterceptor.h
+
+```objc
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+/// An instance of this class is meant to be registered as an AppDelegate interceptor, and
+/// implements the logic that my SDK needs to perform when certain app delegate methods are invoked.
+@interface MYAppDelegateInterceptor : NSObject <UIApplicationDelegate>
+
+/// Returns the MYAppDelegateInterceptor singleton.
+/// Always register just this singleton as the app delegate interceptor. This instance is
+/// retained. The App Delegate Swizzler only retains weak references and so this is needed.
++ (instancetype)sharedInstance;
+
+@end
+
+NS_ASSUME_NONNULL_END
+
+```
+
+MYAppDelegateInterceptor.m
+
+```objc
+#import "MYAppDelegateInterceptor.h"
+
+@implementation MYAppDelegateInterceptor
+
++ (instancetype)sharedInstance {
+  static dispatch_once_t once;
+  static MYAppDelegateInterceptor *sharedInstance;
+  dispatch_once(&once, ^{
+    sharedInstance = [[MYAppDelegateInterceptor alloc] init];
+  });
+  return sharedInstance;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)URL
+            options:(NSDictionary<NSString *, id> *)options {
+  
+  [MYInterestingClass doSomething];
+
+  // Results of this are ORed and NO doesn't affect other delegate interceptors' result.
+  return NO;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)URL
+    sourceApplication:(NSString *)sourceApplication
+           annotation:(id)annotation {
+
+    [MYInterestingClass doSomething];
+
+  // Results of this are ORed and NO doesn't affect other delegate interceptors' result.
+  return NO;
+}
+
+#pragma mark - Network overridden handler methods
+
+- (void)application:(UIApplication *)application
+    handleEventsForBackgroundURLSession:(NSString *)identifier
+                      completionHandler:(void (^)(void))completionHandler {
+  [MYInterestingClass doSomething];
+}
+
+#pragma mark - User Activities overridden handler methods
+
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler {
+  
+  [MYInterestingClass doSomething];
+
+  // Results of this are ORed and NO doesn't affect other delegate interceptors' result.
+  return NO;
+}
+
+@end
+```
+
+3. Register your interceptor when it makes sense to do so.
+
+For eg.
+
+
+```objc
+
+// MYInterestingClass.m
+
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+
+...
+
+- (void)someInterestingMethod {
+    ...
+    MYAppDelegateInterceptor *interceptor = [MYAppDelegateInterceptor sharedInstance];
+    [GULAppDelegateSwizzler registerAppDelegateInterceptor:interceptor];
+}
+```
+
+
+
+
+
