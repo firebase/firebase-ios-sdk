@@ -55,33 +55,32 @@
   _fetcher = fetcher;
   fetcher.comment = @"GetMetadataTask";
 
-  __weak FIRStorageGetMetadataTask *weakSelf = self;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
   _fetcherCompletion = ^(NSData *data, NSError *error) {
-    __strong FIRStorageGetMetadataTask *strongSelf = weakSelf;
-    if (strongSelf) {
-      FIRStorageMetadata *metadata = nil;
-      if (error) {
-        if (!strongSelf.error) {
-          strongSelf.error =
-              [FIRStorageErrors errorWithServerError:error reference:strongSelf.reference];
-        }
+    FIRStorageMetadata *metadata;
+    if (error) {
+      if (!self.error) {
+        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+      }
+    } else {
+      NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
+      if (responseDictionary != nil) {
+        metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
+        [metadata setType:FIRStorageMetadataTypeFile];
       } else {
-        NSDictionary *responseDictionary = [NSDictionary frs_dictionaryFromJSONData:data];
-        if (responseDictionary != nil) {
-          metadata = [[FIRStorageMetadata alloc] initWithDictionary:responseDictionary];
-          [metadata setType:FIRStorageMetadataTypeFile];
-        } else {
-          strongSelf.error = [FIRStorageErrors errorWithInvalidRequest:data];
-        }
+        self.error = [FIRStorageErrors errorWithInvalidRequest:data];
       }
-
-      if (callback) {
-        callback(metadata, strongSelf.error);
-      }
-      strongSelf->_fetcherCompletion = nil;
     }
-  };
 
+    if (callback) {
+      callback(metadata, self.error);
+    }
+    self->_fetcherCompletion = nil;
+  };
+#pragma clang diagnostic pop
+
+  __weak FIRStorageGetMetadataTask *weakSelf = self;
   [fetcher beginFetchWithCompletionHandler:^(NSData *data, NSError *error) {
     weakSelf.fetcherCompletion(data, error);
   }];
