@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @return the current UIApplication if in an app, or nil if in extension or if it doesn't exist.
  */
-+ (UIApplication *)sharedApplication;
++ (nullable UIApplication *)sharedApplication;
 
 /** ISA Swizzles the given appDelegate as the original app delegate would be.
  *
