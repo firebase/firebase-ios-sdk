@@ -152,7 +152,7 @@ NSError *FUNInvalidNumberError(id value, id wrapped) {
   if ([type isEqualToString:kLongType]) {
     NSNumberFormatter *formatter = [[NSNumberFormatter alloc] init];
     NSNumber *n = [formatter numberFromString:value];
-    if (!n) {
+    if (n == nil) {
       *error = FUNInvalidNumberError(value, wrapped);
       return nil;
     }
