@@ -21,8 +21,8 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
@@ -33,11 +33,6 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-namespace internal {
-class GrpcStreamDelegate;
-class StreamOperation;
-}  // namespace internal
 
 /**
  * A gRPC bidirectional stream that notifies the given `observer` about stream
@@ -103,8 +98,16 @@ class GrpcStream {
    */
   void WriteAndFinish(grpc::ByteBuffer&& message);
 
+  void OnStart();
+  void OnRead(const grpc::ByteBuffer& message);
+  void OnWrite();
+  void OnOperationFailed();
+  void OnFinishedByServer(const grpc::Status& status);
+  void OnFinishedByClient();
+  void RemoveOperation(const StreamOperation* to_remove);
+
  private:
-  friend class internal::GrpcStreamDelegate;
+  friend class BufferedWriter;
 
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
@@ -114,15 +117,6 @@ class GrpcStream {
 
   void Read();
   void BufferedWrite(grpc::ByteBuffer&& message);
-
-  // Called by `GrpcStreamDelegate`.
-  void OnStart();
-  void OnRead(const grpc::ByteBuffer& message);
-  void OnWrite();
-  void OnOperationFailed();
-  void OnFinishedByServer(const grpc::Status& status);
-  void OnFinishedByClient();
-  void RemoveOperation(const internal::StreamOperation* to_remove);
 
   // Whether this stream belongs to the same generation as the observer.
   bool SameGeneration() const;
@@ -154,10 +148,9 @@ class GrpcStream {
 
   GrpcStreamObserver* observer_ = nullptr;
   int generation_ = -1;
-  // Buffered writer is created once the stream opens.
-  absl::optional<BufferedWriter> buffered_writer_;
+  BufferedWriter buffered_writer_;
 
-  std::vector<std::shared_ptr<internal::StreamOperation>> operations_;
+  std::vector<StreamOperation*> operations_;
 
   // The order of stream states is linear: a stream can never transition to an
   // "earlier" state, only to a "later" one (e.g., stream can go from `Started`
@@ -180,58 +173,12 @@ class GrpcStream {
   bool has_pending_read_ = false;
 };
 
-namespace internal {
-
-// The link between `GrpcStream` and `StreamOperation`s that is used by
-// operations to notify the stream once they are completed.
-//
-// The delegate has a `shared_ptr` to the stream to ensure that the stream's
-// lifetime lasts as long as any of the operations it issued still exists.
-//
-// The delegate allows making `GrpcStream::OnStream[Event]` functions private
-// without excessive proliferation of friendship.
-class GrpcStreamDelegate {
- public:
-  explicit GrpcStreamDelegate(GrpcStream* stream)
-      : stream_{stream} {
-  }
-
-  void OnStart() {
-    stream_->OnStart();
-  }
-  void OnRead(const grpc::ByteBuffer& message) {
-    stream_->OnRead(message);
-  }
-  void OnWrite() {
-    stream_->OnWrite();
-  }
-  void OnOperationFailed() {
-    stream_->OnOperationFailed();
-  }
-  void OnFinishedByServer(const grpc::Status& status) {
-    stream_->OnFinishedByServer(status);
-  }
-  void OnFinishedByClient() {
-    stream_->OnFinishedByClient();
-  }
-
-  void RemoveOperation(const internal::StreamOperation* to_remove) {
-    stream_->RemoveOperation(to_remove);
-  }
-
- private:
-  GrpcStream* stream_;
-};
-
-}  // namespace internal
-
 template <typename Op, typename... Args>
 Op* GrpcStream::MakeOperation(Args... args) {
-  auto op = std::make_shared<Op>(
-      internal::GrpcStreamDelegate{this}, call_.get(),
-      firestore_queue_, grpc_queue_, std::move(args)...);
-  operations_.push_back(std::move(op));
-  return static_cast<Op*>(operations_.back().get());
+  auto op = new Op{this, call_.get(), firestore_queue_, grpc_queue_,
+                   std::move(args)...};
+  operations_.push_back(op);
+  return op;
 }
 
 }  // namespace remote

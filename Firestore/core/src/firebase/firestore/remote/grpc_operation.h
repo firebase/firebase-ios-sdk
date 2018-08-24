@@ -71,8 +71,6 @@ class GrpcOperation {
    * completed successfully. A false value of `ok` means unrecoverable failure.
    */
   virtual void Complete(bool ok) = 0;
-
-  virtual void Cancel() = 0;
 };
 
 }  // namespace remote

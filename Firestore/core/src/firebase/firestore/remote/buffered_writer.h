@@ -19,11 +19,13 @@
 
 #include <queue>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+class GrpcStream;
 
 /**
  * `BufferedWriter` accepts GRPC write operations ("writes") on its queue and
@@ -44,11 +46,13 @@ namespace remote {
  */
 class BufferedWriter {
  public:
+  explicit BufferedWriter(GrpcStream* stream) : stream_{stream} {}
+
   bool empty() const {
     return queue_.empty();
   }
 
-  void EnqueueWrite(GrpcOperation* write);
+  void EnqueueWrite(grpc::ByteBuffer&& write);
   void DequeueNextWrite();
 
   // Doesn't affect the write that is currently in progress.
@@ -57,8 +61,9 @@ class BufferedWriter {
  private:
   void TryStartWrite();
 
-  std::queue<GrpcOperation*> queue_;
-  bool has_active_write_ = false;
+  GrpcStream* stream_ = nullptr;
+  std::queue<grpc::ByteBuffer> queue_;
+  bool has_active_write = false;
 };
 
 }  // namespace remote
