@@ -112,7 +112,7 @@ typedef NS_ENUM(int8_t, UpstreamForceReconnect) {
                               }];
 }
 
-- (NSDictionary *)processPacket:(GtalkDataMessageStanza *)dataMessage {
+- (nullable NSDictionary *)processPacket:(GtalkDataMessageStanza *)dataMessage {
   NSString *category = dataMessage.category;
   NSString *from = dataMessage.from;
   if ([kFCMMessageCategory isEqualToString:category] ||
