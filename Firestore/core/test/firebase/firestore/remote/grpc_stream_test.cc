@@ -23,9 +23,11 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
+#include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -35,6 +37,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using util::AsyncQueue;
+using util::internal::ExecutorStd;
+
 class Observer : public GrpcStreamObserver {
  public:
   void OnStreamStart() override {
@@ -42,9 +47,6 @@ class Observer : public GrpcStreamObserver {
   }
   void OnStreamRead(const grpc::ByteBuffer& message) override {
     observed_states.push_back("OnStreamRead");
-  }
-  void OnStreamWrite() override {
-    observed_states.push_back("OnStreamWrite");
   }
   void OnStreamError(const util::Status& status) override {
     observed_states.push_back("OnStreamError");
@@ -62,18 +64,18 @@ class GrpcStreamTest : public testing::Test {
  public:
   enum OperationResult { Ok, Error, Ignore };
 
-  GrpcStreamTest() {
+  GrpcStreamTest() : async_queue{absl::make_unique<ExecutorStd>()} {
     grpc::GenericStub grpc_stub{grpc::CreateChannel(
         "", grpc::SslCredentials(grpc::SslCredentialsOptions()))};
 
     auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
     grpc_context = grpc_context_owning.get();
-    auto grpc_call = grpc_stub.PrepareCall(grpc_context_owning.get(), "",
-                                           grpc_queue.queue());
+    auto grpc_call =
+        grpc_stub.PrepareCall(grpc_context_owning.get(), "", &grpc_queue);
     observer = absl::make_unique<Observer>();
-    stream = GrpcStream::MakeStream(std::move(grpc_context_owning),
-                                    std::move(grpc_call), observer.get(),
-                                    &grpc_queue);
+    stream = absl::make_unique<GrpcStream>(std::move(grpc_context_owning),
+                                           std::move(grpc_call), observer.get(),
+                                           &async_queue);
   }
 
   // This is a very hacky way to simulate GRPC finishing operations without
@@ -87,24 +89,27 @@ class GrpcStreamTest : public testing::Test {
     for (OperationResult result : results) {
       bool ignored_ok = false;
       // TODO(varconst): use a timeout, otherwise this might block if there's
-      // a bug.)
-      GrpcOperation* operation = grpc_queue.Next(&ignored_ok);
-      ASSERT_NE(operation, nullptr);
-      if (result == OperationResult::Ok) {
-        operation->Complete(true);
-      } else if (result == OperationResult::Error) {
-        operation->Complete(false);
+      // a bug.
+      void* tag = nullptr;
+      bool has_next = grpc_queue.Next(&tag, &ignored_ok);
+      ASSERT_TRUE(has_next);
+      ASSERT_NE(tag, nullptr);
+      auto operation = static_cast<GrpcOperation*>(tag);
+      if (result == OperationResult::Ignore) {
+        continue;
       }
-      // Otherwise, the operation is ignored.
+      operation->Complete(result == OperationResult::Ok);
     }
+    async_queue.ExecuteBlocking([] {});  // Make sure the operations execute
   }
+
   void ForceFinishAndShutdown(std::initializer_list<OperationResult> results) {
     ForceFinish(results);
 
     grpc_queue.Shutdown();
+    void* unused_tag = nullptr;
     bool unused_ok = false;
-    GrpcOperation* should_be_null = grpc_queue.Next(&unused_ok);
-    EXPECT_EQ(should_be_null, nullptr);
+    EXPECT_FALSE(grpc_queue.Next(&unused_tag, &unused_ok));
   }
 
   // This is to make `EXPECT_EQ` a little shorter and work around macro
@@ -113,8 +118,9 @@ class GrpcStreamTest : public testing::Test {
     return {states};
   }
 
+  AsyncQueue async_queue;
   grpc::ClientContext* grpc_context = nullptr;
-  GrpcCompletionQueue grpc_queue;
+  grpc::CompletionQueue grpc_queue;
   std::unique_ptr<Observer> observer;
   std::shared_ptr<GrpcStream> stream;
 };
