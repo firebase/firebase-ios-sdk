@@ -132,7 +132,6 @@ MYAppDelegateInterceptor.m
 
 For eg.
 
-
 ```objc
 
 // MYInterestingClass.m
