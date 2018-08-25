@@ -9,7 +9,7 @@ are currently included. They're used by Firebase and other Google products.
 Direct usage by non-Google products and CocoaPods is **NOT** currently
 recommended or supported in general.
 
-**However**, we do specifically recommend that non-Google products can use the App Delegate Swizzler to hook into app delegate methods as this reduces conflicts with multiple SDKs trying to do the same.
+**However**, we do specifically recommend that non-Google SDKs can use the App Delegate Swizzler to hook into app delegate methods as this reduces conflicts with multiple SDKs trying to do the same.
 
 Instructions on how to adopt the app delegate swizzler for use by your SDK are available [here](./AppDelegateSwizzler/README.md).
 

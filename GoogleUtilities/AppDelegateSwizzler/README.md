@@ -29,7 +29,7 @@ To start using the app delegate swizzler to intercept app delegate methods do th
 
 The following assumes that you are an SDK that ships using Cocoapods and need to react to one of the app delegate methods listed above.
 
-1. Add a dependency to the app delegate swizzler - `GoogleUtilities/AppDelegateSwizzler:~> 5.2.0`. Note: Pin the version to the minor version because we consider these as internal APIs and can break them with a minor version update. We know this isn't consistent with SemVer and are working to fix it, but for now that's the case.
+1. Add a dependency to the app delegate swizzler - `GoogleUtilities/AppDelegateSwizzler:~> 5.2`. We follow Semantic Versioning.
 
 2. Create an interceptor class that implements the `UIApplicationDelegate` and implements the methods you want to intercept. Note: `GULAppDelegateSwizzler` For eg.
 
