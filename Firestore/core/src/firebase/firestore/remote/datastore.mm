@@ -194,17 +194,14 @@ GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(const GrpcStream::Met
 std::string Datastore::GetWhitelistedHeadersAsString(const GrpcStream::MetadataT& headers) {
   auto whitelisted_headers = ExtractWhitelistedHeaders(headers);
 
-  std::stringstream format;
-  format << "{";
-  for (auto i = whitelisted_headers.begin(); i != whitelisted_headers.end(); ++i) {
-    format << i->first << ": " << i->second;
-    auto check_end = i;
-    if (++check_end != headers.end()) {
-      format << ", ";
-    }
+  std::string result;
+  for (const auto& kv : whitelisted_headers) {
+    result += kv.first;
+    result += ": ";
+    result += kv.second;
+    result += "\n";
   }
-  format << "}";
-  return format.str();
+  return result.str();
 }
 
 }  // namespace remote
