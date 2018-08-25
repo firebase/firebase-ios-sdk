@@ -24,6 +24,7 @@
 
 #include "Firestore/Source/Public/FIRFirestoreErrors.h"  // for FIRFirestoreErrorDomain
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/string_view.h"
@@ -38,10 +39,12 @@ inline NSError* MakeNSError(const int64_t error_code,
   if (error_code == FirestoreErrorCode::Ok) {
     return nil;
   }
+  NSString* error_str = WrapNSString(error_msg);
+  HARD_ASSERT(error_str, "Couldn't encode error message");
   return [NSError
       errorWithDomain:FIRFirestoreErrorDomain
                  code:static_cast<NSInteger>(error_code)
-             userInfo:@{NSLocalizedDescriptionKey : WrapNSString(error_msg)}];
+             userInfo:@{NSLocalizedDescriptionKey : error_str}];
 }
 
 inline NSError* MakeNSError(const util::Status& status) {

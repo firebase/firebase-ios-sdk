@@ -176,7 +176,7 @@ class WriteStream : public Stream {
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;
-  bool is_handshake_complete_{false};
+  bool is_handshake_complete_ = false;
   std::string last_stream_token_;
 };
 

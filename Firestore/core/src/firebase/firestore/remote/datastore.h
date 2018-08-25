@@ -18,21 +18,20 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
 #include <memory>
-
-#include "grpcpp/support/status.h"
-#include <grpcpp/generic/generic_stub.h>
-#include <grpcpp/channel.h>
+#include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
-
 #include "absl/strings/string_view.h"
+#include "grpcpp/channel.h"
+#include "grpcpp/completion_queue.h"
+#include "grpcpp/support/status.h"
+#include "grpcpp/generic/generic_stub.h"
 
 namespace firebase {
 namespace firestore {
@@ -83,7 +82,7 @@ class Datastore {
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
   std::shared_ptr<grpc::Channel> grpc_channel_;
   grpc::GenericStub grpc_stub_;
-  GrpcCompletionQueue grpc_queue_;
+  grpc::CompletionQueue grpc_queue_;
 };
 
 }  // namespace remote

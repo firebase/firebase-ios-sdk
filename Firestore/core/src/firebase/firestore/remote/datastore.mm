@@ -77,8 +77,11 @@ void Datastore::PollGrpcQueue() {
               "PollGrpcQueue should only be called on the "
               "dedicated Datastore executor");
 
+  void* tag = nullptr;
   bool ok = false;
-  while (GrpcOperation *operation = grpc_queue_.Next(&ok)) {
+  while (grpc_queue_.Next(&tag, &ok)) {
+    auto operation = static_cast<GrpcOperation*>(tag);
+    HARD_ASSERT(tag, "GRPC queue returned a null tag");
     operation->Complete(ok);
   }
 }
@@ -117,7 +120,7 @@ std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
   return absl::make_unique<GrpcStream>(std::move(context), std::move(reader_writer),
-                                observer, firestore_queue_, &grpc_queue_);
+                                observer, firestore_queue_);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
@@ -151,7 +154,7 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
 std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
 Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
                                   const absl::string_view path) {
-  return grpc_stub_.PrepareCall(context, path.data(), grpc_queue_.queue());
+  return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
 util::Status Datastore::ToFirestoreStatus(grpc::Status from) {

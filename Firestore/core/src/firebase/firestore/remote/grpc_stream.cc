@@ -67,13 +67,11 @@ GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     GrpcStreamObserver* observer,
-    AsyncQueue* firestore_queue,
-    GrpcCompletionQueue* grpc_queue)
+    AsyncQueue* firestore_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
       observer_{observer},
       firestore_queue_{firestore_queue},
-      grpc_queue_{grpc_queue},
       // Store the current generation of the observer.
       generation_{observer->generation()},
       buffered_writer_{this, call_.get(), firestore_queue_} {

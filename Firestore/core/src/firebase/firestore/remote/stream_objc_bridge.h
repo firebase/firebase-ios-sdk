@@ -21,22 +21,33 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
-#include <grpcpp/support/byte_buffer.h>
+#include <string>
 
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "grpcpp/support/byte_buffer.h"
 
+#import <Foundation/Foundation.h>
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
+#import "Firestore/Source/Local/FSTQueryData.h"
+#import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
+#import "Firestore/Source/Remote/FSTWatchChange.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace bridge {
 
-// Contains operations that are still delegated to Objective-C: proto parsing
-// and delegates.
+// Contains operations in `WatchStream` and `WriteStream` that are still
+// delegated to Objective-C: proto parsing and delegates.
+//
+// The principle is that the C++ implementation can only take Objective-C
+// objects as parameters or return them, but never instantiate them or call any
+// methods on them -- if that is necessary, it's delegated to one of the bridge
+// classes. This allows easily identifying which parts of `WatchStream` and
+// `WriteStream` still rely on not-yet-ported code.
 
 class WatchStreamSerializer {
  public:
@@ -50,7 +61,8 @@ class WatchStreamSerializer {
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
-  GCFSListenResponse* ParseResponse(const grpc::ByteBuffer& message, std::string* out_error) const;
+  GCFSListenResponse* ParseResponse(
+      const grpc::ByteBuffer& message, util::Status* out_status) const;
 
  private:
   FSTSerializerBeta* serializer_;
@@ -63,18 +75,24 @@ class WriteStreamSerializer {
   }
 
   void UpdateLastStreamToken(GCFSWriteResponse* proto);
-  void SetLastStreamToken(NSData* token) { last_stream_token_ = token; }
+  void SetLastStreamToken(NSData* token) {
+    last_stream_token_ = token;
+  }
   NSData* GetLastStreamToken() const {
     return last_stream_token_;
   }
 
   grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations);
+  grpc::ByteBuffer CreateEmptyMutationsList() {
+    return ToByteBuffer(@[]);
+  }
 
   model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
   NSArray<FSTMutationResult*>* ToMutationResults(
       GCFSWriteResponse* proto) const;
 
-  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message, std::string* out_error) const;
+  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
+                                   util::Status* out_status) const;
 
   grpc::ByteBuffer CreateHandshake() const;
 

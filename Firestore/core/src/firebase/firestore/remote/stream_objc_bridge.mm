@@ -16,33 +16,34 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 
-#include <utility>
+#include <iomanip>
+#include <sstream>
+#include <vector>
 
 #import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/log.h"
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "absl/memory/memory.h"
-
-#include <vector>
+#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
-
-using model::SnapshotVersion;
-
 namespace remote {
 namespace bridge {
+
+using model::SnapshotVersion;
+using util::MakeString;
+using util::MakeNSError;
+using util::Status;
+using util::StringFormat;
 
 namespace {
 
 NSData* ToNsData(const grpc::ByteBuffer& buffer) {
   std::vector<grpc::Slice> slices;
-  const grpc::Status status = buffer.Dump(&slices);
+  grpc::Status status = buffer.Dump(&slices);
   HARD_ASSERT(status.ok(), "Trying to convert a corrupted grpc::ByteBuffer");
 
   if (slices.size() == 1) {
@@ -57,30 +58,42 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
   }
 }
 
-template <typename Proto>
-Proto* ToProto(const grpc::ByteBuffer& message, std::string* out_error) {
-  NSError* error;
-  // NSMutableData* bad = [NSMutableData dataWithData:;
-  // [bad appendBytes:"OBC" length:2];
-  // auto* proto = [Proto parseFromData:bad error:&error];
-  auto* proto = [Proto parseFromData:ToNsData(message) error:&error];
-  // FIXME OBC
-  if (error) {
-    NSDictionary* info = @{
-      NSLocalizedDescriptionKey : @"Unable to parse response from the server",
-      NSUnderlyingErrorKey : error,
-      @"Expected class" : [Proto class],
-      @"Received value" : ToNsData(message),
-    };
-    *out_error = util::MakeString([info description]);
+std::string ToString(const grpc::ByteBuffer& buffer) {
+  std::vector<grpc::Slice> slices;
+  grpc::Status status = buffer.Dump(&slices);
 
-    return nil;
+  std::stringstream output;
+  output << std::hex << std::setfill('0') << std::setw(2);
+  for (const auto& slice : slices) {
+    for (uint8_t c : slice) {
+      output << "0x" << static_cast<int>(c) << " ";
+    }
   }
-  return proto;
+  
+  return output.str();
+}
+
+template <typename Proto>
+Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
+  NSError* error = nil;
+  auto* proto = [Proto parseFromData:ToNsData(message) error:&error];
+  if (!error) {
+    return proto;
+  }
+
+  std::string error_description = StringFormat(
+      "Unable to parse response from the server.\n"
+      "Underlying error: %s\n"
+      "Expected class: %s\n"
+      "Received value: %s\n",
+      error, [Proto class], ToString(message));
+
+  *out_status = {FirestoreErrorCode::Internal, error_description};
+  return nil;
 }
 
 grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
-  const grpc::Slice slice{[data bytes], [data length]};
+  grpc::Slice slice{[data bytes], [data length]};
   return grpc::ByteBuffer{&slice, 1};
 }
 
@@ -138,12 +151,11 @@ SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
 }
 
 GCFSListenResponse* WatchStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, std::string* out_error) const {
-  return ToProto<GCFSListenResponse>(message, out_error);
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSListenResponse>(message, out_status);
 }
 
-void WriteStreamSerializer::UpdateLastStreamToken(
-    GCFSWriteResponse* proto) {
+void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
   last_stream_token_ = proto.streamToken;
 }
 
@@ -164,8 +176,8 @@ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
 }
 
 GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, std::string* out_error) const {
-  return ToProto<GCFSWriteResponse>(message, out_error);
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSWriteResponse>(message, out_status);
 }
 
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
@@ -179,10 +191,9 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
   [delegate watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 
-void WatchStreamDelegate::NotifyDelegateOnStreamFinished(
-const util::Status& status) {
+void WatchStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:util::MakeNSError(status)];
+  [delegate watchStreamWasInterruptedWithError:MakeNSError(status)];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
@@ -203,12 +214,12 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
                                      mutationResults:results];
 }
 
-void WriteStreamDelegate::NotifyDelegateOnStreamFinished(
-const util::Status& status) {
+void WriteStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
   id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamWasInterruptedWithError:util::MakeNSError(status)];
+  [delegate writeStreamWasInterruptedWithError:MakeNSError(status)];
 }
-}
-}
-}
-}
+
+}  // bridge
+}  // remote
+}  // firestore
+}  // firebase

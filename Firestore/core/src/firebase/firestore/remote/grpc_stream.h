@@ -21,7 +21,6 @@
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_queue.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -66,13 +65,10 @@ namespace remote {
  */
 class GrpcStream {
  public:
-  // The given `grpc_queue` must wrap the same underlying completion queue as
-  // the `call`.
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              GrpcStreamObserver* observer,
-             util::AsyncQueue* firestore_queue,
-             GrpcCompletionQueue* grpc_queue);
+             util::AsyncQueue* firestore_queue);
   ~GrpcStream();
 
   void Start();
@@ -131,7 +127,6 @@ class GrpcStream {
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
   util::AsyncQueue* firestore_queue_ = nullptr;
-  GrpcCompletionQueue* grpc_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
   int generation_ = -1;

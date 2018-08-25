@@ -23,13 +23,12 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-namespace {
 
 using auth::CredentialsProvider;
 using auth::Token;
@@ -38,6 +37,10 @@ using model::DatabaseId;
 using model::SnapshotVersion;
 using util::AsyncQueue;
 using util::TimerId;
+using util::Status;
+using util::StatusOr;
+
+namespace {
 
 /**
  * Initial backoff time after an error.
@@ -50,11 +53,11 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 } // namespace
 
-Stream::Stream(AsyncQueue* const async_queue,
-               CredentialsProvider* const credentials_provider,
-               Datastore* const datastore,
-               const TimerId backoff_timer_id,
-               const TimerId idle_timer_id)
+Stream::Stream(AsyncQueue* async_queue,
+               CredentialsProvider* credentials_provider,
+               Datastore* datastore,
+               TimerId backoff_timer_id,
+               TimerId idle_timer_id)
     : firestore_queue_{async_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
@@ -82,7 +85,7 @@ void Stream::Start() {
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
   std::weak_ptr<Stream> weak_self{shared_from_this()};
-  const int auth_generation = generation();
+  int auth_generation = generation();
   credentials_provider_->GetToken([weak_self, auth_generation](
                                       util::StatusOr<Token> maybe_token) {
     auto live_instance = weak_self.lock();
@@ -112,8 +115,8 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
     return;
   }
 
-  const absl::string_view token = [&] {
-    const auto token = maybe_token.ValueOrDie();
+  absl::string_view token = [&] {
+    auto token = maybe_token.ValueOrDie();
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
@@ -201,7 +204,7 @@ void Stream::CancelIdleCheck() {
 void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   EnsureOnQueue();
 
-  const util::Status read_status = DoOnStreamRead(message);
+  util::Status read_status = DoOnStreamRead(message);
   if (!read_status.ok()) {
     grpc_call_->Finish();
     // Don't wait for GRPC to produce status -- since the error happened on the client, we have all
@@ -275,9 +278,7 @@ bool Stream::IsOpen() const {
 
 bool Stream::IsStarted() const {
   EnsureOnQueue();
-  const bool is_starting =
-      (state_ == State::Starting || state_ == State::ReconnectingWithBackoff);
-  return is_starting || IsOpen();
+  return state_ == State::Starting || state_ == State::ReconnectingWithBackoff || IsOpen();
 }
 
 // Protected helpers
@@ -293,10 +294,10 @@ void Stream::Write(grpc::ByteBuffer&& message) {
 
 // Watch stream
 
-WatchStream::WatchStream(AsyncQueue* const async_queue,
-                         CredentialsProvider* const credentials_provider,
+WatchStream::WatchStream(AsyncQueue* async_queue,
+                         CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* const datastore,
+                         Datastore* datastore,
                          id delegate)
     : Stream{async_queue, credentials_provider, datastore,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
@@ -315,7 +316,7 @@ void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    Datastore* const datastore, const absl::string_view token) {
+    Datastore* datastore, absl::string_view token) {
   return datastore->CreateGrpcStream(
       token, "/google.firestore.v1beta1.Firestore/Listen", this);
 }
@@ -324,13 +325,12 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-util::Status WatchStream::DoOnStreamRead(
+Status WatchStream::DoOnStreamRead(
     const grpc::ByteBuffer& message) {
-  std::string error;
-  GCFSListenResponse* response =
-      serializer_bridge_.ParseResponse(message, &error);
-  if (!response) {
-    return util::Status{FirestoreErrorCode::Internal, error};
+  Status status;
+  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message, &status);
+  if (!status.ok()) {
+    return status;
   }
 
   delegate_bridge_.NotifyDelegateOnChange(
@@ -343,16 +343,16 @@ void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
-void WatchStream::FinishGrpcStream(GrpcStream* const call) {
+void WatchStream::FinishGrpcStream(GrpcStream* call) {
   call->Finish();
 }
 
 // Write stream
 
-WriteStream::WriteStream(AsyncQueue* const async_queue,
-                         CredentialsProvider* const credentials_provider,
+WriteStream::WriteStream(AsyncQueue* async_queue,
+                         CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* const datastore,
+                         Datastore* datastore,
                          id delegate)
     : Stream{async_queue, credentials_provider, datastore,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
@@ -394,7 +394,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 // Private interface
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
-    Datastore* const datastore, const absl::string_view token) {
+    Datastore* datastore, absl::string_view token) {
   return datastore->CreateGrpcStream(token,
                                    "/google.firestore.v1beta1.Firestore/Write", this);
 }
@@ -415,10 +415,10 @@ util::Status WriteStream::DoOnStreamRead(
   // response);
   EnsureOnQueue();
 
-  std::string error;
-  auto* response = serializer_bridge_.ParseResponse(message, &error);
-  if (!response) {
-    return util::Status{FirestoreErrorCode::Internal, error};
+  Status status;
+  GCFSWriteResponse* response = serializer_bridge_.ParseResponse(message, &status);
+  if (!status.ok()) {
+    return status;
   }
 
   serializer_bridge_.UpdateLastStreamToken(response);
@@ -441,8 +441,8 @@ util::Status WriteStream::DoOnStreamRead(
   return util::Status::OK();
 }
 
-void WriteStream::FinishGrpcStream(GrpcStream* const call) {
-  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(@[]));
+void WriteStream::FinishGrpcStream(GrpcStream* call) {
+  call->WriteAndFinish(serializer_bridge_.CreateEmptyMutationsList());
 }
 
 }  // namespace remote
