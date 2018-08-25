@@ -63,13 +63,14 @@ std::string ToString(const grpc::ByteBuffer& buffer) {
   grpc::Status status = buffer.Dump(&slices);
 
   std::stringstream output;
+  // The output will look like "0x00 0x0a"
   output << std::hex << std::setfill('0') << std::setw(2);
   for (const auto& slice : slices) {
     for (uint8_t c : slice) {
       output << "0x" << static_cast<int>(c) << " ";
     }
   }
-  
+
   return output.str();
 }
 

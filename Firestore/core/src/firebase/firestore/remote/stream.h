@@ -69,11 +69,8 @@ class Stream : public GrpcStreamObserver,
 
   void OnStreamStart() override;
   void OnStreamRead(const grpc::ByteBuffer& message) override;
-  // TODO OBC set state to error immediately when operation failed, or only in
-  // OnServerError?
   void OnStreamError(const util::Status& status) override;
 
-  // ClearError?
   void CancelBackoff();
   void MarkIdle();
   void CancelIdleCheck();
@@ -107,7 +104,7 @@ class Stream : public GrpcStreamObserver,
 
   State state_ = State::Initial;
 
-  std::unique_ptr<GrpcStream> grpc_call_;
+  std::unique_ptr<GrpcStream> grpc_stream_;
 
   auth::CredentialsProvider* credentials_provider_;
   util::AsyncQueue* firestore_queue_;

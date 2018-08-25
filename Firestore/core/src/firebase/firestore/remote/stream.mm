@@ -120,13 +120,9 @@ void Stream::ResumeStartAfterAuth(const util::StatusOr<Token>& maybe_token) {
     return token.user().is_authenticated() ? token.token()
                                            : absl::string_view{};
   }();
-  grpc_call_ = CreateGrpcStream(datastore_, token);
 
-  grpc_call_->Start();
-  // TODO OBC: set state to open here, or only upon successful completion?
-  // Objective-C does it here. Java does it in onOpen (though it can't do it any other way due to
-  // the way GRPC handles Auth). C++, for now at least, does it upon successful
-  // completion.
+  grpc_stream_ = CreateGrpcStream(datastore_, token);
+  grpc_stream_->Start();
 }
 
 void Stream::OnStreamStart() {
@@ -206,7 +202,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
 
   util::Status read_status = DoOnStreamRead(message);
   if (!read_status.ok()) {
-    grpc_call_->Finish();
+    grpc_stream_->Finish();
     // Don't wait for GRPC to produce status -- since the error happened on the client, we have all
     // the information we need.
     OnStreamError(read_status);
@@ -222,26 +218,20 @@ void Stream::Stop() {
   if (!IsStarted()) {
     return;
   }
-  // TODO OBC comment on how this interplays with finishing GRPC
+  // Raising generation means that this `Stream` will receive no more notifications from the
+  // `grpc_stream_`.
   ++generation_;
 
-  // If the stream is in the auth stage, call might not have been started yet.
-  if (grpc_call_) {
-    FinishGrpcStream(grpc_call_.get());
-    grpc_call_.reset();
-    // TODO OBC rephrase After a GRPC call finishes, it will no longer be valid, so there is no
-    // reason to hold on to it now that a finish operation has been added (the
-    // operation has its own `shared_ptr` to the call).
-    //ResetGrpcStream();
+  // If the stream is in the auth stage, GRPC stream might not be created yet.
+  if (grpc_stream_) {
+    FinishGrpcStream(grpc_stream_.get());
+    ResetGrpcStream();
   }
 
   state_ = State::Initial;
-  // Don't wait for GRPC to produce status -- stopping the stream was initiated by the client, so we
-  // have all the information we need.
+  // Stopping the stream was initiated by the client, so we have all the information we need.
   DoOnStreamFinish(util::Status::OK());
 }
-
-  // TODO OBC explain cancelling pending operations
 
 void Stream::OnStreamError(const util::Status& status) {
   EnsureOnQueue();
@@ -255,18 +245,15 @@ void Stream::OnStreamError(const util::Status& status) {
     credentials_provider_->InvalidateToken();
   }
 
-  //ResetGrpcStream();
-  //grpc_call_->Finish();
-  grpc_call_.reset();
+  ResetGrpcStream();
 
   state_ = State::Error;
   DoOnStreamFinish(status);
 }
 
 void Stream::ResetGrpcStream() {
-  grpc_call_->Finish();
-  grpc_call_.reset();
-  backoff_.Cancel(); // OBC iOS doesn't do it, but other platforms do
+  grpc_stream_.reset();
+  backoff_.Cancel();
 }
 
 // Check state
@@ -289,7 +276,7 @@ void Stream::EnsureOnQueue() const {
 
 void Stream::Write(grpc::ByteBuffer&& message) {
   CancelIdleCheck();
-  grpc_call_->Write(std::move(message));
+  grpc_stream_->Write(std::move(message));
 }
 
 // Watch stream
@@ -405,7 +392,8 @@ void WriteStream::DoOnStreamStart() {
 
 void WriteStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
-  // TODO OBC explain that order is important here
+  // Delegate's logic might depend on whether handshake was completed, so only reset it after
+  // notifying.
   is_handshake_complete_ = false;
 }
 
