@@ -23,7 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -38,7 +38,7 @@ using model::SnapshotVersion;
 using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
-using util::StatusOr;
+using util::StringFormat;
 
 namespace {
 
@@ -51,7 +51,7 @@ const AsyncQueue::Milliseconds kBackoffInitialDelay{std::chrono::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{std::chrono::seconds(60)};
 const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
-} // namespace
+}  // namespace
 
 Stream::Stream(AsyncQueue* async_queue,
                CredentialsProvider* credentials_provider,
@@ -76,12 +76,15 @@ void Stream::Start() {
     return;
   }
 
-  // TODO: util::LogDebug(%@ %p start", NSStringFromClass([self class]),
-  // (__bridge void *)self);
+  LOG_DEBUG("%s start", GetDebugDescription());
 
   HARD_ASSERT(state_ == State::Initial, "Already started");
   state_ = State::Starting;
 
+  Authenticate();
+}
+
+void Stream::Authenticate() {
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
   std::weak_ptr<Stream> weak_self{shared_from_this()};
@@ -95,7 +98,8 @@ void Stream::Start() {
     live_instance->firestore_queue_->EnqueueRelaxed([maybe_token, weak_self,
                                                      auth_generation] {
       auto live_instance = weak_self.lock();
-      // Streams can be stopped while waiting for authorization, so need to check generation.
+      // Streams can be stopped while waiting for authorization, so need to
+      // check generation.
       if (!live_instance || live_instance->generation() != auth_generation) {
         return;
       }
@@ -135,9 +139,9 @@ void Stream::OnStreamStart() {
 // Backoff
 
 void Stream::BackoffAndTryRestarting() {
-  // LogDebug(@"%@ %p backoff", NSStringFromClass([self class]), (__bridge void
-  // *)self);
   EnsureOnQueue();
+
+  LOG_DEBUG("%s backoff", GetDebugDescription());
 
   HARD_ASSERT(state_ == State::Error,
               "Should only perform backoff in an error case");
@@ -200,11 +204,17 @@ void Stream::CancelIdleCheck() {
 void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   EnsureOnQueue();
 
+  if (bridge::IsLoggingEnabled()) {
+    LOG_DEBUG("%s headers (whitelisted): %s", GetDebugDescription(),
+              Datastore::GetWhitelistedHeadersAsString(
+                  grpc_stream_->GetResponseHeaders()));
+  }
+
   util::Status read_status = DoOnStreamRead(message);
   if (!read_status.ok()) {
     grpc_stream_->Finish();
-    // Don't wait for GRPC to produce status -- since the error happened on the client, we have all
-    // the information we need.
+    // Don't wait for GRPC to produce status -- since the error happened on the
+    // client, we have all the information we need.
     OnStreamError(read_status);
     return;
   }
@@ -215,33 +225,42 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
 void Stream::Stop() {
   EnsureOnQueue();
 
+  LOG_DEBUG("%s Closing stream client-side", GetDebugDescription());
+
   if (!IsStarted()) {
     return;
   }
-  // Raising generation means that this `Stream` will receive no more notifications from the
-  // `grpc_stream_`.
+  // Raising generation means that this `Stream` will receive no more
+  // notifications from the `grpc_stream_`.
   ++generation_;
 
   // If the stream is in the auth stage, GRPC stream might not be created yet.
   if (grpc_stream_) {
+    LOG_DEBUG("%s Finishing GRPC stream", GetDebugDescription());
     FinishGrpcStream(grpc_stream_.get());
     ResetGrpcStream();
   }
 
   state_ = State::Initial;
-  // Stopping the stream was initiated by the client, so we have all the information we need.
+  // Stopping the stream was initiated by the client, so we have all the
+  // information we need.
   DoOnStreamFinish(util::Status::OK());
 }
 
 void Stream::OnStreamError(const util::Status& status) {
+  // TODO(varconst): log error here?
+  LOG_DEBUG("%s Stream error", GetDebugDescription());
+
   EnsureOnQueue();
 
   if (status.code() == FirestoreErrorCode::ResourceExhausted) {
-    // LogDebug("%@ %p Using maximum backoff delay to prevent overloading the
-    // backend.", [self class],
-    //       (__bridge void *)self);
+    LOG_DEBUG(
+        "%s Using maximum backoff delay to prevent overloading the backend.",
+        GetDebugDescription());
     backoff_.ResetToMax();
   } else if (status.code() == FirestoreErrorCode::Unauthenticated) {
+    // "unauthenticated" error means the token was rejected. Try force
+    // refreshing it in case it just expired.
     credentials_provider_->InvalidateToken();
   }
 
@@ -265,7 +284,8 @@ bool Stream::IsOpen() const {
 
 bool Stream::IsStarted() const {
   EnsureOnQueue();
-  return state_ == State::Starting || state_ == State::ReconnectingWithBackoff || IsOpen();
+  return state_ == State::Starting ||
+         state_ == State::ReconnectingWithBackoff || IsOpen();
 }
 
 // Protected helpers
@@ -277,6 +297,10 @@ void Stream::EnsureOnQueue() const {
 void Stream::Write(grpc::ByteBuffer&& message) {
   CancelIdleCheck();
   grpc_stream_->Write(std::move(message));
+}
+
+std::string Stream::GetDebugDescription() const {
+  return StringFormat("%s (%s)", GetDebugName(), this);
 }
 
 // Watch stream
@@ -294,12 +318,20 @@ WatchStream::WatchStream(AsyncQueue* async_queue,
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
   EnsureOnQueue();
-  Write(serializer_bridge_.ToByteBuffer(query));
+
+  GCFSListenRequest* request = serializer_bridge_.CreateRequest(query);
+  LOG_DEBUG("%s watch: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(request));
+  Write(serializer_bridge_.ToByteBuffer(request));
 }
 
 void WatchStream::UnwatchTargetId(FSTTargetID target_id) {
   EnsureOnQueue();
-  Write(serializer_bridge_.ToByteBuffer(target_id));
+
+  GCFSListenRequest* request = serializer_bridge_.CreateRequest(target_id);
+  LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(request));
+  Write(serializer_bridge_.ToByteBuffer(request));
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
@@ -312,13 +344,16 @@ void WatchStream::DoOnStreamStart() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-Status WatchStream::DoOnStreamRead(
-    const grpc::ByteBuffer& message) {
+Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   Status status;
-  GCFSListenResponse* response = serializer_bridge_.ParseResponse(message, &status);
+  GCFSListenResponse* response =
+      serializer_bridge_.ParseResponse(message, &status);
   if (!status.ok()) {
     return status;
   }
+
+  LOG_DEBUG("%s response: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(response));
 
   delegate_bridge_.NotifyDelegateOnChange(
       serializer_bridge_.ToWatchChange(response),
@@ -360,9 +395,10 @@ void WriteStream::WriteHandshake() {
   HARD_ASSERT(IsOpen(), "Not yet open");
   HARD_ASSERT(!is_handshake_complete_, "Handshake sent out of turn");
 
-  // LOG_DEBUG("WriteStream %s initial request: %s", this, [request
-  // description]);
-  Write(serializer_bridge_.CreateHandshake());
+  GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
+  LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(request));
+  Write(serializer_bridge_.ToByteBuffer(request));
 
   // TODO(dimond): Support stream resumption. We intentionally do not set the
   // stream token on the handshake, ignoring any stream token we might have.
@@ -373,17 +409,18 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   HARD_ASSERT(IsOpen(), "Not yet open");
   HARD_ASSERT(is_handshake_complete_, "Mutations sent out of turn");
 
-  // LOG_DEBUG("FSTWriteStream %s mutation request: %s", (__bridge void *)self,
-  // request);
-  Write(serializer_bridge_.ToByteBuffer(mutations));
+  GCFSWriteRequest* request = serializer_bridge_.CreateRequest(mutations);
+  LOG_DEBUG("%s write request: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(request));
+  Write(serializer_bridge_.ToByteBuffer(request));
 }
 
 // Private interface
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
     Datastore* datastore, absl::string_view token) {
-  return datastore->CreateGrpcStream(token,
-                                   "/google.firestore.v1beta1.Firestore/Write", this);
+  return datastore->CreateGrpcStream(
+      token, "/google.firestore.v1beta1.Firestore/Write", this);
 }
 
 void WriteStream::DoOnStreamStart() {
@@ -392,22 +429,23 @@ void WriteStream::DoOnStreamStart() {
 
 void WriteStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
-  // Delegate's logic might depend on whether handshake was completed, so only reset it after
-  // notifying.
+  // Delegate's logic might depend on whether handshake was completed, so only
+  // reset it after notifying.
   is_handshake_complete_ = false;
 }
 
-util::Status WriteStream::DoOnStreamRead(
-    const grpc::ByteBuffer& message) {
-  // LOG_DEBUG("FSTWriteStream %s response: %s", (__bridge void *)self,
-  // response);
+util::Status WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   EnsureOnQueue();
 
   Status status;
-  GCFSWriteResponse* response = serializer_bridge_.ParseResponse(message, &status);
+  GCFSWriteResponse* response =
+      serializer_bridge_.ParseResponse(message, &status);
   if (!status.ok()) {
     return status;
   }
+
+  LOG_DEBUG("%s response: %s", GetDebugDescription(),
+            serializer_bridge_.Describe(response));
 
   serializer_bridge_.UpdateLastStreamToken(response);
 
@@ -430,7 +468,8 @@ util::Status WriteStream::DoOnStreamRead(
 }
 
 void WriteStream::FinishGrpcStream(GrpcStream* call) {
-  call->WriteAndFinish(serializer_bridge_.CreateEmptyMutationsList());
+  GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
+  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
 }
 
 }  // namespace remote

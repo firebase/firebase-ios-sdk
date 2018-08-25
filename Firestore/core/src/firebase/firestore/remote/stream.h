@@ -83,6 +83,7 @@ class Stream : public GrpcStreamObserver,
   void EnsureOnQueue() const;
   void Write(grpc::ByteBuffer&& message);
   void ResetBackoff();
+  std::string GetDebugDescription() const;
 
  private:
   enum class State { Initial, Starting, Open, Error, ReconnectingWithBackoff };
@@ -93,7 +94,10 @@ class Stream : public GrpcStreamObserver,
   virtual void DoOnStreamStart() = 0;
   virtual util::Status DoOnStreamRead(const grpc::ByteBuffer& message) = 0;
   virtual void DoOnStreamFinish(const util::Status& status) = 0;
+  // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
+  virtual std::string GetDebugName() const = 0;
 
+  void Authenticate();
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
 
   void BackoffAndTryRestarting();
@@ -137,6 +141,8 @@ class WatchStream : public Stream {
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamFinish(const util::Status& status) override;
 
+  std::string GetDebugName() const override { return "WatchStream"; }
+
   bridge::WatchStreamSerializer serializer_bridge_;
   bridge::WatchStreamDelegate delegate_bridge_;
 };
@@ -170,6 +176,8 @@ class WriteStream : public Stream {
   void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
   void DoOnStreamFinish(const util::Status& status) override;
+
+  std::string GetDebugName() const override { return "WriteStream"; }
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;

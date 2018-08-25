@@ -20,18 +20,18 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/completion_queue.h"
-#include "grpcpp/support/status.h"
 #include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,8 +43,8 @@ class Datastore {
             const core::DatabaseInfo& database_info);
 
   std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
-                                           absl::string_view path,
-                                           GrpcStreamObserver* observer);
+                                               absl::string_view path,
+                                               GrpcStreamObserver* observer);
 
   static util::Status ToFirestoreStatus(grpc::Status grpc_error);
 
@@ -54,6 +54,8 @@ class Datastore {
   //   grpc_queue_.Shutdown();
   //   dedicated_executor_->ExecuteBlocking([] {});
   // }
+
+  static std::string GetWhitelistedHeadersAsString(const GrpcStream::MetadataT& headers);
 
   static void SetTestCertificatePath(const std::string& path) {
     test_certificate_path_ = path;
@@ -73,6 +75,9 @@ class Datastore {
       absl::string_view token) const;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
       grpc::ClientContext* context, absl::string_view path);
+
+  static GrpcStream::MetadataT ExtractWhitelistedHeaders(
+      const GrpcStream::MetadataT& headers);
 
   static std::string test_certificate_path_;
 

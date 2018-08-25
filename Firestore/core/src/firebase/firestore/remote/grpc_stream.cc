@@ -177,6 +177,18 @@ bool GrpcStream::SameGeneration() const {
   return generation_ == observer_->generation();
 }
 
+GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
+  HARD_ASSERT(state_ >= State::Open,
+      "Initial server metadata is only received after the stream opens");
+  MetadataT result;
+  auto grpc_metadata = context_->GetServerInitialMetadata();
+  auto to_str = [](grpc::string_ref ref) { return std::string{ref.begin(), ref.end()}; };
+  for (const auto& kv : grpc_metadata) {
+    result[to_str(kv.first)] = to_str(kv.second);
+  }
+  return result;
+}
+
 // Callbacks
 
 void GrpcStream::OnStart() {

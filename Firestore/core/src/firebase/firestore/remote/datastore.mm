@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -28,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 
@@ -168,6 +170,41 @@ util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
       "Unknown gRPC error code: %s", error_code);
 
   return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
+}
+
+GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(const GrpcStream::MetadataT& headers) {
+  std::string whitelist[] = {
+    "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
+    "x-google-gfe-request-trace"
+  };
+
+  GrpcStream::MetadataT whitelisted_headers;
+  for (const auto& kv : headers) {
+    auto found = std::find_if(std::begin(whitelist), std::end(whitelist), [&](const std::string& str) {
+          return str.size() == kv.first.size() && absl::StartsWithIgnoreCase(str, kv.first);
+    });
+    if (found != std::end(whitelist)) {
+      whitelisted_headers[kv.first] = kv.second;
+    }
+  }
+
+  return whitelisted_headers;
+}
+
+std::string Datastore::GetWhitelistedHeadersAsString(const GrpcStream::MetadataT& headers) {
+  auto whitelisted_headers = ExtractWhitelistedHeaders(headers);
+
+  std::stringstream format;
+  format << "{";
+  for (auto i = whitelisted_headers.begin(); i != whitelisted_headers.end(); ++i) {
+    format << i->first << ": " << i->second;
+    auto check_end = i;
+    if (++check_end != headers.end()) {
+      format << ", ";
+    }
+  }
+  format << "}";
+  return format.str();
 }
 
 }  // namespace remote

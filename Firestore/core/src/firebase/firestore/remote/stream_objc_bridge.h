@@ -40,6 +40,8 @@ namespace firestore {
 namespace remote {
 namespace bridge {
 
+bool IsLoggingEnabled();
+
 // Contains operations in `WatchStream` and `WriteStream` that are still
 // delegated to Objective-C: proto parsing and delegates.
 //
@@ -55,8 +57,11 @@ class WatchStreamSerializer {
       : serializer_{serializer} {
   }
 
-  grpc::ByteBuffer ToByteBuffer(FSTQueryData* query) const;
-  grpc::ByteBuffer ToByteBuffer(FSTTargetID target_id) const;
+  GCFSListenRequest* CreateRequest(FSTQueryData* query) const;
+  GCFSListenRequest* CreateRequest(FSTTargetID target_id) const;
+  grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request) const;
+  NSString* Describe(GCFSListenRequest* request) const;
+  NSString* Describe(GCFSListenResponse* request) const;
 
   FSTWatchChange* ToWatchChange(GCFSListenResponse* proto) const;
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
@@ -82,19 +87,22 @@ class WriteStreamSerializer {
     return last_stream_token_;
   }
 
-  grpc::ByteBuffer ToByteBuffer(NSArray<FSTMutation*>* mutations);
-  grpc::ByteBuffer CreateEmptyMutationsList() {
-    return ToByteBuffer(@[]);
+  GCFSWriteRequest* CreateHandshake() const;
+  GCFSWriteRequest* CreateRequest(NSArray<FSTMutation*>* mutations) const;
+  GCFSWriteRequest* CreateEmptyMutationsList() {
+    return CreateRequest(@[]);
   }
 
-  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
-  NSArray<FSTMutationResult*>* ToMutationResults(
-      GCFSWriteResponse* proto) const;
+  grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request) const;
+  NSString* Describe(GCFSWriteRequest* request) const;
+  NSString* Describe(GCFSWriteResponse* request) const;
 
   GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
                                    util::Status* out_status) const;
 
-  grpc::ByteBuffer CreateHandshake() const;
+  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*>* ToMutationResults(
+      GCFSWriteResponse* proto) const;
 
  private:
   FSTSerializerBeta* serializer_;

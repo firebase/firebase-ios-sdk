@@ -20,6 +20,7 @@
 #include <sstream>
 #include <vector>
 
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -58,7 +59,7 @@ NSData* ToNsData(const grpc::ByteBuffer& buffer) {
   }
 }
 
-std::string ToString(const grpc::ByteBuffer& buffer) {
+std::string ToHexString(const grpc::ByteBuffer& buffer) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
 
@@ -87,7 +88,7 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
       "Underlying error: %s\n"
       "Expected class: %s\n"
       "Received value: %s\n",
-      error, [Proto class], ToString(message));
+      error, [Proto class], ToHexString(message));
 
   *out_status = {FirestoreErrorCode::Internal, error_description};
   return nil;
@@ -100,34 +101,49 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
 
 }  // namespace
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
+bool IsLoggingEnabled() {
+  return [FIRFirestore isLoggingEnabled];
+}
+
+GCFSListenRequest* WatchStreamSerializer::CreateRequest(
     FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.addTarget = [serializer_ encodedTarget:query];
   request.labels = [serializer_ encodedListenRequestLabelsForQueryData:query];
-
-  return ConvertToByteBuffer([request data]);
+  return request;
 }
 
-grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
+GCFSListenRequest* WatchStreamSerializer::CreateRequest(
     FSTTargetID target_id) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
   request.database = [serializer_ encodedDatabaseID];
   request.removeTarget = target_id;
+  return request;
+}
 
+grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
+    GCFSListenRequest* request) const {
   return ConvertToByteBuffer([request data]);
 }
 
-grpc::ByteBuffer WriteStreamSerializer::CreateHandshake() const {
+NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) const {
+  return [request description];
+}
+
+NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) const {
+  return [response description];
+}
+
+GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
   // The initial request cannot contain mutations, but must contain a projectID.
   GCFSWriteRequest* request = [GCFSWriteRequest message];
   request.database = [serializer_ encodedDatabaseID];
-  return ConvertToByteBuffer([request data]);
+  return request;
 }
 
-grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    NSArray<FSTMutation*>* mutations) {
+GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
+    NSArray<FSTMutation*>* mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.count];
   for (FSTMutation* mutation in mutations) {
@@ -138,7 +154,20 @@ grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
   request.writesArray = protos;
   request.streamToken = last_stream_token_;
 
+  return request;
+}
+
+grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
+    GCFSWriteRequest* request) const {
   return ConvertToByteBuffer([request data]);
+}
+
+NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) const {
+  return [request description];
+}
+
+NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) const {
+  return [response description];
 }
 
 FSTWatchChange* WatchStreamSerializer::ToWatchChange(

@@ -18,6 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
@@ -65,6 +67,8 @@ namespace remote {
  */
 class GrpcStream {
  public:
+  using MetadataT = std::unordered_map<std::string, std::string>;
+
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              GrpcStreamObserver* observer,
@@ -91,6 +95,8 @@ class GrpcStream {
    * `Finish` -- the write will be ignored.
    */
   bool WriteAndFinish(grpc::ByteBuffer&& message);
+
+  MetadataT GetResponseHeaders() const;
 
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
