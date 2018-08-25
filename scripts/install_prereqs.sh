@@ -32,7 +32,8 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
         openssl aes-256-cbc -K $encrypted_2c8d10c8cc1d_key -iv $encrypted_2c8d10c8cc1d_iv \
-            -in GoogleService-Info.plist.enc -out Example/Storage/App/GoogleService-Info.plist -d
+            -in scripts/travis-encrypted/database-storage/GoogleService-Info.plist.enc \
+            -out Example/Storage/App/GoogleService-Info.plist -d
         cp Example/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
     fi
     ;;
