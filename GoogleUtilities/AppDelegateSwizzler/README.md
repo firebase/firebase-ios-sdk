@@ -2,15 +2,23 @@
 
 ## Overview
 
-The App Delegate Swizzler swizzles certain methods on the AppDelegate and allows interested parties (for eg. other SDKs like Firebase Analytics) to register listeners when certain App Delegate methods are called.
+The App Delegate Swizzler swizzles certain methods on the AppDelegate and allows interested parties
+(for eg. other SDKs like Firebase Analytics) to register listeners when certain App Delegate methods
+are called.
 
-The App Delegate Swizzler uses [isa swizzling](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html) to create a dynamic subclass of the app delegate class and add methods to it that have the logic to add multiple "interceptors".
+The App Delegate Swizzler uses [isa swizzling](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html)
+to create a dynamic subclass of the app delegate class and add methods to it that have the logic to
+add multiple "interceptors".
 
 Adding interceptors to the following methods is currently supported by the App Delegate Swizzler.
 
 * `- (BOOL)application:openURL:options:` [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623112-application?language=objc)
 
-Note: This method is added only if the original app delegate implements it. See [the code](https://github.com/firebase/firebase-ios-sdk/blob/a7117ea786f4d8f45b798ceb19b75e5400f2899e/GoogleUtilities/AppDelegateSwizzler/GULAppDelegateSwizzler.m#L313) for a complete explanation.
+Note: This method is added only if the original app delegate implements it. This prevents a bug
+where if an app only implements application:openURL:sourceApplication:annotation: and if we add the
+`options` method, iOS sees that the `options` method exists and so does not call the
+`sourceApplication` method, which causes the app developer's logic in `sourceApplication` to not be
+called.
 
 * `- (BOOL)application:openURL:sourceApplication:annotation:`
     [Reference](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1623073-application?language=objc)
@@ -27,11 +35,14 @@ We are looking into adding support for more methods as we need them.
 
 To start using the app delegate swizzler to intercept app delegate methods do the following:
 
-The following assumes that you are an SDK that ships using Cocoapods and need to react to one of the app delegate methods listed above.
+The following assumes that you are an SDK that ships using Cocoapods and need to react to one of the
+app delegate methods listed above.
 
-1. Add a dependency to the app delegate swizzler - `GoogleUtilities/AppDelegateSwizzler:~> 5.2`. We follow Semantic Versioning.
+1. Add a dependency to the app delegate swizzler - `GoogleUtilities/AppDelegateSwizzler:~> 5.2`. We
+follow Semantic Versioning.
 
-2. Create an interceptor class that implements the `UIApplicationDelegate` and implements the methods you want to intercept. Note: `GULAppDelegateSwizzler` For eg.
+2. Create an interceptor class that implements the `UIApplicationDelegate` and implements the
+methods you want to intercept. For eg.
 
 MYAppDelegateInterceptor.h
 
@@ -133,7 +144,8 @@ For eg.
 - (void)someInterestingMethod {
     ...
 
-    // Calling this ensures that the app delegate is proxied (has no effect if some other SDK has already done it).
+    // Calling this ensures that the app delegate is proxied (has no effect if some other SDK has
+    // already done it).
     [GULAppDelegateSwizzler proxyOriginalDelegate];
 
     MYAppDelegateInterceptor *interceptor = [MYAppDelegateInterceptor sharedInstance];
@@ -143,7 +155,11 @@ For eg.
 
 ## Disabling App Delegate Swizzling by App Developers
 
-Sometimes app developers that consume our SDKs prefer that we do not swizzle the app delegate. We've added support for developers to disable any sort of app delegate swizzling that we may do, and this is achieved by adding the Plist flag `GoogleUtilitiesAppDelegateProxyEnabled` to `NO` (Boolean). If this is set, even if you call `[GULAppDelegateSwizzler proxyOriginalDelegate]`, it won't have any effect.
+Sometimes app developers that consume our SDKs prefer that we do not swizzle the app delegate. We've
+added support for developers to disable any sort of app delegate swizzling that we may do, and this
+is achieved by adding the Plist flag `GoogleUtilitiesAppDelegateProxyEnabled` to `NO` (Boolean). If
+this is set, even if you call `[GULAppDelegateSwizzler proxyOriginalDelegate]`, it won't have any
+∏effect.
 
 
 
