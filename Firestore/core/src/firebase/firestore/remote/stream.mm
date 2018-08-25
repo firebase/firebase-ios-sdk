@@ -365,8 +365,8 @@ void WatchStream::DoOnStreamFinish(const util::Status& status) {
   delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
-void WatchStream::FinishGrpcStream(GrpcStream* call) {
-  call->Finish();
+void WatchStream::FinishGrpcStream(GrpcStream* grpc_stream) {
+  grpc_stream->Finish();
 }
 
 // Write stream
@@ -467,9 +467,9 @@ util::Status WriteStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   return util::Status::OK();
 }
 
-void WriteStream::FinishGrpcStream(GrpcStream* call) {
+void WriteStream::FinishGrpcStream(GrpcStream* grpc_stream) {
   GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
-  call->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
+  grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
 }
 
 }  // namespace remote
