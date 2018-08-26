@@ -201,7 +201,7 @@ std::string Datastore::GetWhitelistedHeadersAsString(const GrpcStream::MetadataT
     result += kv.second;
     result += "\n";
   }
-  return result.str();
+  return result;
 }
 
 }  // namespace remote

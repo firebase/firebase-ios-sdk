@@ -17,28 +17,15 @@
 #import <Foundation/Foundation.h>
 
 #import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
-@class FSTDispatchQueue;
-@class FSTMutation;
 @class FSTMutationResult;
-@class FSTQueryData;
-@class FSTSerializerBeta;
 @class FSTWatchChange;
-@class FSTWriteStream;
-@class GRPCCall;
-@class GRXWriter;
-
-@protocol FSTWatchStreamDelegate;
-@protocol FSTWriteStreamDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - FSTWatchStream
+#pragma mark - FSTWatchStreamDelegate
 
 /** A protocol defining the events that can be emitted by the FSTWatchStream. */
 @protocol FSTWatchStreamDelegate <NSObject>
@@ -64,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)watchStreamWasInterruptedWithError:(nullable NSError *)error;
 
 @end
+
+#pragma mark - FSTWriteStreamDelegate
 
 @protocol FSTWriteStreamDelegate <NSObject>
 
@@ -93,78 +82,6 @@ NS_ASSUME_NONNULL_BEGIN
  * on FSTStream for details.
  */
 - (void)writeStreamWasInterruptedWithError:(nullable NSError *)error;
-
-@end
-
-@interface FSTWatchStream : NSObject
-
-- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passsing ownership
-                      serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
- - (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-               connectionTimerID:(FSTTimerID)connectionTimerID
-                     idleTimerID:(FSTTimerID)idleTimerID
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passing ownership
-            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
- - (instancetype)init NS_UNAVAILABLE;
-
-- (void)watchQuery:(FSTQueryData *)query;
-
-- (void)unwatchTargetID:(FSTTargetID)targetID;
-
- - (void)start;
-
-- (void)stop;
-
-- (BOOL)isOpen;
-
-- (void)markIdle;
-
-- (BOOL)isStarted;
-
- @end
-
-@interface FSTWriteStream : NSObject
-
-- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passing ownership
-                      serializer:(FSTSerializerBeta *)serializer;
-
-- (instancetype)initWithDatabase:(const firebase::firestore::core::DatabaseInfo *)database
-             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-               connectionTimerID:(FSTTimerID)connectionTimerID
-                     idleTimerID:(FSTTimerID)idleTimerID
-                     credentials:(firebase::firestore::auth::CredentialsProvider *)
-                                     credentials  // no passing ownership
-            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
-
-- (instancetype)init NS_UNAVAILABLE;
-
- - (void)start;
-
-- (void)stop;
-
-- (BOOL)isOpen;
-
-- (void)markIdle;
-
-- (BOOL)isStarted;
-
-- (void)writeHandshake;
-
-- (void)writeMutations:(NSArray<FSTMutation *> *)mutations;
-
-- (void) setHandshakeComplete;
-
-- (BOOL) isHandshakeComplete;
-
-- (NSData *) lastStreamToken;
 
 @end
 

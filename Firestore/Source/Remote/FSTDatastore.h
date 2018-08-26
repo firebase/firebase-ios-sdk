@@ -23,7 +23,8 @@
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-#include "Firestore/core/src/firebase/firestore//remote/stream.h"
+#include "Firestore/core/src/firebase/firestore//remote/watch_stream.h"
+#include "Firestore/core/src/firebase/firestore//remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"

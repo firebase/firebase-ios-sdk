@@ -21,14 +21,9 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
-#include <grpc/grpc.h>
-#include <grpcpp/client_context.h>
-#include <grpcpp/completion_queue.h>
-#include <grpcpp/generic/generic_stub.h>
-#include <grpcpp/security/credentials.h>
-#include <grpcpp/support/byte_buffer.h>
+#include <memory>
+#include <string>
 
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
@@ -37,17 +32,10 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/strings/string_view.h"
-
-#include <memory>
-
-#import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
-#import "Firestore/Source/Core/FSTTypes.h"
-#import "Firestore/Source/Remote/FSTSerializerBeta.h"
-#import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
+#include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
@@ -122,71 +110,8 @@ class Stream : public GrpcStreamObserver,
   int generation_ = 0;
 };
 
-class WatchStream : public Stream {
- public:
-  WatchStream(util::AsyncQueue* async_queue,
-              auth::CredentialsProvider* credentials_provider,
-              FSTSerializerBeta* serializer,
-              Datastore* datastore,
-              id delegate);
-
-  void WatchQuery(FSTQueryData* query);
-  void UnwatchTargetId(FSTTargetID target_id);
-
- private:
-  std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, const absl::string_view token) override;
-  void FinishGrpcStream(GrpcStream* call) override;
-  void DoOnStreamStart() override;
-  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamFinish(const util::Status& status) override;
-
-  std::string GetDebugName() const override { return "WatchStream"; }
-
-  bridge::WatchStreamSerializer serializer_bridge_;
-  bridge::WatchStreamDelegate delegate_bridge_;
-};
-
-class WriteStream : public Stream {
- public:
-  WriteStream(util::AsyncQueue* async_queue,
-              auth::CredentialsProvider* credentials_provider,
-              FSTSerializerBeta* serializer,
-              Datastore* datastore,
-              id delegate);
-
-  void SetLastStreamToken(NSData* token);
-  NSData* GetLastStreamToken() const;
-
-  void WriteHandshake();
-  void WriteMutations(NSArray<FSTMutation*>* mutations);
-
-  bool IsHandshakeComplete() const {
-    return is_handshake_complete_;
-  }
-  // FIXME exists for tests
-  void SetHandshakeComplete() {
-    is_handshake_complete_ = true;
-  }
-
- private:
-  std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, const absl::string_view token) override;
-  void FinishGrpcStream(GrpcStream* call) override;
-  void DoOnStreamStart() override;
-  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamFinish(const util::Status& status) override;
-
-  std::string GetDebugName() const override { return "WriteStream"; }
-
-  bridge::WriteStreamSerializer serializer_bridge_;
-  bridge::WriteStreamDelegate delegate_bridge_;
-  bool is_handshake_complete_ = false;
-  std::string last_stream_token_;
-};
-
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_H_
