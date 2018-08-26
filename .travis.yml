@@ -210,5 +210,3 @@ jobs:
 branches:
   only:
     - master
-    - pb-travis-integration-tests
-
