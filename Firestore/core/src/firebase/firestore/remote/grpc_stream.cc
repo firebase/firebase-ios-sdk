@@ -123,12 +123,11 @@ void GrpcStream::Finish() {
   Execute<ClientInitiatedFinish>();  // TODO: is it necessary?
 
   FastFinishOperationsBlocking();
-
-  state_ = State::Finished;
 }
 
 void GrpcStream::FastFinishOperationsBlocking() {
-  buffered_writer_.DiscardUnstartedWrites();
+  // TODO(varconst): reset buffered_writer_? Should not be necessary, because it
+  // should never be called again after state_ == State::Finished.
 
   for (auto operation : operations_) {
     operation->UnsetObserver();
@@ -138,16 +137,14 @@ void GrpcStream::FastFinishOperationsBlocking() {
     operation->WaitUntilOffQueue();
   }
   operations_.clear();
+
+  state_ = State::Finished;
 }
 
 bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   HARD_ASSERT(state_ == State::Open,
               "WriteAndFinish called for a stream "
               "that is not open");
-
-  // Write the last message as soon as possible by discarding anything else that
-  // might be buffered.
-  buffered_writer_.DiscardUnstartedWrites();
 
   bool did_last_write = false;
   StreamWrite* last_write_operation = BufferedWrite(std::move(message));
@@ -178,11 +175,14 @@ bool GrpcStream::SameGeneration() const {
 }
 
 GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
-  HARD_ASSERT(state_ >= State::Open,
+  HARD_ASSERT(
+      state_ >= State::Open,
       "Initial server metadata is only received after the stream opens");
   MetadataT result;
   auto grpc_metadata = context_->GetServerInitialMetadata();
-  auto to_str = [](grpc::string_ref ref) { return std::string{ref.begin(), ref.end()}; };
+  auto to_str = [](grpc::string_ref ref) {
+    return std::string{ref.begin(), ref.end()};
+  };
   for (const auto& kv : grpc_metadata) {
     result[to_str(kv.first)] = to_str(kv.second);
   }
@@ -241,13 +241,11 @@ void GrpcStream::OnOperationFailed() {
     // The only reason to finish would be to get the status; if the observer is
     // no longer interested, there is no need to do that.
     FastFinishOperationsBlocking();
-    state_ = State::Finished;
   }
 }
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
   FastFinishOperationsBlocking();
-  state_ = State::Finished;
 
   if (SameGeneration()) {
     observer_->OnStreamError(Datastore::ToFirestoreStatus(status));

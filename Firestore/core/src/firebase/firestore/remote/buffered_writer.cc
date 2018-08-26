@@ -22,10 +22,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-void BufferedWriter::DiscardUnstartedWrites() {
-  queue_ = {};
-}
-
 StreamWrite* BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
   queue_.push(write);
   return TryStartWrite();

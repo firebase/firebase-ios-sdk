@@ -56,15 +56,8 @@ class BufferedWriter {
       : stream_{stream}, call_{call}, firestore_queue_{firestore_queue} {
   }
 
-  bool empty() const {
-    return queue_.empty();
-  }
-
   StreamWrite* EnqueueWrite(grpc::ByteBuffer&& write);
   StreamWrite* DequeueNextWrite();
-
-  // Doesn't affect the write that is currently in progress.
-  void DiscardUnstartedWrites();
 
  private:
   StreamWrite* TryStartWrite();
