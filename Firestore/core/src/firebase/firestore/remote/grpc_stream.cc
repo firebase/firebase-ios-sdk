@@ -27,41 +27,31 @@ namespace remote {
 
 using util::AsyncQueue;
 
-// `GrpcStream` communicates with gRPC via `StreamOperation`s:
+// The mechanism for calling async gRPC methods that `GrpcStream` uses is
+// issuing `StreamOperation`s.
 //
-// - for each method in its public API that wraps an invocation of a method on
-//   `grpc::GenericClientAsyncReaderWriter`, `GrpcStream` creates a new
-//   `StreamOperation` (`GrpcStream` itself doesn't invoke a single method on
-//   `grpc::GenericClientAsyncReaderWriter`);
+// To invoke an async method, `GrpcStream` will create a new `StreamOperation`
+// and execute the operation; `StreamOperation` knows which gRPC method to
+// invoke and it puts itself on the gRPC completion queue. `GrpcStream` does not
+// have a reference to the gRPC completion queue (this allows using the same
+// completion queue for all streams); it expects that some different class (in
+// practice, `RemoteStore`) will poll the gRPC completion queue and `Complete`
+// all `StreamOperation`s that come out of the queue.
+// `StreamOperation::Complete` will invoke a corresponding callback on the
+// `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
+// observer.
 //
-// - `StreamOperation` knows how to execute itself. `StreamOperation::Execute`
-//   will call the underlying call to gRPC and place the operation itself on
-//   gRPC completion queue;
-//
-// - `GrpcStream` expects another class (in practice, `RemoteStore`) to take
-//   completed tags off gRPC completion queue and call `Complete` on them;
-//
-// - `StreamOperation::Complete` will invoke a corresponding callback on the
-//   `GrpcStream`. In turn, `GrpcStream` will decide whether to notify the
-//   observer;
-//
-// - `StreamOperation` stores a `GrpcStreamDelegate` and actually invokes
-//   callbacks on this class, which straightforwardly redirects them to
-//   `GrpcStream`. The delegate has a shared pointer to the `GrpcStream`. This
-//   means that even after the caller lets go of its `shared_ptr` to
-//   `GrpcStream`, the stream object will still be valid until the last
-//   operation issued by the stream completes;
-//
-// - `StreamOperation`s are owned by the `GrpcStream`. Note that the ownership
-//   goes both ways: the stream is the sole owner of each operation, but each
-//   operation extends the lifetime of the stream as long as it exists.
-//   Operations call `GrpcStream::RemoveOperation` in its
-//   `StreamOperation::Complete` method. If the operation contained the last
-//   reference to the stream, it might trigger `GrpcStream` destruction;
-//
-// - `GrpcStream` doesn't know anything about Firestore `AsyncQueue`s. It's the
-//   responsibility of the callers to invoke its methods in appropriate
-//   execution contexts.
+// `GrpcStream` owns the gRPC objects (such as `grpc::ClientContext`) that must
+// be valid until all `StreamOperation`s issued by this stream come back from
+// the gRPC completion queue. `StreamOperation`s contain an `std::promise` that
+// is fulfilled once the operation is taken off the gRPC completion queue, and
+// `StreamOperation::WaitUntilOffQueue` allows blocking on this. `GrpcStream`
+// holds non-owning pointers to all operations that it issued (and removes
+// pointers to completed operations). `GrpcStream::Finish` and
+// `GrpcStream::WriteAndFinish` block on `StreamOperation::WaitUntilOffQueue`
+// for all the currently-pending operations, thus ensuring that the stream can
+// be safely released (along with the gRPC objects the stream owns) after
+// `Finish` or `WriteAndFinish` have completed.
 
 namespace internal {
 

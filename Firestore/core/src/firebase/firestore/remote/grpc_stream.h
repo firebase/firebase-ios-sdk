@@ -40,7 +40,7 @@ namespace internal {
 
 /**
  * `BufferedWriter` accepts serialized protos ("writes") on its queue and
- * writes them to the GRPC stream one by one. Only one write
+ * writes them to the gRPC stream one by one. Only one write
  * may be in progress ("active") at any given time.
  *
  * Writes are put on the queue using `EnqueueWrite`; if no other write is currently
@@ -85,7 +85,7 @@ class BufferedWriter {
 
 } // internal
 
-/** Observer that gets notified of events on a GRPC stream. */
+/** Observer that gets notified of events on a gRPC stream. */
 class GrpcStreamObserver {
  public:
   virtual ~GrpcStreamObserver() {
@@ -100,7 +100,7 @@ class GrpcStreamObserver {
 
   // Incrementally increasing number used to check whether this observer is
   // still interested in the completion of previously executed operations.
-  // GRPC streams are expected to be tagged by a generation number corresponding
+  // gRPC streams are expected to be tagged by a generation number corresponding
   // to the observer; once the observer is no longer interested in that stream,
   // it should increase its generation number.
   virtual int generation() const = 0;
@@ -133,7 +133,8 @@ class GrpcStreamObserver {
  * The stream is disposable; once it finishes, it cannot be restarted.
  *
  * This class is essentially a wrapper over
- * `grpc::GenericClientAsyncReaderWriter`.
+ * `grpc::GenericClientAsyncReaderWriter`. See the source file for comments on
+ * implementation details.
  */
 class GrpcStream {
  public:
@@ -196,12 +197,12 @@ class GrpcStream {
   StreamWrite* BufferedWrite(grpc::ByteBuffer&& message);
 
   // A blocking function that waits until all the operations issued by this
-  // stream come out from the GRPC completion queue. Once they do, it is safe to
+  // stream come out from the gRPC completion queue. Once they do, it is safe to
   // delete this `GrpcStream` (thus releasing `grpc::ClientContext`). This
   // function should only be called during the stream finish.
   //
   // Important: before calling this function, the caller must be sure that any
-  // pending operations on the GRPC completion queue will come back quickly
+  // pending operations on the gRPC completion queue will come back quickly
   // (either because the call has failed, or because the call has been
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishOperationsBlocking();
@@ -223,7 +224,7 @@ class GrpcStream {
   //
   // Important: `call_` has to be destroyed before `context_`, so declaration
   // order matters here. Despite the unique pointer, `call_` is actually
-  // a non-owning handle, and the memory it refers to (part of a GRPC memory
+  // a non-owning handle, and the memory it refers to (part of a gRPC memory
   // arena) will be released once `context_` (which is owning) is released.
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
