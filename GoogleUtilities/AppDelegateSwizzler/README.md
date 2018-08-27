@@ -96,8 +96,8 @@ MYAppDelegateInterceptor.m
 
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)URL
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation {
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
 
     [MYInterestingClass doSomething];
 
@@ -110,6 +110,8 @@ MYAppDelegateInterceptor.m
 - (void)application:(UIApplication *)application
     handleEventsForBackgroundURLSession:(NSString *)identifier
                       completionHandler:(void (^)(void))completionHandler {
+
+  // Note: Interceptors are not responsible for (and should not) call the completion handler.
   [MYInterestingClass doSomething];
 }
 
