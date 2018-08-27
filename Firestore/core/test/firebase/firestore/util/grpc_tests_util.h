@@ -155,9 +155,7 @@ void GrpcStreamFixture::ForceFinish(
     for (OperationResult result : results) {
       bool ignored_ok = false;
       void* tag = nullptr;
-      bool has_next = grpc_queue_.Next(&tag, &ignored_ok);
-      ASSERT_TRUE(has_next);
-      ASSERT_NE(tag, nullptr);
+      grpc_queue_.Next(&tag, &ignored_ok);
       auto operation = static_cast<remote::GrpcOperation*>(tag);
       operation->Complete(result == OperationResult::Ok);
     }
@@ -174,16 +172,6 @@ void GrpcStreamFixture::KeepPollingGrpcQueue() {
       static_cast<remote::GrpcOperation*>(tag)->Complete(true);
     }
   });
-}
-
-remote::GrpcStream& GrpcStreamFixture::stream() {
-  return *grpc_stream_;
-}
-AsyncQueue& GrpcStreamFixture::async_queue() {
-  return async_queue_;
-}
-grpc::GenericClientAsyncReaderWriter* GrpcStreamFixture::call() {
-  return grpc_call_;
 }
 
 }  // namespace util
