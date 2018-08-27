@@ -20,6 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/str_cat.h"
 #include "leveldb/write_batch.h"
 
 using leveldb::DB;
@@ -161,12 +162,9 @@ const WriteOptions& LevelDbTransaction::DefaultWriteOptions() {
   return options;
 }
 
-void LevelDbTransaction::Put(const absl::string_view& key,
-                             const absl::string_view& value) {
-  std::string key_string(key);
-  std::string value_string(value);
-  mutations_[key_string] = value_string;
-  deletions_.erase(key_string);
+void LevelDbTransaction::Put(std::string key, std::string value) {
+  deletions_.erase(key);
+  mutations_.emplace(std::make_pair(std::move(key), std::move(value)));
   version_++;
 }
 
@@ -175,13 +173,12 @@ LevelDbTransaction::NewIterator() {
   return absl::make_unique<LevelDbTransaction::Iterator>(this);
 }
 
-Status LevelDbTransaction::Get(const absl::string_view& key,
-                               std::string* value) {
+Status LevelDbTransaction::Get(absl::string_view key, std::string* value) {
   std::string key_string(key);
   if (deletions_.find(key_string) != deletions_.end()) {
     return Status::NotFound(key_string + " is not present in the transaction");
   } else {
-    Mutations::iterator iter(mutations_.find(key_string));
+    Mutations::iterator iter{mutations_.find(key_string)};
     if (iter != mutations_.end()) {
       *value = iter->second;
       return Status::OK();
@@ -191,7 +188,7 @@ Status LevelDbTransaction::Get(const absl::string_view& key,
   }
 }
 
-void LevelDbTransaction::Delete(const absl::string_view& key) {
+void LevelDbTransaction::Delete(absl::string_view key) {
   std::string to_delete(key);
   deletions_.insert(to_delete);
   mutations_.erase(to_delete);
@@ -200,12 +197,12 @@ void LevelDbTransaction::Delete(const absl::string_view& key) {
 
 void LevelDbTransaction::Commit() {
   WriteBatch batch;
-  for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    batch.Delete(*it);
+  for (const auto& deletion : deletions_) {
+    batch.Delete(deletion);
   }
 
-  for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
-    batch.Put(it->first, it->second);
+  for (const auto& entry : mutations_) {
+    batch.Put(entry.first, entry.second);
   }
 
   LOG_DEBUG("Committing transaction: %s", ToString());
@@ -216,21 +213,21 @@ void LevelDbTransaction::Commit() {
 }
 
 std::string LevelDbTransaction::ToString() {
-  std::string dest("<LevelDbTransaction " + label_ + ": ");
-  int64_t changes = deletions_.size() + mutations_.size();
-  int64_t bytes = 0;  // accumulator for size of individual mutations.
+  std::string dest = absl::StrCat("<LevelDbTransaction ", label_, ": ");
+  size_t changes = deletions_.size() + mutations_.size();
+  size_t bytes = 0;  // accumulator for size of individual mutations.
   dest += std::to_string(changes) + " changes ";
   std::string items;  // accumulator for individual changes.
-  for (auto it = deletions_.begin(); it != deletions_.end(); it++) {
-    items += "\n  - Delete " + DescribeKey(*it);
+  for (const auto& deletion : deletions_) {
+    absl::StrAppend(&items, "\n  - Delete ", DescribeKey(deletion));
   }
-  for (auto it = mutations_.begin(); it != mutations_.end(); it++) {
-    int64_t change_bytes = it->second.length();
+  for (const auto& entry : mutations_) {
+    size_t change_bytes = entry.second.size();
     bytes += change_bytes;
-    items += "\n  - Put " + DescribeKey(it->first) + " (" +
-             std::to_string(change_bytes) + " bytes)";
+    absl::StrAppend(&items, "\n  - Put ", DescribeKey(entry.first), " (",
+                    change_bytes, " bytes)");
   }
-  dest += "(" + std::to_string(bytes) + " bytes):" + items + ">";
+  absl::StrAppend(&dest, "(", bytes, " bytes):", items, ">");
   return dest;
 }
 

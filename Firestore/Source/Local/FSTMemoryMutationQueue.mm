@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::ResourcePath;
@@ -63,10 +64,10 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 @property(nonatomic, strong) FSTImmutableSortedSet<FSTDocumentReference *> *batchesByDocumentKey;
 
 /** The next value to use when assigning sequential IDs to each mutation batch. */
-@property(nonatomic, assign) FSTBatchID nextBatchID;
+@property(nonatomic, assign) BatchId nextBatchID;
 
 /** The highest acknowledged mutation in the queue. */
-@property(nonatomic, assign) FSTBatchID highestAcknowledgedBatchID;
+@property(nonatomic, assign) BatchId highestAcknowledgedBatchID;
 
 /**
  * The last received stream token from the server, used to acknowledge which responses the client
@@ -115,14 +116,14 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return self.queue.count == 0;
 }
 
-- (FSTBatchID)highestAcknowledgedBatchID {
+- (BatchId)highestAcknowledgedBatchID {
   return _highestAcknowledgedBatchID;
 }
 
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
-  FSTBatchID batchID = batch.batchID;
+  BatchId batchID = batch.batchID;
   HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
               "Mutation batchIDs must be acknowledged in order");
 
@@ -142,7 +143,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
                                           mutations:(NSArray<FSTMutation *> *)mutations {
   HARD_ASSERT(mutations.count > 0, "Mutation batches should not be empty");
 
-  FSTBatchID batchID = self.nextBatchID;
+  BatchId batchID = self.nextBatchID;
   self.nextBatchID += 1;
 
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
@@ -168,7 +169,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return batch;
 }
 
-- (nullable FSTMutationBatch *)lookupMutationBatch:(FSTBatchID)batchID {
+- (nullable FSTMutationBatch *)lookupMutationBatch:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   NSInteger index = [self indexOfBatchID:batchID];
@@ -181,13 +182,13 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return [batch isTombstone] ? nil : batch;
 }
 
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID {
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   NSUInteger count = queue.count;
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  FSTBatchID nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
+  BatchId nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
   NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
@@ -208,7 +209,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return [self allLiveMutationBatchesBeforeIndex:self.queue.count];
 }
 
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(FSTBatchID)batchID {
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   NSUInteger count = queue.count;
 
@@ -248,7 +249,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKeys:
     (const DocumentKeySet &)documentKeys {
   // First find the set of affected batch IDs.
-  __block std::set<FSTBatchID> batchIDs;
+  __block std::set<BatchId> batchIDs;
   for (const DocumentKey &key : documentKeys) {
     FSTDocumentReference *start = [[FSTDocumentReference alloc] initWithKey:key ID:0];
 
@@ -283,7 +284,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
       [[FSTDocumentReference alloc] initWithKey:DocumentKey{startPath} ID:0];
 
   // Find unique batchIDs referenced by all documents potentially matching the query.
-  __block std::set<FSTBatchID> uniqueBatchIDs;
+  __block std::set<BatchId> uniqueBatchIDs;
   FSTDocumentReferenceBlock block = ^(FSTDocumentReference *reference, BOOL *stop) {
     const ResourcePath &rowKeyPath = reference.key.path();
     if (!prefix.IsPrefixOf(rowKeyPath)) {
@@ -310,9 +311,9 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
  * affecting the same document key are applied in order.
  */
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesWithBatchIDs:
-    (const std::set<FSTBatchID> &)batchIDs {
+    (const std::set<BatchId> &)batchIDs {
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
-  for (FSTBatchID batchID : batchIDs) {
+  for (BatchId batchID : batchIDs) {
     FSTMutationBatch *batch = [self lookupMutationBatch:batchID];
     if (batch) {
       [result addObject:batch];
@@ -326,7 +327,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   NSUInteger batchCount = batches.count;
   HARD_ASSERT(batchCount > 0, "Should not remove mutations when none exist.");
 
-  FSTBatchID firstBatchID = batches[0].batchID;
+  BatchId firstBatchID = batches[0].batchID;
 
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   NSUInteger queueCount = queue.count;
@@ -375,7 +376,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   // Remove entries from the index too.
   FSTImmutableSortedSet<FSTDocumentReference *> *references = self.batchesByDocumentKey;
   for (FSTMutationBatch *batch in batches) {
-    FSTBatchID batchID = batch.batchID;
+    BatchId batchID = batch.batchID;
     for (FSTMutation *mutation in batch.mutations) {
       const DocumentKey &key = mutation.key;
       [_persistence.referenceDelegate removeMutationReference:key];
@@ -435,7 +436,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
  *     queue. Note this index can negative if the requested batchID has already been removed from
  *     the queue or past the end of the queue if the batchID is larger than the last added batch.
  */
-- (NSInteger)indexOfBatchID:(FSTBatchID)batchID {
+- (NSInteger)indexOfBatchID:(BatchId)batchID {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   NSUInteger count = queue.count;
   if (count == 0) {
@@ -447,7 +448,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   // in the array. Note that since the queue is ordered by batchID, if the first batch has a larger
   // batchID then the requested batchID doesn't exist in the queue.
   FSTMutationBatch *firstBatch = queue[0];
-  FSTBatchID firstBatchID = firstBatch.batchID;
+  BatchId firstBatchID = firstBatch.batchID;
   return batchID - firstBatchID;
 }
 
@@ -459,7 +460,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
  * @param action A description of what the caller is doing, phrased in passive form (e.g.
  *     "acknowledged" in a routine that acknowledges batches).
  */
-- (NSUInteger)indexOfExistingBatchID:(FSTBatchID)batchID action:(NSString *)action {
+- (NSUInteger)indexOfExistingBatchID:(BatchId)batchID action:(NSString *)action {
   NSInteger index = [self indexOfBatchID:batchID];
   HARD_ASSERT(index >= 0 && index < self.queue.count, "Batches must exist to be %s", action);
   return (NSUInteger)index;

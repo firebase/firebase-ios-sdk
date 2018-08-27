@@ -516,7 +516,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 - (void)asyncPostToURLWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                            URL:(NSURL *)URL
-                                          body:(NSData *)body
+                                          body:(nullable NSData *)body
                                    contentType:(NSString *)contentType
                              completionHandler:(void (^)(NSData *_Nullable,
                                                          NSError *_Nullable))handler {

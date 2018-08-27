@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTRemoteEvent.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDatastore;
 @class FSTLocalStore;
@@ -71,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Rejects the batch, removing the batch from the mutation queue, recomputing the local view of
  * any documents affected by the batch and then, emitting snapshots with the reverted value.
  */
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error;
+- (void)rejectFailedWriteWithBatchID:(firebase::firestore::model::BatchId)batchID
+                               error:(NSError *)error;
 
 /**
  * Returns the set of remote document keys for the given target ID. This list includes the
@@ -89,7 +90,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FSTOnlineStateDelegate <NSObject>
 
 /** Called whenever the online state of the watch stream changes */
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @end
 
@@ -129,13 +130,13 @@ NS_ASSUME_NONNULL_BEGIN
  * In response the remote store tears down streams and clears up any tracked operations that should
  * not persist across users. Restarts the streams if appropriate.
  */
-- (void)userDidChange:(const firebase::firestore::auth::User &)user;
+- (void)credentialDidChange;
 
 /** Listens to the target identified by the given FSTQueryData. */
 - (void)listenToTargetWithQueryData:(FSTQueryData *)queryData;
 
 /** Stops listening to the target with the given target ID. */
-- (void)stopListeningToTargetID:(FSTTargetID)targetID;
+- (void)stopListeningToTargetID:(firebase::firestore::model::TargetId)targetID;
 
 /**
  * Tells the FSTRemoteStore that there are new mutations to process in the queue. This is typically

@@ -30,13 +30,55 @@ namespace model {
 using BatchId = int32_t;
 
 /**
+ * A sequence number that's incremented on each "interesting" action in the
+ * local store that establishes the order in which items can be garbage
+ * collected.
+ */
+using ListenSequenceNumber = int64_t;
+
+/**
  * TargetId is a stable numeric identifier assigned for a specific query
  * applied.
  */
 using TargetId = int32_t;
 
+/**
+ * Describes the online state of the Firestore client. Note that this does not
+ * indicate whether or not the remote store is trying to connect or not. This is
+ * primarily used by the View / EventManager code to change their behavior while
+ * offline (e.g. get() calls shouldn't wait for data from the server and
+ * snapshot events should set metadata.isFromCache=true).
+ */
+enum class OnlineState {
+  /**
+   * The Firestore client is in an unknown online state. This means the client
+   * is either not actively trying to establish a connection or it is currently
+   * trying to establish a connection, but it has not succeeded or failed yet.
+   * Higher-level components should not operate in offline mode.
+   */
+  Unknown,
+
+  /**
+   * The client is connected and the connections are healthy. This state is
+   * reached after a successful connection and there has been at least one
+   * successful message received from the backends.
+   */
+  Online,
+
+  /**
+   * The client is either trying to establish a connection but failing, or it
+   * has been explicitly marked offline via a call to `disableNetwork`.
+   * Higher-level components should operate in offline mode.
+   */
+  Offline
+};
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase
+
+#if defined(__OBJC__)
+using FSTBoxedTargetID = NSNumber;
+#endif
 
 #endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_MODEL_TYPES_H_

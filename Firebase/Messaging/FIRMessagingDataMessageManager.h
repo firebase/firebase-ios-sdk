@@ -46,7 +46,7 @@
  *  @param messageID The messageId passed in by the app to track this particular message.
  *  @param error     The error in case FIRMessaging cannot send the message upstream.
  */
-- (void)willSendDataMessageWithID:(nonnull NSString *)messageID error:(nullable NSError *)error;
+- (void)willSendDataMessageWithID:(nullable NSString *)messageID error:(nullable NSError *)error;
 
 /**
  *  Notify the app that FIRMessaging did successfully send it's message via the MCS
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Receive
 
-- (NSDictionary *)processPacket:(GtalkDataMessageStanza *)packet;
+- (nullable NSDictionary *)processPacket:(GtalkDataMessageStanza *)packet;
 - (void)didReceiveParsedMessage:(NSDictionary *)message;
 
 #pragma mark - Send

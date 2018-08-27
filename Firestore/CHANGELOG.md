@@ -1,5 +1,11 @@
 # Unreleased
 
+# v0.13.2
+- [fixed] Fixed an issue where changes to custom authentication claims did not
+  take effect until you did a full sign-out and sign-in. (#1499)
+- [changed] Improved how Firestore handles idle queries to reduce the cost of
+  re-listening within 30 minutes.
+
 # v0.13.1
 - [fixed] Fixed an issue where `get(source:.Cache)` could throw an
   "unrecognized selector" error if the SDK has previously cached the

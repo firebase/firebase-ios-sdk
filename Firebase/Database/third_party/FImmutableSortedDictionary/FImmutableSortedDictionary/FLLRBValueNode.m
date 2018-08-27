@@ -6,7 +6,8 @@
 @synthesize key, value, color, left, right;
 
 - (NSString *) description {
-    return [NSString stringWithFormat:@"[key=%@ val=%@ color=%@]", key, value, (color ? @"true" : @"false")];
+    return [NSString stringWithFormat:@"[key=%@ val=%@ color=%@]", key, value,
+            (color != nil ? @"true" : @"false")];
 }
 
 - (id)initWithKey:(__unsafe_unretained id) aKey withValue:(__unsafe_unretained id) aValue withColor:(__unsafe_unretained FLLRBColor*) aColor withLeft:(__unsafe_unretained id<FLLRBNode>)aLeft withRight:(__unsafe_unretained id<FLLRBNode>)aRight

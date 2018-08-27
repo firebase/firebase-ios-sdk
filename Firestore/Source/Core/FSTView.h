@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocumentSet;
 @class FSTDocumentViewChangeSet;
@@ -144,10 +144,10 @@ typedef NS_ENUM(NSInteger, FSTLimboDocumentChangeType) {
                               targetChange:(nullable FSTTargetChange *)targetChange;
 
 /**
- * Applies an FSTOnlineState change to the view, potentially generating an FSTViewChange if the
+ * Applies an OnlineState change to the view, potentially generating an FSTViewChange if the
  * view's syncState changes as a result.
  */
-- (FSTViewChange *)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (FSTViewChange *)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 /**
  * The set of remote documents that the server has told us belongs to the target associated with

@@ -16,10 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTMutation;
 @class FSTMutationBatch;
@@ -47,18 +46,18 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isEmpty;
 
 /**
- * Returns the next FSTBatchID that will be assigned to a new mutation batch.
+ * Returns the next BatchId that will be assigned to a new mutation batch.
  *
  * Callers generally don't care about this value except to test that the mutation queue is
  * properly maintaining the invariant that highestAcknowledgedBatchID is less than nextBatchID.
  */
-- (FSTBatchID)nextBatchID;
+- (firebase::firestore::model::BatchId)nextBatchID;
 
 /**
  * Returns the highest batchID that has been acknowledged. If no batches have been acknowledged
  * or if there are no batches in the queue this can return kFSTBatchIDUnknown.
  */
-- (FSTBatchID)highestAcknowledgedBatchID;
+- (firebase::firestore::model::BatchId)highestAcknowledgedBatchID;
 
 /** Acknowledges the given batch. */
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken;
@@ -74,7 +73,7 @@ NS_ASSUME_NONNULL_BEGIN
                                           mutations:(NSArray<FSTMutation *> *)mutations;
 
 /** Loads the mutation batch with the given batchID. */
-- (nullable FSTMutationBatch *)lookupMutationBatch:(FSTBatchID)batchID;
+- (nullable FSTMutationBatch *)lookupMutationBatch:(firebase::firestore::model::BatchId)batchID;
 
 /**
  * Gets the first unacknowledged mutation batch after the passed in batchId in the mutation queue
@@ -85,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID;
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 /** Gets all mutation batches in the mutation queue. */
 // TODO(mikelehen): PERF: Current consumer only needs mutated keys; if we can provide that
@@ -104,7 +104,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 // TODO(mcg): This should really return NSEnumerator and the caller should be adjusted to only
 // loop through these once.
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(FSTBatchID)batchID;
+- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 /**
  * Finds all mutation batches that could @em possibly affect the given document key. Not all

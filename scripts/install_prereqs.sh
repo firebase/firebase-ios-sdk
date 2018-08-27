@@ -27,6 +27,15 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=Example --repo-update
     bundle exec pod install --project-directory=Functions/Example
     bundle exec pod install --project-directory=GoogleUtilities/Example
+
+    # Set up GoogleService-Info.plist for Storage and Database integration tests. The decrypting
+    # is not supported for pull requests. See https://docs.travis-ci.com/user/encrypting-files/
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        openssl aes-256-cbc -K $encrypted_2c8d10c8cc1d_key -iv $encrypted_2c8d10c8cc1d_iv \
+            -in scripts/travis-encrypted/database-storage/GoogleService-Info.plist.enc \
+            -out Example/Storage/App/GoogleService-Info.plist -d
+        cp Example/Storage/App/GoogleService-Info.plist Example/Database/App/GoogleService-Info.plist
+    fi
     ;;
 
   Firebase-*-xcodebuild)
@@ -35,7 +44,7 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
-  Firestore-*-xcodebuild)
+  Firestore-*-xcodebuild | Firestore-*-fuzz)
     gem install xcpretty
     bundle exec pod install --project-directory=Firestore/Example --repo-update
     ;;

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FSTTypes.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,11 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTListenSequence : NSObject
 
-- (instancetype)initStartingAfter:(FSTListenSequenceNumber)after NS_DESIGNATED_INITIALIZER;
+- (instancetype)initStartingAfter:(firebase::firestore::model::ListenSequenceNumber)after
+    NS_DESIGNATED_INITIALIZER;
 
 - (id)init NS_UNAVAILABLE;
 
-- (FSTListenSequenceNumber)next;
+- (firebase::firestore::model::ListenSequenceNumber)next;
 
 @end
 

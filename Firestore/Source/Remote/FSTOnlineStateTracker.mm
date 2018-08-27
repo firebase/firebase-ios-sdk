@@ -21,30 +21,32 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using firebase::firestore::model::OnlineState;
+
 NS_ASSUME_NONNULL_BEGIN
 
 // To deal with transient failures, we allow multiple stream attempts before giving up and
-// transitioning from FSTOnlineState Unknown to Offline.
+// transitioning from OnlineState Unknown to Offline.
 static const int kMaxWatchStreamFailures = 2;
 
 // To deal with stream attempts that don't succeed or fail in a timely manner, we have a
-// timeout for FSTOnlineState to reach Online or Offline. If the timeout is reached, we transition
+// timeout for OnlineState to reach Online or Offline. If the timeout is reached, we transition
 // to Offline rather than waiting indefinitely.
 static const NSTimeInterval kOnlineStateTimeout = 10;
 
 @interface FSTOnlineStateTracker ()
 
-/** The current FSTOnlineState. */
-@property(nonatomic, assign) FSTOnlineState state;
+/** The current OnlineState. */
+@property(nonatomic, assign) OnlineState state;
 
 /**
  * A count of consecutive failures to open the stream. If it reaches the maximum defined by
- * kMaxWatchStreamFailures, we'll revert to FSTOnlineStateOffline.
+ * kMaxWatchStreamFailures, we'll revert to OnlineState::Offline.
  */
 @property(nonatomic, assign) int watchStreamFailures;
 
 /**
- * A timer that elapses after kOnlineStateTimeout, at which point we transition from FSTOnlineState
+ * A timer that elapses after kOnlineStateTimeout, at which point we transition from OnlineState
  * Unknown to Offline without waiting for the stream to actually fail (kMaxWatchStreamFailures
  * times).
  */
@@ -65,7 +67,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 - (instancetype)initWithWorkerDispatchQueue:(FSTDispatchQueue *)queue {
   if (self = [super init]) {
     _queue = queue;
-    _state = FSTOnlineStateUnknown;
+    _state = OnlineState::Unknown;
     _shouldWarnClientIsOffline = YES;
   }
   return self;
@@ -73,7 +75,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 
 - (void)handleWatchStreamStart {
   if (self.watchStreamFailures == 0) {
-    [self setAndBroadcastState:FSTOnlineStateUnknown];
+    [self setAndBroadcastState:OnlineState::Unknown];
 
     HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer shouldn't be started yet");
     self.onlineStateTimer = [self.queue
@@ -82,13 +84,13 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
                      block:^{
                        self.onlineStateTimer = nil;
                        HARD_ASSERT(
-                           self.state == FSTOnlineStateUnknown,
+                           self.state == OnlineState::Unknown,
                            "Timer should be canceled if we transitioned to a different state.");
                        [self logClientOfflineWarningIfNecessaryWithReason:
                                  [NSString
                                      stringWithFormat:@"Backend didn't respond within %f seconds.",
                                                       kOnlineStateTimeout]];
-                       [self setAndBroadcastState:FSTOnlineStateOffline];
+                       [self setAndBroadcastState:OnlineState::Offline];
 
                        // NOTE: handleWatchStreamFailure will continue to increment
                        // watchStreamFailures even though we are already marked Offline but this is
@@ -98,10 +100,10 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
 }
 
 - (void)handleWatchStreamFailure:(NSError *)error {
-  if (self.state == FSTOnlineStateOnline) {
-    [self setAndBroadcastState:FSTOnlineStateUnknown];
+  if (self.state == OnlineState::Online) {
+    [self setAndBroadcastState:OnlineState::Unknown];
 
-    // To get to FSTOnlineStateOnline, updateState: must have been called which would have reset
+    // To get to OnlineState::Online, updateState: must have been called which would have reset
     // our heuristics.
     HARD_ASSERT(self.watchStreamFailures == 0, "watchStreamFailures must be 0");
     HARD_ASSERT(!self.onlineStateTimer, "onlineStateTimer must be nil");
@@ -112,16 +114,16 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
       [self logClientOfflineWarningIfNecessaryWithReason:
                 [NSString stringWithFormat:@"Connection failed %d times. Most recent error: %@",
                                            kMaxWatchStreamFailures, error]];
-      [self setAndBroadcastState:FSTOnlineStateOffline];
+      [self setAndBroadcastState:OnlineState::Offline];
     }
   }
 }
 
-- (void)updateState:(FSTOnlineState)newState {
+- (void)updateState:(OnlineState)newState {
   [self clearOnlineStateTimer];
   self.watchStreamFailures = 0;
 
-  if (newState == FSTOnlineStateOnline) {
+  if (newState == OnlineState::Online) {
     // We've connected to watch at least once. Don't warn the developer about being offline going
     // forward.
     self.shouldWarnClientIsOffline = NO;
@@ -130,7 +132,7 @@ static const NSTimeInterval kOnlineStateTimeout = 10;
   [self setAndBroadcastState:newState];
 }
 
-- (void)setAndBroadcastState:(FSTOnlineState)newState {
+- (void)setAndBroadcastState:(OnlineState)newState {
   if (newState != self.state) {
     self.state = newState;
     [self.onlineStateDelegate applyChangedOnlineState:newState];

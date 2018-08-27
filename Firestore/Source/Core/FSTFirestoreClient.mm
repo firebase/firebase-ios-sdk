@@ -56,7 +56,9 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
-
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::Path;
+using firebase::firestore::util::Status;
 using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -128,8 +130,8 @@ NS_ASSUME_NONNULL_BEGIN
     auto userPromise = std::make_shared<std::promise<User>>();
 
     __weak typeof(self) weakSelf = self;
-    auto userChangeListener = [initialized = false, userPromise, weakSelf,
-                               workerDispatchQueue](User user) mutable {
+    auto credentialChangeListener = [initialized = false, userPromise, weakSelf,
+                                     workerDispatchQueue](User user) mutable {
       typeof(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
@@ -138,14 +140,14 @@ NS_ASSUME_NONNULL_BEGIN
         userPromise->set_value(user);
       } else {
         [workerDispatchQueue dispatchAsync:^{
-          [strongSelf userDidChange:user];
+          [strongSelf credentialDidChangeWithUser:user];
         }];
       }
     };
 
-    _credentialsProvider->SetUserChangeListener(userChangeListener);
+    _credentialsProvider->SetCredentialChangeListener(credentialChangeListener);
 
-    // Defer initialization until we get the current user from the userChangeListener. This is
+    // Defer initialization until we get the current user from the credentialChangeListener. This is
     // guaranteed to be synchronously dispatched onto our worker queue, so we will be initialized
     // before any subsequently queued work runs.
     [_workerDispatchQueue dispatchAsync:^{
@@ -159,31 +161,33 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
   // Do all of our initialization on our own dispatch queue.
   [self.workerDispatchQueue verifyIsCurrentQueue];
+  LOG_DEBUG("Initializing. Current user: %s", user.uid());
 
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
   if (usePersistence) {
-    NSString *dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
-                                             documentsDirectory:[FSTLevelDB documentsDirectory]];
+    Path dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
+                                        documentsDirectory:[FSTLevelDB documentsDirectory]];
 
     FSTSerializerBeta *remoteSerializer =
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
 
-    _persistence = [[FSTLevelDB alloc] initWithDirectory:dir serializer:serializer];
+    _persistence = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
 
-  NSError *error;
-  if (![_persistence start:&error]) {
+  Status status = [_persistence start];
+  if (!status.ok()) {
     // If local storage fails to start then just throw up our hands: the error is unrecoverable.
     // There's nothing an end-user can do and nearly all failures indicate the developer is doing
     // something grossly wrong so we should stop them cold in their tracks with a failure they
     // can't ignore.
-    [NSException raise:NSInternalInconsistencyException format:@"Failed to open DB: %@", error];
+    [NSException raise:NSInternalInconsistencyException
+                format:@"Failed to open DB: %s", status.ToString().c_str()];
   }
 
   _localStore = [[FSTLocalStore alloc] initWithPersistence:_persistence initialUser:user];
@@ -213,14 +217,14 @@ NS_ASSUME_NONNULL_BEGIN
   [_remoteStore start];
 }
 
-- (void)userDidChange:(const User &)user {
+- (void)credentialDidChangeWithUser:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
-  LOG_DEBUG("User Changed: %s", user.uid());
-  [self.syncEngine userDidChange:user];
+  LOG_DEBUG("Credential Changed. Current user: %s", user.uid());
+  [self.syncEngine credentialDidChangeWithUser:user];
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
   [self.eventManager applyChangedOnlineState:onlineState];
 }
@@ -245,7 +249,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)shutdownWithCompletion:(nullable FSTVoidErrorBlock)completion {
   [self.workerDispatchQueue dispatchAsync:^{
-    self->_credentialsProvider->SetUserChangeListener(nullptr);
+    self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
     [self.remoteStore shutdown];
     [self.persistence shutdown];

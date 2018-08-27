@@ -16,14 +16,23 @@ if(HAVE_LEVELDB)
   cc_library(
     firebase_firestore_local_persistence_leveldb
     SOURCES
-      leveldb_key.h
       leveldb_key.cc
-      leveldb_transaction.h
+      leveldb_key.h
+      leveldb_migrations.cc
+      leveldb_migrations.h
       leveldb_transaction.cc
+      leveldb_transaction.h
+      leveldb_util.cc
+      leveldb_util.h
     DEPENDS
+      # TODO(b/111328563) Force nanopb first to work around ODR violations
+      protobuf-nanopb
+
       LevelDB::LevelDB
       absl_strings
       firebase_firestore_model
+      firebase_firestore_nanopb
+      firebase_firestore_protos_nanopb
       firebase_firestore_util
     EXCLUDE_FROM_ALL
   )

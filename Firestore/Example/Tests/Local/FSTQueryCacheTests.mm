@@ -31,15 +31,17 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTQueryCacheTests {
   FSTQuery *_queryRooms;
-  FSTListenSequenceNumber _previousSequenceNumber;
-  FSTTargetID _previousTargetID;
+  ListenSequenceNumber _previousSequenceNumber;
+  TargetId _previousTargetID;
   FSTTestSnapshotVersion _previousSnapshotVersion;
 }
 
@@ -363,8 +365,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FSTQueryData *)queryDataWithQuery:(FSTQuery *)query
-                            targetID:(FSTTargetID)targetID
-                listenSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+                            targetID:(TargetId)targetID
+                listenSequenceNumber:(ListenSequenceNumber)sequenceNumber
                              version:(FSTTestSnapshotVersion)version {
   NSData *resumeToken = FSTTestResumeTokenFromSnapshotVersion(version);
   return [[FSTQueryData alloc] initWithQuery:query
@@ -375,12 +377,12 @@ NS_ASSUME_NONNULL_BEGIN
                                  resumeToken:resumeToken];
 }
 
-- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
+- (void)addMatchingKey:(const DocumentKey &)key forTargetID:(TargetId)targetID {
   DocumentKeySet keys{key};
   [self.queryCache addMatchingKeys:keys forTargetID:targetID];
 }
 
-- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(FSTTargetID)targetID {
+- (void)removeMatchingKey:(const DocumentKey &)key forTargetID:(TargetId)targetID {
   DocumentKeySet keys{key};
   [self.queryCache removeMatchingKeys:keys forTargetID:targetID];
 }

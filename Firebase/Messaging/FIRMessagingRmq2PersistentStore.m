@@ -286,7 +286,6 @@ NSString * _Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                               @"%@",
                               errorMessage);
       NSAssert(NO, errorMessage);
-      didOpenDatabase = NO;
       return;
     }
     [self createTableWithName:kTableOutgoingRmqMessages

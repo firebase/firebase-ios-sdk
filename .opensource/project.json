@@ -1,0 +1,23 @@
+{
+    "name": "Firebase iOS SDK",
+    "type": "library",
+
+    "platforms": [
+      "iOS"
+    ],
+
+    "content": "README.md",
+
+    "pages" : [
+        "ROADMAP.md",
+        "Carthage.md",
+        "CONTRIBUTING.md",
+        "CODE_OF_CONDUCT.md"
+    ],
+
+    "related": [
+      "firebase/quickstart-ios",
+      "firebase/firebaseui-ios"
+    ]
+
+}

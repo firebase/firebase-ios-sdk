@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LevelDbMutationKey;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
@@ -57,7 +58,7 @@ static const char *kDummy = "1";
  * Creates a key that's structurally the same as LevelDbMutationKey except it allows for
  * nonstandard table names.
  */
-std::string MutationLikeKey(absl::string_view table, absl::string_view userID, FSTBatchID batchID) {
+std::string MutationLikeKey(absl::string_view table, absl::string_view userID, BatchId batchID) {
   std::string key;
   OrderedCode::WriteString(&key, table);
   OrderedCode::WriteString(&key, userID);
@@ -119,7 +120,7 @@ std::string MutationLikeKey(absl::string_view table, absl::string_view userID, F
 - (void)testLoadNextBatchID_onlyFindsMutations {
   // Write higher-valued batchIDs in nearby "tables"
   std::vector<std::string> tables{"mutatio", "mutationsa", "bears", "zombies"};
-  FSTBatchID highBatchID = 5;
+  BatchId highBatchID = 5;
   for (const auto &table : tables) {
     [self setDummyValueForKey:MutationLikeKey(table, "", highBatchID++)];
   }

@@ -27,11 +27,13 @@
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "absl/memory/memory.h"
 
-using firebase::firestore::util::internal::ExecutorLibdispatch;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::util::internal::ExecutorLibdispatch;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -338,10 +340,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap3 =
       FSTTestApplyChanges(view, @[], FSTTestTargetChangeAckDocuments({doc1.key, doc2.key}));
 
-  [listener applyChangedOnlineState:FSTOnlineStateOnline];  // no event
+  [listener applyChangedOnlineState:OnlineState::Online];  // no event
   [listener queryDidChangeViewSnapshot:snap1];
-  [listener applyChangedOnlineState:FSTOnlineStateUnknown];
-  [listener applyChangedOnlineState:FSTOnlineStateOnline];
+  [listener applyChangedOnlineState:OnlineState::Unknown];
+  [listener applyChangedOnlineState:OnlineState::Online];
   [listener queryDidChangeViewSnapshot:snap2];
   [listener queryDidChangeViewSnapshot:snap3];
 
@@ -377,12 +379,12 @@ NS_ASSUME_NONNULL_BEGIN
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[ doc1 ], nil);
   FSTViewSnapshot *snap2 = FSTTestApplyChanges(view, @[ doc2 ], nil);
 
-  [listener applyChangedOnlineState:FSTOnlineStateOnline];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // no event
-  [listener applyChangedOnlineState:FSTOnlineStateOffline];  // event
-  [listener applyChangedOnlineState:FSTOnlineStateUnknown];  // no event
-  [listener applyChangedOnlineState:FSTOnlineStateOffline];  // no event
-  [listener queryDidChangeViewSnapshot:snap2];               // another event
+  [listener applyChangedOnlineState:OnlineState::Online];   // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // no event
+  [listener applyChangedOnlineState:OnlineState::Offline];  // event
+  [listener applyChangedOnlineState:OnlineState::Unknown];  // no event
+  [listener applyChangedOnlineState:OnlineState::Offline];  // no event
+  [listener queryDidChangeViewSnapshot:snap2];              // another event
 
   FSTDocumentViewChange *change1 =
       [FSTDocumentViewChange changeWithDocument:doc1 type:FSTDocumentViewChangeTypeAdded];
@@ -417,9 +419,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener applyChangedOnlineState:FSTOnlineStateOnline];   // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // no event
-  [listener applyChangedOnlineState:FSTOnlineStateOffline];  // event
+  [listener applyChangedOnlineState:OnlineState::Online];   // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // no event
+  [listener applyChangedOnlineState:OnlineState::Offline];  // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query
@@ -443,8 +445,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTView *view = [[FSTView alloc] initWithQuery:query remoteDocuments:DocumentKeySet{}];
   FSTViewSnapshot *snap1 = FSTTestApplyChanges(view, @[], nil);
 
-  [listener applyChangedOnlineState:FSTOnlineStateOffline];  // no event
-  [listener queryDidChangeViewSnapshot:snap1];               // event
+  [listener applyChangedOnlineState:OnlineState::Offline];  // no event
+  [listener queryDidChangeViewSnapshot:snap1];              // event
 
   FSTViewSnapshot *expectedSnap = [[FSTViewSnapshot alloc]
          initWithQuery:query

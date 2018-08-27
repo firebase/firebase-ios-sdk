@@ -41,9 +41,12 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::User;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
+using firebase::firestore::model::OnlineState;
+using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -82,23 +85,6 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, readonly)
     NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *listenTargets;
 
-/**
- * A mapping of targetId to pending acks needed.
- *
- * If a targetId is present in this map, then we're waiting for watch to
- * acknowledge a removal or addition of the target. If a target is not in this
- * mapping, and it's in the listenTargets map, then we consider the target to
- * be active.
- *
- * We increment the count here everytime we issue a request over the stream to
- * watch or unwatch. We then decrement the count everytime we get a target
- * added or target removed message from the server. Once the count is equal to
- * 0 we know that the client and server are in the same state (once this state
- * is reached the targetId is removed from the map to free the memory).
- */
-
-@property(nonatomic, assign) FSTBatchID lastBatchSeen;
-
 @property(nonatomic, strong, readonly) FSTOnlineStateTracker *onlineStateTracker;
 
 @property(nonatomic, strong, nullable) FSTWatchChangeAggregator *watchChangeAggregator;
@@ -109,11 +95,20 @@ static const int kMaxPendingWrites = 10;
 @property(nonatomic, strong, nullable) FSTWriteStream *writeStream;
 
 /**
- * A FIFO queue of in-flight writes. This is in-flight from the point of view of the caller of
- * writeMutations, not from the point of view from the Datastore itself. In particular, these
- * requests may not have been sent to the Datastore server if the write stream is not yet running.
+ * A list of up to kMaxPendingWrites writes that we have fetched from the LocalStore via
+ * fillWritePipeline and have or will send to the write stream.
+ *
+ * Whenever writePipeline is not empty, the RemoteStore will attempt to start or restart the write
+ * stream. When the stream is established, the writes in the pipeline will be sent in order.
+ *
+ * Writes remain in writePipeline until they are acknowledged by the backend and thus will
+ * automatically be re-sent if the stream is interrupted / restarted before they're acknowledged.
+ *
+ * Write responses from the backend are linked to their originating request purely based on
+ * order, and so we can just remove writes from the front of the writePipeline as we receive
+ * responses.
  */
-@property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *pendingWrites;
+@property(nonatomic, strong, readonly) NSMutableArray<FSTMutationBatch *> *writePipeline;
 @end
 
 @implementation FSTRemoteStore
@@ -126,8 +121,7 @@ static const int kMaxPendingWrites = 10;
     _datastore = datastore;
     _listenTargets = [NSMutableDictionary dictionary];
 
-    _lastBatchSeen = kFSTBatchIDUnknown;
-    _pendingWrites = [NSMutableArray array];
+    _writePipeline = [NSMutableArray array];
     _onlineStateTracker = [[FSTOnlineStateTracker alloc] initWithWorkerDispatchQueue:queue];
   }
   return self;
@@ -171,7 +165,7 @@ static const int kMaxPendingWrites = 10;
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
   } else {
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
   }
 
   [self fillWritePipeline];  // This may start the writeStream.
@@ -179,11 +173,11 @@ static const int kMaxPendingWrites = 10;
 
 - (void)disableNetwork {
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to Offline so get()s return from cache, etc.
-  [self.onlineStateTracker updateState:FSTOnlineStateOffline];
+  // Set the OnlineState to Offline so get()s return from cache, etc.
+  [self.onlineStateTracker updateState:OnlineState::Offline];
 }
 
-/** Disables the network, setting the FSTOnlineState to the specified targetOnlineState. */
+/** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
   if ([self isNetworkEnabled]) {
     // NOTE: We're guaranteed not to get any further events from these streams (not even a close
@@ -192,7 +186,12 @@ static const int kMaxPendingWrites = 10;
     [self.writeStream stop];
 
     [self cleanUpWatchStreamState];
-    [self cleanUpWriteStreamState];
+
+    if (self.writePipeline.count > 0) {
+      LOG_DEBUG("Stopping write stream with %lu pending writes",
+                (unsigned long)self.writePipeline.count);
+      [self.writePipeline removeAllObjects];
+    }
 
     self.writeStream = nil;
     self.watchStream = nil;
@@ -204,19 +203,19 @@ static const int kMaxPendingWrites = 10;
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
   [self disableNetworkInternal];
-  // Set the FSTOnlineState to Unknown (rather than Offline) to avoid potentially triggering
+  // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
-  [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+  [self.onlineStateTracker updateState:OnlineState::Unknown];
 }
 
-- (void)userDidChange:(const User &)user {
-  LOG_DEBUG("FSTRemoteStore %s changing users: %s", (__bridge void *)self, user.uid());
+- (void)credentialDidChange {
   if ([self isNetworkEnabled]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
+    LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
     [self disableNetworkInternal];
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
     [self enableNetwork];
   }
 }
@@ -250,7 +249,7 @@ static const int kMaxPendingWrites = 10;
   [self.watchStream watchQuery:queryData];
 }
 
-- (void)stopListeningToTargetID:(FSTTargetID)targetID {
+- (void)stopListeningToTargetID:(TargetId)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
   HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
@@ -291,7 +290,7 @@ static const int kMaxPendingWrites = 10;
 - (void)watchStreamDidChange:(FSTWatchChange *)change
              snapshotVersion:(const SnapshotVersion &)snapshotVersion {
   // Mark the connection as Online because we got a message from the server.
-  [self.onlineStateTracker updateState:FSTOnlineStateOnline];
+  [self.onlineStateTracker updateState:OnlineState::Online];
 
   if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
     FSTWatchTargetChange *watchTargetChange = (FSTWatchTargetChange *)change;
@@ -336,7 +335,7 @@ static const int kMaxPendingWrites = 10;
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
     // state is set to unknown because there is no active attempt at establishing a connection.
-    [self.onlineStateTracker updateState:FSTOnlineStateUnknown];
+    [self.onlineStateTracker updateState:OnlineState::Unknown];
   }
 }
 
@@ -369,7 +368,7 @@ static const int kMaxPendingWrites = 10;
   }
 
   // Re-establish listens for the targets that have been invalidated by existence filter mismatches.
-  for (FSTTargetID targetID : remoteEvent.targetMismatches) {
+  for (TargetId targetID : remoteEvent.targetMismatches) {
     FSTQueryData *queryData = self.listenTargets[@(targetID)];
 
     if (!queryData) {
@@ -432,7 +431,7 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.pendingWrites.count > 0;
+  return [self isNetworkEnabled] && ![self.writeStream isStarted] && self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
@@ -442,48 +441,50 @@ static const int kMaxPendingWrites = 10;
   [self.writeStream startWithDelegate:self];
 }
 
-- (void)cleanUpWriteStreamState {
-  self.lastBatchSeen = kFSTBatchIDUnknown;
-  LOG_DEBUG("Stopping write stream with %s pending writes", [self.pendingWrites count]);
-  [self.pendingWrites removeAllObjects];
-}
-
+/**
+ * Attempts to fill our write pipeline with writes from the LocalStore.
+ *
+ * Called internally to bootstrap or refill the write pipeline and by SyncEngine whenever there
+ * are new mutations to process.
+ *
+ * Starts the write stream if necessary.
+ */
 - (void)fillWritePipeline {
-  if ([self isNetworkEnabled]) {
-    while ([self canWriteMutations]) {
-      FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:self.lastBatchSeen];
-      if (!batch) {
-        break;
+  BatchId lastBatchIDRetrieved =
+      self.writePipeline.count == 0 ? kFSTBatchIDUnknown : self.writePipeline.lastObject.batchID;
+  while ([self canAddToWritePipeline]) {
+    FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
+    if (!batch) {
+      if (self.writePipeline.count == 0) {
+        [self.writeStream markIdle];
       }
-      [self commitBatch:batch];
+      break;
     }
+    [self addBatchToWritePipeline:batch];
+    lastBatchIDRetrieved = batch.batchID;
+  }
 
-    if ([self.pendingWrites count] == 0) {
-      [self.writeStream markIdle];
-    }
+  if ([self shouldStartWriteStream]) {
+    [self startWriteStream];
   }
 }
 
 /**
- * Returns YES if the backend can accept additional write requests.
- *
- * When sending mutations to the write stream (e.g. in -fillWritePipeline), call this method first
- * to check if more mutations can be sent.
- *
- * Currently the only thing that can prevent the backend from accepting write requests is if
- * there are too many requests already outstanding. As writes complete the backend will be able
- * to accept more.
+ * Returns YES if we can add to the write pipeline (i.e. it is not full and the network is enabled).
  */
-- (BOOL)canWriteMutations {
-  return [self isNetworkEnabled] && self.pendingWrites.count < kMaxPendingWrites;
+- (BOOL)canAddToWritePipeline {
+  return [self isNetworkEnabled] && self.writePipeline.count < kMaxPendingWrites;
 }
 
-/** Given mutations to commit, actually commits them to the backend. */
-- (void)commitBatch:(FSTMutationBatch *)batch {
-  HARD_ASSERT([self canWriteMutations], "commitBatch called when mutations can't be written");
-  self.lastBatchSeen = batch.batchID;
+/**
+ * Queues additional writes to be sent to the write stream, sending them immediately if the write
+ * stream is established, else starting the write stream if it is not yet started.
+ */
+- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch {
+  HARD_ASSERT([self canAddToWritePipeline],
+              "addBatchToWritePipeline called when mutations can't be written");
 
-  [self.pendingWrites addObject:batch];
+  [self.writePipeline addObject:batch];
 
   if ([self shouldStartWriteStream]) {
     [self startWriteStream];
@@ -504,17 +505,8 @@ static const int kMaxPendingWrites = 10;
   // Record the stream token.
   [self.localStore setLastStreamToken:self.writeStream.lastStreamToken];
 
-  // Drain any pending writes.
-  //
-  // Note that at this point pendingWrites contains mutations that have already been accepted by
-  // fillWritePipeline/commitBatch. If the pipeline is full, canWriteMutations will be NO, despite
-  // the fact that we actually need to send mutations over.
-  //
-  // This also means that this method indirectly respects the limits imposed by canWriteMutations
-  // since writes can't be added to the pendingWrites array when canWriteMutations is NO. If the
-  // limits imposed by canWriteMutations actually protect us from DOSing ourselves then those limits
-  // won't be exceeded here and we'll continue to make progress.
-  for (FSTMutationBatch *write in self.pendingWrites) {
+  // Send the write pipeline now that the stream is established.
+  for (FSTMutationBatch *write in self.writePipeline) {
     [self.writeStream writeMutations:write.mutations];
   }
 }
@@ -523,10 +515,10 @@ static const int kMaxPendingWrites = 10;
 - (void)writeStreamDidReceiveResponseWithVersion:(const SnapshotVersion &)commitVersion
                                  mutationResults:(NSArray<FSTMutationResult *> *)results {
   // This is a response to a write containing mutations and should be correlated to the first
-  // pending write.
-  NSMutableArray *pendingWrites = self.pendingWrites;
-  FSTMutationBatch *batch = pendingWrites[0];
-  [pendingWrites removeObjectAtIndex:0];
+  // write in our write pipeline.
+  NSMutableArray *writePipeline = self.writePipeline;
+  FSTMutationBatch *batch = writePipeline[0];
+  [writePipeline removeObjectAtIndex:0];
 
   FSTMutationBatchResult *batchResult =
       [FSTMutationBatchResult resultWithBatch:batch
@@ -549,7 +541,7 @@ static const int kMaxPendingWrites = 10;
 
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
-  if (error != nil && self.pendingWrites.count > 0) {
+  if (error != nil && self.writePipeline.count > 0) {
     if (self.writeStream.handshakeComplete) {
       // This error affects the actual writes.
       [self handleWriteError:error];
@@ -586,8 +578,8 @@ static const int kMaxPendingWrites = 10;
 
   // If this was a permanent error, the request itself was the problem so it's not going to
   // succeed if we resend it.
-  FSTMutationBatch *batch = self.pendingWrites[0];
-  [self.pendingWrites removeObjectAtIndex:0];
+  FSTMutationBatch *batch = self.writePipeline[0];
+  [self.writePipeline removeObjectAtIndex:0];
 
   // In this case it's also unlikely that the server itself is melting down--this was just a
   // bad request so inhibit backoff on the next restart.

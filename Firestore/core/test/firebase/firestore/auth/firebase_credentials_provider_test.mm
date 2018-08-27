@@ -134,12 +134,12 @@ TEST(FirebaseCredentialsProviderTest, SetListener) {
   FSTAuthFake* auth =
       [[FSTAuthFake alloc] initWithToken:@"default token" uid:@"fake uid"];
   FirebaseCredentialsProvider credentials_provider(app, auth);
-  credentials_provider.SetUserChangeListener([](User user) {
+  credentials_provider.SetCredentialChangeListener([](User user) {
     EXPECT_EQ("fake uid", user.uid());
     EXPECT_TRUE(user.is_authenticated());
   });
 
-  credentials_provider.SetUserChangeListener(nullptr);
+  credentials_provider.SetCredentialChangeListener(nullptr);
 }
 
 TEST(FirebaseCredentialsProviderTest, InvalidateToken) {

@@ -88,7 +88,7 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
  @return The value for the key.
  */
 
-+ (NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList {
++ (nullable NSString *)queryItemValue:(NSString *)name from:(NSArray<NSURLQueryItem *> *)queryList {
   for (NSURLQueryItem *item in queryList) {
     if ([item.name isEqualToString:name]) {
       return item.value;

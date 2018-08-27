@@ -48,6 +48,7 @@ using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 
@@ -180,7 +181,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _currentUser;
 }
 
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState {
+- (void)applyChangedOnlineState:(OnlineState)onlineState {
   [self.syncEngine applyChangedOnlineState:onlineState];
   [self.eventManager applyChangedOnlineState:onlineState];
 }
@@ -250,7 +251,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)changeUser:(const User &)user {
   _currentUser = user;
   [self.dispatchQueue dispatchSync:^{
-    [self.syncEngine userDidChange:user];
+    [self.syncEngine credentialDidChangeWithUser:user];
   }];
 }
 
@@ -309,7 +310,7 @@ NS_ASSUME_NONNULL_BEGIN
   return result;
 }
 
-- (FSTTargetID)addUserListenerWithQuery:(FSTQuery *)query {
+- (TargetId)addUserListenerWithQuery:(FSTQuery *)query {
   // TODO(dimond): Allow customizing listen options in spec tests
   // TODO(dimond): Change spec tests to verify isFromCache on snapshots
   FSTListenOptions *options = [[FSTListenOptions alloc] initWithIncludeQueryMetadataChanges:YES
@@ -326,7 +327,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self.events addObject:event];
       }];
   self.queryListeners[query] = listener;
-  __block FSTTargetID targetID;
+  __block TargetId targetID;
   [self.dispatchQueue dispatchSync:^{
     targetID = [self.eventManager addListener:listener];
   }];

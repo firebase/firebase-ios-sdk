@@ -16,9 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Core/FSTViewSnapshot.h"
 #import "Firestore/Source/Remote/FSTRemoteStore.h"
+
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTQuery;
 @class FSTSyncEngine;
@@ -62,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)queryDidChangeViewSnapshot:(FSTViewSnapshot *)snapshot;
 - (void)queryDidError:(NSError *)error;
-- (void)applyChangedOnlineState:(FSTOnlineState)onlineState;
+- (void)applyChangedOnlineState:(firebase::firestore::model::OnlineState)onlineState;
 
 @property(nonatomic, strong, readonly) FSTQuery *query;
 
@@ -80,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 
-- (FSTTargetID)addListener:(FSTQueryListener *)listener;
+- (firebase::firestore::model::TargetId)addListener:(FSTQueryListener *)listener;
 - (void)removeListener:(FSTQueryListener *)listener;
 
 @end

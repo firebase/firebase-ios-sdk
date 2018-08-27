@@ -33,7 +33,7 @@ static NSString *const kAdditionalUserInfoCodingKey = @"additionalUserInfo";
  */
 static NSString *const kUserCodingKey = @"user";
 
-- (nullable instancetype)initWithUser:(FIRUser *)user
+- (nullable instancetype)initWithUser:(nullable FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo {
   self = [super init];
   if (self) {

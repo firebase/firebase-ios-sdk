@@ -35,6 +35,9 @@ using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
+using firebase::firestore::model::ListenSequenceNumber;
+using firebase::firestore::util::Status;
+
 using MutationQueues = std::unordered_map<User, FSTMemoryMutationQueue *, HashUser>;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -99,11 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (BOOL)start:(NSError **)error {
+- (Status)start {
   // No durable state to read on startup.
   HARD_ASSERT(!self.isStarted, "FSTMemoryPersistence double-started!");
   self.started = YES;
-  return YES;
+  return Status::OK();
 }
 
 - (void)shutdown {
@@ -116,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _referenceDelegate;
 }
 
-- (FSTListenSequenceNumber)currentSequenceNumber {
+- (ListenSequenceNumber)currentSequenceNumber {
   return [_referenceDelegate currentSequenceNumber];
 }
 
@@ -147,11 +150,11 @@ NS_ASSUME_NONNULL_BEGIN
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTMemoryPersistence *_persistence;
-  std::unordered_map<DocumentKey, FSTListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
+  std::unordered_map<DocumentKey, ListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   FSTReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
   FSTListenSequence *_listenSequence;
-  FSTListenSequenceNumber _currentSequenceNumber;
+  ListenSequenceNumber _currentSequenceNumber;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
@@ -161,7 +164,7 @@ NS_ASSUME_NONNULL_BEGIN
         [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache] delegate:self];
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
-    FSTListenSequenceNumber highestSequenceNumber =
+    ListenSequenceNumber highestSequenceNumber =
         _persistence.queryCache.highestListenSequenceNumber;
     _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
   }
@@ -172,7 +175,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _gc;
 }
 
-- (FSTListenSequenceNumber)currentSequenceNumber {
+- (ListenSequenceNumber)currentSequenceNumber {
   HARD_ASSERT(_currentSequenceNumber != kFSTListenSequenceNumberInvalid,
               "Asking for a sequence number outside of a transaction");
   return _currentSequenceNumber;
@@ -208,10 +211,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)enumerateMutationsUsingBlock:
-    (void (^)(const DocumentKey &key, FSTListenSequenceNumber sequenceNumber, BOOL *stop))block {
+    (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
   BOOL stop = NO;
   for (auto it = _sequenceNumbers.begin(); !stop && it != _sequenceNumbers.end(); ++it) {
-    FSTListenSequenceNumber sequenceNumber = it->second;
+    ListenSequenceNumber sequenceNumber = it->second;
     const DocumentKey &key = it->first;
     if (![_persistence.queryCache containsKey:key]) {
       block(key, sequenceNumber, &stop);
@@ -219,13 +222,13 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (int)removeTargetsThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
                                                          liveQueries:liveQueries];
 }
 
-- (int)removeOrphanedDocumentsThroughSequenceNumber:(FSTListenSequenceNumber)upperBound {
+- (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
   return [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
       removeOrphanedDocuments:self
         throughSequenceNumber:upperBound];
@@ -253,7 +256,7 @@ NS_ASSUME_NONNULL_BEGIN
   _sequenceNumbers[key] = self.currentSequenceNumber;
 }
 
-- (BOOL)isPinnedAtSequenceNumber:(FSTListenSequenceNumber)upperBound
+- (BOOL)isPinnedAtSequenceNumber:(ListenSequenceNumber)upperBound
                         document:(const DocumentKey &)key {
   if ([self mutationQueuesContainKey:key]) {
     return YES;
@@ -288,7 +291,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (FSTListenSequenceNumber)currentSequenceNumber {
+- (ListenSequenceNumber)currentSequenceNumber {
   return kFSTListenSequenceNumberInvalid;
 }
 

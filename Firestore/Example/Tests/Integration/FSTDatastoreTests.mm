@@ -47,6 +47,7 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
@@ -55,7 +56,7 @@ using firebase::firestore::model::TargetId;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTRemoteStore (Tests)
-- (void)commitBatch:(FSTMutationBatch *)batch;
+- (void)addBatchToWritePipeline:(FSTMutationBatch *)batch;
 @end
 
 #pragma mark - FSTRemoteStoreEventCapture
@@ -118,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
   [expectation fulfill];
 }
 
-- (void)rejectFailedWriteWithBatchID:(FSTBatchID)batchID error:(NSError *)error {
+- (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   HARD_FAIL("Not implemented");
 }
 
@@ -224,7 +225,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                        localWriteTime:[FIRTimestamp timestamp]
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
-    [_remoteStore commitBatch:batch];
+    [_remoteStore addBatchToWritePipeline:batch];
   }];
 
   [self awaitExpectations];

@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTDocumentDictionary.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return The resulting (modified) documents.
  */
-- (FSTMaybeDocumentDictionary *)rejectBatchID:(FSTBatchID)batchID;
+- (FSTMaybeDocumentDictionary *)rejectBatchID:(firebase::firestore::model::BatchId)batchID;
 
 /** Returns the last recorded stream token for the current user. */
 - (nullable NSData *)lastStreamToken;
@@ -149,7 +149,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Returns the keys of the documents that are associated with the given targetID in the remote
  * table.
  */
-- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:(FSTTargetID)targetID;
+- (firebase::firestore::model::DocumentKeySet)remoteDocumentKeysForTarget:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Assigns @a query an internal ID so that its results can be pinned so they don't get GC'd.
@@ -172,7 +173,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param batchID The batch to search after, or -1 for the first mutation in the queue.
  * @return the next mutation or nil if there wasn't one.
  */
-- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:(FSTBatchID)batchID;
+- (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
+    (firebase::firestore::model::BatchId)batchID;
 
 @end
 

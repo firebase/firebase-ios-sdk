@@ -42,7 +42,8 @@ DerivedData
 *~
 
 # Bundler
-.bundle
+/.bundle
+/vendor
 
 Carthage
 # Cocoapods recommends against adding the Pods directory to your .gitignore. See
@@ -66,6 +67,11 @@ Firestore/core/src/firebase/firestore/util/config.h
 .downloads
 Debug
 Release
+Ninja
+
+# CLion
+/cmake-build-debug
+/cmake-build-release
 
 # Visual Studio
 /.vs

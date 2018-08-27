@@ -10,7 +10,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.5.0'
+  pod 'Firebase/CoreOnly', '5.6.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
@@ -21,10 +21,11 @@ target 'Firestore_Example_iOS' do
   target 'Firestore_Tests_iOS' do
     inherit! :search_paths
 
-    pod 'leveldb-library'
-    pod 'OCMock'
     pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
     pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
+
+    pod 'OCMock'
+    pod 'leveldb-library'
   end
 
   target 'Firestore_Benchmarks_iOS' do
@@ -36,7 +37,10 @@ target 'Firestore_Example_iOS' do
   target 'Firestore_IntegrationTests_iOS' do
     inherit! :search_paths
 
+    pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
+
     pod 'OCMock'
+    pod 'leveldb-library'
   end
 
   target 'Firestore_SwiftTests_iOS' do

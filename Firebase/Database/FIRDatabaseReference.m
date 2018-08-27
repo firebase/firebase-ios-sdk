@@ -56,7 +56,7 @@
 #pragma mark -
 #pragma mark Ancillary methods
 
-- (NSString *) key {
+- (nullable NSString *) key {
     if([self.path isEmpty]) {
         return nil;
     }

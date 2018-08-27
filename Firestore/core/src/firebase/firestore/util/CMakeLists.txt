@@ -114,6 +114,39 @@ cc_library(
   SOURCES
     filesystem.h
     filesystem_apple.mm
+    filesystem_common.cc
+    filesystem_detail.h
+    filesystem_posix.cc
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util_status
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
+  firebase_firestore_util_filesystem_posix
+  SOURCES
+    filesystem.h
+    filesystem_common.cc
+    filesystem_detail.h
+    filesystem_posix.cc
+    path.cc
+    path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util_status
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
+  firebase_firestore_util_filesystem_win
+  SOURCES
+    filesystem.h
+    filesystem_common.cc
+    filesystem_detail.h
+    filesystem_win.cc
     path.cc
     path.h
   DEPENDS
@@ -125,7 +158,8 @@ cc_library(
 cc_select(
   firebase_firestore_util_filesystem
   APPLE   firebase_firestore_util_filesystem_apple
-  DEFAULT ""
+  WIN32   firebase_firestore_util_filesystem_win
+  DEFAULT firebase_firestore_util_filesystem_posix
 )
 
 
@@ -224,6 +258,7 @@ cc_library(
     firebase_firestore_util_async
     firebase_firestore_util_autoid
     firebase_firestore_util_base
+    firebase_firestore_util_filesystem
     firebase_firestore_util_random
     firebase_firestore_util_status
 )

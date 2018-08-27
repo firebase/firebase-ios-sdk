@@ -32,8 +32,11 @@
 
 using firebase::Timestamp;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::ResourcePath;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -64,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.persistence shutdown];
   self.persistence = nil;
 
-  NSString *dir = [FSTPersistenceTestHelpers levelDBDir];
+  Path dir = [FSTPersistenceTestHelpers levelDBDir];
 
   FSTLevelDB *db1 = [FSTPersistenceTestHelpers levelDBPersistenceWithDir:dir];
   FSTLevelDBQueryCache *queryCache = [db1 queryCache];
@@ -74,8 +77,8 @@ NS_ASSUME_NONNULL_BEGIN
   SnapshotVersion versionZero;
   XCTAssertEqual(versionZero, queryCache.lastRemoteSnapshotVersion);
 
-  FSTListenSequenceNumber minimumSequenceNumber = 1234;
-  FSTTargetID lastTargetId = 5;
+  ListenSequenceNumber minimumSequenceNumber = 1234;
+  TargetId lastTargetId = 5;
   SnapshotVersion lastVersion(Timestamp(1, 2));
 
   db1.run("add query data", [&]() {

@@ -43,9 +43,9 @@ namespace auth {
  * `FirebaseCredentialsProvider` uses Firebase Auth via `FIRApp` to get an auth
  * token.
  *
- * NOTE: To simplify the implementation, it requires that you set
- * `userChangeListener` with a non-`nil` value no more than once and don't call
- * `getTokenForcingRefresh:` after setting it to `nil`.
+ * NOTE: To simplify the implementation, it requires that you call
+ * `SetCredentialChangeListener()` with a non-nullptr value no more than once
+ * and don't call `GetToken()` after setting it to `nullptr`.
  *
  * This class must be implemented in a thread-safe manner since it is accessed
  * from the thread backing our internal worker queue and the callbacks from
@@ -70,7 +70,8 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
 
   void GetToken(TokenListener completion) override;
 
-  void SetUserChangeListener(UserChangeListener listener) override;
+  void SetCredentialChangeListener(
+      CredentialChangeListener changeListener) override;
 
   void InvalidateToken() override;
 
@@ -96,10 +97,10 @@ class FirebaseCredentialsProvider : public CredentialsProvider {
     User current_user;
 
     /**
-     * Counter used to detect if the user changed while a
-     * -getTokenForcingRefresh: request was outstanding.
+     * Counter used to detect if the token changed while a GetToken() request
+     * was outstanding.
      */
-    int user_counter = 0;
+    int token_counter = 0;
 
     std::mutex mutex;
 

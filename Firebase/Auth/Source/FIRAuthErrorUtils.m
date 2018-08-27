@@ -693,7 +693,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:code userInfo:errorUserInfo];
 }
 
-+ (NSError *)errorWithCode:(FIRAuthInternalErrorCode)code userInfo:(NSDictionary *)userInfo {
++ (NSError *)errorWithCode:(FIRAuthInternalErrorCode)code
+                  userInfo:(nullable NSDictionary *)userInfo {
   BOOL isPublic = (code & FIRAuthPublicErrorCodeFlag) == FIRAuthPublicErrorCodeFlag;
   if (isPublic) {
     // This is a public error. Return it as a public error and add a description.

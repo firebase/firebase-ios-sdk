@@ -16,10 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTDocumentSet;
 @class FSTMaybeDocument;
@@ -42,12 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
  * seed a target ID generator and avoid collisions with existing queries. If there are no queries
  * in the cache, returns zero.
  */
-- (FSTTargetID)highestTargetID;
+- (firebase::firestore::model::TargetId)highestTargetID;
 
 /**
  * Returns the highest listen sequence number of any query seen by the cache.
  */
-- (FSTListenSequenceNumber)highestListenSequenceNumber;
+- (firebase::firestore::model::ListenSequenceNumber)highestListenSequenceNumber;
 
 /**
  * A global snapshot version representing the last consistent snapshot we received from the
@@ -91,7 +90,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)enumerateTargetsUsingBlock:(void (^)(FSTQueryData *queryData, BOOL *stop))block;
 
-- (int)removeQueriesThroughSequenceNumber:(FSTListenSequenceNumber)sequenceNumber
+- (int)removeQueriesThroughSequenceNumber:
+           (firebase::firestore::model::ListenSequenceNumber)sequenceNumber
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries;
 
 /** Returns the number of targets cached. */
@@ -107,16 +107,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** Adds the given document keys to cached query results of the given target ID. */
 - (void)addMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
-            forTargetID:(FSTTargetID)targetID;
+            forTargetID:(firebase::firestore::model::TargetId)targetID;
 
 /** Removes the given document keys from the cached query results of the given target ID. */
 - (void)removeMatchingKeys:(const firebase::firestore::model::DocumentKeySet &)keys
-               forTargetID:(FSTTargetID)targetID;
+               forTargetID:(firebase::firestore::model::TargetId)targetID;
 
 /** Removes all the keys in the query results of the given target ID. */
-- (void)removeMatchingKeysForTargetID:(FSTTargetID)targetID;
+- (void)removeMatchingKeysForTargetID:(firebase::firestore::model::TargetId)targetID;
 
-- (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:(FSTTargetID)targetID;
+- (firebase::firestore::model::DocumentKeySet)matchingKeysForTargetID:
+    (firebase::firestore::model::TargetId)targetID;
 
 /**
  * Checks to see if there are any references to a document with the given key.

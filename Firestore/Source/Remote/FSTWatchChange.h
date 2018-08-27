@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 
 @class FSTExistenceFilter;
 @class FSTMaybeDocument;
@@ -70,12 +69,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTExistenceFilterWatchChange : FSTWatchChange
 
-+ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter targetID:(FSTTargetID)targetID;
++ (instancetype)changeWithFilter:(FSTExistenceFilter *)filter
+                        targetID:(firebase::firestore::model::TargetId)targetID;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 @property(nonatomic, strong, readonly) FSTExistenceFilter *filter;
-@property(nonatomic, assign, readonly) FSTTargetID targetID;
+@property(nonatomic, assign, readonly) firebase::firestore::model::TargetId targetID;
 @end
 
 /** FSTWatchTargetChangeState is the kind of change that happened to the watch target. */
