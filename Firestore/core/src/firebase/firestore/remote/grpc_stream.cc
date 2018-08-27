@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 
-#include <chrono>
-#include <future>
+#include <chrono>  // NOLINT(build/c++11)
+#include <future>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
@@ -27,7 +27,59 @@ namespace remote {
 
 using util::AsyncQueue;
 
-// TODO(varconst): description
+// The mechanism for calling async gRPC methods that `GrpcStream` uses is
+// issuing `StreamOperation`s.
+//
+// To invoke an async method, `GrpcStream` will create a new `StreamOperation`
+// and execute the operation; `StreamOperation` knows which gRPC method to
+// invoke and it puts itself on the gRPC completion queue. `GrpcStream` does not
+// have a reference to the gRPC completion queue (this allows using the same
+// completion queue for all streams); it expects that some different class (in
+// practice, `RemoteStore`) will poll the gRPC completion queue and `Complete`
+// all `StreamOperation`s that come out of the queue.
+// `StreamOperation::Complete` will invoke a corresponding callback on the
+// `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
+// observer.
+//
+// `GrpcStream` owns the gRPC objects (such as `grpc::ClientContext`) that must
+// be valid until all `StreamOperation`s issued by this stream come back from
+// the gRPC completion queue. `StreamOperation`s contain an `std::promise` that
+// is fulfilled once the operation is taken off the gRPC completion queue, and
+// `StreamOperation::WaitUntilOffQueue` allows blocking on this. `GrpcStream`
+// holds non-owning pointers to all operations that it issued (and removes
+// pointers to completed operations). `GrpcStream::Finish` and
+// `GrpcStream::WriteAndFinish` block on `StreamOperation::WaitUntilOffQueue`
+// for all the currently-pending operations, thus ensuring that the stream can
+// be safely released (along with the gRPC objects the stream owns) after
+// `Finish` or `WriteAndFinish` have completed.
+
+namespace internal {
+
+StreamWrite* BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
+  queue_.push(write);
+  return TryStartWrite();
+}
+
+StreamWrite* BufferedWriter::TryStartWrite() {
+  if (queue_.empty() || has_active_write_) {
+    return nullptr;
+  }
+
+  has_active_write_ = true;
+  grpc::ByteBuffer message = std::move(queue_.front());
+  queue_.pop();
+  return StreamOperation::ExecuteOperation<StreamWrite>(
+      stream_, call_, firestore_queue_, std::move(message));
+}
+
+StreamWrite* BufferedWriter::DequeueNextWrite() {
+  has_active_write_ = false;
+  return TryStartWrite();
+}
+
+}  // namespace internal
+
+using internal::BufferedWriter;
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
@@ -45,7 +97,7 @@ GrpcStream::GrpcStream(
 
 GrpcStream::~GrpcStream() {
   HARD_ASSERT(operations_.empty(),
-              "GrpcStream is being destroyed without a call to Finish");
+              "GrpcStream is being destroyed without proper shutdown");
 }
 
 void GrpcStream::Start() {
@@ -72,6 +124,9 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
 
 void GrpcStream::Finish() {
   if (state_ == State::NotStarted) {
+    HARD_ASSERT(operations_.empty(),
+                "Non-started stream has pending operations");
+    state_ = State::Finished;
     return;
   }
 
@@ -82,28 +137,40 @@ void GrpcStream::Finish() {
   // cancellation has to be called, or else the read would hang forever, and
   // finish operation will never get completed.
   //
-  // On the other hand, when an operation fails, cancellation should not be
+  // (on the other hand, when an operation fails, cancellation should not be
   // called, otherwise the real failure cause will be overwritten by status
-  // "canceled".
+  // "canceled".)
   context_->TryCancel();
-  Execute<ClientInitiatedFinish>();  // TODO: is it necessary?
+  // TODO(varconst): is issuing a finish operation necessary in this case? We
+  // don't care about the status, but perhaps it will make the server notice
+  // client disconnecting sooner?
+  Execute<ClientInitiatedFinish>();
 
   FastFinishOperationsBlocking();
-
-  state_ = State::Finished;
 }
 
 void GrpcStream::FastFinishOperationsBlocking() {
-  buffered_writer_.DiscardUnstartedWrites();
+  // TODO(varconst): reset buffered_writer_? Should not be necessary, because it
+  // should never be called again after state_ == State::Finished.
+
+  HARD_ASSERT(state_ == State::Finishing,
+              "Fast-finishing operations must only be done when the stream is "
+              "finishing");
 
   for (auto operation : operations_) {
+    // `GrpcStream` cannot cancel the completion of any operations that might
+    // already have been enqueued on the Firestore queue, so instead turn those
+    // completions into no-ops.
     operation->UnsetObserver();
   }
 
   for (auto operation : operations_) {
+    // This is blocking.
     operation->WaitUntilOffQueue();
   }
   operations_.clear();
+
+  state_ = State::Finished;
 }
 
 bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
@@ -111,16 +178,19 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
               "WriteAndFinish called for a stream "
               "that is not open");
 
-  // Write the last message as soon as possible by discarding anything else that
-  // might be buffered.
-  buffered_writer_.DiscardUnstartedWrites();
-
   bool did_last_write = false;
   StreamWrite* last_write_operation = BufferedWrite(std::move(message));
+  // Only bother with the last write if there is no active write at the moment.
   if (last_write_operation) {
     last_write_operation->UnsetObserver();
+    // Empirically, the write normally takes less than a millisecond to finish
+    // (both with and without network connection), and never more than several
+    // dozen milliseconds. Nevertheless, ensure `WriteAndFinish` doesn't hang if
+    // there happen to be circumstances under which the write may block
+    // indefinitely (in that case, rely on the fact that canceling GRPC call
+    // makes all pending operations come back from the queue quickly).
     auto status =
-        last_write_operation->WaitUntilOffQueue(std::chrono::milliseconds(100));
+        last_write_operation->WaitUntilOffQueue(std::chrono::milliseconds(500));
     if (status == std::future_status::ready) {
       RemoveOperation(last_write_operation);
       did_last_write = true;
@@ -143,12 +213,26 @@ bool GrpcStream::SameGeneration() const {
   return generation_ == observer_->generation();
 }
 
+GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
+  HARD_ASSERT(
+      state_ >= State::Open,
+      "Initial server metadata is only received after the stream opens");
+  MetadataT result;
+  auto grpc_metadata = context_->GetServerInitialMetadata();
+  auto to_str = [](grpc::string_ref ref) {
+    return std::string{ref.begin(), ref.end()};
+  };
+  for (const auto& kv : grpc_metadata) {
+    result[to_str(kv.first)] = to_str(kv.second);
+  }
+  return result;
+}
+
 // Callbacks
 
 void GrpcStream::OnStart() {
   HARD_ASSERT(state_ == State::Starting,
-              "Expected to be in 'Starting' state "
-              "when OnStart is invoked");
+              "Expected to be in 'Starting' state when OnStart is invoked");
   state_ = State::Open;
 
   if (SameGeneration()) {
@@ -188,20 +272,19 @@ void GrpcStream::OnOperationFailed() {
     return;
   }
 
+  state_ = State::Finishing;
+
   if (SameGeneration()) {
-    state_ = State::Finishing;
     Execute<RemoteInitiatedFinish>();
   } else {
     // The only reason to finish would be to get the status; if the observer is
     // no longer interested, there is no need to do that.
     FastFinishOperationsBlocking();
-    state_ = State::Finished;
   }
 }
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
   FastFinishOperationsBlocking();
-  state_ = State::Finished;
 
   if (SameGeneration()) {
     observer_->OnStreamError(Datastore::ToFirestoreStatus(status));
@@ -216,8 +299,6 @@ void GrpcStream::OnFinishedByClient() {
 void GrpcStream::RemoveOperation(const StreamOperation* to_remove) {
   auto found = std::find(operations_.begin(), operations_.end(), to_remove);
   HARD_ASSERT(found != operations_.end(), "Missing StreamOperation");
-  // Note that the operation might have contained the last reference to this
-  // stream, so this call might trigger `GrpcStream::~GrpcStream`.
   operations_.erase(found);
 }
 

@@ -28,21 +28,24 @@ using util::AsyncQueue;
 StreamOperation::StreamOperation(GrpcStream* stream,
                                  grpc::GenericClientAsyncReaderWriter* call,
                                  AsyncQueue* firestore_queue)
-    : stream_{stream}, call_{call}, firestore_queue_{firestore_queue} {
+    : observer_{stream}, call_{call}, firestore_queue_{firestore_queue} {
 }
 
 void StreamOperation::UnsetObserver() {
   firestore_queue_->VerifyIsCurrentQueue();
-  stream_ = nullptr;
+
+  observer_ = nullptr;
 }
 
 void StreamOperation::Execute() {
   firestore_queue_->VerifyIsCurrentQueue();
+
   DoExecute(call_);
 }
 
 void StreamOperation::WaitUntilOffQueue() {
   firestore_queue_->VerifyIsCurrentQueue();
+
   if (!off_queue_future_.valid()) {
     off_queue_future_ = off_queue_.get_future();
   }
@@ -52,6 +55,7 @@ void StreamOperation::WaitUntilOffQueue() {
 std::future_status StreamOperation::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
   firestore_queue_->VerifyIsCurrentQueue();
+
   if (!off_queue_future_.valid()) {
     off_queue_future_ = off_queue_.get_future();
   }
@@ -59,18 +63,21 @@ std::future_status StreamOperation::WaitUntilOffQueue(
 }
 
 void StreamOperation::Complete(bool ok) {
+  // This mechanism allows `GrpcStream` to know when the operation is off the
+  // GRPC completion queue (and thus this operation no longer requires the
+  // underlying GRPC objects to be valid).
   off_queue_.set_value();
 
   firestore_queue_->Enqueue([this, ok] {
-    if (stream_) {
-      stream_->RemoveOperation(this);
+    if (observer_) {
+      observer_->RemoveOperation(this);
 
       if (ok) {
-        DoComplete(stream_);
+        DoComplete(observer_);
       } else {
         // Failed operation means this stream is unrecoverably broken; use the
         // same error-handling policy for all operations.
-        stream_->OnOperationFailed();
+        observer_->OnOperationFailed();
       }
     }
 

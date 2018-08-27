@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -38,7 +39,13 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
+using util::GrpcStreamFixture;
+using util::OperationResult;
+using util::OperationResult::Error;
+using util::OperationResult::Ok;
 using util::internal::ExecutorStd;
+
+namespace {
 
 class Observer : public GrpcStreamObserver {
  public:
@@ -60,56 +67,34 @@ class Observer : public GrpcStreamObserver {
   int gen = 0;
 };
 
+}  // namespace
+
 class GrpcStreamTest : public testing::Test {
  public:
-  enum OperationResult { Ok, Error, Ignore };
-
-  GrpcStreamTest() : async_queue{absl::make_unique<ExecutorStd>()} {
-    grpc::GenericStub grpc_stub{grpc::CreateChannel(
-        "", grpc::SslCredentials(grpc::SslCredentialsOptions()))};
-
-    auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
-    grpc_context = grpc_context_owning.get();
-    auto grpc_call =
-        grpc_stub.PrepareCall(grpc_context_owning.get(), "", &grpc_queue);
-    observer = absl::make_unique<Observer>();
-    stream = absl::make_unique<GrpcStream>(std::move(grpc_context_owning),
-                                           std::move(grpc_call), observer.get(),
-                                           &async_queue);
+  GrpcStreamTest() : observer{absl::make_unique<Observer>()} {
+    fixture.CreateStream(observer.get());
   }
 
-  // This is a very hacky way to simulate GRPC finishing operations without
-  // actually connecting to the server: cancel the stream, which will make the
-  // operation fail fast and be returned from the completion queue, then
-  // complete the operation. It relies on `ClientContext::TryCancel` not
-  // complaining about being invoked more than once.
+  ~GrpcStreamTest() {
+    fixture.Shutdown();
+  }
+
+  GrpcStream& stream() {
+    return fixture.stream();
+  }
+  AsyncQueue& async_queue() {
+    return fixture.async_queue();
+  }
+
   void ForceFinish(std::initializer_list<OperationResult> results) {
-    grpc_context->TryCancel();
-
-    for (OperationResult result : results) {
-      bool ignored_ok = false;
-      // TODO(varconst): use a timeout, otherwise this might block if there's
-      // a bug.
-      void* tag = nullptr;
-      bool has_next = grpc_queue.Next(&tag, &ignored_ok);
-      ASSERT_TRUE(has_next);
-      ASSERT_NE(tag, nullptr);
-      auto operation = static_cast<GrpcOperation*>(tag);
-      if (result == OperationResult::Ignore) {
-        continue;
-      }
-      operation->Complete(result == OperationResult::Ok);
-    }
-    async_queue.ExecuteBlocking([] {});  // Make sure the operations execute
+    fixture.ForceFinish(results);
+  }
+  void KeepPollingGrpcQueue() {
+    fixture.KeepPollingGrpcQueue();
   }
 
-  void ForceFinishAndShutdown(std::initializer_list<OperationResult> results) {
-    ForceFinish(results);
-
-    grpc_queue.Shutdown();
-    void* unused_tag = nullptr;
-    bool unused_ok = false;
-    EXPECT_FALSE(grpc_queue.Next(&unused_tag, &unused_ok));
+  const std::vector<std::string>& observed_states() const {
+    return observer->observed_states;
   }
 
   // This is to make `EXPECT_EQ` a little shorter and work around macro
@@ -118,205 +103,189 @@ class GrpcStreamTest : public testing::Test {
     return {states};
   }
 
-  AsyncQueue async_queue;
-  grpc::ClientContext* grpc_context = nullptr;
-  grpc::CompletionQueue grpc_queue;
+  bool ObserverHas(const std::string& state) const {
+    return std::find(observed_states().begin(), observed_states().end(),
+                     state) != observed_states().end();
+  }
+
+  void RaiseGeneration() {
+    ++observer->gen;
+  }
+
+  void StartStream() {
+    async_queue().EnqueueBlocking([&] { stream().Start(); });
+    ForceFinish({/*Start*/ Ok});
+  }
+
+ private:
+  GrpcStreamFixture fixture;
   std::unique_ptr<Observer> observer;
-  std::shared_ptr<GrpcStream> stream;
 };
 
 TEST_F(GrpcStreamTest, CannotStartTwice) {
-  EXPECT_NO_THROW(stream->Start());
-  EXPECT_ANY_THROW(stream->Start());
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(stream().Start());
+    EXPECT_ANY_THROW(stream().Start());
+  });
 }
 
 TEST_F(GrpcStreamTest, CannotWriteBeforeStreamIsOpen) {
-  EXPECT_ANY_THROW(stream->Write({}));
-  stream->Start();
-  EXPECT_ANY_THROW(stream->Write({}));
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_ANY_THROW(stream().Write({}));
+    stream().Start();
+    EXPECT_ANY_THROW(stream().Write({}));
+  });
 }
 
 TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
-  EXPECT_NO_THROW(stream->Finish());
+  async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
-  stream->Start();
-  EXPECT_NO_THROW(stream->Finish());
+  StartStream();
+  KeepPollingGrpcQueue();
+
+  async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
 
 TEST_F(GrpcStreamTest, CannotFinishTwice) {
-  stream->Start();
-  EXPECT_NO_THROW(stream->Finish());
-  EXPECT_ANY_THROW(stream->Finish());
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(stream().Finish());
+    EXPECT_ANY_THROW(stream().Finish());
+  });
 }
 
-TEST_F(GrpcStreamTest, CanWriteAndFinishBeforeStarting) {
-  EXPECT_NO_THROW(stream->WriteAndFinish({}));
+TEST_F(GrpcStreamTest, CannotWriteAndFinishBeforeStarting) {
+  async_queue().EnqueueBlocking(
+      [&] { EXPECT_ANY_THROW(stream().WriteAndFinish({})); });
 }
 
 TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
-  stream->Start();
-  EXPECT_NO_THROW(stream->WriteAndFinish({}));
+  StartStream();
+  KeepPollingGrpcQueue();
+
+  async_queue().EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().WriteAndFinish({})); });
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
-  EXPECT_EQ(observer->observed_states, States({"OnStreamStart"}));
+  StartStream();
+  EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
 }
 
 TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
-  EXPECT_NO_THROW(stream->Write({}));
+  StartStream();
+  async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Write({})); });
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnRead) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok, /*Read*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamRead"}));
+  StartStream();
+  ForceFinish({/*Read*/ Ok});
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok, /*Read*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamRead"}));
+  StartStream();
+  ForceFinish({/*Read*/ Ok});
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 
   ForceFinish({/*Read*/ Ok});
-  EXPECT_EQ(observer->observed_states,
+  EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamRead", "OnStreamRead"}));
 }
 
-TEST_F(GrpcStreamTest, ObserverReceivesOnWrite) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
-
-  stream->Write({});
-  ForceFinish({/*Read*/ Ignore, /*Write*/ Ok});
-
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamWrite"}));
-}
-
 TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
 
-  stream->Write({});
-  stream->Write({});
-  stream->Write({});
-  ForceFinish({/*Read*/ Ignore, /*Write*/ Ok, /*Write*/ Ok, /*Write*/ Ok});
+  async_queue().EnqueueBlocking([&] {
+    stream().Write({});
+    stream().Write({});
+    stream().Write({});
+  });
+  ForceFinish({/*Read*/ Ok, /*Write*/ Ok, /*Read*/ Ok, /*Write*/ Ok,
+               /*Read*/ Ok, /*Write*/ Ok});
 
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamWrite", "OnStreamWrite",
-                    "OnStreamWrite"}));
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead",
+                                       "OnStreamRead", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
 
-  // Fail the read, but allow Finish to succeed
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamError"}));
+  // Fail the read, but allow the rest to succeed.
+  ForceFinish({/*Read*/ Error});
+  KeepPollingGrpcQueue();
+  // Wait for `GrpcStream` to finish under the hood.
+  async_queue().EnqueueBlocking([] {});
+
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));
 }
 
 TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
+  KeepPollingGrpcQueue();
 
-  stream->Finish();
-  ForceFinish({/*Read*/ Ignore, /*Finish*/ Ok});
-  EXPECT_EQ(observer->observed_states, States({"OnStreamStart"}));
+  async_queue().EnqueueBlocking([&] { stream().Finish(); });
+  EXPECT_FALSE(ObserverHas("OnStreamError"));
 }
 
 TEST_F(GrpcStreamTest, WriteAndFinish) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
+  KeepPollingGrpcQueue();
 
-  stream->WriteAndFinish({});
-  ForceFinish({/*Read*/ Ignore, /*Write*/ Ok, /*Finish*/ Ok});
-  // Should be no notification on the final write.
-  EXPECT_EQ(observer->observed_states, States({"OnStreamStart"}));
-}
+  async_queue().EnqueueBlocking([&] {
+    bool did_last_write = stream().WriteAndFinish({});
+    EXPECT_TRUE(did_last_write);
 
-TEST_F(GrpcStreamTest, WriteAndFinishDiscardsUnstartedWrites) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
-
-  stream->Write({});  // This will have a chance to start
-  stream->Write({});  // This will be pending
-  stream->Write({});  // This will be pending too
-
-  stream->WriteAndFinish({});
-  // Make sure the pending writes were ignored: shut down and drain the queue,
-  // so that it's clear they weren't executed.
-  ForceFinishAndShutdown(
-      {/*Read*/ Ignore, /*First write*/ Ok, /*Final write*/ Ok, /*Finish*/ Ok});
-
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamWrite"}));
+    EXPECT_TRUE(ObserverHas("OnStreamStart"));
+    EXPECT_FALSE(ObserverHas("OnStreamError"));
+  });
 }
 
 TEST_F(GrpcStreamTest, ErrorOnStart) {
-  stream->Start();
+  async_queue().EnqueueBlocking([&] { stream().Start(); });
   ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
-
-  EXPECT_EQ(observer->observed_states, States({"OnStreamError"}));
+  EXPECT_EQ(observed_states(), States({"OnStreamError"}));
 }
 
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
+  async_queue().EnqueueBlocking([&] { stream().Write({}); });
 
-  stream->Write({});
+  ForceFinish({/*Read*/ Ok, /*Write*/ Error});
+  KeepPollingGrpcQueue();
+  // Wait for `GrpcStream` to finish under the hood.
+  async_queue().EnqueueBlocking([] {});
 
-  ForceFinish({/*Read*/ Ignore, /*Write*/ Error, /*Finish*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamError"}));
+  EXPECT_EQ(observed_states().back(), "OnStreamError");
 }
 
 TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
+  async_queue().EnqueueBlocking([&] {
+    stream().Write({});
+    stream().Write({});
+  });
 
-  stream->Write({});
-  stream->Write({});
+  ForceFinish({/*Read*/ Ok, /*Write*/ Error});
+  // Wait for `GrpcStream` to finish under the hood.
+  KeepPollingGrpcQueue();
+  async_queue().EnqueueBlocking([] {});
 
-  ForceFinishAndShutdown({/*Read*/ Ignore, /*Write*/ Error, /*Finish*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamError"}));
-}
-
-TEST_F(GrpcStreamTest, ErrorOnLastWrite) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
-
-  stream->WriteAndFinish({});
-
-  // Make sure `Finish` is not called when the write fails.
-  ForceFinishAndShutdown({/*Read*/ Ignore, /*Write*/ Error});
-  // Observer shouldn't be notified about the error.
-  EXPECT_EQ(observer->observed_states, States({"OnStreamStart"}));
+  EXPECT_EQ(observed_states().back(), "OnStreamError");
 }
 
 TEST_F(GrpcStreamTest, RaisingGenerationStopsNotifications) {
-  stream->Start();
-  ForceFinish({/*Start*/ Ok});
+  StartStream();
 
-  stream->Write({});
-  ForceFinish({/*Read*/ Ok, /*Write*/ Ok});
-  observer->gen++;
-  stream->Write({});
-  stream->Finish();
+  ForceFinish({/*Read*/ Ok});
 
-  ForceFinish({/*Read*/ Ok, /*Write*/ Ok, /*Finish*/ Ok});
-  EXPECT_EQ(observer->observed_states,
-            States({"OnStreamStart", "OnStreamRead", "OnStreamWrite"}));
+  RaiseGeneration();
+  async_queue().EnqueueBlocking([&] { stream().Write({}); });
+  // Observer should not be notified of these two reads.
+  ForceFinish({/*Read*/ Ok});
+  ForceFinish({/*Read*/ Ok});
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 }
 
 }  // namespace remote
