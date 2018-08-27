@@ -51,7 +51,7 @@
 
 /// Tests that a FIRStorage instance can be created properly by the FIRStorageComponent.
 - (void)testStorageInstanceCreation {
-  // Get a mocked app, but don't use the default helper since is uses this class in the
+  // Get a mocked app, but don't use the default helper since it uses this class in the
   // implementation.
   id app = [self appMockWithOptions];
   FIRStorageComponent *component = [[FIRStorageComponent alloc] initWithApp:app];
