@@ -37,6 +37,10 @@ namespace util {
 
 enum OperationResult { Ok, Error };
 
+/**
+ * Does the somewhat complicated setup required to create a `GrpcStream` and
+ * allows imitating the normal completion of `StreamOperation`s.
+ */
 class GrpcStreamFixture {
  public:
   GrpcStreamFixture();
@@ -44,9 +48,28 @@ class GrpcStreamFixture {
 
   // Must be called before the stream can be used.
   void CreateStream(remote::GrpcStreamObserver* observer);
+  /** Finishes the stream and shuts down the gRPC completion queue. */
   void Shutdown();
 
+  /**
+   * Takes as many operations off gRPC completion queue as there are elements in
+   * `results` and completes each operation with the corresponding result,
+   * ignoring the actual result from gRPC.
+   *
+   * This is a blocking function; it will finish quickly if the the gRPC
+   * completion queue has at least as many pending operations as there are
+   * elements in `results`; otherwise, it will hang.
+   */
   void ForceFinish(std::initializer_list<OperationResult> results);
+
+  /**
+   * Using a separate executor, keep polling gRPC completion queue and tell all
+   * the operations that come off the queue that they finished successfully,
+   * ignoring the actual result from gRPC.
+   *
+   * Call this method before calling the blocking functions `GrpcStream::Finish`
+   * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
+   */
   void KeepPollingGrpcQueue();
 
   remote::GrpcStream& stream() {
@@ -94,6 +117,7 @@ void GrpcStreamFixture::CreateStream(remote::GrpcStreamObserver* observer) {
 }
 
 GrpcStreamFixture::~GrpcStreamFixture() {
+  // Make sure the stream and gRPC completion queue are properly shut down.
   Shutdown();
 }
 
@@ -104,6 +128,8 @@ void GrpcStreamFixture::Shutdown() {
       grpc_stream_->Finish();
     }
     ShutdownGrpcQueue();
+    // Wait for gRPC completion queue to drain
+    dedicated_executor_->ExecuteBlocking([] {});
   });
 }
 
@@ -114,14 +140,12 @@ void GrpcStreamFixture::ShutdownGrpcQueue() {
   is_shut_down_ = true;
 
   grpc_queue_.Shutdown();
-  dedicated_executor_->ExecuteBlocking([] {});
 }
 
 // This is a very hacky way to simulate GRPC finishing operations without
 // actually connecting to the server: cancel the stream, which will make the
 // operation fail fast and be returned from the completion queue, then
 // complete the operation.
-//
 void GrpcStreamFixture::ForceFinish(
     std::initializer_list<OperationResult> results) {
   dedicated_executor_->ExecuteBlocking([&] {

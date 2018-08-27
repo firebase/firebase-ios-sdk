@@ -215,6 +215,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   // Fail the read, but allow the rest to succeed.
   ForceFinish({/*Read*/ Error});
   KeepPollingGrpcQueue();
+  // Wait for `GrpcStream` to finish under the hood.
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));
@@ -253,6 +254,7 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
   KeepPollingGrpcQueue();
+  // Wait for `GrpcStream` to finish under the hood.
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
@@ -266,6 +268,7 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   });
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
+  // Wait for `GrpcStream` to finish under the hood.
   KeepPollingGrpcQueue();
   async_queue().EnqueueBlocking([] {});
 
@@ -279,6 +282,7 @@ TEST_F(GrpcStreamTest, RaisingGenerationStopsNotifications) {
 
   RaiseGeneration();
   async_queue().EnqueueBlocking([&] { stream().Write({}); });
+  // Observer should not be notified of these two reads.
   ForceFinish({/*Read*/ Ok});
   ForceFinish({/*Read*/ Ok});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
