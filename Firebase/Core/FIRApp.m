@@ -384,7 +384,7 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)isDataCollectionDefaultEnabled {
   // Check if it's been manually set before in code, and use that as the higher priority value.
   NSNumber *defaultsObject = [[self class] readDataCollectionSwitchFromUserDefaultsForApp:self];
-  if (defaultsObject) {
+  if (defaultsObject != nil) {
     return [defaultsObject boolValue];
   }
 
@@ -392,7 +392,7 @@ static NSMutableDictionary *sLibraryVersions;
   // As per the implementation of `readDataCollectionSwitchFromPlist`, it's a cached value and has
   // no performance impact calling multiple times.
   NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
-  if (collectionEnabledPlistValue) {
+  if (collectionEnabledPlistValue != nil) {
     return [collectionEnabledPlistValue boolValue];
   }
 
