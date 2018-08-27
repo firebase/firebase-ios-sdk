@@ -122,8 +122,6 @@ class GrpcStreamTest : public testing::Test {
   std::unique_ptr<Observer> observer;
 };
 
-// State tests
-
 TEST_F(GrpcStreamTest, CannotStartTwice) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream().Start());
@@ -180,7 +178,6 @@ TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
   async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Write({})); });
 }
 
-// Operations tests
 TEST_F(GrpcStreamTest, ObserverReceivesOnRead) {
   StartStream();
   ForceFinish({/*Read*/ Ok});
