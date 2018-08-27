@@ -158,7 +158,7 @@ Sometimes app developers that consume our SDKs prefer that we do not swizzle the
 added support for developers to disable any sort of app delegate swizzling that we may do, and this
 is achieved by adding the Plist flag `GoogleUtilitiesAppDelegateProxyEnabled` to `NO` (Boolean). If
 this is set, even if you call `[GULAppDelegateSwizzler proxyOriginalDelegate]`, it won't have any
-∏effect.
+effect.
 
 
 
