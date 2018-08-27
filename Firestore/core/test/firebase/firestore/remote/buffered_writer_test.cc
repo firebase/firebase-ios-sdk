@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/buffered_writer.h"
 
+#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -23,58 +24,57 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class TestOperation : public GrpcOperation {
- public:
-  explicit TestOperation(int* writes_count) : writes_count_{writes_count} {
-  }
-  void Execute() override {
-    ++(*writes_count_);
-    // Normally, this would be done by the class that popped the operation from
-    // GRPC completion queue, but these tests don't include normal deletion.
-    delete this;
-  }
-  void Complete(bool ok) override {
-    // Never called in these tests
-  }
+using util::GrpcStreamFixture;
 
- private:
-  int* writes_count_ = nullptr;
+namespace {
+
+// A no-op observer.
+struct Observer : GrpcStreamObserver {
+  void OnStreamStart() override {
+  }
+  void OnStreamRead(const grpc::ByteBuffer& message) override {
+  }
+  void OnStreamError(const util::Status& status) override {
+  }
+  int generation() const override {
+    return 0;
+  }
 };
+
+}
 
 class BufferedWriterTest : public testing::Test {
  public:
-  TestOperation* MakeOperation() {
-    return new TestOperation{&writes_count};
+  BufferedWriterTest()
+      : observer{absl::make_unique<Observer>()} {
+    fixture.CreateStream(observer.get());
+    writer = absl::make_unique<BufferedWriter>(&fixture.stream(), fixture.call(),
+                                               &fixture.async_queue());
   }
 
-  int writes_count = 0;
-  BufferedWriter writer;
+  std::unique_ptr<Observer> observer;
+  GrpcStreamFixture fixture;
+  std::unique_ptr<BufferedWriter> writer;
 };
 
-TEST_F(BufferedWriterTest, CanDoImmediateWrites) {
-  EXPECT_EQ(writes_count, 0);
-
-  writer.EnqueueWrite({});
-  EXPECT_EQ(writes_count, 1);
-}
-
 TEST_F(BufferedWriterTest, CanDoBufferedWrites) {
-  EXPECT_EQ(writes_count, 0);
+  fixture.async_queue().EnqueueBlocking([&] {
+    return;
+    fixture.stream().Start();
 
-  writer.EnqueueWrite(MakeOperation());
-  writer.EnqueueWrite(MakeOperation());
-  writer.EnqueueWrite(MakeOperation());
-  EXPECT_EQ(writes_count, 1);
 
-  writer.DequeueNextWrite();
-  EXPECT_EQ(writes_count, 2);
+    EXPECT_NE(writer->EnqueueWrite({}), nullptr);
+    EXPECT_EQ(writer->EnqueueWrite({}), nullptr);
+    EXPECT_EQ(writer->EnqueueWrite({}), nullptr);
 
-  writer.DequeueNextWrite();
-  EXPECT_EQ(writes_count, 3);
+    EXPECT_NE(writer->DequeueNextWrite(), nullptr);
+    EXPECT_NE(writer->DequeueNextWrite(), nullptr);
 
-  // An extra call to `DequeueNextWrite` should be a no-op.
-  writer.DequeueNextWrite();
-  EXPECT_EQ(writes_count, 3);
+    // An extra call to `DequeueNextWrite` should be a no-op.
+    EXPECT_EQ(writer->EnqueueWrite({}), nullptr);
+
+    EXPECT_NE(writer->EnqueueWrite({}), nullptr);
+  });
 }
 
 }  // namespace remote

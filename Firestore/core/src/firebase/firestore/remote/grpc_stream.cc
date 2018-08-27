@@ -106,6 +106,8 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
 
 void GrpcStream::Finish() {
   if (state_ == State::NotStarted) {
+    HARD_ASSERT(operations_.empty(), "Non-started stream has pending operations");
+    state_ = State::Finished;
     return;
   }
 

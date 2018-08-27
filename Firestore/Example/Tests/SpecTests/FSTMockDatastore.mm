@@ -295,8 +295,8 @@ class MockWatchStream : public WatchStream {
 #pragma mark - FSTMockDatastore
 
 @interface FSTMockDatastore ()
-@property(nonatomic, strong, nullable) FSTMockWatchStream *watchStream;
-@property(nonatomic, strong, nullable) FSTMockWriteStream *writeStream;
+//@property(nonatomic, strong, nullable) FSTMockWatchStream *watchStream;
+//@property(nonatomic, strong, nullable) FSTMockWriteStream *writeStream;
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;

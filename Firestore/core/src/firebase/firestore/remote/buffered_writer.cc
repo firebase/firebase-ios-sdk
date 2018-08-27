@@ -28,7 +28,7 @@ StreamWrite* BufferedWriter::EnqueueWrite(grpc::ByteBuffer&& write) {
 }
 
 StreamWrite* BufferedWriter::TryStartWrite() {
-  if (empty() || has_active_write_) {
+  if (queue_.empty() || has_active_write_) {
     return nullptr;
   }
 

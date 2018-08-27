@@ -60,7 +60,6 @@ std::future_status StreamOperation::WaitUntilOffQueue(
 
 void StreamOperation::Complete(bool ok) {
   off_queue_.set_value();
-
   firestore_queue_->Enqueue([this, ok] {
     if (stream_) {
       stream_->RemoveOperation(this);

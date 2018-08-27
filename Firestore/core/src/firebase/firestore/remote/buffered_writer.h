@@ -62,7 +62,7 @@ class BufferedWriter {
  private:
   StreamWrite* TryStartWrite();
 
-  // This are needed to create new `StreamWrite`s.
+  // These are needed to create new `StreamWrite`s.
   GrpcStream* stream_ = nullptr;
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
   util::AsyncQueue* firestore_queue_ = nullptr;

@@ -21,7 +21,7 @@
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-
+#include <iostream>
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -31,6 +31,7 @@ void Fail(const char* file,
           const char* func,
           const int line,
           const std::string& message) {
+  std::cout << "OBC " << message;
   [[NSAssertionHandler currentHandler]
       handleFailureInFunction:WrapNSString(func)
                          file:WrapNSString(file)
