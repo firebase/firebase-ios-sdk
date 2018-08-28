@@ -47,7 +47,9 @@ class GrpcStreamFixture {
   ~GrpcStreamFixture();
 
   // Must be called before the stream can be used.
-  void CreateStream(remote::GrpcStreamObserver* observer);
+  void InitializeStream(remote::GrpcStreamObserver* observer);
+  std::unique_ptr<remote::GrpcStream> CreateStream(
+      remote::GrpcStreamObserver* observer);
   /** Finishes the stream and shuts down the gRPC completion queue. */
   void Shutdown();
 
@@ -103,7 +105,7 @@ GrpcStreamFixture::GrpcStreamFixture()
       grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
 }
 
-void GrpcStreamFixture::CreateStream(remote::GrpcStreamObserver* observer) {
+void GrpcStreamFixture::InitializeStream(remote::GrpcStreamObserver* observer) {
   auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
   grpc_context_ = grpc_context_owning.get();
 
@@ -114,6 +116,12 @@ void GrpcStreamFixture::CreateStream(remote::GrpcStreamObserver* observer) {
   grpc_stream_ = absl::make_unique<remote::GrpcStream>(
       std::move(grpc_context_owning), std::move(grpc_call_owning), observer,
       &async_queue_);
+}
+
+std::unique_ptr<remote::GrpcStream> GrpcStreamFixture::CreateStream(
+    remote::GrpcStreamObserver* observer) {
+  InitializeStream(observer);
+  return std::move(grpc_stream_);
 }
 
 GrpcStreamFixture::~GrpcStreamFixture() {

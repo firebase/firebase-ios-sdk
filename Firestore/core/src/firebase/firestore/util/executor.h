@@ -35,11 +35,16 @@ class DelayedOperation {
   DelayedOperation() {
   }
 
+  explicit operator bool() const {
+    return static_cast<bool>(cancel_func_);
+  }
+
   // If the operation has not been run yet, cancels the operation. Otherwise,
   // this function is a no-op.
   void Cancel() {
     if (cancel_func_) {
       cancel_func_();
+      cancel_func_ = {};
     }
   }
 

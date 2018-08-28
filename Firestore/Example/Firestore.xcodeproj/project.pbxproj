@@ -199,6 +199,7 @@
 		B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6152AD5202A5385000E5744 /* document_key_test.cc */; };
 		B646EE6121224220001A1F18 /* buffered_writer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B646EE6021224220001A1F18 /* buffered_writer_test.cc */; };
 		B65D34A9203C995B0076A5E1 /* FIRTimestampTest.m in Sources */ = {isa = PBXBuildFile; fileRef = B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */; };
+		B66D8996213609EE0086DA0C /* stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B66D8995213609EE0086DA0C /* stream_test.cc */; };
 		B686F2AF2023DDEE0028D6BE /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
 		B686F2B22025000D0028D6BE /* resource_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2B02024FFD70028D6BE /* resource_path_test.cc */; };
 		B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */; };
@@ -296,7 +297,7 @@
 		132E3BB3D5C42282B4ACFB20 /* FSTLevelDBBenchmarkTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBBenchmarkTests.mm; sourceTree = "<group>"; };
 		2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = leveldb_util_test.cc; sourceTree = "<group>"; };
+		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -507,6 +508,7 @@
 		B6152AD5202A5385000E5744 /* document_key_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document_key_test.cc; sourceTree = "<group>"; };
 		B646EE6021224220001A1F18 /* buffered_writer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = buffered_writer_test.cc; sourceTree = "<group>"; };
 		B65D34A7203C99090076A5E1 /* FIRTimestampTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTimestampTest.m; sourceTree = "<group>"; };
+		B66D8995213609EE0086DA0C /* stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stream_test.cc; sourceTree = "<group>"; };
 		B686F2AD2023DDB20028D6BE /* field_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = field_path_test.cc; sourceTree = "<group>"; };
 		B686F2B02024FFD70028D6BE /* resource_path_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_path_test.cc; sourceTree = "<group>"; };
 		B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_test.cc; sourceTree = "<group>"; };
@@ -643,6 +645,7 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
+				B66D8995213609EE0086DA0C /* stream_test.cc */,
 				B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */,
 				546854A820A36867004BDBD5 /* datastore_test.cc */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
@@ -771,6 +774,7 @@
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
 				AAEA2A72CFD1FA5AD34462F7 /* Pods */,
+				B66D89942136047D0086DA0C /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1040,6 +1044,14 @@
 				AB38D93220239654000A432D /* user_test.cc */,
 			);
 			path = auth;
+			sourceTree = "<group>";
+		};
+		B66D89942136047D0086DA0C /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				B646EE6021224220001A1F18 /* buffered_writer_test.cc */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		DE2EF06E1F3D07D7003D0CDC /* Immutable */ = {
@@ -1805,6 +1817,7 @@
 				5492E050202154AA00B64F25 /* FIRCollectionReferenceTests.mm in Sources */,
 				5492E053202154AB00B64F25 /* FIRDocumentReferenceTests.mm in Sources */,
 				5492E055202154AB00B64F25 /* FIRDocumentSnapshotTests.mm in Sources */,
+				B66D8996213609EE0086DA0C /* stream_test.cc in Sources */,
 				5492E056202154AB00B64F25 /* FIRFieldPathTests.mm in Sources */,
 				5492E054202154AB00B64F25 /* FIRFieldValueTests.mm in Sources */,
 				5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */,
