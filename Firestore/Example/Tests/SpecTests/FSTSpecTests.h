@@ -21,7 +21,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const kNoLRUTag;
+extern NSString *const kEagerGC;
+extern NSString *const kDurablePersistence;
 
 /**
  * FSTSpecTests run a set of portable event specifications from JSON spec files against a
@@ -42,6 +43,9 @@ extern NSString *const kNoLRUTag;
 
 /** Based on its tags, determine whether the test case should run. */
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags;
+
+/** Do any necessary setup for a single spec test */
+- (void)setUpForSpecWithConfig:(NSDictionary *)config;
 
 @end
 
