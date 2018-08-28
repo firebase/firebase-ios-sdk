@@ -113,21 +113,6 @@ class GrpcStreamTest : public testing::Test {
   std::unique_ptr<Observer> observer;
 };
 
-TEST_F(GrpcStreamTest, CannotStartTwice) {
-  async_queue().EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream().Start());
-    EXPECT_ANY_THROW(stream().Start());
-  });
-}
-
-TEST_F(GrpcStreamTest, CannotWriteBeforeStreamIsOpen) {
-  async_queue().EnqueueBlocking([&] {
-    EXPECT_ANY_THROW(stream().Write({}));
-    stream().Start();
-    EXPECT_ANY_THROW(stream().Write({}));
-  });
-}
-
 TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
   async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
@@ -139,16 +124,11 @@ TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
   async_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
 
-TEST_F(GrpcStreamTest, CannotFinishTwice) {
+TEST_F(GrpcStreamTest, CanFinishTwice) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream().Finish());
-    EXPECT_ANY_THROW(stream().Finish());
+    EXPECT_NO_THROW(stream().Finish());
   });
-}
-
-TEST_F(GrpcStreamTest, CannotWriteAndFinishBeforeStarting) {
-  async_queue().EnqueueBlocking(
-      [&] { EXPECT_ANY_THROW(stream().WriteAndFinish({})); });
 }
 
 TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
@@ -244,9 +224,8 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
   async_queue().EnqueueBlocking([&] { stream().Write({}); });
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
-  KeepPollingGrpcQueue();
-  // Wait for `GrpcStream` to finish under the hood.
-  async_queue().EnqueueBlocking([] {});
+  // Give `GrpcStream` a chance to enqueue a finish operation
+  ForceFinish({/*Read*/Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
 }
@@ -259,9 +238,8 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   });
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
-  // Wait for `GrpcStream` to finish under the hood.
-  KeepPollingGrpcQueue();
-  async_queue().EnqueueBlocking([] {});
+  // Give `GrpcStream` a chance to enqueue a finish operation
+  ForceFinish({/*Read*/Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
 }

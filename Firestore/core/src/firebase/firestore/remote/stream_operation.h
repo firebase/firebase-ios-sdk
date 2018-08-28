@@ -19,6 +19,7 @@
 
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -35,12 +36,12 @@ class GrpcStream;
 /**
  * An operation that notifies the corresponding `GrpcStream` on its completion.
  *
- * All created operations are always put on the GRPC completion queue (see
- * `ExecuteOperation` factory function). Operation expects that once it's
- * received back from the GRPC completion queue, `Complete()` will be called on
- * it. `Complete` doesn't notify the observing stream immediately; instead, it
- * schedules the notification on the Firestore async queue. If the stream
- * doesn't want to be notified, it should call `UnsetObserver` on the operation.
+ * All created operations are expected to be put on the GRPC completion queue.
+ * Operation expects that once it's received back from the GRPC completion
+ * queue, `Complete()` will be called on it. `Complete` doesn't notify the
+ * observing stream immediately; instead, it schedules the notification on the
+ * Firestore async queue. If the stream doesn't want to be notified, it should
+ * call `UnsetObserver` on the operation.
  *
  * Operation is "self-owned"; operation deletes itself in its `Complete` method.
  *

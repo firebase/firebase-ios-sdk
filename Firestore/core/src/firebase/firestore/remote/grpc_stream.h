@@ -18,9 +18,10 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
 #include <memory>
+#include <map>
 #include <queue>
 #include <string>
-#include <unordered_map>
+#include <vector>
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
@@ -60,8 +61,7 @@ namespace internal {
  */
 class BufferedWriter {
  public:
-  explicit BufferedWriter(GrpcStream* stream)
-      : stream_{stream} {
+  explicit BufferedWriter(GrpcStream* stream) : stream_{stream} {
   }
 
   // Returns the newly-created write operation if the given `write` became
@@ -144,7 +144,7 @@ class GrpcStream {
   bool WriteAndFinish(grpc::ByteBuffer&& message);
 
   bool IsFinished() const {
-    return observer_ != nullptr;
+    return observer_ == nullptr;
   }
 
   /**
@@ -163,8 +163,12 @@ class GrpcStream {
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
   void RemoveOperation(const StreamOperation* to_remove);
-  grpc::GenericClientAsyncReaderWriter* call() { return call_.get(); }
-  util::AsyncQueue* firestore_queue() { return firestore_queue_; }
+  grpc::GenericClientAsyncReaderWriter* call() {
+    return call_.get();
+  }
+  util::AsyncQueue* firestore_queue() {
+    return firestore_queue_;
+  }
 
  private:
   void Read();
