@@ -59,12 +59,7 @@ class Observer : public GrpcStreamObserver {
     observed_states.push_back("OnStreamError");
   }
 
-  int generation() const override {
-    return gen;
-  }
-
   std::vector<std::string> observed_states;
-  int gen = 0;
 };
 
 }  // namespace
@@ -106,10 +101,6 @@ class GrpcStreamTest : public testing::Test {
   bool ObserverHas(const std::string& state) const {
     return std::find(observed_states().begin(), observed_states().end(),
                      state) != observed_states().end();
-  }
-
-  void RaiseGeneration() {
-    ++observer->gen;
   }
 
   void StartStream() {
@@ -273,19 +264,6 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
-}
-
-TEST_F(GrpcStreamTest, RaisingGenerationStopsNotifications) {
-  StartStream();
-
-  ForceFinish({/*Read*/ Ok});
-
-  RaiseGeneration();
-  async_queue().EnqueueBlocking([&] { stream().Write({}); });
-  // Observer should not be notified of these two reads.
-  ForceFinish({/*Read*/ Ok});
-  ForceFinish({/*Read*/ Ok});
-  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 }
 
 }  // namespace remote

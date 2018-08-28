@@ -68,8 +68,7 @@ StreamWrite* BufferedWriter::TryStartWrite() {
   has_active_write_ = true;
   grpc::ByteBuffer message = std::move(queue_.front());
   queue_.pop();
-  return StreamOperation::ExecuteOperation<StreamWrite>(
-      stream_, call_, firestore_queue_, std::move(message));
+  return new StreamWrite{stream_, std::move(message)};
 }
 
 StreamWrite* BufferedWriter::DequeueNextWrite() {
@@ -90,7 +89,7 @@ GrpcStream::GrpcStream(
       call_{std::move(call)},
       observer_{observer},
       firestore_queue_{firestore_queue},
-      buffered_writer_{this, call_.get(), firestore_queue_} {
+      buffered_writer_{this} {
 }
 
 GrpcStream::~GrpcStream() {
@@ -99,11 +98,11 @@ GrpcStream::~GrpcStream() {
 }
 
 void GrpcStream::Start() {
-  Execute<StreamStart>();
+  Execute(new StreamStart{this});
 }
 
 void GrpcStream::Read() {
-  Execute<StreamRead>();
+  Execute(new StreamRead{this});
 }
 
 void GrpcStream::Write(grpc::ByteBuffer&& message) {
@@ -129,7 +128,7 @@ void GrpcStream::Finish() {
   // TODO(varconst): is issuing a finish operation necessary in this case? We
   // don't care about the status, but perhaps it will make the server notice
   // client disconnecting sooner?
-  Execute<ClientInitiatedFinish>();
+  Execute(new ClientInitiatedFinish{this});
 
   FastFinishOperationsBlocking();
 }
@@ -180,7 +179,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 StreamWrite* GrpcStream::BufferedWrite(grpc::ByteBuffer&& message) {
   StreamWrite* maybe_write = buffered_writer_.EnqueueWrite(std::move(message));
   if (maybe_write) {
-    operations_.push_back(maybe_write);
+    Execute(maybe_write);
   }
   return maybe_write;
 }
@@ -212,7 +211,7 @@ void GrpcStream::OnWrite() {
   if (observer_) {
     StreamWrite* maybe_write = buffered_writer_.DequeueNextWrite();
     if (maybe_write) {
-      operations_.push_back(maybe_write);
+      Execute(maybe_write);
     }
     // Observer is not interested in this event.
   }
@@ -228,7 +227,7 @@ void GrpcStream::OnOperationFailed() {
   is_finishing_ = true;
 
   if (observer_) {
-    Execute<RemoteInitiatedFinish>();
+    Execute(new RemoteInitiatedFinish{this});
   } else {
     // The only reason to finish would be to get the status; if the observer is
     // no longer interested, there is no need to do that.

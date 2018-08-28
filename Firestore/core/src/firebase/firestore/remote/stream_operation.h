@@ -49,24 +49,7 @@ class GrpcStream;
  */
 class StreamOperation : public GrpcOperation {
  public:
-  // TODO(varconst): make call and queue getters on stream to minimize passing
-  // data around?
-  StreamOperation(GrpcStream* observer,
-                  grpc::GenericClientAsyncReaderWriter* call,
-                  util::AsyncQueue* firestore_queue);
-
-  // This factory function, together with the fact that constructors of all
-  // derived operations are private, ensures that each created operation is
-  // always put on the GRPC completion queue.
-  template <typename Op, typename... Args>
-  static Op* ExecuteOperation(GrpcStream* observer,
-                              grpc::GenericClientAsyncReaderWriter* call,
-                              util::AsyncQueue* firestore_queue,
-                              Args... args) {
-    Op* op = new Op{observer, call, firestore_queue, std::move(args)...};
-    op->Execute();
-    return op;
-  }
+  explicit StreamOperation(GrpcStream* stream);
 
   /**
    * Puts the operation on the GRPC completion queue.
@@ -96,9 +79,9 @@ class StreamOperation : public GrpcOperation {
 
  private:
   virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
-  virtual void DoComplete(GrpcStream* observer) = 0;
+  virtual void DoComplete(GrpcStream* stream) = 0;
 
-  GrpcStream* observer_ = nullptr;
+  GrpcStream* stream_ = nullptr;
   grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
   util::AsyncQueue* firestore_queue_ = nullptr;
 
@@ -107,21 +90,21 @@ class StreamOperation : public GrpcOperation {
 };
 
 class StreamStart : public StreamOperation {
- private:
-  friend class StreamOperation;
+ public:
   using StreamOperation::StreamOperation;
 
+ private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* observer) override;
+  void DoComplete(GrpcStream* stream) override;
 };
 
 class StreamRead : public StreamOperation {
- private:
-  friend class StreamOperation;
+ public:
   using StreamOperation::StreamOperation;
 
+ private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* observer) override;
+  void DoComplete(GrpcStream* stream) override;
 
   grpc::ByteBuffer message_;
 };
@@ -129,19 +112,15 @@ class StreamRead : public StreamOperation {
 // Completion of `StreamWrite` only means that GRPC is ready to accept the next
 // write, not that the write has actually been sent on the wire.
 class StreamWrite : public StreamOperation {
- private:
-  friend class StreamOperation;
-  StreamWrite(GrpcStream* observer,
-              grpc::GenericClientAsyncReaderWriter* call,
-              util::AsyncQueue* firestore_queue,
-              grpc::ByteBuffer&& message)
-      : StreamOperation{observer, call, firestore_queue},
+ public:
+  StreamWrite(GrpcStream* stream, grpc::ByteBuffer&& message)
+      : StreamOperation{stream},
         message_{std::move(message)} {
   }
 
  private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* observer) override;
+  void DoComplete(GrpcStream* stream) override;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to
@@ -153,26 +132,26 @@ class StreamWrite : public StreamOperation {
 
 //
 class RemoteInitiatedFinish : public StreamOperation {
- private:
-  friend class StreamOperation;
+ public:
   using StreamOperation::StreamOperation;
 
+ private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* observer) override;
+  void DoComplete(GrpcStream* stream) override;
 
   grpc::Status grpc_status_;
 };
 
-// Unlike `RemoteInitiatedFinish`, the observer is not interested in the status.
+// Unlike `RemoteInitiatedFinish`, the stream is not interested in the status.
 class ClientInitiatedFinish : public StreamOperation {
- private:
-  friend class StreamOperation;
+ public:
   using StreamOperation::StreamOperation;
 
+ private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* observer) override;
+  void DoComplete(GrpcStream* stream) override;
 
-  // Observer isn't interested in the status when finishing is initiated by
+  // Stream isn't interested in the status when finishing is initiated by
   // client, but there has to be a valid object for GRPC purposes.
   grpc::Status unused_status_;
 };

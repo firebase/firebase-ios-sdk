@@ -133,10 +133,6 @@ class Stream : public GrpcStreamObserver,
   /** Marks the stream as active again. */
   void CancelIdleCheck();
 
-  int generation() const override {
-    return generation_;
-  }
-
  protected:
   // `Stream` expects all its methods to be called on the Firestore queue.
   void EnsureOnQueue() const;
@@ -210,6 +206,12 @@ class Stream : public GrpcStreamObserver,
   virtual void DoOnStreamFinish(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;
+
+  // Used to prevent auth if the stream happens to be restarted before token is
+  // received.
+  int generation() const {
+    return generation_;
+  }
 
   void Authenticate();
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
