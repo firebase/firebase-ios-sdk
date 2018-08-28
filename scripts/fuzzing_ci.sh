@@ -20,8 +20,8 @@
 # from the project root directory. The script is intended to execute on travis
 # cron jobs, but can run locally (on a macOS) from the project root.
 
-# Total time allowed for fuzzing in seconds (40 minutes for now).
-readonly ALLOWED_TIME=2400
+# Total time allowed for fuzzing in seconds (25 minutes for now).
+readonly ALLOWED_TIME=1500
 
 # An invalid target that is used to retrieve the list of available targets in
 # the returned error message.
