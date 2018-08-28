@@ -46,6 +46,7 @@ namespace {
 const double kBackoffFactor = 1.5;
 const AsyncQueue::Milliseconds kBackoffInitialDelay{std::chrono::seconds(1)};
 const AsyncQueue::Milliseconds kBackoffMaxDelay{std::chrono::seconds(60)};
+/** The time a stream stays open after it is marked idle. */
 const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 }  // namespace
@@ -143,8 +144,8 @@ void Stream::BackoffAndTryRestarting() {
   HARD_ASSERT(state_ == State::Error,
               "Should only perform backoff in an error case");
 
+  state_ = State::Backoff;
   backoff_.BackoffAndRun([this] { ResumeStartFromBackoff(); });
-  state_ = State::ReconnectingWithBackoff;
 }
 
 void Stream::ResumeStartFromBackoff() {
@@ -159,7 +160,7 @@ void Stream::ResumeStartFromBackoff() {
   // In order to have performed a backoff the stream must have been in an error
   // state just prior to entering the backoff state. If we weren't stopped we
   // must be in the backoff state.
-  HARD_ASSERT(state_ == State::ReconnectingWithBackoff,
+  HARD_ASSERT(state_ == State::Backoff,
               "State should still be backoff (was %s)", state_);
 
   state_ = State::Initial;
@@ -282,7 +283,7 @@ bool Stream::IsOpen() const {
 bool Stream::IsStarted() const {
   EnsureOnQueue();
   return state_ == State::Starting ||
-         state_ == State::ReconnectingWithBackoff || IsOpen();
+         state_ == State::Backoff || IsOpen();
 }
 
 // Protected helpers
