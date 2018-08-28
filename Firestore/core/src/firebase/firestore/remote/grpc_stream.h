@@ -101,12 +101,6 @@ class BufferedWriter {
  * Note that the stream will _not_ notify the observer about finish if the
  * finish was initiated by the client.
  *
- * The stream stores the generation number of the observer at the time of its
- * creation; once observer increases its generation number, the stream will stop
- * notifying it about events. Moreover, the stream will stop listening to new
- * messages from the server and sending any pending messages to the server once
- * it notices that the observer increased its generation number.
- *
  * The stream is disposable; once it finishes, it cannot be restarted.
  *
  * This class is essentially a wrapper over
@@ -123,7 +117,6 @@ class GrpcStream {
              util::AsyncQueue* firestore_queue);
   ~GrpcStream();
 
-  // Can only be called once.
   void Start();
 
   // Can only be called once the stream has opened.
@@ -135,8 +128,7 @@ class GrpcStream {
   // This is a blocking operation; blocking time is expected to be in the order
   // of tens of milliseconds.
 
-  // Can be called on a stream before it opens. It is invalid to finish a stream
-  // more than once.
+  // Can be called on a stream before it opens.
   void Finish();
 
   /**
@@ -158,7 +150,7 @@ class GrpcStream {
   /**
    * Returns the metadata received from the server.
    *
-   * It is only valid to call this method once the stream has opened.
+   * Can only be called once the stream has opened.
    */
   MetadataT GetResponseHeaders() const;
 
@@ -193,7 +185,6 @@ class GrpcStream {
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishOperationsBlocking();
 
-  // Executes an operation and stores a raw pointer to it.
   void Execute(StreamOperation* operation) {
     operation->Execute();
     operations_.push_back(operation);
@@ -213,7 +204,6 @@ class GrpcStream {
   util::AsyncQueue* firestore_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
-  int generation_ = -1;
   internal::BufferedWriter buffered_writer_;
 
   std::vector<StreamOperation*> operations_;
