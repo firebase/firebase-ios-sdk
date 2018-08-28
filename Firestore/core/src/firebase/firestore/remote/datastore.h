@@ -26,7 +26,7 @@ namespace remote {
 
 class Datastore {
  public:
-  static util::Status ToFirestoreStatus(grpc::Status grpc_error);
+  static util::Status ConvertStatus(grpc::Status grpc_error);
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;

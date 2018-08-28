@@ -23,7 +23,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
+util::Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
     return {};
   }

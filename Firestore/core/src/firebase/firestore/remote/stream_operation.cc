@@ -25,16 +25,16 @@ namespace remote {
 
 using util::AsyncQueue;
 
-StreamOperation::StreamOperation(GrpcStream* stream,
-                                 grpc::GenericClientAsyncReaderWriter* call,
-                                 AsyncQueue* firestore_queue)
-    : observer_{stream}, call_{call}, firestore_queue_{firestore_queue} {
+StreamOperation::StreamOperation(GrpcStream* stream)
+    : stream_{stream},
+      call_{stream->call()},
+      firestore_queue_{stream->firestore_queue()} {
 }
 
 void StreamOperation::UnsetObserver() {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  observer_ = nullptr;
+  stream_ = nullptr;
 }
 
 void StreamOperation::Execute() {
@@ -69,15 +69,15 @@ void StreamOperation::Complete(bool ok) {
   off_queue_.set_value();
 
   firestore_queue_->Enqueue([this, ok] {
-    if (observer_) {
-      observer_->RemoveOperation(this);
+    if (stream_) {
+      stream_->RemoveOperation(this);
 
       if (ok) {
-        DoComplete(observer_);
+        DoComplete(stream_);
       } else {
         // Failed operation means this stream is unrecoverably broken; use the
         // same error-handling policy for all operations.
-        observer_->OnOperationFailed();
+        stream_->OnOperationFailed();
       }
     }
 

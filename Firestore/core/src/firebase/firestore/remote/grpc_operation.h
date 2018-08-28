@@ -17,12 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_OPERATION_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_OPERATION_H_
 
-#include <utility>
-
-#include "grpcpp/support/byte_buffer.h"
-
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
