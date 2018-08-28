@@ -115,8 +115,7 @@ class StreamRead : public StreamOperation {
 class StreamWrite : public StreamOperation {
  public:
   StreamWrite(GrpcStream* stream, grpc::ByteBuffer&& message)
-      : StreamOperation{stream},
-        message_{std::move(message)} {
+      : StreamOperation{stream}, message_{std::move(message)} {
   }
 
  private:

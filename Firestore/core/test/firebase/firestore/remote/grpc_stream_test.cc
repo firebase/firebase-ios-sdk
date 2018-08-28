@@ -225,7 +225,7 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  ForceFinish({/*Read*/Error, /*Finish*/ Ok});
+  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
 }
@@ -239,7 +239,7 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
 
   ForceFinish({/*Read*/ Ok, /*Write*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  ForceFinish({/*Read*/Error, /*Finish*/ Ok});
+  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
 }

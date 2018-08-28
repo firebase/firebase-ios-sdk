@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
-#include <memory>
 #include <map>
+#include <memory>
 #include <queue>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
