@@ -53,6 +53,14 @@ std::unique_ptr<util::internal::Executor> CreateExecutor() {
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
+absl::string_view ToStringView(grpc::string_ref grpc_str) {
+  return {grpc_str.begin(), grpc_str.size()};
+}
+
+std::string ToString(grpc::string_ref grpc_str) {
+  return {grpc_str.begin(), grpc_str.end()};
+}
+
 }  // namespace
 
 const char *const kXGoogAPIClientHeader = "x-goog-api-client";
@@ -79,10 +87,10 @@ void Datastore::PollGrpcQueue() {
               "PollGrpcQueue should only be called on the "
               "dedicated Datastore executor");
 
-  void* tag = nullptr;
+  void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto operation = static_cast<GrpcOperation*>(tag);
+    auto operation = static_cast<GrpcOperation *>(tag);
     HARD_ASSERT(tag, "GRPC queue returned a null tag");
     operation->Complete(ok);
   }
@@ -108,7 +116,8 @@ std::shared_ptr<grpc::Channel> Datastore::CreateGrpcChannel() const {
 }
 
 void Datastore::EnsureValidGrpcStub() {
-  if (!grpc_channel_ || grpc_channel_->GetState(false) == GRPC_CHANNEL_SHUTDOWN) {
+  if (!grpc_channel_ ||
+      grpc_channel_->GetState(false) == GRPC_CHANNEL_SHUTDOWN) {
     grpc_channel_ = CreateGrpcChannel();
     grpc_stub_ = grpc::GenericStub{grpc_channel_};
   }
@@ -121,8 +130,8 @@ std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
   EnsureValidGrpcStub();
   auto context = CreateGrpcContext(token);
   auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return absl::make_unique<GrpcStream>(std::move(context), std::move(reader_writer),
-                                observer, firestore_queue_);
+  return absl::make_unique<GrpcStream>(
+      std::move(context), std::move(reader_writer), observer, firestore_queue_);
 }
 
 std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
@@ -159,7 +168,7 @@ Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
   return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
 }
 
-util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
+util::Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
     return {};
   }
@@ -172,33 +181,37 @@ util::Status Datastore::ToFirestoreStatus(grpc::Status from) {
   return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
 }
 
-GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(const GrpcStream::MetadataT& headers) {
-  std::string whitelist[] = {
-    "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
-    "x-google-gfe-request-trace"
-  };
+GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(
+    const GrpcStream::MetadataT &headers) {
+  std::string whitelist[] = {"date", "x-google-backends",
+                             "x-google-netmon-label", "x-google-service",
+                             "x-google-gfe-request-trace"};
 
   GrpcStream::MetadataT whitelisted_headers;
-  for (const auto& kv : headers) {
-    auto found = std::find_if(std::begin(whitelist), std::end(whitelist), [&](const std::string& str) {
-          return str.size() == kv.first.size() && absl::StartsWithIgnoreCase(str, kv.first);
-    });
+  for (const auto &kv : headers) {
+    auto found = std::find_if(std::begin(whitelist), std::end(whitelist),
+                              [&](const std::string& str) {
+                                return str.size() == kv.first.size() &&
+                                       absl::StartsWithIgnoreCase(
+                                           str, ToStringView(kv.first));
+                              });
     if (found != std::end(whitelist)) {
-      whitelisted_headers[kv.first] = kv.second;
+      whitelisted_headers.emplace(kv.first, kv.second);
     }
   }
 
   return whitelisted_headers;
 }
 
-std::string Datastore::GetWhitelistedHeadersAsString(const GrpcStream::MetadataT& headers) {
+std::string Datastore::GetWhitelistedHeadersAsString(
+    const GrpcStream::MetadataT &headers) {
   auto whitelisted_headers = ExtractWhitelistedHeaders(headers);
 
   std::string result;
-  for (const auto& kv : whitelisted_headers) {
-    result += kv.first;
+  for (const auto &kv : whitelisted_headers) {
+    result += ToString(kv.first);
     result += ": ";
-    result += kv.second;
+    result += ToString(kv.second);
     result += "\n";
   }
   return result;

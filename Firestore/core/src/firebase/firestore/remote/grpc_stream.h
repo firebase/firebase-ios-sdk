@@ -138,7 +138,7 @@ class GrpcStreamObserver {
  */
 class GrpcStream {
  public:
-  using MetadataT = std::unordered_map<std::string, std::string>;
+  using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
 
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
@@ -174,7 +174,7 @@ class GrpcStream {
    */
   bool WriteAndFinish(grpc::ByteBuffer&& message);
 
-  bool IsFinished() const { return state_ == State::Finished; }
+  bool IsFinished() const { return observer_ != nullptr; }
 
   /**
    * Returns the metadata received from the server. It is only valid to call
@@ -196,6 +196,8 @@ class GrpcStream {
   void Read();
   StreamWrite* BufferedWrite(grpc::ByteBuffer&& message);
 
+  void UnsetObserver() { observer_ = nullptr; }
+
   // A blocking function that waits until all the operations issued by this
   // stream come out from the gRPC completion queue. Once they do, it is safe to
   // delete this `GrpcStream` (thus releasing `grpc::ClientContext`). This
@@ -206,9 +208,6 @@ class GrpcStream {
   // (either because the call has failed, or because the call has been
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishOperationsBlocking();
-
-  // Whether this stream belongs to the same generation as the observer.
-  bool SameGeneration() const;
 
   // Creates and immediately executes an operation, storing a raw pointer to the
   // operation.
@@ -237,21 +236,7 @@ class GrpcStream {
 
   std::vector<StreamOperation*> operations_;
 
-  // The order of stream states is linear: a stream can never transition to an
-  // "earlier" state, only to a "later" one (e.g., stream can go from `Starting`
-  // to `Open`, but not vice versa). Intermediate states can be skipped (e.g.,
-  // a stream can go from `Starting` directly to `Finishing`).
-  enum class State {
-    NotStarted,
-    Starting,
-    Open,
-    Finishing,
-    Finished
-  };
-  State state_ = State::NotStarted;
-
-  // For a sanity check
-  bool has_pending_read_ = false;
+  bool is_finishing_ = false;
 };
 
 }  // namespace remote

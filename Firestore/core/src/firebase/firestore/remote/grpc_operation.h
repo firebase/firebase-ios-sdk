@@ -19,10 +19,6 @@
 
 #include <utility>
 
-#include "grpcpp/support/byte_buffer.h"
-
-#include "Firestore/core/src/firebase/firestore/util/status.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {

@@ -46,7 +46,7 @@ class Datastore {
                                                absl::string_view path,
                                                GrpcStreamObserver* observer);
 
-  static util::Status ToFirestoreStatus(grpc::Status grpc_error);
+  static util::Status ConvertStatus(grpc::Status grpc_error);
 
   void Shutdown();
   // TODO?
