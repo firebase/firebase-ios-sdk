@@ -84,7 +84,7 @@ class Stream : public GrpcStreamObserver,
    * Stops the stream. This call is idempotent and allowed regardless of the
    * current `IsStarted` state.
    *
-   * When stop returns, isStarted() and isOpen() will both return false.
+   * When stop returns, `IsStarted` and `IsOpen` will both return false.
    */
   void Stop();
 

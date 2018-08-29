@@ -84,10 +84,14 @@ class TestStream : public Stream {
         fixture_{fixture} {
   }
 
-   void WriteEmptyBuffer() {
-     Write({});
-   }
+  void WriteEmptyBuffer() {
+    Write({});
+  }
 
+const std::vector<std::string>& observed_states() const {
+    return observed_states_;
+  }
+  
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) override {
@@ -105,7 +109,7 @@ class TestStream : public Stream {
     return util::Status::OK();
   }
   void DoOnStreamFinish(const util::Status& status) override {
-    observed_states_.push_back("OnStreamFinish");
+    observed_states_.push_back(std::string{"OnStreamStop("} + std::to_string(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {
@@ -135,6 +139,28 @@ class StreamTest : public testing::Test {
     fixture_.Shutdown();
   }
 
+  void ForceStop(std::initializer_list<OperationResult> results) {
+    fixture_.ForceFinish(results);
+  }
+  void KeepPollingGrpcQueue() {
+    fixture_.KeepPollingGrpcQueue();
+  }
+
+  void StartStream() {
+    async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
+    ForceStop({/*Start*/ Ok});
+  }
+
+  const std::vector<std::string>& observed_states() const {
+    return firestore_stream->observed_states();
+  }
+
+  // This is to make `EXPECT_EQ` a little shorter and work around macro
+  // limitations related to initializer lists.
+  std::vector<std::string> States(std::initializer_list<std::string> states) {
+    return {states};
+  }
+
   AsyncQueue& async_queue() {
     return fixture_.async_queue();
   }
@@ -148,11 +174,10 @@ class StreamTest : public testing::Test {
 };
 
 TEST_F(StreamTest, CanStart) {
-  async_queue().EnqueueBlocking(
-      [&] {
-      EXPECT_NO_THROW(firestore_stream->Start());
-      EXPECT_TRUE(firestore_stream->IsStarted());
-      EXPECT_FALSE(firestore_stream->IsOpen());
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Start());
+    EXPECT_TRUE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
   });
 }
 
@@ -163,13 +188,12 @@ TEST_F(StreamTest, CannotStartTwice) {
   });
 }
 
-TEST_F(StreamTest, CanFinishBeforeStarting) {
-  async_queue().EnqueueBlocking([&] {
-    EXPECT_NO_THROW(firestore_stream->Stop());
-  });
+TEST_F(StreamTest, CanStopBeforeStarting) {
+  async_queue().EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(firestore_stream->Stop()); });
 }
 
-TEST_F(StreamTest, CanFinishAfterStarting) {
+TEST_F(StreamTest, CanStopAfterStarting) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_NO_THROW(firestore_stream->Start());
     EXPECT_TRUE(firestore_stream->IsStarted());
@@ -178,7 +202,7 @@ TEST_F(StreamTest, CanFinishAfterStarting) {
   });
 }
 
-TEST_F(StreamTest, CanFinishTwice) {
+TEST_F(StreamTest, CanStopTwice) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_NO_THROW(firestore_stream->Start());
     EXPECT_NO_THROW(firestore_stream->Stop());
@@ -191,6 +215,27 @@ TEST_F(StreamTest, CannotWriteBeforeOpen) {
     EXPECT_ANY_THROW(firestore_stream->WriteEmptyBuffer());
     firestore_stream->Start();
     EXPECT_ANY_THROW(firestore_stream->WriteEmptyBuffer());
+  });
+}
+
+TEST_F(StreamTest, CanOpen) {
+  StartStream();
+  async_queue().EnqueueBlocking([&] {
+      EXPECT_TRUE(firestore_stream->IsStarted());
+      EXPECT_TRUE(firestore_stream->IsOpen());
+      EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
+  });
+}
+
+TEST_F(StreamTest, CanStop) {
+  StartStream();
+  async_queue().EnqueueBlocking([&] {
+      KeepPollingGrpcQueue();
+      firestore_stream->Stop();
+
+      EXPECT_FALSE(firestore_stream->IsStarted());
+      EXPECT_FALSE(firestore_stream->IsOpen());
+      EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(0)"}));
   });
 }
 

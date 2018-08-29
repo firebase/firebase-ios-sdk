@@ -309,7 +309,6 @@ void Stream::Write(grpc::ByteBuffer&& message) {
 
 std::string Stream::GetDebugDescription() const {
   EnsureOnQueue();
-
   return StringFormat("%s (%s)", GetDebugName(), this);
 }
 
