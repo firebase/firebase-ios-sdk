@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"

@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/client_context.h"
