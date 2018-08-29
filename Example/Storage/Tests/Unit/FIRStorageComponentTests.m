@@ -78,7 +78,7 @@
   XCTAssertNotEqual(provider1, provider2);
 }
 
-/// Tests that instances of FIRStorage created are separate.
+/// Tests that instances of FIRStorage created are different.
 - (void)testMultipleStorageInstancesCreated {
   // Get a mocked app, but don't use the default helper since is uses this class in the
   // implementation.
@@ -92,11 +92,19 @@
 
   FIRStorage *storage1 = [provider storageForBucket:@"randomBucket"];
   XCTAssertNotNil(storage1);
-  FIRStorage *storage2 = [provider storageForBucket:@"otherRandomBucket"];
+  FIRStorage *storage2 = [provider storageForBucket:@"randomBucket"];
   XCTAssertNotNil(storage2);
 
-  // Ensure they're different instances.
+  // Ensure that they're different instances but equal objects since everything else matches.
   XCTAssertNotEqual(storage1, storage2);
+  XCTAssertEqualObjects(storage1, storage2);
+
+  // Create another bucket with a different provider from above.
+  FIRStorage *storage3 = [provider storageForBucket:@"differentBucket"];
+  XCTAssertNotNil(storage3);
+
+  // Ensure it's a different object.
+  XCTAssertNotEqualObjects(storage2, storage3);
 }
 
 #pragma mark - Test Helpers

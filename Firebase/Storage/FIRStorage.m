@@ -151,6 +151,7 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   self = [super init];
   if (self) {
     _app = app;
+    _auth = auth;
     _storageBucket = bucket;
     _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app bucket:bucket auth:auth];
     _maxDownloadRetryTime = 600.0;
@@ -184,7 +185,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 - (BOOL)isEqualToFIRStorage:(FIRStorage *)storage {
-  BOOL isEqual = [_app isEqual:storage->_app];
+  BOOL isEqual =
+      [_app isEqual:storage.app] && [_storageBucket isEqualToString:storage.storageBucket];
   return isEqual;
 }
 
