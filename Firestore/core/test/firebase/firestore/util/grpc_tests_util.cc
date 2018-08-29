@@ -52,7 +52,7 @@ GrpcStreamFixture::~GrpcStreamFixture() {
 
 void GrpcStreamFixture::Shutdown() {
   async_queue_.EnqueueBlocking([&] {
-    if (!grpc_stream_->IsFinished()) {
+    if (grpc_stream_ && !grpc_stream_->IsFinished()) {
       KeepPollingGrpcQueue();
       grpc_stream_->Finish();
     }

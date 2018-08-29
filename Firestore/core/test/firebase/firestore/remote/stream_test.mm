@@ -115,14 +115,16 @@ class TestStream : public Stream {
 
 class StreamTest : public testing::Test {
  public:
-  StreamTest() : firestore_stream{&fixture_, &credentials_provider_} {
+  StreamTest() : firestore_stream{std::make_shared<TestStream>(&fixture_, &credentials_provider_)} {
   }
 
   ~StreamTest() {
-    if (firestore_stream.IsStarted()) {
+    async_queue().EnqueueBlocking([&] {
+    if (firestore_stream->IsStarted()) {
       fixture_.KeepPollingGrpcQueue();
-      firestore_stream.Stop();
+      firestore_stream->Stop();
     }
+    });
     fixture_.Shutdown();
   }
 
@@ -135,12 +137,12 @@ private:
   MockCredentialsProvider credentials_provider_;
 
  public:
-  TestStream firestore_stream;
+  std::shared_ptr<TestStream> firestore_stream;
 };
 
 TEST_F(StreamTest, CanStart) {
   async_queue().EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(firestore_stream.Start()); });
+      [&] { EXPECT_NO_THROW(firestore_stream->Start()); });
 }
 
 }  // namespace remote
