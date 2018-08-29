@@ -30,28 +30,29 @@ using util::AsyncQueue;
 // The mechanism for calling async gRPC methods that `GrpcStream` uses is
 // issuing `GrpcStreamOperation`s.
 //
-// To invoke an async method, `GrpcStream` will create a new `GrpcStreamOperation`
-// and execute the operation; `GrpcStreamOperation` knows which gRPC method to
-// invoke and it puts itself on the gRPC completion queue. `GrpcStream` does not
-// have a reference to the gRPC completion queue (this allows using the same
-// completion queue for all streams); it expects that some different class (in
-// practice, `RemoteStore`) will poll the gRPC completion queue and `Complete`
-// all `GrpcStreamOperation`s that come out of the queue.
+// To invoke an async method, `GrpcStream` will create a new
+// `GrpcStreamOperation` and execute the operation; `GrpcStreamOperation` knows
+// which gRPC method to invoke and it puts itself on the gRPC completion queue.
+// `GrpcStream` does not have a reference to the gRPC completion queue (this
+// allows using the same completion queue for all streams); it expects that some
+// different class (in practice, `RemoteStore`) will poll the gRPC completion
+// queue and `Complete` all `GrpcStreamOperation`s that come out of the queue.
 // `GrpcStreamOperation::Complete` will invoke a corresponding callback on the
 // `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
 // observer.
 //
 // `GrpcStream` owns the gRPC objects (such as `grpc::ClientContext`) that must
-// be valid until all `GrpcStreamOperation`s issued by this stream come back from
-// the gRPC completion queue. `GrpcStreamOperation`s contain an `std::promise` that
-// is fulfilled once the operation is taken off the gRPC completion queue, and
-// `GrpcStreamOperation::WaitUntilOffQueue` allows blocking on this. `GrpcStream`
-// holds non-owning pointers to all operations that it issued (and removes
-// pointers to completed operations). `GrpcStream::Finish` and
-// `GrpcStream::WriteAndFinish` block on `GrpcStreamOperation::WaitUntilOffQueue`
-// for all the currently-pending operations, thus ensuring that the stream can
-// be safely released (along with the gRPC objects the stream owns) after
-// `Finish` or `WriteAndFinish` have completed.
+// be valid until all `GrpcStreamOperation`s issued by this stream come back
+// from the gRPC completion queue. `GrpcStreamOperation`s contain an
+// `std::promise` that is fulfilled once the operation is taken off the gRPC
+// completion queue, and `GrpcStreamOperation::WaitUntilOffQueue` allows
+// blocking on this. `GrpcStream` holds non-owning pointers to all operations
+// that it issued (and removes pointers to completed operations).
+// `GrpcStream::Finish` and `GrpcStream::WriteAndFinish` block on
+// `GrpcStreamOperation::WaitUntilOffQueue` for all the currently-pending
+// operations, thus ensuring that the stream can be safely released (along with
+// the gRPC objects the stream owns) after `Finish` or `WriteAndFinish` have
+// completed.
 
 namespace internal {
 
