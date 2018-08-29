@@ -80,7 +80,7 @@ class Stream : public GrpcStreamObserver,
    */
   void Start();
 
-/**
+  /**
    * Stops the stream. This call is idempotent and allowed regardless of the
    * current `IsStarted` state.
    *
@@ -118,7 +118,7 @@ class Stream : public GrpcStreamObserver,
    */
   void CancelBackoff();
 
-   /**
+  /**
    * Marks this stream as idle. If no further actions are performed on the
    * stream for one minute, the stream will automatically close itself and
    * notify the stream's `OnClose` handler with Status::OK. The stream will then
@@ -213,7 +213,9 @@ class Stream : public GrpcStreamObserver,
     return generation_;
   }
 
-  void RaiseGeneration() { ++generation_; }
+  void RaiseGeneration() {
+    ++generation_;
+  }
 
   void Authenticate();
   void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);

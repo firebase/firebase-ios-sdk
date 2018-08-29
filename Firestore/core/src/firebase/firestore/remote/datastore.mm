@@ -17,8 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 
 #include <grpcpp/create_channel.h>
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"

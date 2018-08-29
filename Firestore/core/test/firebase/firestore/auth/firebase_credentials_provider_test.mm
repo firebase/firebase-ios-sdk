@@ -34,7 +34,7 @@
 #include "gtest/gtest.h"
 
 /// A fake class to handle Auth interaction.
-@interface FSTAuthFake : NSObject <FIRAuthInterop>
+@interface FSTAuthFake : NSObject<FIRAuthInterop>
 @property(nonatomic, nullable, strong, readonly) NSString* token;
 @property(nonatomic, nullable, strong, readonly) NSString* uid;
 @property(nonatomic, readonly) BOOL forceRefreshTriggered;
