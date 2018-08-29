@@ -255,13 +255,13 @@ typedef NS_ENUM(NSInteger, FSTRelationFilterOperator) {
 
 /** Returns the field of the first filter on the receiver that's an inequality, or nullptr if none.
  */
-- (const firebase::firestore::model::FieldPath *)inequalityFilterField;
+- (nullable const firebase::firestore::model::FieldPath *)inequalityFilterField;
 
 /** Returns YES if the query has an arrayContains filter already. */
 - (BOOL)hasArrayContainsFilter;
 
 /** Returns the first field in an order-by constraint, or nullptr if none. */
-- (const firebase::firestore::model::FieldPath *)firstSortOrderField;
+- (nullable const firebase::firestore::model::FieldPath *)firstSortOrderField;
 
 /** The base path of the query. */
 - (const firebase::firestore::model::ResourcePath &)path;

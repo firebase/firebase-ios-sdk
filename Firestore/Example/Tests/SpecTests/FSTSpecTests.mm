@@ -397,7 +397,7 @@ static NSString *Describe(NSData *data) {
   [self.driver enableNetwork];
 }
 
-- (void)doChangeUser:(id)UID {
+- (void)doChangeUser:(nullable id)UID {
   if ([UID isEqual:[NSNull null]]) {
     UID = nil;
   }

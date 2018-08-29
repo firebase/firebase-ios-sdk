@@ -468,7 +468,9 @@
       runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
         OSAtomicIncrement32(&count);
         [transaction setData:@{@"foo" : @"bar"} forDocument:doc];
-        *error = [NSError errorWithDomain:NSCocoaErrorDomain code:35 userInfo:@{}];
+        if (error) {
+          *error = [NSError errorWithDomain:NSCocoaErrorDomain code:35 userInfo:@{}];
+        }
         return nil;
       }
       completion:^(id _Nullable result, NSError *_Nullable error) {
