@@ -48,9 +48,9 @@ class GrpcStream;
  * Operation expects all GRPC objects pertaining to the current stream to remain
  * valid until the operation comes back from the GRPC completion queue.
  */
-class StreamOperation : public GrpcOperation {
+class GrpcStreamOperation : public GrpcOperation {
  public:
-  explicit StreamOperation(GrpcStream* stream);
+  explicit GrpcStreamOperation(GrpcStream* stream);
 
   /**
    * Puts the operation on the GRPC completion queue.
@@ -90,18 +90,18 @@ class StreamOperation : public GrpcOperation {
   std::future<void> off_queue_future_;
 };
 
-class StreamStart : public StreamOperation {
+class StreamStart : public GrpcStreamOperation {
  public:
-  using StreamOperation::StreamOperation;
+  using GrpcStreamOperation::GrpcStreamOperation;
 
  private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
   void DoComplete(GrpcStream* stream) override;
 };
 
-class StreamRead : public StreamOperation {
+class StreamRead : public GrpcStreamOperation {
  public:
-  using StreamOperation::StreamOperation;
+  using GrpcStreamOperation::GrpcStreamOperation;
 
  private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
@@ -112,10 +112,10 @@ class StreamRead : public StreamOperation {
 
 // Completion of `StreamWrite` only means that GRPC is ready to accept the next
 // write, not that the write has actually been sent on the wire.
-class StreamWrite : public StreamOperation {
+class StreamWrite : public GrpcStreamOperation {
  public:
   StreamWrite(GrpcStream* stream, grpc::ByteBuffer&& message)
-      : StreamOperation{stream}, message_{std::move(message)} {
+      : GrpcStreamOperation{stream}, message_{std::move(message)} {
   }
 
  private:
@@ -131,9 +131,9 @@ class StreamWrite : public StreamOperation {
 };
 
 //
-class RemoteInitiatedFinish : public StreamOperation {
+class RemoteInitiatedFinish : public GrpcStreamOperation {
  public:
-  using StreamOperation::StreamOperation;
+  using GrpcStreamOperation::GrpcStreamOperation;
 
  private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
@@ -143,9 +143,9 @@ class RemoteInitiatedFinish : public StreamOperation {
 };
 
 // Unlike `RemoteInitiatedFinish`, the stream is not interested in the status.
-class ClientInitiatedFinish : public StreamOperation {
+class ClientInitiatedFinish : public GrpcStreamOperation {
  public:
-  using StreamOperation::StreamOperation;
+  using GrpcStreamOperation::GrpcStreamOperation;
 
  private:
   void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;

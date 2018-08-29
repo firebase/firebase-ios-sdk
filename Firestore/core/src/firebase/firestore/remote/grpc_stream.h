@@ -154,7 +154,7 @@ class GrpcStream {
    */
   MetadataT GetResponseHeaders() const;
 
-  // These are callbacks from the various `StreamOperation` classes that
+  // These are callbacks from the various `GrpcStreamOperation` classes that
   // shouldn't otherwise be called.
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
@@ -162,7 +162,7 @@ class GrpcStream {
   void OnOperationFailed();
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
-  void RemoveOperation(const StreamOperation* to_remove);
+  void RemoveOperation(const GrpcStreamOperation* to_remove);
   grpc::GenericClientAsyncReaderWriter* call() {
     return call_.get();
   }
@@ -189,7 +189,7 @@ class GrpcStream {
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishOperationsBlocking();
 
-  void Execute(StreamOperation* operation) {
+  void Execute(GrpcStreamOperation* operation) {
     operation->Execute();
     operations_.push_back(operation);
   }
@@ -210,7 +210,7 @@ class GrpcStream {
   GrpcStreamObserver* observer_ = nullptr;
   internal::BufferedWriter buffered_writer_;
 
-  std::vector<StreamOperation*> operations_;
+  std::vector<GrpcStreamOperation*> operations_;
 
   bool is_finishing_ = false;
 };

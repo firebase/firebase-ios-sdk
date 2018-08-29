@@ -25,25 +25,25 @@ namespace remote {
 
 using util::AsyncQueue;
 
-StreamOperation::StreamOperation(GrpcStream* stream)
+GrpcStreamOperation::GrpcStreamOperation(GrpcStream* stream)
     : stream_{stream},
       call_{stream->call()},
       firestore_queue_{stream->firestore_queue()} {
 }
 
-void StreamOperation::UnsetObserver() {
+void GrpcStreamOperation::UnsetObserver() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   stream_ = nullptr;
 }
 
-void StreamOperation::Execute() {
+void GrpcStreamOperation::Execute() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   DoExecute(call_);
 }
 
-void StreamOperation::WaitUntilOffQueue() {
+void GrpcStreamOperation::WaitUntilOffQueue() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (!off_queue_future_.valid()) {
@@ -52,7 +52,7 @@ void StreamOperation::WaitUntilOffQueue() {
   return off_queue_future_.wait();
 }
 
-std::future_status StreamOperation::WaitUntilOffQueue(
+std::future_status GrpcStreamOperation::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
   firestore_queue_->VerifyIsCurrentQueue();
 
@@ -62,7 +62,7 @@ std::future_status StreamOperation::WaitUntilOffQueue(
   return off_queue_future_.wait_for(timeout);
 }
 
-void StreamOperation::Complete(bool ok) {
+void GrpcStreamOperation::Complete(bool ok) {
   // This mechanism allows `GrpcStream` to know when the operation is off the
   // GRPC completion queue (and thus this operation no longer requires the
   // underlying GRPC objects to be valid).

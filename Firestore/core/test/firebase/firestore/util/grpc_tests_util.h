@@ -39,7 +39,7 @@ enum OperationResult { Ok, Error };
 
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
- * allows imitating the normal completion of `StreamOperation`s.
+ * allows imitating the normal completion of `GrpcStreamOperation`s.
  */
 class GrpcStreamFixture {
  public:
