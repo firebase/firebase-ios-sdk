@@ -745,7 +745,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   };
 }
 
-- (const FieldPath *)inequalityFilterField {
+- (nullable const FieldPath *)inequalityFilterField {
   for (FSTFilter *filter in self.filters) {
     if ([filter isKindOfClass:[FSTRelationFilter class]] &&
         ((FSTRelationFilter *)filter).isInequality) {
@@ -765,7 +765,7 @@ NSString *FSTStringFromQueryRelationOperator(FSTRelationFilterOperator filterOpe
   return NO;
 }
 
-- (const FieldPath *)firstSortOrderField {
+- (nullable const FieldPath *)firstSortOrderField {
   if (self.explicitSortOrders.count > 0) {
     return &self.explicitSortOrders.firstObject.field;
   }

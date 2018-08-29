@@ -84,6 +84,7 @@ def sync_firestore()
       'Firestore/Example/Tests/Util/FSTIntegrationTestCase.mm',
       'Firestore/Example/Tests/Util/XCTestCase+Await.mm',
       'Firestore/Example/Tests/en.lproj/InfoPlist.strings',
+      'Firestore/core/test/firebase/firestore/testutil/**',
     ]
   end
 

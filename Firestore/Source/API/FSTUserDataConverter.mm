@@ -699,7 +699,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
  *
  * @return The parsed value.
  */
-- (FSTFieldValue *)parseScalarValue:(nullable id)input context:(FSTParseContext *)context {
+- (nullable FSTFieldValue *)parseScalarValue:(nullable id)input context:(FSTParseContext *)context {
   if (!input || [input isMemberOfClass:[NSNull class]]) {
     return [FSTNullValue nullValue];
 
