@@ -56,9 +56,17 @@ namespace {
 
 class MockCredentialsProvider : public EmptyCredentialsProvider {
  public:
+   void FailGetToken() { fail_get_token = true; }
+
   void GetToken(TokenListener completion) override {
     observed_states_.push_back("GetToken");
-    EmptyCredentialsProvider::GetToken(std::move(completion));
+    if (fail_get_token) {
+      if (completion) {
+        completion(util::Status{FirestoreErrorCode::Unknown, ""});
+      }
+    } else {
+      EmptyCredentialsProvider::GetToken(std::move(completion));
+    }
   }
 
   void InvalidateToken() override {
@@ -72,6 +80,7 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 
  private:
   std::vector<std::string> observed_states_;
+  bool fail_get_token = false;
 };
 
 class TestStream : public Stream {
@@ -91,7 +100,7 @@ class TestStream : public Stream {
 const std::vector<std::string>& observed_states() const {
     return observed_states_;
   }
-  
+
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) override {
@@ -126,7 +135,7 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : firestore_stream{
-            std::make_shared<TestStream>(&fixture_, &credentials_provider_)} {
+            std::make_shared<TestStream>(&fixture_, &credentials)} {
   }
 
   ~StreamTest() {
@@ -139,7 +148,7 @@ class StreamTest : public testing::Test {
     fixture_.Shutdown();
   }
 
-  void ForceStop(std::initializer_list<OperationResult> results) {
+  void ForceFinish(std::initializer_list<OperationResult> results) {
     fixture_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {
@@ -148,7 +157,7 @@ class StreamTest : public testing::Test {
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
-    ForceStop({/*Start*/ Ok});
+    ForceFinish({/*Start*/ Ok});
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -167,9 +176,9 @@ class StreamTest : public testing::Test {
 
  private:
   GrpcStreamFixture fixture_;
-  MockCredentialsProvider credentials_provider_;
 
  public:
+  MockCredentialsProvider credentials;
   std::shared_ptr<TestStream> firestore_stream;
 };
 
@@ -236,6 +245,28 @@ TEST_F(StreamTest, CanStop) {
       EXPECT_FALSE(firestore_stream->IsStarted());
       EXPECT_FALSE(firestore_stream->IsOpen());
       EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(0)"}));
+  });
+}
+
+TEST_F(StreamTest, GrpcFailureOnStart) {
+  async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
+  ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
+
+  async_queue().EnqueueBlocking([&] {
+      EXPECT_FALSE(firestore_stream->IsStarted());
+      EXPECT_FALSE(firestore_stream->IsOpen());
+      EXPECT_EQ(observed_states(), States({"OnStreamStop(1)"}));
+  });
+}
+
+TEST_F(StreamTest, AuthFailureOnStart) {
+  credentials.FailGetToken();
+  async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
+
+  async_queue().EnqueueBlocking([&] {
+      EXPECT_FALSE(firestore_stream->IsStarted());
+      EXPECT_FALSE(firestore_stream->IsOpen());
+      EXPECT_EQ(observed_states(), States({"OnStreamStop(2)"}));
   });
 }
 
