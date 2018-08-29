@@ -102,7 +102,9 @@ void GrpcStream::Start() {
 }
 
 void GrpcStream::Read() {
-  Execute(new StreamRead{this});
+  if (observer_) {
+    Execute(new StreamRead{this});
+  }
 }
 
 void GrpcStream::Write(grpc::ByteBuffer&& message) {

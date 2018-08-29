@@ -54,19 +54,37 @@ using util::internal::ExecutorStd;
 
 namespace {
 
+const auto kIdleTimerId = TimerId::ListenStreamIdle;
+
 class MockCredentialsProvider : public EmptyCredentialsProvider {
  public:
-   void FailGetToken() { fail_get_token = true; }
+  void FailGetToken() {
+    fail_get_token_ = true;
+  }
+  void DelayGetToken() {
+    delay_get_token_ = true;
+  }
 
   void GetToken(TokenListener completion) override {
     observed_states_.push_back("GetToken");
-    if (fail_get_token) {
+
+    if (delay_get_token_) {
+      delayed_token_listener_ = completion;
+      return;
+    }
+
+    if (fail_get_token_) {
       if (completion) {
         completion(util::Status{FirestoreErrorCode::Unknown, ""});
       }
     } else {
       EmptyCredentialsProvider::GetToken(std::move(completion));
     }
+  }
+
+  void InvokeGetToken() {
+    delay_get_token_ = false;
+    EmptyCredentialsProvider::GetToken(std::move(delayed_token_listener_));
   }
 
   void InvalidateToken() override {
@@ -80,7 +98,9 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 
  private:
   std::vector<std::string> observed_states_;
-  bool fail_get_token = false;
+  bool fail_get_token_ = false;
+  bool delay_get_token_ = false;
+  TokenListener delayed_token_listener_;
 };
 
 class TestStream : public Stream {
@@ -88,8 +108,8 @@ class TestStream : public Stream {
   TestStream(GrpcStreamFixture* fixture,
              CredentialsProvider* credentials_provider)
       : Stream{&fixture->async_queue(), credentials_provider,
-               /*Datastore=*/nullptr, TimerId::ListenStreamIdle,
-               TimerId::ListenStreamConnectionBackoff},
+               /*Datastore=*/nullptr, TimerId::ListenStreamConnectionBackoff,
+               kIdleTimerId},
         fixture_{fixture} {
   }
 
@@ -97,7 +117,11 @@ class TestStream : public Stream {
     Write({});
   }
 
-const std::vector<std::string>& observed_states() const {
+  void FailStreamRead() {
+    fail_stream_read_ = true;
+  }
+
+  const std::vector<std::string>& observed_states() const {
     return observed_states_;
   }
 
@@ -113,12 +137,19 @@ const std::vector<std::string>& observed_states() const {
   void DoOnStreamStart() override {
     observed_states_.push_back("OnStreamStart");
   }
+
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override {
     observed_states_.push_back("OnStreamRead");
+    if (fail_stream_read_) {
+      fail_stream_read_ = false;
+      return util::Status{FirestoreErrorCode::Internal, ""};
+    }
     return util::Status::OK();
   }
+
   void DoOnStreamFinish(const util::Status& status) override {
-    observed_states_.push_back(std::string{"OnStreamStop("} + std::to_string(status.code()) + ")");
+    observed_states_.push_back(std::string{"OnStreamStop("} +
+                               std::to_string(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {
@@ -127,6 +158,7 @@ const std::vector<std::string>& observed_states() const {
 
   GrpcStreamFixture* fixture_ = nullptr;
   std::vector<std::string> observed_states_;
+  bool fail_stream_read_ = false;
 };
 
 }  // namespace
@@ -140,7 +172,7 @@ class StreamTest : public testing::Test {
 
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
-      if (firestore_stream->IsStarted()) {
+      if (firestore_stream && firestore_stream->IsStarted()) {
         fixture_.KeepPollingGrpcQueue();
         firestore_stream->Stop();
       }
@@ -230,21 +262,21 @@ TEST_F(StreamTest, CannotWriteBeforeOpen) {
 TEST_F(StreamTest, CanOpen) {
   StartStream();
   async_queue().EnqueueBlocking([&] {
-      EXPECT_TRUE(firestore_stream->IsStarted());
-      EXPECT_TRUE(firestore_stream->IsOpen());
-      EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
+    EXPECT_TRUE(firestore_stream->IsStarted());
+    EXPECT_TRUE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
   });
 }
 
 TEST_F(StreamTest, CanStop) {
   StartStream();
   async_queue().EnqueueBlocking([&] {
-      KeepPollingGrpcQueue();
-      firestore_stream->Stop();
+    KeepPollingGrpcQueue();
+    firestore_stream->Stop();
 
-      EXPECT_FALSE(firestore_stream->IsStarted());
-      EXPECT_FALSE(firestore_stream->IsOpen());
-      EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(0)"}));
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(0)"}));
   });
 }
 
@@ -253,9 +285,9 @@ TEST_F(StreamTest, GrpcFailureOnStart) {
   ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
 
   async_queue().EnqueueBlocking([&] {
-      EXPECT_FALSE(firestore_stream->IsStarted());
-      EXPECT_FALSE(firestore_stream->IsOpen());
-      EXPECT_EQ(observed_states(), States({"OnStreamStop(1)"}));
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(), States({"OnStreamStop(1)"}));
   });
 }
 
@@ -264,9 +296,67 @@ TEST_F(StreamTest, AuthFailureOnStart) {
   async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
 
   async_queue().EnqueueBlocking([&] {
-      EXPECT_FALSE(firestore_stream->IsStarted());
-      EXPECT_FALSE(firestore_stream->IsOpen());
-      EXPECT_EQ(observed_states(), States({"OnStreamStop(2)"}));
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(), States({"OnStreamStop(2)"}));
+  });
+}
+
+TEST_F(StreamTest, AuthWhenStreamHasBeenStopped) {
+  credentials.DelayGetToken();
+  async_queue().EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+  });
+  credentials.InvokeGetToken();
+}
+
+TEST_F(StreamTest, AuthOutlivesStream) {
+  credentials.DelayGetToken();
+  async_queue().EnqueueBlocking([&] {
+    firestore_stream->Start();
+    firestore_stream->Stop();
+    firestore_stream.reset();
+  });
+  credentials.InvokeGetToken();
+}
+
+TEST_F(StreamTest, ErrorAfterStart) {
+  StartStream();
+  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(1)"}));
+  });
+}
+
+TEST_F(StreamTest, ClosesOnIdle) {
+  StartStream();
+
+  async_queue().EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
+
+  KeepPollingGrpcQueue();
+  EXPECT_TRUE(async_queue().IsScheduled(kIdleTimerId));
+  async_queue().RunScheduledOperationsUntil(kIdleTimerId);
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states().back(), "OnStreamStop(0)");
+  });
+}
+
+TEST_F(StreamTest, ClientSideErrorOnRead) {
+  StartStream();
+
+  firestore_stream->FailStreamRead();
+  ForceFinish({/*Read*/ Ok});
+
+  KeepPollingGrpcQueue();
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states().back(), "OnStreamStop(13)");
   });
 }
 
