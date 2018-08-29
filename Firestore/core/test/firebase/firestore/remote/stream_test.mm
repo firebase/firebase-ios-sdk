@@ -80,8 +80,13 @@ class TestStream : public Stream {
              CredentialsProvider* credentials_provider)
       : Stream{&fixture->async_queue(), credentials_provider,
                /*Datastore=*/nullptr, TimerId::ListenStreamIdle,
-               TimerId::ListenStreamConnectionBackoff}, fixture_{fixture} {
+               TimerId::ListenStreamConnectionBackoff},
+        fixture_{fixture} {
   }
+
+   void WriteEmptyBuffer() {
+     Write({});
+   }
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
@@ -115,15 +120,17 @@ class TestStream : public Stream {
 
 class StreamTest : public testing::Test {
  public:
-  StreamTest() : firestore_stream{std::make_shared<TestStream>(&fixture_, &credentials_provider_)} {
+  StreamTest()
+      : firestore_stream{
+            std::make_shared<TestStream>(&fixture_, &credentials_provider_)} {
   }
 
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
-    if (firestore_stream->IsStarted()) {
-      fixture_.KeepPollingGrpcQueue();
-      firestore_stream->Stop();
-    }
+      if (firestore_stream->IsStarted()) {
+        fixture_.KeepPollingGrpcQueue();
+        firestore_stream->Stop();
+      }
     });
     fixture_.Shutdown();
   }
@@ -132,7 +139,7 @@ class StreamTest : public testing::Test {
     return fixture_.async_queue();
   }
 
-private:
+ private:
   GrpcStreamFixture fixture_;
   MockCredentialsProvider credentials_provider_;
 
@@ -142,7 +149,49 @@ private:
 
 TEST_F(StreamTest, CanStart) {
   async_queue().EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(firestore_stream->Start()); });
+      [&] {
+      EXPECT_NO_THROW(firestore_stream->Start());
+      EXPECT_TRUE(firestore_stream->IsStarted());
+      EXPECT_FALSE(firestore_stream->IsOpen());
+  });
+}
+
+TEST_F(StreamTest, CannotStartTwice) {
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Start());
+    EXPECT_ANY_THROW(firestore_stream->Start());
+  });
+}
+
+TEST_F(StreamTest, CanFinishBeforeStarting) {
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Stop());
+  });
+}
+
+TEST_F(StreamTest, CanFinishAfterStarting) {
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Start());
+    EXPECT_TRUE(firestore_stream->IsStarted());
+    EXPECT_NO_THROW(firestore_stream->Stop());
+    EXPECT_FALSE(firestore_stream->IsStarted());
+  });
+}
+
+TEST_F(StreamTest, CanFinishTwice) {
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Start());
+    EXPECT_NO_THROW(firestore_stream->Stop());
+    EXPECT_NO_THROW(firestore_stream->Stop());
+  });
+}
+
+TEST_F(StreamTest, CannotWriteBeforeOpen) {
+  async_queue().EnqueueBlocking([&] {
+    EXPECT_ANY_THROW(firestore_stream->WriteEmptyBuffer());
+    firestore_stream->Start();
+    EXPECT_ANY_THROW(firestore_stream->WriteEmptyBuffer());
+  });
 }
 
 }  // namespace remote

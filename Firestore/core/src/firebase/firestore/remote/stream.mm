@@ -83,6 +83,8 @@ void Stream::Start() {
 }
 
 void Stream::Authenticate() {
+  EnsureOnQueue();
+
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
   std::weak_ptr<Stream> weak_self{shared_from_this()};
@@ -171,6 +173,7 @@ void Stream::CancelBackoff() {
 }
 
 void Stream::ResetBackoff() {
+  EnsureOnQueue();
   backoff_.Reset();
 }
 
@@ -186,6 +189,8 @@ void Stream::MarkIdle() {
 }
 
 void Stream::CancelIdleCheck() {
+  EnsureOnQueue();
+
   idleness_timer_.Cancel();
 }
 
@@ -269,6 +274,8 @@ void Stream::OnStreamError(const Status& status) {
 }
 
 void Stream::ResetGrpcStream() {
+  EnsureOnQueue();
+
   grpc_stream_.reset();
   backoff_.Cancel();
 }
@@ -292,11 +299,17 @@ void Stream::EnsureOnQueue() const {
 }
 
 void Stream::Write(grpc::ByteBuffer&& message) {
+  EnsureOnQueue();
+
+  HARD_ASSERT(IsOpen(), "Cannot write when the stream is not open.");
+
   CancelIdleCheck();
   grpc_stream_->Write(std::move(message));
 }
 
 std::string Stream::GetDebugDescription() const {
+  EnsureOnQueue();
+
   return StringFormat("%s (%s)", GetDebugName(), this);
 }
 
