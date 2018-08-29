@@ -239,9 +239,9 @@ static void callInMainThreadWithAuthDataResultAndError(
 #pragma mark -
 
 + (void)retrieveUserWithAuth:(FIRAuth *)auth
-                 accessToken:(NSString *)accessToken
-   accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
-                refreshToken:(NSString *)refreshToken
+                 accessToken:(nullable NSString *)accessToken
+   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                refreshToken:(nullable NSString *)refreshToken
                    anonymous:(BOOL)anonymous
                     callback:(FIRRetrieveUserCallback)callback {
   FIRSecureTokenService *tokenService =
@@ -850,15 +850,19 @@ static void callInMainThreadWithAuthDataResultAndError(
         then attempts to parse the token. If the token cannot be parsed an error is returned via the
         "error" out parameter.
  */
-- (FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
+- (nullable FIRAuthTokenResult *)parseIDToken:(NSString *)token error:(NSError **)error {
   // Though this is an internal method, errors returned here are surfaced in user-visible
   // callbacks.
-  *error = nil;
+  if (error) {
+    *error = nil;
+  }
   NSArray *tokenStringArray = [token componentsSeparatedByString:@"."];
 
   // The JWT should have three parts, though we only use the second in this method.
   if (tokenStringArray.count != 3) {
-    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    if (error) {
+      *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    }
     return nil;
   }
 
@@ -884,7 +888,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       [[NSData alloc] initWithBase64EncodedString:tokenPayload
                                           options:NSDataBase64DecodingIgnoreUnknownCharacters];
   if (!decodedTokenPayloadData) {
-    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    if (error) {
+      *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    }
     return nil;
   }
   NSError *jsonError = nil;
@@ -894,12 +900,16 @@ static void callInMainThreadWithAuthDataResultAndError(
                                       options:options
                                         error:&jsonError];
   if (jsonError != nil) {
-    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:jsonError];
+    if (error) {
+      *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:jsonError];
+    }
     return nil;
   }
 
   if (!tokenPayloadDictionary) {
-    *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    if (error) {
+      *error = [FIRAuthErrorUtils malformedJWTErrorWithToken:token underlyingError:nil];
+    }
     return nil;
   }
 

@@ -65,9 +65,9 @@ typedef void(^FIRRetrieveUserCallback)(FIRUser *_Nullable user, NSError *_Nullab
         asynchronously on the auth global work queue in the future.
  */
 + (void)retrieveUserWithAuth:(FIRAuth *)auth
-                 accessToken:(NSString *)accessToken
-   accessTokenExpirationDate:(NSDate *)accessTokenExpirationDate
-                refreshToken:(NSString *)refreshToken
+                 accessToken:(nullable NSString *)accessToken
+   accessTokenExpirationDate:(nullable NSDate *)accessTokenExpirationDate
+                refreshToken:(nullable NSString *)refreshToken
                    anonymous:(BOOL)anonymous
                     callback:(FIRRetrieveUserCallback)callback;
 

@@ -1072,6 +1072,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (!email) {
       [FIRAuthExceptionUtils raiseInvalidParameterExceptionWithReason:
           kMissingEmailInvalidParameterExceptionReason];
+      return;
     }
     FIRGetOOBConfirmationCodeRequest *request =
         [FIRGetOOBConfirmationCodeRequest passwordResetRequestWithEmail:email
@@ -1486,7 +1487,8 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
  */
 - (void)possiblyPostAuthStateChangeNotification {
   NSString *token = _currentUser.rawAccessToken;
-  if (_lastNotifiedUserToken == token || [_lastNotifiedUserToken isEqualToString:token]) {
+  if (_lastNotifiedUserToken == token ||
+      (token != nil && [_lastNotifiedUserToken isEqualToString:token])) {
     return;
   }
   _lastNotifiedUserToken = token;
