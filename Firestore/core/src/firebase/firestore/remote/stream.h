@@ -176,7 +176,11 @@ class Stream : public GrpcStreamObserver,
    */
   void MarkIdle();
 
-  /** Marks the stream as active again. */
+  /**
+   * Marks the stream as active again, preventing auto-closing of the stream.
+   * Can be called from any state -- if the stream is not in state `Open`, this
+   * is a no-op.
+   */
   void CancelIdleCheck();
 
   // `GrpcStreamObserver` interface -- do not use.
