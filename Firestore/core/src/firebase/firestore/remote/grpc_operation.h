@@ -30,12 +30,6 @@ class GrpcOperation {
   }
 
   /**
-   * Executes the asynchronous gRPC operation. The operation is expected to be
-   * put on the completion queue by this function.
-   */
-  virtual void Execute() = 0;
-
-  /**
    * Must to be called once the operation is retrieved from the completion
    * queue, and provided with a boolean to indicate whether the operation has
    * completed successfully. A false value of `ok` means unrecoverable failure.
