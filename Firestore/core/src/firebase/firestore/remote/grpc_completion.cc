@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+
+#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -25,19 +27,18 @@ namespace remote {
 
 using util::AsyncQueue;
 
-GrpcStreamCompletion::GrpcStreamCompletion(AsyncQueue* firestore_queue,
-                                           Completion&& completion)
-    : completion_{(completion)}, firestore_queue_{firestore_queue} {
+GrpcCompletion::GrpcCompletion(AsyncQueue* worker_queue, Action&& action)
+    : worker_queue_{worker_queue}, action_{std::move(action)} {
 }
 
-void GrpcStreamCompletion::UnsetCompletion() {
-  firestore_queue_->VerifyIsCurrentQueue();
+void GrpcCompletion::Cancel() {
+  worker_queue_->VerifyIsCurrentQueue();
 
-  completion_ = {};
+  action_ = {};
 }
 
-void GrpcStreamCompletion::WaitUntilOffQueue() {
-  firestore_queue_->VerifyIsCurrentQueue();
+void GrpcCompletion::WaitUntilOffQueue() {
+  worker_queue_->VerifyIsCurrentQueue();
 
   if (!off_queue_future_.valid()) {
     off_queue_future_ = off_queue_.get_future();
@@ -45,9 +46,9 @@ void GrpcStreamCompletion::WaitUntilOffQueue() {
   return off_queue_future_.wait();
 }
 
-std::future_status GrpcStreamCompletion::WaitUntilOffQueue(
+std::future_status GrpcCompletion::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
-  firestore_queue_->VerifyIsCurrentQueue();
+  worker_queue_->VerifyIsCurrentQueue();
 
   if (!off_queue_future_.valid()) {
     off_queue_future_ = off_queue_.get_future();
@@ -55,15 +56,15 @@ std::future_status GrpcStreamCompletion::WaitUntilOffQueue(
   return off_queue_future_.wait_for(timeout);
 }
 
-void GrpcStreamCompletion::Complete(bool ok) {
+void GrpcCompletion::Complete(bool ok) {
   // This mechanism allows `GrpcStream` to know when the operation is off the
   // GRPC completion queue (and thus this operation no longer requires the
   // underlying GRPC objects to be valid).
   off_queue_.set_value();
 
-  firestore_queue_->Enqueue([this, ok] {
-    if (completion_) {
-      completion_(ok, *this);
+  worker_queue_->Enqueue([this, ok] {
+    if (action_) {
+      action_(ok, this);
     }
     delete this;
   });

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OPERATION_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OPERATION_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_COMPLETION_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_COMPLETION_H_
 
 #include <chrono>  // NOLINT(build/c++11)
+#include <functional>
 #include <future>  // NOLINT(build/c++11)
 #include <utility>
 
@@ -41,19 +42,18 @@ class GrpcStream;
  * queue, `Complete()` will be called on it. `Complete` doesn't notify the
  * observing stream immediately; instead, it schedules the notification on the
  * Firestore async queue. If the stream doesn't want to be notified, it should
- * call `UnsetObserver` on the operation.
+ * call `Cancel` on the operation.
  *
  * Operation is "self-owned"; operation deletes itself in its `Complete` method.
  *
  * Operation expects all GRPC objects pertaining to the current stream to remain
  * valid until the operation comes back from the GRPC completion queue.
  */
-class GrpcStreamCompletion : public GrpcOperation {
+class GrpcCompletion : public GrpcOperation {
  public:
-  using Completion = std::function<void(bool, const GrpcStreamCompletion&)>;
+  using Action = std::function<void(bool, const GrpcCompletion*)>;
 
-  GrpcStreamCompletion(util::AsyncQueue* firestore_queue,
-                       Completion&& completion);
+  GrpcCompletion(util::AsyncQueue* firestore_queue, Action&& action);
 
   /**
    * Marks the operation as having come back from the GRPC completion queue and
@@ -66,7 +66,7 @@ class GrpcStreamCompletion : public GrpcOperation {
    */
   void Complete(bool ok) override;
 
-  void UnsetCompletion();
+  void Cancel();
 
   // This is a blocking function; it blocks until the operation comes back from
   // the GRPC completion queue. It is important to only call this function when
@@ -88,8 +88,8 @@ class GrpcStreamCompletion : public GrpcOperation {
   }
 
  private:
-  util::AsyncQueue* firestore_queue_ = nullptr;
-  Completion completion_;
+  util::AsyncQueue* worker_queue_ = nullptr;
+  Action action_;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to
@@ -107,4 +107,4 @@ class GrpcStreamCompletion : public GrpcOperation {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OPERATION_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_COMPLETION_H_
