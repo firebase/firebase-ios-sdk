@@ -37,11 +37,6 @@ class Datastore {
   Datastore(Datastore&& other) = delete;
   Datastore& operator=(const Datastore& other) = delete;
   Datastore& operator=(Datastore&& other) = delete;
-
- private:
-  static GrpcStream::MetadataT ExtractWhitelistedHeaders(
-      const GrpcStream::MetadataT& headers);
-
 };
 
 }  // namespace remote

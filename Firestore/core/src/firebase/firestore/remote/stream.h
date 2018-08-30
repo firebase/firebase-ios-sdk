@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++"
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <string>
 
@@ -54,7 +50,8 @@ namespace remote {
  * Subclasses of `Stream`:
  *
  *   - Implement serialization and deserialization of protocol buffers
- *   - Notify their delegate about stream open/read/error events.
+ *   - Notify their delegate about stream open/read/error events
+ *   - Create and finish the underlying gRPC streams.
  *
  * ## Starting and Stopping
  *
@@ -64,83 +61,6 @@ namespace remote {
 class Stream : public GrpcStreamObserver,
                public std::enable_shared_from_this<Stream> {
  public:
-  Stream(util::AsyncQueue* async_queue,
-         auth::CredentialsProvider* credentials_provider,
-         Datastore* datastore,
-         util::TimerId backoff_timer_id,
-         util::TimerId idle_timer_id);
-
-  /**
-   * Starts the stream. Only allowed if `IsStarted` returns false. The stream is
-   * not immediately ready for use: `OnStreamStart` will be invoked when the
-   * stream is ready for outbound requests, at which point `IsOpen` will return
-   * true.
-   *
-   * When start returns, `IsStarted` will return true.
-   */
-  void Start();
-
-/**
-   * Stops the stream. This call is idempotent and allowed regardless of the
-   * current `IsStarted` state.
-   *
-   * When stop returns, `IsStarted` and `IsOpen` will both return false.
-   */
-  void Stop();
-
-  /**
-   * Returns true if `Start` has been called and no error has occurred. True
-   * indicates the stream is open or in the process of opening (which
-   * encompasses respecting backoff, getting auth tokens, and starting the
-   * actual stream). Use `IsOpen` to determine if the stream is open and ready
-   * for outbound requests.
-   */
-  bool IsStarted() const;
-
-  /**
-   * Returns true if the underlying stream is open (`OnStreamStart` has been
-   * called) and the stream is ready for outbound requests.
-   */
-  bool IsOpen() const;
-
-  // `GrpcStreamObserver` interface -- do not use.
-  void OnStreamStart() override;
-  void OnStreamRead(const grpc::ByteBuffer& message) override;
-  void OnStreamError(const util::Status& status) override;
-
-  /**
-   * After an error, the stream will usually back off on the next attempt to
-   * start it. If the error warrants an immediate restart of the stream, the
-   * sender can use this to indicate that the receiver should not back off.
-   *
-   * Each error will call `OnStreamClose`. That function can decide to
-   * cancel backoff if required.
-   */
-  void CancelBackoff();
-
-   /**
-   * Marks this stream as idle. If no further actions are performed on the
-   * stream for one minute, the stream will automatically close itself and
-   * notify the stream's `OnClose` handler with Status::OK. The stream will then
-   * be in a non-started state, requiring the caller to start the stream again
-   * before further use.
-   *
-   * Only streams that are in state 'Open' can be marked idle, as all other
-   * states imply pending network operations.
-   */
-  void MarkIdle();
-
-  /** Marks the stream as active again. */
-  void CancelIdleCheck();
-
- protected:
-  // `Stream` expects all its methods to be called on the Firestore queue.
-  void EnsureOnQueue() const;
-  void Write(grpc::ByteBuffer&& message);
-  void ResetBackoff();
-  std::string GetDebugDescription() const;
-
- private:
   /**
    * `Stream` can be in one of 5 states (each described in detail below)
    * shown in the following state transition diagram:
@@ -195,6 +115,83 @@ class Stream : public GrpcStreamObserver,
     Backoff
   };
 
+  Stream(util::AsyncQueue* async_queue,
+         auth::CredentialsProvider* credentials_provider,
+         Datastore* datastore,
+         util::TimerId backoff_timer_id,
+         util::TimerId idle_timer_id);
+
+  /**
+   * Starts the stream. Only allowed if `IsStarted` returns false. The stream is
+   * not immediately ready for use: `OnStreamStart` will be invoked when the
+   * stream is ready for outbound requests, at which point `IsOpen` will return
+   * true.
+   *
+   * When start returns, `IsStarted` will return true.
+   */
+  void Start();
+
+/**
+   * Stops the stream. This call is idempotent and allowed regardless of the
+   * current `IsStarted` state.
+   *
+   * When stop returns, `IsStarted` and `IsOpen` will both return false.
+   */
+  void Stop();
+
+  /**
+   * Returns true if `Start` has been called and no error has occurred. True
+   * indicates the stream is open or in the process of opening (which
+   * encompasses respecting backoff, getting auth tokens, and starting the
+   * actual stream). Use `IsOpen` to determine if the stream is open and ready
+   * for outbound requests.
+   */
+  bool IsStarted() const;
+
+  /**
+   * Returns true if the underlying stream is open (`OnStreamStart` has been
+   * called) and the stream is ready for outbound requests.
+   */
+  bool IsOpen() const;
+
+  /**
+   * After an error, the stream will usually back off on the next attempt to
+   * start it. If the error warrants an immediate restart of the stream, the
+   * sender can use this to indicate that the receiver should not back off.
+   *
+   * Each error will call `OnStreamClose`. That function can decide to
+   * cancel backoff if required.
+   */
+  void CancelBackoff();
+
+   /**
+   * Marks this stream as idle. If no further actions are performed on the
+   * stream for one minute, the stream will automatically close itself and
+   * notify the stream's `OnClose` handler with Status::OK. The stream will then
+   * be in a non-started state, requiring the caller to start the stream again
+   * before further use.
+   *
+   * Only streams that are in state 'Open' can be marked idle, as all other
+   * states imply pending network operations.
+   */
+  void MarkIdle();
+
+  /** Marks the stream as active again. */
+  void CancelIdleCheck();
+
+  // `GrpcStreamObserver` interface -- do not use.
+  void OnStreamStart() override;
+  void OnStreamRead(const grpc::ByteBuffer& message) override;
+  void OnStreamError(const util::Status& status) override;
+
+ protected:
+  // `Stream` expects all its methods to be called on the worker queue.
+  void EnsureOnQueue() const;
+  void Write(grpc::ByteBuffer&& message);
+  void ResetBackoff();
+  std::string GetDebugDescription() const;
+
+ private:
   // The interface for the derived classes.
 
   virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
@@ -229,7 +226,7 @@ class Stream : public GrpcStreamObserver,
   std::unique_ptr<GrpcStream> grpc_stream_;
 
   auth::CredentialsProvider* credentials_provider_ = nullptr;
-  util::AsyncQueue* firestore_queue_ = nullptr;
+  util::AsyncQueue* worker_queue_ = nullptr;
   Datastore* datastore_ = nullptr;
 
   ExponentialBackoff backoff_;

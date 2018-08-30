@@ -16,11 +16,12 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include <algorithm>
+#include <unordered_set>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -29,15 +30,16 @@ namespace remote {
 
 namespace {
 
-absl::string_view ToStringView(grpc::string_ref grpc_str) {
+absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
-std::string ToString(grpc::string_ref grpc_str) {
+std::string MakeString(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.end()};
 }
 
 }  // namespace
+
 util::Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
     return {};
@@ -51,38 +53,16 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
   return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
 }
 
-GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(
+std::string Datastore::GetWhitelistedHeadersAsString(
     const GrpcStream::MetadataT &headers) {
-  std::string whitelist[] = {"date", "x-google-backends",
+  static std::unordered_set<std::string> whitelist = {"date", "x-google-backends",
                              "x-google-netmon-label", "x-google-service",
                              "x-google-gfe-request-trace"};
 
-  GrpcStream::MetadataT whitelisted_headers;
-  for (const auto &kv : headers) {
-    auto found = std::find_if(std::begin(whitelist), std::end(whitelist),
-                              [&](const std::string& str) {
-                                return str.size() == kv.first.size() &&
-                                       absl::StartsWithIgnoreCase(
-                                           str, ToStringView(kv.first));
-                              });
-    if (found != std::end(whitelist)) {
-      whitelisted_headers.emplace(kv.first, kv.second);
-    }
-  }
-
-  return whitelisted_headers;
-}
-
-std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT &headers) {
-  auto whitelisted_headers = ExtractWhitelistedHeaders(headers);
-
   std::string result;
-  for (const auto &kv : whitelisted_headers) {
-    result += ToString(kv.first);
-    result += ": ";
-    result += ToString(kv.second);
-    result += "\n";
+
+  for (const auto& kv : headers) {
+    absl::StrAppend(&result, ToStringView(kv.first), ": ", ToStringView(kv.second), "\n");
   }
   return result;
 }
