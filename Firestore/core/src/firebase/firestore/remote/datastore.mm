@@ -143,7 +143,7 @@ std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
 
   // This header is used to improve routing and project isolation by the
   // backend.
-  model::DatabaseId db_id = database_info_->database_id();
+  const model::DatabaseId& db_id = database_info_->database_id();
   context->AddMetadata(kGoogleCloudResourcePrefix,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
