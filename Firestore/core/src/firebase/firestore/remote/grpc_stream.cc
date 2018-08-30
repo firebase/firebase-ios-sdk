@@ -189,6 +189,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
     // makes all pending operations come back from the queue quickly).
     auto status = completion->WaitUntilOffQueue(std::chrono::milliseconds(500));
     if (status == std::future_status::ready) {
+      RemoveCompletion(completion);
       did_last_write = true;
     }
   }
