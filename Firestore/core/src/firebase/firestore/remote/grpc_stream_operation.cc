@@ -25,25 +25,18 @@ namespace remote {
 
 using util::AsyncQueue;
 
-GrpcStreamOperation::GrpcStreamOperation(GrpcStream* stream)
-    : stream_{stream},
-      call_{stream->call()},
-      firestore_queue_{stream->firestore_queue()} {
+GrpcStreamCompletion::GrpcStreamCompletion(AsyncQueue* firestore_queue,
+                                           Completion&& completion)
+    : completion_{(completion)}, firestore_queue_{firestore_queue} {
 }
 
-void GrpcStreamOperation::UnsetObserver() {
+void GrpcStreamCompletion::UnsetCompletion() {
   firestore_queue_->VerifyIsCurrentQueue();
 
-  stream_ = nullptr;
+  completion_ = {};
 }
 
-void GrpcStreamOperation::Execute() {
-  firestore_queue_->VerifyIsCurrentQueue();
-
-  DoExecute(call_);
-}
-
-void GrpcStreamOperation::WaitUntilOffQueue() {
+void GrpcStreamCompletion::WaitUntilOffQueue() {
   firestore_queue_->VerifyIsCurrentQueue();
 
   if (!off_queue_future_.valid()) {
@@ -52,7 +45,7 @@ void GrpcStreamOperation::WaitUntilOffQueue() {
   return off_queue_future_.wait();
 }
 
-std::future_status GrpcStreamOperation::WaitUntilOffQueue(
+std::future_status GrpcStreamCompletion::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
   firestore_queue_->VerifyIsCurrentQueue();
 
@@ -62,81 +55,18 @@ std::future_status GrpcStreamOperation::WaitUntilOffQueue(
   return off_queue_future_.wait_for(timeout);
 }
 
-void GrpcStreamOperation::Complete(bool ok) {
+void GrpcStreamCompletion::Complete(bool ok) {
   // This mechanism allows `GrpcStream` to know when the operation is off the
   // GRPC completion queue (and thus this operation no longer requires the
   // underlying GRPC objects to be valid).
   off_queue_.set_value();
 
   firestore_queue_->Enqueue([this, ok] {
-    if (stream_) {
-      stream_->RemoveOperation(this);
-
-      if (ok) {
-        DoComplete(stream_);
-      } else {
-        // Failed operation means this stream is unrecoverably broken; use the
-        // same error-handling policy for all operations.
-        stream_->OnOperationFailed();
-      }
+    if (completion_) {
+      completion_(ok, *this);
     }
-
     delete this;
   });
-}
-
-// Start
-
-void StreamStart::DoExecute(grpc::GenericClientAsyncReaderWriter* call) {
-  call->StartCall(this);
-}
-
-void StreamStart::DoComplete(GrpcStream* stream) {
-  stream->OnStart();
-}
-
-// Read
-
-void StreamRead::DoExecute(grpc::GenericClientAsyncReaderWriter* call) {
-  call->Read(&message_, this);
-}
-
-void StreamRead::DoComplete(GrpcStream* stream) {
-  stream->OnRead(message_);
-}
-
-// Write
-
-void StreamWrite::DoExecute(grpc::GenericClientAsyncReaderWriter* call) {
-  call->Write(message_, this);
-}
-
-void StreamWrite::DoComplete(GrpcStream* stream) {
-  stream->OnWrite();
-}
-
-// RemoteInitiatedFinish
-
-void RemoteInitiatedFinish::DoExecute(
-    grpc::GenericClientAsyncReaderWriter* call) {
-  call->Finish(&grpc_status_, this);
-}
-
-void RemoteInitiatedFinish::DoComplete(GrpcStream* stream) {
-  // Note: calling Finish on a GRPC call should never fail, according to the
-  // docs
-  stream->OnFinishedByServer(grpc_status_);
-}
-
-// ClientInitiatedFinish
-
-void ClientInitiatedFinish::DoExecute(
-    grpc::GenericClientAsyncReaderWriter* call) {
-  call->Finish(&unused_status_, this);
-}
-
-void ClientInitiatedFinish::DoComplete(GrpcStream* stream) {
-  stream->OnFinishedByClient();
 }
 
 }  // namespace remote

@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -61,21 +62,15 @@ namespace internal {
  */
 class BufferedWriter {
  public:
-  explicit BufferedWriter(GrpcStream* stream) : stream_{stream} {
-  }
-
   // Returns the newly-created write operation if the given `write` became
   // active, null pointer otherwise.
-  StreamWrite* EnqueueWrite(grpc::ByteBuffer&& write);
+  absl::optional<grpc::ByteBuffer> EnqueueWrite(grpc::ByteBuffer&& write);
   // Returns the newly-created write operation if there was a next write in the
   // queue, or nullptr if the queue was empty.
-  StreamWrite* DequeueNextWrite();
+  absl::optional<grpc::ByteBuffer> DequeueNextWrite();
 
  private:
-  StreamWrite* TryStartWrite();
-
-  // Needed to create new `StreamWrite`s.
-  GrpcStream* stream_ = nullptr;
+  absl::optional<grpc::ByteBuffer> TryStartWrite();
 
   std::queue<grpc::ByteBuffer> queue_;
   bool has_active_write_ = false;
@@ -154,7 +149,7 @@ class GrpcStream {
    */
   MetadataT GetResponseHeaders() const;
 
-  // These are callbacks from the various `GrpcStreamOperation` classes that
+  // These are callbacks from the various `GrpcStreamCompletion` classes that
   // shouldn't otherwise be called.
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);
@@ -162,7 +157,7 @@ class GrpcStream {
   void OnOperationFailed();
   void OnFinishedByServer(const grpc::Status& status);
   void OnFinishedByClient();
-  void RemoveOperation(const GrpcStreamOperation* to_remove);
+  void RemoveOperation(const GrpcStreamCompletion* to_remove);
   grpc::GenericClientAsyncReaderWriter* call() {
     return call_.get();
   }
@@ -172,7 +167,6 @@ class GrpcStream {
 
  private:
   void Read();
-  StreamWrite* BufferedWrite(grpc::ByteBuffer&& message);
 
   void UnsetObserver() {
     observer_ = nullptr;
@@ -188,11 +182,6 @@ class GrpcStream {
   // (either because the call has failed, or because the call has been
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishOperationsBlocking();
-
-  void Execute(GrpcStreamOperation* operation) {
-    operation->Execute();
-    operations_.push_back(operation);
-  }
 
   // The gRPC objects that have to be valid until the last gRPC operation
   // associated with this call finishes. Note that `grpc::ClientContext` is
@@ -210,7 +199,7 @@ class GrpcStream {
   GrpcStreamObserver* observer_ = nullptr;
   internal::BufferedWriter buffered_writer_;
 
-  std::vector<GrpcStreamOperation*> operations_;
+  std::vector<GrpcStreamCompletion*> operations_;
 
   bool is_finishing_ = false;
 };
