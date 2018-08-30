@@ -22,7 +22,6 @@
 #include <future>  // NOLINT(build/c++11)
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/generic/generic_stub.h"
@@ -49,7 +48,7 @@ class GrpcStream;
  * Operation expects all GRPC objects pertaining to the current stream to remain
  * valid until the operation comes back from the GRPC completion queue.
  */
-class GrpcCompletion : public GrpcOperation {
+class GrpcCompletion {
  public:
   using Action = std::function<void(bool, const GrpcCompletion*)>;
 
@@ -64,7 +63,7 @@ class GrpcCompletion : public GrpcOperation {
    *
    * Must be called outside of Firestore async queue.
    */
-  void Complete(bool ok) override;
+  void Complete(bool ok);
 
   void Cancel();
 

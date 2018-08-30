@@ -21,7 +21,7 @@
 #include <memory>
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
@@ -156,8 +156,8 @@ void GrpcStreamFixture::ForceFinish(
       bool ignored_ok = false;
       void* tag = nullptr;
       grpc_queue_.Next(&tag, &ignored_ok);
-      auto operation = static_cast<remote::GrpcOperation*>(tag);
-      operation->Complete(result == OperationResult::Ok);
+      auto completion = static_cast<remote::GrpcCompletion*>(tag);
+      completion->Complete(result == OperationResult::Ok);
     }
   });
 
@@ -169,7 +169,7 @@ void GrpcStreamFixture::KeepPollingGrpcQueue() {
     void* tag = nullptr;
     bool ignored_ok = false;
     while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<remote::GrpcOperation*>(tag)->Complete(true);
+      static_cast<remote::GrpcCompletion*>(tag)->Complete(true);
     }
   });
 }
