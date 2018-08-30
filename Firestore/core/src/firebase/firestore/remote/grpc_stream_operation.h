@@ -48,16 +48,12 @@ class GrpcStream;
  * Operation expects all GRPC objects pertaining to the current stream to remain
  * valid until the operation comes back from the GRPC completion queue.
  */
-class StreamOperation : public GrpcOperation {
+class GrpcStreamCompletion : public GrpcOperation {
  public:
-  explicit StreamOperation(GrpcStream* stream);
+  using Completion = std::function<void(bool, const GrpcStreamCompletion&)>;
 
-  /**
-   * Puts the operation on the GRPC completion queue.
-   *
-   * Must be called on the Firestore async queue.
-   */
-  void Execute() override;
+  GrpcStreamCompletion(util::AsyncQueue* firestore_queue,
+                       Completion&& completion);
 
   /**
    * Marks the operation as having come back from the GRPC completion queue and
@@ -70,7 +66,7 @@ class StreamOperation : public GrpcOperation {
    */
   void Complete(bool ok) override;
 
-  void UnsetObserver();
+  void UnsetCompletion();
 
   // This is a blocking function; it blocks until the operation comes back from
   // the GRPC completion queue. It is important to only call this function when
@@ -78,49 +74,22 @@ class StreamOperation : public GrpcOperation {
   void WaitUntilOffQueue();
   std::future_status WaitUntilOffQueue(std::chrono::milliseconds timeout);
 
- private:
-  virtual void DoExecute(grpc::GenericClientAsyncReaderWriter* call) = 0;
-  virtual void DoComplete(GrpcStream* stream) = 0;
-
-  GrpcStream* stream_ = nullptr;
-  grpc::GenericClientAsyncReaderWriter* call_ = nullptr;
-  util::AsyncQueue* firestore_queue_ = nullptr;
-
-  std::promise<void> off_queue_;
-  std::future<void> off_queue_future_;
-};
-
-class StreamStart : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* stream) override;
-};
-
-class StreamRead : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* stream) override;
-
-  grpc::ByteBuffer message_;
-};
-
-// Completion of `StreamWrite` only means that GRPC is ready to accept the next
-// write, not that the write has actually been sent on the wire.
-class StreamWrite : public StreamOperation {
- public:
-  StreamWrite(GrpcStream* stream, grpc::ByteBuffer&& message)
-      : StreamOperation{stream}, message_{std::move(message)} {
+  grpc::ByteBuffer* message() {
+    return &message_;
+  }
+  const grpc::ByteBuffer* message() const {
+    return &message_;
+  }
+  grpc::Status* status() {
+    return &status_;
+  }
+  const grpc::Status* status() const {
+    return &status_;
   }
 
  private:
-  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* stream) override;
+  util::AsyncQueue* firestore_queue_ = nullptr;
+  Completion completion_;
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to
@@ -128,32 +97,10 @@ class StreamWrite : public StreamOperation {
   // returns the tag associated with the write, see
   // https://github.com/grpc/grpc/issues/13019#issuecomment-336932929, #5).
   grpc::ByteBuffer message_;
-};
+  grpc::Status status_;
 
-//
-class RemoteInitiatedFinish : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* stream) override;
-
-  grpc::Status grpc_status_;
-};
-
-// Unlike `RemoteInitiatedFinish`, the stream is not interested in the status.
-class ClientInitiatedFinish : public StreamOperation {
- public:
-  using StreamOperation::StreamOperation;
-
- private:
-  void DoExecute(grpc::GenericClientAsyncReaderWriter* call) override;
-  void DoComplete(GrpcStream* stream) override;
-
-  // Stream isn't interested in the status when finishing is initiated by
-  // client, but there has to be a valid object for GRPC purposes.
-  grpc::Status unused_status_;
+  std::promise<void> off_queue_;
+  std::future<void> off_queue_future_;
 };
 
 }  // namespace remote
