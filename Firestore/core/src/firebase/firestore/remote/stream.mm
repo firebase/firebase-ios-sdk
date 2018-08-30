@@ -96,7 +96,7 @@ void Stream::Authenticate() {
       return;
     }
     live_instance->worker_queue_->EnqueueRelaxed([maybe_token, weak_self,
-                                                     auth_generation] {
+                                                  auth_generation] {
       auto live_instance = weak_self.lock();
       // Streams can be stopped while waiting for authorization, so need to
       // check generation.
@@ -230,14 +230,16 @@ void Stream::Stop() {
 
   RaiseGeneration();
 
-  // If the stream is in the auth stage, GRPC stream might not have been created yet.
+  // If the stream is in the auth stage, GRPC stream might not have been created
+  // yet.
   if (grpc_stream_) {
     LOG_DEBUG("%s Finishing GRPC stream", GetDebugDescription());
     FinishGrpcStream(grpc_stream_.get());
     ResetGrpcStream();
   }
 
-  // If this is an intentional close ensure we don't delay our next connection attempt.
+  // If this is an intentional close ensure we don't delay our next connection
+  // attempt.
   ResetBackoff();
 
   // State must be updated before calling the delegate.

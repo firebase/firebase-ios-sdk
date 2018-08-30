@@ -99,8 +99,8 @@ GrpcStream::~GrpcStream() {
 }
 
 void GrpcStream::Start() {
-  auto* completion = NewCompletion(
-      [this](bool ok, const GrpcStreamCompletion& completion) {
+  auto* completion =
+      NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnStart();
         } else {
@@ -116,8 +116,8 @@ void GrpcStream::Read() {
     return;
   }
 
-  auto* completion = NewCompletion(
-      [this](bool ok, const GrpcStreamCompletion& completion) {
+  auto* completion =
+      NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnRead(*completion.message());
         } else {
@@ -135,8 +135,8 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
     return;
   }
 
-  auto* completion = NewCompletion(
-      [this](bool ok, const GrpcStreamCompletion& completion) {
+  auto* completion =
+      NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnWrite();
         } else {
@@ -169,8 +169,8 @@ void GrpcStream::Finish() {
   // TODO(varconst): is issuing a finish operation necessary in this case? We
   // don't care about the status, but perhaps it will make the server notice
   // client disconnecting sooner?
-  auto* completion = NewCompletion(
-      [this](bool ok, const GrpcStreamCompletion& completion) {
+  auto* completion =
+      NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
         HARD_ASSERT(ok, "Finish should never fail");
         OnFinishedByClient();
         RemoveOperation(&completion);
@@ -255,8 +255,8 @@ void GrpcStream::OnWrite() {
     if (!maybe_write) {
       return;
     }
-    auto* completion = NewCompletion(
-        [this](bool ok, const GrpcStreamCompletion& completion) {
+    auto* completion =
+        NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
           if (ok) {
             OnWrite();
           } else {
@@ -280,8 +280,8 @@ void GrpcStream::OnOperationFailed() {
   is_finishing_ = true;
 
   if (observer_) {
-    auto* completion = NewCompletion(
-        [this](bool ok, const GrpcStreamCompletion& completion) {
+    auto* completion =
+        NewCompletion([this](bool ok, const GrpcStreamCompletion& completion) {
           HARD_ASSERT(ok, "Finish should never fail");
           RemoveOperation(&completion);
           OnFinishedByServer(*completion.status());

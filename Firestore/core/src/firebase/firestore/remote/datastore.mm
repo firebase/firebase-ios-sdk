@@ -54,15 +54,16 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT &headers) {
-  static std::unordered_set<std::string> whitelist = {"date", "x-google-backends",
-                             "x-google-netmon-label", "x-google-service",
-                             "x-google-gfe-request-trace"};
+    const GrpcStream::MetadataT& headers) {
+  static std::unordered_set<std::string> whitelist = {
+      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
+      "x-google-gfe-request-trace"};
 
   std::string result;
 
   for (const auto& kv : headers) {
-    absl::StrAppend(&result, ToStringView(kv.first), ": ", ToStringView(kv.second), "\n");
+    absl::StrAppend(&result, ToStringView(kv.first), ": ",
+                    ToStringView(kv.second), "\n");
   }
   return result;
 }
