@@ -24,29 +24,33 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcStream;
-
 /**
- * An operation that notifies the corresponding `GrpcStream` on its completion.
+ * A completion for a gRPC asynchronous operation that runs an arbitrary
+ * callback ("action").
  *
- * All created operations are expected to be put on the GRPC completion queue.
- * Operation expects that once it's received back from the GRPC completion
- * queue, `Complete()` will be called on it. `Complete` doesn't notify the
- * observing stream immediately; instead, it schedules the notification on the
- * Firestore async queue. If the stream doesn't want to be notified, it should
- * call `Cancel` on the operation.
+ * All created completions are expected to be put on the GRPC completion queue
+ * (as "tags"). Completion expects that once it's received back from the GRPC
+ * completion queue, `Complete` will be called on it. `Complete` doesn't run
+ * the given action immediately when taken off the queue; rather, it schedules
+ * running the action on the worker queue. If the action is no longer relevant,
+ * calling `Cancel` on the completion will turn the action into a no-op.
  *
- * Operation is "self-owned"; operation deletes itself in its `Complete` method.
+ * Completion owns the objects that are used by gRPC operations for output
+ * (a `ByteBuffer` for reading a new message and a `Status` for finish
+ * operation). The buffer and/or the status may be unused by the corresponding
+ * gRPC operation.
+
+ * Completion is "self-owned"; completion deletes itself in its `Complete`
+ * method.
  *
- * Operation expects all GRPC objects pertaining to the current stream to remain
- * valid until the operation comes back from the GRPC completion queue.
+ * Completion expects all gRPC objects pertaining to the current stream to
+ * remain valid until the completion comes back from the gRPC completion queue.
  */
 class GrpcCompletion {
  public:
@@ -55,11 +59,12 @@ class GrpcCompletion {
   GrpcCompletion(util::AsyncQueue* firestore_queue, Action&& action);
 
   /**
-   * Marks the operation as having come back from the GRPC completion queue and
+   * Marks the completion as having come back from the GRPC completion queue and
    * puts notifying the observing stream on the Firestore async queue. The given
-   * `ok` value indicates whether the operation completed successfully.
+   * `ok` value indicates whether the corresponding gRPC operation completed
+   * successfully.
    *
-   * This function deletes the operation.
+   * This function deletes the completion.
    *
    * Must be called outside of Firestore async queue.
    */
@@ -67,9 +72,9 @@ class GrpcCompletion {
 
   void Cancel();
 
-  // This is a blocking function; it blocks until the operation comes back from
+  // This is a blocking function; it blocks until the completion comes back from
   // the GRPC completion queue. It is important to only call this function when
-  // the operation is sure to come back from the queue quickly.
+  // the completion is sure to come back from the queue quickly.
   void WaitUntilOffQueue();
   std::future_status WaitUntilOffQueue(std::chrono::milliseconds timeout);
 

@@ -18,9 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -57,9 +54,9 @@ std::future_status GrpcCompletion::WaitUntilOffQueue(
 }
 
 void GrpcCompletion::Complete(bool ok) {
-  // This mechanism allows `GrpcStream` to know when the operation is off the
-  // GRPC completion queue (and thus this operation no longer requires the
-  // underlying GRPC objects to be valid).
+  // This mechanism allows `GrpcStream` to know when the completion is off the
+  // GRPC completion queue (and thus no longer requires the underlying GRPC
+  // objects to be valid).
   off_queue_.set_value();
 
   worker_queue_->Enqueue([this, ok] {
