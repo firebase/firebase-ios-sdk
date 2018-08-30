@@ -172,6 +172,14 @@ class GrpcStream {
     observer_ = nullptr;
   }
 
+  GrpcStreamCompletion* NewCompletion(
+      GrpcStreamCompletion::Completion&& callback) {
+    auto* completion =
+        new GrpcStreamCompletion(firestore_queue_, std::move(callback));
+    operations_.push_back(completion);
+    return completion;
+  }
+
   // A blocking function that waits until all the operations issued by this
   // stream come out from the gRPC completion queue. Once they do, it is safe to
   // delete this `GrpcStream` (thus releasing `grpc::ClientContext`). This

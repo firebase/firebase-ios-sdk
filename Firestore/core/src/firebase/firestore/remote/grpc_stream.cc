@@ -99,8 +99,7 @@ GrpcStream::~GrpcStream() {
 }
 
 void GrpcStream::Start() {
-  auto* completion = new GrpcStreamCompletion(
-      firestore_queue_,
+  auto* completion = NewCompletion(
       [this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnStart();
@@ -109,7 +108,6 @@ void GrpcStream::Start() {
         }
         RemoveOperation(&completion);
       });
-  operations_.push_back(completion);
   call_->StartCall(completion);
 }
 
@@ -118,8 +116,7 @@ void GrpcStream::Read() {
     return;
   }
 
-  auto* completion = new GrpcStreamCompletion(
-      firestore_queue_,
+  auto* completion = NewCompletion(
       [this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnRead(*completion.message());
@@ -128,7 +125,6 @@ void GrpcStream::Read() {
         }
         RemoveOperation(&completion);
       });
-  operations_.push_back(completion);
   call_->Read(completion->message(), completion);
 }
 
@@ -139,8 +135,7 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
     return;
   }
 
-  auto* completion = new GrpcStreamCompletion(
-      firestore_queue_,
+  auto* completion = NewCompletion(
       [this](bool ok, const GrpcStreamCompletion& completion) {
         if (ok) {
           OnWrite();
@@ -150,7 +145,6 @@ void GrpcStream::Write(grpc::ByteBuffer&& message) {
         RemoveOperation(&completion);
       });
   *completion->message() = std::move(maybe_write).value();
-  operations_.push_back(completion);
 
   call_->Write(*completion->message(), completion);
 }
@@ -175,14 +169,12 @@ void GrpcStream::Finish() {
   // TODO(varconst): is issuing a finish operation necessary in this case? We
   // don't care about the status, but perhaps it will make the server notice
   // client disconnecting sooner?
-  auto* completion = new GrpcStreamCompletion(
-      firestore_queue_,
+  auto* completion = NewCompletion(
       [this](bool ok, const GrpcStreamCompletion& completion) {
         HARD_ASSERT(ok, "Finish should never fail");
         OnFinishedByClient();
         RemoveOperation(&completion);
       });
-  operations_.push_back(completion);
   call_->Finish(completion->status(), completion);
 
   FastFinishOperationsBlocking();
@@ -263,8 +255,7 @@ void GrpcStream::OnWrite() {
     if (!maybe_write) {
       return;
     }
-    auto* completion = new GrpcStreamCompletion(
-        firestore_queue_,
+    auto* completion = NewCompletion(
         [this](bool ok, const GrpcStreamCompletion& completion) {
           if (ok) {
             OnWrite();
@@ -274,7 +265,6 @@ void GrpcStream::OnWrite() {
           RemoveOperation(&completion);
         });
     *completion->message() = std::move(maybe_write).value();
-    operations_.push_back(completion);
     call_->Write(*completion->message(), completion);
     // Observer is not interested in this event.
   }
@@ -290,14 +280,12 @@ void GrpcStream::OnOperationFailed() {
   is_finishing_ = true;
 
   if (observer_) {
-    auto* completion = new GrpcStreamCompletion(
-        firestore_queue_,
+    auto* completion = NewCompletion(
         [this](bool ok, const GrpcStreamCompletion& completion) {
           HARD_ASSERT(ok, "Finish should never fail");
           RemoveOperation(&completion);
           OnFinishedByServer(*completion.status());
         });
-    operations_.push_back(completion);
     call_->Finish(completion->status(), completion);
   } else {
     // The only reason to finish would be to get the status; if the observer is
