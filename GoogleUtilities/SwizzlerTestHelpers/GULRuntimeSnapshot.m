@@ -59,7 +59,7 @@
 
 - (void)capture {
   int numberOfClasses = objc_getClassList(NULL, 0);
-  Class *classList = (Class *)malloc(numberOfClasses * sizeof(classList));
+  Class *classList = (Class *)malloc(numberOfClasses * sizeof(Class));
   numberOfClasses = objc_getClassList(classList, numberOfClasses);
 
   // If we should track specific classes, then there's no need to figure out all ObjC classes.
@@ -83,6 +83,7 @@
       _runningHash ^= [classSnapshot hash];
     }
   }
+  free(classList);
 }
 
 - (GULRuntimeDiff *)diff:(GULRuntimeSnapshot *)otherSnapshot {
