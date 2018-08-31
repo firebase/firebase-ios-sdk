@@ -50,6 +50,8 @@ class GrpcConnection {
    * Creates a stream to the given stream RPC endpoint. The resulting stream
    * needs to be `Start`ed before it can be used.
    */
+  // PORTING NOTE: unlike Web client, the created stream is not open and has to
+  // be started manually.
   std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
                                            absl::string_view token,
                                            GrpcStreamObserver* observer);
