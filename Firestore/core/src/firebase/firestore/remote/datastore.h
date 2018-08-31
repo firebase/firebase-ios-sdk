@@ -17,10 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
-#if !defined(__OBJC__)
-#error "This header only supports Objective-C++."
-#endif  // !defined(__OBJC__)
-
 #include <memory>
 #include <string>
 
@@ -41,14 +37,14 @@ namespace remote {
 
 class Datastore {
  public:
-  Datastore(util::AsyncQueue* firestore_queue,
-            const core::DatabaseInfo& database_info);
+  Datastore(const core::DatabaseInfo& database_info,
+            util::AsyncQueue* worker_queue);
 
   void Shutdown();
 
-  std::unique_ptr<GrpcStream> OpenGrpcStream(absl::string_view token,
-                                             absl::string_view path,
-                                             GrpcStreamObserver* observer);
+  std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view rpc_name,
+                                               absl::string_view token,
+                                               GrpcStreamObserver* observer);
 
   static util::Status ConvertStatus(grpc::Status from);
 
@@ -66,6 +62,8 @@ class Datastore {
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);
 
+  // A separate executor dedicatd to polling gRPC completion queue (which is
+  // shared for all spawned `GrpcStream`s).
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
   grpc::CompletionQueue grpc_queue_;
   GrpcConnection grpc_connection_;

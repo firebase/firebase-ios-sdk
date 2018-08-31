@@ -32,25 +32,37 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+// PORTING NOTE: this class has limited resemblance to `GrpcConnection` in Web
+// client. However, unlike Web client, it's not meant to hide different
+// implementations of a `Connection` under a single interface.
+
+/**
+ * Creates and owns gRPC objects (channel and stub) necessary to produce a
+ * `GrpcStream`.
+ */
 class GrpcConnection {
  public:
-  GrpcConnection(util::AsyncQueue* firestore_queue,
-            const core::DatabaseInfo& database_info, grpc::CompletionQueue* grpc_queue);
+  GrpcConnection(const core::DatabaseInfo& database_info,
+                 util::AsyncQueue* worker_queue,
+                 grpc::CompletionQueue* grpc_queue);
 
-  std::unique_ptr<GrpcStream> OpenGrpcStream(absl::string_view token,
-                                             absl::string_view path,
-                                             GrpcStreamObserver* observer);
+  /**
+   * Creates a stream to the given stream RPC endpoint. The resulting stream
+   * needs to be `Start`ed before it can be used.
+   */
+  std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
+                                           absl::string_view token,
+                                           GrpcStreamObserver* observer);
 
  private:
-  void EnsureValidGrpcStub();
-  std::shared_ptr<grpc::Channel> CreateGrpcChannel() const;
-  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
+  // PORTING NOTE: this function is called `AddMetadata` in Web client.
+  std::unique_ptr<grpc::ClientContext> CreateContext(
       absl::string_view token) const;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
-      grpc::ClientContext* context, absl::string_view path);
+  void EnsureActiveStub();
+  std::shared_ptr<grpc::Channel> CreateChannel() const;
 
-  util::AsyncQueue* firestore_queue_ = nullptr;
   const core::DatabaseInfo* database_info_ = nullptr;
+  util::AsyncQueue* worker_queue_ = nullptr;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
 
   std::shared_ptr<grpc::Channel> grpc_channel_;

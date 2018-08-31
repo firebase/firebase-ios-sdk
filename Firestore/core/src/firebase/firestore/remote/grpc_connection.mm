@@ -17,10 +17,12 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <string>
+#include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/create_channel.h"
@@ -37,59 +39,30 @@ using util::StringFormat;
 
 namespace {
 
+const char *const kXGoogAPIClientHeader = "x-goog-api-client";
+const char *const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
+
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-const char *const kXGoogAPIClientHeader = "x-goog-api-client";
-const char *const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
-
 }  // namespace
 
-GrpcConnection::GrpcConnection(util::AsyncQueue *firestore_queue,
-                               const DatabaseInfo &database_info,
+GrpcConnection::GrpcConnection(const DatabaseInfo &database_info,
+                               util::AsyncQueue *worker_queue,
                                grpc::CompletionQueue *grpc_queue)
-    : firestore_queue_{firestore_queue},
-      database_info_{&database_info},
+    : database_info_{&database_info},
+      worker_queue_{worker_queue},
       grpc_queue_{grpc_queue},
-      grpc_channel_{CreateGrpcChannel()},
+      grpc_channel_{CreateChannel()},
       grpc_stub_{grpc_channel_} {
 }
 
-std::shared_ptr<grpc::Channel> GrpcConnection::CreateGrpcChannel() const {
-  return grpc::CreateChannel(
-      database_info_->host(),
-      grpc::SslCredentials(grpc::SslCredentialsOptions()));
-}
-
-void GrpcConnection::EnsureValidGrpcStub() {
-  // TODO(varconst): find out in which cases a gRPC channel might shut down.
-  // This might be overkill.
-  if (!grpc_channel_ ||
-      grpc_channel_->GetState(false) == GRPC_CHANNEL_SHUTDOWN) {
-    grpc_channel_ = CreateGrpcChannel();
-    grpc_stub_ = grpc::GenericStub{grpc_channel_};
-  }
-}
-
-std::unique_ptr<GrpcStream> GrpcConnection::OpenGrpcStream(
-    absl::string_view token,
-    absl::string_view path,
-    GrpcStreamObserver *observer) {
-  EnsureValidGrpcStub();
-
-  auto context = CreateGrpcContext(token);
-  auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return absl::make_unique<GrpcStream>(
-      std::move(context), std::move(reader_writer), observer, firestore_queue_);
-}
-
-std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateGrpcContext(
+std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     absl::string_view token) const {
   auto context = absl::make_unique<grpc::ClientContext>();
   if (token.data()) {
-    context->set_credentials(
-        grpc::AccessTokenCredentials(std::string{token.data(), token.size()}));
+    context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
   }
 
   // TODO(dimond): This should ideally also include the grpc version, however,
@@ -113,10 +86,36 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateGrpcContext(
   return context;
 }
 
-std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
-GrpcConnection::CreateGrpcReaderWriter(grpc::ClientContext *context,
-                                       absl::string_view path) {
-  return grpc_stub_.PrepareCall(context, MakeString(path), grpc_queue_);
+void GrpcConnection::EnsureActiveStub() {
+  // TODO(varconst): find out in which cases a gRPC channel might shut down.
+  // This might be overkill.
+  if (!grpc_channel_ || grpc_channel_->GetState(/*try_to_connect=*/false) ==
+                            GRPC_CHANNEL_SHUTDOWN) {
+    LOG_DEBUG("Creating Firestore stub.");
+    grpc_channel_ = CreateChannel();
+    grpc_stub_ = grpc::GenericStub{grpc_channel_};
+  }
+}
+
+std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
+  return grpc::CreateChannel(
+      database_info_->host(),
+      grpc::SslCredentials(grpc::SslCredentialsOptions()));
+}
+
+std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
+    absl::string_view rpc_name,
+    absl::string_view token,
+    GrpcStreamObserver *observer) {
+  LOG_DEBUG("Creating gRPC stream");
+
+  EnsureActiveStub();
+
+  auto context = CreateContext(token);
+  auto call =
+      grpc_stub_.PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
+  return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
+                                       observer, worker_queue_);
 }
 
 }  // namespace remote

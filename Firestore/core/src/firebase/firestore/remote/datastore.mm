@@ -31,6 +31,8 @@ namespace firestore {
 namespace remote {
 
 using core::DatabaseInfo;
+using util::AsyncQueue;
+using util::Status;
 using util::internal::Executor;
 using util::internal::ExecutorLibdispatch;
 
@@ -48,14 +50,17 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 
 }  // namespace
 
-Datastore::Datastore(util::AsyncQueue *firestore_queue,
-                     const DatabaseInfo &database_info)
-    : grpc_connection_{firestore_queue, database_info, &grpc_queue_},
+Datastore::Datastore(const DatabaseInfo &database_info,
+                     AsyncQueue *worker_queue)
+    : grpc_connection_{database_info, worker_queue, &grpc_queue_},
       dedicated_executor_{CreateExecutor()} {
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
+  // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
+  // been called and all submitted tags have been extracted. Without this call,
+  // `dedicated_executor_` will never finish.
   grpc_queue_.Shutdown();
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
@@ -76,16 +81,16 @@ void Datastore::PollGrpcQueue() {
   }
 }
 
-std::unique_ptr<GrpcStream> Datastore::OpenGrpcStream(
+std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
+    absl::string_view rpc_name,
     absl::string_view token,
-    absl::string_view path,
     GrpcStreamObserver *observer) {
-  return grpc_connection_.OpenGrpcStream(token, path, observer);
+  return grpc_connection_.CreateStream(token, rpc_name, observer);
 }
 
-util::Status Datastore::ConvertStatus(grpc::Status from) {
+Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
-    return {};
+    return Status::OK();
   }
 
   grpc::StatusCode error_code = from.error_code();
@@ -97,14 +102,13 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT& headers) {
+    const GrpcStream::MetadataT &headers) {
   static std::unordered_set<std::string> whitelist = {
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
-
-  for (const auto& kv : headers) {
+  for (const auto &kv : headers) {
     absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                     MakeStringView(kv.second), "\n");
   }
