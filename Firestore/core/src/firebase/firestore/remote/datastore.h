@@ -20,18 +20,15 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
-#include "grpcpp/channel.h"
 #include "grpcpp/completion_queue.h"
-#include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/status.h"
 
 namespace firebase {
@@ -40,16 +37,16 @@ namespace remote {
 
 class Datastore {
  public:
-  Datastore(util::AsyncQueue* firestore_queue,
-            const core::DatabaseInfo& database_info);
+  Datastore(const core::DatabaseInfo& database_info,
+            util::AsyncQueue* worker_queue);
 
   void Shutdown();
 
-  std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view token,
-                                               absl::string_view path,
+  std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view rpc_name,
+                                               absl::string_view token,
                                                GrpcStreamObserver* observer);
 
-  static util::Status ConvertStatus(grpc::Status grpc_error);
+  static util::Status ConvertStatus(grpc::Status from);
 
   static std::string GetWhitelistedHeadersAsString(
       const GrpcStream::MetadataT& headers);
@@ -62,23 +59,14 @@ class Datastore {
  private:
   void PollGrpcQueue();
 
-  void EnsureValidGrpcStub();
-  std::shared_ptr<grpc::Channel> CreateGrpcChannel() const;
-  std::unique_ptr<grpc::ClientContext> CreateGrpcContext(
-      absl::string_view token) const;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> CreateGrpcReaderWriter(
-      grpc::ClientContext* context, absl::string_view path);
-
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);
 
-  util::AsyncQueue* firestore_queue_ = nullptr;
-  const core::DatabaseInfo* database_info_ = nullptr;
-
+  // A separate executor dedicatd to polling gRPC completion queue (which is
+  // shared for all spawned `GrpcStream`s).
   std::unique_ptr<util::internal::Executor> dedicated_executor_;
-  std::shared_ptr<grpc::Channel> grpc_channel_;
-  grpc::GenericStub grpc_stub_;
   grpc::CompletionQueue grpc_queue_;
+  GrpcConnection grpc_connection_;
 };
 
 }  // namespace remote

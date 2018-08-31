@@ -47,8 +47,7 @@ class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
       : async_queue{absl::make_unique<ExecutorStd>()},
-        datastore{&async_queue,
-                  DatabaseInfo{DatabaseId{"foo", "bar"}, "", "", false}} {
+        datastore{DatabaseInfo{DatabaseId{"foo", "bar"}, "", "", false}, &async_queue} {
   }
 
   ~DatastoreTest() {
@@ -78,8 +77,8 @@ TEST_F(DatastoreTest, CanShutdownWithPendingOperations) {
   NoOpObserver observer;
   std::unique_ptr<GrpcStream> grpc_stream =
       datastore.CreateGrpcStream("", "", &observer);
-  async_queue.EnqueueBlocking([&] { grpc_stream->Start(); });
   async_queue.EnqueueBlocking([&] { grpc_stream->Finish(); });
+  async_queue.EnqueueBlocking([&] { grpc_stream->Start(); });
   Shutdown();
 }
 

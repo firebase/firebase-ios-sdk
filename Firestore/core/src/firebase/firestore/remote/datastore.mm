@@ -18,31 +18,21 @@
 
 #include <unordered_set>
 
-#include <grpcpp/create_channel.h>
-#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/auth/token.h"
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
-#include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
-#include "absl/strings/string_view.h"
-
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-using auth::CredentialsProvider;
-using auth::Token;
 using core::DatabaseInfo;
-using model::DatabaseId;
-using model::DocumentKey;
-using util::StringFormat;
+using util::AsyncQueue;
+using util::Status;
 using util::internal::Executor;
 using util::internal::ExecutorLibdispatch;
 
@@ -60,20 +50,17 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 
 }  // namespace
 
-const char *const kXGoogAPIClientHeader = "x-goog-api-client";
-const char *const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
-
-Datastore::Datastore(util::AsyncQueue *firestore_queue,
-                     const core::DatabaseInfo &database_info)
-    : firestore_queue_{firestore_queue},
-      database_info_{&database_info},
-      grpc_channel_{CreateGrpcChannel()},
-      grpc_stub_{grpc_channel_},
+Datastore::Datastore(const DatabaseInfo &database_info,
+                     AsyncQueue *worker_queue)
+    : grpc_connection_{database_info, worker_queue, &grpc_queue_},
       dedicated_executor_{CreateExecutor()} {
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
+  // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
+  // been called and all submitted tags have been extracted. Without this call,
+  // `dedicated_executor_` will never finish.
   grpc_queue_.Shutdown();
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
@@ -89,75 +76,21 @@ void Datastore::PollGrpcQueue() {
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
     auto completion = static_cast<GrpcCompletion *>(tag);
-    HARD_ASSERT(tag, "GRPC queue returned a null tag");
+    HARD_ASSERT(tag, "gRPC queue returned a null tag");
     completion->Complete(ok);
   }
 }
 
-std::shared_ptr<grpc::Channel> Datastore::CreateGrpcChannel() const {
-  return grpc::CreateChannel(
-      database_info_->host(),
-      grpc::SslCredentials(grpc::SslCredentialsOptions()));
-}
-
-void Datastore::EnsureValidGrpcStub() {
-  // TODO(varconst): find out in which cases a gRPC channel might shut down.
-  // This might be overkill.
-  if (!grpc_channel_ ||
-      grpc_channel_->GetState(false) == GRPC_CHANNEL_SHUTDOWN) {
-    grpc_channel_ = CreateGrpcChannel();
-    grpc_stub_ = grpc::GenericStub{grpc_channel_};
-  }
-}
-
 std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
+    absl::string_view rpc_name,
     absl::string_view token,
-    absl::string_view path,
     GrpcStreamObserver *observer) {
-  EnsureValidGrpcStub();
-
-  auto context = CreateGrpcContext(token);
-  auto reader_writer = CreateGrpcReaderWriter(context.get(), path);
-  return absl::make_unique<GrpcStream>(
-      std::move(context), std::move(reader_writer), observer, firestore_queue_);
+  return grpc_connection_.CreateStream(token, rpc_name, observer);
 }
 
-std::unique_ptr<grpc::ClientContext> Datastore::CreateGrpcContext(
-    absl::string_view token) const {
-  auto context = absl::make_unique<grpc::ClientContext>();
-  if (token.data()) {
-    context->set_credentials(grpc::AccessTokenCredentials(token.data()));
-  }
-
-  // TODO(dimond): This should ideally also include the grpc version, however,
-  // gRPC defines the version as a macro, so it would be hardcoded based on
-  // version we have at compile time of the Firestore library, rather than the
-  // version available at runtime/at compile time by the user of the library.
-  //
-  // TODO(varconst): once C++ SDK is ready, this should be "gl-cpp" or similar.
-  context->AddMetadata(
-      kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char *>(FIRFirestoreVersionString)));
-
-  // This header is used to improve routing and project isolation by the
-  // backend.
-  const model::DatabaseId& db_id = database_info_->database_id();
-  context->AddMetadata(kGoogleCloudResourcePrefix,
-                       StringFormat("projects/%s/databases/%s",
-                                    db_id.project_id(), db_id.database_id()));
-  return context;
-}
-
-std::unique_ptr<grpc::GenericClientAsyncReaderWriter>
-Datastore::CreateGrpcReaderWriter(grpc::ClientContext *context,
-                                  absl::string_view path) {
-  return grpc_stub_.PrepareCall(context, path.data(), &grpc_queue_);
-}
-
-util::Status Datastore::ConvertStatus(grpc::Status from) {
+Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
-    return {};
+    return Status::OK();
   }
 
   grpc::StatusCode error_code = from.error_code();
@@ -169,14 +102,13 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT& headers) {
+    const GrpcStream::MetadataT &headers) {
   static std::unordered_set<std::string> whitelist = {
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
-
-  for (const auto& kv : headers) {
+  for (const auto &kv : headers) {
     absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                     MakeStringView(kv.second), "\n");
   }
