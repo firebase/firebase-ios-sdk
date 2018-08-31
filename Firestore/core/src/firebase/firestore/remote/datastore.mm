@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
-#include <algorithm>
+#include <unordered_set>
 
 #include <grpcpp/create_channel.h>
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -28,6 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/string_view.h"
 
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 
@@ -41,22 +43,19 @@ using core::DatabaseInfo;
 using model::DatabaseId;
 using model::DocumentKey;
 using util::StringFormat;
+using util::internal::Executor;
 using util::internal::ExecutorLibdispatch;
 
 namespace {
 
-std::unique_ptr<util::internal::Executor> CreateExecutor() {
+std::unique_ptr<Executor> CreateExecutor() {
   auto queue = dispatch_queue_create("com.google.firebase.firestore.datastore",
                                      DISPATCH_QUEUE_SERIAL);
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
-absl::string_view ToStringView(grpc::string_ref grpc_str) {
+absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
-}
-
-std::string ToString(grpc::string_ref grpc_str) {
-  return {grpc_str.begin(), grpc_str.end()};
 }
 
 }  // namespace
@@ -89,9 +88,9 @@ void Datastore::PollGrpcQueue() {
   void *tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto operation = static_cast<GrpcOperation *>(tag);
+    auto completion = static_cast<GrpcCompletion *>(tag);
     HARD_ASSERT(tag, "GRPC queue returned a null tag");
-    operation->Complete(ok);
+    completion->Complete(ok);
   }
 }
 
@@ -169,38 +168,17 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
   return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
 }
 
-GrpcStream::MetadataT Datastore::ExtractWhitelistedHeaders(
-    const GrpcStream::MetadataT &headers) {
-  std::string whitelist[] = {"date", "x-google-backends",
-                             "x-google-netmon-label", "x-google-service",
-                             "x-google-gfe-request-trace"};
-
-  GrpcStream::MetadataT whitelisted_headers;
-  for (const auto &kv : headers) {
-    auto found = std::find_if(std::begin(whitelist), std::end(whitelist),
-                              [&](const std::string &str) {
-                                return str.size() == kv.first.size() &&
-                                       absl::StartsWithIgnoreCase(
-                                           str, ToStringView(kv.first));
-                              });
-    if (found != std::end(whitelist)) {
-      whitelisted_headers.emplace(kv.first, kv.second);
-    }
-  }
-
-  return whitelisted_headers;
-}
-
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT &headers) {
-  auto whitelisted_headers = ExtractWhitelistedHeaders(headers);
+    const GrpcStream::MetadataT& headers) {
+  static std::unordered_set<std::string> whitelist = {
+      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
+      "x-google-gfe-request-trace"};
 
   std::string result;
-  for (const auto &kv : whitelisted_headers) {
-    result += ToString(kv.first);
-    result += ": ";
-    result += ToString(kv.second);
-    result += "\n";
+
+  for (const auto& kv : headers) {
+    absl::StrAppend(&result, MakeStringView(kv.first), ": ",
+                    MakeStringView(kv.second), "\n");
   }
   return result;
 }

@@ -22,7 +22,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"

@@ -51,15 +51,15 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 }  // namespace
 
-Stream::Stream(AsyncQueue* async_queue,
+Stream::Stream(AsyncQueue* worker_queue,
                CredentialsProvider* credentials_provider,
                Datastore* datastore,
                TimerId backoff_timer_id,
                TimerId idle_timer_id)
-    : firestore_queue_{async_queue},
+    : worker_queue_{worker_queue},
       credentials_provider_{credentials_provider},
       datastore_{datastore},
-      backoff_{firestore_queue_, backoff_timer_id, kBackoffFactor,
+      backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
       idle_timer_id_{idle_timer_id} {
 }
@@ -95,8 +95,8 @@ void Stream::Authenticate() {
     if (!live_instance) {
       return;
     }
-    live_instance->firestore_queue_->EnqueueRelaxed([maybe_token, weak_self,
-                                                     auth_generation] {
+    live_instance->worker_queue_->EnqueueRelaxed([maybe_token, weak_self,
+                                                  auth_generation] {
       auto live_instance = weak_self.lock();
       // Streams can be stopped while waiting for authorization, so need to
       // check generation.
@@ -183,7 +183,7 @@ void Stream::MarkIdle() {
   EnsureOnQueue();
 
   if (IsOpen() && !idleness_timer_) {
-    idleness_timer_ = firestore_queue_->EnqueueAfterDelay(
+    idleness_timer_ = worker_queue_->EnqueueAfterDelay(
         kIdleTimeout, idle_timer_id_, [this] { Stop(); });
   }
 }
@@ -297,7 +297,7 @@ bool Stream::IsStarted() const {
 // Protected helpers
 
 void Stream::EnsureOnQueue() const {
-  firestore_queue_->VerifyIsCurrentQueue();
+  worker_queue_->VerifyIsCurrentQueue();
 }
 
 void Stream::Write(grpc::ByteBuffer&& message) {

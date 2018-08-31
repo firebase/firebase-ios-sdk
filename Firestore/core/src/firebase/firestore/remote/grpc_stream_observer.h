@@ -17,17 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_OBSERVER_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_OBSERVER_H_
 
-#include <memory>
-#include <queue>
-#include <string>
-#include <unordered_map>
-#include <utility>
-
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "grpcpp/client_context.h"
-#include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
 
 namespace firebase {

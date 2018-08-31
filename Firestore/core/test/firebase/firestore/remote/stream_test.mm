@@ -23,7 +23,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_operation.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
