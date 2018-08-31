@@ -41,9 +41,9 @@ namespace remote {
 using util::AsyncQueue;
 using util::GrpcStreamFixture;
 using util::OperationResult;
+using util::internal::ExecutorStd;
 using util::OperationResult::Error;
 using util::OperationResult::Ok;
-using util::internal::ExecutorStd;
 
 namespace {
 
