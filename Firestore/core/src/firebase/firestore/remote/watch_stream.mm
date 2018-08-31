@@ -31,6 +31,19 @@ using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
 
+void WatchStreamListener::OnOpen() {
+  delegate_bridge_.NotifyDelegateOnOpen();
+}
+
+void WatchStreamListener::OnClose(const util::Status& status) {
+  delegate_bridge_.NotifyDelegateOnStreamFinished(status);
+}
+
+void WatchStreamListener::OnChange(FSTWatchChange* change,
+                          const model::SnapshotVersion& snapshot_version) {
+  delegate_bridge_.NotifyDelegateOnChange(change, snapshot_version);
+}
+
 WatchStream::WatchStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
@@ -39,7 +52,7 @@ WatchStream::WatchStream(AsyncQueue* async_queue,
     : Stream{async_queue, credentials_provider, datastore,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
-      delegate_bridge_{delegate} {
+      listener_{absl::make_unique<WatchStreamListener>(delegate)} {
 }
 
 void WatchStream::WatchQuery(FSTQueryData* query) {
@@ -70,10 +83,6 @@ void WatchStream::FinishGrpcStream(GrpcStream* grpc_stream) {
   grpc_stream->Finish();
 }
 
-void WatchStream::DoOnStreamStart() {
-  delegate_bridge_.NotifyDelegateOnOpen();
-}
-
 Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   Status status;
   GCFSListenResponse* response =
@@ -88,14 +97,10 @@ Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   // A successful response means the stream is healthy.
   ResetBackoff();
 
-  delegate_bridge_.NotifyDelegateOnChange(
+  listener_->OnChange(
       serializer_bridge_.ToWatchChange(response),
       serializer_bridge_.ToSnapshotVersion(response));
   return Status::OK();
-}
-
-void WatchStream::DoOnStreamFinish(const Status& status) {
-  delegate_bridge_.NotifyDelegateOnStreamFinished(status);
 }
 
 }  // namespace remote
