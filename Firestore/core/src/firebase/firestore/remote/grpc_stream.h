@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAM_H_
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <queue>
@@ -24,8 +25,8 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_operation.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/types/optional.h"
@@ -149,22 +150,6 @@ class GrpcStream {
    */
   MetadataT GetResponseHeaders() const;
 
-  // These are callbacks from the various `GrpcStreamCompletion` classes that
-  // shouldn't otherwise be called.
-  void OnStart();
-  void OnRead(const grpc::ByteBuffer& message);
-  void OnWrite();
-  void OnOperationFailed();
-  void OnFinishedByServer(const grpc::Status& status);
-  void OnFinishedByClient();
-  void RemoveOperation(const GrpcStreamCompletion* to_remove);
-  grpc::GenericClientAsyncReaderWriter* call() {
-    return call_.get();
-  }
-  util::AsyncQueue* firestore_queue() {
-    return firestore_queue_;
-  }
-
  private:
   void Read();
 
@@ -172,24 +157,26 @@ class GrpcStream {
     observer_ = nullptr;
   }
 
-  GrpcStreamCompletion* NewCompletion(
-      GrpcStreamCompletion::Completion&& callback) {
-    auto* completion =
-        new GrpcStreamCompletion(firestore_queue_, std::move(callback));
-    operations_.push_back(completion);
-    return completion;
-  }
+  void OnStart();
+  void OnRead(const grpc::ByteBuffer& message);
+  void OnWrite();
+  void OnOperationFailed();
+  void OnFinishedByServer(const grpc::Status& status);
+  void RemoveCompletion(const GrpcCompletion* to_remove);
 
-  // A blocking function that waits until all the operations issued by this
+  using OnSuccess = std::function<void(const GrpcCompletion*)>;
+  GrpcCompletion* NewCompletion(const OnSuccess& callback);
+
+  // A blocking function that waits until all the completions issued by this
   // stream come out from the gRPC completion queue. Once they do, it is safe to
   // delete this `GrpcStream` (thus releasing `grpc::ClientContext`). This
   // function should only be called during the stream finish.
   //
   // Important: before calling this function, the caller must be sure that any
-  // pending operations on the gRPC completion queue will come back quickly
+  // pending completions on the gRPC completion queue will come back quickly
   // (either because the call has failed, or because the call has been
   // canceled). Otherwise, this function will block indefinitely.
-  void FastFinishOperationsBlocking();
+  void FastFinishCompletionsBlocking();
 
   // The gRPC objects that have to be valid until the last gRPC operation
   // associated with this call finishes. Note that `grpc::ClientContext` is
@@ -207,7 +194,7 @@ class GrpcStream {
   GrpcStreamObserver* observer_ = nullptr;
   internal::BufferedWriter buffered_writer_;
 
-  std::vector<GrpcStreamCompletion*> operations_;
+  std::vector<GrpcCompletion*> completions_;
 
   bool is_finishing_ = false;
 };

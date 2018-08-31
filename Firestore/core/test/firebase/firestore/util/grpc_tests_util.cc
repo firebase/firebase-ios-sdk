@@ -85,7 +85,7 @@ void GrpcStreamFixture::ForceFinish(
       bool ignored_ok = false;
       void* tag = nullptr;
       grpc_queue_.Next(&tag, &ignored_ok);
-      auto operation = static_cast<remote::GrpcOperation*>(tag);
+      auto operation = static_cast<remote::GrpcCompletion*>(tag);
       operation->Complete(result == OperationResult::Ok);
     }
   });
@@ -98,7 +98,7 @@ void GrpcStreamFixture::KeepPollingGrpcQueue() {
     void* tag = nullptr;
     bool ignored_ok = false;
     while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<remote::GrpcOperation*>(tag)->Complete(true);
+      static_cast<remote::GrpcCompletion*>(tag)->Complete(true);
     }
   });
 }

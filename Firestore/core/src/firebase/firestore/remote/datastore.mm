@@ -34,10 +34,6 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
-std::string MakeString(grpc::string_ref grpc_str) {
-  return {grpc_str.begin(), grpc_str.end()};
-}
-
 }  // namespace
 
 util::Status Datastore::ConvertStatus(grpc::Status from) {
@@ -62,8 +58,8 @@ std::string Datastore::GetWhitelistedHeadersAsString(
   std::string result;
 
   for (const auto& kv : headers) {
-    absl::StrAppend(&result, ToStringView(kv.first), ": ",
-                    ToStringView(kv.second), "\n");
+    absl::StrAppend(&result, MakeStringView(kv.first), ": ",
+                    MakeStringView(kv.second), "\n");
   }
   return result;
 }
