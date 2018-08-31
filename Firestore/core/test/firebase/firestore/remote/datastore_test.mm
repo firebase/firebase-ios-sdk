@@ -77,7 +77,7 @@ TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
 TEST_F(DatastoreTest, CanShutdownWithPendingOperations) {
   NoOpObserver observer;
   std::unique_ptr<GrpcStream> grpc_stream =
-      datastore.CreateGrpcStream("", "", &observer);
+      datastore.OpenGrpcStream("", "", &observer);
   async_queue.EnqueueBlocking([&] { grpc_stream->Start(); });
   async_queue.EnqueueBlocking([&] { grpc_stream->Finish(); });
   Shutdown();
