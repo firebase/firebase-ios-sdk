@@ -27,7 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -45,10 +45,10 @@ using auth::EmptyCredentialsProvider;
 using auth::Token;
 using auth::TokenListener;
 using util::AsyncQueue;
-using util::GrpcStreamFixture;
-using util::OperationResult;
-using util::OperationResult::Error;
-using util::OperationResult::Ok;
+using util::GrpcStreamTester;
+using util::CompletionResult;
+using util::CompletionResult::Error;
+using util::CompletionResult::Ok;
 using util::TimerId;
 using util::internal::ExecutorStd;
 
@@ -105,12 +105,12 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 
 class TestStream : public Stream {
  public:
-  TestStream(GrpcStreamFixture* fixture,
+  TestStream(GrpcStreamTester* tester,
              CredentialsProvider* credentials_provider)
-      : Stream{&fixture->async_queue(), credentials_provider,
+      : Stream{&tester->async_queue(), credentials_provider,
                /*Datastore=*/nullptr, TimerId::ListenStreamConnectionBackoff,
                kIdleTimerId},
-        fixture_{fixture} {
+        tester_{tester} {
   }
 
   void WriteEmptyBuffer() {
@@ -128,7 +128,7 @@ class TestStream : public Stream {
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) override {
-    return fixture_->CreateStream(this);
+    return tester_->CreateStream(this);
   }
   void FinishGrpcStream(GrpcStream* stream) override {
     stream->Finish();
@@ -156,7 +156,7 @@ class TestStream : public Stream {
     return "";
   }
 
-  GrpcStreamFixture* fixture_ = nullptr;
+  GrpcStreamTester* tester_ = nullptr;
   std::vector<std::string> observed_states_;
   bool fail_stream_read_ = false;
 };
@@ -167,24 +167,24 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : firestore_stream{
-            std::make_shared<TestStream>(&fixture_, &credentials)} {
+            std::make_shared<TestStream>(&tester_, &credentials)} {
   }
 
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
       if (firestore_stream && firestore_stream->IsStarted()) {
-        fixture_.KeepPollingGrpcQueue();
+        tester_.KeepPollingGrpcQueue();
         firestore_stream->Stop();
       }
     });
-    fixture_.Shutdown();
+    tester_.Shutdown();
   }
 
-  void ForceFinish(std::initializer_list<OperationResult> results) {
-    fixture_.ForceFinish(results);
+  void ForceFinish(std::initializer_list<CompletionResult> results) {
+    tester_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {
-    fixture_.KeepPollingGrpcQueue();
+    tester_.KeepPollingGrpcQueue();
   }
 
   void StartStream() {
@@ -203,11 +203,11 @@ class StreamTest : public testing::Test {
   }
 
   AsyncQueue& async_queue() {
-    return fixture_.async_queue();
+    return tester_.async_queue();
   }
 
  private:
-  GrpcStreamFixture fixture_;
+  GrpcStreamTester tester_;
 
  public:
   MockCredentialsProvider credentials;

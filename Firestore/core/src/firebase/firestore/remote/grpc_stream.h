@@ -123,14 +123,14 @@ class GrpcStream {
   //
   // This is a blocking operation; blocking time is expected to be in the order
   // of tens of milliseconds.
-
+  //
   // Can be called on a stream before it opens.
   void Finish();
 
   /**
-   * Writes the given message and finishes the stream as soon as the write
-   * succeeds. The final write is done on a best-effort basis; the return value
-   * indicates whether the final write went through.
+   * Writes the given message and finishes the stream as soon as this final
+   * write succeeds. The final write is done on a best-effort basis; the return
+   * value indicates whether the final write went through.
    *
    * This is a blocking operation; blocking time is expected to be in the order
    * of tens of milliseconds.
@@ -167,10 +167,10 @@ class GrpcStream {
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
   GrpcCompletion* NewCompletion(const OnSuccess& callback);
 
-  // A blocking function that waits until all the completions issued by this
-  // stream come out from the gRPC completion queue. Once they do, it is safe to
-  // delete this `GrpcStream` (thus releasing `grpc::ClientContext`). This
-  // function should only be called during the stream finish.
+  // Blocks until all the completions issued by this stream come out from the
+  // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`
+  // (thus releasing `grpc::ClientContext`). This function should only be called
+  // during the stream finish.
   //
   // Important: before calling this function, the caller must be sure that any
   // pending completions on the gRPC completion queue will come back quickly
@@ -178,9 +178,9 @@ class GrpcStream {
   // canceled). Otherwise, this function will block indefinitely.
   void FastFinishCompletionsBlocking();
 
-  // The gRPC objects that have to be valid until the last gRPC operation
-  // associated with this call finishes. Note that `grpc::ClientContext` is
-  // _not_ reference-counted.
+  // gRPC requires the `context_` and `call_` objects to be valid until the last
+  // gRPC operation associated with this stream finishes. Note that
+  // `grpc::ClientContext` is _not_ reference-counted.
   //
   // Important: `call_` has to be destroyed before `context_`, so declaration
   // order matters here. Despite the unique pointer, `call_` is actually

@@ -32,39 +32,48 @@ namespace remote {
 
 /**
  * A completion for a gRPC asynchronous operation that runs an arbitrary
- * callback ("action").
+ * callback.
  *
- * All created completions are expected to be put on the GRPC completion queue
- * (as "tags"). Completion expects that once it's received back from the GRPC
- * completion queue, `Complete` will be called on it. `Complete` doesn't run
- * the given action immediately when taken off the queue; rather, it schedules
- * running the action on the worker queue. If the action is no longer relevant,
- * calling `Cancel` on the completion will turn the action into a no-op.
+ * All created `GrpcCompletion`s are expected to be put on the gRPC completion
+ * queue (as "tags"). `GrpcCompletion` expects that once it's received back from
+ * the gRPC completion queue, `Complete` will be called on it. `Complete`
+ * doesn't run the given callback immediately when taken off the queue; rather,
+ * it schedules running the callback on the worker queue. If the callback is no
+ * longer relevant, calling `Cancel` on the `GrpcCompletion` will turn the
+ * callback into a no-op.
  *
- * Completion owns the objects that are used by gRPC operations for output
+ * `GrpcCompletion` owns the objects that are used by gRPC operations for output
  * (a `ByteBuffer` for reading a new message and a `Status` for finish
  * operation). The buffer and/or the status may be unused by the corresponding
  * gRPC operation.
-
- * Completion is "self-owned"; completion deletes itself in its `Complete`
+ *
+ * `GrpcCompletion` is "self-owned"; `GrpcCompletion` deletes itself in its
+ * `Complete`
  * method.
  *
- * Completion expects all gRPC objects pertaining to the current stream to
- * remain valid until the completion comes back from the gRPC completion queue.
+ * `GrpcCompletion` expects all gRPC objects pertaining to the current stream to
+ * remain valid until the `GrpcCompletion` comes back from the gRPC completion
+ * queue.
  */
 class GrpcCompletion {
  public:
-  using Action = std::function<void(bool, const GrpcCompletion*)>;
+  /**
+   * The boolean parameter is used to indicate whether the corresponding gRPC
+   * operation finished successfully or not.
+   *
+   * The `GrpcCompletion` pointer will always point to `this`.
+   */
+  using Callback = std::function<void(bool, const GrpcCompletion*)>;
 
-  GrpcCompletion(util::AsyncQueue* firestore_queue, Action&& action);
+  GrpcCompletion(util::AsyncQueue* firestore_queue, Callback&& callback);
 
   /**
-   * Marks the completion as having come back from the GRPC completion queue and
-   * puts notifying the observing stream on the Firestore async queue. The given
-   * `ok` value indicates whether the corresponding gRPC operation completed
-   * successfully.
+   * Marks the `GrpcCompletion` as having come back from the gRPC completion
+   * queue and puts notifying the observing stream on the Firestore async queue.
+   * The given `ok` value indicates whether the corresponding gRPC operation
+   * completed successfully.
    *
-   * This function deletes the completion.
+   * This function deletes the `GrpcCompletion`.
    *
    * Must be called outside of Firestore async queue.
    */
@@ -72,9 +81,11 @@ class GrpcCompletion {
 
   void Cancel();
 
-  // This is a blocking function; it blocks until the completion comes back from
-  // the GRPC completion queue. It is important to only call this function when
-  // the completion is sure to come back from the queue quickly.
+  /**
+   * Blocks until the `GrpcCompletion` comes back from the gRPC completion
+   * queue. It is important to only call this function when the `GrpcCompletion`
+   * is sure to come back from the queue quickly.
+   */
   void WaitUntilOffQueue();
   std::future_status WaitUntilOffQueue(std::chrono::milliseconds timeout);
 
@@ -93,7 +104,9 @@ class GrpcCompletion {
 
  private:
   util::AsyncQueue* worker_queue_ = nullptr;
-  Action action_;
+  Callback callback_;
+
+  void EnsureValidFuture();
 
   // Note that even though `grpc::GenericClientAsyncReaderWriter::Write` takes
   // the byte buffer by const reference, it expects the buffer's lifetime to
