@@ -49,6 +49,7 @@ def sync_firestore()
   s.ignore_files = [
     'CMakeLists.txt',
     'InfoPlist.strings',
+    '*.orig',
     '*.plist',
     '.*',
   ]
