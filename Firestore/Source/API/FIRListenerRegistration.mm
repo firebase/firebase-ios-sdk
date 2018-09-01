@@ -27,10 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FSTFirestoreClient *client;
 
 /** The async listener that is used to mute events synchronously. */
-@property(nonatomic, strong, readonly) FSTAsyncQueryListener *asyncListener;
+@property(nonatomic, strong, readonly, nullable) FSTAsyncQueryListener *asyncListener;
 
 /** The internal FSTQueryListener that can be used to unlisten the query. */
-@property(nonatomic, strong, readwrite) FSTQueryListener *internalListener;
+@property(nonatomic, strong, readwrite, nullable) FSTQueryListener *internalListener;
 
 @end
 

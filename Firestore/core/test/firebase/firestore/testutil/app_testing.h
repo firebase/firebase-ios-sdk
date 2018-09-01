@@ -22,6 +22,7 @@
 #if __OBJC__
 
 @class FIRApp;
+@class FIROptions;
 
 namespace firebase {
 namespace firestore {

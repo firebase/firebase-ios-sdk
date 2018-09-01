@@ -90,7 +90,7 @@ FIRFunctionsErrorCode FIRFunctionsErrorCodeForName(NSString *name) {
     };
   });
   NSNumber *code = errors[name];
-  if (code) {
+  if (code != nil) {
     return code.intValue;
   }
   return FIRFunctionsErrorCodeInternal;
@@ -141,7 +141,9 @@ NSString *FUNDescriptionForErrorCode(FIRFunctionsErrorCode code) {
   return @"UNKNOWN";
 }
 
-NSError *FUNErrorForResponse(NSInteger status, NSData *_Nullable body, FUNSerializer *serializer) {
+NSError *_Nullable FUNErrorForResponse(NSInteger status,
+                                       NSData *_Nullable body,
+                                       FUNSerializer *serializer) {
   // Start with reasonable defaults from the status code.
   FIRFunctionsErrorCode code = FIRFunctionsErrorCodeForHTTPStatus(status);
   NSString *description = FUNDescriptionForErrorCode(code);

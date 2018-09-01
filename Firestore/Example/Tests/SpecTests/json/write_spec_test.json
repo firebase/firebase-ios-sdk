@@ -4028,7 +4028,7 @@
     "describeName": "Writes:",
     "itName": "Held writes are released when there are no queries left.",
     "tags": [
-      "no-lru"
+      "eager-gc"
     ],
     "comment": "This test expects a new target id for a new listen, but without eager gc, the same target id is reused",
     "config": {

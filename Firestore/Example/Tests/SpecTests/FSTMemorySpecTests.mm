@@ -42,6 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+- (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
+  if ([tags containsObject:kDurablePersistence]) {
+    return NO;
+  }
+
+  return [super shouldRunWithTags:tags];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
