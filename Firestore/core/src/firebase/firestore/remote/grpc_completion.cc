@@ -24,22 +24,19 @@ namespace remote {
 
 using util::AsyncQueue;
 
-GrpcCompletion::GrpcCompletion(AsyncQueue* worker_queue, Action&& action)
-    : worker_queue_{worker_queue}, action_{std::move(action)} {
+GrpcCompletion::GrpcCompletion(AsyncQueue* worker_queue, Callback&& callback)
+    : worker_queue_{worker_queue}, callback_{std::move(callback)} {
 }
 
 void GrpcCompletion::Cancel() {
   worker_queue_->VerifyIsCurrentQueue();
-
-  action_ = {};
+  callback_ = {};
 }
 
 void GrpcCompletion::WaitUntilOffQueue() {
   worker_queue_->VerifyIsCurrentQueue();
 
-  if (!off_queue_future_.valid()) {
-    off_queue_future_ = off_queue_.get_future();
-  }
+  EnsureValidFuture();
   return off_queue_future_.wait();
 }
 
@@ -47,21 +44,25 @@ std::future_status GrpcCompletion::WaitUntilOffQueue(
     std::chrono::milliseconds timeout) {
   worker_queue_->VerifyIsCurrentQueue();
 
+  EnsureValidFuture();
+  return off_queue_future_.wait_for(timeout);
+}
+
+void GrpcCompletion::EnsureValidFuture() {
   if (!off_queue_future_.valid()) {
     off_queue_future_ = off_queue_.get_future();
   }
-  return off_queue_future_.wait_for(timeout);
 }
 
 void GrpcCompletion::Complete(bool ok) {
   // This mechanism allows `GrpcStream` to know when the completion is off the
-  // GRPC completion queue (and thus no longer requires the underlying GRPC
+  // gRPC completion queue (and thus no longer requires the underlying gRPC
   // objects to be valid).
   off_queue_.set_value();
 
   worker_queue_->Enqueue([this, ok] {
-    if (action_) {
-      action_(ok, this);
+    if (callback_) {
+      callback_(ok, this);
     }
     delete this;
   });
