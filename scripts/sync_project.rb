@@ -49,7 +49,9 @@ def sync_firestore()
   s.ignore_files = [
     'CMakeLists.txt',
     'InfoPlist.strings',
+    '*.orig',
     '*.plist',
+    '.*',
   ]
 
   # Folder groups in the Xcode project that contain tests.
@@ -180,7 +182,7 @@ class Syncer
   #  1. The file must be in the global list of files, assigning it a UUID.
   #  2. The file must be added to folder groups, describing where it is in the
   #     folder view of the Project Navigator.
-  #  3. The file must be added to a target descrbing how it's built.
+  #  3. The file must be added to a target describing how it's built.
   #
   # The Xcodeproj library handles (1) for us automatically if we do (2).
   #
@@ -426,7 +428,7 @@ end
 # This performs the diff starting from the directories referenced by the test
 # groups in the project, finding files contained within them. When comparing
 # the files it finds against the project this acts on absolute paths to avoid
-# problems with arbitary additional groupings in project structure that are
+# problems with arbitrary additional groupings in project structure that are
 # standard, e.g. "Supporting Files" or "en.lproj" which either act as aliases
 # for the parent or are folders that are omitted from the project view.
 # Processing the diff this way allows these warts to be tolerated, even if they
@@ -529,7 +531,7 @@ class DirectoryLister
   end
 
   # Finds filesystem entries that are immediate children of the given Pathname,
-  # ignoring files that match the the global ignore_files patterns.
+  # ignoring files that match the global ignore_files patterns.
   def entries(path)
     result = []
     path.entries.each do |entry|
