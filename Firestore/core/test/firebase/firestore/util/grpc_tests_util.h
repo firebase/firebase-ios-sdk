@@ -50,8 +50,8 @@ class GrpcStreamTester {
   void Shutdown();
 
   /**
-   * Takes as many completions off gRPC completion queue as there are elements in
-   * `results` and completes each of them with the corresponding result,
+   * Takes as many completions off gRPC completion queue as there are elements
+   * in `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
    * This is a blocking function; it will finish quickly if the the gRPC

@@ -187,12 +187,14 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   StartStream();
 
   // Fail the read, but allow the rest to succeed.
-  ForceFinish({/*Read*/ Error}); // Will put a "Finish" operation on the queue
+  ForceFinish({/*Read*/ Error});  // Will put a "Finish" operation on the queue
   KeepPollingGrpcQueue();
   // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
-  // extracted from gRPC completion queue (but the completion may not have run yet).
+  // extracted from gRPC completion queue (but the completion may not have run
+  // yet).
   ShutdownGrpcQueue();
-  // Finally, ensure `GrpcCompletion` for "Finish" operation has a chance to run on the worker queue.
+  // Finally, ensure `GrpcCompletion` for "Finish" operation has a chance to run
+  // on the worker queue.
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));
