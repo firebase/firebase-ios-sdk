@@ -56,6 +56,7 @@ class TimeSlot;
 class ExecutorLibdispatch : public Executor {
  public:
   explicit ExecutorLibdispatch(dispatch_queue_t dispatch_queue);
+  ~ExecutorLibdispatch();
 
   bool IsCurrentExecutor() const override;
   std::string CurrentExecutorName() const override;

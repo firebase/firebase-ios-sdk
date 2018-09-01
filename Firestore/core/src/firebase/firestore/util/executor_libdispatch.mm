@@ -193,6 +193,16 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
     : dispatch_queue_{dispatch_queue} {
 }
 
+ExecutorLibdispatch::~ExecutorLibdispatch() {
+  RunSynchronized(this, [this] {
+    // Make sure any leftover timeslots don't try to access the executor after
+    // it's destroyed.
+    for (TimeSlot* leftover_slot : schedule_) {
+      leftover_slot->MarkDone();
+    }
+  });
+}
+
 bool ExecutorLibdispatch::IsCurrentExecutor() const {
   return GetCurrentQueueLabel() == GetQueueLabel(dispatch_queue());
 }
