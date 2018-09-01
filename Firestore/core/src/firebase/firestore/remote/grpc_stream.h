@@ -123,14 +123,14 @@ class GrpcStream {
   //
   // This is a blocking operation; blocking time is expected to be in the order
   // of tens of milliseconds.
-
+  //
   // Can be called on a stream before it opens.
   void Finish();
 
   /**
-   * Writes the given message and finishes the stream as soon as the write
-   * succeeds. The final write is done on a best-effort basis; the return value
-   * indicates whether the final write went through.
+   * Writes the given message and finishes the stream as soon as this final
+   * write succeeds. The final write is done on a best-effort basis; the return
+   * value indicates whether the final write went through.
    *
    * This is a blocking operation; blocking time is expected to be in the order
    * of tens of milliseconds.

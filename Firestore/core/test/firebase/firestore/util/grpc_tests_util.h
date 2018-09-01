@@ -19,13 +19,11 @@
 
 #include <initializer_list>
 #include <memory>
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
@@ -35,16 +33,16 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-enum OperationResult { Ok, Error };
+enum CompletionResult { Ok, Error };
 
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
- * allows imitating the normal completion of `GrpcStreamOperation`s.
+ * allows imitating the normal completion of `GrpcCompletion`s.
  */
-class GrpcStreamFixture {
+class GrpcStreamTester {
  public:
-  GrpcStreamFixture();
-  ~GrpcStreamFixture();
+  GrpcStreamTester();
+  ~GrpcStreamTester();
 
   // Must be called before the stream can be used.
   void CreateStream(remote::GrpcStreamObserver* observer);
@@ -52,19 +50,19 @@ class GrpcStreamFixture {
   void Shutdown();
 
   /**
-   * Takes as many operations off gRPC completion queue as there are elements in
-   * `results` and completes each operation with the corresponding result,
+   * Takes as many completions off gRPC completion queue as there are elements in
+   * `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
    * This is a blocking function; it will finish quickly if the the gRPC
-   * completion queue has at least as many pending operations as there are
+   * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    */
-  void ForceFinish(std::initializer_list<OperationResult> results);
+  void ForceFinish(std::initializer_list<CompletionResult> results);
 
   /**
    * Using a separate executor, keep polling gRPC completion queue and tell all
-   * the operations that come off the queue that they finished successfully,
+   * the completions that come off the queue that they finished successfully,
    * ignoring the actual result from gRPC.
    *
    * Call this method before calling the blocking functions `GrpcStream::Finish`
@@ -85,7 +83,6 @@ class GrpcStreamFixture {
   }
 
  private:
-
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue async_queue_;
 
@@ -97,83 +94,6 @@ class GrpcStreamFixture {
   std::unique_ptr<remote::GrpcStream> grpc_stream_;
   bool is_shut_down_ = false;
 };
-
-GrpcStreamFixture::GrpcStreamFixture()
-    : async_queue_{absl::make_unique<internal::ExecutorStd>()},
-      dedicated_executor_{absl::make_unique<internal::ExecutorStd>()},
-      grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
-}
-
-void GrpcStreamFixture::CreateStream(remote::GrpcStreamObserver* observer) {
-  auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
-  grpc_context_ = grpc_context_owning.get();
-
-  auto grpc_call_owning =
-      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
-  grpc_call_ = grpc_call_owning.get();
-
-  grpc_stream_ = absl::make_unique<remote::GrpcStream>(
-      std::move(grpc_context_owning), std::move(grpc_call_owning), observer,
-      &async_queue_);
-}
-
-GrpcStreamFixture::~GrpcStreamFixture() {
-  // Make sure the stream and gRPC completion queue are properly shut down.
-  Shutdown();
-}
-
-void GrpcStreamFixture::Shutdown() {
-  async_queue_.EnqueueBlocking([&] {
-    if (!grpc_stream_->IsFinished()) {
-      KeepPollingGrpcQueue();
-      grpc_stream_->Finish();
-    }
-    ShutdownGrpcQueue();
-  });
-}
-
-void GrpcStreamFixture::ShutdownGrpcQueue() {
-  if (is_shut_down_) {
-    return;
-  }
-  is_shut_down_ = true;
-
-  grpc_queue_.Shutdown();
-  // Wait for gRPC completion queue to drain
-  dedicated_executor_->ExecuteBlocking([] {});
-}
-
-// This is a very hacky way to simulate gRPC finishing operations without
-// actually connecting to the server: cancel the stream, which will make the
-// operation fail fast and be returned from the completion queue, then
-// complete the operation.
-void GrpcStreamFixture::ForceFinish(
-    std::initializer_list<OperationResult> results) {
-  dedicated_executor_->ExecuteBlocking([&] {
-    // gRPC allows calling `TryCancel` more than once.
-    grpc_context_->TryCancel();
-
-    for (OperationResult result : results) {
-      bool ignored_ok = false;
-      void* tag = nullptr;
-      grpc_queue_.Next(&tag, &ignored_ok);
-      auto completion = static_cast<remote::GrpcCompletion*>(tag);
-      completion->Complete(result == OperationResult::Ok);
-    }
-  });
-
-  async_queue_.EnqueueBlocking([] {});
-}
-
-void GrpcStreamFixture::KeepPollingGrpcQueue() {
-  dedicated_executor_->Execute([&] {
-    void* tag = nullptr;
-    bool ignored_ok = false;
-    while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<remote::GrpcCompletion*>(tag)->Complete(true);
-    }
-  });
-}
 
 }  // namespace util
 }  // namespace firestore

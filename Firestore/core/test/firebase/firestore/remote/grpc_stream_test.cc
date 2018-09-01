@@ -25,7 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -39,7 +39,7 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
-using util::GrpcStreamFixture;
+using util::GrpcStreamTester;
 using util::OperationResult;
 using util::internal::ExecutorStd;
 using util::OperationResult::Error;
@@ -67,28 +67,28 @@ class Observer : public GrpcStreamObserver {
 class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest() : observer{absl::make_unique<Observer>()} {
-    fixture.CreateStream(observer.get());
+    tester_.CreateStream(observer.get());
   }
 
   ~GrpcStreamTest() {
-    fixture.Shutdown();
+    tester_.Shutdown();
   }
 
   GrpcStream& stream() {
-    return fixture.stream();
+    return tester_.stream();
   }
   AsyncQueue& async_queue() {
-    return fixture.async_queue();
+    return tester_.async_queue();
   }
 
   void ForceFinish(std::initializer_list<OperationResult> results) {
-    fixture.ForceFinish(results);
+    tester_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {
-    fixture.KeepPollingGrpcQueue();
+    tester_.KeepPollingGrpcQueue();
   }
   void ShutdownGrpcQueue() {
-    fixture.ShutdownGrpcQueue();
+    tester_.ShutdownGrpcQueue();
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -112,7 +112,7 @@ class GrpcStreamTest : public testing::Test {
   }
 
  private:
-  GrpcStreamFixture fixture;
+  GrpcStreamTester tester_;
   std::unique_ptr<Observer> observer;
 };
 
