@@ -87,6 +87,9 @@ class GrpcStreamTest : public testing::Test {
   void KeepPollingGrpcQueue() {
     fixture.KeepPollingGrpcQueue();
   }
+  void ShutdownGrpcQueue() {
+    fixture.ShutdownGrpcQueue();
+  }
 
   const std::vector<std::string>& observed_states() const {
     return observer->observed_states;
@@ -184,9 +187,12 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   StartStream();
 
   // Fail the read, but allow the rest to succeed.
-  ForceFinish({/*Read*/ Error});
+  ForceFinish({/*Read*/ Error}); // Will put a "Finish" operation on the queue
   KeepPollingGrpcQueue();
-  // Wait for `GrpcStream` to finish under the hood.
+  // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
+  // extracted from gRPC completion queue (but the completion may not have run yet).
+  ShutdownGrpcQueue();
+  // Finally, ensure `GrpcCompletion` for "Finish" operation has a chance to run on the worker queue.
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));

@@ -72,6 +72,8 @@ class GrpcStreamFixture {
    */
   void KeepPollingGrpcQueue();
 
+  void ShutdownGrpcQueue();
+
   remote::GrpcStream& stream() {
     return *grpc_stream_;
   }
@@ -83,7 +85,6 @@ class GrpcStreamFixture {
   }
 
  private:
-  void ShutdownGrpcQueue();
 
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue async_queue_;
@@ -128,8 +129,6 @@ void GrpcStreamFixture::Shutdown() {
       grpc_stream_->Finish();
     }
     ShutdownGrpcQueue();
-    // Wait for gRPC completion queue to drain
-    dedicated_executor_->ExecuteBlocking([] {});
   });
 }
 
@@ -140,6 +139,8 @@ void GrpcStreamFixture::ShutdownGrpcQueue() {
   is_shut_down_ = true;
 
   grpc_queue_.Shutdown();
+  // Wait for gRPC completion queue to drain
+  dedicated_executor_->ExecuteBlocking([] {});
 }
 
 // This is a very hacky way to simulate GRPC finishing operations without
