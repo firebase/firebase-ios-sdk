@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_TESTS_UTIL_H_
-#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_TESTS_UTIL_H_
+#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
+#define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
 #include <initializer_list>
 #include <memory>
-#include <utility>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
@@ -35,16 +33,16 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-enum OperationResult { Ok, Error };
+enum CompletionResult { Ok, Error };
 
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
- * allows imitating the normal completion of `GrpcStreamOperation`s.
+ * allows imitating the normal completion of `GrpcCompletion`s.
  */
-class GrpcStreamFixture {
+class GrpcStreamTester {
  public:
-  GrpcStreamFixture();
-  ~GrpcStreamFixture();
+  GrpcStreamTester();
+  ~GrpcStreamTester();
 
   // Must be called before the stream can be used.
   void InitializeStream(remote::GrpcStreamObserver* observer);
@@ -54,25 +52,27 @@ class GrpcStreamFixture {
   void Shutdown();
 
   /**
-   * Takes as many operations off gRPC completion queue as there are elements in
-   * `results` and completes each operation with the corresponding result,
+   * Takes as many completions off gRPC completion queue as there are elements
+   * in `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
    * This is a blocking function; it will finish quickly if the the gRPC
-   * completion queue has at least as many pending operations as there are
+   * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    */
-  void ForceFinish(std::initializer_list<OperationResult> results);
+  void ForceFinish(std::initializer_list<CompletionResult> results);
 
   /**
    * Using a separate executor, keep polling gRPC completion queue and tell all
-   * the operations that come off the queue that they finished successfully,
+   * the completions that come off the queue that they finished successfully,
    * ignoring the actual result from gRPC.
    *
    * Call this method before calling the blocking functions `GrpcStream::Finish`
    * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
    */
   void KeepPollingGrpcQueue();
+
+  void ShutdownGrpcQueue();
 
   remote::GrpcStream& stream() {
     return *grpc_stream_;
@@ -85,8 +85,6 @@ class GrpcStreamFixture {
   }
 
  private:
-  void ShutdownGrpcQueue();
-
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue async_queue_;
 
@@ -103,4 +101,4 @@ class GrpcStreamFixture {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_TESTS_UTIL_H_
+#endif  // FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_

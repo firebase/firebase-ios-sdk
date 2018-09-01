@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/test/firebase/firestore/util//grpc_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
+
+#include <utility>
+
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-GrpcStreamFixture::GrpcStreamFixture()
+GrpcStreamTester::GrpcStreamTester()
     : async_queue_{absl::make_unique<internal::ExecutorStd>()},
       dedicated_executor_{absl::make_unique<internal::ExecutorStd>()},
       grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
 }
 
-void GrpcStreamFixture::InitializeStream(remote::GrpcStreamObserver* observer) {
+void GrpcStreamTester::InitializeStream(remote::GrpcStreamObserver* observer) {
   auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
   grpc_context_ = grpc_context_owning.get();
 
@@ -39,61 +43,61 @@ void GrpcStreamFixture::InitializeStream(remote::GrpcStreamObserver* observer) {
       &async_queue_);
 }
 
-std::unique_ptr<remote::GrpcStream> GrpcStreamFixture::CreateStream(
+std::unique_ptr<remote::GrpcStream> GrpcStreamTester::CreateStream(
     remote::GrpcStreamObserver* observer) {
   InitializeStream(observer);
   return std::move(grpc_stream_);
 }
 
-GrpcStreamFixture::~GrpcStreamFixture() {
+GrpcStreamTester::~GrpcStreamTester() {
   // Make sure the stream and gRPC completion queue are properly shut down.
   Shutdown();
 }
 
-void GrpcStreamFixture::Shutdown() {
+void GrpcStreamTester::Shutdown() {
   async_queue_.EnqueueBlocking([&] {
     if (grpc_stream_ && !grpc_stream_->IsFinished()) {
       KeepPollingGrpcQueue();
       grpc_stream_->Finish();
     }
     ShutdownGrpcQueue();
-    // Wait for gRPC completion queue to drain
-    dedicated_executor_->ExecuteBlocking([] {});
   });
 }
 
-void GrpcStreamFixture::ShutdownGrpcQueue() {
+void GrpcStreamTester::ShutdownGrpcQueue() {
   if (is_shut_down_) {
     return;
   }
   is_shut_down_ = true;
 
   grpc_queue_.Shutdown();
+  // Wait for gRPC completion queue to drain
+  dedicated_executor_->ExecuteBlocking([] {});
 }
 
-// This is a very hacky way to simulate GRPC finishing operations without
-// actually connecting to the server: cancel the stream, which will make the
-// operation fail fast and be returned from the completion queue, then
-// complete the operation.
-void GrpcStreamFixture::ForceFinish(
-    std::initializer_list<OperationResult> results) {
+// This is a very hacky way to simulate gRPC finishing operations without
+// actually connecting to the server: cancel the stream, which will make all
+// operations fail fast and be returned from the completion queue, then
+// complete the associated completion.
+void GrpcStreamTester::ForceFinish(
+    std::initializer_list<CompletionResult> results) {
   dedicated_executor_->ExecuteBlocking([&] {
-    // GRPC allows calling `TryCancel` more than once.
+    // gRPC allows calling `TryCancel` more than once.
     grpc_context_->TryCancel();
 
-    for (OperationResult result : results) {
+    for (CompletionResult result : results) {
       bool ignored_ok = false;
       void* tag = nullptr;
       grpc_queue_.Next(&tag, &ignored_ok);
-      auto operation = static_cast<remote::GrpcCompletion*>(tag);
-      operation->Complete(result == OperationResult::Ok);
+      auto completion = static_cast<remote::GrpcCompletion*>(tag);
+      completion->Complete(result == CompletionResult::Ok);
     }
   });
 
   async_queue_.EnqueueBlocking([] {});
 }
 
-void GrpcStreamFixture::KeepPollingGrpcQueue() {
+void GrpcStreamTester::KeepPollingGrpcQueue() {
   dedicated_executor_->Execute([&] {
     void* tag = nullptr;
     bool ignored_ok = false;

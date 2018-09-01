@@ -33,7 +33,7 @@ using util::AsyncQueue;
 // allows using the same completion queue for all streams); it expects that some
 // different class (in practice, `RemoteStore`) will poll the gRPC completion
 // queue and `Complete` all `GrpcCompletion`s that come out of the queue.
-// `GrpcCompletion::Complete` will invoke the callback given by this
+// `GrpcCompletion::Complete` will invoke the callback given to it by this
 // `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
 // observer.
 //
@@ -276,7 +276,7 @@ void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
 
 GrpcCompletion* GrpcStream::NewCompletion(const OnSuccess& on_success) {
   // Can't move into lambda until C++14.
-  GrpcCompletion::Action decorated =
+  GrpcCompletion::Callback decorated =
       [this, on_success](bool ok, const GrpcCompletion* completion) {
         RemoveCompletion(completion);
 

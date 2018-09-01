@@ -25,7 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
-#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -39,11 +39,11 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
-using util::GrpcStreamFixture;
-using util::OperationResult;
+using util::CompletionResult;
+using util::GrpcStreamTester;
+using util::CompletionResult::Error;
+using util::CompletionResult::Ok;
 using util::internal::ExecutorStd;
-using util::OperationResult::Error;
-using util::OperationResult::Ok;
 
 namespace {
 
@@ -67,25 +67,28 @@ class Observer : public GrpcStreamObserver {
 class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest() : observer{absl::make_unique<Observer>()} {
-    fixture.InitializeStream(observer.get());
+    tester_.InitializeStream(observer.get());
   }
 
   ~GrpcStreamTest() {
-    fixture.Shutdown();
+    tester_.Shutdown();
   }
 
   GrpcStream& stream() {
-    return fixture.stream();
+    return tester_.stream();
   }
   AsyncQueue& async_queue() {
-    return fixture.async_queue();
+    return tester_.async_queue();
   }
 
-  void ForceFinish(std::initializer_list<OperationResult> results) {
-    fixture.ForceFinish(results);
+  void ForceFinish(std::initializer_list<CompletionResult> results) {
+    tester_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {
-    fixture.KeepPollingGrpcQueue();
+    tester_.KeepPollingGrpcQueue();
+  }
+  void ShutdownGrpcQueue() {
+    tester_.ShutdownGrpcQueue();
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -109,7 +112,7 @@ class GrpcStreamTest : public testing::Test {
   }
 
  private:
-  GrpcStreamFixture fixture;
+  GrpcStreamTester tester_;
   std::unique_ptr<Observer> observer;
 };
 
@@ -184,9 +187,14 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   StartStream();
 
   // Fail the read, but allow the rest to succeed.
-  ForceFinish({/*Read*/ Error});
+  ForceFinish({/*Read*/ Error});  // Will put a "Finish" operation on the queue
   KeepPollingGrpcQueue();
-  // Wait for `GrpcStream` to finish under the hood.
+  // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
+  // extracted from gRPC completion queue (but the completion may not have run
+  // yet).
+  ShutdownGrpcQueue();
+  // Finally, ensure `GrpcCompletion` for "Finish" operation has a chance to run
+  // on the worker queue.
   async_queue().EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));
