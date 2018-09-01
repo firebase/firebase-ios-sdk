@@ -50,6 +50,7 @@ def sync_firestore()
     'CMakeLists.txt',
     'InfoPlist.strings',
     '*.plist',
+    '.*',
   ]
 
   # Folder groups in the Xcode project that contain tests.
