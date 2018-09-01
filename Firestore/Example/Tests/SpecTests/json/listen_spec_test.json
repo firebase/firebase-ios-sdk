@@ -3,7 +3,7 @@
     "describeName": "Listens:",
     "itName": "Contents of query are cleared when listen is removed.",
     "tags": [
-      "no-lru"
+      "eager-gc"
     ],
     "comment": "Explicitly tests eager GC behavior",
     "config": {
@@ -1287,7 +1287,9 @@
   "Will gracefully handle watch stream reverting snapshots (with restart)": {
     "describeName": "Listens:",
     "itName": "Will gracefully handle watch stream reverting snapshots (with restart)",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
@@ -4248,7 +4250,9 @@
   "Omits global resume tokens for a short while": {
     "describeName": "Listens:",
     "itName": "Omits global resume tokens for a short while",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
@@ -4423,7 +4427,9 @@
   "Persists global resume tokens if the snapshot is old enough": {
     "describeName": "Listens:",
     "itName": "Persists global resume tokens if the snapshot is old enough",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1

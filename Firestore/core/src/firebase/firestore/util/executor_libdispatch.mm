@@ -193,6 +193,19 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
     : dispatch_queue_{dispatch_queue} {
 }
 
+ExecutorLibdispatch::~ExecutorLibdispatch() {
+  // Turn any operations that might still be in the queue into no-ops, lest
+  // they try to access `ExecutorLibdispatch` after it gets destroyed. Because
+  // the queue is serial, by the time libdispatch gets to the newly-enqueued
+  // work, the pending operations that might have been in progress would have
+  // already finished.
+  RunSynchronized(this, [this] {
+    for (auto slot : schedule_) {
+      slot->MarkDone();
+    }
+  });
+}
+
 bool ExecutorLibdispatch::IsCurrentExecutor() const {
   return GetCurrentQueueLabel() == GetQueueLabel(dispatch_queue());
 }

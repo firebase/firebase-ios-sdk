@@ -35,7 +35,7 @@ NS_SWIFT_NAME(Database)
  *
  * @return An instancetype instance
 */
-+ (instancetype) init __attribute__((unavailable("use the database method instead")));
+- (instancetype) init __attribute__((unavailable("use the database method instead")));
 
 /**
  * Gets the instance of FIRDatabase for the default FIRApp.

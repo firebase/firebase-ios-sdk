@@ -482,7 +482,10 @@
   "Cleans up watch state correctly": {
     "describeName": "Remote store:",
     "itName": "Cleans up watch state correctly",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1
@@ -517,7 +520,19 @@
             "message": "Simulated Backend Error"
           },
           "runBackoffTimer": true
-        }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
       },
       {
         "watchAck": [
@@ -618,6 +633,18 @@
           },
           "runBackoffTimer": false
         },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ],
         "stateExpect": {
           "activeTargets": {}
         }
