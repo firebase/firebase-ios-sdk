@@ -194,11 +194,14 @@ ExecutorLibdispatch::ExecutorLibdispatch(const dispatch_queue_t dispatch_queue)
 }
 
 ExecutorLibdispatch::~ExecutorLibdispatch() {
+  // Turn any operations that might still be in the queue into no-ops, lest
+  // they try to access `ExecutorLibdispatch` after it gets destroyed. Because
+  // the queue is serial, by the time libdispatch gets to the newly-enqueued
+  // work, the pending operations that might have been in progress would have
+  // already finished.
   RunSynchronized(this, [this] {
-    // Make sure any leftover timeslots don't try to access the executor after
-    // it's destroyed.
-    for (TimeSlot* leftover_slot : schedule_) {
-      leftover_slot->MarkDone();
+    for (auto slot : schedule_) {
+      slot->MarkDone();
     }
   });
 }
