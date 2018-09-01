@@ -143,14 +143,14 @@ void GrpcStreamFixture::ShutdownGrpcQueue() {
   dedicated_executor_->ExecuteBlocking([] {});
 }
 
-// This is a very hacky way to simulate GRPC finishing operations without
+// This is a very hacky way to simulate gRPC finishing operations without
 // actually connecting to the server: cancel the stream, which will make the
 // operation fail fast and be returned from the completion queue, then
 // complete the operation.
 void GrpcStreamFixture::ForceFinish(
     std::initializer_list<OperationResult> results) {
   dedicated_executor_->ExecuteBlocking([&] {
-    // GRPC allows calling `TryCancel` more than once.
+    // gRPC allows calling `TryCancel` more than once.
     grpc_context_->TryCancel();
 
     for (OperationResult result : results) {

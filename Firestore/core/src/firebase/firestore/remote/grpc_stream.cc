@@ -33,7 +33,7 @@ using util::AsyncQueue;
 // allows using the same completion queue for all streams); it expects that some
 // different class (in practice, `RemoteStore`) will poll the gRPC completion
 // queue and `Complete` all `GrpcCompletion`s that come out of the queue.
-// `GrpcCompletion::Complete` will invoke the callback given by this
+// `GrpcCompletion::Complete` will invoke the callback given to it by this
 // `GrpcStream`. In turn, `GrpcStream` will decide whether to notify its
 // observer.
 //
