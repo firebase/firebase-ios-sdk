@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param serializer A serializer to use to decode the details in the error response.
  * @return The corresponding error.
  */
-NSError *FUNErrorForResponse(NSInteger status, NSData *_Nullable body, FUNSerializer *serializer);
+NSError *_Nullable FUNErrorForResponse(NSInteger status,
+                                       NSData *_Nullable body,
+                                       FUNSerializer *serializer);
 
 NS_ASSUME_NONNULL_END

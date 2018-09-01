@@ -76,7 +76,9 @@ static NSString *const kMultiClientTag = @"multi-client";
 // if `kRunBenchmarkTests` is set to 'YES'.
 static NSString *const kBenchmarkTag = @"benchmark";
 
-NSString *const kNoLRUTag = @"no-lru";
+NSString *const kEagerGC = @"eager-gc";
+
+NSString *const kDurablePersistence = @"durable-persistence";
 
 static NSString *Describe(NSData *data) {
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -85,11 +87,11 @@ static NSString *Describe(NSData *data) {
 @interface FSTSpecTests ()
 @property(nonatomic, strong) FSTSyncEngineTestDriver *driver;
 
-// Some config info for the currently running spec; used when restarting the driver (for doRestart).
-@property(nonatomic, strong) id<FSTPersistence> driverPersistence;
 @end
 
-@implementation FSTSpecTests
+@implementation FSTSpecTests {
+  BOOL _gcEnabled;
+}
 
 - (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
   @throw FSTAbstractMethodException();  // NOLINT
@@ -107,20 +109,20 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
-  // Store persistence / GCEnabled so we can re-use it in doRestart.
+  // Store GCEnabled so we can re-use it in doRestart.
   NSNumber *GCEnabled = config[@"useGarbageCollection"];
+  _gcEnabled = [GCEnabled boolValue];
   NSNumber *numClients = config[@"numClients"];
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  self.driverPersistence = [self persistenceWithGCEnabled:[GCEnabled boolValue]];
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence];
+  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence];
   [self.driver start];
 }
 
 - (void)tearDownForSpec {
   [self.driver shutdown];
-  [self.driverPersistence shutdown];
 }
 
 /**
@@ -395,7 +397,7 @@ static NSString *Describe(NSData *data) {
   [self.driver enableNetwork];
 }
 
-- (void)doChangeUser:(id)UID {
+- (void)doChangeUser:(nullable id)UID {
   if ([UID isEqual:[NSNull null]]) {
     UID = nil;
   }
@@ -410,13 +412,8 @@ static NSString *Describe(NSData *data) {
 
   [self.driver shutdown];
 
-  // NOTE: We intentionally don't shutdown / re-create driverPersistence, since we want to
-  // preserve the persisted state. This is a bit of a cheat since it means we're not exercising
-  // the initialization / start logic that would normally be hit, but simplifies the plumbing and
-  // allows us to run these tests against FSTMemoryPersistence as well (there would be no way to
-  // re-create FSTMemoryPersistence without losing all persisted state).
-
-  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:self.driverPersistence
+  id<FSTPersistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  self.driver = [[FSTSyncEngineTestDriver alloc] initWithPersistence:persistence
                                                          initialUser:currentUser
                                                    outstandingWrites:outstandingWrites];
   [self.driver start];

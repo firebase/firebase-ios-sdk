@@ -283,7 +283,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param serverResponseReason A more detailed explanation string from server response.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)weakPasswordErrorWithServerResponseReason:(NSString *)serverResponseReason;
++ (NSError *)weakPasswordErrorWithServerResponseReason:(nullable NSString *)serverResponseReason;
 
 /** @fn appNotAuthorizedError
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeAppNotAuthorized code.
@@ -492,7 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param message Error message from the backend, if any.
     @return The nullable NSError instance associated with the given error message, if one is found.
  */
-+ (NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message;
++ (nullable NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message;
 
 /** @fn nullUserErrorWithMessage:
     @brief Constructs an @c NSError with the code and message provided.

@@ -17,9 +17,12 @@
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
+
+using firebase::firestore::util::Path;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,15 +34,23 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTLevelDBSpecTests : FSTSpecTests
 @end
 
-@implementation FSTLevelDBSpecTests
+@implementation FSTLevelDBSpecTests {
+  Path _levelDbDir;
+}
+
+- (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  // Getting a new directory will ensure that it is empty.
+  _levelDbDir = [FSTPersistenceTestHelpers levelDBDir];
+  [super setUpForSpecWithConfig:config];
+}
 
 /** Overrides -[FSTSpecTests persistence] */
 - (id<FSTPersistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
-  return [FSTPersistenceTestHelpers levelDBPersistence];
+  return [FSTPersistenceTestHelpers levelDBPersistenceWithDir:_levelDbDir];
 }
 
 - (BOOL)shouldRunWithTags:(NSArray<NSString *> *)tags {
-  if ([tags containsObject:kNoLRUTag]) {
+  if ([tags containsObject:kEagerGC]) {
     return NO;
   }
 
