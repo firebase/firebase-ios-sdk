@@ -39,11 +39,11 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
+using util::CompletionResult;
 using util::GrpcStreamTester;
-using util::OperationResult;
+using util::CompletionResult::Error;
+using util::CompletionResult::Ok;
 using util::internal::ExecutorStd;
-using util::OperationResult::Error;
-using util::OperationResult::Ok;
 
 namespace {
 
@@ -81,7 +81,7 @@ class GrpcStreamTest : public testing::Test {
     return tester_.async_queue();
   }
 
-  void ForceFinish(std::initializer_list<OperationResult> results) {
+  void ForceFinish(std::initializer_list<CompletionResult> results) {
     tester_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {

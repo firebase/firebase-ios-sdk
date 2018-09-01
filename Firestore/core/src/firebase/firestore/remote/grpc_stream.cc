@@ -276,7 +276,7 @@ void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
 
 GrpcCompletion* GrpcStream::NewCompletion(const OnSuccess& on_success) {
   // Can't move into lambda until C++14.
-  GrpcCompletion::Action decorated =
+  GrpcCompletion::Callback decorated =
       [this, on_success](bool ok, const GrpcCompletion* completion) {
         RemoveCompletion(completion);
 

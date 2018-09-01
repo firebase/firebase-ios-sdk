@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_TESTS_UTIL_H_
-
-#include "Firestore/core/test/firebase/firestore/util/grpc_tests_util.h"
+#include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 
 #include <utility>
 
@@ -25,8 +23,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-enum CompletionResult { Ok, Error };
 
 GrpcStreamTester::GrpcStreamTester()
     : async_queue_{absl::make_unique<internal::ExecutorStd>()},
