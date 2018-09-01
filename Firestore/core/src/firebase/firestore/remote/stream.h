@@ -170,7 +170,7 @@ class Stream : public GrpcStreamObserver,
    * Each error will call `OnStreamClose`. That function can decide to
    * cancel backoff if required.
    */
-  void CancelBackoff();
+  void InhibitBackoff();
 
   /**
    * Marks this stream as idle. If no further actions are performed on the

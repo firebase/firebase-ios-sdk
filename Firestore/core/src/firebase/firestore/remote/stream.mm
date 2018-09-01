@@ -161,7 +161,7 @@ void Stream::ResumeStartFromBackoff() {
   HARD_ASSERT(IsStarted(), "Stream should have started.");
 }
 
-void Stream::CancelBackoff() {
+void Stream::InhibitBackoff() {
   EnsureOnQueue();
 
   HARD_ASSERT(!IsStarted(),
