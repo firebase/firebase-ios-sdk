@@ -2,7 +2,10 @@
   "Empty queries are resolved if client goes offline": {
     "describeName": "Offline:",
     "itName": "Empty queries are resolved if client goes offline",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -28,15 +31,6 @@
               "resumeToken": ""
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -83,7 +77,10 @@
   "A successful message delays offline status": {
     "describeName": "Offline:",
     "itName": "A successful message delays offline status",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -115,15 +112,6 @@
         "watchAck": [
           2
         ]
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
-        }
       },
       {
         "watchStreamClose": {
@@ -179,7 +167,9 @@
     "describeName": "Offline:",
     "itName": "Removing all listeners delays \"Offline\" status on next listen",
     "tags": [
-      "no-lru"
+      "eager-gc",
+      "no-android",
+      "no-ios"
     ],
     "comment": "Marked as no-lru because when a listen is re-added, it gets a new target id rather than reusing one",
     "config": {
@@ -207,15 +197,6 @@
               "resumeToken": ""
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -290,15 +271,6 @@
             "message": "Simulated Backend Error"
           },
           "runBackoffTimer": true
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -318,7 +290,10 @@
   "Queries revert to fromCache=true when offline.": {
     "describeName": "Offline:",
     "itName": "Queries revert to fromCache=true when offline.",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -429,15 +404,6 @@
             "message": "Simulated Backend Error"
           },
           "runBackoffTimer": true
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         },
         "expect": [
           {
@@ -495,7 +461,10 @@
   "Queries with limbo documents handle going offline.": {
     "describeName": "Offline:",
     "itName": "Queries with limbo documents handle going offline.",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -658,15 +627,6 @@
               "resumeToken": "resume-token-1001"
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {
@@ -929,7 +889,10 @@
   "New queries return immediately with fromCache=true when offline due to stream failures.": {
     "describeName": "Offline:",
     "itName": "New queries return immediately with fromCache=true when offline due to stream failures.",
-    "tags": [],
+    "tags": [
+      "no-android",
+      "no-ios"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -955,15 +918,6 @@
               "resumeToken": ""
             }
           }
-        }
-      },
-      {
-        "watchStreamClose": {
-          "error": {
-            "code": 14,
-            "message": "Simulated Backend Error"
-          },
-          "runBackoffTimer": true
         }
       },
       {

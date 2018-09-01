@@ -2,7 +2,9 @@
   "Local mutations are persisted and re-sent": {
     "describeName": "Persistence:",
     "itName": "Local mutations are persisted and re-sent",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -50,7 +52,9 @@
   "Persisted local mutations are visible to listeners": {
     "describeName": "Persistence:",
     "itName": "Persisted local mutations are visible to listeners",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -136,7 +140,9 @@
   "Remote documents are persisted": {
     "describeName": "Persistence:",
     "itName": "Remote documents are persisted",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -586,7 +592,9 @@
   "Mutation Queue is persisted across uid switches (with restarts)": {
     "describeName": "Persistence:",
     "itName": "Mutation Queue is persisted across uid switches (with restarts)",
-    "tags": [],
+    "tags": [
+      "durable-persistence"
+    ],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1

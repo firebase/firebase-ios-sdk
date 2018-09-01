@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
     @return A client error, if any.
  */
 - (nullable NSError *)clientErrorWithShortErrorMessage:(NSString *)shortErrorMessage
-                                    detailErrorMessage:(NSString *)detailErrorMessage;
+                                    detailErrorMessage:(nullable NSString *)detailErrorMessage;
 
 @end
 

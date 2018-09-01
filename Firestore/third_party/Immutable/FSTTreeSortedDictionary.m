@@ -228,10 +228,10 @@ void FreeBase12List(Base12List *list) {
   free(list);
 }
 
-+ (id<FSTLLRBNode>)buildBalancedTree:(NSArray *)keys
-                          dictionary:(NSDictionary *)dictionary
-                  subArrayStartIndex:(NSUInteger)startIndex
-                              length:(NSUInteger)length {
++ (nullable id<FSTLLRBNode>)buildBalancedTree:(NSArray *)keys
+                                   dictionary:(NSDictionary *)dictionary
+                           subArrayStartIndex:(NSUInteger)startIndex
+                                       length:(NSUInteger)length {
   length = MIN(keys.count - startIndex, length);  // Bound length by the actual length of the array
   if (length == 0) {
     return nil;
@@ -262,8 +262,8 @@ void FreeBase12List(Base12List *list) {
 }
 
 + (nullable id<FSTLLRBNode>)rootFrom12List:(Base12List *)base12List
-                          keyList:(NSArray *)keyList
-                       dictionary:(NSDictionary *)dictionary {
+                                   keyList:(NSArray *)keyList
+                                dictionary:(NSDictionary *)dictionary {
   __block FSTLLRBValueNode *root = nil;
   __block FSTLLRBValueNode *node = nil;
   __block NSUInteger index = keyList.count;
