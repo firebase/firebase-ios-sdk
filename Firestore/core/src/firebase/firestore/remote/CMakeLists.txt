@@ -15,8 +15,6 @@
 cc_library(
   firebase_firestore_remote
   SOURCES
-    datastore.h
-    datastore.cc
     exponential_backoff.h
     exponential_backoff.cc
     serializer.h
