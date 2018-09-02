@@ -166,8 +166,7 @@ class TestStream : public Stream {
 class StreamTest : public testing::Test {
  public:
   StreamTest()
-      : firestore_stream{
-            std::make_shared<TestStream>(&tester_, &credentials)} {
+      : firestore_stream{std::make_shared<TestStream>(&tester_, &credentials)} {
   }
 
   ~StreamTest() {
