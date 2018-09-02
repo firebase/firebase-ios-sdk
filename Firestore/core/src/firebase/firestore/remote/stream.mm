@@ -87,25 +87,25 @@ void Stream::Authenticate() {
 
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
-  std::weak_ptr<Stream> weak_self{shared_from_this()};
-  int auth_generation = generation();
-  credentials_provider_->GetToken([weak_self, auth_generation](
-                                      StatusOr<Token> maybe_token) {
-    auto live_instance = weak_self.lock();
-    if (!live_instance) {
-      return;
-    }
-    live_instance->worker_queue_->EnqueueRelaxed([maybe_token, weak_self,
-                                                  auth_generation] {
-      auto live_instance = weak_self.lock();
-      // Streams can be stopped while waiting for authorization, so need to
-      // check generation.
-      if (!live_instance || live_instance->generation() != auth_generation) {
-        return;
-      }
-      live_instance->ResumeStartAfterAuth(maybe_token);
-    });
-  });
+  std::weak_ptr<Stream> weak_this{shared_from_this()};
+  int auth_generation = generation_;
+  credentials_provider_->GetToken(
+      [weak_this, auth_generation](StatusOr<Token> maybe_token) {
+        auto strong_this = weak_this.lock();
+        if (!strong_this) {
+          return;
+        }
+        strong_this->worker_queue_->EnqueueRelaxed(
+            [maybe_token, weak_this, auth_generation] {
+              auto strong_this = weak_this.lock();
+              // Streams can be stopped while waiting for authorization, so need
+              // to check generation.
+              if (!strong_this || strong_this->generation_ != auth_generation) {
+                return;
+              }
+              strong_this->ResumeStartAfterAuth(maybe_token);
+            });
+      });
 }
 
 void Stream::ResumeStartAfterAuth(const StatusOr<Token>& maybe_token) {
@@ -190,7 +190,6 @@ void Stream::MarkIdle() {
 
 void Stream::CancelIdleCheck() {
   EnsureOnQueue();
-
   idleness_timer_.Cancel();
 }
 
