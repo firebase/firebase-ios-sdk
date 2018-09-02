@@ -210,10 +210,6 @@ class Stream : public GrpcStreamObserver,
 
   // Used to prevent auth if the stream happens to be restarted before token is
   // received.
-  int generation() const {
-    return generation_;
-  }
-
   void RaiseGeneration() {
     ++generation_;
   }
