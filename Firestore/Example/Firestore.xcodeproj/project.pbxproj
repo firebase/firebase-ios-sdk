@@ -758,13 +758,6 @@
 			path = immutable;
 			sourceTree = "<group>";
 		};
-		5B03F501B3FB0F7F6F2507AB /* . */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = .;
-			sourceTree = "<group>";
-		};
 		5CAE131A20FFFED600BE9A4A /* Benchmarks */ = {
 			isa = PBXGroup;
 			children = (
@@ -849,7 +842,6 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				5B03F501B3FB0F7F6F2507AB /* . */,
 				DE51B1831F0D48AC0013853F /* API */,
 				DE51B1A81F0D48AC0013853F /* Core */,
 				DE2EF06E1F3D07D7003D0CDC /* Immutable */,
@@ -1890,7 +1882,6 @@
 				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
-				B646EE6121224220001A1F18 /* buffered_writer_test.cc in Sources */,
 				618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */,
 				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
