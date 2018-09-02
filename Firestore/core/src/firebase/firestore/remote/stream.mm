@@ -89,23 +89,23 @@ void Stream::Authenticate() {
   // deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
   int auth_generation = generation_;
-  credentials_provider_->GetToken([weak_this, auth_generation](
-                                      StatusOr<Token> maybe_token) {
-    auto strong_this = weak_this.lock();
-    if (!strong_this) {
-      return;
-    }
-    strong_this->worker_queue_->EnqueueRelaxed([maybe_token, weak_this,
-                                                  auth_generation] {
-      auto strong_this = weak_this.lock();
-      // Streams can be stopped while waiting for authorization, so need to
-      // check generation.
-      if (!strong_this || strong_this->generation_ != auth_generation) {
-        return;
-      }
-      strong_this->ResumeStartAfterAuth(maybe_token);
-    });
-  });
+  credentials_provider_->GetToken(
+      [weak_this, auth_generation](StatusOr<Token> maybe_token) {
+        auto strong_this = weak_this.lock();
+        if (!strong_this) {
+          return;
+        }
+        strong_this->worker_queue_->EnqueueRelaxed(
+            [maybe_token, weak_this, auth_generation] {
+              auto strong_this = weak_this.lock();
+              // Streams can be stopped while waiting for authorization, so need
+              // to check generation.
+              if (!strong_this || strong_this->generation_ != auth_generation) {
+                return;
+              }
+              strong_this->ResumeStartAfterAuth(maybe_token);
+            });
+      });
 }
 
 void Stream::ResumeStartAfterAuth(const StatusOr<Token>& maybe_token) {

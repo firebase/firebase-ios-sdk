@@ -44,6 +44,10 @@ std::unique_ptr<Executor> CreateExecutor() {
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
 
+std::string MakeString(grpc::string_ref grpc_str) {
+  return {grpc_str.begin(), grpc_str.size()};
+}
+
 absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
@@ -109,8 +113,10 @@ std::string Datastore::GetWhitelistedHeadersAsString(
 
   std::string result;
   for (const auto &kv : headers) {
-    absl::StrAppend(&result, MakeStringView(kv.first), ": ",
-                    MakeStringView(kv.second), "\n");
+    if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
+      absl::StrAppend(&result, MakeStringView(kv.first), ": ",
+                      MakeStringView(kv.second), "\n");
+    }
   }
   return result;
 }

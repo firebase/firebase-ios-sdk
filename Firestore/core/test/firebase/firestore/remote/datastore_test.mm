@@ -47,7 +47,8 @@ class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
       : async_queue{absl::make_unique<ExecutorStd>()},
-        datastore{DatabaseInfo{DatabaseId{"foo", "bar"}, "", "", false}, &async_queue} {
+        datastore{DatabaseInfo{DatabaseId{"foo", "bar"}, "", "", false},
+                  &async_queue} {
   }
 
   ~DatastoreTest() {
@@ -77,8 +78,8 @@ TEST_F(DatastoreTest, CanShutdownWithPendingOperations) {
   NoOpObserver observer;
   std::unique_ptr<GrpcStream> grpc_stream =
       datastore.CreateGrpcStream("", "", &observer);
-  async_queue.EnqueueBlocking([&] { grpc_stream->Finish(); });
   async_queue.EnqueueBlocking([&] { grpc_stream->Start(); });
+  async_queue.EnqueueBlocking([&] { grpc_stream->Finish(); });
   Shutdown();
 }
 
@@ -88,7 +89,7 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
       {"x-google-backends", "backend value"},
       {"x-google-foo", "should not be in result"},  // Not whitelisted
       {"x-google-gfe-request-trace", "request trace"},
-      {"x-google-netmon-LABEL", "netmon label"},  // should be case-insensitive
+      {"x-google-netmon-label", "netmon label"},
       {"x-google-service", "service 1"},
       {"x-google-service", "service 2"},  // Duplicate names are allowed
   };
@@ -97,7 +98,7 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
             "date: date value\n"
             "x-google-backends: backend value\n"
             "x-google-gfe-request-trace: request trace\n"
-            "x-google-netmon-LABEL: netmon label\n"
+            "x-google-netmon-label: netmon label\n"
             "x-google-service: service 1\n"
             "x-google-service: service 2\n");
 }
