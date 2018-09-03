@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-
 #include <initializer_list>
 #include <memory>
 #include <string>
@@ -24,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"

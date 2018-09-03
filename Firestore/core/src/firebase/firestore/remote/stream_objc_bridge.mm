@@ -27,7 +27,7 @@ bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
 }
 
-}  // bridge
-}  // remote
-}  // firestore
-}  // firebase
+}  // namespace bridge
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
