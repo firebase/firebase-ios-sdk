@@ -158,6 +158,12 @@ add_custom_command(
 )
 
 add_custom_target(
+  generate_nanopb_protos
+  DEPENDS
+    ${NANOPB_GENERATED_SOURCES}
+)
+
+add_custom_target(
   generate_cpp_protos
   COMMENT "Generatoring C++ protobuf sources"
   OUTPUT ${NANOPB_GENERATED_SOURCES}
@@ -199,23 +205,8 @@ add_custom_target(
 # source control.)
 add_custom_target(
   generate_protos
-  COMMENT "Generating proto sources"
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  VERBATIM
-
-  COMMAND
-    cmake -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_protos
-    mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
-  COMMAND
-    ./build-protos.sh
-      "$<TARGET_FILE:protoc>"
-      "$<TARGET_FILE:grpc_objective_c_plugin>"
-      "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
-      "${NANOPB_DIR}/generator"
-      "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
-
   DEPENDS
-    protoc
-    grpc_objective_c_plugin
-    ${PROTOBUF_PYTHON}
+    generate_nanopb_protos
+    generate_cpp_protos
+    generate_objc_protos
 )
