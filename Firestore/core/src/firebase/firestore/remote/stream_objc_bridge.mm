@@ -168,7 +168,7 @@ void WatchStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
   [delegate watchStreamWasInterruptedWithError:MakeNSError(status)];
 }
 
-}  // bridge
-}  // remote
-}  // firestore
-}  // firebase
+}  // namespace bridge
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
