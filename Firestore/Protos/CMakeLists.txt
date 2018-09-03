@@ -157,6 +157,24 @@ add_custom_command(
     ${PROTOBUF_PYTHON}
 )
 
+add_custom_target(
+  generate_objc_protos
+  COMMENT "Generatoring Objective-C protobuf sources"
+  OUTPUT ${NANOPB_GENERATED_SOURCES}
+  COMMAND
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+      --objc
+      --protoc=$<TARGET_FILE:protoc>
+      --protoc-gen-grpc=$<TARGET_FILE:grpc_objective_c_plugin>
+      --output-dir=${OUTPUT_DIR}
+      ${PROTO_INCLUDES}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTOBUF_PYTHON}
+)
+
 # Custom target that runs a script to generate the proto sources. This isn't
 # hooked into the build, so must be run manually. (It would be easy enough to
 # hook into the (posix) cmake build, but for consistency with windows and xcode
