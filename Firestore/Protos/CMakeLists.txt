@@ -158,6 +158,23 @@ add_custom_command(
 )
 
 add_custom_target(
+  generate_cpp_protos
+  COMMENT "Generatoring C++ protobuf sources"
+  OUTPUT ${NANOPB_GENERATED_SOURCES}
+  COMMAND
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+      --cpp
+      --protoc=$<TARGET_FILE:protoc>
+      --output-dir=${OUTPUT_DIR}
+      ${PROTO_INCLUDES}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTOBUF_PYTHON}
+)
+
+add_custom_target(
   generate_objc_protos
   COMMENT "Generatoring Objective-C protobuf sources"
   OUTPUT ${NANOPB_GENERATED_SOURCES}

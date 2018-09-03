@@ -57,6 +57,9 @@ def main():
       '--nanopb', action='store_true',
       help='Generates nanopb messages.')
   parser.add_argument(
+      '--cpp', action='store_true',
+      help='Generates C++ libprotobuf messages.')
+  parser.add_argument(
       '--objc', action='store_true',
       help='Generates Objective-C messages.')
   parser.add_argument(
@@ -100,6 +103,9 @@ def main():
     NanopbGenerator(args, nanopb_proto_files).run()
 
   proto_files = remove_well_known_protos(nanopb_proto_files)
+  if args.cpp:
+    CppProtobufGenerator(args, proto_files).run()
+
   if args.objc:
     ObjcProtobufGenerator(args, proto_files).run()
 
@@ -186,6 +192,36 @@ class ObjcProtobufGenerator(object):
     write_file(os.path.join(out_dir, 'google/api/Annotations.pbobjc.h'), [
         '// Empty stub file\n'
     ])
+
+
+class CppProtobufGenerator(object):
+  """Runs protoc for C++ libprotobuf (used in testing)."""
+
+  def __init__(self, args, proto_files):
+    self.args = args
+    self.proto_files = proto_files
+
+  def run(self):
+    out_dir = os.path.join(self.args.output_dir, 'cpp')
+    mkdir(out_dir)
+
+    self.__run_generator(out_dir)
+
+    sources = collect_files(out_dir, '.pb.h', '.pb.cc')
+    # TODO(wilhuff): strip trailing whitespace?
+    post_process_files(
+        sources,
+        add_copyright
+    )
+
+  def __run_generator(self, out_dir):
+    """Invokes protoc using using the default C++ generator."""
+
+    cmd = protoc_command(self.args)
+    cmd.append('--cpp_out=' + out_dir)
+    cmd.extend(self.proto_files)
+
+    run_protoc(self.args, cmd)
 
 
 def protoc_command(args):
