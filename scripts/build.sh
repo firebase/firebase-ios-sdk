@@ -274,6 +274,12 @@ case "$product-$method-$platform" in
     cpus=$(sysctl -n hw.ncpu)
     (cd build; env make -j $cpus all)
     (cd build; env CTEST_OUTPUT_ON_FAILURE=1 make -j $cpus test)
+
+    # TODO(rsgowman): For now, we'll just verify that we can build the protos.
+    # Eventually, we'd like to diff these against the versions in source control
+    # to ensure there's no (non-whitespace, non-comment) differences.
+    echo "Building protos (though not verifying/using them)..."
+    (cd build; env make -j $cpus generate_protos)
     ;;
 
   *)
