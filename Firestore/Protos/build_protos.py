@@ -64,8 +64,11 @@ def main():
       '--protoc', default='protoc',
       help='Location of the protoc executable')
   parser.add_argument(
+      '--protoc-pythonpath', dest='protoc_pythonpath',
+      help='Location of the protoc python library.')
+  parser.add_argument(
       '--protoc-gen-nanopb', dest='protoc_gen_nanopb',
-      help='Location of the nanopb generator executable')
+      help='Location of the nanopb generator executable.')
 
   if len(sys.argv) == 1:
     parser.print_help()
@@ -119,7 +122,13 @@ class NanopbGenerator(object):
 
     cmd.extend(self.proto_files)
 
-    subprocess.check_call(cmd)
+    kwargs={}
+    if self.args.protoc_pythonpath:
+      env = os.environ.copy()
+      env['PYTHONPATH'] = self.args.protoc_pythonpath
+      kwargs['env'] = env
+
+    subprocess.check_call(cmd, **kwargs)
 
 
 def post_process_files(filenames, *processors):
