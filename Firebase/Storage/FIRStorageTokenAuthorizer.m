@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseCore/FIRAppInternal.h>
-
 #import "FIRStorageTokenAuthorizer.h"
 
 #import "FIRStorageConstants.h"
@@ -22,22 +20,27 @@
 
 #import "FirebaseStorage.h"
 
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 
 @implementation FIRStorageTokenAuthorizer {
  @private
-  // Firebase App which vends tokens
-  FIRApp *_app;
+  /// Google App ID to pass along with each request.
+  NSString *_googleAppID;
+
+  /// Auth provider.
+  id<FIRAuthInterop> _auth;
 }
 
 @synthesize fetcherService = _fetcherService;
 
-- (instancetype)initWithApp:(FIRApp *)app fetcherService:(GTMSessionFetcherService *)service {
+- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
+                     fetcherService:(GTMSessionFetcherService *)service
+                       authProvider:(nullable id<FIRAuthInterop>)auth {
   self = [super init];
   if (self) {
-    _app = app;
+    _googleAppID = googleAppID;
     _fetcherService = service;
+    _auth = auth;
   }
   return self;
 }
@@ -52,8 +55,7 @@
   [request setValue:versionString forHTTPHeaderField:@"x-firebase-storage-version"];
 
   // Set GMP ID on each request
-  NSString *GMPAppId = _app.options.googleAppID;
-  [request setValue:GMPAppId forHTTPHeaderField:@"x-firebase-gmpid"];
+  [request setValue:_googleAppID forHTTPHeaderField:@"x-firebase-gmpid"];
 
   if (delegate && sel) {
     id selfParam = self;
@@ -70,28 +72,28 @@
     }
 
     [invocation retainArguments];
-    if (_app.getTokenImplementation) {
-      [_app getTokenForcingRefresh:NO
-                      withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                        if (error) {
-                          NSMutableDictionary *errorDictionary =
-                              [NSMutableDictionary dictionaryWithDictionary:error.userInfo];
-                          errorDictionary[kFIRStorageResponseErrorDomain] = error.domain;
-                          errorDictionary[kFIRStorageResponseErrorCode] = @(error.code);
+    if (_auth) {
+      [_auth getTokenForcingRefresh:NO
+                       withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
+                         if (error) {
+                           NSMutableDictionary *errorDictionary =
+                               [NSMutableDictionary dictionaryWithDictionary:error.userInfo];
+                           errorDictionary[kFIRStorageResponseErrorDomain] = error.domain;
+                           errorDictionary[kFIRStorageResponseErrorCode] = @(error.code);
 
-                          NSError *tokenError =
-                              [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnauthenticated
-                                               infoDictionary:errorDictionary];
-                          [invocation setArgument:&tokenError atIndex:4];
-                        } else if (token) {
-                          NSString *firebaseToken =
-                              [NSString stringWithFormat:kFIRStorageAuthTokenFormat, token];
-                          [request setValue:firebaseToken forHTTPHeaderField:@"Authorization"];
-                        }
-                        dispatch_async(callbackQueue, ^{
-                          [invocation invoke];
-                        });
-                      }];
+                           NSError *tokenError =
+                               [FIRStorageErrors errorWithCode:FIRStorageErrorCodeUnauthenticated
+                                                infoDictionary:errorDictionary];
+                           [invocation setArgument:&tokenError atIndex:4];
+                         } else if (token) {
+                           NSString *firebaseToken =
+                               [NSString stringWithFormat:kFIRStorageAuthTokenFormat, token];
+                           [request setValue:firebaseToken forHTTPHeaderField:@"Authorization"];
+                         }
+                         dispatch_async(callbackQueue, ^{
+                           [invocation invoke];
+                         });
+                       }];
     } else {
       dispatch_async(callbackQueue, ^{
         [invocation invoke];
