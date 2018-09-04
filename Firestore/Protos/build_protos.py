@@ -56,6 +56,9 @@ def main():
   parser.add_argument(
       '--nanopb', action='store_true',
       help='Generates nanopb messages.')
+  parser.add_argument(
+      '--output-dir', '-d', default='.', dest='output_dir',
+      help='Directory to write files; subdirectories will be created.')
 
   parser.add_argument(
       '--protoc', default='protoc',
@@ -88,8 +91,8 @@ class NanopbGenerator(object):
   def run(self):
     """Performs the action of the the generator."""
 
-    # Must match the directory structure inside the tarball
-    nanopb_out = 'nanopb'
+    nanopb_out = os.path.join(self.args.output_dir, 'nanopb')
+    mkdir(nanopb_out)
 
     self.__run_generator(nanopb_out)
 
@@ -170,6 +173,11 @@ def collect_files(root_dir, *extensions):
           filename = os.path.join(root, basename)
           result.append(filename)
   return result
+
+
+def mkdir(dirname):
+  if not os.path.isdir(dirname):
+    os.makedirs(dirname)
 
 
 if __name__ == '__main__':
