@@ -98,19 +98,15 @@ target_include_directories(
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
 
-set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator/)
+set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator)
 
 # Build nanopb protoc plugin. (Heavily "inspired" by
 # https://github.com/nanopb/nanopb/blob/master/extra/FindNanopb.cmake)
-set(NANOPB_GENERATOR_SRC
-  ${NANOPB_GENERATOR_DIR}/proto/nanopb.proto
-  ${NANOPB_GENERATOR_DIR}/proto/plugin.proto
-)
+set(NANOPB_GENERATOR_BASENAMES nanopb plugin)
 set(NANOPB_GENERATOR_PYTHON_SRC)
-foreach (FIL ${NANOPB_GENERATOR_SRC})
-  get_filename_component(ABS_FIL ${FIL} ABSOLUTE)
-  get_filename_component(FIL_WE ${FIL} NAME_WE)
-  set(output "${NANOPB_GENERATOR_DIR}/proto/${FIL_WE}_pb2.py")
+foreach (GENERATOR_BASENAME ${NANOPB_GENERATOR_BASENAMES})
+  set(input "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}.proto")
+  set(output "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}_pb2.py")
   set(NANOPB_GENERATOR_PYTHON_SRC ${NANOPB_GENERATOR_PYTHON_SRC} ${output})
   add_custom_command(
     OUTPUT ${output}
@@ -118,10 +114,10 @@ foreach (FIL ${NANOPB_GENERATOR_SRC})
       protoc
         -I${NANOPB_GENERATOR_DIR}/proto
         --python_out=${NANOPB_GENERATOR_DIR}/proto
-        ${ABS_FIL}
+        ${input}
     DEPENDS
       protoc
-      ${ABS_FIL}
+      ${input}
   )
 endforeach()
 
