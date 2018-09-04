@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Gets multiple documents.
- *
+ * 
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
@@ -148,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Gets multiple documents.
- *
+ * 
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
