@@ -102,6 +102,10 @@ class NanopbGenerator(object):
 
     gen = self.args.protoc_gen_nanopb
     if gen is not None:
+      proto_dir = os.path.join(os.path.dirname(gen), 'proto')
+      if os.path.isdir(proto_dir):
+        cmd.extend(['-I', proto_dir])
+
       cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
 
     nanopb_flags = ' '.join([
