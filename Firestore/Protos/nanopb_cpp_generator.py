@@ -27,6 +27,8 @@ import os
 import os.path
 import shlex
 
+from google.protobuf.descriptor_pb2 import FieldDescriptorProto
+
 if sys.platform == 'win32':
   import msvcrt  # pylint: disable=g-import-not-at-top
 
@@ -34,6 +36,7 @@ if sys.platform == 'win32':
 # against multiple imports. Reuse the plugin package as loaded by the
 # nanopb_generator.
 plugin_pb2 = nanopb.plugin_pb2
+nanopb_pb2 = nanopb.nanopb_pb2
 
 
 def main():
@@ -46,6 +49,9 @@ def main():
   data = io.open(sys.stdin.fileno(), 'rb').read()
   request = plugin_pb2.CodeGeneratorRequest.FromString(data)
 
+  # Preprocess inputs, changing types and nanopb defaults
+  use_malloc(request)
+
   # Generate code
   options = nanopb_parse_options(request)
   parsed_files = nanopb_parse_files(request, options)
@@ -54,6 +60,52 @@ def main():
 
   # Write to stdout
   io.open(sys.stdout.fileno(), 'wb').write(response.SerializeToString())
+
+
+def use_malloc(request):
+  """Mark all variable length items as requiring malloc.
+
+  By default nanopb renders string, bytes, and repeated fields (dynamic fields)
+  as having the C type pb_callback_t. Unfortunately this type is incompatible
+  with nanopb's union support.
+
+  The function performs the equivalent of adding the following annotation to
+  each dynamic field in all the protos.
+
+    string name = 1 [(nanopb).type = FT_POINTER];
+
+  Args:
+    request: A CodeGeneratorRequest from protoc. The descriptors are modified
+      in place.
+  """
+  dynamic_types = [
+      FieldDescriptorProto.TYPE_STRING,
+      FieldDescriptorProto.TYPE_BYTES,
+  ]
+
+  for _, message_type in iterate_messages(request):
+    for field in message_type.field:
+      dynamic_type = field.type in dynamic_types
+      repeated = field.label == FieldDescriptorProto.LABEL_REPEATED
+
+      if dynamic_type or repeated:
+        ext = field.options.Extensions[nanopb_pb2.nanopb]
+        ext.type = nanopb_pb2.FT_POINTER
+
+
+def iterate_messages(request):
+  """Iterates over all messages in all files in the request.
+
+  Args:
+    request: A CodeGeneratorRequest passed by protoc.
+
+  Yields:
+    names: a nanopb.Names object giving a qualified name for the message
+    message_type: a DescriptorProto for the message.
+  """
+  for fdesc in request.proto_file:
+    for names, message_type in nanopb.iterate_messages(fdesc):
+      yield names, message_type
 
 
 def nanopb_parse_options(request):
