@@ -140,6 +140,23 @@ foreach (GENERATOR_BASENAME ${NANOPB_GENERATOR_BASENAMES})
   )
 endforeach()
 
+add_custom_target(
+  generate_nanopb_protos
+  COMMENT "Generating nanopb proto sources"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  VERBATIM
+  COMMAND
+    ./build_protos.py
+      --protoc=$<TARGET_FILE:protoc>
+      --protoc-pythonpath=${PROTOBUF_DIR}/python
+      --protoc-gen-nanopb=${NANOPB_GENERATOR_DIR}/protoc-gen-nanopb
+      --output-dir=${CMAKE_CURRENT_BINARY_DIR}/generated_protos
+      --nanopb
+  DEPENDS
+    protoc
+    ${NANOPB_GENERATOR_PYTHON_SRC}
+)
+
 # Custom target that runs a script to generate the proto sources. This isn't
 # hooked into the build, so must be run manually. (It would be easy enough to
 # hook into the (posix) cmake build, but for consistency with windows and xcode

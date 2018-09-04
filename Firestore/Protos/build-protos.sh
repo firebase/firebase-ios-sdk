@@ -52,7 +52,7 @@
 #   OUT_DIR - The output directory for the generated protos. A subdirectory will
 #     be created for each variant (eg objc, cpp, nanopb)
 
-if [ $# -ne 5 ] ; then
+if [ $# -ne 4 ] ; then
   echo "Direct usage strongly discouraged. Use via cmake instead."
   exit 1
 fi
@@ -60,36 +60,27 @@ fi
 readonly PROTOC_BIN="$1"
 readonly GRPC_OBJC_PLUGIN="$2"
 readonly PROTOBUF_PYTHONPATH="$3"
-readonly NANOPB_GENERATOR_DIR="$4"
-readonly OUT_DIR="$5"
+readonly OUT_DIR="$4"
 
 # Create the output directories for each variant.
-mkdir -p "${OUT_DIR}/cpp" "${OUT_DIR}/objc" "${OUT_DIR}/nanopb"
+mkdir -p "${OUT_DIR}/cpp" "${OUT_DIR}/objc"
 
 # Generate the proto sources for all variants.
 # TODO(rsgowman): Eventually, we'll need to run this separately for each
 # variant, since grpc only allows a single output directory. For now, we only
 # generate the grpc sources for objc, so we don't care.
 PYTHONPATH="${PROTOBUF_PYTHONPATH}" "${PROTOC_BIN}" \
-  --plugin="${NANOPB_GENERATOR_DIR}"/protoc-gen-nanopb \
   --plugin=protoc-gen-grpc="${GRPC_OBJC_PLUGIN}" \
   -I ./protos/ \
-  -I "${NANOPB_GENERATOR_DIR}/proto/" \
   --cpp_out="${OUT_DIR}/cpp" \
   --objc_out="${OUT_DIR}/objc" \
   --grpc_out="${OUT_DIR}/objc" \
-  --nanopb_out="--options-file=protos/%s.options --extension=.nanopb:${OUT_DIR}/nanopb" \
   $(find protos -name *.proto -print | xargs)
 
 # Remove "well-known" protos from objc and cpp. (We get these for free via
 # libprotobuf. We only need them for nanopb.)
 rm -rf "${OUT_DIR}/objc/google/protobuf/"
 rm -rf "${OUT_DIR}/cpp/google/protobuf/"
-
-# If a proto uses a field named 'delete', nanopb happily uses that in the
-# message definition. Works fine for C; not so much for C++. Rename uses of this
-# to delete_ (which is how protoc does it for c++ files.)
-perl -i -pe 's/\bdelete\b/delete_/g' $(find "${OUT_DIR}/nanopb" -type f)
 
 # CocoaPods does not like paths in library imports, flatten them.
 for i in $(find "${OUT_DIR}/objc" -name "*.[mh]"); do
