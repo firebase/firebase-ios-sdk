@@ -59,6 +59,9 @@ def main():
   parser.add_argument(
       '--nanopb', action='store_true', help='Generates nanopb messages.')
 
+  parser.add_argument(
+      '--protoc', default='protoc', help='Location of the protoc executable')
+
   if len(sys.argv) == 1:
     parser.print_help()
     sys.exit(1)
@@ -70,13 +73,14 @@ def main():
   nanopb_proto_files = collect_files('protos', '.proto')
 
   if args.nanopb:
-    NanopbGenerator(nanopb_proto_files).run()
+    NanopbGenerator(args, nanopb_proto_files).run()
 
 
 class NanopbGenerator(object):
   """Builds and runs the nanopb plugin to protoc."""
 
-  def __init__(self, proto_files):
+  def __init__(self, args, proto_files):
+    self.args = args
     self.proto_files = proto_files
 
   def run(self):
@@ -137,7 +141,7 @@ class NanopbGenerator(object):
     ])
 
     cmd = [
-        PROTOC_BIN,
+        self.args.protoc,
         '-I', 'protos',
         '--plugin=' + generator_bin,
         '--nanopb_out=%s:%s' % (nanopb_flags, out_dir),
