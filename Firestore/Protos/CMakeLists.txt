@@ -100,10 +100,29 @@ target_include_directories(
 
 set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator)
 
+set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
+set(DESCRIPTOR_PROTO_SRC
+  ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto
+)
+set(DESCRIPTOR_PYTHON_SRC
+  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
+)
+add_custom_command(
+  OUTPUT ${DESCRIPTOR_PYTHON_SRC}
+  COMMAND
+    protoc
+      -I${PROTOBUF_DIR}/src
+      --python_out=${PROTOBUF_DIR}/python
+      ${DESCRIPTOR_PROTO_SRC}
+  DEPENDS
+    protoc
+    ${DESCRIPTOR_PROTO_SRC}
+)
+
 # Build nanopb protoc plugin. (Heavily "inspired" by
 # https://github.com/nanopb/nanopb/blob/master/extra/FindNanopb.cmake)
 set(NANOPB_GENERATOR_BASENAMES nanopb plugin)
-set(NANOPB_GENERATOR_PYTHON_SRC)
+set(NANOPB_GENERATOR_PYTHON_SRC ${DESCRIPTOR_PYTHON_SRC})
 foreach (GENERATOR_BASENAME ${NANOPB_GENERATOR_BASENAMES})
   set(input "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}.proto")
   set(output "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}_pb2.py")
