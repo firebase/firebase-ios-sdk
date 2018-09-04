@@ -50,6 +50,7 @@ def main():
   request = plugin_pb2.CodeGeneratorRequest.FromString(data)
 
   # Preprocess inputs, changing types and nanopb defaults
+  use_anonymous_oneof(request)
   use_malloc(request)
 
   # Generate code
@@ -91,6 +92,23 @@ def use_malloc(request):
       if dynamic_type or repeated:
         ext = field.options.Extensions[nanopb_pb2.nanopb]
         ext.type = nanopb_pb2.FT_POINTER
+
+
+def use_anonymous_oneof(request):
+  """Use anonymous unions for oneofs if they're the only one in a message.
+
+  Equivalent to setting this option on messages where it applies:
+
+    option (nanopb).anonymous_oneof = true;
+
+  Args:
+    request: A CodeGeneratorRequest from protoc. The descriptors are modified
+      in place.
+  """
+  for _, message_type in iterate_messages(request):
+    if len(message_type.oneof_decl) == 1:
+      ext = message_type.options.Extensions[nanopb_pb2.nanopb_msgopt]
+      ext.anonymous_oneof = True
 
 
 def iterate_messages(request):
