@@ -134,7 +134,6 @@ class NanopbGenerator(object):
 
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
-        '--options-file=%s/%%s.options' % self.args.protos_dir,
         '--no-timestamp',
     ])
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
