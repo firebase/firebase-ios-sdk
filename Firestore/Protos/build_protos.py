@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 # Copyright 2018 Google Inc. All rights reserved.
 #
@@ -31,9 +31,6 @@ import tarfile
 import urllib2
 
 
-NANOPB_VERSION = '0.3.8'
-PROTOC_BIN = 'Pods/!ProtoCompiler/protoc'
-
 COPYRIGHT_NOTICE = '''
 /*
  * Copyright 2018 Google
@@ -57,10 +54,15 @@ def main():
   parser = argparse.ArgumentParser(
       description='Generates proto messages.')
   parser.add_argument(
-      '--nanopb', action='store_true', help='Generates nanopb messages.')
+      '--nanopb', action='store_true',
+      help='Generates nanopb messages.')
 
   parser.add_argument(
-      '--protoc', default='protoc', help='Location of the protoc executable')
+      '--protoc', default='protoc',
+      help='Location of the protoc executable')
+  parser.add_argument(
+      '--protoc-gen-nanopb', dest='protoc_gen_nanopb',
+      help='Location of the nanopb generator executable')
 
   if len(sys.argv) == 1:
     parser.print_help()
@@ -87,68 +89,30 @@ class NanopbGenerator(object):
     """Performs the action of the the generator."""
 
     # Must match the directory structure inside the tarball
-    nanopb_dir = 'nanopb-' + NANOPB_VERSION
-    generator_bin = os.path.join(nanopb_dir, 'generator/protoc-gen-nanopb')
     nanopb_out = 'nanopb'
 
-    nanopb_py = os.path.join(nanopb_dir, 'generator/proto/nanopb_pb2.py')
-    if not os.path.isfile(nanopb_py):
-      self.__download()
-      self.__build(nanopb_dir)
-
-    self.__run_generator(generator_bin, nanopb_out)
+    self.__run_generator(nanopb_out)
 
     sources = collect_files(nanopb_out, '.nanopb.h', '.nanopb.c')
     post_process_files(sources, add_copyright, nanopb_rename_delete)
 
-  def __download(self):
-    """Downloads and unpacks nanopb sources."""
-
-    url = 'https://github.com/nanopb/nanopb/archive/%s.tar.gz' % NANOPB_VERSION
-    tgz = 'nanopb-%s.tar.gz' % NANOPB_VERSION
-
-    if not os.path.isfile(tgz):
-      print('Downloading %s' % url)
-      response = urllib2.urlopen(url)
-      with open(tgz, 'wb') as fd:
-        shutil.copyfileobj(response, fd)
-
-    with tarfile.open(tgz) as tar:
-      tar.extractall()
-
-  def __build(self, nanopb_dir):
-    """Builds the nanopb plugin from sources."""
-
-    print('Building %s' % nanopb_dir)
-    cwd = os.getcwd()
-    os.chdir(nanopb_dir)
-
-    subprocess.call(['cmake', '.'])
-    subprocess.call(['make'])
-
-    # Copy built files into place where the generator expects to find them
-    for src in ['plugin_pb2.py', 'nanopb_pb2.py']:
-      dest = os.path.join('generator/proto', src)
-      shutil.copyfile(src, dest)
-
-    os.chdir(cwd)
-
-  def __run_generator(self, generator_bin, out_dir):
+  def __run_generator(self, out_dir):
     """Invokes protoc using the nanopb plugin."""
+    cmd = [self.args.protoc, '-I', 'protos']
+
+    gen = self.args.protoc_gen_nanopb
+    if gen is not None:
+      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
+
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
         '--options-file=protos/%s.options',
     ])
+    cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 
-    cmd = [
-        self.args.protoc,
-        '-I', 'protos',
-        '--plugin=' + generator_bin,
-        '--nanopb_out=%s:%s' % (nanopb_flags, out_dir),
-    ]
     cmd.extend(self.proto_files)
 
-    subprocess.call(cmd)
+    subprocess.check_call(cmd)
 
 
 def post_process_files(filenames, *processors):
