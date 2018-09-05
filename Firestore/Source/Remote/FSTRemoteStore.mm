@@ -194,9 +194,6 @@ static const int kMaxPendingWrites = 10;
                 (unsigned long)self.writePipeline.count);
       [self.writePipeline removeAllObjects];
     }
-
-    self.writeStream = nil;
-    self.watchStream = nil;
   }
 }
 
@@ -432,7 +429,7 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self isNetworkEnabled] && !_writeStream->IsStarted() && self.pendingWrites.count > 0;
+  return [self isNetworkEnabled] && !_writeStream->IsStarted() && self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
@@ -457,7 +454,7 @@ static const int kMaxPendingWrites = 10;
     FSTMutationBatch *batch = [self.localStore nextMutationBatchAfterBatchID:lastBatchIDRetrieved];
     if (!batch) {
       if (self.writePipeline.count == 0) {
-        [self.writeStream markIdle];
+        _writeStream->MarkIdle();
       }
       break;
     }
@@ -504,11 +501,11 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)writeStreamDidCompleteHandshake {
   // Record the stream token.
-  [self.localStore setLastStreamToken:self.writeStream.lastStreamToken];
+  [self.localStore setLastStreamToken:_writeStream->GetLastStreamToken()];
 
   // Send the write pipeline now that the stream is established.
   for (FSTMutationBatch *write in self.writePipeline) {
-    [self.writeStream writeMutations:write.mutations];
+    _writeStream->WriteMutations(write.mutations);
   }
 }
 
