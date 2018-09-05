@@ -127,7 +127,7 @@ static BOOL gRespondsToHandleBackgroundSession;
 
 - (void)application:(UIApplication *)application
     handleEventsForBackgroundURLSession:(nonnull NSString *)identifier
-                      completionHandler:(nonnull void (^)())completionHandler {
+                      completionHandler:(nonnull void (^)(void))completionHandler {
   _backgroundSessionID = [identifier copy];
 }
 
