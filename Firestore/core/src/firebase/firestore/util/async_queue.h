@@ -112,21 +112,6 @@ class AsyncQueue {
                                      TimerId timer_id,
                                      const Operation& operation);
 
-  // Direct execution
-
-  // Immediately executes the `operation` on the queue.
-  //
-  // This is largely a workaround to allow other classes (GRPC) to directly
-  // access the underlying dispatch queue without getting `AsyncQueue` into an
-  // inconsistent state.
-  //
-  // Precondition: no other operation is being executed on the queue at the
-  // moment of the call (i.e., `ExecuteBlocking` cannot call `ExecuteBlocking`).
-  //
-  // Precondition: `ExecuteBlocking` is being invoked asynchronously on the
-  // queue.
-  void ExecuteBlocking(const Operation& operation);
-
   // Test-only interface follows
   // TODO(varconst): move the test-only interface into a helper object that is
   // a friend of AsyncQueue and delegates its public methods to private methods
@@ -147,6 +132,15 @@ class AsyncQueue {
   void RunScheduledOperationsUntil(TimerId last_timer_id);
 
  private:
+  // Immediately executes the `operation` on the queue.
+  //
+  // Precondition: no other operation is being executed on the queue at the
+  // moment of the call (i.e., `ExecuteBlocking` cannot call `ExecuteBlocking`).
+  //
+  // Precondition: `ExecuteBlocking` is being invoked asynchronously on the
+  // queue.
+  void ExecuteBlocking(const Operation& operation);
+
   Operation Wrap(const Operation& operation);
 
   // Asserts that the current invocation happens asynchronously on the queue.

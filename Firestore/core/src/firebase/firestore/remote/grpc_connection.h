@@ -56,7 +56,13 @@ class GrpcConnection {
                                            absl::string_view token,
                                            GrpcStreamObserver* observer);
 
+  static void SetTestCertificatePath(const std::string& path) {
+    test_certificate_path_ = path;
+  }
+
  private:
+  static std::string test_certificate_path_;
+
   // PORTING NOTE: this function is called `AddMetadata` in Web client.
   std::unique_ptr<grpc::ClientContext> CreateContext(
       absl::string_view token) const;

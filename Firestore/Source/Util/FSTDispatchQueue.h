@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
   FSTTimerIDWriteStreamConnectionBackoff,
 
   /**
-   * A timer used in FSTOnlineStateTracker to transition from OnlineState Unknown to Offline
+   * A timer used in FSTOnlineStateTracker to transition from FSTOnlineState Unknown to Offline
    * after a set timeout, rather than waiting indefinitely for success or failure.
    */
   FSTTimerIDOnlineStateTimeout
@@ -75,14 +75,6 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
  * queue's label is the same, but hopefully that's good enough.)
  */
 - (void)verifyIsCurrentQueue;
-
-/**
- * Declares that we are already executing on the correct dispatch_queue_t and would like to
- * officially execute code on behalf of this FSTDispatchQueue. To be used only when called  back
- * by some other API directly onto our queue. This allows us to safely dispatch directly onto the
- * worker queue without destroying the invariants this class helps us maintain.
- */
-- (void)enterCheckedOperation:(void (^)(void))block;
 
 /**
  * Same as dispatch_async() except it asserts that we're not already on the queue, since this
@@ -143,6 +135,8 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
 
 /** The underlying wrapped dispatch_queue_t */
 @property(nonatomic, strong, readonly) dispatch_queue_t queue;
+
+- (firebase::firestore::util::AsyncQueue*)implementation;
 
 @end
 
