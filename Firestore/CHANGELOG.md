@@ -1,5 +1,8 @@
 # Unreleased
 
+# v0.13.3
+- [changed] Internal improvements.
+
 # v0.13.2
 - [fixed] Fixed an issue where changes to custom authentication claims did not
   take effect until you did a full sign-out and sign-in. (#1499)
