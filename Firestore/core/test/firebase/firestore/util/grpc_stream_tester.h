@@ -45,9 +45,7 @@ class GrpcStreamTester {
   ~GrpcStreamTester();
 
   // Must be called before the stream can be used.
-  void InitializeStream(remote::GrpcStreamObserver* observer);
-  std::unique_ptr<remote::GrpcStream> CreateStream(
-      remote::GrpcStreamObserver* observer);
+  void CreateStream(remote::GrpcStreamObserver* observer);
   /** Finishes the stream and shuts down the gRPC completion queue. */
   void Shutdown();
 

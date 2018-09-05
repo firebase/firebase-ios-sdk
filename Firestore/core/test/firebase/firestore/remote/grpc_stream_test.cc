@@ -67,7 +67,7 @@ class Observer : public GrpcStreamObserver {
 class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest() : observer{absl::make_unique<Observer>()} {
-    tester_.InitializeStream(observer.get());
+    tester_.CreateStream(observer.get());
   }
 
   ~GrpcStreamTest() {

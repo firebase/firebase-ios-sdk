@@ -30,7 +30,7 @@ GrpcStreamTester::GrpcStreamTester()
       grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
 }
 
-void GrpcStreamTester::InitializeStream(remote::GrpcStreamObserver* observer) {
+void GrpcStreamTester::CreateStream(remote::GrpcStreamObserver* observer) {
   auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
   grpc_context_ = grpc_context_owning.get();
 
@@ -43,12 +43,6 @@ void GrpcStreamTester::InitializeStream(remote::GrpcStreamObserver* observer) {
       &async_queue_);
 }
 
-std::unique_ptr<remote::GrpcStream> GrpcStreamTester::CreateStream(
-    remote::GrpcStreamObserver* observer) {
-  InitializeStream(observer);
-  return std::move(grpc_stream_);
-}
-
 GrpcStreamTester::~GrpcStreamTester() {
   // Make sure the stream and gRPC completion queue are properly shut down.
   Shutdown();
@@ -56,7 +50,7 @@ GrpcStreamTester::~GrpcStreamTester() {
 
 void GrpcStreamTester::Shutdown() {
   async_queue_.EnqueueBlocking([&] {
-    if (grpc_stream_ && !grpc_stream_->IsFinished()) {
+    if (!grpc_stream_->IsFinished()) {
       KeepPollingGrpcQueue();
       grpc_stream_->Finish();
     }
