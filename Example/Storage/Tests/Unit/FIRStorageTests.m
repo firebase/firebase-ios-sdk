@@ -14,6 +14,8 @@
 
 #import "FIRStorageTestHelpers.h"
 
+#import "FIRComponentTestUtilities.h"
+#import "FIRStorageComponent.h"
 #import "FIRStorageReference.h"
 #import "FIRStorageReference_Private.h"
 #import "FIRStorage_Private.h"
@@ -32,7 +34,7 @@
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
 
-  self.app = OCMClassMock([FIRApp class]);
+  self.app = [FIRStorageTestHelpers mockedApp];
   OCMStub([self.app name]).andReturn(kFIRStorageAppName);
   OCMStub([(FIRApp *)self.app options]).andReturn(mockOptions);
 }
@@ -45,7 +47,7 @@
 - (void)testBucketNotEnforced {
   FIROptions *mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"");
-  FIRApp *app = OCMClassMock([FIRApp class]);
+  FIRApp *app = [FIRStorageTestHelpers mockedApp];
   OCMStub([app name]).andReturn(kFIRStorageAppName);
   OCMStub([(FIRApp *)app options]).andReturn(mockOptions);
 
@@ -102,7 +104,7 @@
 - (void)testStorageCustomApp {
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorage *storage = [FIRStorage storageForApp:secondApp];
@@ -115,7 +117,7 @@
 - (void)testStorageNoBucketInConfig {
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(nil);
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   XCTAssertThrows([FIRStorage storageForApp:secondApp]);
@@ -124,7 +126,7 @@
 - (void)testStorageEmptyBucketInConfig {
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"");
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorage *storage = [FIRStorage storageForApp:secondApp];
@@ -135,7 +137,7 @@
 - (void)testStorageWrongBucketInConfig {
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"notMyBucket");
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorage *storage = [FIRStorage storageForApp:secondApp];
@@ -156,7 +158,7 @@
 - (void)testRefCustomApp {
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorageReference *convenienceRef =
@@ -197,7 +199,7 @@
   FIRStorage *storage = [FIRStorage storageForApp:self.app];
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
-  id secondApp = OCMClassMock([FIRApp class]);
+  id secondApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([secondApp name]).andReturn(@"secondApp");
   OCMStub([(FIRApp *)secondApp options]).andReturn(mockOptions);
   FIRStorage *secondStorage = [FIRStorage storageForApp:secondApp];

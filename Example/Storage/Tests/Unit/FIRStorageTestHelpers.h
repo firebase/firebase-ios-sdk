@@ -55,6 +55,12 @@ static NSTimeInterval kExpectationTimeoutSeconds = 10;
 @interface FIRStorageTestHelpers : NSObject
 
 /**
+ * Returns a mocked FIRApp with an injected container for interop and instance creation. No other
+ * properties are set.
+ */
++ (FIRApp *)mockedApp;
+
+/**
  * Returns a valid URL for an object stored.
  */
 + (NSURL *)objectURL;

@@ -16,12 +16,12 @@
 
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 
-@class FIRApp;
+@protocol FIRAuthInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Wrapper class for FIRApp that implements the GTMFetcherAuthorizationProtocol,
+ * Wrapper class for FIRAuthInterop that implements the GTMFetcherAuthorizationProtocol,
  * so as to easily provide GTMSessionFetcher fetches a Firebase Authentication JWT
  * for the current logged in user. Handles token expiration and other failure cases.
  * If no authentication provider exists or no token is found, no token is added
@@ -31,13 +31,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Initializes the token authorizer with an instance of FIRApp.
- * @param app An instance of FIRApp which provides auth tokens.
+ * @param googleAppID The Google AppID of the app to send with the request.
+ * @param auth An instance that provides access to Auth functionality, if it exists.
  * @return Returns an instance of FIRStorageTokenAuthorizer which adds the appropriate
  * "Authorization" header to all outbound requests. Note that a token may not be added
- * if a getTokenImplementation doesn't exist on FIRApp. This allows for unauthenticated
- * access, if Firebase Storage rules allow for it.
+ * if the Auth instance is nil. This allows for unauthenticated access, if Firebase
+ * Storage rules allow for it.
  */
-- (instancetype)initWithApp:(FIRApp *)app fetcherService:(GTMSessionFetcherService *)service;
+- (instancetype)initWithGoogleAppID:(NSString *)googleAppID
+                     fetcherService:(GTMSessionFetcherService *)service
+                       authProvider:(nullable id<FIRAuthInterop>)auth;
 
 @end
 
