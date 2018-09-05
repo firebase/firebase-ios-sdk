@@ -154,7 +154,7 @@ def UpdatePodfiles(git_root, version):
   firestore_podfile = os.path.join(git_root, 'Firestore', 'Example', 'Podfile')
 
   sed_command = ("sed -i.bak -e \"s#\\(pod "
-                 "'Firebase/Core',[[:space:]]*'\\).*'#\\1{}'#\" {}")
+                 "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1{}'#\" {}")
   os.system(sed_command.format(version, firebase_podfile))
   os.system(sed_command.format(version, firestore_podfile))
 
