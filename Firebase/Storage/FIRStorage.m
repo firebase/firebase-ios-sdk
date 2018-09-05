@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRStorage.h"
+#import "Public/FIRStorage.h"
 
+#import "FIRStorageComponent.h"
 #import "FIRStorageConstants_Private.h"
 #import "FIRStoragePath.h"
-#import "FIRStorageReference.h"
 #import "FIRStorageReference_Private.h"
 #import "FIRStorageTokenAuthorizer.h"
 #import "FIRStorageUtils.h"
 #import "FIRStorage_Private.h"
+#import "Public/FIRStorageReference.h"
 
-#import <FirebaseCore/FIRApp.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
 
 #import <GTMSessionFetcher/GTMSessionFetcher.h>
@@ -32,6 +35,12 @@ static NSMutableDictionary<
     NSString * /* app name */,
     NSMutableDictionary<NSString * /* bucket */, GTMSessionFetcherService *> *> *_fetcherServiceMap;
 static GTMSessionFetcherRetryBlock _retryWhenOffline;
+
+@interface FIRStorage () {
+  /// Stored Auth reference, if it exists. This needs to be stored for `copyWithZone:`.
+  id<FIRAuthInterop> _Nullable _auth;
+}
+@end
 
 @implementation FIRStorage
 
@@ -52,7 +61,9 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
   });
 }
 
-+ (GTMSessionFetcherService *)fetcherServiceForApp:(FIRApp *)app bucket:(NSString *)bucket {
++ (GTMSessionFetcherService *)fetcherServiceForApp:(FIRApp *)app
+                                            bucket:(NSString *)bucket
+                                              auth:(nullable id<FIRAuthInterop>)auth {
   @synchronized(_fetcherServiceMap) {
     NSMutableDictionary *bucketMap = _fetcherServiceMap[app.name];
     if (!bucketMap) {
@@ -66,7 +77,9 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
       [fetcherService setRetryEnabled:YES];
       [fetcherService setRetryBlock:_retryWhenOffline];
       FIRStorageTokenAuthorizer *authorizer =
-          [[FIRStorageTokenAuthorizer alloc] initWithApp:app fetcherService:fetcherService];
+          [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:app.options.googleAppID
+                                                  fetcherService:fetcherService
+                                                    authProvider:auth];
       [fetcherService setAuthorizer:authorizer];
       bucketMap[bucket] = fetcherService;
     }
@@ -122,15 +135,21 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
     bucket = path.bucket;
   }
 
-  return [[self alloc] initWithApp:app bucket:bucket];
+  // Retrieve the instance provider from the app's container to inject dependencies as needed.
+  id<FIRStorageMultiBucketProvider> provider =
+      FIR_COMPONENT(FIRStorageMultiBucketProvider, app.container);
+  return [provider storageForBucket:bucket];
 }
 
-- (instancetype)initWithApp:(FIRApp *)app bucket:(NSString *)bucket {
+- (instancetype)initWithApp:(FIRApp *)app
+                     bucket:(NSString *)bucket
+                       auth:(nullable id<FIRAuthInterop>)auth {
   self = [super init];
   if (self) {
     _app = app;
+    _auth = auth;
     _storageBucket = bucket;
-    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app bucket:bucket];
+    _fetcherServiceForApp = [FIRStorage fetcherServiceForApp:_app bucket:bucket auth:auth];
     _maxDownloadRetryTime = 600.0;
     _maxOperationRetryTime = 120.0;
     _maxUploadRetryTime = 600.0;
@@ -141,7 +160,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 #pragma mark - NSObject overrides
 
 - (instancetype)copyWithZone:(NSZone *)zone {
-  FIRStorage *storage = [[[self class] allocWithZone:zone] initWithApp:_app bucket:_storageBucket];
+  FIRStorage *storage =
+      [[[self class] allocWithZone:zone] initWithApp:_app bucket:_storageBucket auth:_auth];
   storage.callbackQueue = _callbackQueue;
   return storage;
 }
@@ -161,7 +181,8 @@ static GTMSessionFetcherRetryBlock _retryWhenOffline;
 }
 
 - (BOOL)isEqualToFIRStorage:(FIRStorage *)storage {
-  BOOL isEqual = [_app isEqual:storage->_app];
+  BOOL isEqual =
+      [_app isEqual:storage.app] && [_storageBucket isEqualToString:storage.storageBucket];
   return isEqual;
 }
 

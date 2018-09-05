@@ -14,6 +14,8 @@
 
 #import "FirebaseStorage.h"
 
+#import "FIRComponentTestUtilities.h"
+#import "FIRStorageComponent.h"
 #import "FIRStorageReference_Private.h"
 #import "FIRStorageTestHelpers.h"
 
@@ -31,7 +33,7 @@
   id mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([mockOptions storageBucket]).andReturn(@"bucket");
 
-  id mockApp = OCMClassMock([FIRApp class]);
+  id mockApp = [FIRStorageTestHelpers mockedApp];
   OCMStub([mockApp name]).andReturn(kFIRStorageAppName);
   OCMStub([(FIRApp *)mockApp options]).andReturn(mockOptions);
   self.storage = [FIRStorage storageForApp:mockApp];

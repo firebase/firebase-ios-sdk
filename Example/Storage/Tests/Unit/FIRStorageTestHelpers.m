@@ -14,6 +14,9 @@
 
 #import "FIRStorageTestHelpers.h"
 
+#import "FIRComponentTestUtilities.h"
+#import "FIRStorageComponent.h"
+
 NSString *const kGoogleHTTPErrorDomain = @"com.google.HTTPStatus";
 NSString *const kHTTPVersion = @"HTTP/1.1";
 NSString *const kUnauthenticatedResponseString =
@@ -35,6 +38,18 @@ NSString *const kFIRStorageTestAuthToken = @"1234-5678-9012-3456-7890";
 NSString *const kFIRStorageAppName = @"app";
 
 @implementation FIRStorageTestHelpers
+
++ (FIRApp *)mockedApp {
+  // In order to properly instantiate a FIRStorage instance with `storageForApp:`, it needs to have
+  // the FIRStorageComponent registered. Create a class mock, and override the container with the
+  // correct contents.
+  id app = OCMClassMock([FIRApp class]);
+  NSMutableSet<Class> *registrants = [NSMutableSet setWithObject:[FIRStorageComponent class]];
+  FIRComponentContainer *container =
+      [[FIRComponentContainer alloc] initWithApp:app registrants:registrants];
+  OCMStub([app container]).andReturn(container);
+  return app;
+}
 
 + (NSURL *)objectURL {
   return [NSURL URLWithString:kFIRStorageObjectURL];
