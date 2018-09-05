@@ -57,15 +57,21 @@ def main():
       '--nanopb', action='store_true',
       help='Generates nanopb messages.')
   parser.add_argument(
-      '--output-dir', '-d', default='.', dest='output_dir',
+      '--protos-dir', dest='protos_dir',
+      help='Source directory containing .proto files.')
+  parser.add_argument(
+      '--output-dir', '-d', dest='output_dir',
       help='Directory to write files; subdirectories will be created.')
 
   parser.add_argument(
       '--protoc', default='protoc',
       help='Location of the protoc executable')
   parser.add_argument(
-      '--protoc-pythonpath', dest='protoc_pythonpath',
+      '--pythonpath', dest='pythonpath',
       help='Location of the protoc python library.')
+  parser.add_argument(
+      '--include', '-I', dest='include', action='append', default=[],
+      help='Adds INCLUDE to the proto path.')
   parser.add_argument(
       '--protoc-gen-nanopb', dest='protoc_gen_nanopb',
       help='Location of the nanopb generator executable.')
@@ -75,10 +81,14 @@ def main():
     sys.exit(1)
   args = parser.parse_args()
 
-  root_dir = os.path.dirname(__file__)
-  os.chdir(root_dir)
+  if args.protos_dir is None:
+    root_dir = os.path.abspath(os.path.dirname(__file__))
+    args.protos_dir = os.path.join(root_dir, 'protos')
 
-  nanopb_proto_files = collect_files('protos', '.proto')
+  if args.output_dir is None:
+    args.output_dir = os.getcwd()
+
+  nanopb_proto_files = collect_files(args.protos_dir, '.proto')
 
   if args.nanopb:
     NanopbGenerator(args, nanopb_proto_files).run()
@@ -104,28 +114,29 @@ class NanopbGenerator(object):
 
   def __run_generator(self, out_dir):
     """Invokes protoc using the nanopb plugin."""
-    cmd = [self.args.protoc, '-I', 'protos']
+    cmd = [self.args.protoc]
+
+    include = self.args.include
+    if include is not None:
+      for path in include:
+        cmd.append('-I%s' % path)
 
     gen = self.args.protoc_gen_nanopb
     if gen is not None:
-      proto_dir = os.path.join(os.path.dirname(gen), 'proto')
-      if os.path.isdir(proto_dir):
-        cmd.extend(['-I', proto_dir])
-
       cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
 
     nanopb_flags = ' '.join([
         '--extension=.nanopb',
-        '--options-file=protos/%s.options',
+        '--options-file=%s/%%s.options' % self.args.protos_dir,
     ])
     cmd.append('--nanopb_out=%s:%s' % (nanopb_flags, out_dir))
 
     cmd.extend(self.proto_files)
 
     kwargs={}
-    if self.args.protoc_pythonpath:
+    if self.args.pythonpath:
       env = os.environ.copy()
-      env['PYTHONPATH'] = self.args.protoc_pythonpath
+      env['PYTHONPATH'] = self.args.pythonpath
       kwargs['env'] = env
 
     subprocess.check_call(cmd, **kwargs)

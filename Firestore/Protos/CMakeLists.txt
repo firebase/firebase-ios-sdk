@@ -98,63 +98,64 @@ target_include_directories(
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
 
-set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator)
 
 set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
-set(DESCRIPTOR_PROTO_SRC
+set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
+#set(OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_protos)
+set(NANOPB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(
+  PROTOBUF_PROTO
   ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto
-)
-set(DESCRIPTOR_PYTHON_SRC
-  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
-)
-add_custom_command(
-  OUTPUT ${DESCRIPTOR_PYTHON_SRC}
-  COMMAND
-    protoc
-      -I${PROTOBUF_DIR}/src
-      --python_out=${PROTOBUF_DIR}/python
-      ${DESCRIPTOR_PROTO_SRC}
-  DEPENDS
-    protoc
-    ${DESCRIPTOR_PROTO_SRC}
+  ${NANOPB_DIR}/generator/proto/nanopb.proto
+  ${NANOPB_DIR}/generator/proto/plugin.proto
 )
 
-# Build nanopb protoc plugin. (Heavily "inspired" by
-# https://github.com/nanopb/nanopb/blob/master/extra/FindNanopb.cmake)
-set(NANOPB_GENERATOR_BASENAMES nanopb plugin)
-set(NANOPB_GENERATOR_PYTHON_SRC ${DESCRIPTOR_PYTHON_SRC})
-foreach (GENERATOR_BASENAME ${NANOPB_GENERATOR_BASENAMES})
-  set(input "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}.proto")
-  set(output "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}_pb2.py")
-  set(NANOPB_GENERATOR_PYTHON_SRC ${NANOPB_GENERATOR_PYTHON_SRC} ${output})
-  add_custom_command(
-    OUTPUT ${output}
-    COMMAND
-      protoc
-        -I${NANOPB_GENERATOR_DIR}/proto
-        --python_out=${NANOPB_GENERATOR_DIR}/proto
-        ${input}
-    DEPENDS
-      protoc
-      ${input}
-  )
-endforeach()
+set(
+  PROTOBUF_PYTHON
+  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
+  ${PROTOBUF_DIR}/python/proto/nanopb_pb2.py
+  ${PROTOBUF_DIR}/python/proto/plugin_pb2.py
+)
+
+set(
+  PROTO_INCLUDES
+  -I${CMAKE_CURRENT_SOURCE_DIR}/protos
+  -I${NANOPB_DIR}/generator
+  -I${PROTOBUF_DIR}/src
+)
+
+add_custom_command(
+  COMMENT "Generating protoc python plugins"
+  OUTPUT
+    ${PROTOBUF_PYTHON}
+  COMMAND
+    $<TARGET_FILE:protoc>
+      ${PROTO_INCLUDES}
+      --python_out=${PROTOBUF_DIR}/python
+      ${PROTOBUF_PROTO}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${PROTOBUF_PROTO}
+)
 
 add_custom_target(
   generate_nanopb_protos
-  COMMENT "Generating nanopb proto sources"
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  VERBATIM
+  COMMENT "Generatoring nanopb sources"
   COMMAND
-    ./build_protos.py
-      --protoc=$<TARGET_FILE:protoc>
-      --protoc-pythonpath=${PROTOBUF_DIR}/python
-      --protoc-gen-nanopb=${NANOPB_GENERATOR_DIR}/protoc-gen-nanopb
-      --output-dir=${CMAKE_CURRENT_BINARY_DIR}/generated_protos
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --nanopb
+      --protoc=$<TARGET_FILE:protoc>
+      --protoc-gen-nanopb=${NANOPB_DIR}/generator/protoc-gen-nanopb
+      --pythonpath=${PROTOBUF_DIR}/python
+      --output-dir=${OUTPUT_DIR}
+      ${PROTO_INCLUDES}
+  VERBATIM
   DEPENDS
     protoc
-    ${NANOPB_GENERATOR_PYTHON_SRC}
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTOBUF_PYTHON}
 )
 
 # Custom target that runs a script to generate the proto sources. This isn't
@@ -169,17 +170,18 @@ add_custom_target(
   VERBATIM
 
   COMMAND
+    cmake -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_protos
     mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
   COMMAND
     ./build-protos.sh
       "$<TARGET_FILE:protoc>"
       "$<TARGET_FILE:grpc_objective_c_plugin>"
       "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
-      "${NANOPB_GENERATOR_DIR}"
+      "${NANOPB_DIR}/generator"
       "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
 
   DEPENDS
     protoc
-    ${NANOPB_GENERATOR_PYTHON_SRC}
     grpc_objective_c_plugin
+    ${PROTOBUF_PYTHON}
 )
