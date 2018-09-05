@@ -41,19 +41,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class WatchStreamListener : public StreamListener {
-  public:
-    explicit WatchStreamListener(id delegate) : delegate_bridge_{delegate} {}
-
-    void OnOpen() override;
-    void OnClose(const util::Status& status) override;
-    void OnChange(FSTWatchChange* change,
-                              const model::SnapshotVersion& snapshot_version);
-
-  private:
-    bridge::WatchStreamDelegate delegate_bridge_;
-};
-
 /**
  * A `Stream` that implements the StreamingWatch RPC.
  *
@@ -88,16 +75,16 @@ class WatchStream : public Stream {
       Datastore* datastore, absl::string_view token) override;
   void FinishGrpcStream(GrpcStream* grpc_stream) override;
 
+  void DoOnStreamStart() override;
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  StreamListener* GetStreamListener() override { return listener_.get(); }
+  void DoOnStreamFinish(const util::Status& status) override;
 
   std::string GetDebugName() const override {
     return "WatchStream";
   }
 
-  std::unique_ptr<WatchStreamListener> listener_;
-
   bridge::WatchStreamSerializer serializer_bridge_;
+  bridge::WatchStreamDelegate delegate_bridge_;
 };
 
 }  // namespace remote
