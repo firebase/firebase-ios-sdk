@@ -16,10 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#include <vector>
-
-#include <grpcpp/client_context.h>
 #include <memory>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
@@ -39,7 +37,6 @@
 @class FSTQueryData;
 @class FSTSerializerBeta;
 @class FSTWatchChange;
-@class FSTWriteStream;
 @class GRPCCall;
 @class GRXWriter;
 

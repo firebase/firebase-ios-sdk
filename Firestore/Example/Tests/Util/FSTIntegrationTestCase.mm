@@ -35,7 +35,12 @@
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/testutil/app_testing.h"
+#include "Firestore/core/test/firebase/firestore/util/status_test_util.h"
+
 #include "absl/memory/memory.h"
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
@@ -49,8 +54,11 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
-using firebase::firestore::remote::Datastore;
+using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::CreateAutoId;
+using firebase::firestore::util::Path;
+using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,14 +96,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)clearPersistence {
-  NSString *levelDBDir = [FSTLevelDB documentsDirectory];
-  NSError *error;
-  if (![[NSFileManager defaultManager] removeItemAtPath:levelDBDir error:&error]) {
-    // file not found is okay.
-    XCTAssertTrue(
-        [error.domain isEqualToString:NSCocoaErrorDomain] && error.code == NSFileNoSuchFileError,
-        @"Failed to clear LevelDB Persistence: %@", error);
-  }
+  Path levelDBDir = [FSTLevelDB documentsDirectory];
+  Status status = util::RecursivelyDelete(levelDBDir);
+  ASSERT_OK(status);
 }
 
 - (FIRFirestore *)firestore {
@@ -152,8 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
-  // HACK: FIRFirestore expects a non-nil app, but for tests we cheat.
-  FIRApp *app = nil;
+
+  FIRApp *app = AppForUnitTesting();
   std::unique_ptr<CredentialsProvider> credentials_provider =
       absl::make_unique<firebase::firestore::auth::EmptyCredentialsProvider>();
 

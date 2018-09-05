@@ -18,10 +18,7 @@
 
 #import <GRPCClient/GRPCCall+OAuth2.h>
 #import <ProtoRPC/ProtoRPC.h>
-#include <grpcpp/client_context.h>
-#include <grpcpp/security/credentials.h>
 
-#include <cstring>
 #include <map>
 #include <memory>
 #include <vector>
