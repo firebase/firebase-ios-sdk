@@ -102,29 +102,6 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
   TokenListener delayed_token_listener_;
 };
 
-class TestStreamListener : public StreamListener {
- public:
-  void OnOpen() override {
-    observed_states_.push_back("OnStreamStart");
-  }
-
-  void OnClose(const util::Status& status) override {
-    observed_states_.push_back(std::string{"OnStreamStop("} +
-                               std::to_string(status.code()) + ")");
-  }
-
-  void OnRead(const grpc::ByteBuffer& message) {
-    observed_states_.push_back("OnStreamRead");
-  }
-
-  const std::vector<std::string>& observed_states() const {
-    return observed_states_;
-  }
-
- private:
-  std::vector<std::string> observed_states_;
-};
-
 class TestStream : public Stream {
  public:
   TestStream(GrpcStreamTester* tester,
@@ -132,8 +109,7 @@ class TestStream : public Stream {
       : Stream{&tester->async_queue(), credentials_provider,
                /*Datastore=*/nullptr, TimerId::ListenStreamConnectionBackoff,
                kIdleTimerId},
-        tester_{tester},
-        listener_{absl::make_unique<TestStreamListener>()} {
+        tester_{tester} {
   }
 
   void WriteEmptyBuffer() {
@@ -145,7 +121,7 @@ class TestStream : public Stream {
   }
 
   const std::vector<std::string>& observed_states() const {
-    return listener_->observed_states();
+    return observed_states_;
   }
 
  private:
@@ -157,12 +133,12 @@ class TestStream : public Stream {
     stream->Finish();
   }
 
-  StreamListener* GetStreamListener() override {
-    return listener_.get();
+  void DoOnStreamStart() override {
+    observed_states_.push_back("OnStreamStart");
   }
 
   util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override {
-    listener_->OnRead(message);
+    observed_states_.push_back("OnStreamRead");
     if (fail_stream_read_) {
       fail_stream_read_ = false;
       return util::Status{FirestoreErrorCode::Internal, ""};
@@ -170,12 +146,17 @@ class TestStream : public Stream {
     return util::Status::OK();
   }
 
+  void DoOnStreamFinish(const util::Status& status) override {
+    observed_states_.push_back(std::string{"OnStreamStop("} +
+                               std::to_string(status.code()) + ")");
+  }
+
   std::string GetDebugName() const override {
     return "";
   }
 
-  std::unique_ptr<TestStreamListener> listener_;
   GrpcStreamTester* tester_ = nullptr;
+  std::vector<std::string> observed_states_;
   bool fail_stream_read_ = false;
 };
 

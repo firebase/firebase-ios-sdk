@@ -37,14 +37,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class StreamListener {
-  public:
-  virtual ~StreamListener() {}
-
-  virtual void OnOpen() = 0;
-  virtual void OnClose(const util::Status& status) = 0;
-};
-
 /**
  * A `Stream` is an abstract base class that represents a bidirectional
  * streaming connection to the Firestore backend. It's built on top of gRPC C++
@@ -58,7 +50,7 @@ class StreamListener {
  * Subclasses of `Stream`:
  *
  *   - Implement serialization and deserialization of protocol buffers
- *   - Notify their listener about stream read events
+ *   - Notify their delegate about stream open/read/error events
  *   - Create and finish the underlying gRPC streams.
  *
  * ## Starting and Stopping
@@ -199,11 +191,8 @@ class Stream : public GrpcStreamObserver,
  protected:
   // `Stream` expects all its methods to be called on the worker queue.
   void EnsureOnQueue() const;
-
   void Write(grpc::ByteBuffer&& message);
-
   void ResetBackoff();
-
   std::string GetDebugDescription() const;
 
  private:
@@ -213,11 +202,9 @@ class Stream : public GrpcStreamObserver,
       Datastore* datastore, absl::string_view token) = 0;
   // PORTING NOTE: equivalent to `tearDown`.
   virtual void FinishGrpcStream(GrpcStream* stream) = 0;
-
+  virtual void DoOnStreamStart() = 0;
   virtual util::Status DoOnStreamRead(const grpc::ByteBuffer& message) = 0;
-
-  virtual StreamListener* GetStreamListener() = 0;
-
+  virtual void DoOnStreamFinish(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;
 

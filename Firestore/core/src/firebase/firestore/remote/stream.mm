@@ -133,7 +133,7 @@ void Stream::OnStreamStart() {
   EnsureOnQueue();
 
   state_ = State::Open;
-  GetStreamListener()->OnOpen();
+  DoOnStreamStart();
 }
 
 // Backoff
@@ -241,11 +241,11 @@ void Stream::Stop() {
   // attempt.
   ResetBackoff();
 
-  // State must be updated before calling the listener.
+  // State must be updated before calling the delegate.
   state_ = State::Initial;
   // Stopping the stream was initiated by the client, so we have all the
   // information we need.
-  GetStreamListener()->OnClose(Status::OK());
+  DoOnStreamFinish(Status::OK());
 }
 
 void Stream::OnStreamError(const Status& status) {
@@ -269,9 +269,9 @@ void Stream::OnStreamError(const Status& status) {
 
   ResetGrpcStream();
 
-  // State must be updated before calling the listener.
+  // State must be updated before calling the delegate.
   state_ = State::Error;
-  GetStreamListener()->OnClose(status);
+  DoOnStreamFinish(status);
 }
 
 void Stream::ResetGrpcStream() {
