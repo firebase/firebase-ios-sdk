@@ -259,13 +259,15 @@ static const int kMaxPendingWrites = 10;
     [self sendUnwatchRequestForTargetID:targetKey];
   }
   if ([self.listenTargets count] == 0) {
-    if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
-      [self.watchStream markIdle];
-    } else if (self.isNetworkEnabled) {
-      // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
-      // since without any listens to send we cannot confirm if the stream is healthy and upgrade
-      // to OnlineState::Online.
-      [self.onlineStateTracker updateState:OnlineState::Unknown];
+    if ([self isNetworkEnabled]) {
+      if ([self.watchStream isOpen]) {
+        [self.watchStream markIdle];
+      } else {
+        // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
+        // since without any listens to send we cannot confirm if the stream is healthy and upgrade
+        // to OnlineState::Online.
+        [self.onlineStateTracker updateState:OnlineState::Unknown];
+      }
     }
   }
 }
