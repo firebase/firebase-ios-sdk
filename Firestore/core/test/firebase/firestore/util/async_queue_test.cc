@@ -74,11 +74,6 @@ TEST_P(AsyncQueueTest, EnqueueBlockingDisallowsNesting) {
   });
 }
 
-TEST_P(AsyncQueueTest, ExecuteBlockingDisallowsNesting) {
-  queue.EnqueueBlocking(
-      [&] { EXPECT_ANY_THROW(queue.ExecuteBlocking([] {});); });
-}
-
 TEST_P(AsyncQueueTest, VerifyIsCurrentQueueWorksWithOperationInProgress) {
   queue.EnqueueBlocking([&] { EXPECT_NO_THROW(queue.VerifyIsCurrentQueue()); });
 }

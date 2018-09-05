@@ -119,7 +119,7 @@ using firebase::firestore::remote::WriteStream;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
 
-    _datastore = absl::make_unique<Datastore>([_workerDispatchQueue implementation], *_databaseInfo);
+    _datastore = absl::make_unique<Datastore>(*_databaseInfo, [_workerDispatchQueue implementation]);
   }
   return self;
 }

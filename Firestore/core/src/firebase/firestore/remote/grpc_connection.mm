@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -48,7 +50,7 @@ std::string MakeString(absl::string_view view) {
 
 }  // namespace
 
-std::string Datastore::test_certificate_path_;
+std::string GrpcConnection::test_certificate_path_;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo &database_info,
                                util::AsyncQueue *worker_queue,
