@@ -89,6 +89,42 @@ class WatchStreamSerializer {
 /**
  * A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`.
  */
+class WriteStreamSerializer {
+ public:
+  explicit WriteStreamSerializer(FSTSerializerBeta* serializer)
+      : serializer_{serializer} {
+  }
+
+  void UpdateLastStreamToken(GCFSWriteResponse* proto);
+  void SetLastStreamToken(NSData* token) {
+    last_stream_token_ = token;
+  }
+  NSData* GetLastStreamToken() const {
+    return last_stream_token_;
+  }
+
+  GCFSWriteRequest* CreateHandshake() const;
+  GCFSWriteRequest* CreateRequest(NSArray<FSTMutation*>* mutations) const;
+  GCFSWriteRequest* CreateEmptyMutationsList() {
+    return CreateRequest(@[]);
+  }
+
+  grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request) const;
+  NSString* Describe(GCFSWriteRequest* request) const;
+  NSString* Describe(GCFSWriteResponse* request) const;
+
+  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
+                                   util::Status* out_status) const;
+
+  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*>* ToMutationResults(
+      GCFSWriteResponse* proto) const;
+
+ private:
+  FSTSerializerBeta* serializer_;
+  NSData* last_stream_token_;
+};
+
 class WatchStreamDelegate {
  public:
   explicit WatchStreamDelegate(id delegate) : delegate_{delegate} {
@@ -97,6 +133,21 @@ class WatchStreamDelegate {
   void NotifyDelegateOnOpen();
   void NotifyDelegateOnChange(FSTWatchChange* change,
                               const model::SnapshotVersion& snapshot_version);
+  void NotifyDelegateOnStreamFinished(const util::Status& status);
+
+ private:
+  id delegate_;
+};
+
+class WriteStreamDelegate {
+ public:
+  explicit WriteStreamDelegate(id delegate) : delegate_{delegate} {
+  }
+
+  void NotifyDelegateOnOpen();
+  void NotifyDelegateOnHandshakeComplete();
+  void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
+                              NSArray<FSTMutationResult*>* results);
   void NotifyDelegateOnStreamFinished(const util::Status& status);
 
  private:
