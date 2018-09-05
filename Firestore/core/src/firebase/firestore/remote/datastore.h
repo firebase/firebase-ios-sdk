@@ -17,6 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_DATASTORE_H_
 
+#include <string>
+
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/status.h"
 
@@ -26,6 +29,8 @@ namespace remote {
 
 class Datastore {
  public:
+  static std::string GetWhitelistedHeadersAsString(
+      const GrpcStream::MetadataT& headers);
   static util::Status ConvertStatus(grpc::Status grpc_error);
 
   Datastore(const Datastore& other) = delete;

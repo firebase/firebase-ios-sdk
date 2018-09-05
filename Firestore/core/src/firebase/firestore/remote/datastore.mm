@@ -16,12 +16,25 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
+#include <unordered_set>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/strings/match.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+namespace {
+
+absl::string_view MakeStringView(grpc::string_ref grpc_str) {
+  return {grpc_str.begin(), grpc_str.size()};
+}
+
+}  // namespace
 
 util::Status Datastore::ConvertStatus(grpc::Status from) {
   if (from.ok()) {
@@ -34,6 +47,21 @@ util::Status Datastore::ConvertStatus(grpc::Status from) {
       "Unknown gRPC error code: %s", error_code);
 
   return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
+}
+
+std::string Datastore::GetWhitelistedHeadersAsString(
+    const GrpcStream::MetadataT& headers) {
+  static std::unordered_set<std::string> whitelist = {
+      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
+      "x-google-gfe-request-trace"};
+
+  std::string result;
+
+  for (const auto& kv : headers) {
+    absl::StrAppend(&result, MakeStringView(kv.first), ": ",
+                    MakeStringView(kv.second), "\n");
+  }
+  return result;
 }
 
 }  // namespace remote
