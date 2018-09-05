@@ -12,43 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Generate output in-place. So long as the build is idempotent this helps
+# verify that the protoc-generated output isn't changing.
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(
+  PROTO_FILE_ROOTS
+  firestore/local/maybe_document
+  firestore/local/mutation
+  firestore/local/target
+  google/api/annotations
+  google/api/http
+  google/firestore/v1beta1/common
+  google/firestore/v1beta1/document
+  google/firestore/v1beta1/firestore
+  google/firestore/v1beta1/query
+  google/firestore/v1beta1/write
+  google/protobuf/any
+  google/protobuf/empty
+  google/protobuf/struct
+  google/protobuf/timestamp
+  google/protobuf/wrappers
+  google/rpc/status
+  google/type/latlng
+)
+
+# Temporarily generate into the binary dir
+foreach(root ${PROTO_FILE_ROOTS})
+  list(
+    APPEND NANOPB_GENERATED_SOURCES
+    ${OUTPUT_DIR}/nanopb/${root}.nanopb.c
+    ${OUTPUT_DIR}/nanopb/${root}.nanopb.h
+  )
+endforeach()
+
 cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
-    nanopb/firestore/local/maybe_document.nanopb.c
-    nanopb/firestore/local/maybe_document.nanopb.h
-    nanopb/firestore/local/mutation.nanopb.c
-    nanopb/firestore/local/mutation.nanopb.h
-    nanopb/firestore/local/target.nanopb.c
-    nanopb/firestore/local/target.nanopb.h
-    nanopb/google/api/annotations.nanopb.c
-    nanopb/google/api/annotations.nanopb.h
-    nanopb/google/api/http.nanopb.c
-    nanopb/google/api/http.nanopb.h
-    nanopb/google/firestore/v1beta1/common.nanopb.c
-    nanopb/google/firestore/v1beta1/common.nanopb.h
-    nanopb/google/firestore/v1beta1/document.nanopb.c
-    nanopb/google/firestore/v1beta1/document.nanopb.h
-    nanopb/google/firestore/v1beta1/firestore.nanopb.c
-    nanopb/google/firestore/v1beta1/firestore.nanopb.h
-    nanopb/google/firestore/v1beta1/query.nanopb.c
-    nanopb/google/firestore/v1beta1/query.nanopb.h
-    nanopb/google/firestore/v1beta1/write.nanopb.c
-    nanopb/google/firestore/v1beta1/write.nanopb.h
-    nanopb/google/protobuf/any.nanopb.c
-    nanopb/google/protobuf/any.nanopb.h
-    nanopb/google/protobuf/empty.nanopb.c
-    nanopb/google/protobuf/empty.nanopb.h
-    nanopb/google/protobuf/struct.nanopb.c
-    nanopb/google/protobuf/struct.nanopb.h
-    nanopb/google/protobuf/timestamp.nanopb.c
-    nanopb/google/protobuf/timestamp.nanopb.h
-    nanopb/google/protobuf/wrappers.nanopb.c
-    nanopb/google/protobuf/wrappers.nanopb.h
-    nanopb/google/rpc/status.nanopb.c
-    nanopb/google/rpc/status.nanopb.h
-    nanopb/google/type/latlng.nanopb.c
-    nanopb/google/type/latlng.nanopb.h
+    ${NANOPB_GENERATED_SOURCES}
   DEPENDS
     protobuf-nanopb
 )
@@ -101,8 +102,6 @@ target_include_directories(
 
 set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
 set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
-#set(OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated_protos)
-set(NANOPB_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(
   PROTOBUF_PROTO
@@ -140,9 +139,9 @@ add_custom_command(
     ${PROTOBUF_PROTO}
 )
 
-add_custom_target(
-  generate_nanopb_protos
+add_custom_command(
   COMMENT "Generatoring nanopb sources"
+  OUTPUT ${NANOPB_GENERATED_SOURCES}
   COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --nanopb
