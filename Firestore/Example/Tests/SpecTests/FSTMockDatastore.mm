@@ -353,24 +353,6 @@ class MockWatchStream : public WatchStream {
   // [self.writeStream failStreamWithError:error];
 }
 
-- (void)writeWatchTargetAddedWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs {
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateAdded
-                                  targetIDs:targetIDs
-                                      cause:nil];
-  [self writeWatchChange:change snapshotVersion:SnapshotVersion::None()];
-}
-
-- (void)writeWatchCurrentWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs
-                       snapshotVersion:(const SnapshotVersion &)snapshotVersion
-                           resumeToken:(NSData *)resumeToken {
-  FSTWatchTargetChange *change =
-      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
-                                  targetIDs:targetIDs
-                                resumeToken:resumeToken];
-  [self writeWatchChange:change snapshotVersion:snapshotVersion];
-}
-
 - (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(const SnapshotVersion &)snap {
   // [self.watchStream writeWatchChange:change snapshotVersion:snap];
 }
