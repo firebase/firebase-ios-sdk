@@ -127,13 +127,16 @@ void Stream::ResumeStartAfterAuth(const StatusOr<Token>& maybe_token) {
 
   grpc_stream_ = CreateGrpcStream(datastore_, token);
   grpc_stream_->Start();
+
+  state_ = State::Open;
+  DoOnStreamStart();
 }
 
 void Stream::OnStreamStart() {
   EnsureOnQueue();
 
-  state_ = State::Open;
-  DoOnStreamStart();
+  //state_ = State::Open;
+  //DoOnStreamStart();
 }
 
 // Backoff

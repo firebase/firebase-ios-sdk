@@ -94,9 +94,9 @@ GrpcStream::~GrpcStream() {
 }
 
 void GrpcStream::Start() {
-  GrpcCompletion* completion =
-      NewCompletion([this](const GrpcCompletion*) { OnStart(); });
-  call_->StartCall(completion);
+  context_->set_initial_metadata_corked(true);
+  call_->StartCall(nullptr);
+  OnStart();
 }
 
 void GrpcStream::Read() {
