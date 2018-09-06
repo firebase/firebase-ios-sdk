@@ -91,6 +91,7 @@ static NSString *Describe(NSData *data) {
 
 @implementation FSTSpecTests {
   BOOL _gcEnabled;
+  BOOL _networkEnabled;
 }
 
 - (id<FSTPersistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
@@ -390,10 +391,12 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)doDisableNetwork {
+  _networkEnabled = NO;
   [self.driver disableNetwork];
 }
 
 - (void)doEnableNetwork {
+  _networkEnabled = YES;
   [self.driver enableNetwork];
 }
 
@@ -642,6 +645,10 @@ static NSString *Describe(NSData *data) {
 }
 
 - (void)validateActiveTargets {
+  if (!_networkEnabled) {
+    return;
+  }
+
   // Create a copy so we can modify it in tests
   NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *actualTargets =
       [NSMutableDictionary dictionaryWithDictionary:self.driver.activeTargets];

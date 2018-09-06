@@ -2,10 +2,7 @@
   "Empty queries are resolved if client goes offline": {
     "describeName": "Offline:",
     "itName": "Empty queries are resolved if client goes offline",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -77,10 +74,7 @@
   "A successful message delays offline status": {
     "describeName": "Offline:",
     "itName": "A successful message delays offline status",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -167,9 +161,7 @@
     "describeName": "Offline:",
     "itName": "Removing all listeners delays \"Offline\" status on next listen",
     "tags": [
-      "eager-gc",
-      "no-android",
-      "no-ios"
+      "eager-gc"
     ],
     "comment": "Marked as no-lru because when a listen is re-added, it gets a new target id rather than reusing one",
     "config": {
@@ -290,10 +282,7 @@
   "Queries revert to fromCache=true when offline.": {
     "describeName": "Offline:",
     "itName": "Queries revert to fromCache=true when offline.",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -461,10 +450,7 @@
   "Queries with limbo documents handle going offline.": {
     "describeName": "Offline:",
     "itName": "Queries with limbo documents handle going offline.",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -889,10 +875,7 @@
   "New queries return immediately with fromCache=true when offline due to stream failures.": {
     "describeName": "Offline:",
     "itName": "New queries return immediately with fromCache=true when offline due to stream failures.",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": true,
       "numClients": 1
@@ -1072,6 +1055,118 @@
             "hasPendingWrites": false
           }
         ]
+      }
+    ]
+  },
+  "Queries return from cache when network disabled": {
+    "describeName": "Offline:",
+    "itName": "Queries return from cache when network disabled",
+    "tags": ["eager-gc"],
+    "config": {
+      "useGarbageCollection": true,
+      "numClients": 1
+    },
+    "steps": [
+      {
+        "enableNetwork": false,
+        "stateExpect": {
+          "activeTargets": {},
+          "limboDocs": []
+        }
+      },
+      {
+        "userListen": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "2": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
+      },
+      {
+        "userListen": [
+          4,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {
+            "4": {
+              "query": {
+                "path": "collection",
+                "filters": [],
+                "orderBys": []
+              },
+              "resumeToken": ""
+            }
+          }
+        },
+        "expect": [
+          {
+            "query": {
+              "path": "collection",
+              "filters": [],
+              "orderBys": []
+            },
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          4,
+          {
+            "path": "collection",
+            "filters": [],
+            "orderBys": []
+          }
+        ],
+        "stateExpect": {
+          "activeTargets": {}
+        }
       }
     ]
   }

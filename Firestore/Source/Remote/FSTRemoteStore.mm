@@ -252,13 +252,22 @@ static const int kMaxPendingWrites = 10;
 - (void)stopListeningToTargetID:(TargetId)targetID {
   FSTBoxedTargetID *targetKey = @(targetID);
   FSTQueryData *queryData = self.listenTargets[targetKey];
-  HARD_ASSERT(queryData, "unlistenToTarget: target not currently watched: %s", targetKey);
+  HARD_ASSERT(queryData, "stopListeningToTargetID: target not currently watched: %s", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
   if ([self isNetworkEnabled] && [self.watchStream isOpen]) {
     [self sendUnwatchRequestForTargetID:targetKey];
-    if ([self.listenTargets count] == 0) {
-      [self.watchStream markIdle];
+  }
+  if ([self.listenTargets count] == 0) {
+    if ([self isNetworkEnabled]) {
+      if ([self.watchStream isOpen]) {
+        [self.watchStream markIdle];
+      } else {
+        // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
+        // since without any listens to send we cannot confirm if the stream is healthy and upgrade
+        // to OnlineState::Online.
+        [self.onlineStateTracker updateState:OnlineState::Unknown];
+      }
     }
   }
 }
