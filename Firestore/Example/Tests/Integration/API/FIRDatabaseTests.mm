@@ -1099,11 +1099,13 @@
   [self awaitExpectations];
 }
 
-- (void)testCantGetDocumentsWhileOffline {
+- (void)testCanGetDocumentsWhileOffline {
   FIRDocumentReference *doc = [self documentRef];
   FIRFirestore *firestore = doc.firestore;
   NSDictionary<NSString *, id> *data = @{@"a" : @"b"};
 
+  XCTestExpectation *failExpectation =
+      [self expectationWithDescription:@"offline read with no cached data"];
   XCTestExpectation *onlineExpectation = [self expectationWithDescription:@"online read"];
   XCTestExpectation *networkExpectation = [self expectationWithDescription:@"network online"];
 
@@ -1111,6 +1113,12 @@
 
   [firestore disableNetworkWithCompletion:^(NSError *error) {
     XCTAssertNil(error);
+
+    [doc getDocumentWithCompletion:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+      XCTAssertNotNil(error);
+      [failExpectation fulfill];
+    }];
+
     [doc setData:data
         completion:^(NSError *_Nullable error) {
           XCTAssertNil(error);
