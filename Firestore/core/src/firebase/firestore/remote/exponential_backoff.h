@@ -26,6 +26,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace chr = std::chrono;
+
 /**
  *
  * A helper for running delayed operations following an exponential backoff
@@ -107,6 +109,7 @@ class ExponentialBackoff {
   const Milliseconds initial_delay_;
   const Milliseconds max_delay_;
   util::SecureRandom secure_random_;
+  chr::time_point<chr::steady_clock> last_attempt_time_;
 };
 
 }  // namespace remote
