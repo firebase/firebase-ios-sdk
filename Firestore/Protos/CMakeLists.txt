@@ -16,6 +16,8 @@
 # verify that the protoc-generated output isn't changing.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+# Filename "roots" (i.e. without the .proto) from within the proto directory,
+# excluding anything in google/protobuf.
 set(
   PROTO_FILE_ROOTS
   firestore/local/maybe_document
@@ -28,23 +30,66 @@ set(
   google/firestore/v1beta1/firestore
   google/firestore/v1beta1/query
   google/firestore/v1beta1/write
+  google/rpc/status
+  google/type/latlng
+)
+
+# Filename "roots" (i.e. without the .proto) from within the proto directory,
+# from the google/protobuf package.
+set(
+  WELL_KNOWN_PROTO_FILE_ROOTS
   google/protobuf/any
   google/protobuf/empty
   google/protobuf/struct
   google/protobuf/timestamp
   google/protobuf/wrappers
-  google/rpc/status
-  google/type/latlng
 )
 
-# Temporarily generate into the binary dir
-foreach(root ${PROTO_FILE_ROOTS})
+# Populate NANOPB_GENERATED_SOURCES with the list of nanopb-generated sources.
+# The nanopb runtime does not include the well-known protos so we have to build
+# them ourselves.
+foreach(root ${PROTO_FILE_ROOTS} ${WELL_KNOWN_PROTO_FILE_ROOTS})
   list(
     APPEND NANOPB_GENERATED_SOURCES
     ${OUTPUT_DIR}/nanopb/${root}.nanopb.c
     ${OUTPUT_DIR}/nanopb/${root}.nanopb.h
   )
 endforeach()
+
+# Populate PROTOBUF_CPP_GENERATED_SOURCES with the list of libprotobuf C++
+# sources. These are used for verifying interoperation from nanopb.
+#
+# Libprotobuf includes the well-known protos so they must be omitted here.
+foreach(root ${PROTO_FILE_ROOTS})
+  list(
+    APPEND PROTOBUF_CPP_GENERATED_SOURCES
+    ${OUTPUT_DIR}/cpp/${root}.pb.cc
+    ${OUTPUT_DIR}/cpp/${root}.pb.h
+  )
+endforeach()
+
+# Populate PROTOBUF_OBJC_GENERATED_SOURCES with the list of libprotobuf
+# Objective-C sources. These are used by the old Objective-C implementation
+# that we're replacing.
+#
+# Libprotobuf Objective-C also includes the well-known protos so they must be
+# omitted here.
+#
+# The Objective-C client also uses the generated gRPC stubs for the Firestore
+# service.
+set(
+  PROTOBUF_OBJC_GENERATED_SOURCES
+  ${OUTPUT_DIR}/objc/google/firestore/v1beta1/Firestore.pbrpc.h
+  ${OUTPUT_DIR}/objc/google/firestore/v1beta1/Firestore.pbrpc.m
+)
+foreach(root ${PROTO_FILE_ROOTS})
+  list(
+    APPEND PROTOBUF_OBJC_GENERATED_SOURCES
+    ${OUTPUT_DIR}/objc/${root}.pbobjc.h
+    ${OUTPUT_DIR}/objc/${root}.pbobjc.m
+  )
+endforeach()
+
 
 cc_library(
   firebase_firestore_protos_nanopb
@@ -65,30 +110,7 @@ target_include_directories(
 cc_library(
   firebase_firestore_protos_libprotobuf
   SOURCES
-    cpp/firestore/local/maybe_document.pb.cc
-    cpp/firestore/local/maybe_document.pb.h
-    cpp/firestore/local/mutation.pb.cc
-    cpp/firestore/local/mutation.pb.h
-    cpp/firestore/local/target.pb.cc
-    cpp/firestore/local/target.pb.h
-    cpp/google/api/annotations.pb.cc
-    cpp/google/api/annotations.pb.h
-    cpp/google/api/http.pb.cc
-    cpp/google/api/http.pb.h
-    cpp/google/firestore/v1beta1/common.pb.cc
-    cpp/google/firestore/v1beta1/common.pb.h
-    cpp/google/firestore/v1beta1/document.pb.cc
-    cpp/google/firestore/v1beta1/document.pb.h
-    cpp/google/firestore/v1beta1/firestore.pb.cc
-    cpp/google/firestore/v1beta1/firestore.pb.h
-    cpp/google/firestore/v1beta1/query.pb.cc
-    cpp/google/firestore/v1beta1/query.pb.h
-    cpp/google/firestore/v1beta1/write.pb.cc
-    cpp/google/firestore/v1beta1/write.pb.h
-    cpp/google/rpc/status.pb.cc
-    cpp/google/rpc/status.pb.h
-    cpp/google/type/latlng.pb.cc
-    cpp/google/type/latlng.pb.h
+    ${PROTOBUF_CPP_GENERATED_SOURCES}
   DEPENDS
     protobuf::libprotobuf
   EXCLUDE_FROM_ALL
@@ -140,7 +162,7 @@ add_custom_command(
 )
 
 add_custom_command(
-  COMMENT "Generatoring nanopb sources"
+  COMMENT "Generating nanopb sources"
   OUTPUT ${NANOPB_GENERATED_SOURCES}
   COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
@@ -163,10 +185,9 @@ add_custom_target(
     ${NANOPB_GENERATED_SOURCES}
 )
 
-add_custom_target(
-  generate_cpp_protos
-  COMMENT "Generatoring C++ protobuf sources"
-  OUTPUT ${NANOPB_GENERATED_SOURCES}
+add_custom_command(
+  COMMENT "Generating C++ protobuf sources"
+  OUTPUT ${PROTOBUF_CPP_GENERATED_SOURCES}
   COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --cpp
@@ -181,9 +202,14 @@ add_custom_target(
 )
 
 add_custom_target(
-  generate_objc_protos
-  COMMENT "Generatoring Objective-C protobuf sources"
-  OUTPUT ${NANOPB_GENERATED_SOURCES}
+  generate_cpp_protos
+  DEPENDS
+    ${PROTOBUF_CPP_GENERATED_SOURCES}
+)
+
+add_custom_command(
+  COMMENT "Generating Objective-C protobuf sources"
+  OUTPUT ${PROTOBUF_OBJC_GENERATED_SOURCES}
   COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --objc
@@ -196,6 +222,12 @@ add_custom_target(
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
     ${PROTOBUF_PYTHON}
+)
+
+add_custom_target(
+  generate_objc_protos
+  DEPENDS
+    ${PROTOBUF_OBJC_GENERATED_SOURCES}
 )
 
 # Custom target that runs a script to generate the proto sources. This isn't
