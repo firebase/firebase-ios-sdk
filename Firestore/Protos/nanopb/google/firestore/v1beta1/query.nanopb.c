@@ -39,7 +39,7 @@ const pb_field_t google_firestore_v1beta1_StructuredQuery_fields[9] = {
 };
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_CollectionSelector_fields[3] = {
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_CollectionSelector, collection_id, collection_id, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_CollectionSelector, collection_id, collection_id, 0),
     PB_FIELD(  3, BOOL    , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery_CollectionSelector, all_descendants, collection_id, 0),
     PB_LAST_FIELD
 };
@@ -77,7 +77,7 @@ const pb_field_t google_firestore_v1beta1_StructuredQuery_Order_fields[3] = {
 };
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_FieldReference_fields[2] = {
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_FieldReference, field_path, field_path, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_FieldReference, field_path, field_path, 0),
     PB_LAST_FIELD
 };
 

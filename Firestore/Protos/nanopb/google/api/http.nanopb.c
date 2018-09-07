@@ -33,21 +33,21 @@ const pb_field_t google_api_Http_fields[3] = {
 };
 
 const pb_field_t google_api_HttpRule_fields[10] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_api_HttpRule, selector, selector, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(pattern,   2, STRING  , ONEOF, POINTER , OTHER, google_api_HttpRule, get, selector, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(pattern,   3, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, put, selector, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(pattern,   4, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, post, selector, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(pattern,   5, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, delete_, selector, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(pattern,   6, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, patch, selector, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_api_HttpRule, selector, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   2, BYTES   , ONEOF, POINTER , OTHER, google_api_HttpRule, get, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   3, BYTES   , ONEOF, POINTER , UNION, google_api_HttpRule, put, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   4, BYTES   , ONEOF, POINTER , UNION, google_api_HttpRule, post, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   5, BYTES   , ONEOF, POINTER , UNION, google_api_HttpRule, delete_, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   6, BYTES   , ONEOF, POINTER , UNION, google_api_HttpRule, patch, selector, 0),
     PB_ANONYMOUS_ONEOF_FIELD(pattern,   8, MESSAGE , ONEOF, STATIC  , UNION, google_api_HttpRule, custom, selector, &google_api_CustomHttpPattern_fields),
-    PB_FIELD(  7, STRING  , SINGULAR, POINTER , OTHER, google_api_HttpRule, body, custom, 0),
+    PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, google_api_HttpRule, body, custom, 0),
     PB_FIELD( 11, MESSAGE , REPEATED, POINTER , OTHER, google_api_HttpRule, additional_bindings, body, &google_api_HttpRule_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_api_CustomHttpPattern_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_api_CustomHttpPattern, kind, kind, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_api_CustomHttpPattern, path, kind, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_api_CustomHttpPattern, kind, kind, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_api_CustomHttpPattern, path, kind, 0),
     PB_LAST_FIELD
 };
 

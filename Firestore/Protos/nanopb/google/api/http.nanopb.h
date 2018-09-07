@@ -32,8 +32,8 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_api_CustomHttpPattern {
-    char *kind;
-    char *path;
+    pb_bytes_array_t *kind;
+    pb_bytes_array_t *path;
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
 
@@ -45,17 +45,17 @@ typedef struct _google_api_Http {
 } google_api_Http;
 
 typedef struct _google_api_HttpRule {
-    char *selector;
+    pb_bytes_array_t *selector;
     pb_size_t which_pattern;
     union {
-        char *get;
-        char *put;
-        char *post;
-        char *delete_;
-        char *patch;
+        pb_bytes_array_t *get;
+        pb_bytes_array_t *put;
+        pb_bytes_array_t *post;
+        pb_bytes_array_t *delete_;
+        pb_bytes_array_t *patch;
         google_api_CustomHttpPattern custom;
     };
-    char *body;
+    pb_bytes_array_t *body;
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */

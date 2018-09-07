@@ -32,7 +32,7 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_protobuf_Any {
-    char *type_url;
+    pb_bytes_array_t *type_url;
     pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */
 } google_protobuf_Any;

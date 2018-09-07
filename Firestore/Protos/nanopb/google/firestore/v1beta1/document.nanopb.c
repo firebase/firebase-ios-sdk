@@ -27,7 +27,7 @@
 
 
 const pb_field_t google_firestore_v1beta1_Document_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document, name, name, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document, name, name, 0),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_Document, fields, name, &google_firestore_v1beta1_Document_FieldsEntry_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document, create_time, fields, &google_protobuf_Timestamp_fields),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document, update_time, create_time, &google_protobuf_Timestamp_fields),
@@ -35,7 +35,7 @@ const pb_field_t google_firestore_v1beta1_Document_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_Document_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document_FieldsEntry, value, key, &google_firestore_v1beta1_Value_fields),
     PB_LAST_FIELD
 };
@@ -44,13 +44,13 @@ const pb_field_t google_firestore_v1beta1_Value_fields[12] = {
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_Value, boolean_value, boolean_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   2, INT64   , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, integer_value, integer_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   3, DOUBLE  , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, double_value, double_value, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(value_type,   5, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, reference_value, reference_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,   5, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, reference_value, reference_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, map_value, map_value, &google_firestore_v1beta1_MapValue_fields),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   8, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, geo_point_value, geo_point_value, &google_type_LatLng_fields),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,   9, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, array_value, array_value, &google_firestore_v1beta1_ArrayValue_fields),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  10, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, timestamp_value, timestamp_value, &google_protobuf_Timestamp_fields),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  11, ENUM    , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, null_value, null_value, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(value_type,  17, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, string_value, string_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(value_type,  17, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, string_value, string_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(value_type,  18, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, bytes_value, bytes_value, 0),
     PB_LAST_FIELD
 };
@@ -66,7 +66,7 @@ const pb_field_t google_firestore_v1beta1_MapValue_fields[2] = {
 };
 
 const pb_field_t google_firestore_v1beta1_MapValue_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_MapValue_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_MapValue_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_MapValue_FieldsEntry, value, key, &google_firestore_v1beta1_Value_fields),
     PB_LAST_FIELD
 };

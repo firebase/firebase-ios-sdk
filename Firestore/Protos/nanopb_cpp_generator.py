@@ -51,6 +51,7 @@ def main():
 
   # Preprocess inputs, changing types and nanopb defaults
   use_anonymous_oneof(request)
+  use_bytes_for_strings(request)
   use_malloc(request)
 
   # Generate code
@@ -109,6 +110,32 @@ def use_anonymous_oneof(request):
     if len(message_type.oneof_decl) == 1:
       ext = message_type.options.Extensions[nanopb_pb2.nanopb_msgopt]
       ext.anonymous_oneof = True
+
+
+def use_bytes_for_strings(request):
+  """Always use the bytes type instead of string.
+
+  By default, nanopb renders proto strings as having the C type char* and does
+  not include a separate size field, getting the length of the string via
+  strlen(). Unfortunately this prevents using strings with embedded nulls,
+  which is something the wire format supports.
+
+  Fortunately, string and bytes proto fields are identical on the wire and
+  nanopb's bytes representation does have an explicit length, so this function
+  changes the types of all string fields to bytes. The generated code will now
+  contain pb_bytes_array_t.
+
+  There's no nanopb or proto option to control this behavior. The equivalent
+  would be to hand edit all the .proto files :-(.
+
+  Args:
+    request: A CodeGeneratorRequest from protoc. The descriptors are modified
+      in place.
+  """
+  for names, message_type in iterate_messages(request):
+    for field in message_type.field:
+      if field.type == FieldDescriptorProto.TYPE_STRING:
+        field.type = FieldDescriptorProto.TYPE_BYTES
 
 
 def iterate_messages(request):

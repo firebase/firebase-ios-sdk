@@ -62,7 +62,7 @@ const pb_field_t google_protobuf_BoolValue_fields[2] = {
 };
 
 const pb_field_t google_protobuf_StringValue_fields[2] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_protobuf_StringValue, value, value, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_protobuf_StringValue, value, value, 0),
     PB_LAST_FIELD
 };
 

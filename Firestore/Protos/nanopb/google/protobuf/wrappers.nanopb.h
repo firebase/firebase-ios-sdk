@@ -37,7 +37,7 @@ typedef struct _google_protobuf_BytesValue {
 } google_protobuf_BytesValue;
 
 typedef struct _google_protobuf_StringValue {
-    char *value;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_protobuf_StringValue) */
 } google_protobuf_StringValue;
 

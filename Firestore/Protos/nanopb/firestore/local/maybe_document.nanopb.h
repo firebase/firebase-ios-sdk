@@ -36,7 +36,7 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _firestore_client_NoDocument {
-    char *name;
+    pb_bytes_array_t *name;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
 } firestore_client_NoDocument;

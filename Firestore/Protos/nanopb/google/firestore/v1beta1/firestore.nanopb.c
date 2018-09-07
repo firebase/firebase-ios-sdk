@@ -27,7 +27,7 @@
 
 
 const pb_field_t google_firestore_v1beta1_GetDocumentRequest_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_GetDocumentRequest, name, name, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_GetDocumentRequest, name, name, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_GetDocumentRequest, mask, name, &google_firestore_v1beta1_DocumentMask_fields),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   3, BYTES   , ONEOF, POINTER , OTHER, google_firestore_v1beta1_GetDocumentRequest, transaction, mask, 0),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   5, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_GetDocumentRequest, read_time, mask, &google_protobuf_Timestamp_fields),
@@ -35,11 +35,11 @@ const pb_field_t google_firestore_v1beta1_GetDocumentRequest_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_ListDocumentsRequest_fields[10] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListDocumentsRequest, parent, parent, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, collection_id, parent, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListDocumentsRequest, parent, parent, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, collection_id, parent, 0),
     PB_FIELD(  3, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_ListDocumentsRequest, page_size, collection_id, 0),
-    PB_FIELD(  4, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, page_token, page_size, 0),
-    PB_FIELD(  6, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, order_by, page_token, 0),
+    PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, page_token, page_size, 0),
+    PB_FIELD(  6, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, order_by, page_token, 0),
     PB_FIELD(  7, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_ListDocumentsRequest, mask, order_by, &google_firestore_v1beta1_DocumentMask_fields),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   8, BYTES   , ONEOF, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsRequest, transaction, mask, 0),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,  10, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_ListDocumentsRequest, read_time, mask, &google_protobuf_Timestamp_fields),
@@ -49,14 +49,14 @@ const pb_field_t google_firestore_v1beta1_ListDocumentsRequest_fields[10] = {
 
 const pb_field_t google_firestore_v1beta1_ListDocumentsResponse_fields[3] = {
     PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1beta1_ListDocumentsResponse, documents, documents, &google_firestore_v1beta1_Document_fields),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsResponse, next_page_token, documents, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListDocumentsResponse, next_page_token, documents, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_CreateDocumentRequest_fields[6] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_CreateDocumentRequest, parent, parent, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_CreateDocumentRequest, collection_id, parent, 0),
-    PB_FIELD(  3, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_CreateDocumentRequest, document_id, collection_id, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_CreateDocumentRequest, parent, parent, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_CreateDocumentRequest, collection_id, parent, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_CreateDocumentRequest, document_id, collection_id, 0),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_CreateDocumentRequest, document, document_id, &google_firestore_v1beta1_Document_fields),
     PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_CreateDocumentRequest, mask, document, &google_firestore_v1beta1_DocumentMask_fields),
     PB_LAST_FIELD
@@ -71,14 +71,14 @@ const pb_field_t google_firestore_v1beta1_UpdateDocumentRequest_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_DeleteDocumentRequest_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DeleteDocumentRequest, name, name, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DeleteDocumentRequest, name, name, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_DeleteDocumentRequest, current_document, name, &google_firestore_v1beta1_Precondition_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_BatchGetDocumentsRequest_fields[7] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_BatchGetDocumentsRequest, database, database, 0),
-    PB_FIELD(  2, STRING  , REPEATED, POINTER , OTHER, google_firestore_v1beta1_BatchGetDocumentsRequest, documents, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_BatchGetDocumentsRequest, database, database, 0),
+    PB_FIELD(  2, BYTES   , REPEATED, POINTER , OTHER, google_firestore_v1beta1_BatchGetDocumentsRequest, documents, database, 0),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_BatchGetDocumentsRequest, mask, documents, &google_firestore_v1beta1_DocumentMask_fields),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   4, BYTES   , ONEOF, POINTER , OTHER, google_firestore_v1beta1_BatchGetDocumentsRequest, transaction, mask, 0),
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   5, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_BatchGetDocumentsRequest, new_transaction, mask, &google_firestore_v1beta1_TransactionOptions_fields),
@@ -88,14 +88,14 @@ const pb_field_t google_firestore_v1beta1_BatchGetDocumentsRequest_fields[7] = {
 
 const pb_field_t google_firestore_v1beta1_BatchGetDocumentsResponse_fields[5] = {
     PB_ANONYMOUS_ONEOF_FIELD(result,   1, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_BatchGetDocumentsResponse, found, found, &google_firestore_v1beta1_Document_fields),
-    PB_ANONYMOUS_ONEOF_FIELD(result,   2, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_BatchGetDocumentsResponse, missing, missing, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(result,   2, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_BatchGetDocumentsResponse, missing, missing, 0),
     PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_BatchGetDocumentsResponse, transaction, missing, 0),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_BatchGetDocumentsResponse, read_time, transaction, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_BeginTransactionRequest_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_BeginTransactionRequest, database, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_BeginTransactionRequest, database, database, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_BeginTransactionRequest, options, database, &google_firestore_v1beta1_TransactionOptions_fields),
     PB_LAST_FIELD
 };
@@ -106,7 +106,7 @@ const pb_field_t google_firestore_v1beta1_BeginTransactionResponse_fields[2] = {
 };
 
 const pb_field_t google_firestore_v1beta1_CommitRequest_fields[4] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_CommitRequest, database, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_CommitRequest, database, database, 0),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_CommitRequest, writes, database, &google_firestore_v1beta1_Write_fields),
     PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_CommitRequest, transaction, writes, 0),
     PB_LAST_FIELD
@@ -119,13 +119,13 @@ const pb_field_t google_firestore_v1beta1_CommitResponse_fields[3] = {
 };
 
 const pb_field_t google_firestore_v1beta1_RollbackRequest_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_RollbackRequest, database, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_RollbackRequest, database, database, 0),
     PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_RollbackRequest, transaction, database, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_RunQueryRequest_fields[6] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_RunQueryRequest, parent, parent, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_RunQueryRequest, parent, parent, 0),
     PB_ONEOF_FIELD(query_type,   2, MESSAGE , ONEOF, STATIC  , OTHER, google_firestore_v1beta1_RunQueryRequest, structured_query, parent, &google_firestore_v1beta1_StructuredQuery_fields),
     PB_ONEOF_FIELD(consistency_selector,   5, BYTES   , ONEOF, POINTER , OTHER, google_firestore_v1beta1_RunQueryRequest, transaction, query_type.structured_query, 0),
     PB_ONEOF_FIELD(consistency_selector,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_RunQueryRequest, new_transaction, query_type.structured_query, &google_firestore_v1beta1_TransactionOptions_fields),
@@ -142,8 +142,8 @@ const pb_field_t google_firestore_v1beta1_RunQueryResponse_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_WriteRequest_fields[6] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteRequest, database, database, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteRequest, stream_id, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteRequest, database, database, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteRequest, stream_id, database, 0),
     PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_WriteRequest, writes, stream_id, &google_firestore_v1beta1_Write_fields),
     PB_FIELD(  4, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteRequest, stream_token, writes, 0),
     PB_FIELD(  5, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_WriteRequest, labels, stream_token, &google_firestore_v1beta1_WriteRequest_LabelsEntry_fields),
@@ -151,13 +151,13 @@ const pb_field_t google_firestore_v1beta1_WriteRequest_fields[6] = {
 };
 
 const pb_field_t google_firestore_v1beta1_WriteRequest_LabelsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteRequest_LabelsEntry, key, key, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteRequest_LabelsEntry, value, key, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteRequest_LabelsEntry, key, key, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteRequest_LabelsEntry, value, key, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_WriteResponse_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteResponse, stream_id, stream_id, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_WriteResponse, stream_id, stream_id, 0),
     PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_WriteResponse, stream_token, stream_id, 0),
     PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_WriteResponse, write_results, stream_token, &google_firestore_v1beta1_WriteResult_fields),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_WriteResponse, commit_time, write_results, &google_protobuf_Timestamp_fields),
@@ -165,7 +165,7 @@ const pb_field_t google_firestore_v1beta1_WriteResponse_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_ListenRequest_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListenRequest, database, database, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListenRequest, database, database, 0),
     PB_ANONYMOUS_ONEOF_FIELD(target_change,   2, MESSAGE , ONEOF, STATIC  , OTHER, google_firestore_v1beta1_ListenRequest, add_target, database, &google_firestore_v1beta1_Target_fields),
     PB_ANONYMOUS_ONEOF_FIELD(target_change,   3, INT32   , ONEOF, STATIC  , UNION, google_firestore_v1beta1_ListenRequest, remove_target, database, 0),
     PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_ListenRequest, labels, remove_target, &google_firestore_v1beta1_ListenRequest_LabelsEntry_fields),
@@ -173,8 +173,8 @@ const pb_field_t google_firestore_v1beta1_ListenRequest_fields[5] = {
 };
 
 const pb_field_t google_firestore_v1beta1_ListenRequest_LabelsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListenRequest_LabelsEntry, key, key, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListenRequest_LabelsEntry, value, key, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListenRequest_LabelsEntry, key, key, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListenRequest_LabelsEntry, value, key, 0),
     PB_LAST_FIELD
 };
 
@@ -198,12 +198,12 @@ const pb_field_t google_firestore_v1beta1_Target_fields[7] = {
 };
 
 const pb_field_t google_firestore_v1beta1_Target_DocumentsTarget_fields[2] = {
-    PB_FIELD(  2, STRING  , REPEATED, POINTER , FIRST, google_firestore_v1beta1_Target_DocumentsTarget, documents, documents, 0),
+    PB_FIELD(  2, BYTES   , REPEATED, POINTER , FIRST, google_firestore_v1beta1_Target_DocumentsTarget, documents, documents, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_Target_QueryTarget_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Target_QueryTarget, parent, parent, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Target_QueryTarget, parent, parent, 0),
     PB_ANONYMOUS_ONEOF_FIELD(query_type,   2, MESSAGE , ONEOF, STATIC  , OTHER, google_firestore_v1beta1_Target_QueryTarget, structured_query, parent, &google_firestore_v1beta1_StructuredQuery_fields),
     PB_LAST_FIELD
 };
@@ -218,15 +218,15 @@ const pb_field_t google_firestore_v1beta1_TargetChange_fields[6] = {
 };
 
 const pb_field_t google_firestore_v1beta1_ListCollectionIdsRequest_fields[4] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListCollectionIdsRequest, parent, parent, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_ListCollectionIdsRequest, parent, parent, 0),
     PB_FIELD(  2, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_ListCollectionIdsRequest, page_size, parent, 0),
-    PB_FIELD(  3, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListCollectionIdsRequest, page_token, page_size, 0),
+    PB_FIELD(  3, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListCollectionIdsRequest, page_token, page_size, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_ListCollectionIdsResponse_fields[3] = {
-    PB_FIELD(  1, STRING  , REPEATED, POINTER , FIRST, google_firestore_v1beta1_ListCollectionIdsResponse, collection_ids, collection_ids, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListCollectionIdsResponse, next_page_token, collection_ids, 0),
+    PB_FIELD(  1, BYTES   , REPEATED, POINTER , FIRST, google_firestore_v1beta1_ListCollectionIdsResponse, collection_ids, collection_ids, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1beta1_ListCollectionIdsResponse, next_page_token, collection_ids, 0),
     PB_LAST_FIELD
 };
 

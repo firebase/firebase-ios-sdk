@@ -28,7 +28,7 @@
 
 const pb_field_t google_firestore_v1beta1_Write_fields[6] = {
     PB_ANONYMOUS_ONEOF_FIELD(operation,   1, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_Write, update, update, &google_firestore_v1beta1_Document_fields),
-    PB_ANONYMOUS_ONEOF_FIELD(operation,   2, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_Write, delete_, delete_, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(operation,   2, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_Write, delete_, delete_, 0),
     PB_ANONYMOUS_ONEOF_FIELD(operation,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Write, transform, transform, &google_firestore_v1beta1_DocumentTransform_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Write, update_mask, transform, &google_firestore_v1beta1_DocumentMask_fields),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Write, current_document, update_mask, &google_firestore_v1beta1_Precondition_fields),
@@ -36,13 +36,13 @@ const pb_field_t google_firestore_v1beta1_Write_fields[6] = {
 };
 
 const pb_field_t google_firestore_v1beta1_DocumentTransform_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentTransform, document, document, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentTransform, document, document, 0),
     PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_DocumentTransform, field_transforms, document, &google_firestore_v1beta1_DocumentTransform_FieldTransform_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_DocumentTransform_FieldTransform_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentTransform_FieldTransform, field_path, field_path, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentTransform_FieldTransform, field_path, field_path, 0),
     PB_ANONYMOUS_ONEOF_FIELD(transform_type,   2, ENUM    , ONEOF, STATIC  , OTHER, google_firestore_v1beta1_DocumentTransform_FieldTransform, set_to_server_value, field_path, 0),
     PB_ANONYMOUS_ONEOF_FIELD(transform_type,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_DocumentTransform_FieldTransform, append_missing_elements, field_path, &google_firestore_v1beta1_ArrayValue_fields),
     PB_ANONYMOUS_ONEOF_FIELD(transform_type,   7, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_DocumentTransform_FieldTransform, remove_all_from_array, field_path, &google_firestore_v1beta1_ArrayValue_fields),
@@ -63,14 +63,14 @@ const pb_field_t google_firestore_v1beta1_DocumentChange_fields[4] = {
 };
 
 const pb_field_t google_firestore_v1beta1_DocumentDelete_fields[4] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentDelete, document, document, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentDelete, document, document, 0),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_DocumentDelete, read_time, document, &google_protobuf_Timestamp_fields),
     PB_FIELD(  6, INT32   , REPEATED, POINTER , OTHER, google_firestore_v1beta1_DocumentDelete, removed_target_ids, read_time, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_DocumentRemove_fields[4] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentRemove, document, document, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_DocumentRemove, document, document, 0),
     PB_FIELD(  2, INT32   , REPEATED, POINTER , OTHER, google_firestore_v1beta1_DocumentRemove, removed_target_ids, document, 0),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_DocumentRemove, read_time, removed_target_ids, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD

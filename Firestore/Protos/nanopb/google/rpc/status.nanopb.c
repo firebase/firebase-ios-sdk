@@ -28,7 +28,7 @@
 
 const pb_field_t google_rpc_Status_fields[4] = {
     PB_FIELD(  1, INT32   , SINGULAR, STATIC  , FIRST, google_rpc_Status, code, code, 0),
-    PB_FIELD(  2, STRING  , SINGULAR, POINTER , OTHER, google_rpc_Status, message, code, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_rpc_Status, message, code, 0),
     PB_FIELD(  3, MESSAGE , REPEATED, POINTER , OTHER, google_rpc_Status, details, message, &google_protobuf_Any_fields),
     PB_LAST_FIELD
 };

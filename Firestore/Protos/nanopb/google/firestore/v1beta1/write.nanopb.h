@@ -49,7 +49,7 @@ typedef enum _google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerVa
 
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_DocumentTransform {
-    char *document;
+    pb_bytes_array_t *document;
     pb_size_t field_transforms_count;
     struct _google_firestore_v1beta1_DocumentTransform_FieldTransform *field_transforms;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentTransform) */
@@ -65,7 +65,7 @@ typedef struct _google_firestore_v1beta1_DocumentChange {
 } google_firestore_v1beta1_DocumentChange;
 
 typedef struct _google_firestore_v1beta1_DocumentDelete {
-    char *document;
+    pb_bytes_array_t *document;
     google_protobuf_Timestamp read_time;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
@@ -73,7 +73,7 @@ typedef struct _google_firestore_v1beta1_DocumentDelete {
 } google_firestore_v1beta1_DocumentDelete;
 
 typedef struct _google_firestore_v1beta1_DocumentRemove {
-    char *document;
+    pb_bytes_array_t *document;
     pb_size_t removed_target_ids_count;
     int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
@@ -81,7 +81,7 @@ typedef struct _google_firestore_v1beta1_DocumentRemove {
 } google_firestore_v1beta1_DocumentRemove;
 
 typedef struct _google_firestore_v1beta1_DocumentTransform_FieldTransform {
-    char *field_path;
+    pb_bytes_array_t *field_path;
     pb_size_t which_transform_type;
     union {
         google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue set_to_server_value;
@@ -101,7 +101,7 @@ typedef struct _google_firestore_v1beta1_Write {
     pb_size_t which_operation;
     union {
         google_firestore_v1beta1_Document update;
-        char *delete_;
+        pb_bytes_array_t *delete_;
         google_firestore_v1beta1_DocumentTransform transform;
     };
     google_firestore_v1beta1_DocumentMask update_mask;

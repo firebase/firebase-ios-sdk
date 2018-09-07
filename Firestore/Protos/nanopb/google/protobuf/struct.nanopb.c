@@ -32,7 +32,7 @@ const pb_field_t google_protobuf_Struct_fields[2] = {
 };
 
 const pb_field_t google_protobuf_Struct_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_protobuf_Struct_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_protobuf_Struct_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_protobuf_Struct_FieldsEntry, value, key, &google_protobuf_Value_fields),
     PB_LAST_FIELD
 };
@@ -40,7 +40,7 @@ const pb_field_t google_protobuf_Struct_FieldsEntry_fields[3] = {
 const pb_field_t google_protobuf_Value_fields[7] = {
     PB_ANONYMOUS_ONEOF_FIELD(kind,   1, ENUM    , ONEOF, STATIC  , FIRST, google_protobuf_Value, null_value, null_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(kind,   2, DOUBLE  , ONEOF, STATIC  , UNION, google_protobuf_Value, number_value, number_value, 0),
-    PB_ANONYMOUS_ONEOF_FIELD(kind,   3, STRING  , ONEOF, POINTER , UNION, google_protobuf_Value, string_value, string_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   3, BYTES   , ONEOF, POINTER , UNION, google_protobuf_Value, string_value, string_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(kind,   4, BOOL    , ONEOF, STATIC  , UNION, google_protobuf_Value, bool_value, bool_value, 0),
     PB_ANONYMOUS_ONEOF_FIELD(kind,   5, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, struct_value, struct_value, &google_protobuf_Struct_fields),
     PB_ANONYMOUS_ONEOF_FIELD(kind,   6, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, list_value, list_value, &google_protobuf_ListValue_fields),
