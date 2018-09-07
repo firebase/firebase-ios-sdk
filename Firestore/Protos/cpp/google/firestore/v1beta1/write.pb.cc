@@ -44,7 +44,6 @@ class WriteDefaultTypeInternal {
       _instance;
   const ::google::firestore::v1beta1::Document* update_;
   ::google::protobuf::internal::ArenaStringPtr delete__;
-  ::google::protobuf::internal::ArenaStringPtr verify_;
   const ::google::firestore::v1beta1::DocumentTransform* transform_;
 } _Write_default_instance_;
 class DocumentTransform_FieldTransformDefaultTypeInternal {
@@ -52,6 +51,8 @@ class DocumentTransform_FieldTransformDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<DocumentTransform_FieldTransform>
       _instance;
   int set_to_server_value_;
+  const ::google::firestore::v1beta1::ArrayValue* append_missing_elements_;
+  const ::google::firestore::v1beta1::ArrayValue* remove_all_from_array_;
 } _DocumentTransform_FieldTransform_default_instance_;
 class DocumentTransformDefaultTypeInternal {
  public:
@@ -120,6 +121,7 @@ void InitDefaultsDocumentTransform_FieldTransformImpl() {
 #else
   ::google::protobuf::internal::InitProtobufDefaults();
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
+  protobuf_google_2ffirestore_2fv1beta1_2fdocument_2eproto::InitDefaultsArrayValue();
   {
     void* ptr = &::google::firestore::v1beta1::_DocumentTransform_FieldTransform_default_instance_;
     new (ptr) ::google::firestore::v1beta1::DocumentTransform_FieldTransform();
@@ -276,7 +278,6 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   offsetof(::google::firestore::v1beta1::WriteDefaultTypeInternal, update_),
   offsetof(::google::firestore::v1beta1::WriteDefaultTypeInternal, delete__),
-  offsetof(::google::firestore::v1beta1::WriteDefaultTypeInternal, verify_),
   offsetof(::google::firestore::v1beta1::WriteDefaultTypeInternal, transform_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1beta1::Write, update_mask_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1beta1::Write, current_document_),
@@ -288,6 +289,8 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1beta1::DocumentTransform_FieldTransform, field_path_),
   offsetof(::google::firestore::v1beta1::DocumentTransform_FieldTransformDefaultTypeInternal, set_to_server_value_),
+  offsetof(::google::firestore::v1beta1::DocumentTransform_FieldTransformDefaultTypeInternal, append_missing_elements_),
+  offsetof(::google::firestore::v1beta1::DocumentTransform_FieldTransformDefaultTypeInternal, remove_all_from_array_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1beta1::DocumentTransform_FieldTransform, transform_type_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::google::firestore::v1beta1::DocumentTransform, _internal_metadata_),
@@ -337,13 +340,13 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::google::firestore::v1beta1::Write)},
-  { 12, -1, sizeof(::google::firestore::v1beta1::DocumentTransform_FieldTransform)},
-  { 20, -1, sizeof(::google::firestore::v1beta1::DocumentTransform)},
-  { 27, -1, sizeof(::google::firestore::v1beta1::WriteResult)},
-  { 34, -1, sizeof(::google::firestore::v1beta1::DocumentChange)},
-  { 42, -1, sizeof(::google::firestore::v1beta1::DocumentDelete)},
-  { 50, -1, sizeof(::google::firestore::v1beta1::DocumentRemove)},
-  { 58, -1, sizeof(::google::firestore::v1beta1::ExistenceFilter)},
+  { 11, -1, sizeof(::google::firestore::v1beta1::DocumentTransform_FieldTransform)},
+  { 21, -1, sizeof(::google::firestore::v1beta1::DocumentTransform)},
+  { 28, -1, sizeof(::google::firestore::v1beta1::WriteResult)},
+  { 35, -1, sizeof(::google::firestore::v1beta1::DocumentChange)},
+  { 43, -1, sizeof(::google::firestore::v1beta1::DocumentDelete)},
+  { 51, -1, sizeof(::google::firestore::v1beta1::DocumentRemove)},
+  { 59, -1, sizeof(::google::firestore::v1beta1::ExistenceFilter)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -384,43 +387,47 @@ void AddDescriptorsImpl() {
       "otations.proto\032%google/firestore/v1beta1"
       "/common.proto\032\'google/firestore/v1beta1/"
       "document.proto\032\037google/protobuf/timestam"
-      "p.proto\"\257\002\n\005Write\0224\n\006update\030\001 \001(\0132\".goog"
+      "p.proto\"\235\002\n\005Write\0224\n\006update\030\001 \001(\0132\".goog"
       "le.firestore.v1beta1.DocumentH\000\022\020\n\006delet"
-      "e\030\002 \001(\tH\000\022\020\n\006verify\030\005 \001(\tH\000\022@\n\ttransform"
-      "\030\006 \001(\0132+.google.firestore.v1beta1.Docume"
-      "ntTransformH\000\022;\n\013update_mask\030\003 \001(\0132&.goo"
-      "gle.firestore.v1beta1.DocumentMask\022@\n\020cu"
-      "rrent_document\030\004 \001(\0132&.google.firestore."
-      "v1beta1.PreconditionB\013\n\toperation\"\332\002\n\021Do"
-      "cumentTransform\022\020\n\010document\030\001 \001(\t\022T\n\020fie"
-      "ld_transforms\030\002 \003(\0132:.google.firestore.v"
-      "1beta1.DocumentTransform.FieldTransform\032"
-      "\334\001\n\016FieldTransform\022\022\n\nfield_path\030\001 \001(\t\022e"
-      "\n\023set_to_server_value\030\002 \001(\0162F.google.fir"
-      "estore.v1beta1.DocumentTransform.FieldTr"
-      "ansform.ServerValueH\000\"=\n\013ServerValue\022\034\n\030"
-      "SERVER_VALUE_UNSPECIFIED\020\000\022\020\n\014REQUEST_TI"
-      "ME\020\001B\020\n\016transform_type\"z\n\013WriteResult\022/\n"
-      "\013update_time\030\001 \001(\0132\032.google.protobuf.Tim"
-      "estamp\022:\n\021transform_results\030\002 \003(\0132\037.goog"
-      "le.firestore.v1beta1.Value\"v\n\016DocumentCh"
-      "ange\0224\n\010document\030\001 \001(\0132\".google.firestor"
-      "e.v1beta1.Document\022\022\n\ntarget_ids\030\005 \003(\005\022\032"
-      "\n\022removed_target_ids\030\006 \003(\005\"m\n\016DocumentDe"
-      "lete\022\020\n\010document\030\001 \001(\t\022\032\n\022removed_target"
-      "_ids\030\006 \003(\005\022-\n\tread_time\030\004 \001(\0132\032.google.p"
-      "rotobuf.Timestamp\"m\n\016DocumentRemove\022\020\n\010d"
-      "ocument\030\001 \001(\t\022\032\n\022removed_target_ids\030\002 \003("
-      "\005\022-\n\tread_time\030\004 \001(\0132\032.google.protobuf.T"
-      "imestamp\"3\n\017ExistenceFilter\022\021\n\ttarget_id"
-      "\030\001 \001(\005\022\r\n\005count\030\002 \001(\005B\227\001\n\034com.google.fir"
-      "estore.v1beta1B\nWriteProtoP\001ZAgoogle.gol"
-      "ang.org/genproto/googleapis/firestore/v1"
-      "beta1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fi"
-      "restore.V1Beta1b\006proto3"
+      "e\030\002 \001(\tH\000\022@\n\ttransform\030\006 \001(\0132+.google.fi"
+      "restore.v1beta1.DocumentTransformH\000\022;\n\013u"
+      "pdate_mask\030\003 \001(\0132&.google.firestore.v1be"
+      "ta1.DocumentMask\022@\n\020current_document\030\004 \001"
+      "(\0132&.google.firestore.v1beta1.Preconditi"
+      "onB\013\n\toperation\"\352\003\n\021DocumentTransform\022\020\n"
+      "\010document\030\001 \001(\t\022T\n\020field_transforms\030\002 \003("
+      "\0132:.google.firestore.v1beta1.DocumentTra"
+      "nsform.FieldTransform\032\354\002\n\016FieldTransform"
+      "\022\022\n\nfield_path\030\001 \001(\t\022e\n\023set_to_server_va"
+      "lue\030\002 \001(\0162F.google.firestore.v1beta1.Doc"
+      "umentTransform.FieldTransform.ServerValu"
+      "eH\000\022G\n\027append_missing_elements\030\006 \001(\0132$.g"
+      "oogle.firestore.v1beta1.ArrayValueH\000\022E\n\025"
+      "remove_all_from_array\030\007 \001(\0132$.google.fir"
+      "estore.v1beta1.ArrayValueH\000\"=\n\013ServerVal"
+      "ue\022\034\n\030SERVER_VALUE_UNSPECIFIED\020\000\022\020\n\014REQU"
+      "EST_TIME\020\001B\020\n\016transform_type\"z\n\013WriteRes"
+      "ult\022/\n\013update_time\030\001 \001(\0132\032.google.protob"
+      "uf.Timestamp\022:\n\021transform_results\030\002 \003(\0132"
+      "\037.google.firestore.v1beta1.Value\"v\n\016Docu"
+      "mentChange\0224\n\010document\030\001 \001(\0132\".google.fi"
+      "restore.v1beta1.Document\022\022\n\ntarget_ids\030\005"
+      " \003(\005\022\032\n\022removed_target_ids\030\006 \003(\005\"m\n\016Docu"
+      "mentDelete\022\020\n\010document\030\001 \001(\t\022\032\n\022removed_"
+      "target_ids\030\006 \003(\005\022-\n\tread_time\030\004 \001(\0132\032.go"
+      "ogle.protobuf.Timestamp\"m\n\016DocumentRemov"
+      "e\022\020\n\010document\030\001 \001(\t\022\032\n\022removed_target_id"
+      "s\030\002 \003(\005\022-\n\tread_time\030\004 \001(\0132\032.google.prot"
+      "obuf.Timestamp\"3\n\017ExistenceFilter\022\021\n\ttar"
+      "get_id\030\001 \001(\005\022\r\n\005count\030\002 \001(\005B\270\001\n\034com.goog"
+      "le.firestore.v1beta1B\nWriteProtoP\001ZAgoog"
+      "le.golang.org/genproto/googleapis/firest"
+      "ore/v1beta1;firestore\242\002\004GCFS\252\002\036Google.Cl"
+      "oud.Firestore.V1Beta1\312\002\036Google\\Cloud\\Fir"
+      "estore\\V1beta1b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1543);
+      descriptor, 1702);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "google/firestore/v1beta1/write.proto", &protobuf_RegisterTypes);
   ::protobuf_google_2fapi_2fannotations_2eproto::AddDescriptors();
@@ -471,8 +478,6 @@ void Write::InitAsDefaultInstance() {
   ::google::firestore::v1beta1::_Write_default_instance_.update_ = const_cast< ::google::firestore::v1beta1::Document*>(
       ::google::firestore::v1beta1::Document::internal_default_instance());
   ::google::firestore::v1beta1::_Write_default_instance_.delete__.UnsafeSetDefault(
-      &::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::google::firestore::v1beta1::_Write_default_instance_.verify_.UnsafeSetDefault(
       &::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::google::firestore::v1beta1::_Write_default_instance_.transform_ = const_cast< ::google::firestore::v1beta1::DocumentTransform*>(
       ::google::firestore::v1beta1::DocumentTransform::internal_default_instance());
@@ -530,7 +535,6 @@ void Write::clear_current_document() {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int Write::kUpdateFieldNumber;
 const int Write::kDeleteFieldNumber;
-const int Write::kVerifyFieldNumber;
 const int Write::kTransformFieldNumber;
 const int Write::kUpdateMaskFieldNumber;
 const int Write::kCurrentDocumentFieldNumber;
@@ -567,10 +571,6 @@ Write::Write(const Write& from)
     }
     case kDelete: {
       set_delete_(from.delete_());
-      break;
-    }
-    case kVerify: {
-      set_verify(from.verify());
       break;
     }
     case kTransform: {
@@ -637,10 +637,6 @@ void Write::clear_operation() {
     }
     case kDelete: {
       operation_.delete__.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-      break;
-    }
-    case kVerify: {
-      operation_.verify_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
       break;
     }
     case kTransform: {
@@ -735,22 +731,6 @@ bool Write::MergePartialFromCodedStream(
         break;
       }
 
-      // string verify = 5;
-      case 5: {
-        if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_verify()));
-          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->verify().data(), static_cast<int>(this->verify().length()),
-            ::google::protobuf::internal::WireFormatLite::PARSE,
-            "google.firestore.v1beta1.Write.verify"));
-        } else {
-          goto handle_unusual;
-        }
-        break;
-      }
-
       // .google.firestore.v1beta1.DocumentTransform transform = 6;
       case 6: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
@@ -817,16 +797,6 @@ void Write::SerializeWithCachedSizes(
       4, *this->current_document_, output);
   }
 
-  // string verify = 5;
-  if (has_verify()) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->verify().data(), static_cast<int>(this->verify().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1beta1.Write.verify");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      5, this->verify(), output);
-  }
-
   // .google.firestore.v1beta1.DocumentTransform transform = 6;
   if (has_transform()) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
@@ -877,17 +847,6 @@ void Write::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         4, *this->current_document_, deterministic, target);
-  }
-
-  // string verify = 5;
-  if (has_verify()) {
-    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->verify().data(), static_cast<int>(this->verify().length()),
-      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "google.firestore.v1beta1.Write.verify");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        5, this->verify(), target);
   }
 
   // .google.firestore.v1beta1.DocumentTransform transform = 6;
@@ -941,13 +900,6 @@ size_t Write::ByteSizeLong() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->delete_());
-      break;
-    }
-    // string verify = 5;
-    case kVerify: {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->verify());
       break;
     }
     // .google.firestore.v1beta1.DocumentTransform transform = 6;
@@ -1005,10 +957,6 @@ void Write::MergeFrom(const Write& from) {
       set_delete_(from.delete_());
       break;
     }
-    case kVerify: {
-      set_verify(from.verify());
-      break;
-    }
     case kTransform: {
       mutable_transform()->::google::firestore::v1beta1::DocumentTransform::MergeFrom(from.transform());
       break;
@@ -1061,10 +1009,56 @@ void Write::InternalSwap(Write* other) {
 
 void DocumentTransform_FieldTransform::InitAsDefaultInstance() {
   ::google::firestore::v1beta1::_DocumentTransform_FieldTransform_default_instance_.set_to_server_value_ = 0;
+  ::google::firestore::v1beta1::_DocumentTransform_FieldTransform_default_instance_.append_missing_elements_ = const_cast< ::google::firestore::v1beta1::ArrayValue*>(
+      ::google::firestore::v1beta1::ArrayValue::internal_default_instance());
+  ::google::firestore::v1beta1::_DocumentTransform_FieldTransform_default_instance_.remove_all_from_array_ = const_cast< ::google::firestore::v1beta1::ArrayValue*>(
+      ::google::firestore::v1beta1::ArrayValue::internal_default_instance());
+}
+void DocumentTransform_FieldTransform::set_allocated_append_missing_elements(::google::firestore::v1beta1::ArrayValue* append_missing_elements) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  clear_transform_type();
+  if (append_missing_elements) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      append_missing_elements = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, append_missing_elements, submessage_arena);
+    }
+    set_has_append_missing_elements();
+    transform_type_.append_missing_elements_ = append_missing_elements;
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1beta1.DocumentTransform.FieldTransform.append_missing_elements)
+}
+void DocumentTransform_FieldTransform::clear_append_missing_elements() {
+  if (has_append_missing_elements()) {
+    delete transform_type_.append_missing_elements_;
+    clear_has_transform_type();
+  }
+}
+void DocumentTransform_FieldTransform::set_allocated_remove_all_from_array(::google::firestore::v1beta1::ArrayValue* remove_all_from_array) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  clear_transform_type();
+  if (remove_all_from_array) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      remove_all_from_array = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, remove_all_from_array, submessage_arena);
+    }
+    set_has_remove_all_from_array();
+    transform_type_.remove_all_from_array_ = remove_all_from_array;
+  }
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1beta1.DocumentTransform.FieldTransform.remove_all_from_array)
+}
+void DocumentTransform_FieldTransform::clear_remove_all_from_array() {
+  if (has_remove_all_from_array()) {
+    delete transform_type_.remove_all_from_array_;
+    clear_has_transform_type();
+  }
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int DocumentTransform_FieldTransform::kFieldPathFieldNumber;
 const int DocumentTransform_FieldTransform::kSetToServerValueFieldNumber;
+const int DocumentTransform_FieldTransform::kAppendMissingElementsFieldNumber;
+const int DocumentTransform_FieldTransform::kRemoveAllFromArrayFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 DocumentTransform_FieldTransform::DocumentTransform_FieldTransform()
@@ -1088,6 +1082,14 @@ DocumentTransform_FieldTransform::DocumentTransform_FieldTransform(const Documen
   switch (from.transform_type_case()) {
     case kSetToServerValue: {
       set_set_to_server_value(from.set_to_server_value());
+      break;
+    }
+    case kAppendMissingElements: {
+      mutable_append_missing_elements()->::google::firestore::v1beta1::ArrayValue::MergeFrom(from.append_missing_elements());
+      break;
+    }
+    case kRemoveAllFromArray: {
+      mutable_remove_all_from_array()->::google::firestore::v1beta1::ArrayValue::MergeFrom(from.remove_all_from_array());
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
@@ -1143,6 +1145,14 @@ void DocumentTransform_FieldTransform::clear_transform_type() {
   switch (transform_type_case()) {
     case kSetToServerValue: {
       // No need to clear
+      break;
+    }
+    case kAppendMissingElements: {
+      delete transform_type_.append_missing_elements_;
+      break;
+    }
+    case kRemoveAllFromArray: {
+      delete transform_type_.remove_all_from_array_;
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
@@ -1205,6 +1215,30 @@ bool DocumentTransform_FieldTransform::MergePartialFromCodedStream(
         break;
       }
 
+      // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(50u /* 50 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_append_missing_elements()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .google.firestore.v1beta1.ArrayValue remove_all_from_array = 7;
+      case 7: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(58u /* 58 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_remove_all_from_array()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -1247,6 +1281,18 @@ void DocumentTransform_FieldTransform::SerializeWithCachedSizes(
       2, this->set_to_server_value(), output);
   }
 
+  // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;
+  if (has_append_missing_elements()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      6, *transform_type_.append_missing_elements_, output);
+  }
+
+  // .google.firestore.v1beta1.ArrayValue remove_all_from_array = 7;
+  if (has_remove_all_from_array()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      7, *transform_type_.remove_all_from_array_, output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -1278,6 +1324,20 @@ void DocumentTransform_FieldTransform::SerializeWithCachedSizes(
       2, this->set_to_server_value(), target);
   }
 
+  // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;
+  if (has_append_missing_elements()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        6, *transform_type_.append_missing_elements_, deterministic, target);
+  }
+
+  // .google.firestore.v1beta1.ArrayValue remove_all_from_array = 7;
+  if (has_remove_all_from_array()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        7, *transform_type_.remove_all_from_array_, deterministic, target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -1307,6 +1367,20 @@ size_t DocumentTransform_FieldTransform::ByteSizeLong() const {
     case kSetToServerValue: {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::EnumSize(this->set_to_server_value());
+      break;
+    }
+    // .google.firestore.v1beta1.ArrayValue append_missing_elements = 6;
+    case kAppendMissingElements: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          *transform_type_.append_missing_elements_);
+      break;
+    }
+    // .google.firestore.v1beta1.ArrayValue remove_all_from_array = 7;
+    case kRemoveAllFromArray: {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::MessageSize(
+          *transform_type_.remove_all_from_array_);
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {
@@ -1349,6 +1423,14 @@ void DocumentTransform_FieldTransform::MergeFrom(const DocumentTransform_FieldTr
   switch (from.transform_type_case()) {
     case kSetToServerValue: {
       set_set_to_server_value(from.set_to_server_value());
+      break;
+    }
+    case kAppendMissingElements: {
+      mutable_append_missing_elements()->::google::firestore::v1beta1::ArrayValue::MergeFrom(from.append_missing_elements());
+      break;
+    }
+    case kRemoveAllFromArray: {
+      mutable_remove_all_from_array()->::google::firestore::v1beta1::ArrayValue::MergeFrom(from.remove_all_from_array());
       break;
     }
     case TRANSFORM_TYPE_NOT_SET: {

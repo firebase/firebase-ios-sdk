@@ -272,14 +272,15 @@ void AddDescriptorsImpl() {
       "iteH\000\032&\n\tReadWrite\022\031\n\021retry_transaction\030"
       "\001 \001(\014\032S\n\010ReadOnly\022/\n\tread_time\030\002 \001(\0132\032.g"
       "oogle.protobuf.TimestampH\000B\026\n\024consistenc"
-      "y_selectorB\006\n\004modeB\230\001\n\034com.google.firest"
+      "y_selectorB\006\n\004modeB\271\001\n\034com.google.firest"
       "ore.v1beta1B\013CommonProtoP\001ZAgoogle.golan"
       "g.org/genproto/googleapis/firestore/v1be"
       "ta1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fire"
-      "store.V1Beta1b\006proto3"
+      "store.V1Beta1\312\002\036Google\\Cloud\\Firestore\\V"
+      "1beta1b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 741);
+      descriptor, 774);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "google/firestore/v1beta1/common.proto", &protobuf_RegisterTypes);
   ::protobuf_google_2fapi_2fannotations_2eproto::AddDescriptors();

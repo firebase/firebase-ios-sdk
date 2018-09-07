@@ -294,15 +294,15 @@ void AddDescriptorsImpl() {
       "e\"\232\001\n\010MapValue\022>\n\006fields\030\001 \003(\0132..google."
       "firestore.v1beta1.MapValue.FieldsEntry\032N"
       "\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022.\n\005value\030\002 \001("
-      "\0132\037.google.firestore.v1beta1.Value:\0028\001B\232"
+      "\0132\037.google.firestore.v1beta1.Value:\0028\001B\273"
       "\001\n\034com.google.firestore.v1beta1B\rDocumen"
       "tProtoP\001ZAgoogle.golang.org/genproto/goo"
       "gleapis/firestore/v1beta1;firestore\242\002\004GC"
-      "FS\252\002\036Google.Cloud.Firestore.V1Beta1b\006pro"
-      "to3"
+      "FS\252\002\036Google.Cloud.Firestore.V1Beta1\312\002\036Go"
+      "ogle\\Cloud\\Firestore\\V1beta1b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 1283);
+      descriptor, 1316);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "google/firestore/v1beta1/document.proto", &protobuf_RegisterTypes);
   ::protobuf_google_2fapi_2fannotations_2eproto::AddDescriptors();

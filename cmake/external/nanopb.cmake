@@ -19,8 +19,6 @@ if(TARGET nanopb)
   return()
 endif()
 
-set(NANOPB_PROTOC_BIN ${FIREBASE_INSTALL_DIR}/bin/protoc)
-
 ExternalProject_Add(
   nanopb
 
