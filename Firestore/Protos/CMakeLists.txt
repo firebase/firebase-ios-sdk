@@ -122,21 +122,37 @@ target_include_directories(
 )
 
 
+# Generate the python representation of descriptor.proto.
 set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
-set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
+set(PROTOBUF_PROTO ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto)
+set(PROTOBUF_PYTHON ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py)
 
+add_custom_command(
+  COMMENT "Generating protoc python plugins"
+  OUTPUT ${PROTOBUF_PYTHON}
+  COMMAND
+    protoc
+      -I${PROTOBUF_DIR}/src
+      --python_out=${PROTOBUF_DIR}/python
+      ${PROTOBUF_PROTO}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${PROTOBUF_PROTO}
+)
+
+
+# Generate the python representation of nanopb's protos
+set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
 set(
-  PROTOBUF_PROTO
-  ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto
+  NANOPB_PROTO
   ${NANOPB_DIR}/generator/proto/nanopb.proto
   ${NANOPB_DIR}/generator/proto/plugin.proto
 )
-
 set(
-  PROTOBUF_PYTHON
-  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
-  ${PROTOBUF_DIR}/python/proto/nanopb_pb2.py
-  ${PROTOBUF_DIR}/python/proto/plugin_pb2.py
+  NANOPB_PYTHON
+  ${NANOPB_DIR}/generator/proto/nanopb_pb2.py
+  ${NANOPB_DIR}/generator/proto/plugin_pb2.py
 )
 
 set(
@@ -147,18 +163,18 @@ set(
 )
 
 add_custom_command(
-  COMMENT "Generating protoc python plugins"
-  OUTPUT
-    ${PROTOBUF_PYTHON}
+  COMMENT "Generating nanopb python plugins"
+  OUTPUT ${NANOPB_PYTHON}
   COMMAND
     protoc
-      ${PROTO_INCLUDES}
-      --python_out=${PROTOBUF_DIR}/python
-      ${PROTOBUF_PROTO}
+      -I${NANOPB_DIR}/generator
+      -I${PROTOBUF_DIR}/src
+      --python_out=${NANOPB_DIR}/generator
+      ${NANOPB_PROTO}
   VERBATIM
   DEPENDS
     protoc
-    ${PROTOBUF_PROTO}
+    ${NANOPB_PROTO}
 )
 
 add_custom_command(
@@ -176,6 +192,7 @@ add_custom_command(
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
     ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
+    ${NANOPB_PYTHON}
     ${PROTOBUF_PYTHON}
 )
 
@@ -198,7 +215,6 @@ add_custom_command(
   DEPENDS
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${PROTOBUF_PYTHON}
 )
 
 add_custom_target(
@@ -219,9 +235,9 @@ add_custom_command(
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
+    grpc_objective_c_plugin
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${PROTOBUF_PYTHON}
 )
 
 add_custom_target(
