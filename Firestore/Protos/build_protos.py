@@ -28,6 +28,9 @@ import re
 import subprocess
 
 
+CPP_GENERATOR = 'nanopb_cpp_generator.py'
+
+
 COPYRIGHT_NOTICE = '''
 /*
  * Copyright 2018 Google
@@ -78,9 +81,6 @@ def main():
   parser.add_argument(
       '--protoc_gen_grpc',
       help='Location of the gRPC generator executable.')
-  parser.add_argument(
-      '--protoc_gen_nanopb',
-      help='Location of the nanopb generator executable.')
 
   args = parser.parse_args()
   if args.nanopb is None and args.cpp is None and args.objc is None:
@@ -128,9 +128,8 @@ class NanopbGenerator(object):
     """Invokes protoc using the nanopb plugin."""
     cmd = protoc_command(self.args)
 
-    gen = self.args.protoc_gen_nanopb
-    if gen is not None:
-      cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
+    gen = os.path.join(os.path.dirname(__file__), CPP_GENERATOR)
+    cmd.append('--plugin=protoc-gen-nanopb=%s' % gen)
 
     nanopb_flags = ' '.join([
         '--extension=.nanopb',

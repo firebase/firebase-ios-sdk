@@ -184,16 +184,16 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --nanopb
       --protoc=$<TARGET_FILE:protoc>
-      --protoc_gen_nanopb=${NANOPB_DIR}/generator/protoc-gen-nanopb
-      --pythonpath=${PROTOBUF_DIR}/python
+      --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
       --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
-    ${PROTOBUF_PYTHON}
+    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
     ${NANOPB_PYTHON}
+    ${PROTOBUF_PYTHON}
 )
 
 add_custom_target(
