@@ -32,14 +32,14 @@ const pb_field_t google_firestore_v1beta1_DocumentMask_fields[2] = {
 };
 
 const pb_field_t google_firestore_v1beta1_Precondition_fields[3] = {
-    PB_ONEOF_FIELD(condition_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_Precondition, exists, exists, 0),
-    PB_ONEOF_FIELD(condition_type,   2, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Precondition, update_time, update_time, &google_protobuf_Timestamp_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(condition_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_Precondition, exists, exists, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(condition_type,   2, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Precondition, update_time, update_time, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_TransactionOptions_fields[3] = {
-    PB_ONEOF_FIELD(mode,   2, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_TransactionOptions, read_only, read_only, &google_firestore_v1beta1_TransactionOptions_ReadOnly_fields),
-    PB_ONEOF_FIELD(mode,   3, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_TransactionOptions, read_write, read_write, &google_firestore_v1beta1_TransactionOptions_ReadWrite_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(mode,   2, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_TransactionOptions, read_only, read_only, &google_firestore_v1beta1_TransactionOptions_ReadOnly_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(mode,   3, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_TransactionOptions, read_write, read_write, &google_firestore_v1beta1_TransactionOptions_ReadWrite_fields),
     PB_LAST_FIELD
 };
 
@@ -49,7 +49,7 @@ const pb_field_t google_firestore_v1beta1_TransactionOptions_ReadWrite_fields[2]
 };
 
 const pb_field_t google_firestore_v1beta1_TransactionOptions_ReadOnly_fields[2] = {
-    PB_ONEOF_FIELD(consistency_selector,   2, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_TransactionOptions_ReadOnly, read_time, read_time, &google_protobuf_Timestamp_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   2, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_TransactionOptions_ReadOnly, read_time, read_time, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 
@@ -63,7 +63,7 @@ const pb_field_t google_firestore_v1beta1_TransactionOptions_ReadOnly_fields[2] 
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Precondition, condition_type.update_time) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions, mode.read_only) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions, mode.read_write) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions_ReadOnly, consistency_selector.read_time) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1beta1_DocumentMask_google_firestore_v1beta1_Precondition_google_firestore_v1beta1_TransactionOptions_google_firestore_v1beta1_TransactionOptions_ReadWrite_google_firestore_v1beta1_TransactionOptions_ReadOnly)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Precondition, update_time) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions, read_only) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions, read_write) < 65536 && pb_membersize(google_firestore_v1beta1_TransactionOptions_ReadOnly, read_time) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1beta1_DocumentMask_google_firestore_v1beta1_Precondition_google_firestore_v1beta1_TransactionOptions_google_firestore_v1beta1_TransactionOptions_ReadWrite_google_firestore_v1beta1_TransactionOptions_ReadOnly)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -74,7 +74,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Precondition, condition
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Precondition, condition_type.update_time) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions, mode.read_only) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions, mode.read_write) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions_ReadOnly, consistency_selector.read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_DocumentMask_google_firestore_v1beta1_Precondition_google_firestore_v1beta1_TransactionOptions_google_firestore_v1beta1_TransactionOptions_ReadWrite_google_firestore_v1beta1_TransactionOptions_ReadOnly)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Precondition, update_time) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions, read_only) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions, read_write) < 256 && pb_membersize(google_firestore_v1beta1_TransactionOptions_ReadOnly, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_DocumentMask_google_firestore_v1beta1_Precondition_google_firestore_v1beta1_TransactionOptions_google_firestore_v1beta1_TransactionOptions_ReadWrite_google_firestore_v1beta1_TransactionOptions_ReadOnly)
 #endif
 
 

@@ -87,7 +87,7 @@ typedef struct _google_firestore_v1beta1_DocumentTransform_FieldTransform {
         google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue set_to_server_value;
         google_firestore_v1beta1_ArrayValue append_missing_elements;
         google_firestore_v1beta1_ArrayValue remove_all_from_array;
-    } transform_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentTransform_FieldTransform) */
 } google_firestore_v1beta1_DocumentTransform_FieldTransform;
 
@@ -103,7 +103,7 @@ typedef struct _google_firestore_v1beta1_Write {
         google_firestore_v1beta1_Document update;
         char *delete_;
         google_firestore_v1beta1_DocumentTransform transform;
-    } operation;
+    };
     google_firestore_v1beta1_DocumentMask update_mask;
     google_firestore_v1beta1_Precondition current_document;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Write) */

@@ -74,7 +74,7 @@ typedef struct _google_firestore_v1beta1_Value {
         google_protobuf_NullValue null_value;
         char *string_value;
         pb_bytes_array_t *bytes_value;
-    } value_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Value) */
 } google_firestore_v1beta1_Value;
 

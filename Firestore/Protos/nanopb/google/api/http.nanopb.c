@@ -34,13 +34,13 @@ const pb_field_t google_api_Http_fields[3] = {
 
 const pb_field_t google_api_HttpRule_fields[10] = {
     PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_api_HttpRule, selector, selector, 0),
-    PB_ONEOF_FIELD(pattern,   2, STRING  , ONEOF, POINTER , OTHER, google_api_HttpRule, get, selector, 0),
-    PB_ONEOF_FIELD(pattern,   3, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, put, selector, 0),
-    PB_ONEOF_FIELD(pattern,   4, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, post, selector, 0),
-    PB_ONEOF_FIELD(pattern,   5, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, delete_, selector, 0),
-    PB_ONEOF_FIELD(pattern,   6, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, patch, selector, 0),
-    PB_ONEOF_FIELD(pattern,   8, MESSAGE , ONEOF, STATIC  , UNION, google_api_HttpRule, custom, selector, &google_api_CustomHttpPattern_fields),
-    PB_FIELD(  7, STRING  , SINGULAR, POINTER , OTHER, google_api_HttpRule, body, pattern.custom, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   2, STRING  , ONEOF, POINTER , OTHER, google_api_HttpRule, get, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   3, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, put, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   4, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, post, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   5, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, delete_, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   6, STRING  , ONEOF, POINTER , UNION, google_api_HttpRule, patch, selector, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(pattern,   8, MESSAGE , ONEOF, STATIC  , UNION, google_api_HttpRule, custom, selector, &google_api_CustomHttpPattern_fields),
+    PB_FIELD(  7, STRING  , SINGULAR, POINTER , OTHER, google_api_HttpRule, body, custom, 0),
     PB_FIELD( 11, MESSAGE , REPEATED, POINTER , OTHER, google_api_HttpRule, additional_bindings, body, &google_api_HttpRule_fields),
     PB_LAST_FIELD
 };
@@ -61,7 +61,7 @@ const pb_field_t google_api_CustomHttpPattern_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, pattern.custom) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
+PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -72,7 +72,7 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, pattern.custom) < 65536), Y
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, pattern.custom) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
+PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
 #endif
 
 

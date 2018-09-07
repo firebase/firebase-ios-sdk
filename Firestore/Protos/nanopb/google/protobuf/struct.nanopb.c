@@ -38,12 +38,12 @@ const pb_field_t google_protobuf_Struct_FieldsEntry_fields[3] = {
 };
 
 const pb_field_t google_protobuf_Value_fields[7] = {
-    PB_ONEOF_FIELD(kind,   1, ENUM    , ONEOF, STATIC  , FIRST, google_protobuf_Value, null_value, null_value, 0),
-    PB_ONEOF_FIELD(kind,   2, DOUBLE  , ONEOF, STATIC  , UNION, google_protobuf_Value, number_value, number_value, 0),
-    PB_ONEOF_FIELD(kind,   3, STRING  , ONEOF, POINTER , UNION, google_protobuf_Value, string_value, string_value, 0),
-    PB_ONEOF_FIELD(kind,   4, BOOL    , ONEOF, STATIC  , UNION, google_protobuf_Value, bool_value, bool_value, 0),
-    PB_ONEOF_FIELD(kind,   5, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, struct_value, struct_value, &google_protobuf_Struct_fields),
-    PB_ONEOF_FIELD(kind,   6, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, list_value, list_value, &google_protobuf_ListValue_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   1, ENUM    , ONEOF, STATIC  , FIRST, google_protobuf_Value, null_value, null_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   2, DOUBLE  , ONEOF, STATIC  , UNION, google_protobuf_Value, number_value, number_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   3, STRING  , ONEOF, POINTER , UNION, google_protobuf_Value, string_value, string_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   4, BOOL    , ONEOF, STATIC  , UNION, google_protobuf_Value, bool_value, bool_value, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   5, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, struct_value, struct_value, &google_protobuf_Struct_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(kind,   6, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, list_value, list_value, &google_protobuf_ListValue_fields),
     PB_LAST_FIELD
 };
 
@@ -63,7 +63,7 @@ const pb_field_t google_protobuf_ListValue_fields[2] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 65536 && pb_membersize(google_protobuf_Value, kind.struct_value) < 65536 && pb_membersize(google_protobuf_Value, kind.list_value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
+PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 65536 && pb_membersize(google_protobuf_Value, struct_value) < 65536 && pb_membersize(google_protobuf_Value, list_value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -74,7 +74,7 @@ PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 655
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, kind.struct_value) < 256 && pb_membersize(google_protobuf_Value, kind.list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
+PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, struct_value) < 256 && pb_membersize(google_protobuf_Value, list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
 

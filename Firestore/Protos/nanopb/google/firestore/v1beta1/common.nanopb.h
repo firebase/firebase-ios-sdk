@@ -51,7 +51,7 @@ typedef struct _google_firestore_v1beta1_Precondition {
     union {
         bool exists;
         google_protobuf_Timestamp update_time;
-    } condition_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Precondition) */
 } google_firestore_v1beta1_Precondition;
 
@@ -59,7 +59,7 @@ typedef struct _google_firestore_v1beta1_TransactionOptions_ReadOnly {
     pb_size_t which_consistency_selector;
     union {
         google_protobuf_Timestamp read_time;
-    } consistency_selector;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_TransactionOptions_ReadOnly) */
 } google_firestore_v1beta1_TransactionOptions_ReadOnly;
 
@@ -68,7 +68,7 @@ typedef struct _google_firestore_v1beta1_TransactionOptions {
     union {
         google_firestore_v1beta1_TransactionOptions_ReadOnly read_only;
         google_firestore_v1beta1_TransactionOptions_ReadWrite read_write;
-    } mode;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_TransactionOptions) */
 } google_firestore_v1beta1_TransactionOptions;
 

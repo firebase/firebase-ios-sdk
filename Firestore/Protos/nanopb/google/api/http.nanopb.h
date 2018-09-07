@@ -54,7 +54,7 @@ typedef struct _google_api_HttpRule {
         char *delete_;
         char *patch;
         google_api_CustomHttpPattern custom;
-    } pattern;
+    };
     char *body;
     pb_size_t additional_bindings_count;
     struct _google_api_HttpRule *additional_bindings;

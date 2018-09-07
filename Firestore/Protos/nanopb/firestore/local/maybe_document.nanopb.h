@@ -46,7 +46,7 @@ typedef struct _firestore_client_MaybeDocument {
     union {
         firestore_client_NoDocument no_document;
         google_firestore_v1beta1_Document document;
-    } document_type;
+    };
 /* @@protoc_insertion_point(struct:firestore_client_MaybeDocument) */
 } firestore_client_MaybeDocument;
 
