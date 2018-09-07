@@ -153,6 +153,7 @@ add_custom_command(
   DEPENDS
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
     ${PROTOBUF_PYTHON}
 )
 
