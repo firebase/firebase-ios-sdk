@@ -12,43 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Generate output in-place. So long as the build is idempotent this helps
+# verify that the protoc-generated output isn't changing.
+set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(
+  PROTO_FILE_ROOTS
+  firestore/local/maybe_document
+  firestore/local/mutation
+  firestore/local/target
+  google/api/annotations
+  google/api/http
+  google/firestore/v1beta1/common
+  google/firestore/v1beta1/document
+  google/firestore/v1beta1/firestore
+  google/firestore/v1beta1/query
+  google/firestore/v1beta1/write
+  google/protobuf/any
+  google/protobuf/empty
+  google/protobuf/struct
+  google/protobuf/timestamp
+  google/protobuf/wrappers
+  google/rpc/status
+  google/type/latlng
+)
+
+# Temporarily generate into the binary dir
+foreach(root ${PROTO_FILE_ROOTS})
+  list(
+    APPEND NANOPB_GENERATED_SOURCES
+    ${OUTPUT_DIR}/nanopb/${root}.nanopb.c
+    ${OUTPUT_DIR}/nanopb/${root}.nanopb.h
+  )
+endforeach()
+
 cc_library(
   firebase_firestore_protos_nanopb
   SOURCES
-    nanopb/firestore/local/maybe_document.nanopb.c
-    nanopb/firestore/local/maybe_document.nanopb.h
-    nanopb/firestore/local/mutation.nanopb.c
-    nanopb/firestore/local/mutation.nanopb.h
-    nanopb/firestore/local/target.nanopb.c
-    nanopb/firestore/local/target.nanopb.h
-    nanopb/google/api/annotations.nanopb.c
-    nanopb/google/api/annotations.nanopb.h
-    nanopb/google/api/http.nanopb.c
-    nanopb/google/api/http.nanopb.h
-    nanopb/google/firestore/v1beta1/common.nanopb.c
-    nanopb/google/firestore/v1beta1/common.nanopb.h
-    nanopb/google/firestore/v1beta1/document.nanopb.c
-    nanopb/google/firestore/v1beta1/document.nanopb.h
-    nanopb/google/firestore/v1beta1/firestore.nanopb.c
-    nanopb/google/firestore/v1beta1/firestore.nanopb.h
-    nanopb/google/firestore/v1beta1/query.nanopb.c
-    nanopb/google/firestore/v1beta1/query.nanopb.h
-    nanopb/google/firestore/v1beta1/write.nanopb.c
-    nanopb/google/firestore/v1beta1/write.nanopb.h
-    nanopb/google/protobuf/any.nanopb.c
-    nanopb/google/protobuf/any.nanopb.h
-    nanopb/google/protobuf/empty.nanopb.c
-    nanopb/google/protobuf/empty.nanopb.h
-    nanopb/google/protobuf/struct.nanopb.c
-    nanopb/google/protobuf/struct.nanopb.h
-    nanopb/google/protobuf/timestamp.nanopb.c
-    nanopb/google/protobuf/timestamp.nanopb.h
-    nanopb/google/protobuf/wrappers.nanopb.c
-    nanopb/google/protobuf/wrappers.nanopb.h
-    nanopb/google/rpc/status.nanopb.c
-    nanopb/google/rpc/status.nanopb.h
-    nanopb/google/type/latlng.nanopb.c
-    nanopb/google/type/latlng.nanopb.h
+    ${NANOPB_GENERATED_SOURCES}
   DEPENDS
     protobuf-nanopb
 )
@@ -98,47 +99,63 @@ target_include_directories(
   ${FIREBASE_SOURCE_DIR}/Firestore/Protos/cpp
 )
 
-set(NANOPB_GENERATOR_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb/generator)
 
 set(PROTOBUF_DIR ${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf)
-set(DESCRIPTOR_PROTO_SRC
+set(NANOPB_DIR ${FIREBASE_BINARY_DIR}/external/src/nanopb)
+
+set(
+  PROTOBUF_PROTO
   ${PROTOBUF_DIR}/src/google/protobuf/descriptor.proto
-)
-set(DESCRIPTOR_PYTHON_SRC
-  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
-)
-add_custom_command(
-  OUTPUT ${DESCRIPTOR_PYTHON_SRC}
-  COMMAND
-    protoc
-      -I${PROTOBUF_DIR}/src
-      --python_out=${PROTOBUF_DIR}/python
-      ${DESCRIPTOR_PROTO_SRC}
-  DEPENDS
-    protoc
-    ${DESCRIPTOR_PROTO_SRC}
+  ${NANOPB_DIR}/generator/proto/nanopb.proto
+  ${NANOPB_DIR}/generator/proto/plugin.proto
 )
 
-# Build nanopb protoc plugin. (Heavily "inspired" by
-# https://github.com/nanopb/nanopb/blob/master/extra/FindNanopb.cmake)
-set(NANOPB_GENERATOR_BASENAMES nanopb plugin)
-set(NANOPB_GENERATOR_PYTHON_SRC ${DESCRIPTOR_PYTHON_SRC})
-foreach (GENERATOR_BASENAME ${NANOPB_GENERATOR_BASENAMES})
-  set(input "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}.proto")
-  set(output "${NANOPB_GENERATOR_DIR}/proto/${GENERATOR_BASENAME}_pb2.py")
-  set(NANOPB_GENERATOR_PYTHON_SRC ${NANOPB_GENERATOR_PYTHON_SRC} ${output})
-  add_custom_command(
-    OUTPUT ${output}
-    COMMAND
-      protoc
-        -I${NANOPB_GENERATOR_DIR}/proto
-        --python_out=${NANOPB_GENERATOR_DIR}/proto
-        ${input}
-    DEPENDS
-      protoc
-      ${input}
-  )
-endforeach()
+set(
+  PROTOBUF_PYTHON
+  ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
+  ${PROTOBUF_DIR}/python/proto/nanopb_pb2.py
+  ${PROTOBUF_DIR}/python/proto/plugin_pb2.py
+)
+
+set(
+  PROTO_INCLUDES
+  -I${CMAKE_CURRENT_SOURCE_DIR}/protos
+  -I${NANOPB_DIR}/generator
+  -I${PROTOBUF_DIR}/src
+)
+
+add_custom_command(
+  COMMENT "Generating protoc python plugins"
+  OUTPUT
+    ${PROTOBUF_PYTHON}
+  COMMAND
+    protoc
+      ${PROTO_INCLUDES}
+      --python_out=${PROTOBUF_DIR}/python
+      ${PROTOBUF_PROTO}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${PROTOBUF_PROTO}
+)
+
+add_custom_command(
+  COMMENT "Generatoring nanopb sources"
+  OUTPUT ${NANOPB_GENERATED_SOURCES}
+  COMMAND
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+      --nanopb
+      --protoc=$<TARGET_FILE:protoc>
+      --protoc-gen-nanopb=${NANOPB_DIR}/generator/protoc-gen-nanopb
+      --pythonpath=${PROTOBUF_DIR}/python
+      --output-dir=${OUTPUT_DIR}
+      ${PROTO_INCLUDES}
+  VERBATIM
+  DEPENDS
+    protoc
+    ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTOBUF_PYTHON}
+)
 
 # Custom target that runs a script to generate the proto sources. This isn't
 # hooked into the build, so must be run manually. (It would be easy enough to
@@ -152,17 +169,16 @@ add_custom_target(
   VERBATIM
 
   COMMAND
-    mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
+    cmake -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_protos
   COMMAND
     ./build-protos.sh
       "$<TARGET_FILE:protoc>"
       "$<TARGET_FILE:grpc_objective_c_plugin>"
       "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
-      "${NANOPB_GENERATOR_DIR}"
       "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
 
   DEPENDS
     protoc
-    ${NANOPB_GENERATOR_PYTHON_SRC}
     grpc_objective_c_plugin
+    ${PROTOBUF_PYTHON}
 )
