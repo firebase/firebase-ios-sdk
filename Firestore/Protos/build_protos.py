@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2018 Google Inc. All rights reserved.
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,10 +25,7 @@ import argparse
 import os
 import os.path
 import re
-import shutil
 import subprocess
-import tarfile
-import urllib2
 
 
 COPYRIGHT_NOTICE = '''
@@ -67,19 +64,19 @@ def main():
       '--protoc', default='protoc',
       help='Location of the protoc executable')
   parser.add_argument(
-      '--pythonpath', dest='pythonpath',
+      '--pythonpath',
       help='Location of the protoc python library.')
   parser.add_argument(
-      '--include', '-I', dest='include', action='append', default=[],
+      '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
   parser.add_argument(
       '--protoc-gen-nanopb', dest='protoc_gen_nanopb',
       help='Location of the nanopb generator executable.')
 
-  if len(sys.argv) == 1:
+  args = parser.parse_args()
+  if args.nanopb is None:
     parser.print_help()
     sys.exit(1)
-  args = parser.parse_args()
 
   if args.protos_dir is None:
     root_dir = os.path.abspath(os.path.dirname(__file__))
@@ -134,10 +131,13 @@ class NanopbGenerator(object):
 
     cmd.extend(self.proto_files)
 
-    kwargs={}
+    kwargs = {}
     if self.args.pythonpath:
       env = os.environ.copy()
+      old_path = env.get('PYTHONPATH')
       env['PYTHONPATH'] = self.args.pythonpath
+      if old_path is not None:
+        env['PYTHONPATH'] += os.pathsep + old_path
       kwargs['env'] = env
 
     subprocess.check_call(cmd, **kwargs)
@@ -184,10 +184,19 @@ def nanopb_rename_delete(lines):
 
 
 def collect_files(root_dir, *extensions):
-  """Finds files with the given extensions in the root_dir."""
+  """Finds files with the given extensions in the root_dir.
+
+  Args:
+    root_dir: The directory from which to start traversing.
+    *extensions: Filename extensions (including the leading dot) to find.
+
+  Returns:
+    A list of filenames, all starting with root_dir, that have one of the given
+    extensions.
+  """
   result = []
   for root, dirs, files in os.walk(root_dir):
-    del dirs
+    del dirs  # unused
     for basename in files:
       for ext in extensions:
         if basename.endswith(ext):

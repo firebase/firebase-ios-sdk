@@ -129,7 +129,7 @@ add_custom_command(
   OUTPUT
     ${PROTOBUF_PYTHON}
   COMMAND
-    $<TARGET_FILE:protoc>
+    protoc
       ${PROTO_INCLUDES}
       --python_out=${PROTOBUF_DIR}/python
       ${PROTOBUF_PROTO}
@@ -170,13 +170,11 @@ add_custom_target(
 
   COMMAND
     cmake -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated_protos
-    mkdir -p "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
   COMMAND
     ./build-protos.sh
       "$<TARGET_FILE:protoc>"
       "$<TARGET_FILE:grpc_objective_c_plugin>"
       "${FIREBASE_BINARY_DIR}/external/src/grpc/third_party/protobuf/python"
-      "${NANOPB_DIR}/generator"
       "${CMAKE_CURRENT_BINARY_DIR}/generated_protos"
 
   DEPENDS
