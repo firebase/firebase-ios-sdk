@@ -38,7 +38,7 @@ extern "C" {
 typedef struct _firestore_client_Target {
     int32_t target_id;
     google_protobuf_Timestamp snapshot_version;
-    pb_callback_t resume_token;
+    pb_bytes_array_t *resume_token;
     int64_t last_listen_sequence_number;
     pb_size_t which_target_type;
     union {
@@ -59,9 +59,9 @@ typedef struct _firestore_client_TargetGlobal {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, {{NULL}, NULL}, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_default}}
+#define firestore_client_Target_init_default     {0, google_protobuf_Timestamp_init_default, NULL, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_default}}
 #define firestore_client_TargetGlobal_init_default {0, 0, google_protobuf_Timestamp_init_default, 0}
-#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, {{NULL}, NULL}, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_zero}}
+#define firestore_client_Target_init_zero        {0, google_protobuf_Timestamp_init_zero, NULL, 0, 0, {google_firestore_v1beta1_Target_QueryTarget_init_zero}}
 #define firestore_client_TargetGlobal_init_zero  {0, 0, google_protobuf_Timestamp_init_zero, 0}
 
 /* Field tags (for use in manual encoding/decoding) */

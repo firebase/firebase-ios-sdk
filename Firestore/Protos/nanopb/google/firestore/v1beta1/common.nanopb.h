@@ -36,12 +36,13 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_DocumentMask {
-    pb_callback_t field_paths;
+    pb_size_t field_paths_count;
+    char **field_paths;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentMask) */
 } google_firestore_v1beta1_DocumentMask;
 
 typedef struct _google_firestore_v1beta1_TransactionOptions_ReadWrite {
-    pb_callback_t retry_transaction;
+    pb_bytes_array_t *retry_transaction;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_TransactionOptions_ReadWrite) */
 } google_firestore_v1beta1_TransactionOptions_ReadWrite;
 
@@ -74,15 +75,15 @@ typedef struct _google_firestore_v1beta1_TransactionOptions {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1beta1_DocumentMask_init_default {{{NULL}, NULL}}
+#define google_firestore_v1beta1_DocumentMask_init_default {0, NULL}
 #define google_firestore_v1beta1_Precondition_init_default {0, {0}}
 #define google_firestore_v1beta1_TransactionOptions_init_default {0, {google_firestore_v1beta1_TransactionOptions_ReadOnly_init_default}}
-#define google_firestore_v1beta1_TransactionOptions_ReadWrite_init_default {{{NULL}, NULL}}
+#define google_firestore_v1beta1_TransactionOptions_ReadWrite_init_default {NULL}
 #define google_firestore_v1beta1_TransactionOptions_ReadOnly_init_default {0, {google_protobuf_Timestamp_init_default}}
-#define google_firestore_v1beta1_DocumentMask_init_zero {{{NULL}, NULL}}
+#define google_firestore_v1beta1_DocumentMask_init_zero {0, NULL}
 #define google_firestore_v1beta1_Precondition_init_zero {0, {0}}
 #define google_firestore_v1beta1_TransactionOptions_init_zero {0, {google_firestore_v1beta1_TransactionOptions_ReadOnly_init_zero}}
-#define google_firestore_v1beta1_TransactionOptions_ReadWrite_init_zero {{{NULL}, NULL}}
+#define google_firestore_v1beta1_TransactionOptions_ReadWrite_init_zero {NULL}
 #define google_firestore_v1beta1_TransactionOptions_ReadOnly_init_zero {0, {google_protobuf_Timestamp_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */

@@ -49,34 +49,39 @@ typedef enum _google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerVa
 
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_DocumentTransform {
-    pb_callback_t document;
-    pb_callback_t field_transforms;
+    char *document;
+    pb_size_t field_transforms_count;
+    struct _google_firestore_v1beta1_DocumentTransform_FieldTransform *field_transforms;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentTransform) */
 } google_firestore_v1beta1_DocumentTransform;
 
 typedef struct _google_firestore_v1beta1_DocumentChange {
     google_firestore_v1beta1_Document document;
-    pb_callback_t target_ids;
-    pb_callback_t removed_target_ids;
+    pb_size_t target_ids_count;
+    int32_t *target_ids;
+    pb_size_t removed_target_ids_count;
+    int32_t *removed_target_ids;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentChange) */
 } google_firestore_v1beta1_DocumentChange;
 
 typedef struct _google_firestore_v1beta1_DocumentDelete {
-    pb_callback_t document;
+    char *document;
     google_protobuf_Timestamp read_time;
-    pb_callback_t removed_target_ids;
+    pb_size_t removed_target_ids_count;
+    int32_t *removed_target_ids;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentDelete) */
 } google_firestore_v1beta1_DocumentDelete;
 
 typedef struct _google_firestore_v1beta1_DocumentRemove {
-    pb_callback_t document;
-    pb_callback_t removed_target_ids;
+    char *document;
+    pb_size_t removed_target_ids_count;
+    int32_t *removed_target_ids;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentRemove) */
 } google_firestore_v1beta1_DocumentRemove;
 
 typedef struct _google_firestore_v1beta1_DocumentTransform_FieldTransform {
-    pb_callback_t field_path;
+    char *field_path;
     pb_size_t which_transform_type;
     union {
         google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue set_to_server_value;
@@ -93,38 +98,42 @@ typedef struct _google_firestore_v1beta1_ExistenceFilter {
 } google_firestore_v1beta1_ExistenceFilter;
 
 typedef struct _google_firestore_v1beta1_Write {
-    google_firestore_v1beta1_Document update;
-    pb_callback_t delete_;
+    pb_size_t which_operation;
+    union {
+        google_firestore_v1beta1_Document update;
+        char *delete_;
+        google_firestore_v1beta1_DocumentTransform transform;
+    } operation;
     google_firestore_v1beta1_DocumentMask update_mask;
     google_firestore_v1beta1_Precondition current_document;
-    google_firestore_v1beta1_DocumentTransform transform;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Write) */
 } google_firestore_v1beta1_Write;
 
 typedef struct _google_firestore_v1beta1_WriteResult {
     google_protobuf_Timestamp update_time;
-    pb_callback_t transform_results;
+    pb_size_t transform_results_count;
+    struct _google_firestore_v1beta1_Value *transform_results;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_WriteResult) */
 } google_firestore_v1beta1_WriteResult;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1beta1_Write_init_default {google_firestore_v1beta1_Document_init_default, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_default, google_firestore_v1beta1_Precondition_init_default, google_firestore_v1beta1_DocumentTransform_init_default}
-#define google_firestore_v1beta1_DocumentTransform_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentTransform_FieldTransform_init_default {{{NULL}, NULL}, 0, {_google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue_MIN}}
-#define google_firestore_v1beta1_WriteResult_init_default {google_protobuf_Timestamp_init_default, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentChange_init_default {google_firestore_v1beta1_Document_init_default, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentDelete_init_default {{{NULL}, NULL}, google_protobuf_Timestamp_init_default, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentRemove_init_default {{{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1beta1_Write_init_default {0, {google_firestore_v1beta1_Document_init_default}, google_firestore_v1beta1_DocumentMask_init_default, google_firestore_v1beta1_Precondition_init_default}
+#define google_firestore_v1beta1_DocumentTransform_init_default {NULL, 0, NULL}
+#define google_firestore_v1beta1_DocumentTransform_FieldTransform_init_default {NULL, 0, {_google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue_MIN}}
+#define google_firestore_v1beta1_WriteResult_init_default {google_protobuf_Timestamp_init_default, 0, NULL}
+#define google_firestore_v1beta1_DocumentChange_init_default {google_firestore_v1beta1_Document_init_default, 0, NULL, 0, NULL}
+#define google_firestore_v1beta1_DocumentDelete_init_default {NULL, google_protobuf_Timestamp_init_default, 0, NULL}
+#define google_firestore_v1beta1_DocumentRemove_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default}
 #define google_firestore_v1beta1_ExistenceFilter_init_default {0, 0}
-#define google_firestore_v1beta1_Write_init_zero {google_firestore_v1beta1_Document_init_zero, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_zero, google_firestore_v1beta1_Precondition_init_zero, google_firestore_v1beta1_DocumentTransform_init_zero}
-#define google_firestore_v1beta1_DocumentTransform_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentTransform_FieldTransform_init_zero {{{NULL}, NULL}, 0, {_google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue_MIN}}
-#define google_firestore_v1beta1_WriteResult_init_zero {google_protobuf_Timestamp_init_zero, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentChange_init_zero {google_firestore_v1beta1_Document_init_zero, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentDelete_init_zero {{{NULL}, NULL}, google_protobuf_Timestamp_init_zero, {{NULL}, NULL}}
-#define google_firestore_v1beta1_DocumentRemove_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1beta1_Write_init_zero {0, {google_firestore_v1beta1_Document_init_zero}, google_firestore_v1beta1_DocumentMask_init_zero, google_firestore_v1beta1_Precondition_init_zero}
+#define google_firestore_v1beta1_DocumentTransform_init_zero {NULL, 0, NULL}
+#define google_firestore_v1beta1_DocumentTransform_FieldTransform_init_zero {NULL, 0, {_google_firestore_v1beta1_DocumentTransform_FieldTransform_ServerValue_MIN}}
+#define google_firestore_v1beta1_WriteResult_init_zero {google_protobuf_Timestamp_init_zero, 0, NULL}
+#define google_firestore_v1beta1_DocumentChange_init_zero {google_firestore_v1beta1_Document_init_zero, 0, NULL, 0, NULL}
+#define google_firestore_v1beta1_DocumentDelete_init_zero {NULL, google_protobuf_Timestamp_init_zero, 0, NULL}
+#define google_firestore_v1beta1_DocumentRemove_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
 #define google_firestore_v1beta1_ExistenceFilter_init_zero {0, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
