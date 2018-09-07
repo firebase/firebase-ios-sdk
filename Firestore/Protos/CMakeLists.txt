@@ -129,7 +129,7 @@ add_custom_command(
   OUTPUT
     ${PROTOBUF_PYTHON}
   COMMAND
-    $<TARGET_FILE:protoc>
+    protoc
       ${PROTO_INCLUDES}
       --python_out=${PROTOBUF_DIR}/python
       ${PROTOBUF_PROTO}
@@ -147,7 +147,7 @@ add_custom_command(
       --nanopb
       --protoc=$<TARGET_FILE:protoc>
       --pythonpath=${PROTOBUF_DIR}/python:${NANOPB_DIR}/generator
-      --output-dir=${OUTPUT_DIR}
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
@@ -170,7 +170,7 @@ add_custom_target(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --cpp
       --protoc=$<TARGET_FILE:protoc>
-      --output-dir=${OUTPUT_DIR}
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
@@ -187,8 +187,8 @@ add_custom_target(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --objc
       --protoc=$<TARGET_FILE:protoc>
-      --protoc-gen-grpc=$<TARGET_FILE:grpc_objective_c_plugin>
-      --output-dir=${OUTPUT_DIR}
+      --protoc_gen_grpc=$<TARGET_FILE:grpc_objective_c_plugin>
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS

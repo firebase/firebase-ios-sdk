@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright 2018 Google Inc. All rights reserved.
+# Copyright 2018 Google
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,10 +25,7 @@ import argparse
 import os
 import os.path
 import re
-import shutil
 import subprocess
-import tarfile
-import urllib2
 
 
 CPP_GENERATOR = 'nanopb_cpp_generator.py'
@@ -66,29 +63,29 @@ def main():
       '--objc', action='store_true',
       help='Generates Objective-C messages.')
   parser.add_argument(
-      '--protos-dir', dest='protos_dir',
+      '--protos_dir',
       help='Source directory containing .proto files.')
   parser.add_argument(
-      '--output-dir', '-d', dest='output_dir',
+      '--output_dir', '-d',
       help='Directory to write files; subdirectories will be created.')
 
   parser.add_argument(
       '--protoc', default='protoc',
       help='Location of the protoc executable')
   parser.add_argument(
-      '--pythonpath', dest='pythonpath',
+      '--pythonpath',
       help='Location of the protoc python library.')
   parser.add_argument(
-      '--include', '-I', dest='include', action='append', default=[],
+      '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
   parser.add_argument(
-      '--protoc-gen-grpc', dest='protoc_gen_grpc',
+      '--protoc_gen_grpc',
       help='Location of the gRPC generator executable.')
 
-  if len(sys.argv) == 1:
+  args = parser.parse_args()
+  if args.nanopb is None:
     parser.print_help()
     sys.exit(1)
-  args = parser.parse_args()
 
   if args.protos_dir is None:
     root_dir = os.path.abspath(os.path.dirname(__file__))
@@ -97,12 +94,12 @@ def main():
   if args.output_dir is None:
     args.output_dir = os.getcwd()
 
-  nanopb_proto_files = collect_files(args.protos_dir, '.proto')
+  all_proto_files = collect_files(args.protos_dir, '.proto')
 
   if args.nanopb:
-    NanopbGenerator(args, nanopb_proto_files).run()
+    NanopbGenerator(args, all_proto_files).run()
 
-  proto_files = remove_well_known_protos(nanopb_proto_files)
+  proto_files = remove_well_known_protos(all_proto_files)
   if args.cpp:
     CppProtobufGenerator(args, proto_files).run()
 
@@ -232,10 +229,20 @@ def protoc_command(args):
 
 
 def run_protoc(args, cmd):
-  kwargs={}
+  """Actually runs the given protoc command.
+
+  Args:
+    args: The command-line args (including pythonpath)
+    cmd: The command to run expressed as a list of strings
+  """
+
+  kwargs = {}
   if args.pythonpath:
     env = os.environ.copy()
+    old_path = env.get('PYTHONPATH')
     env['PYTHONPATH'] = args.pythonpath
+    if old_path is not None:
+      env['PYTHONPATH'] += os.pathsep + old_path
     kwargs['env'] = env
 
   subprocess.check_call(cmd, **kwargs)
@@ -326,10 +333,19 @@ def objc_strip_extension_registry(lines):
 
 
 def collect_files(root_dir, *extensions):
-  """Finds files with the given extensions in the root_dir."""
+  """Finds files with the given extensions in the root_dir.
+
+  Args:
+    root_dir: The directory from which to start traversing.
+    *extensions: Filename extensions (including the leading dot) to find.
+
+  Returns:
+    A list of filenames, all starting with root_dir, that have one of the given
+    extensions.
+  """
   result = []
   for root, dirs, files in os.walk(root_dir):
-    del dirs
+    del dirs  # unused
     for basename in files:
       for ext in extensions:
         if basename.endswith(ext):
