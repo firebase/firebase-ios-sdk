@@ -195,8 +195,7 @@ def collect_files(root_dir, *extensions):
     extensions.
   """
   result = []
-  for root, dirs, files in os.walk(root_dir):
-    del dirs  # unused
+  for root, _, files in os.walk(root_dir):
     for basename in files:
       for ext in extensions:
         if basename.endswith(ext):
