@@ -36,7 +36,7 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _firestore_client_NoDocument {
-    pb_callback_t name;
+    char *name;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:firestore_client_NoDocument) */
 } firestore_client_NoDocument;
@@ -53,9 +53,9 @@ typedef struct _firestore_client_MaybeDocument {
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define firestore_client_NoDocument_init_default {{{NULL}, NULL}, google_protobuf_Timestamp_init_default}
+#define firestore_client_NoDocument_init_default {NULL, google_protobuf_Timestamp_init_default}
 #define firestore_client_MaybeDocument_init_default {0, {firestore_client_NoDocument_init_default}}
-#define firestore_client_NoDocument_init_zero    {{{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
+#define firestore_client_NoDocument_init_zero    {NULL, google_protobuf_Timestamp_init_zero}
 #define firestore_client_MaybeDocument_init_zero {0, {firestore_client_NoDocument_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */

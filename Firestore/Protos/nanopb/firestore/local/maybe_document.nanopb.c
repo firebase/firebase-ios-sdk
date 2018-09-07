@@ -27,7 +27,7 @@
 
 
 const pb_field_t firestore_client_NoDocument_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, firestore_client_NoDocument, name, name, 0),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, firestore_client_NoDocument, name, name, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_NoDocument, read_time, name, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };

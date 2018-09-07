@@ -28,9 +28,9 @@
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_fields[9] = {
     PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1beta1_StructuredQuery, select, select, &google_firestore_v1beta1_StructuredQuery_Projection_fields),
-    PB_FIELD(  2, MESSAGE , REPEATED, CALLBACK, OTHER, google_firestore_v1beta1_StructuredQuery, from, select, &google_firestore_v1beta1_StructuredQuery_CollectionSelector_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_StructuredQuery, from, select, &google_firestore_v1beta1_StructuredQuery_CollectionSelector_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery, where, from, &google_firestore_v1beta1_StructuredQuery_Filter_fields),
-    PB_FIELD(  4, MESSAGE , REPEATED, CALLBACK, OTHER, google_firestore_v1beta1_StructuredQuery, order_by, where, &google_firestore_v1beta1_StructuredQuery_Order_fields),
+    PB_FIELD(  4, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_StructuredQuery, order_by, where, &google_firestore_v1beta1_StructuredQuery_Order_fields),
     PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery, limit, order_by, &google_protobuf_Int32Value_fields),
     PB_FIELD(  6, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery, offset, limit, 0),
     PB_FIELD(  7, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery, start_at, offset, &google_firestore_v1beta1_Cursor_fields),
@@ -39,7 +39,7 @@ const pb_field_t google_firestore_v1beta1_StructuredQuery_fields[9] = {
 };
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_CollectionSelector_fields[3] = {
-    PB_FIELD(  2, STRING  , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_StructuredQuery_CollectionSelector, collection_id, collection_id, 0),
+    PB_FIELD(  2, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_CollectionSelector, collection_id, collection_id, 0),
     PB_FIELD(  3, BOOL    , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_StructuredQuery_CollectionSelector, all_descendants, collection_id, 0),
     PB_LAST_FIELD
 };
@@ -53,7 +53,7 @@ const pb_field_t google_firestore_v1beta1_StructuredQuery_Filter_fields[4] = {
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_CompositeFilter_fields[3] = {
     PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, google_firestore_v1beta1_StructuredQuery_CompositeFilter, op, op, 0),
-    PB_FIELD(  2, MESSAGE , REPEATED, CALLBACK, OTHER, google_firestore_v1beta1_StructuredQuery_CompositeFilter, filters, op, &google_firestore_v1beta1_StructuredQuery_Filter_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_StructuredQuery_CompositeFilter, filters, op, &google_firestore_v1beta1_StructuredQuery_Filter_fields),
     PB_LAST_FIELD
 };
 
@@ -77,17 +77,17 @@ const pb_field_t google_firestore_v1beta1_StructuredQuery_Order_fields[3] = {
 };
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_FieldReference_fields[2] = {
-    PB_FIELD(  2, STRING  , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_StructuredQuery_FieldReference, field_path, field_path, 0),
+    PB_FIELD(  2, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_FieldReference, field_path, field_path, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_StructuredQuery_Projection_fields[2] = {
-    PB_FIELD(  2, MESSAGE , REPEATED, CALLBACK, FIRST, google_firestore_v1beta1_StructuredQuery_Projection, fields, fields, &google_firestore_v1beta1_StructuredQuery_FieldReference_fields),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1beta1_StructuredQuery_Projection, fields, fields, &google_firestore_v1beta1_StructuredQuery_FieldReference_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_Cursor_fields[3] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, google_firestore_v1beta1_Cursor, values, values, &google_firestore_v1beta1_Value_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1beta1_Cursor, values, values, &google_firestore_v1beta1_Value_fields),
     PB_FIELD(  2, BOOL    , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Cursor, before, values, 0),
     PB_LAST_FIELD
 };

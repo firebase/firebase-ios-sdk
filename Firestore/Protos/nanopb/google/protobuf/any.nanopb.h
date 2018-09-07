@@ -32,16 +32,16 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_protobuf_Any {
-    pb_callback_t type_url;
-    pb_callback_t value;
+    char *type_url;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_protobuf_Any) */
 } google_protobuf_Any;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_protobuf_Any_init_default         {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_protobuf_Any_init_zero            {{{NULL}, NULL}, {{NULL}, NULL}}
+#define google_protobuf_Any_init_default         {NULL, NULL}
+#define google_protobuf_Any_init_zero            {NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_protobuf_Any_type_url_tag         1

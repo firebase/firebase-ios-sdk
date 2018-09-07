@@ -27,8 +27,8 @@
 
 
 const pb_field_t google_protobuf_Any_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, google_protobuf_Any, type_url, type_url, 0),
-    PB_FIELD(  2, BYTES   , SINGULAR, CALLBACK, OTHER, google_protobuf_Any, value, type_url, 0),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_protobuf_Any, type_url, type_url, 0),
+    PB_FIELD(  2, BYTES   , SINGULAR, POINTER , OTHER, google_protobuf_Any, value, type_url, 0),
     PB_LAST_FIELD
 };
 

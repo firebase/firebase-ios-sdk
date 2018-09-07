@@ -27,28 +27,28 @@
 
 
 const pb_field_t google_protobuf_Struct_fields[2] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, google_protobuf_Struct, fields, fields, &google_protobuf_Struct_FieldsEntry_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_protobuf_Struct, fields, fields, &google_protobuf_Struct_FieldsEntry_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_protobuf_Struct_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, google_protobuf_Struct_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_protobuf_Struct_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_protobuf_Struct_FieldsEntry, value, key, &google_protobuf_Value_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_protobuf_Value_fields[7] = {
-    PB_FIELD(  1, UENUM   , SINGULAR, STATIC  , FIRST, google_protobuf_Value, null_value, null_value, 0),
-    PB_FIELD(  2, DOUBLE  , SINGULAR, STATIC  , OTHER, google_protobuf_Value, number_value, null_value, 0),
-    PB_FIELD(  3, STRING  , SINGULAR, CALLBACK, OTHER, google_protobuf_Value, string_value, number_value, 0),
-    PB_FIELD(  4, BOOL    , SINGULAR, STATIC  , OTHER, google_protobuf_Value, bool_value, string_value, 0),
-    PB_FIELD(  5, MESSAGE , SINGULAR, STATIC  , OTHER, google_protobuf_Value, struct_value, bool_value, &google_protobuf_Struct_fields),
-    PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, google_protobuf_Value, list_value, struct_value, &google_protobuf_ListValue_fields),
+    PB_ONEOF_FIELD(kind,   1, ENUM    , ONEOF, STATIC  , FIRST, google_protobuf_Value, null_value, null_value, 0),
+    PB_ONEOF_FIELD(kind,   2, DOUBLE  , ONEOF, STATIC  , UNION, google_protobuf_Value, number_value, number_value, 0),
+    PB_ONEOF_FIELD(kind,   3, STRING  , ONEOF, POINTER , UNION, google_protobuf_Value, string_value, string_value, 0),
+    PB_ONEOF_FIELD(kind,   4, BOOL    , ONEOF, STATIC  , UNION, google_protobuf_Value, bool_value, bool_value, 0),
+    PB_ONEOF_FIELD(kind,   5, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, struct_value, struct_value, &google_protobuf_Struct_fields),
+    PB_ONEOF_FIELD(kind,   6, MESSAGE , ONEOF, STATIC  , UNION, google_protobuf_Value, list_value, list_value, &google_protobuf_ListValue_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_protobuf_ListValue_fields[2] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, google_protobuf_ListValue, values, values, &google_protobuf_Value_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_protobuf_ListValue, values, values, &google_protobuf_Value_fields),
     PB_LAST_FIELD
 };
 
@@ -63,7 +63,7 @@ const pb_field_t google_protobuf_ListValue_fields[2] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 65536 && pb_membersize(google_protobuf_Value, struct_value) < 65536 && pb_membersize(google_protobuf_Value, list_value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
+PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 65536 && pb_membersize(google_protobuf_Value, kind.struct_value) < 65536 && pb_membersize(google_protobuf_Value, kind.list_value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -74,14 +74,8 @@ PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 655
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, struct_value) < 256 && pb_membersize(google_protobuf_Value, list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
+PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, kind.struct_value) < 256 && pb_membersize(google_protobuf_Value, kind.list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
-
-/* On some platforms (such as AVR), double is really float.
- * These are not directly supported by nanopb, but see example_avr_double.
- * To get rid of this error, remove any double fields from your .proto.
- */
-PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 
 /* @@protoc_insertion_point(eof) */

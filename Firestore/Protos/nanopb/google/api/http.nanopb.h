@@ -32,52 +32,57 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_api_CustomHttpPattern {
-    pb_callback_t kind;
-    pb_callback_t path;
+    char *kind;
+    char *path;
 /* @@protoc_insertion_point(struct:google_api_CustomHttpPattern) */
 } google_api_CustomHttpPattern;
 
 typedef struct _google_api_Http {
-    pb_callback_t rules;
+    pb_size_t rules_count;
+    struct _google_api_HttpRule *rules;
     bool fully_decode_reserved_expansion;
 /* @@protoc_insertion_point(struct:google_api_Http) */
 } google_api_Http;
 
 typedef struct _google_api_HttpRule {
-    pb_callback_t selector;
-    pb_callback_t get;
-    pb_callback_t put;
-    pb_callback_t post;
-    pb_callback_t delete_;
-    pb_callback_t patch;
-    pb_callback_t body;
-    google_api_CustomHttpPattern custom;
-    pb_callback_t additional_bindings;
+    char *selector;
+    pb_size_t which_pattern;
+    union {
+        char *get;
+        char *put;
+        char *post;
+        char *delete_;
+        char *patch;
+        google_api_CustomHttpPattern custom;
+    } pattern;
+    char *body;
+    pb_size_t additional_bindings_count;
+    struct _google_api_HttpRule *additional_bindings;
 /* @@protoc_insertion_point(struct:google_api_HttpRule) */
 } google_api_HttpRule;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_api_Http_init_default             {{{NULL}, NULL}, 0}
-#define google_api_HttpRule_init_default         {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_api_CustomHttpPattern_init_default, {{NULL}, NULL}}
-#define google_api_CustomHttpPattern_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_api_Http_init_zero                {{{NULL}, NULL}, 0}
-#define google_api_HttpRule_init_zero            {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_api_CustomHttpPattern_init_zero, {{NULL}, NULL}}
-#define google_api_CustomHttpPattern_init_zero   {{{NULL}, NULL}, {{NULL}, NULL}}
+#define google_api_Http_init_default             {0, NULL, 0}
+#define google_api_HttpRule_init_default         {NULL, 0, {NULL}, NULL, 0, NULL}
+#define google_api_CustomHttpPattern_init_default {NULL, NULL}
+#define google_api_Http_init_zero                {0, NULL, 0}
+#define google_api_HttpRule_init_zero            {NULL, 0, {NULL}, NULL, 0, NULL}
+#define google_api_CustomHttpPattern_init_zero   {NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_api_CustomHttpPattern_kind_tag    1
 #define google_api_CustomHttpPattern_path_tag    2
 #define google_api_Http_rules_tag                1
 #define google_api_Http_fully_decode_reserved_expansion_tag 2
-#define google_api_HttpRule_selector_tag         1
 #define google_api_HttpRule_get_tag              2
 #define google_api_HttpRule_put_tag              3
 #define google_api_HttpRule_post_tag             4
 #define google_api_HttpRule_delete_tag           5
 #define google_api_HttpRule_patch_tag            6
 #define google_api_HttpRule_custom_tag           8
+#define google_api_HttpRule_selector_tag         1
 #define google_api_HttpRule_body_tag             7
 #define google_api_HttpRule_additional_bindings_tag 11
 

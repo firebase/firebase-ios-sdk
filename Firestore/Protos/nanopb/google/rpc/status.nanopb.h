@@ -35,16 +35,17 @@ extern "C" {
 /* Struct definitions */
 typedef struct _google_rpc_Status {
     int32_t code;
-    pb_callback_t message;
-    pb_callback_t details;
+    char *message;
+    pb_size_t details_count;
+    struct _google_protobuf_Any *details;
 /* @@protoc_insertion_point(struct:google_rpc_Status) */
 } google_rpc_Status;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_rpc_Status_init_default           {0, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_rpc_Status_init_zero              {0, {{NULL}, NULL}, {{NULL}, NULL}}
+#define google_rpc_Status_init_default           {0, NULL, 0, NULL}
+#define google_rpc_Status_init_zero              {0, NULL, 0, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_rpc_Status_code_tag               1

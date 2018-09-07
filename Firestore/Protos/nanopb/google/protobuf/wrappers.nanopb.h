@@ -32,12 +32,12 @@ extern "C" {
 
 /* Struct definitions */
 typedef struct _google_protobuf_BytesValue {
-    pb_callback_t value;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_protobuf_BytesValue) */
 } google_protobuf_BytesValue;
 
 typedef struct _google_protobuf_StringValue {
-    pb_callback_t value;
+    char *value;
 /* @@protoc_insertion_point(struct:google_protobuf_StringValue) */
 } google_protobuf_StringValue;
 
@@ -86,8 +86,8 @@ typedef struct _google_protobuf_UInt64Value {
 #define google_protobuf_Int32Value_init_default  {0}
 #define google_protobuf_UInt32Value_init_default {0}
 #define google_protobuf_BoolValue_init_default   {0}
-#define google_protobuf_StringValue_init_default {{{NULL}, NULL}}
-#define google_protobuf_BytesValue_init_default  {{{NULL}, NULL}}
+#define google_protobuf_StringValue_init_default {NULL}
+#define google_protobuf_BytesValue_init_default  {NULL}
 #define google_protobuf_DoubleValue_init_zero    {0}
 #define google_protobuf_FloatValue_init_zero     {0}
 #define google_protobuf_Int64Value_init_zero     {0}
@@ -95,8 +95,8 @@ typedef struct _google_protobuf_UInt64Value {
 #define google_protobuf_Int32Value_init_zero     {0}
 #define google_protobuf_UInt32Value_init_zero    {0}
 #define google_protobuf_BoolValue_init_zero      {0}
-#define google_protobuf_StringValue_init_zero    {{{NULL}, NULL}}
-#define google_protobuf_BytesValue_init_zero     {{{NULL}, NULL}}
+#define google_protobuf_StringValue_init_zero    {NULL}
+#define google_protobuf_BytesValue_init_zero     {NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_protobuf_BytesValue_value_tag     1

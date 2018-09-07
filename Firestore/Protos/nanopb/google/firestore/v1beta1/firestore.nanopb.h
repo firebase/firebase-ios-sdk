@@ -60,149 +60,172 @@ typedef enum _google_firestore_v1beta1_TargetChange_TargetChangeType {
 
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_BeginTransactionResponse {
-    pb_callback_t transaction;
+    pb_bytes_array_t *transaction;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BeginTransactionResponse) */
 } google_firestore_v1beta1_BeginTransactionResponse;
 
 typedef struct _google_firestore_v1beta1_CommitRequest {
-    pb_callback_t database;
-    pb_callback_t writes;
-    pb_callback_t transaction;
+    char *database;
+    pb_size_t writes_count;
+    struct _google_firestore_v1beta1_Write *writes;
+    pb_bytes_array_t *transaction;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_CommitRequest) */
 } google_firestore_v1beta1_CommitRequest;
 
 typedef struct _google_firestore_v1beta1_ListCollectionIdsResponse {
-    pb_callback_t collection_ids;
-    pb_callback_t next_page_token;
+    pb_size_t collection_ids_count;
+    char **collection_ids;
+    char *next_page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListCollectionIdsResponse) */
 } google_firestore_v1beta1_ListCollectionIdsResponse;
 
 typedef struct _google_firestore_v1beta1_ListDocumentsResponse {
-    pb_callback_t documents;
-    pb_callback_t next_page_token;
+    pb_size_t documents_count;
+    struct _google_firestore_v1beta1_Document *documents;
+    char *next_page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListDocumentsResponse) */
 } google_firestore_v1beta1_ListDocumentsResponse;
 
 typedef struct _google_firestore_v1beta1_ListenRequest_LabelsEntry {
-    pb_callback_t key;
-    pb_callback_t value;
+    char *key;
+    char *value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListenRequest_LabelsEntry) */
 } google_firestore_v1beta1_ListenRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1beta1_RollbackRequest {
-    pb_callback_t database;
-    pb_callback_t transaction;
+    char *database;
+    pb_bytes_array_t *transaction;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_RollbackRequest) */
 } google_firestore_v1beta1_RollbackRequest;
 
 typedef struct _google_firestore_v1beta1_Target_DocumentsTarget {
-    pb_callback_t documents;
+    pb_size_t documents_count;
+    char **documents;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Target_DocumentsTarget) */
 } google_firestore_v1beta1_Target_DocumentsTarget;
 
 typedef struct _google_firestore_v1beta1_WriteRequest {
-    pb_callback_t database;
-    pb_callback_t stream_id;
-    pb_callback_t writes;
-    pb_callback_t stream_token;
-    pb_callback_t labels;
+    char *database;
+    char *stream_id;
+    pb_size_t writes_count;
+    struct _google_firestore_v1beta1_Write *writes;
+    pb_bytes_array_t *stream_token;
+    pb_size_t labels_count;
+    struct _google_firestore_v1beta1_WriteRequest_LabelsEntry *labels;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_WriteRequest) */
 } google_firestore_v1beta1_WriteRequest;
 
 typedef struct _google_firestore_v1beta1_WriteRequest_LabelsEntry {
-    pb_callback_t key;
-    pb_callback_t value;
+    char *key;
+    char *value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_WriteRequest_LabelsEntry) */
 } google_firestore_v1beta1_WriteRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1beta1_BatchGetDocumentsRequest {
-    pb_callback_t database;
-    pb_callback_t documents;
+    char *database;
+    pb_size_t documents_count;
+    char **documents;
     google_firestore_v1beta1_DocumentMask mask;
-    pb_callback_t transaction;
-    google_firestore_v1beta1_TransactionOptions new_transaction;
-    google_protobuf_Timestamp read_time;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_firestore_v1beta1_TransactionOptions new_transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BatchGetDocumentsRequest) */
 } google_firestore_v1beta1_BatchGetDocumentsRequest;
 
 typedef struct _google_firestore_v1beta1_BatchGetDocumentsResponse {
-    google_firestore_v1beta1_Document found;
-    pb_callback_t missing;
-    pb_callback_t transaction;
+    pb_size_t which_result;
+    union {
+        google_firestore_v1beta1_Document found;
+        char *missing;
+    } result;
+    pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BatchGetDocumentsResponse) */
 } google_firestore_v1beta1_BatchGetDocumentsResponse;
 
 typedef struct _google_firestore_v1beta1_BeginTransactionRequest {
-    pb_callback_t database;
+    char *database;
     google_firestore_v1beta1_TransactionOptions options;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BeginTransactionRequest) */
 } google_firestore_v1beta1_BeginTransactionRequest;
 
 typedef struct _google_firestore_v1beta1_CommitResponse {
-    pb_callback_t write_results;
+    pb_size_t write_results_count;
+    struct _google_firestore_v1beta1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_CommitResponse) */
 } google_firestore_v1beta1_CommitResponse;
 
 typedef struct _google_firestore_v1beta1_CreateDocumentRequest {
-    pb_callback_t parent;
-    pb_callback_t collection_id;
-    pb_callback_t document_id;
+    char *parent;
+    char *collection_id;
+    char *document_id;
     google_firestore_v1beta1_Document document;
     google_firestore_v1beta1_DocumentMask mask;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_CreateDocumentRequest) */
 } google_firestore_v1beta1_CreateDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_DeleteDocumentRequest {
-    pb_callback_t name;
+    char *name;
     google_firestore_v1beta1_Precondition current_document;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DeleteDocumentRequest) */
 } google_firestore_v1beta1_DeleteDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_GetDocumentRequest {
-    pb_callback_t name;
+    char *name;
     google_firestore_v1beta1_DocumentMask mask;
-    pb_callback_t transaction;
-    google_protobuf_Timestamp read_time;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_GetDocumentRequest) */
 } google_firestore_v1beta1_GetDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_ListCollectionIdsRequest {
-    pb_callback_t parent;
+    char *parent;
     int32_t page_size;
-    pb_callback_t page_token;
+    char *page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListCollectionIdsRequest) */
 } google_firestore_v1beta1_ListCollectionIdsRequest;
 
 typedef struct _google_firestore_v1beta1_ListDocumentsRequest {
-    pb_callback_t parent;
-    pb_callback_t collection_id;
+    char *parent;
+    char *collection_id;
     int32_t page_size;
-    pb_callback_t page_token;
-    pb_callback_t order_by;
+    char *page_token;
+    char *order_by;
     google_firestore_v1beta1_DocumentMask mask;
-    pb_callback_t transaction;
-    google_protobuf_Timestamp read_time;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
     bool show_missing;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListDocumentsRequest) */
 } google_firestore_v1beta1_ListDocumentsRequest;
 
 typedef struct _google_firestore_v1beta1_RunQueryRequest {
-    pb_callback_t parent;
+    char *parent;
     pb_size_t which_query_type;
     union {
         google_firestore_v1beta1_StructuredQuery structured_query;
     } query_type;
-    pb_callback_t transaction;
-    google_firestore_v1beta1_TransactionOptions new_transaction;
-    google_protobuf_Timestamp read_time;
+    pb_size_t which_consistency_selector;
+    union {
+        pb_bytes_array_t *transaction;
+        google_firestore_v1beta1_TransactionOptions new_transaction;
+        google_protobuf_Timestamp read_time;
+    } consistency_selector;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_RunQueryRequest) */
 } google_firestore_v1beta1_RunQueryRequest;
 
 typedef struct _google_firestore_v1beta1_RunQueryResponse {
     google_firestore_v1beta1_Document document;
-    pb_callback_t transaction;
+    pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
     int32_t skipped_results;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_RunQueryResponse) */
@@ -210,15 +233,16 @@ typedef struct _google_firestore_v1beta1_RunQueryResponse {
 
 typedef struct _google_firestore_v1beta1_TargetChange {
     google_firestore_v1beta1_TargetChange_TargetChangeType target_change_type;
-    pb_callback_t target_ids;
+    pb_size_t target_ids_count;
+    int32_t *target_ids;
     google_rpc_Status cause;
-    pb_callback_t resume_token;
+    pb_bytes_array_t *resume_token;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_TargetChange) */
 } google_firestore_v1beta1_TargetChange;
 
 typedef struct _google_firestore_v1beta1_Target_QueryTarget {
-    pb_callback_t parent;
+    char *parent;
     pb_size_t which_query_type;
     union {
         google_firestore_v1beta1_StructuredQuery structured_query;
@@ -235,9 +259,10 @@ typedef struct _google_firestore_v1beta1_UpdateDocumentRequest {
 } google_firestore_v1beta1_UpdateDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_WriteResponse {
-    pb_callback_t stream_id;
-    pb_callback_t stream_token;
-    pb_callback_t write_results;
+    char *stream_id;
+    pb_bytes_array_t *stream_token;
+    pb_size_t write_results_count;
+    struct _google_firestore_v1beta1_WriteResult *write_results;
     google_protobuf_Timestamp commit_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_WriteResponse) */
 } google_firestore_v1beta1_WriteResponse;
@@ -260,81 +285,85 @@ typedef struct _google_firestore_v1beta1_Target {
         google_firestore_v1beta1_Target_QueryTarget query;
         google_firestore_v1beta1_Target_DocumentsTarget documents;
     } target_type;
-    pb_callback_t resume_token;
+    pb_size_t which_resume_type;
+    union {
+        pb_bytes_array_t *resume_token;
+        google_protobuf_Timestamp read_time;
+    } resume_type;
     int32_t target_id;
     bool once;
-    google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Target) */
 } google_firestore_v1beta1_Target;
 
 typedef struct _google_firestore_v1beta1_ListenRequest {
-    pb_callback_t database;
+    char *database;
     pb_size_t which_target_change;
     union {
         google_firestore_v1beta1_Target add_target;
         int32_t remove_target;
     } target_change;
-    pb_callback_t labels;
+    pb_size_t labels_count;
+    struct _google_firestore_v1beta1_ListenRequest_LabelsEntry *labels;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListenRequest) */
 } google_firestore_v1beta1_ListenRequest;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_firestore_v1beta1_GetDocumentRequest_init_default {{{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_default, {{NULL}, NULL}, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_ListDocumentsRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_default, {{NULL}, NULL}, google_protobuf_Timestamp_init_default, 0}
-#define google_firestore_v1beta1_ListDocumentsResponse_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_CreateDocumentRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_Document_init_default, google_firestore_v1beta1_DocumentMask_init_default}
+#define google_firestore_v1beta1_GetDocumentRequest_init_default {NULL, google_firestore_v1beta1_DocumentMask_init_default, 0, {NULL}}
+#define google_firestore_v1beta1_ListDocumentsRequest_init_default {NULL, NULL, 0, NULL, NULL, google_firestore_v1beta1_DocumentMask_init_default, 0, {NULL}, 0}
+#define google_firestore_v1beta1_ListDocumentsResponse_init_default {0, NULL, NULL}
+#define google_firestore_v1beta1_CreateDocumentRequest_init_default {NULL, NULL, NULL, google_firestore_v1beta1_Document_init_default, google_firestore_v1beta1_DocumentMask_init_default}
 #define google_firestore_v1beta1_UpdateDocumentRequest_init_default {google_firestore_v1beta1_Document_init_default, google_firestore_v1beta1_DocumentMask_init_default, google_firestore_v1beta1_DocumentMask_init_default, google_firestore_v1beta1_Precondition_init_default}
-#define google_firestore_v1beta1_DeleteDocumentRequest_init_default {{{NULL}, NULL}, google_firestore_v1beta1_Precondition_init_default}
-#define google_firestore_v1beta1_BatchGetDocumentsRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_default, {{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_default, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_BatchGetDocumentsResponse_init_default {google_firestore_v1beta1_Document_init_default, {{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_BeginTransactionRequest_init_default {{{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_default}
-#define google_firestore_v1beta1_BeginTransactionResponse_init_default {{{NULL}, NULL}}
-#define google_firestore_v1beta1_CommitRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_CommitResponse_init_default {{{NULL}, NULL}, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_RollbackRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_RunQueryRequest_init_default {{{NULL}, NULL}, 0, {google_firestore_v1beta1_StructuredQuery_init_default}, {{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_default, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_RunQueryResponse_init_default {google_firestore_v1beta1_Document_init_default, {{NULL}, NULL}, google_protobuf_Timestamp_init_default, 0}
-#define google_firestore_v1beta1_WriteRequest_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_WriteRequest_LabelsEntry_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_WriteResponse_init_default {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_ListenRequest_init_default {{{NULL}, NULL}, 0, {google_firestore_v1beta1_Target_init_default}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_ListenRequest_LabelsEntry_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
+#define google_firestore_v1beta1_DeleteDocumentRequest_init_default {NULL, google_firestore_v1beta1_Precondition_init_default}
+#define google_firestore_v1beta1_BatchGetDocumentsRequest_init_default {NULL, 0, NULL, google_firestore_v1beta1_DocumentMask_init_default, 0, {NULL}}
+#define google_firestore_v1beta1_BatchGetDocumentsResponse_init_default {0, {google_firestore_v1beta1_Document_init_default}, NULL, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1beta1_BeginTransactionRequest_init_default {NULL, google_firestore_v1beta1_TransactionOptions_init_default}
+#define google_firestore_v1beta1_BeginTransactionResponse_init_default {NULL}
+#define google_firestore_v1beta1_CommitRequest_init_default {NULL, 0, NULL, NULL}
+#define google_firestore_v1beta1_CommitResponse_init_default {0, NULL, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1beta1_RollbackRequest_init_default {NULL, NULL}
+#define google_firestore_v1beta1_RunQueryRequest_init_default {NULL, 0, {google_firestore_v1beta1_StructuredQuery_init_default}, 0, {NULL}}
+#define google_firestore_v1beta1_RunQueryResponse_init_default {google_firestore_v1beta1_Document_init_default, NULL, google_protobuf_Timestamp_init_default, 0}
+#define google_firestore_v1beta1_WriteRequest_init_default {NULL, NULL, 0, NULL, NULL, 0, NULL}
+#define google_firestore_v1beta1_WriteRequest_LabelsEntry_init_default {NULL, NULL}
+#define google_firestore_v1beta1_WriteResponse_init_default {NULL, NULL, 0, NULL, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1beta1_ListenRequest_init_default {NULL, 0, {google_firestore_v1beta1_Target_init_default}, 0, NULL}
+#define google_firestore_v1beta1_ListenRequest_LabelsEntry_init_default {NULL, NULL}
 #define google_firestore_v1beta1_ListenResponse_init_default {0, {google_firestore_v1beta1_TargetChange_init_default}}
-#define google_firestore_v1beta1_Target_init_default {0, {google_firestore_v1beta1_Target_QueryTarget_init_default}, {{NULL}, NULL}, 0, 0, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_Target_DocumentsTarget_init_default {{{NULL}, NULL}}
-#define google_firestore_v1beta1_Target_QueryTarget_init_default {{{NULL}, NULL}, 0, {google_firestore_v1beta1_StructuredQuery_init_default}}
-#define google_firestore_v1beta1_TargetChange_init_default {_google_firestore_v1beta1_TargetChange_TargetChangeType_MIN, {{NULL}, NULL}, google_rpc_Status_init_default, {{NULL}, NULL}, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1beta1_ListCollectionIdsRequest_init_default {{{NULL}, NULL}, 0, {{NULL}, NULL}}
-#define google_firestore_v1beta1_ListCollectionIdsResponse_init_default {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_GetDocumentRequest_init_zero {{{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_zero, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_ListDocumentsRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, 0, {{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_zero, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero, 0}
-#define google_firestore_v1beta1_ListDocumentsResponse_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_CreateDocumentRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_Document_init_zero, google_firestore_v1beta1_DocumentMask_init_zero}
+#define google_firestore_v1beta1_Target_init_default {0, {google_firestore_v1beta1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0}
+#define google_firestore_v1beta1_Target_DocumentsTarget_init_default {0, NULL}
+#define google_firestore_v1beta1_Target_QueryTarget_init_default {NULL, 0, {google_firestore_v1beta1_StructuredQuery_init_default}}
+#define google_firestore_v1beta1_TargetChange_init_default {_google_firestore_v1beta1_TargetChange_TargetChangeType_MIN, 0, NULL, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
+#define google_firestore_v1beta1_ListCollectionIdsRequest_init_default {NULL, 0, NULL}
+#define google_firestore_v1beta1_ListCollectionIdsResponse_init_default {0, NULL, NULL}
+#define google_firestore_v1beta1_GetDocumentRequest_init_zero {NULL, google_firestore_v1beta1_DocumentMask_init_zero, 0, {NULL}}
+#define google_firestore_v1beta1_ListDocumentsRequest_init_zero {NULL, NULL, 0, NULL, NULL, google_firestore_v1beta1_DocumentMask_init_zero, 0, {NULL}, 0}
+#define google_firestore_v1beta1_ListDocumentsResponse_init_zero {0, NULL, NULL}
+#define google_firestore_v1beta1_CreateDocumentRequest_init_zero {NULL, NULL, NULL, google_firestore_v1beta1_Document_init_zero, google_firestore_v1beta1_DocumentMask_init_zero}
 #define google_firestore_v1beta1_UpdateDocumentRequest_init_zero {google_firestore_v1beta1_Document_init_zero, google_firestore_v1beta1_DocumentMask_init_zero, google_firestore_v1beta1_DocumentMask_init_zero, google_firestore_v1beta1_Precondition_init_zero}
-#define google_firestore_v1beta1_DeleteDocumentRequest_init_zero {{{NULL}, NULL}, google_firestore_v1beta1_Precondition_init_zero}
-#define google_firestore_v1beta1_BatchGetDocumentsRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, google_firestore_v1beta1_DocumentMask_init_zero, {{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_zero, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_BatchGetDocumentsResponse_init_zero {google_firestore_v1beta1_Document_init_zero, {{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_BeginTransactionRequest_init_zero {{{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_zero}
-#define google_firestore_v1beta1_BeginTransactionResponse_init_zero {{{NULL}, NULL}}
-#define google_firestore_v1beta1_CommitRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_CommitResponse_init_zero {{{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_RollbackRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_RunQueryRequest_init_zero {{{NULL}, NULL}, 0, {google_firestore_v1beta1_StructuredQuery_init_zero}, {{NULL}, NULL}, google_firestore_v1beta1_TransactionOptions_init_zero, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_RunQueryResponse_init_zero {google_firestore_v1beta1_Document_init_zero, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero, 0}
-#define google_firestore_v1beta1_WriteRequest_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_WriteRequest_LabelsEntry_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_WriteResponse_init_zero {{{NULL}, NULL}, {{NULL}, NULL}, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_ListenRequest_init_zero {{{NULL}, NULL}, 0, {google_firestore_v1beta1_Target_init_zero}, {{NULL}, NULL}}
-#define google_firestore_v1beta1_ListenRequest_LabelsEntry_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
+#define google_firestore_v1beta1_DeleteDocumentRequest_init_zero {NULL, google_firestore_v1beta1_Precondition_init_zero}
+#define google_firestore_v1beta1_BatchGetDocumentsRequest_init_zero {NULL, 0, NULL, google_firestore_v1beta1_DocumentMask_init_zero, 0, {NULL}}
+#define google_firestore_v1beta1_BatchGetDocumentsResponse_init_zero {0, {google_firestore_v1beta1_Document_init_zero}, NULL, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1beta1_BeginTransactionRequest_init_zero {NULL, google_firestore_v1beta1_TransactionOptions_init_zero}
+#define google_firestore_v1beta1_BeginTransactionResponse_init_zero {NULL}
+#define google_firestore_v1beta1_CommitRequest_init_zero {NULL, 0, NULL, NULL}
+#define google_firestore_v1beta1_CommitResponse_init_zero {0, NULL, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1beta1_RollbackRequest_init_zero {NULL, NULL}
+#define google_firestore_v1beta1_RunQueryRequest_init_zero {NULL, 0, {google_firestore_v1beta1_StructuredQuery_init_zero}, 0, {NULL}}
+#define google_firestore_v1beta1_RunQueryResponse_init_zero {google_firestore_v1beta1_Document_init_zero, NULL, google_protobuf_Timestamp_init_zero, 0}
+#define google_firestore_v1beta1_WriteRequest_init_zero {NULL, NULL, 0, NULL, NULL, 0, NULL}
+#define google_firestore_v1beta1_WriteRequest_LabelsEntry_init_zero {NULL, NULL}
+#define google_firestore_v1beta1_WriteResponse_init_zero {NULL, NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1beta1_ListenRequest_init_zero {NULL, 0, {google_firestore_v1beta1_Target_init_zero}, 0, NULL}
+#define google_firestore_v1beta1_ListenRequest_LabelsEntry_init_zero {NULL, NULL}
 #define google_firestore_v1beta1_ListenResponse_init_zero {0, {google_firestore_v1beta1_TargetChange_init_zero}}
-#define google_firestore_v1beta1_Target_init_zero {0, {google_firestore_v1beta1_Target_QueryTarget_init_zero}, {{NULL}, NULL}, 0, 0, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_Target_DocumentsTarget_init_zero {{{NULL}, NULL}}
-#define google_firestore_v1beta1_Target_QueryTarget_init_zero {{{NULL}, NULL}, 0, {google_firestore_v1beta1_StructuredQuery_init_zero}}
-#define google_firestore_v1beta1_TargetChange_init_zero {_google_firestore_v1beta1_TargetChange_TargetChangeType_MIN, {{NULL}, NULL}, google_rpc_Status_init_zero, {{NULL}, NULL}, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1beta1_ListCollectionIdsRequest_init_zero {{{NULL}, NULL}, 0, {{NULL}, NULL}}
-#define google_firestore_v1beta1_ListCollectionIdsResponse_init_zero {{{NULL}, NULL}, {{NULL}, NULL}}
+#define google_firestore_v1beta1_Target_init_zero {0, {google_firestore_v1beta1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0}
+#define google_firestore_v1beta1_Target_DocumentsTarget_init_zero {0, NULL}
+#define google_firestore_v1beta1_Target_QueryTarget_init_zero {NULL, 0, {google_firestore_v1beta1_StructuredQuery_init_zero}}
+#define google_firestore_v1beta1_TargetChange_init_zero {_google_firestore_v1beta1_TargetChange_TargetChangeType_MIN, 0, NULL, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}
+#define google_firestore_v1beta1_ListCollectionIdsRequest_init_zero {NULL, 0, NULL}
+#define google_firestore_v1beta1_ListCollectionIdsResponse_init_zero {0, NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1beta1_BeginTransactionResponse_transaction_tag 1
@@ -357,12 +386,12 @@ typedef struct _google_firestore_v1beta1_ListenRequest {
 #define google_firestore_v1beta1_WriteRequest_labels_tag 5
 #define google_firestore_v1beta1_WriteRequest_LabelsEntry_key_tag 1
 #define google_firestore_v1beta1_WriteRequest_LabelsEntry_value_tag 2
-#define google_firestore_v1beta1_BatchGetDocumentsRequest_database_tag 1
-#define google_firestore_v1beta1_BatchGetDocumentsRequest_documents_tag 2
-#define google_firestore_v1beta1_BatchGetDocumentsRequest_mask_tag 3
 #define google_firestore_v1beta1_BatchGetDocumentsRequest_transaction_tag 4
 #define google_firestore_v1beta1_BatchGetDocumentsRequest_new_transaction_tag 5
 #define google_firestore_v1beta1_BatchGetDocumentsRequest_read_time_tag 7
+#define google_firestore_v1beta1_BatchGetDocumentsRequest_database_tag 1
+#define google_firestore_v1beta1_BatchGetDocumentsRequest_documents_tag 2
+#define google_firestore_v1beta1_BatchGetDocumentsRequest_mask_tag 3
 #define google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag 1
 #define google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag 2
 #define google_firestore_v1beta1_BatchGetDocumentsResponse_transaction_tag 3
@@ -378,27 +407,27 @@ typedef struct _google_firestore_v1beta1_ListenRequest {
 #define google_firestore_v1beta1_CreateDocumentRequest_mask_tag 5
 #define google_firestore_v1beta1_DeleteDocumentRequest_name_tag 1
 #define google_firestore_v1beta1_DeleteDocumentRequest_current_document_tag 2
-#define google_firestore_v1beta1_GetDocumentRequest_name_tag 1
-#define google_firestore_v1beta1_GetDocumentRequest_mask_tag 2
 #define google_firestore_v1beta1_GetDocumentRequest_transaction_tag 3
 #define google_firestore_v1beta1_GetDocumentRequest_read_time_tag 5
+#define google_firestore_v1beta1_GetDocumentRequest_name_tag 1
+#define google_firestore_v1beta1_GetDocumentRequest_mask_tag 2
 #define google_firestore_v1beta1_ListCollectionIdsRequest_parent_tag 1
 #define google_firestore_v1beta1_ListCollectionIdsRequest_page_size_tag 2
 #define google_firestore_v1beta1_ListCollectionIdsRequest_page_token_tag 3
+#define google_firestore_v1beta1_ListDocumentsRequest_transaction_tag 8
+#define google_firestore_v1beta1_ListDocumentsRequest_read_time_tag 10
 #define google_firestore_v1beta1_ListDocumentsRequest_parent_tag 1
 #define google_firestore_v1beta1_ListDocumentsRequest_collection_id_tag 2
 #define google_firestore_v1beta1_ListDocumentsRequest_page_size_tag 3
 #define google_firestore_v1beta1_ListDocumentsRequest_page_token_tag 4
 #define google_firestore_v1beta1_ListDocumentsRequest_order_by_tag 6
 #define google_firestore_v1beta1_ListDocumentsRequest_mask_tag 7
-#define google_firestore_v1beta1_ListDocumentsRequest_transaction_tag 8
-#define google_firestore_v1beta1_ListDocumentsRequest_read_time_tag 10
 #define google_firestore_v1beta1_ListDocumentsRequest_show_missing_tag 12
 #define google_firestore_v1beta1_RunQueryRequest_structured_query_tag 2
-#define google_firestore_v1beta1_RunQueryRequest_parent_tag 1
 #define google_firestore_v1beta1_RunQueryRequest_transaction_tag 5
 #define google_firestore_v1beta1_RunQueryRequest_new_transaction_tag 6
 #define google_firestore_v1beta1_RunQueryRequest_read_time_tag 7
+#define google_firestore_v1beta1_RunQueryRequest_parent_tag 1
 #define google_firestore_v1beta1_RunQueryResponse_transaction_tag 2
 #define google_firestore_v1beta1_RunQueryResponse_document_tag 1
 #define google_firestore_v1beta1_RunQueryResponse_read_time_tag 3

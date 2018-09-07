@@ -27,7 +27,7 @@
 
 
 const pb_field_t google_firestore_v1beta1_DocumentMask_fields[2] = {
-    PB_FIELD(  1, STRING  , REPEATED, CALLBACK, FIRST, google_firestore_v1beta1_DocumentMask, field_paths, field_paths, 0),
+    PB_FIELD(  1, STRING  , REPEATED, POINTER , FIRST, google_firestore_v1beta1_DocumentMask, field_paths, field_paths, 0),
     PB_LAST_FIELD
 };
 
@@ -44,7 +44,7 @@ const pb_field_t google_firestore_v1beta1_TransactionOptions_fields[3] = {
 };
 
 const pb_field_t google_firestore_v1beta1_TransactionOptions_ReadWrite_fields[2] = {
-    PB_FIELD(  1, BYTES   , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_TransactionOptions_ReadWrite, retry_transaction, retry_transaction, 0),
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_TransactionOptions_ReadWrite, retry_transaction, retry_transaction, 0),
     PB_LAST_FIELD
 };
 

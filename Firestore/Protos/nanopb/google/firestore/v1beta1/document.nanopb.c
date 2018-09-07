@@ -27,46 +27,46 @@
 
 
 const pb_field_t google_firestore_v1beta1_Document_fields[5] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_Document, name, name, 0),
-    PB_FIELD(  2, MESSAGE , REPEATED, CALLBACK, OTHER, google_firestore_v1beta1_Document, fields, name, &google_firestore_v1beta1_Document_FieldsEntry_fields),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document, name, name, 0),
+    PB_FIELD(  2, MESSAGE , REPEATED, POINTER , OTHER, google_firestore_v1beta1_Document, fields, name, &google_firestore_v1beta1_Document_FieldsEntry_fields),
     PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document, create_time, fields, &google_protobuf_Timestamp_fields),
     PB_FIELD(  4, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document, update_time, create_time, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_Document_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_Document_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_Document_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Document_FieldsEntry, value, key, &google_firestore_v1beta1_Value_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_Value_fields[12] = {
-    PB_FIELD(  1, BOOL    , SINGULAR, STATIC  , FIRST, google_firestore_v1beta1_Value, boolean_value, boolean_value, 0),
-    PB_FIELD(  2, INT64   , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, integer_value, boolean_value, 0),
-    PB_FIELD(  3, DOUBLE  , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, double_value, integer_value, 0),
-    PB_FIELD(  5, STRING  , SINGULAR, CALLBACK, OTHER, google_firestore_v1beta1_Value, reference_value, double_value, 0),
-    PB_FIELD(  6, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, map_value, reference_value, &google_firestore_v1beta1_MapValue_fields),
-    PB_FIELD(  8, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, geo_point_value, map_value, &google_type_LatLng_fields),
-    PB_FIELD(  9, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, array_value, geo_point_value, &google_firestore_v1beta1_ArrayValue_fields),
-    PB_FIELD( 10, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, timestamp_value, array_value, &google_protobuf_Timestamp_fields),
-    PB_FIELD( 11, UENUM   , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_Value, null_value, timestamp_value, 0),
-    PB_FIELD( 17, STRING  , SINGULAR, CALLBACK, OTHER, google_firestore_v1beta1_Value, string_value, null_value, 0),
-    PB_FIELD( 18, BYTES   , SINGULAR, CALLBACK, OTHER, google_firestore_v1beta1_Value, bytes_value, string_value, 0),
+    PB_ONEOF_FIELD(value_type,   1, BOOL    , ONEOF, STATIC  , FIRST, google_firestore_v1beta1_Value, boolean_value, boolean_value, 0),
+    PB_ONEOF_FIELD(value_type,   2, INT64   , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, integer_value, integer_value, 0),
+    PB_ONEOF_FIELD(value_type,   3, DOUBLE  , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, double_value, double_value, 0),
+    PB_ONEOF_FIELD(value_type,   5, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, reference_value, reference_value, 0),
+    PB_ONEOF_FIELD(value_type,   6, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, map_value, map_value, &google_firestore_v1beta1_MapValue_fields),
+    PB_ONEOF_FIELD(value_type,   8, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, geo_point_value, geo_point_value, &google_type_LatLng_fields),
+    PB_ONEOF_FIELD(value_type,   9, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, array_value, array_value, &google_firestore_v1beta1_ArrayValue_fields),
+    PB_ONEOF_FIELD(value_type,  10, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, timestamp_value, timestamp_value, &google_protobuf_Timestamp_fields),
+    PB_ONEOF_FIELD(value_type,  11, ENUM    , ONEOF, STATIC  , UNION, google_firestore_v1beta1_Value, null_value, null_value, 0),
+    PB_ONEOF_FIELD(value_type,  17, STRING  , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, string_value, string_value, 0),
+    PB_ONEOF_FIELD(value_type,  18, BYTES   , ONEOF, POINTER , UNION, google_firestore_v1beta1_Value, bytes_value, bytes_value, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_ArrayValue_fields[2] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, google_firestore_v1beta1_ArrayValue, values, values, &google_firestore_v1beta1_Value_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1beta1_ArrayValue, values, values, &google_firestore_v1beta1_Value_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_MapValue_fields[2] = {
-    PB_FIELD(  1, MESSAGE , REPEATED, CALLBACK, FIRST, google_firestore_v1beta1_MapValue, fields, fields, &google_firestore_v1beta1_MapValue_FieldsEntry_fields),
+    PB_FIELD(  1, MESSAGE , REPEATED, POINTER , FIRST, google_firestore_v1beta1_MapValue, fields, fields, &google_firestore_v1beta1_MapValue_FieldsEntry_fields),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1beta1_MapValue_FieldsEntry_fields[3] = {
-    PB_FIELD(  1, STRING  , SINGULAR, CALLBACK, FIRST, google_firestore_v1beta1_MapValue_FieldsEntry, key, key, 0),
+    PB_FIELD(  1, STRING  , SINGULAR, POINTER , FIRST, google_firestore_v1beta1_MapValue_FieldsEntry, key, key, 0),
     PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1beta1_MapValue_FieldsEntry, value, key, &google_firestore_v1beta1_Value_fields),
     PB_LAST_FIELD
 };
@@ -81,7 +81,7 @@ const pb_field_t google_firestore_v1beta1_MapValue_FieldsEntry_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) < 65536 && pb_membersize(google_firestore_v1beta1_Document, update_time) < 65536 && pb_membersize(google_firestore_v1beta1_Document_FieldsEntry, value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, timestamp_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, geo_point_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, array_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, map_value) < 65536 && pb_membersize(google_firestore_v1beta1_MapValue_FieldsEntry, value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1beta1_Document_google_firestore_v1beta1_Document_FieldsEntry_google_firestore_v1beta1_Value_google_firestore_v1beta1_ArrayValue_google_firestore_v1beta1_MapValue_google_firestore_v1beta1_MapValue_FieldsEntry)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) < 65536 && pb_membersize(google_firestore_v1beta1_Document, update_time) < 65536 && pb_membersize(google_firestore_v1beta1_Document_FieldsEntry, value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, value_type.map_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, value_type.geo_point_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, value_type.array_value) < 65536 && pb_membersize(google_firestore_v1beta1_Value, value_type.timestamp_value) < 65536 && pb_membersize(google_firestore_v1beta1_MapValue_FieldsEntry, value) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1beta1_Document_google_firestore_v1beta1_Document_FieldsEntry_google_firestore_v1beta1_Value_google_firestore_v1beta1_ArrayValue_google_firestore_v1beta1_MapValue_google_firestore_v1beta1_MapValue_FieldsEntry)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -92,14 +92,8 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) 
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) < 256 && pb_membersize(google_firestore_v1beta1_Document, update_time) < 256 && pb_membersize(google_firestore_v1beta1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1beta1_Value, timestamp_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, geo_point_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, array_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, map_value) < 256 && pb_membersize(google_firestore_v1beta1_MapValue_FieldsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_Document_google_firestore_v1beta1_Document_FieldsEntry_google_firestore_v1beta1_Value_google_firestore_v1beta1_ArrayValue_google_firestore_v1beta1_MapValue_google_firestore_v1beta1_MapValue_FieldsEntry)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) < 256 && pb_membersize(google_firestore_v1beta1_Document, update_time) < 256 && pb_membersize(google_firestore_v1beta1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1beta1_Value, value_type.map_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, value_type.geo_point_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, value_type.array_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, value_type.timestamp_value) < 256 && pb_membersize(google_firestore_v1beta1_MapValue_FieldsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_Document_google_firestore_v1beta1_Document_FieldsEntry_google_firestore_v1beta1_Value_google_firestore_v1beta1_ArrayValue_google_firestore_v1beta1_MapValue_google_firestore_v1beta1_MapValue_FieldsEntry)
 #endif
 
-
-/* On some platforms (such as AVR), double is really float.
- * These are not directly supported by nanopb, but see example_avr_double.
- * To get rid of this error, remove any double fields from your .proto.
- */
-PB_STATIC_ASSERT(sizeof(double) == 8, DOUBLE_MUST_BE_8_BYTES)
 
 /* @@protoc_insertion_point(eof) */
