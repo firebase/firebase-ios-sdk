@@ -135,6 +135,7 @@ set(
 set(
   PROTOBUF_PYTHON
   ${PROTOBUF_DIR}/python/google/protobuf/descriptor_pb2.py
+  ${PROTOBUF_DIR}/python/proto/__init__.py
   ${PROTOBUF_DIR}/python/proto/nanopb_pb2.py
   ${PROTOBUF_DIR}/python/proto/plugin_pb2.py
 )
@@ -155,6 +156,8 @@ add_custom_command(
       ${PROTO_INCLUDES}
       --python_out=${PROTOBUF_DIR}/python
       ${PROTOBUF_PROTO}
+  COMMAND
+    ${CMAKE_COMMAND} -E touch ${PROTOBUF_DIR}/python/proto/__init__.py
   VERBATIM
   DEPENDS
     protoc
