@@ -27,7 +27,7 @@
 
 
 const pb_field_t google_firestore_v1beta1_DocumentMask_fields[2] = {
-    PB_FIELD(  1, STRING  , REPEATED, POINTER , FIRST, google_firestore_v1beta1_DocumentMask, field_paths, field_paths, 0),
+    PB_FIELD(  1, BYTES   , REPEATED, POINTER , FIRST, google_firestore_v1beta1_DocumentMask, field_paths, field_paths, 0),
     PB_LAST_FIELD
 };
 

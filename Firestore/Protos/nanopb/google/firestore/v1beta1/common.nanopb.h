@@ -37,7 +37,7 @@ extern "C" {
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_DocumentMask {
     pb_size_t field_paths_count;
-    char **field_paths;
+    pb_bytes_array_t **field_paths;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DocumentMask) */
 } google_firestore_v1beta1_DocumentMask;
 

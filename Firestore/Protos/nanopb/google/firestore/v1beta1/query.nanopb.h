@@ -78,7 +78,7 @@ typedef enum _google_firestore_v1beta1_StructuredQuery_UnaryFilter_Operator {
 
 /* Struct definitions */
 typedef struct _google_firestore_v1beta1_StructuredQuery_FieldReference {
-    char *field_path;
+    pb_bytes_array_t *field_path;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_StructuredQuery_FieldReference) */
 } google_firestore_v1beta1_StructuredQuery_FieldReference;
 
@@ -96,7 +96,7 @@ typedef struct _google_firestore_v1beta1_Cursor {
 } google_firestore_v1beta1_Cursor;
 
 typedef struct _google_firestore_v1beta1_StructuredQuery_CollectionSelector {
-    char *collection_id;
+    pb_bytes_array_t *collection_id;
     bool all_descendants;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_StructuredQuery_CollectionSelector) */
 } google_firestore_v1beta1_StructuredQuery_CollectionSelector;

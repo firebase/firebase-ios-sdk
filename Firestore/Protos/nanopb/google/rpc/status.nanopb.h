@@ -35,7 +35,7 @@ extern "C" {
 /* Struct definitions */
 typedef struct _google_rpc_Status {
     int32_t code;
-    char *message;
+    pb_bytes_array_t *message;
     pb_size_t details_count;
     struct _google_protobuf_Any *details;
 /* @@protoc_insertion_point(struct:google_rpc_Status) */

@@ -52,7 +52,7 @@ typedef struct _google_firestore_v1beta1_MapValue {
 } google_firestore_v1beta1_MapValue;
 
 typedef struct _google_firestore_v1beta1_Document {
-    char *name;
+    pb_bytes_array_t *name;
     pb_size_t fields_count;
     struct _google_firestore_v1beta1_Document_FieldsEntry *fields;
     google_protobuf_Timestamp create_time;
@@ -66,26 +66,26 @@ typedef struct _google_firestore_v1beta1_Value {
         bool boolean_value;
         int64_t integer_value;
         double double_value;
-        char *reference_value;
+        pb_bytes_array_t *reference_value;
         google_firestore_v1beta1_MapValue map_value;
         google_type_LatLng geo_point_value;
         google_firestore_v1beta1_ArrayValue array_value;
         google_protobuf_Timestamp timestamp_value;
         google_protobuf_NullValue null_value;
-        char *string_value;
+        pb_bytes_array_t *string_value;
         pb_bytes_array_t *bytes_value;
     };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Value) */
 } google_firestore_v1beta1_Value;
 
 typedef struct _google_firestore_v1beta1_Document_FieldsEntry {
-    char *key;
+    pb_bytes_array_t *key;
     google_firestore_v1beta1_Value value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Document_FieldsEntry) */
 } google_firestore_v1beta1_Document_FieldsEntry;
 
 typedef struct _google_firestore_v1beta1_MapValue_FieldsEntry {
-    char *key;
+    pb_bytes_array_t *key;
     google_firestore_v1beta1_Value value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_MapValue_FieldsEntry) */
 } google_firestore_v1beta1_MapValue_FieldsEntry;

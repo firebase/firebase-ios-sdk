@@ -56,7 +56,7 @@ typedef struct _google_protobuf_Value {
     union {
         google_protobuf_NullValue null_value;
         double number_value;
-        char *string_value;
+        pb_bytes_array_t *string_value;
         bool bool_value;
         google_protobuf_Struct struct_value;
         google_protobuf_ListValue list_value;
@@ -65,7 +65,7 @@ typedef struct _google_protobuf_Value {
 } google_protobuf_Value;
 
 typedef struct _google_protobuf_Struct_FieldsEntry {
-    char *key;
+    pb_bytes_array_t *key;
     google_protobuf_Value value;
 /* @@protoc_insertion_point(struct:google_protobuf_Struct_FieldsEntry) */
 } google_protobuf_Struct_FieldsEntry;

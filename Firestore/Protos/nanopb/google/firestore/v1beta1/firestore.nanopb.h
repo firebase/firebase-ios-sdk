@@ -65,7 +65,7 @@ typedef struct _google_firestore_v1beta1_BeginTransactionResponse {
 } google_firestore_v1beta1_BeginTransactionResponse;
 
 typedef struct _google_firestore_v1beta1_CommitRequest {
-    char *database;
+    pb_bytes_array_t *database;
     pb_size_t writes_count;
     struct _google_firestore_v1beta1_Write *writes;
     pb_bytes_array_t *transaction;
@@ -74,39 +74,39 @@ typedef struct _google_firestore_v1beta1_CommitRequest {
 
 typedef struct _google_firestore_v1beta1_ListCollectionIdsResponse {
     pb_size_t collection_ids_count;
-    char **collection_ids;
-    char *next_page_token;
+    pb_bytes_array_t **collection_ids;
+    pb_bytes_array_t *next_page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListCollectionIdsResponse) */
 } google_firestore_v1beta1_ListCollectionIdsResponse;
 
 typedef struct _google_firestore_v1beta1_ListDocumentsResponse {
     pb_size_t documents_count;
     struct _google_firestore_v1beta1_Document *documents;
-    char *next_page_token;
+    pb_bytes_array_t *next_page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListDocumentsResponse) */
 } google_firestore_v1beta1_ListDocumentsResponse;
 
 typedef struct _google_firestore_v1beta1_ListenRequest_LabelsEntry {
-    char *key;
-    char *value;
+    pb_bytes_array_t *key;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListenRequest_LabelsEntry) */
 } google_firestore_v1beta1_ListenRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1beta1_RollbackRequest {
-    char *database;
+    pb_bytes_array_t *database;
     pb_bytes_array_t *transaction;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_RollbackRequest) */
 } google_firestore_v1beta1_RollbackRequest;
 
 typedef struct _google_firestore_v1beta1_Target_DocumentsTarget {
     pb_size_t documents_count;
-    char **documents;
+    pb_bytes_array_t **documents;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Target_DocumentsTarget) */
 } google_firestore_v1beta1_Target_DocumentsTarget;
 
 typedef struct _google_firestore_v1beta1_WriteRequest {
-    char *database;
-    char *stream_id;
+    pb_bytes_array_t *database;
+    pb_bytes_array_t *stream_id;
     pb_size_t writes_count;
     struct _google_firestore_v1beta1_Write *writes;
     pb_bytes_array_t *stream_token;
@@ -116,15 +116,15 @@ typedef struct _google_firestore_v1beta1_WriteRequest {
 } google_firestore_v1beta1_WriteRequest;
 
 typedef struct _google_firestore_v1beta1_WriteRequest_LabelsEntry {
-    char *key;
-    char *value;
+    pb_bytes_array_t *key;
+    pb_bytes_array_t *value;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_WriteRequest_LabelsEntry) */
 } google_firestore_v1beta1_WriteRequest_LabelsEntry;
 
 typedef struct _google_firestore_v1beta1_BatchGetDocumentsRequest {
-    char *database;
+    pb_bytes_array_t *database;
     pb_size_t documents_count;
-    char **documents;
+    pb_bytes_array_t **documents;
     google_firestore_v1beta1_DocumentMask mask;
     pb_size_t which_consistency_selector;
     union {
@@ -139,7 +139,7 @@ typedef struct _google_firestore_v1beta1_BatchGetDocumentsResponse {
     pb_size_t which_result;
     union {
         google_firestore_v1beta1_Document found;
-        char *missing;
+        pb_bytes_array_t *missing;
     };
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
@@ -147,7 +147,7 @@ typedef struct _google_firestore_v1beta1_BatchGetDocumentsResponse {
 } google_firestore_v1beta1_BatchGetDocumentsResponse;
 
 typedef struct _google_firestore_v1beta1_BeginTransactionRequest {
-    char *database;
+    pb_bytes_array_t *database;
     google_firestore_v1beta1_TransactionOptions options;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BeginTransactionRequest) */
 } google_firestore_v1beta1_BeginTransactionRequest;
@@ -160,22 +160,22 @@ typedef struct _google_firestore_v1beta1_CommitResponse {
 } google_firestore_v1beta1_CommitResponse;
 
 typedef struct _google_firestore_v1beta1_CreateDocumentRequest {
-    char *parent;
-    char *collection_id;
-    char *document_id;
+    pb_bytes_array_t *parent;
+    pb_bytes_array_t *collection_id;
+    pb_bytes_array_t *document_id;
     google_firestore_v1beta1_Document document;
     google_firestore_v1beta1_DocumentMask mask;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_CreateDocumentRequest) */
 } google_firestore_v1beta1_CreateDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_DeleteDocumentRequest {
-    char *name;
+    pb_bytes_array_t *name;
     google_firestore_v1beta1_Precondition current_document;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_DeleteDocumentRequest) */
 } google_firestore_v1beta1_DeleteDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_GetDocumentRequest {
-    char *name;
+    pb_bytes_array_t *name;
     google_firestore_v1beta1_DocumentMask mask;
     pb_size_t which_consistency_selector;
     union {
@@ -186,18 +186,18 @@ typedef struct _google_firestore_v1beta1_GetDocumentRequest {
 } google_firestore_v1beta1_GetDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_ListCollectionIdsRequest {
-    char *parent;
+    pb_bytes_array_t *parent;
     int32_t page_size;
-    char *page_token;
+    pb_bytes_array_t *page_token;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListCollectionIdsRequest) */
 } google_firestore_v1beta1_ListCollectionIdsRequest;
 
 typedef struct _google_firestore_v1beta1_ListDocumentsRequest {
-    char *parent;
-    char *collection_id;
+    pb_bytes_array_t *parent;
+    pb_bytes_array_t *collection_id;
     int32_t page_size;
-    char *page_token;
-    char *order_by;
+    pb_bytes_array_t *page_token;
+    pb_bytes_array_t *order_by;
     google_firestore_v1beta1_DocumentMask mask;
     pb_size_t which_consistency_selector;
     union {
@@ -209,7 +209,7 @@ typedef struct _google_firestore_v1beta1_ListDocumentsRequest {
 } google_firestore_v1beta1_ListDocumentsRequest;
 
 typedef struct _google_firestore_v1beta1_RunQueryRequest {
-    char *parent;
+    pb_bytes_array_t *parent;
     pb_size_t which_query_type;
     union {
         google_firestore_v1beta1_StructuredQuery structured_query;
@@ -242,7 +242,7 @@ typedef struct _google_firestore_v1beta1_TargetChange {
 } google_firestore_v1beta1_TargetChange;
 
 typedef struct _google_firestore_v1beta1_Target_QueryTarget {
-    char *parent;
+    pb_bytes_array_t *parent;
     pb_size_t which_query_type;
     union {
         google_firestore_v1beta1_StructuredQuery structured_query;
@@ -259,7 +259,7 @@ typedef struct _google_firestore_v1beta1_UpdateDocumentRequest {
 } google_firestore_v1beta1_UpdateDocumentRequest;
 
 typedef struct _google_firestore_v1beta1_WriteResponse {
-    char *stream_id;
+    pb_bytes_array_t *stream_id;
     pb_bytes_array_t *stream_token;
     pb_size_t write_results_count;
     struct _google_firestore_v1beta1_WriteResult *write_results;
@@ -296,7 +296,7 @@ typedef struct _google_firestore_v1beta1_Target {
 } google_firestore_v1beta1_Target;
 
 typedef struct _google_firestore_v1beta1_ListenRequest {
-    char *database;
+    pb_bytes_array_t *database;
     pb_size_t which_target_change;
     union {
         google_firestore_v1beta1_Target add_target;
