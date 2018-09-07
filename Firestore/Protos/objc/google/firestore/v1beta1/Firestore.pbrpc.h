@@ -140,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Gets multiple documents.
- * 
+ *
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
@@ -148,7 +148,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Gets multiple documents.
- * 
+ *
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */

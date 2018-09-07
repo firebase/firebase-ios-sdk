@@ -149,7 +149,7 @@
 
 /**
  * Gets multiple documents.
- * 
+ *
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */
@@ -159,7 +159,7 @@
 // Returns a not-yet-started RPC object.
 /**
  * Gets multiple documents.
- * 
+ *
  * Documents returned by this method are not guaranteed to be returned in the
  * same order that they were requested.
  */

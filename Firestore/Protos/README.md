@@ -17,11 +17,10 @@ make -j protobuf nanopb
 Next, build the protos:
 ```
 cd firebase-ios-sdk/Firestore/Protos
-./build-protos.sh
+./build_protos.py
 ```
 
-Verify diffs (you'll likely need to re-add copyright notices, etc.), make sure
-tests still pass, and create a PR.
+Verify diffs, make sure tests still pass, and create a PR.
 
 ### Script Details
 
