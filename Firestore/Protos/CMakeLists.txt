@@ -140,7 +140,7 @@ add_custom_command(
 )
 
 add_custom_command(
-  COMMENT "Generatoring nanopb sources"
+  COMMENT "Generating nanopb sources"
   OUTPUT ${NANOPB_GENERATED_SOURCES}
   COMMAND
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py

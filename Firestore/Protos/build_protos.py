@@ -83,7 +83,7 @@ def main():
       help='Location of the nanopb generator executable.')
 
   args = parser.parse_args()
-  if args.nanopb is None:
+  if args.nanopb is None and args.cpp is None and args.objc is None:
     parser.print_help()
     sys.exit(1)
 
@@ -95,7 +95,6 @@ def main():
     args.output_dir = os.getcwd()
 
   all_proto_files = collect_files(args.protos_dir, '.proto')
-
   if args.nanopb:
     NanopbGenerator(args, all_proto_files).run()
 
@@ -345,8 +344,7 @@ def collect_files(root_dir, *extensions):
     extensions.
   """
   result = []
-  for root, dirs, files in os.walk(root_dir):
-    del dirs  # unused
+  for root, _, files in os.walk(root_dir):
     for basename in files:
       for ext in extensions:
         if basename.endswith(ext):
