@@ -162,7 +162,7 @@ def nanopb_parse_options(request):
   Returns:
     Nanopb's options object, obtained via optparser.
   """
-  # Parse options the same was as nanopb_generator.main_plugin() does.
+  # Parse options the same as nanopb_generator.main_plugin() does.
   args = shlex.split(request.parameter)
   options, _ = nanopb.optparser.parse_args(args)
 
@@ -211,7 +211,7 @@ def nanopb_generate(request, options, parsed_files):
 
   Returns:
     A list of nanopb output dictionaries, each one representing the code
-    generation reuslt for each file to generate. The output dictionaries have
+    generation result for each file to generate. The output dictionaries have
     the following form:
 
         {
