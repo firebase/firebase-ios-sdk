@@ -60,7 +60,7 @@ typedef struct _google_protobuf_Value {
         bool bool_value;
         google_protobuf_Struct struct_value;
         google_protobuf_ListValue list_value;
-    } kind;
+    };
 /* @@protoc_insertion_point(struct:google_protobuf_Value) */
 } google_protobuf_Value;
 

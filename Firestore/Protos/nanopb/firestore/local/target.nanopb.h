@@ -44,7 +44,7 @@ typedef struct _firestore_client_Target {
     union {
         google_firestore_v1beta1_Target_QueryTarget query;
         google_firestore_v1beta1_Target_DocumentsTarget documents;
-    } target_type;
+    };
 /* @@protoc_insertion_point(struct:firestore_client_Target) */
 } firestore_client_Target;
 

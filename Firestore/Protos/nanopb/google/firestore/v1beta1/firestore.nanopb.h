@@ -131,7 +131,7 @@ typedef struct _google_firestore_v1beta1_BatchGetDocumentsRequest {
         pb_bytes_array_t *transaction;
         google_firestore_v1beta1_TransactionOptions new_transaction;
         google_protobuf_Timestamp read_time;
-    } consistency_selector;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BatchGetDocumentsRequest) */
 } google_firestore_v1beta1_BatchGetDocumentsRequest;
 
@@ -140,7 +140,7 @@ typedef struct _google_firestore_v1beta1_BatchGetDocumentsResponse {
     union {
         google_firestore_v1beta1_Document found;
         char *missing;
-    } result;
+    };
     pb_bytes_array_t *transaction;
     google_protobuf_Timestamp read_time;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_BatchGetDocumentsResponse) */
@@ -181,7 +181,7 @@ typedef struct _google_firestore_v1beta1_GetDocumentRequest {
     union {
         pb_bytes_array_t *transaction;
         google_protobuf_Timestamp read_time;
-    } consistency_selector;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_GetDocumentRequest) */
 } google_firestore_v1beta1_GetDocumentRequest;
 
@@ -203,7 +203,7 @@ typedef struct _google_firestore_v1beta1_ListDocumentsRequest {
     union {
         pb_bytes_array_t *transaction;
         google_protobuf_Timestamp read_time;
-    } consistency_selector;
+    };
     bool show_missing;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListDocumentsRequest) */
 } google_firestore_v1beta1_ListDocumentsRequest;
@@ -246,7 +246,7 @@ typedef struct _google_firestore_v1beta1_Target_QueryTarget {
     pb_size_t which_query_type;
     union {
         google_firestore_v1beta1_StructuredQuery structured_query;
-    } query_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_Target_QueryTarget) */
 } google_firestore_v1beta1_Target_QueryTarget;
 
@@ -275,7 +275,7 @@ typedef struct _google_firestore_v1beta1_ListenResponse {
         google_firestore_v1beta1_DocumentDelete document_delete;
         google_firestore_v1beta1_ExistenceFilter filter;
         google_firestore_v1beta1_DocumentRemove document_remove;
-    } response_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListenResponse) */
 } google_firestore_v1beta1_ListenResponse;
 
@@ -301,7 +301,7 @@ typedef struct _google_firestore_v1beta1_ListenRequest {
     union {
         google_firestore_v1beta1_Target add_target;
         int32_t remove_target;
-    } target_change;
+    };
     pb_size_t labels_count;
     struct _google_firestore_v1beta1_ListenRequest_LabelsEntry *labels;
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_ListenRequest) */

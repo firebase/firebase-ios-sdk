@@ -126,7 +126,7 @@ typedef struct _google_firestore_v1beta1_StructuredQuery_UnaryFilter {
     pb_size_t which_operand_type;
     union {
         google_firestore_v1beta1_StructuredQuery_FieldReference field;
-    } operand_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_StructuredQuery_UnaryFilter) */
 } google_firestore_v1beta1_StructuredQuery_UnaryFilter;
 
@@ -136,7 +136,7 @@ typedef struct _google_firestore_v1beta1_StructuredQuery_Filter {
         google_firestore_v1beta1_StructuredQuery_CompositeFilter composite_filter;
         google_firestore_v1beta1_StructuredQuery_FieldFilter field_filter;
         google_firestore_v1beta1_StructuredQuery_UnaryFilter unary_filter;
-    } filter_type;
+    };
 /* @@protoc_insertion_point(struct:google_firestore_v1beta1_StructuredQuery_Filter) */
 } google_firestore_v1beta1_StructuredQuery_Filter;
 
