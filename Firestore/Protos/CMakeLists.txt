@@ -129,7 +129,7 @@ add_custom_command(
   OUTPUT
     ${PROTOBUF_PYTHON}
   COMMAND
-    $<TARGET_FILE:protoc>
+    protoc
       ${PROTO_INCLUDES}
       --python_out=${PROTOBUF_DIR}/python
       ${PROTOBUF_PROTO}
