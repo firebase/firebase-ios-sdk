@@ -146,9 +146,9 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --nanopb
       --protoc=$<TARGET_FILE:protoc>
-      --protoc-gen-nanopb=${NANOPB_DIR}/generator/protoc-gen-nanopb
+      --protoc_gen_nanopb=${NANOPB_DIR}/generator/protoc-gen-nanopb
       --pythonpath=${PROTOBUF_DIR}/python
-      --output-dir=${OUTPUT_DIR}
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
@@ -171,7 +171,7 @@ add_custom_target(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --cpp
       --protoc=$<TARGET_FILE:protoc>
-      --output-dir=${OUTPUT_DIR}
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
@@ -188,8 +188,8 @@ add_custom_target(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --objc
       --protoc=$<TARGET_FILE:protoc>
-      --protoc-gen-grpc=$<TARGET_FILE:grpc_objective_c_plugin>
-      --output-dir=${OUTPUT_DIR}
+      --protoc_gen_grpc=$<TARGET_FILE:grpc_objective_c_plugin>
+      --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS

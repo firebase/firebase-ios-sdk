@@ -60,10 +60,10 @@ def main():
       '--objc', action='store_true',
       help='Generates Objective-C messages.')
   parser.add_argument(
-      '--protos-dir', dest='protos_dir',
+      '--protos_dir',
       help='Source directory containing .proto files.')
   parser.add_argument(
-      '--output-dir', '-d', dest='output_dir',
+      '--output_dir', '-d',
       help='Directory to write files; subdirectories will be created.')
 
   parser.add_argument(
@@ -76,10 +76,10 @@ def main():
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
   parser.add_argument(
-      '--protoc-gen-grpc', dest='protoc_gen_grpc',
+      '--protoc_gen_grpc',
       help='Location of the gRPC generator executable.')
   parser.add_argument(
-      '--protoc-gen-nanopb', dest='protoc_gen_nanopb',
+      '--protoc_gen_nanopb',
       help='Location of the nanopb generator executable.')
 
   args = parser.parse_args()
@@ -94,12 +94,12 @@ def main():
   if args.output_dir is None:
     args.output_dir = os.getcwd()
 
-  nanopb_proto_files = collect_files(args.protos_dir, '.proto')
+  all_proto_files = collect_files(args.protos_dir, '.proto')
 
   if args.nanopb:
-    NanopbGenerator(args, nanopb_proto_files).run()
+    NanopbGenerator(args, all_proto_files).run()
 
-  proto_files = remove_well_known_protos(nanopb_proto_files)
+  proto_files = remove_well_known_protos(all_proto_files)
   if args.cpp:
     CppProtobufGenerator(args, proto_files).run()
 
@@ -230,6 +230,13 @@ def protoc_command(args):
 
 
 def run_protoc(args, cmd):
+  """Actually runs the given protoc command.
+
+  Args:
+    args: The command-line args (including pythonpath)
+    cmd: The command to run expressed as a list of strings
+  """
+
   kwargs = {}
   if args.pythonpath:
     env = os.environ.copy()
