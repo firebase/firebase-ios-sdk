@@ -64,7 +64,7 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // Guard against the backoff delay already being past.
   auto remaining_delay =
-      max(Milliseconds::zero(), desired_delay_with_jitter - delay_so_far);
+      std::max(Milliseconds::zero(), desired_delay_with_jitter - delay_so_far);
 
   if (current_base_.count() > 0) {
     LOG_DEBUG(
@@ -76,8 +76,11 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
         desired_delay_with_jitter.count(), delay_so_far.count());
   }
 
-  delayed_operation_ = queue_->EnqueueAfterDelay(remaining_delay, timer_id_,
-                                                 std::move(operation));
+  delayed_operation_ =
+      queue_->EnqueueAfterDelay(remaining_delay, timer_id_, [this, operation] {
+        last_attempt_time_ = chr::steady_clock::now();
+        operation();
+      });
 
   // Apply backoff factor to determine next delay, but ensure it is within
   // bounds.
