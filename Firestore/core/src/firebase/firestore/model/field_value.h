@@ -179,9 +179,9 @@ class FieldValue {
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
   static FieldValue FromTimestamp(const Timestamp& value);
-  static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
-                                         const Timestamp& previous_value);
-  static FieldValue ServerTimestampValue(const Timestamp& local_write_time);
+  static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
+                                        const Timestamp& previous_value);
+  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
   static FieldValue StringValue(const char* value);
   static FieldValue StringValue(const std::string& value);
   static FieldValue StringValue(std::string&& value);

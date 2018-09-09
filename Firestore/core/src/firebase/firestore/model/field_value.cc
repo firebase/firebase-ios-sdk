@@ -279,8 +279,8 @@ FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   return result;
 }
 
-FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
-                                            const Timestamp& previous_value) {
+FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time,
+                                           const Timestamp& previous_value) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;
@@ -288,7 +288,7 @@ FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time,
   return result;
 }
 
-FieldValue FieldValue::ServerTimestampValue(const Timestamp& local_write_time) {
+FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
   FieldValue result;
   result.SwitchTo(Type::ServerTimestamp);
   result.server_timestamp_value_.local_write_time = local_write_time;

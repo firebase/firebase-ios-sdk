@@ -106,8 +106,8 @@ TEST(FieldValue, TimestampType) {
   EXPECT_TRUE(o < a);
   EXPECT_TRUE(a < b);
   EXPECT_FALSE(a < a);
-  const FieldValue c = FieldValue::ServerTimestampValue({100, 0});
-  const FieldValue d = FieldValue::ServerTimestampValue({200, 0}, {300, 0});
+  const FieldValue c = FieldValue::FromServerTimestamp({100, 0});
+  const FieldValue d = FieldValue::FromServerTimestamp({200, 0}, {300, 0});
   EXPECT_EQ(Type::ServerTimestamp, c.type());
   EXPECT_EQ(Type::ServerTimestamp, d.type());
   EXPECT_TRUE(c < d);
@@ -265,13 +265,13 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue server_timestamp_value =
-      FieldValue::ServerTimestampValue({1, 2}, {3, 4});
+      FieldValue::FromServerTimestamp({1, 2}, {3, 4});
   clone = server_timestamp_value;
-  EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}), clone);
-  EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}),
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2}, {3, 4}), clone);
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2}, {3, 4}),
             server_timestamp_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}), clone);
+  EXPECT_EQ(FieldValue::FromServerTimestamp({1, 2}, {3, 4}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
