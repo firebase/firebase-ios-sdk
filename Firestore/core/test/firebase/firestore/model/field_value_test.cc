@@ -147,10 +147,10 @@ TEST(FieldValue, BlobType) {
 TEST(FieldValue, ReferenceType) {
   const DatabaseId id("project", "database");
   const FieldValue a =
-      FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"), &id);
+      FieldValue::FromReference(DocumentKey::FromPathString("root/abc"), &id);
   DocumentKey key = DocumentKey::FromPathString("root/def");
-  const FieldValue b = FieldValue::ReferenceValue(key, &id);
-  const FieldValue c = FieldValue::ReferenceValue(std::move(key), &id);
+  const FieldValue b = FieldValue::FromReference(key, &id);
+  const FieldValue c = FieldValue::FromReference(std::move(key), &id);
   EXPECT_EQ(Type::Reference, a.type());
   EXPECT_EQ(Type::Reference, b.type());
   EXPECT_EQ(Type::Reference, c.type());
@@ -294,18 +294,18 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::ReferenceValue(
+  const FieldValue reference_value = FieldValue::FromReference(
       DocumentKey::FromPathString("root/abc"), &database_id);
   clone = reference_value;
-  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
-                                       &database_id),
+  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
+                                      &database_id),
             clone);
-  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
-                                       &database_id),
+  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
+                                      &database_id),
             reference_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
-                                       &database_id),
+  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
+                                      &database_id),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -406,11 +406,11 @@ TEST(FieldValue, Move) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const DatabaseId database_id("project", "database");
-  FieldValue reference_value = FieldValue::ReferenceValue(
+  FieldValue reference_value = FieldValue::FromReference(
       DocumentKey::FromPathString("root/abc"), &database_id);
   clone = std::move(reference_value);
-  EXPECT_EQ(FieldValue::ReferenceValue(DocumentKey::FromPathString("root/abc"),
-                                       &database_id),
+  EXPECT_EQ(FieldValue::FromReference(DocumentKey::FromPathString("root/abc"),
+                                      &database_id),
             clone);
   clone = null_value;  // NOLINT: use after move intended
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -449,7 +449,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue string_value = FieldValue::FromString("abc");
   const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   const DatabaseId database_id("project", "database");
-  const FieldValue reference_value = FieldValue::ReferenceValue(
+  const FieldValue reference_value = FieldValue::FromReference(
       DocumentKey::FromPathString("root/abc"), &database_id);
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   const FieldValue array_value =

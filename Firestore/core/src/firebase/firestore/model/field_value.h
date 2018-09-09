@@ -186,10 +186,10 @@ class FieldValue {
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
   static FieldValue FromBlob(const uint8_t* source, size_t size);
-  static FieldValue ReferenceValue(const DocumentKey& value,
-                                   const DatabaseId* database_id);
-  static FieldValue ReferenceValue(DocumentKey&& value,
-                                   const DatabaseId* database_id);
+  static FieldValue FromReference(const DocumentKey& value,
+                                  const DatabaseId* database_id);
+  static FieldValue FromReference(DocumentKey&& value,
+                                  const DatabaseId* database_id);
   static FieldValue GeoPointValue(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);

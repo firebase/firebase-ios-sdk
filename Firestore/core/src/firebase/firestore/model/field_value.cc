@@ -322,8 +322,8 @@ FieldValue FieldValue::FromBlob(const uint8_t* source, size_t size) {
 }
 
 // Does NOT pass ownership of database_id.
-FieldValue FieldValue::ReferenceValue(const DocumentKey& value,
-                                      const DatabaseId* database_id) {
+FieldValue FieldValue::FromReference(const DocumentKey& value,
+                                     const DatabaseId* database_id) {
   FieldValue result;
   result.SwitchTo(Type::Reference);
   result.reference_value_.reference = value;
@@ -332,8 +332,8 @@ FieldValue FieldValue::ReferenceValue(const DocumentKey& value,
 }
 
 // Does NOT pass ownership of database_id.
-FieldValue FieldValue::ReferenceValue(DocumentKey&& value,
-                                      const DatabaseId* database_id) {
+FieldValue FieldValue::FromReference(DocumentKey&& value,
+                                     const DatabaseId* database_id) {
   FieldValue result;
   result.SwitchTo(Type::Reference);
   std::swap(result.reference_value_.reference, value);
