@@ -375,7 +375,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         absl::optional<Timestamp> timestamp =
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         if (reader->status().ok())
-          result = FieldValue::TimestampValue(*timestamp);
+          result = FieldValue::FromTimestamp(*timestamp);
         break;
       }
 

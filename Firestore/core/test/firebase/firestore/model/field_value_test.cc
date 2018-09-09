@@ -99,9 +99,9 @@ TEST(FieldValue, NumberType) {
 }
 
 TEST(FieldValue, TimestampType) {
-  const FieldValue o = FieldValue::TimestampValue(Timestamp());
-  const FieldValue a = FieldValue::TimestampValue({100, 0});
-  const FieldValue b = FieldValue::TimestampValue({200, 0});
+  const FieldValue o = FieldValue::FromTimestamp(Timestamp());
+  const FieldValue a = FieldValue::FromTimestamp({100, 0});
+  const FieldValue b = FieldValue::FromTimestamp({200, 0});
   EXPECT_EQ(Type::Timestamp, a.type());
   EXPECT_TRUE(o < a);
   EXPECT_TRUE(a < b);
@@ -255,12 +255,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
+  const FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   clone = timestamp_value;
-  EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
-  EXPECT_EQ(FieldValue::TimestampValue({100, 200}), timestamp_value);
+  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), clone);
+  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), timestamp_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
+  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -387,9 +387,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
+  FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   clone = std::move(timestamp_value);
-  EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
+  EXPECT_EQ(FieldValue::FromTimestamp({100, 200}), clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -445,7 +445,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::True();
   const FieldValue number_value = FieldValue::Nan();
-  const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
+  const FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
   const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   const DatabaseId database_id("project", "database");

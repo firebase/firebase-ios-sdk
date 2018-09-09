@@ -236,7 +236,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(const Timestamp& ts) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
+        EncodeFieldValue(&serializer, FieldValue::FromTimestamp(ts));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -428,7 +428,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
   };
 
   for (const Timestamp& ts_value : cases) {
-    FieldValue model = FieldValue::TimestampValue(ts_value);
+    FieldValue model = FieldValue::FromTimestamp(ts_value);
     ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
   }
 }
@@ -600,7 +600,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer, FieldValue::TimestampValue(TimestampInternal::Max()));
+      &serializer, FieldValue::FromTimestamp(TimestampInternal::Max()));
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -611,7 +611,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer, FieldValue::TimestampValue(TimestampInternal::Min()));
+      &serializer, FieldValue::FromTimestamp(TimestampInternal::Min()));
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);

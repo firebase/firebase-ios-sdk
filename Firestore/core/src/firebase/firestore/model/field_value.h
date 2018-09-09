@@ -178,7 +178,7 @@ class FieldValue {
   static const FieldValue& FromBoolean(bool value);
   static FieldValue FromInteger(int64_t value);
   static FieldValue FromDouble(double value);
-  static FieldValue TimestampValue(const Timestamp& value);
+  static FieldValue FromTimestamp(const Timestamp& value);
   static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
                                          const Timestamp& previous_value);
   static FieldValue ServerTimestampValue(const Timestamp& local_write_time);

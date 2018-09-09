@@ -272,7 +272,7 @@ FieldValue FieldValue::FromDouble(double value) {
   return result;
 }
 
-FieldValue FieldValue::TimestampValue(const Timestamp& value) {
+FieldValue FieldValue::FromTimestamp(const Timestamp& value) {
   FieldValue result;
   result.SwitchTo(Type::Timestamp);
   result.timestamp_value_ = value;
