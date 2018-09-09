@@ -159,8 +159,8 @@ TEST(FieldValue, ReferenceType) {
 }
 
 TEST(FieldValue, GeoPointType) {
-  const FieldValue a = FieldValue::GeoPointValue({1, 2});
-  const FieldValue b = FieldValue::GeoPointValue({3, 4});
+  const FieldValue a = FieldValue::FromGeoPoint({1, 2});
+  const FieldValue b = FieldValue::FromGeoPoint({3, 4});
   EXPECT_EQ(Type::GeoPoint, a.type());
   EXPECT_EQ(Type::GeoPoint, b.type());
   EXPECT_TRUE(a < b);
@@ -310,12 +310,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   clone = geo_point_value;
-  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
-  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), geo_point_value);
+  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), clone);
+  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), geo_point_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
+  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -415,9 +415,9 @@ TEST(FieldValue, Move) {
   clone = null_value;  // NOLINT: use after move intended
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   clone = std::move(geo_point_value);
-  EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
+  EXPECT_EQ(FieldValue::FromGeoPoint({1, 2}), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -451,7 +451,7 @@ TEST(FieldValue, CompareMixedType) {
   const DatabaseId database_id("project", "database");
   const FieldValue reference_value = FieldValue::FromReference(
       DocumentKey::FromPathString("root/abc"), &database_id);
-  const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
+  const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
       FieldValue::ArrayValue(std::vector<FieldValue>());
   const FieldValue object_value = FieldValue::ObjectValueFromMap({});

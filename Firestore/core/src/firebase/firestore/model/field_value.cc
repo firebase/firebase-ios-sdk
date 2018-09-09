@@ -341,7 +341,7 @@ FieldValue FieldValue::FromReference(DocumentKey&& value,
   return result;
 }
 
-FieldValue FieldValue::GeoPointValue(const GeoPoint& value) {
+FieldValue FieldValue::FromGeoPoint(const GeoPoint& value) {
   FieldValue result;
   result.SwitchTo(Type::GeoPoint);
   result.geo_point_value_ = value;

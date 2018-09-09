@@ -190,7 +190,7 @@ class FieldValue {
                                   const DatabaseId* database_id);
   static FieldValue FromReference(DocumentKey&& value,
                                   const DatabaseId* database_id);
-  static FieldValue GeoPointValue(const GeoPoint& value);
+  static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue ArrayValue(const std::vector<FieldValue>& value);
   static FieldValue ArrayValue(std::vector<FieldValue>&& value);
   static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
