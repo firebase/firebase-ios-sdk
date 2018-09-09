@@ -171,7 +171,7 @@ class FieldValue {
   absl::optional<FieldValue> Get(const FieldPath& field_path) const;
 
   /** factory methods. */
-  static const FieldValue& NullValue();
+  static const FieldValue& Null();
   static const FieldValue& TrueValue();
   static const FieldValue& FalseValue();
   static const FieldValue& BooleanValue(bool value);

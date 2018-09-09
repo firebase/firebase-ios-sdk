@@ -37,7 +37,7 @@ const uint8_t* Bytes(const char* value) {
 }  // namespace
 
 TEST(FieldValue, NullType) {
-  const FieldValue value = FieldValue::NullValue();
+  const FieldValue value = FieldValue::Null();
   EXPECT_EQ(Type::Null, value.type());
   EXPECT_FALSE(value < value);
 }
@@ -169,7 +169,7 @@ TEST(FieldValue, GeoPointType) {
 
 TEST(FieldValue, ArrayType) {
   const FieldValue empty = FieldValue::ArrayValue(std::vector<FieldValue>{});
-  std::vector<FieldValue> array{FieldValue::NullValue(),
+  std::vector<FieldValue> array{FieldValue::Null(),
                                 FieldValue::BooleanValue(true),
                                 FieldValue::BooleanValue(false)};
   // copy the array
@@ -190,12 +190,12 @@ TEST(FieldValue, ArrayType) {
 
 TEST(FieldValue, ObjectType) {
   const FieldValue empty = FieldValue::ObjectValueFromMap({});
-  ObjectValue::Map object{{"null", FieldValue::NullValue()},
+  ObjectValue::Map object{{"null", FieldValue::Null()},
                           {"true", FieldValue::TrueValue()},
                           {"false", FieldValue::FalseValue()}};
   // copy the map
   const FieldValue small = FieldValue::ObjectValueFromMap(object);
-  ObjectValue::Map another_object{{"null", FieldValue::NullValue()},
+  ObjectValue::Map another_object{{"null", FieldValue::Null()},
                                   {"true", FieldValue::FalseValue()}};
   // move the array
   const FieldValue large =
@@ -212,12 +212,12 @@ TEST(FieldValue, ObjectType) {
 
 TEST(FieldValue, Copy) {
   FieldValue clone = FieldValue::TrueValue();
-  const FieldValue null_value = FieldValue::NullValue();
+  const FieldValue null_value = FieldValue::Null();
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
-  EXPECT_EQ(FieldValue::NullValue(), null_value);
+  EXPECT_EQ(FieldValue::Null(), clone);
+  EXPECT_EQ(FieldValue::Null(), null_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue true_value = FieldValue::TrueValue();
   clone = true_value;
@@ -226,7 +226,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::TrueValue(), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue nan_value = FieldValue::NanValue();
   clone = nan_value;
@@ -235,7 +235,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::NanValue(), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue integer_value = FieldValue::IntegerValue(1L);
   clone = integer_value;
@@ -244,7 +244,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue double_value = FieldValue::DoubleValue(1.0);
   clone = double_value;
@@ -253,7 +253,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   clone = timestamp_value;
@@ -262,7 +262,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue server_timestamp_value =
       FieldValue::ServerTimestampValue({1, 2}, {3, 4});
@@ -273,7 +273,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::ServerTimestampValue({1, 2}, {3, 4}), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue string_value = FieldValue::StringValue("abc");
   clone = string_value;
@@ -282,7 +282,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::StringValue("abc"), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = blob_value;
@@ -291,7 +291,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const DatabaseId database_id("project", "database");
   const FieldValue reference_value = FieldValue::ReferenceValue(
@@ -308,7 +308,7 @@ TEST(FieldValue, Copy) {
                                        &database_id),
             clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   clone = geo_point_value;
@@ -317,7 +317,7 @@ TEST(FieldValue, Copy) {
   clone = *&clone;
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
@@ -333,7 +333,7 @@ TEST(FieldValue, Copy) {
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue object_value = FieldValue::ObjectValueFromMap(
       ObjectValue::Map{{"true", FieldValue::TrueValue()},
@@ -353,57 +353,57 @@ TEST(FieldValue, Copy) {
                                  {"false", FieldValue::FalseValue()}}),
             clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 }
 
 TEST(FieldValue, Move) {
   FieldValue clone = FieldValue::TrueValue();
 
-  FieldValue null_value = FieldValue::NullValue();
+  FieldValue null_value = FieldValue::Null();
   clone = std::move(null_value);
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue true_value = FieldValue::TrueValue();
   clone = std::move(true_value);
   EXPECT_EQ(FieldValue::TrueValue(), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue nan_value = FieldValue::NanValue();
   clone = std::move(nan_value);
   EXPECT_EQ(FieldValue::NanValue(), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue integer_value = FieldValue::IntegerValue(1L);
   clone = std::move(integer_value);
   EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue double_value = FieldValue::DoubleValue(1.0);
   clone = std::move(double_value);
   EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   clone = std::move(timestamp_value);
   EXPECT_EQ(FieldValue::TimestampValue({100, 200}), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue string_value = FieldValue::StringValue("abc");
   clone = std::move(string_value);
   EXPECT_EQ(FieldValue::StringValue("abc"), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
   clone = std::move(blob_value);
   EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   const DatabaseId database_id("project", "database");
   FieldValue reference_value = FieldValue::ReferenceValue(
@@ -413,13 +413,13 @@ TEST(FieldValue, Move) {
                                        &database_id),
             clone);
   clone = null_value;  // NOLINT: use after move intended
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue geo_point_value = FieldValue::GeoPointValue({1, 2});
   clone = std::move(geo_point_value);
   EXPECT_EQ(FieldValue::GeoPointValue({1, 2}), clone);
   clone = null_value;
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
       FieldValue::TrueValue(), FieldValue::FalseValue()});
@@ -427,8 +427,8 @@ TEST(FieldValue, Move) {
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
                 FieldValue::TrueValue(), FieldValue::FalseValue()}),
             clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue object_value = FieldValue::ObjectValueFromMap(ObjectValue::Map{
       {"true", FieldValue::TrueValue()}, {"false", FieldValue::FalseValue()}});
@@ -437,12 +437,12 @@ TEST(FieldValue, Move) {
                 ObjectValue::Map{{"true", FieldValue::TrueValue()},
                                  {"false", FieldValue::FalseValue()}}),
             clone);
-  clone = FieldValue::NullValue();
-  EXPECT_EQ(FieldValue::NullValue(), clone);
+  clone = FieldValue::Null();
+  EXPECT_EQ(FieldValue::Null(), clone);
 }
 
 TEST(FieldValue, CompareMixedType) {
-  const FieldValue null_value = FieldValue::NullValue();
+  const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::TrueValue();
   const FieldValue number_value = FieldValue::NanValue();
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
@@ -467,7 +467,7 @@ TEST(FieldValue, CompareMixedType) {
 }
 
 TEST(FieldValue, CompareWithOperator) {
-  const FieldValue small = FieldValue::NullValue();
+  const FieldValue small = FieldValue::Null();
   const FieldValue large = FieldValue::TrueValue();
 
   EXPECT_TRUE(small < large);

@@ -168,7 +168,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(std::nullptr_t) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::NullValue());
+        EncodeFieldValue(&serializer, FieldValue::Null());
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -367,7 +367,7 @@ class SerializerTest : public ::testing::Test {
 };
 
 TEST_F(SerializerTest, EncodesNull) {
-  FieldValue model = FieldValue::NullValue();
+  FieldValue model = FieldValue::Null();
   ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
 }
 
@@ -448,7 +448,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
       {"i", FieldValue::IntegerValue(1)},
-      {"n", FieldValue::NullValue()},
+      {"n", FieldValue::Null()},
       {"s", FieldValue::StringValue("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
@@ -547,7 +547,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
 TEST_F(SerializerTest, BadNullValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -627,7 +627,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // the deserialization process in this case instead.
 
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
 
   // The v1beta1::Value value_type oneof currently has tags
   // up to 18. For this test, we'll pick a tag that's unlikely to be added in
@@ -714,7 +714,7 @@ TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload

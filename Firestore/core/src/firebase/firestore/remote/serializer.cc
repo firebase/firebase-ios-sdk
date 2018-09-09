@@ -350,13 +350,13 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
     return absl::nullopt;
   }
 
-  FieldValue result = FieldValue::NullValue();
+  FieldValue result = FieldValue::Null();
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
       case google_firestore_v1beta1_Value_null_value_tag:
         reader->ReadNull();
-        result = FieldValue::NullValue();
+        result = FieldValue::Null();
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:

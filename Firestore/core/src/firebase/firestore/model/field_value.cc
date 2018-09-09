@@ -234,7 +234,7 @@ absl::optional<FieldValue> FieldValue::Get(const FieldPath& field_path) const {
   return *current;
 }
 
-const FieldValue& FieldValue::NullValue() {
+const FieldValue& FieldValue::Null() {
   static const FieldValue kNullInstance;
   return kNullInstance;
 }
