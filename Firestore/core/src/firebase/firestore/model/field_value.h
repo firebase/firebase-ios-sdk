@@ -193,8 +193,8 @@ class FieldValue {
   static FieldValue FromGeoPoint(const GeoPoint& value);
   static FieldValue FromArray(const std::vector<FieldValue>& value);
   static FieldValue FromArray(std::vector<FieldValue>&& value);
-  static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
-  static FieldValue ObjectValueFromMap(ObjectValue::Map&& value);
+  static FieldValue FromMap(const ObjectValue::Map& value);
+  static FieldValue FromMap(ObjectValue::Map&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 

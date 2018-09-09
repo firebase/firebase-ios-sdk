@@ -172,18 +172,18 @@ FieldValue FieldValue::Set(const FieldPath& field_path,
     // TODO(zxu): Once immutable type is available, rewrite these.
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
     copy[child_name] = std::move(value);
-    return FieldValue::ObjectValueFromMap(std::move(copy));
+    return FieldValue::FromMap(std::move(copy));
   } else {
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
     const auto iter = object_map.find(child_name);
     if (iter == object_map.end() || iter->second.type() != Type::Object) {
-      copy[child_name] = FieldValue::ObjectValueFromMap({}).Set(
+      copy[child_name] = FieldValue::FromMap({}).Set(
           field_path.PopFirst(), std::move(value));
     } else {
       copy[child_name] =
           iter->second.Set(field_path.PopFirst(), std::move(value));
     }
-    return FieldValue::ObjectValueFromMap(std::move(copy));
+    return FieldValue::FromMap(std::move(copy));
   }
 }
 
@@ -198,7 +198,7 @@ FieldValue FieldValue::Delete(const FieldPath& field_path) const {
   if (field_path.size() == 1) {
     // TODO(zxu): Once immutable type is available, rewrite these.
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
-    return FieldValue::ObjectValueFromMap(std::move(copy));
+    return FieldValue::FromMap(std::move(copy));
   } else {
     const auto iter = object_map.find(child_name);
     if (iter == object_map.end() || iter->second.type() != Type::Object) {
@@ -210,7 +210,7 @@ FieldValue FieldValue::Delete(const FieldPath& field_path) const {
       ObjectValue::Map copy = CopyExcept(object_map, child_name);
       copy[child_name] =
           object_map.at(child_name).Delete(field_path.PopFirst());
-      return FieldValue::ObjectValueFromMap(std::move(copy));
+      return FieldValue::FromMap(std::move(copy));
     }
   }
 }
@@ -360,12 +360,12 @@ FieldValue FieldValue::FromArray(std::vector<FieldValue>&& value) {
   return result;
 }
 
-FieldValue FieldValue::ObjectValueFromMap(const ObjectValue::Map& value) {
+FieldValue FieldValue::FromMap(const ObjectValue::Map& value) {
   ObjectValue::Map copy(value);
-  return ObjectValueFromMap(std::move(copy));
+  return FromMap(std::move(copy));
 }
 
-FieldValue FieldValue::ObjectValueFromMap(ObjectValue::Map&& value) {
+FieldValue FieldValue::FromMap(ObjectValue::Map&& value) {
   FieldValue result;
   result.SwitchTo(Type::Object);
   std::swap(result.object_value_.internal_value, value);
