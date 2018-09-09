@@ -53,7 +53,7 @@ TEST(FieldValue, BooleanType) {
 }
 
 TEST(FieldValue, NumberType) {
-  const FieldValue nan_value = FieldValue::NanValue();
+  const FieldValue nan_value = FieldValue::Nan();
   const FieldValue integer_value = FieldValue::IntegerValue(10L);
   const FieldValue double_value = FieldValue::DoubleValue(10.1);
   EXPECT_EQ(Type::Double, nan_value.type());
@@ -78,9 +78,9 @@ TEST(FieldValue, NumberType) {
   EXPECT_TRUE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(2.0));
   EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(1.0));
   EXPECT_FALSE(FieldValue::DoubleValue(2.0) < FieldValue::DoubleValue(1.0));
-  EXPECT_TRUE(FieldValue::NanValue() < FieldValue::DoubleValue(1.0));
-  EXPECT_FALSE(FieldValue::NanValue() < FieldValue::NanValue());
-  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::NanValue());
+  EXPECT_TRUE(FieldValue::Nan() < FieldValue::DoubleValue(1.0));
+  EXPECT_FALSE(FieldValue::Nan() < FieldValue::Nan());
+  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::Nan());
   // Mixed
   EXPECT_TRUE(FieldValue::DoubleValue(-1e20) <
               FieldValue::IntegerValue(LLONG_MIN));
@@ -228,12 +228,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue nan_value = FieldValue::NanValue();
+  const FieldValue nan_value = FieldValue::Nan();
   clone = nan_value;
-  EXPECT_EQ(FieldValue::NanValue(), clone);
-  EXPECT_EQ(FieldValue::NanValue(), nan_value);
+  EXPECT_EQ(FieldValue::Nan(), clone);
+  EXPECT_EQ(FieldValue::Nan(), nan_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::NanValue(), clone);
+  EXPECT_EQ(FieldValue::Nan(), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -369,9 +369,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue nan_value = FieldValue::NanValue();
+  FieldValue nan_value = FieldValue::Nan();
   clone = std::move(nan_value);
-  EXPECT_EQ(FieldValue::NanValue(), clone);
+  EXPECT_EQ(FieldValue::Nan(), clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -444,7 +444,7 @@ TEST(FieldValue, Move) {
 TEST(FieldValue, CompareMixedType) {
   const FieldValue null_value = FieldValue::Null();
   const FieldValue true_value = FieldValue::True();
-  const FieldValue number_value = FieldValue::NanValue();
+  const FieldValue number_value = FieldValue::Nan();
   const FieldValue timestamp_value = FieldValue::TimestampValue({100, 200});
   const FieldValue string_value = FieldValue::StringValue("abc");
   const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);

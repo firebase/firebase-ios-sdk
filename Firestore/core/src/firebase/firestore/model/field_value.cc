@@ -253,7 +253,7 @@ const FieldValue& FieldValue::BooleanValue(bool value) {
   return value ? True() : False();
 }
 
-const FieldValue& FieldValue::NanValue() {
+const FieldValue& FieldValue::Nan() {
   static const FieldValue kNanInstance = FieldValue::DoubleValue(NAN);
   return kNanInstance;
 }

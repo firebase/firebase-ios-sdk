@@ -103,7 +103,7 @@ TEST(QueryTest, NanFilter) {
   Query query = Query::AtPath(ResourcePath::FromString("collection"))
                     .Filter(Filter("sort", "==", NAN));
 
-  Document doc1 = Doc("collection/1", 0, {{"sort", FieldValue::NanValue()}});
+  Document doc1 = Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
   Document doc2 =
       Doc("collection/2", 0, {{"sort", FieldValue::IntegerValue(2)}});
   Document doc3 =
