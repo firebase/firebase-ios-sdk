@@ -116,7 +116,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             double value) {
-  return Filter(key, op, model::FieldValue::DoubleValue(value));
+  return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 
 inline core::Query Query(absl::string_view path) {

@@ -254,7 +254,7 @@ const FieldValue& FieldValue::FromBoolean(bool value) {
 }
 
 const FieldValue& FieldValue::Nan() {
-  static const FieldValue kNanInstance = FieldValue::DoubleValue(NAN);
+  static const FieldValue kNanInstance = FieldValue::FromDouble(NAN);
   return kNanInstance;
 }
 
@@ -265,7 +265,7 @@ FieldValue FieldValue::FromInteger(int64_t value) {
   return result;
 }
 
-FieldValue FieldValue::DoubleValue(double value) {
+FieldValue FieldValue::FromDouble(double value) {
   FieldValue result;
   result.SwitchTo(Type::Double);
   result.double_value_ = value;

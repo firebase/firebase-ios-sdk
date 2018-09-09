@@ -55,7 +55,7 @@ TEST(FieldValue, BooleanType) {
 TEST(FieldValue, NumberType) {
   const FieldValue nan_value = FieldValue::Nan();
   const FieldValue integer_value = FieldValue::FromInteger(10L);
-  const FieldValue double_value = FieldValue::DoubleValue(10.1);
+  const FieldValue double_value = FieldValue::FromDouble(10.1);
   EXPECT_EQ(Type::Double, nan_value.type());
   EXPECT_EQ(Type::Integer, integer_value.type());
   EXPECT_EQ(Type::Double, double_value.type());
@@ -75,27 +75,27 @@ TEST(FieldValue, NumberType) {
   EXPECT_FALSE(FieldValue::FromInteger(1L) < FieldValue::FromInteger(1L));
   EXPECT_FALSE(FieldValue::FromInteger(2L) < FieldValue::FromInteger(1L));
   // Doubles
-  EXPECT_TRUE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(2.0));
-  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(1.0));
-  EXPECT_FALSE(FieldValue::DoubleValue(2.0) < FieldValue::DoubleValue(1.0));
-  EXPECT_TRUE(FieldValue::Nan() < FieldValue::DoubleValue(1.0));
+  EXPECT_TRUE(FieldValue::FromDouble(1.0) < FieldValue::FromDouble(2.0));
+  EXPECT_FALSE(FieldValue::FromDouble(1.0) < FieldValue::FromDouble(1.0));
+  EXPECT_FALSE(FieldValue::FromDouble(2.0) < FieldValue::FromDouble(1.0));
+  EXPECT_TRUE(FieldValue::Nan() < FieldValue::FromDouble(1.0));
   EXPECT_FALSE(FieldValue::Nan() < FieldValue::Nan());
-  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::Nan());
+  EXPECT_FALSE(FieldValue::FromDouble(1.0) < FieldValue::Nan());
   // Mixed
-  EXPECT_TRUE(FieldValue::DoubleValue(-1e20) <
+  EXPECT_TRUE(FieldValue::FromDouble(-1e20) <
                   FieldValue::FromInteger(LLONG_MIN));
-  EXPECT_FALSE(FieldValue::DoubleValue(1e20) <
+  EXPECT_FALSE(FieldValue::FromDouble(1e20) <
                    FieldValue::FromInteger(LLONG_MAX));
-  EXPECT_TRUE(FieldValue::DoubleValue(1.234) < FieldValue::FromInteger(2L));
-  EXPECT_FALSE(FieldValue::DoubleValue(2.345) < FieldValue::FromInteger(1L));
-  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::FromInteger(1L));
-  EXPECT_FALSE(FieldValue::DoubleValue(1.234) < FieldValue::FromInteger(1L));
+  EXPECT_TRUE(FieldValue::FromDouble(1.234) < FieldValue::FromInteger(2L));
+  EXPECT_FALSE(FieldValue::FromDouble(2.345) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::FromDouble(1.0) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::FromDouble(1.234) < FieldValue::FromInteger(1L));
   EXPECT_FALSE(FieldValue::FromInteger(LLONG_MIN) <
-               FieldValue::DoubleValue(-1e20));
+                   FieldValue::FromDouble(-1e20));
   EXPECT_TRUE(FieldValue::FromInteger(LLONG_MAX) <
-              FieldValue::DoubleValue(1e20));
-  EXPECT_FALSE(FieldValue::FromInteger(1) < FieldValue::DoubleValue(1.0));
-  EXPECT_TRUE(FieldValue::FromInteger(1) < FieldValue::DoubleValue(1.234));
+                  FieldValue::FromDouble(1e20));
+  EXPECT_FALSE(FieldValue::FromInteger(1) < FieldValue::FromDouble(1.0));
+  EXPECT_TRUE(FieldValue::FromInteger(1) < FieldValue::FromDouble(1.234));
 }
 
 TEST(FieldValue, TimestampType) {
@@ -246,12 +246,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue double_value = FieldValue::DoubleValue(1.0);
+  const FieldValue double_value = FieldValue::FromDouble(1.0);
   clone = double_value;
-  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
-  EXPECT_EQ(FieldValue::DoubleValue(1.0), double_value);
+  EXPECT_EQ(FieldValue::FromDouble(1.0), clone);
+  EXPECT_EQ(FieldValue::FromDouble(1.0), double_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
+  EXPECT_EQ(FieldValue::FromDouble(1.0), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -381,9 +381,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue double_value = FieldValue::DoubleValue(1.0);
+  FieldValue double_value = FieldValue::FromDouble(1.0);
   clone = std::move(double_value);
-  EXPECT_EQ(FieldValue::DoubleValue(1.0), clone);
+  EXPECT_EQ(FieldValue::FromDouble(1.0), clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 

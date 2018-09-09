@@ -107,7 +107,7 @@ TEST(QueryTest, NanFilter) {
   Document doc2 =
       Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
   Document doc3 =
-      Doc("collection/3", 0, {{"sort", FieldValue::DoubleValue(3.1)}});
+      Doc("collection/3", 0, {{"sort", FieldValue::FromDouble(3.1)}});
   Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
       Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
