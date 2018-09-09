@@ -360,7 +360,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:
-        result = FieldValue::BooleanValue(reader->ReadBool());
+        result = FieldValue::FromBoolean(reader->ReadBool());
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:

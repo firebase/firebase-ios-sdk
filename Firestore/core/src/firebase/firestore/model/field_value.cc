@@ -249,7 +249,7 @@ const FieldValue& FieldValue::False() {
   return kFalseInstance;
 }
 
-const FieldValue& FieldValue::BooleanValue(bool value) {
+const FieldValue& FieldValue::FromBoolean(bool value) {
   return value ? True() : False();
 }
 

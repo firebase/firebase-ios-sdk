@@ -202,7 +202,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(bool b) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
+        EncodeFieldValue(&serializer, FieldValue::FromBoolean(b));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -373,7 +373,7 @@ TEST_F(SerializerTest, EncodesNull) {
 
 TEST_F(SerializerTest, EncodesBool) {
   for (bool bool_value : {true, false}) {
-    FieldValue model = FieldValue::BooleanValue(bool_value);
+    FieldValue model = FieldValue::FromBoolean(bool_value);
     ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
   }
 }
@@ -558,7 +558,7 @@ TEST_F(SerializerTest, BadNullValue) {
 
 TEST_F(SerializerTest, BadBoolValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
@@ -683,14 +683,14 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::BooleanValue(true);
+  FieldValue expected_model = FieldValue::FromBoolean(true);
   EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
   EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
 
   // 0x0a represents a bool value encoded as a string. (We're using a
   // boolean_value tag here, but any tag that would be represented by a varint

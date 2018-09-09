@@ -175,7 +175,7 @@ class FieldValue {
   static const FieldValue& True();
   static const FieldValue& False();
   static const FieldValue& Nan();
-  static const FieldValue& BooleanValue(bool value);
+  static const FieldValue& FromBoolean(bool value);
   static FieldValue IntegerValue(int64_t value);
   static FieldValue DoubleValue(double value);
   static FieldValue TimestampValue(const Timestamp& value);
