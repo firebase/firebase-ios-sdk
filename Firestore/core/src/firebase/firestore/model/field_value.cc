@@ -313,7 +313,7 @@ FieldValue FieldValue::FromString(std::string&& value) {
   return result;
 }
 
-FieldValue FieldValue::BlobValue(const uint8_t* source, size_t size) {
+FieldValue FieldValue::FromBlob(const uint8_t* source, size_t size) {
   FieldValue result;
   result.SwitchTo(Type::Blob);
   std::vector<uint8_t> copy(source, source + size);

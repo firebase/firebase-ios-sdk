@@ -185,7 +185,7 @@ class FieldValue {
   static FieldValue FromString(const char* value);
   static FieldValue FromString(const std::string& value);
   static FieldValue FromString(std::string&& value);
-  static FieldValue BlobValue(const uint8_t* source, size_t size);
+  static FieldValue FromBlob(const uint8_t* source, size_t size);
   static FieldValue ReferenceValue(const DocumentKey& value,
                                    const DatabaseId* database_id);
   static FieldValue ReferenceValue(DocumentKey&& value,

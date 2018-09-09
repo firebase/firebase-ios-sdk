@@ -136,8 +136,8 @@ TEST(FieldValue, StringType) {
 }
 
 TEST(FieldValue, BlobType) {
-  const FieldValue a = FieldValue::BlobValue(Bytes("abc"), 4);
-  const FieldValue b = FieldValue::BlobValue(Bytes("def"), 4);
+  const FieldValue a = FieldValue::FromBlob(Bytes("abc"), 4);
+  const FieldValue b = FieldValue::FromBlob(Bytes("def"), 4);
   EXPECT_EQ(Type::Blob, a.type());
   EXPECT_EQ(Type::Blob, b.type());
   EXPECT_TRUE(a < b);
@@ -284,12 +284,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   clone = blob_value;
-  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
-  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), blob_value);
+  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), blob_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -399,9 +399,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   clone = std::move(blob_value);
-  EXPECT_EQ(FieldValue::BlobValue(Bytes("abc"), 4), clone);
+  EXPECT_EQ(FieldValue::FromBlob(Bytes("abc"), 4), clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -447,7 +447,7 @@ TEST(FieldValue, CompareMixedType) {
   const FieldValue number_value = FieldValue::Nan();
   const FieldValue timestamp_value = FieldValue::FromTimestamp({100, 200});
   const FieldValue string_value = FieldValue::FromString("abc");
-  const FieldValue blob_value = FieldValue::BlobValue(Bytes("abc"), 4);
+  const FieldValue blob_value = FieldValue::FromBlob(Bytes("abc"), 4);
   const DatabaseId database_id("project", "database");
   const FieldValue reference_value = FieldValue::ReferenceValue(
       DocumentKey::FromPathString("root/abc"), &database_id);
