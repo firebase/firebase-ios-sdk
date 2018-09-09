@@ -244,13 +244,13 @@ const FieldValue& FieldValue::True() {
   return kTrueInstance;
 }
 
-const FieldValue& FieldValue::FalseValue() {
+const FieldValue& FieldValue::False() {
   static const FieldValue kFalseInstance(false);
   return kFalseInstance;
 }
 
 const FieldValue& FieldValue::BooleanValue(bool value) {
-  return value ? True() : FalseValue();
+  return value ? True() : False();
 }
 
 const FieldValue& FieldValue::NanValue() {

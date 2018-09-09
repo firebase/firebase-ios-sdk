@@ -192,11 +192,11 @@ TEST(FieldValue, ObjectType) {
   const FieldValue empty = FieldValue::ObjectValueFromMap({});
   ObjectValue::Map object{{"null", FieldValue::Null()},
                           {"true", FieldValue::True()},
-                          {"false", FieldValue::FalseValue()}};
+                          {"false", FieldValue::False()}};
   // copy the map
   const FieldValue small = FieldValue::ObjectValueFromMap(object);
   ObjectValue::Map another_object{{"null", FieldValue::Null()},
-                                  {"true", FieldValue::FalseValue()}};
+                                  {"true", FieldValue::False()}};
   // move the array
   const FieldValue large =
       FieldValue::ObjectValueFromMap(std::move(another_object));
@@ -320,37 +320,37 @@ TEST(FieldValue, Copy) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()});
+      FieldValue::True(), FieldValue::False()});
   clone = array_value;
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()}),
+      FieldValue::True(), FieldValue::False()}),
             clone);
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()}),
+      FieldValue::True(), FieldValue::False()}),
             array_value);
   clone = *&clone;
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()}),
+      FieldValue::True(), FieldValue::False()}),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
   const FieldValue object_value = FieldValue::ObjectValueFromMap(
       ObjectValue::Map{{"true", FieldValue::True()},
-                       {"false", FieldValue::FalseValue()}});
+                       {"false", FieldValue::False()}});
   clone = object_value;
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
                 ObjectValue::Map{{"true", FieldValue::True()},
-                                 {"false", FieldValue::FalseValue()}}),
+                                 {"false", FieldValue::False()}}),
             clone);
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
                 ObjectValue::Map{{"true", FieldValue::True()},
-                                 {"false", FieldValue::FalseValue()}}),
+                                 {"false", FieldValue::False()}}),
             object_value);
   clone = *&clone;
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
                 ObjectValue::Map{{"true", FieldValue::True()},
-                                 {"false", FieldValue::FalseValue()}}),
+                                 {"false", FieldValue::False()}}),
             clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
@@ -422,20 +422,20 @@ TEST(FieldValue, Move) {
   EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()});
+      FieldValue::True(), FieldValue::False()});
   clone = std::move(array_value);
   EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
-      FieldValue::True(), FieldValue::FalseValue()}),
+      FieldValue::True(), FieldValue::False()}),
             clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
   FieldValue object_value = FieldValue::ObjectValueFromMap(ObjectValue::Map{
-      {"true", FieldValue::True()}, {"false", FieldValue::FalseValue()}});
+      {"true", FieldValue::True()}, {"false", FieldValue::False()}});
   clone = std::move(object_value);
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
                 ObjectValue::Map{{"true", FieldValue::True()},
-                                 {"false", FieldValue::FalseValue()}}),
+                                 {"false", FieldValue::False()}}),
             clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
