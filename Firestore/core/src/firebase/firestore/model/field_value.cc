@@ -177,8 +177,8 @@ FieldValue FieldValue::Set(const FieldPath& field_path,
     ObjectValue::Map copy = CopyExcept(object_map, child_name);
     const auto iter = object_map.find(child_name);
     if (iter == object_map.end() || iter->second.type() != Type::Object) {
-      copy[child_name] = FieldValue::FromMap({}).Set(
-          field_path.PopFirst(), std::move(value));
+      copy[child_name] =
+          FieldValue::FromMap({}).Set(field_path.PopFirst(), std::move(value));
     } else {
       copy[child_name] =
           iter->second.Set(field_path.PopFirst(), std::move(value));
