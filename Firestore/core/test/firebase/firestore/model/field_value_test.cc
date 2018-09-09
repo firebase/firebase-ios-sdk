@@ -168,16 +168,16 @@ TEST(FieldValue, GeoPointType) {
 }
 
 TEST(FieldValue, ArrayType) {
-  const FieldValue empty = FieldValue::ArrayValue(std::vector<FieldValue>{});
+  const FieldValue empty = FieldValue::FromArray(std::vector<FieldValue>{});
   std::vector<FieldValue> array{FieldValue::Null(),
                                 FieldValue::FromBoolean(true),
                                 FieldValue::FromBoolean(false)};
   // copy the array
-  const FieldValue small = FieldValue::ArrayValue(array);
+  const FieldValue small = FieldValue::FromArray(array);
   std::vector<FieldValue> another_array{FieldValue::FromBoolean(true),
                                         FieldValue::FromBoolean(false)};
   // move the array
-  const FieldValue large = FieldValue::ArrayValue(std::move(another_array));
+  const FieldValue large = FieldValue::FromArray(std::move(another_array));
   EXPECT_EQ(Type::Array, empty.type());
   EXPECT_EQ(Type::Array, small.type());
   EXPECT_EQ(Type::Array, large.type());
@@ -319,17 +319,17 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
+  const FieldValue array_value = FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()});
   clone = array_value;
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
+  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()}),
             clone);
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
+  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()}),
             array_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
+  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()}),
             clone);
   clone = null_value;
@@ -421,10 +421,10 @@ TEST(FieldValue, Move) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue array_value = FieldValue::ArrayValue(std::vector<FieldValue>{
+  FieldValue array_value = FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()});
   clone = std::move(array_value);
-  EXPECT_EQ(FieldValue::ArrayValue(std::vector<FieldValue>{
+  EXPECT_EQ(FieldValue::FromArray(std::vector<FieldValue>{
       FieldValue::True(), FieldValue::False()}),
             clone);
   clone = FieldValue::Null();
@@ -453,7 +453,7 @@ TEST(FieldValue, CompareMixedType) {
       DocumentKey::FromPathString("root/abc"), &database_id);
   const FieldValue geo_point_value = FieldValue::FromGeoPoint({1, 2});
   const FieldValue array_value =
-      FieldValue::ArrayValue(std::vector<FieldValue>());
+      FieldValue::FromArray(std::vector<FieldValue>());
   const FieldValue object_value = FieldValue::ObjectValueFromMap({});
   EXPECT_TRUE(null_value < true_value);
   EXPECT_TRUE(true_value < number_value);

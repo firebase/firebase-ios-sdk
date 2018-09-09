@@ -191,8 +191,8 @@ class FieldValue {
   static FieldValue FromReference(DocumentKey&& value,
                                   const DatabaseId* database_id);
   static FieldValue FromGeoPoint(const GeoPoint& value);
-  static FieldValue ArrayValue(const std::vector<FieldValue>& value);
-  static FieldValue ArrayValue(std::vector<FieldValue>&& value);
+  static FieldValue FromArray(const std::vector<FieldValue>& value);
+  static FieldValue FromArray(std::vector<FieldValue>&& value);
   static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
   static FieldValue ObjectValueFromMap(ObjectValue::Map&& value);
 

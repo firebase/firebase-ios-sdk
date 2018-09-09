@@ -348,12 +348,12 @@ FieldValue FieldValue::FromGeoPoint(const GeoPoint& value) {
   return result;
 }
 
-FieldValue FieldValue::ArrayValue(const std::vector<FieldValue>& value) {
+FieldValue FieldValue::FromArray(const std::vector<FieldValue>& value) {
   std::vector<FieldValue> copy(value);
-  return ArrayValue(std::move(copy));
+  return FromArray(std::move(copy));
 }
 
-FieldValue FieldValue::ArrayValue(std::vector<FieldValue>&& value) {
+FieldValue FieldValue::FromArray(std::vector<FieldValue>&& value) {
   FieldValue result;
   result.SwitchTo(Type::Array);
   std::swap(result.array_value_, value);
