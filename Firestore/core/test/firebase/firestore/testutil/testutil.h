@@ -104,7 +104,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             const std::string& value) {
-  return Filter(key, op, model::FieldValue::StringValue(value));
+  return Filter(key, op, model::FieldValue::FromString(value));
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,

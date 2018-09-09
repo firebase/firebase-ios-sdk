@@ -182,9 +182,9 @@ class FieldValue {
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
                                         const Timestamp& previous_value);
   static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
-  static FieldValue StringValue(const char* value);
-  static FieldValue StringValue(const std::string& value);
-  static FieldValue StringValue(std::string&& value);
+  static FieldValue FromString(const char* value);
+  static FieldValue FromString(const std::string& value);
+  static FieldValue FromString(std::string&& value);
   static FieldValue BlobValue(const uint8_t* source, size_t size);
   static FieldValue ReferenceValue(const DocumentKey& value,
                                    const DatabaseId* database_id);

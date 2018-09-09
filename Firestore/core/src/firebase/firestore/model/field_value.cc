@@ -296,17 +296,17 @@ FieldValue FieldValue::FromServerTimestamp(const Timestamp& local_write_time) {
   return result;
 }
 
-FieldValue FieldValue::StringValue(const char* value) {
+FieldValue FieldValue::FromString(const char* value) {
   std::string copy(value);
-  return StringValue(std::move(copy));
+  return FromString(std::move(copy));
 }
 
-FieldValue FieldValue::StringValue(const std::string& value) {
+FieldValue FieldValue::FromString(const std::string& value) {
   std::string copy(value);
-  return StringValue(std::move(copy));
+  return FromString(std::move(copy));
 }
 
-FieldValue FieldValue::StringValue(std::string&& value) {
+FieldValue FieldValue::FromString(std::string&& value) {
   FieldValue result;
   result.SwitchTo(Type::String);
   result.string_value_.swap(value);

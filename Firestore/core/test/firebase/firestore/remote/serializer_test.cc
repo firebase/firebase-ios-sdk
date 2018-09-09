@@ -226,7 +226,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(const std::string& s) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::StringValue(s));
+        EncodeFieldValue(&serializer, FieldValue::FromString(s));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -411,7 +411,7 @@ TEST_F(SerializerTest, EncodesString) {
   };
 
   for (const std::string& string_value : cases) {
-    FieldValue model = FieldValue::StringValue(string_value);
+    FieldValue model = FieldValue::FromString(string_value);
     ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
   }
 }
@@ -449,7 +449,7 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
       {"i", FieldValue::FromInteger(1)},
       {"n", FieldValue::Null()},
-      {"s", FieldValue::StringValue("foo")},
+      {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
       {"o", FieldValue::ObjectValueFromMap({
@@ -588,7 +588,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
 
 TEST_F(SerializerTest, BadStringValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::StringValue("a"));
+      EncodeFieldValue(&serializer, FieldValue::FromString("a"));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -703,7 +703,7 @@ TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
 
 TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::StringValue("foo"));
+      EncodeFieldValue(&serializer, FieldValue::FromString("foo"));
 
   // 0x88 represents a string value encoded as a varint.
   Mutate(&bytes[0], /*expected_initial_value=*/0x8a, /*new_value=*/0x88);
@@ -798,7 +798,7 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
   FieldValue fields = FieldValue::ObjectValueFromMap({
-      {"foo", FieldValue::StringValue("bar")},
+      {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
       {"nested", FieldValue::ObjectValueFromMap({
                      {"fourty-two", FieldValue::FromInteger(42)},

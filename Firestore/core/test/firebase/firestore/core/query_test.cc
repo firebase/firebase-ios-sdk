@@ -61,7 +61,7 @@ TEST(QueryTest, MatchesShallowAncestorQuery) {
 
 TEST(QueryTest, EmptyFieldsAreAllowedForQueries) {
   Document doc1 = Doc("rooms/eros/messages/1", 0,
-                      {{"text", FieldValue::StringValue("msg1")}});
+                      {{"text", FieldValue::FromString("msg1")}});
   Document doc2 = Doc("rooms/eros/messages/2");
 
   Query query = Query::AtPath({"rooms", "eros", "messages"})
@@ -84,7 +84,7 @@ TEST(QueryTest, PrimitiveValueFilter) {
       Doc("collection/3", 0, {{"sort", FieldValue::FromInteger(3)}});
   Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
-      Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
+      Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
 
   EXPECT_FALSE(query1.Matches(doc1));
   EXPECT_TRUE(query1.Matches(doc2));
@@ -110,7 +110,7 @@ TEST(QueryTest, NanFilter) {
       Doc("collection/3", 0, {{"sort", FieldValue::FromDouble(3.1)}});
   Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
-      Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
+      Doc("collection/5", 0, {{"sort", FieldValue::FromString("string")}});
 
   EXPECT_TRUE(query.Matches(doc1));
   EXPECT_FALSE(query.Matches(doc2));

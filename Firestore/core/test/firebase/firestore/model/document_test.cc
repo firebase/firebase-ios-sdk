@@ -30,7 +30,7 @@ inline Document MakeDocument(const absl::string_view data,
                              const Timestamp& timestamp,
                              bool has_local_mutations) {
   return Document(FieldValue::ObjectValueFromMap(
-                      {{"field", FieldValue::StringValue(data.data())}}),
+                      {{"field", FieldValue::FromString(data.data())}}),
                   DocumentKey::FromPathString(path.data()),
                   SnapshotVersion(timestamp), has_local_mutations);
 }
@@ -42,7 +42,7 @@ TEST(Document, Getter) {
       MakeDocument("foo", "i/am/a/path", Timestamp(123, 456), true);
   EXPECT_EQ(MaybeDocument::Type::Document, doc.type());
   EXPECT_EQ(FieldValue::ObjectValueFromMap(
-                {{"field", FieldValue::StringValue("foo")}}),
+                {{"field", FieldValue::FromString("foo")}}),
             doc.data());
   EXPECT_EQ(DocumentKey::FromPathString("i/am/a/path"), doc.key());
   EXPECT_EQ(SnapshotVersion(Timestamp(123, 456)), doc.version());
