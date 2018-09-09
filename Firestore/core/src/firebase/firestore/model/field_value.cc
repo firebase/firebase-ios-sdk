@@ -258,7 +258,7 @@ const FieldValue& FieldValue::Nan() {
   return kNanInstance;
 }
 
-FieldValue FieldValue::IntegerValue(int64_t value) {
+FieldValue FieldValue::FromInteger(int64_t value) {
   FieldValue result;
   result.SwitchTo(Type::Integer);
   result.integer_value_ = value;

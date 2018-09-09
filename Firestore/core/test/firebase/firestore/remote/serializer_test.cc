@@ -212,7 +212,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(int64_t i) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
+        EncodeFieldValue(&serializer, FieldValue::FromInteger(i));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -388,7 +388,7 @@ TEST_F(SerializerTest, EncodesIntegers) {
                              std::numeric_limits<int64_t>::max()};
 
   for (int64_t int_value : cases) {
-    FieldValue model = FieldValue::IntegerValue(int_value);
+    FieldValue model = FieldValue::FromInteger(int_value);
     ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
   }
 }
@@ -447,17 +447,17 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
-      {"i", FieldValue::IntegerValue(1)},
+      {"i", FieldValue::FromInteger(1)},
       {"n", FieldValue::Null()},
       {"s", FieldValue::StringValue("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
       {"o", FieldValue::ObjectValueFromMap({
-                {"d", FieldValue::IntegerValue(100)},
+                {"d", FieldValue::FromInteger(100)},
                 {"nested", FieldValue::ObjectValueFromMap({
                                {
                                    "e",
-                                   FieldValue::IntegerValue(
+                                   FieldValue::FromInteger(
                                        std::numeric_limits<int64_t>::max()),
                                },
                            })},
@@ -540,7 +540,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::IntegerValue(42);
+  FieldValue expected_model = FieldValue::FromInteger(42);
   EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
   EXPECT_EQ(expected_model, *actual_model);
 }
@@ -571,7 +571,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
   std::vector<uint8_t> bytes = EncodeFieldValue(
       &serializer,
-      FieldValue::IntegerValue(std::numeric_limits<uint64_t>::max()));
+      FieldValue::FromInteger(std::numeric_limits<uint64_t>::max()));
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
     ASSERT_EQ(0xff, bytes[i]);
@@ -799,9 +799,9 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
   FieldValue fields = FieldValue::ObjectValueFromMap({
       {"foo", FieldValue::StringValue("bar")},
-      {"two", FieldValue::IntegerValue(2)},
+      {"two", FieldValue::FromInteger(2)},
       {"nested", FieldValue::ObjectValueFromMap({
-                     {"fourty-two", FieldValue::IntegerValue(42)},
+                     {"fourty-two", FieldValue::FromInteger(42)},
                  })},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};

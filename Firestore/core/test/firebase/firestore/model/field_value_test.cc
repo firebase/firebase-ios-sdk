@@ -54,7 +54,7 @@ TEST(FieldValue, BooleanType) {
 
 TEST(FieldValue, NumberType) {
   const FieldValue nan_value = FieldValue::Nan();
-  const FieldValue integer_value = FieldValue::IntegerValue(10L);
+  const FieldValue integer_value = FieldValue::FromInteger(10L);
   const FieldValue double_value = FieldValue::DoubleValue(10.1);
   EXPECT_EQ(Type::Double, nan_value.type());
   EXPECT_EQ(Type::Integer, integer_value.type());
@@ -71,9 +71,9 @@ TEST(FieldValue, NumberType) {
 
   // Number comparison craziness
   // Integers
-  EXPECT_TRUE(FieldValue::IntegerValue(1L) < FieldValue::IntegerValue(2L));
-  EXPECT_FALSE(FieldValue::IntegerValue(1L) < FieldValue::IntegerValue(1L));
-  EXPECT_FALSE(FieldValue::IntegerValue(2L) < FieldValue::IntegerValue(1L));
+  EXPECT_TRUE(FieldValue::FromInteger(1L) < FieldValue::FromInteger(2L));
+  EXPECT_FALSE(FieldValue::FromInteger(1L) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::FromInteger(2L) < FieldValue::FromInteger(1L));
   // Doubles
   EXPECT_TRUE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(2.0));
   EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::DoubleValue(1.0));
@@ -83,19 +83,19 @@ TEST(FieldValue, NumberType) {
   EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::Nan());
   // Mixed
   EXPECT_TRUE(FieldValue::DoubleValue(-1e20) <
-              FieldValue::IntegerValue(LLONG_MIN));
+                  FieldValue::FromInteger(LLONG_MIN));
   EXPECT_FALSE(FieldValue::DoubleValue(1e20) <
-               FieldValue::IntegerValue(LLONG_MAX));
-  EXPECT_TRUE(FieldValue::DoubleValue(1.234) < FieldValue::IntegerValue(2L));
-  EXPECT_FALSE(FieldValue::DoubleValue(2.345) < FieldValue::IntegerValue(1L));
-  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::IntegerValue(1L));
-  EXPECT_FALSE(FieldValue::DoubleValue(1.234) < FieldValue::IntegerValue(1L));
-  EXPECT_FALSE(FieldValue::IntegerValue(LLONG_MIN) <
+                   FieldValue::FromInteger(LLONG_MAX));
+  EXPECT_TRUE(FieldValue::DoubleValue(1.234) < FieldValue::FromInteger(2L));
+  EXPECT_FALSE(FieldValue::DoubleValue(2.345) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::DoubleValue(1.0) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::DoubleValue(1.234) < FieldValue::FromInteger(1L));
+  EXPECT_FALSE(FieldValue::FromInteger(LLONG_MIN) <
                FieldValue::DoubleValue(-1e20));
-  EXPECT_TRUE(FieldValue::IntegerValue(LLONG_MAX) <
+  EXPECT_TRUE(FieldValue::FromInteger(LLONG_MAX) <
               FieldValue::DoubleValue(1e20));
-  EXPECT_FALSE(FieldValue::IntegerValue(1) < FieldValue::DoubleValue(1.0));
-  EXPECT_TRUE(FieldValue::IntegerValue(1) < FieldValue::DoubleValue(1.234));
+  EXPECT_FALSE(FieldValue::FromInteger(1) < FieldValue::DoubleValue(1.0));
+  EXPECT_TRUE(FieldValue::FromInteger(1) < FieldValue::DoubleValue(1.234));
 }
 
 TEST(FieldValue, TimestampType) {
@@ -237,12 +237,12 @@ TEST(FieldValue, Copy) {
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  const FieldValue integer_value = FieldValue::IntegerValue(1L);
+  const FieldValue integer_value = FieldValue::FromInteger(1L);
   clone = integer_value;
-  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
-  EXPECT_EQ(FieldValue::IntegerValue(1L), integer_value);
+  EXPECT_EQ(FieldValue::FromInteger(1L), clone);
+  EXPECT_EQ(FieldValue::FromInteger(1L), integer_value);
   clone = *&clone;
-  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
+  EXPECT_EQ(FieldValue::FromInteger(1L), clone);
   clone = null_value;
   EXPECT_EQ(FieldValue::Null(), clone);
 
@@ -375,9 +375,9 @@ TEST(FieldValue, Move) {
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 
-  FieldValue integer_value = FieldValue::IntegerValue(1L);
+  FieldValue integer_value = FieldValue::FromInteger(1L);
   clone = std::move(integer_value);
-  EXPECT_EQ(FieldValue::IntegerValue(1L), clone);
+  EXPECT_EQ(FieldValue::FromInteger(1L), clone);
   clone = FieldValue::Null();
   EXPECT_EQ(FieldValue::Null(), clone);
 

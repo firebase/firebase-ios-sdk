@@ -364,7 +364,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:
-        result = FieldValue::IntegerValue(reader->ReadInteger());
+        result = FieldValue::FromInteger(reader->ReadInteger());
         break;
 
       case google_firestore_v1beta1_Value_string_value_tag:

@@ -77,11 +77,11 @@ TEST(QueryTest, PrimitiveValueFilter) {
                      .Filter(Filter("sort", "<=", 2));
 
   Document doc1 =
-      Doc("collection/1", 0, {{"sort", FieldValue::IntegerValue(1)}});
+      Doc("collection/1", 0, {{"sort", FieldValue::FromInteger(1)}});
   Document doc2 =
-      Doc("collection/2", 0, {{"sort", FieldValue::IntegerValue(2)}});
+      Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
   Document doc3 =
-      Doc("collection/3", 0, {{"sort", FieldValue::IntegerValue(3)}});
+      Doc("collection/3", 0, {{"sort", FieldValue::FromInteger(3)}});
   Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});
   Document doc5 =
       Doc("collection/5", 0, {{"sort", FieldValue::StringValue("string")}});
@@ -105,7 +105,7 @@ TEST(QueryTest, NanFilter) {
 
   Document doc1 = Doc("collection/1", 0, {{"sort", FieldValue::Nan()}});
   Document doc2 =
-      Doc("collection/2", 0, {{"sort", FieldValue::IntegerValue(2)}});
+      Doc("collection/2", 0, {{"sort", FieldValue::FromInteger(2)}});
   Document doc3 =
       Doc("collection/3", 0, {{"sort", FieldValue::DoubleValue(3.1)}});
   Document doc4 = Doc("collection/4", 0, {{"sort", FieldValue::False()}});

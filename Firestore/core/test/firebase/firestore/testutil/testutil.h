@@ -110,7 +110,7 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             int value) {
-  return Filter(key, op, model::FieldValue::IntegerValue(value));
+  return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
