@@ -239,7 +239,7 @@ const FieldValue& FieldValue::Null() {
   return kNullInstance;
 }
 
-const FieldValue& FieldValue::TrueValue() {
+const FieldValue& FieldValue::True() {
   static const FieldValue kTrueInstance(true);
   return kTrueInstance;
 }
@@ -250,7 +250,7 @@ const FieldValue& FieldValue::FalseValue() {
 }
 
 const FieldValue& FieldValue::BooleanValue(bool value) {
-  return value ? TrueValue() : FalseValue();
+  return value ? True() : FalseValue();
 }
 
 const FieldValue& FieldValue::NanValue() {

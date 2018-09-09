@@ -172,7 +172,7 @@ class FieldValue {
 
   /** factory methods. */
   static const FieldValue& Null();
-  static const FieldValue& TrueValue();
+  static const FieldValue& True();
   static const FieldValue& FalseValue();
   static const FieldValue& BooleanValue(bool value);
   static const FieldValue& NanValue();

@@ -444,7 +444,7 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
   FieldValue model = FieldValue::ObjectValueFromMap({
-      {"b", FieldValue::TrueValue()},
+      {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
       {"i", FieldValue::IntegerValue(1)},
