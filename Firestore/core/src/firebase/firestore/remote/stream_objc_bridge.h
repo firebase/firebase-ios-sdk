@@ -51,7 +51,7 @@ bool IsLoggingEnabled();
  * The principle is that the C++ implementation can only take Objective-C
  * objects as parameters or return them, but never instantiate them or call any
  * methods on them -- if that is necessary, it's delegated to one of the bridge
- * classes. This allows easily identifying which parts of `WatchStream`still
+ * classes. This allows easily identifying which parts of `WatchStream` still
  * rely on not-yet-ported code.
  */
 
