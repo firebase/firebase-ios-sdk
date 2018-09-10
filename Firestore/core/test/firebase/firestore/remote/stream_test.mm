@@ -129,16 +129,16 @@ class TestStream : public Stream {
       Datastore* datastore, absl::string_view token) override {
     return tester_->CreateStream(this);
   }
-  void FinishGrpcStream(GrpcStream* stream) override {
+  void TearDown(GrpcStream* stream) override {
     stream->Finish();
   }
 
-  void DoOnStreamStart() override {
-    observed_states_.push_back("OnStreamStart");
+  void NotifyStreamOpen() override {
+    observed_states_.push_back("NotifyStreamOpen");
   }
 
-  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override {
-    observed_states_.push_back("OnStreamRead");
+  util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override {
+    observed_states_.push_back("NotifyStreamResponse");
     if (fail_stream_read_) {
       fail_stream_read_ = false;
       return util::Status{FirestoreErrorCode::Internal, ""};
@@ -146,8 +146,8 @@ class TestStream : public Stream {
     return util::Status::OK();
   }
 
-  void DoOnStreamFinish(const util::Status& status) override {
-    observed_states_.push_back(std::string{"OnStreamStop("} +
+  void NotifyStreamClose(const util::Status& status) override {
+    observed_states_.push_back(std::string{"NotifyStreamClose("} +
                                std::to_string(status.code()) + ")");
   }
 
@@ -262,7 +262,7 @@ TEST_F(StreamTest, CanOpen) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_TRUE(firestore_stream->IsStarted());
     EXPECT_TRUE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamOpen"}));
   });
 }
 
@@ -274,7 +274,7 @@ TEST_F(StreamTest, CanStop) {
 
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(0)"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamOpen", "NotifyStreamClose(0)"}));
   });
 }
 
@@ -285,7 +285,7 @@ TEST_F(StreamTest, GrpcFailureOnStart) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"OnStreamStop(1)"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(1)"}));
   });
 }
 
@@ -296,7 +296,7 @@ TEST_F(StreamTest, AuthFailureOnStart) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"OnStreamStop(2)"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(2)"}));
   });
 }
 
@@ -325,7 +325,7 @@ TEST_F(StreamTest, ErrorAfterStart) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamStop(1)"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamOpen", "NotifyStreamClose(1)"}));
   });
 }
 
@@ -340,7 +340,7 @@ TEST_F(StreamTest, ClosesOnIdle) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states().back(), "OnStreamStop(0)");
+    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(0)");
   });
 }
 
@@ -354,7 +354,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states().back(), "OnStreamStop(13)");
+    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(13)");
   });
 }
 

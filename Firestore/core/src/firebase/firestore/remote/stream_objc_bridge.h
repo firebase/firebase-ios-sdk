@@ -79,8 +79,8 @@ class WatchStreamSerializer {
   model::SnapshotVersion ToSnapshotVersion(GCFSListenResponse* proto) const;
 
   /** Creates a pretty-printed description of the proto for debugging. */
-  NSString* Describe(GCFSListenRequest* request) const;
-  NSString* Describe(GCFSListenResponse* request) const;
+  static NSString* Describe(GCFSListenRequest* request);
+  static NSString* Describe(GCFSListenResponse* request);
 
  private:
   FSTSerializerBeta* serializer_;
@@ -97,7 +97,7 @@ class WatchStreamDelegate {
   void NotifyDelegateOnOpen();
   void NotifyDelegateOnChange(FSTWatchChange* change,
                               const model::SnapshotVersion& snapshot_version);
-  void NotifyDelegateOnStreamFinished(const util::Status& status);
+  void NotifyDelegateOnClose(const util::Status& status);
 
  private:
   id delegate_;

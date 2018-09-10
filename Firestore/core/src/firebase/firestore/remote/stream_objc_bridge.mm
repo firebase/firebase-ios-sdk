@@ -43,23 +43,6 @@ using util::StringFormat;
 
 namespace {
 
-NSData* ToNsData(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  HARD_ASSERT(status.ok(), "Trying to convert an invalid grpc::ByteBuffer");
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
 std::string ToHexString(const grpc::ByteBuffer& buffer) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
@@ -76,10 +59,32 @@ std::string ToHexString(const grpc::ByteBuffer& buffer) {
   return output.str();
 }
 
+NSData* ConvertToNsData(const grpc::ByteBuffer& buffer) {
+  std::vector<grpc::Slice> slices;
+  grpc::Status status = buffer.Dump(&slices);
+  HARD_ASSERT(status.ok(), "Trying to convert an invalid grpc::ByteBuffer");
+
+  if (slices.size() == 1) {
+    return [NSData dataWithBytes:slices.front().begin()
+                          length:slices.front().size()];
+  } else {
+    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
+    for (const auto& slice : slices) {
+      [data appendBytes:slice.begin() length:slice.size()];
+    }
+    return data;
+  }
+}
+
+grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
+  grpc::Slice slice{[data bytes], [data length]};
+  return grpc::ByteBuffer{&slice, 1};
+}
+
 template <typename Proto>
 Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   NSError* error = nil;
-  Proto* proto = [Proto parseFromData:ToNsData(message) error:&error];
+  Proto* proto = [Proto parseFromData:ConvertToNsData(message) error:&error];
   if (!error) {
     *out_status = Status::OK();
     return proto;
@@ -94,11 +99,6 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
 
   *out_status = {FirestoreErrorCode::Internal, error_description};
   return nil;
-}
-
-grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
-  grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
 }
 
 }  // namespace
@@ -129,11 +129,11 @@ grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) const {
+NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
   return [request description];
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) const {
+NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
   return [response description];
 }
 
@@ -163,7 +163,7 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
   [delegate watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 
-void WatchStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
+void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
   id<FSTWatchStreamDelegate> delegate = delegate_;
   [delegate watchStreamWasInterruptedWithError:MakeNSError(status)];
 }

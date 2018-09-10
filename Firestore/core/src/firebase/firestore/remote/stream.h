@@ -157,7 +157,7 @@ class Stream : public GrpcStreamObserver,
   /**
    * After an error, the stream will usually back off on the next attempt to
    * start it. If the error warrants an immediate restart of the stream, the
-   * sender can use this to indicate that the receiver should not back off.
+   * caller can use this to indicate that the stream should not back off.
    *
    * Each error will call `OnStreamClose`. That function can decide to
    * cancel backoff if required.
@@ -200,28 +200,18 @@ class Stream : public GrpcStreamObserver,
 
   virtual std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) = 0;
-  // PORTING NOTE: equivalent to `tearDown`.
-  virtual void FinishGrpcStream(GrpcStream* stream) = 0;
-  virtual void DoOnStreamStart() = 0;
-  virtual util::Status DoOnStreamRead(const grpc::ByteBuffer& message) = 0;
-  virtual void DoOnStreamFinish(const util::Status& status) = 0;
+  virtual void TearDown(GrpcStream* stream) = 0;
+  virtual void NotifyStreamOpen() = 0;
+  virtual util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) = 0;
+  virtual void NotifyStreamClose(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;
 
-  // Used to prevent auth if the stream happens to be restarted before token is
-  // received.
-  void RaiseGeneration() {
-    ++generation_;
-  }
-
-  void Authenticate();
-  void ResumeStartAfterAuth(const util::StatusOr<auth::Token>& maybe_token);
+  void RequestCredentials();
+  void ResumeStartWithCredentials(const util::StatusOr<auth::Token>& maybe_token);
 
   void BackoffAndTryRestarting();
-  void ResumeStartFromBackoff();
   void StopDueToIdleness();
-
-  void ResetGrpcStream();
 
   State state_ = State::Initial;
 
@@ -235,8 +225,9 @@ class Stream : public GrpcStreamObserver,
   util::TimerId idle_timer_id_{};
   util::DelayedOperation idleness_timer_;
 
-  // Generation is incremented in each call to `Stop`.
-  int generation_ = 0;
+  // Used to prevent auth if the stream happens to be restarted before token is
+  // received.
+  int close_count_ = 0;
 };
 
 }  // namespace remote
