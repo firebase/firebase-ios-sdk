@@ -32,6 +32,7 @@
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
+#include "Firestore/core/src/firebase/firestore/core/user_data.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_mask.h"
@@ -45,6 +46,7 @@
 #include "absl/strings/match.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -59,62 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static const char *RESERVED_FIELD_DESIGNATOR = "__";
 
-#pragma mark - FSTParsedSetData
-
-@implementation FSTParsedSetData {
-  FieldMask _fieldMask;
-  std::vector<FieldTransform> _fieldTransforms;
-}
-
-- (instancetype)initWithData:(FSTObjectValue *)data
-             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
-  self = [super init];
-  if (self) {
-    _data = data;
-    _fieldTransforms = std::move(fieldTransforms);
-    _isPatch = NO;
-  }
-  return self;
-}
-
-- (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(FieldMask)fieldMask
-             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
-  self = [super init];
-  if (self) {
-    _data = data;
-    _fieldMask = std::move(fieldMask);
-    _fieldTransforms = std::move(fieldTransforms);
-    _isPatch = YES;
-  }
-  return self;
-}
-
-- (const std::vector<FieldTransform> &)fieldTransforms {
-  return _fieldTransforms;
-}
-
-- (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(const Precondition &)precondition {
-  NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
-  if (self.isPatch) {
-    [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                                     fieldMask:_fieldMask
-                                                         value:self.data
-                                                  precondition:precondition]];
-  } else {
-    [mutations addObject:[[FSTSetMutation alloc] initWithKey:key
-                                                       value:self.data
-                                                precondition:precondition]];
-  }
-  if (!self.fieldTransforms.empty()) {
-    [mutations addObject:[[FSTTransformMutation alloc] initWithKey:key
-                                                   fieldTransforms:self.fieldTransforms]];
-  }
-  return mutations;
-}
-
-@end
+#pragma mark - ParsedSetData
 
 #pragma mark - FSTParsedUpdateData
 
@@ -434,7 +381,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return self;
 }
 
-- (FSTParsedSetData *)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask {
+- (ParsedSetData)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
   if (![input isKindOfClass:[NSDictionary class]]) {
@@ -483,12 +430,11 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     convertedFieldTransform = *context.fieldTransforms;
   }
 
-  return [[FSTParsedSetData alloc] initWithData:updateData
-                                      fieldMask:convertedFieldMask
-                                fieldTransforms:convertedFieldTransform];
+  return ParsedSetData{updateData, std::move(convertedFieldMask),
+                       std::move(convertedFieldTransform)};
 }
 
-- (FSTParsedSetData *)parsedSetData:(id)input {
+- (ParsedSetData)parsedSetData:(id)input {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
   if (![input isKindOfClass:[NSDictionary class]]) {
@@ -500,8 +446,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
                                     path:absl::make_unique<FieldPath>(FieldPath::EmptyPath())];
   FSTObjectValue *updateData = (FSTObjectValue *)[self parseData:input context:context];
 
-  return
-      [[FSTParsedSetData alloc] initWithData:updateData fieldTransforms:*context.fieldTransforms];
+  return ParsedSetData{updateData, *context.fieldTransforms};
 }
 
 - (FSTParsedUpdateData *)parsedUpdateData:(id)input {

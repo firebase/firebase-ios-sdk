@@ -46,6 +46,7 @@
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
@@ -137,21 +138,21 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
           merge:(BOOL)merge
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed =
+  ParsedSetData parsed =
       merge ? [self.firestore.dataConverter parsedMergeData:documentData fieldMask:nil]
             : [self.firestore.dataConverter parsedSetData:documentData];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
+      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::None())
           completion:completion];
 }
 
 - (void)setData:(NSDictionary<NSString *, id> *)documentData
     mergeFields:(NSArray<id> *)mergeFields
      completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedSetData *parsed =
+  ParsedSetData parsed =
       [self.firestore.dataConverter parsedMergeData:documentData fieldMask:mergeFields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::None()]
+      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::None())
           completion:completion];
 }
 
