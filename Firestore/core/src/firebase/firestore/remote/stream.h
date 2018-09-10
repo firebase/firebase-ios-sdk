@@ -202,13 +202,15 @@ class Stream : public GrpcStreamObserver,
       Datastore* datastore, absl::string_view token) = 0;
   virtual void TearDown(GrpcStream* stream) = 0;
   virtual void NotifyStreamOpen() = 0;
-  virtual util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) = 0;
+  virtual util::Status NotifyStreamResponse(
+      const grpc::ByteBuffer& message) = 0;
   virtual void NotifyStreamClose(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;
 
   void RequestCredentials();
-  void ResumeStartWithCredentials(const util::StatusOr<auth::Token>& maybe_token);
+  void ResumeStartWithCredentials(
+      const util::StatusOr<auth::Token>& maybe_token);
 
   void BackoffAndTryRestarting();
   void StopDueToIdleness();

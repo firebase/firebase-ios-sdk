@@ -21,6 +21,8 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
+
 #include <string>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -28,7 +30,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import <Foundation/Foundation.h>
 #import "Firestore/Protos/objc/google/firestore/v1beta1/Firestore.pbobjc.h"
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
