@@ -24,9 +24,10 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface FIDModalViewController : FIDBaseRenderingViewController
 + (FIDModalViewController *)
-instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                             displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
-                            displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
+    instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
+                                 displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
+                                displayDelegate:
+                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
 @end
 NS_ASSUME_NONNULL_END

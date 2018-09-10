@@ -71,10 +71,11 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
 @implementation FIDModalViewController
 
 + (FIDModalViewController *)
-instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                             displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
-                            displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+    instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
+                                 displayMessage:(FIRInAppMessagingModalDisplay *)modalMessage
+                                displayDelegate:
+                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard =
       [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
 

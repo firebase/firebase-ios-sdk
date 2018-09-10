@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary          = 'Firebase In-App Messaging UI for iOS'
 
   s.description      = <<-DESC
-FirebaseInAppMessagingDisplay is the default client UI implementation for 
+FirebaseInAppMessagingDisplay is the default client UI implementation for
 Firebase In-App Messaging SDK.
                        DESC
 
@@ -18,7 +18,7 @@ Firebase In-App Messaging SDK.
   }
   s.social_media_url = 'https://twitter.com/Firebase'
   s.ios.deployment_target = '8.0'
-  
+
   s.cocoapods_version = '>= 1.4.0'
   s.static_framework = true
   s.prefix_header_file = false
@@ -37,7 +37,7 @@ Firebase In-App Messaging SDK.
       '$(inherited) ' +
       'FIRInAppMessagingDisplay_LIB_VERSION=' + String(s.version)
   }
-  
+
   s.dependency 'FirebaseCore'
   s.dependency 'FirebaseInAppMessaging', '>=0.12.0'
 end
