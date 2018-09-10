@@ -69,9 +69,9 @@ instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300002",
-                  @"Storyboard '"
-                   "FIRInAppMessageDisplayStoryboard' not found in bundle %@",
-                  resourceBundle);
+                @"Storyboard '"
+                 "FIRInAppMessageDisplayStoryboard' not found in bundle %@",
+                resourceBundle);
     return nil;
   }
   FIDBannerViewController *bannerVC = (FIDBannerViewController *)[storyboard

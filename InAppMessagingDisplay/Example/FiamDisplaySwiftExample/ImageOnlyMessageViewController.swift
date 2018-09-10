@@ -17,11 +17,10 @@ import UIKit
 import FirebaseInAppMessaging
 import FirebaseInAppMessagingDisplay
 
-
 class ImageOnlyMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
-  @IBOutlet weak var verifyLabel: UILabel!
+  @IBOutlet var verifyLabel: UILabel!
 
   override func messageClicked() {
     super.messageClicked()
@@ -32,6 +31,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
     super.messageClicked()
     verifyLabel.text = "message dismissed!"
   }
+
   @IBAction func showRegularImageOnlyTapped(_ sender: Any) {
     verifyLabel.text = "Verification Label"
     let imageRawData = produceImageOfSize(size: CGSize(width: 200, height: 200))
@@ -41,7 +41,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                       renderAsTestMessage: false,
                                                       imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showImageViewWithLargeImageDimensionTapped(_ sender: Any) {
@@ -53,7 +53,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                       renderAsTestMessage: false,
                                                       imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showImageViewWithWideImage(_ sender: Any) {
@@ -65,7 +65,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                       renderAsTestMessage: false,
                                                       imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showImageViewWithNarrowImage(_ sender: Any) {
@@ -77,7 +77,7 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                       renderAsTestMessage: false,
                                                       imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showImageViewWithSmallImageDimensionTapped(_ sender: Any) {
@@ -88,6 +88,6 @@ class ImageOnlyMessageViewController: CommonMessageTestVC {
                                                       renderAsTestMessage: false,
                                                       imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 }

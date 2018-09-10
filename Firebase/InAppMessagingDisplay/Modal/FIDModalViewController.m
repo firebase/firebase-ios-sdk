@@ -80,9 +80,9 @@ instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
 
   if (storyboard == nil) {
     FIRLogError(kFIRLoggerInAppMessagingDisplay, @"I-FID300001",
-                  @"Storyboard '"
-                   "FIRInAppMessageDisplayStoryboard' not found in bundle %@",
-                  resourceBundle);
+                @"Storyboard '"
+                 "FIRInAppMessageDisplayStoryboard' not found in bundle %@",
+                resourceBundle);
     return nil;
   }
   FIDModalViewController *modalVC = (FIDModalViewController *)[storyboard
@@ -438,13 +438,13 @@ struct TitleBodyButtonHeightInfo {
   [UIView animateWithDuration:2.0
                         delay:0.0
                       options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionRepeat |
-   UIViewAnimationOptionAutoreverse |
-   UIViewAnimationOptionAllowUserInteraction
+                              UIViewAnimationOptionAutoreverse |
+                              UIViewAnimationOptionAllowUserInteraction
                    animations:^{
                      closeButton.alpha = 0.1f;
                    }
                    completion:^(BOOL finished){
-                     // Do nothing
+                       // Do nothing
                    }];
 }
 @end

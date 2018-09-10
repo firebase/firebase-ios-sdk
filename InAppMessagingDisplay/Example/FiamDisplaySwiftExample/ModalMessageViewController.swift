@@ -21,7 +21,7 @@ import FirebaseInAppMessaging
 class ModalMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
-  @IBOutlet weak var verifyLabel: UILabel!
+  @IBOutlet var verifyLabel: UILabel!
 
   override func messageClicked() {
     super.messageClicked()
@@ -47,7 +47,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: fiamImageData,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithoutImage(_ sender: Any) {
@@ -61,7 +61,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithoutButton(_ sender: Any) {
@@ -78,7 +78,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: fiamImageData,
                                                   actionButton: nil)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithoutImageAndButton(_ sender: Any) {
@@ -92,7 +92,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: nil)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeBody(_ sender: Any) {
@@ -106,7 +106,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitleAndBody(_ sender: Any) {
@@ -123,7 +123,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: fiamImageData,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitle(_ sender: Any) {
@@ -137,7 +137,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitleAndBodyWithoutImage(_ sender: Any) {
@@ -151,7 +151,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithLargeTitleWithoutBodyWithoutImageWithoutButton(_ sender: Any) {
@@ -165,7 +165,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: nil,
                                                   actionButton: nil)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithWideImage(_ sender: Any) {
@@ -182,7 +182,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: fiamImageData,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showWithThinImage(_ sender: Any) {
@@ -199,7 +199,7 @@ class ModalMessageViewController: CommonMessageTestVC {
                                                   imageData: fiamImageData,
                                                   actionButton: defaultActionButton)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   override func viewDidLoad() {

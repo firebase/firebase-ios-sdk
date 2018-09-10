@@ -23,7 +23,7 @@ import FirebaseInAppMessaging
 class BannerMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()
 
-  @IBOutlet weak var verifyLabel: UILabel!
+  @IBOutlet var verifyLabel: UILabel!
 
   override func messageClicked() {
     super.messageClicked()
@@ -48,7 +48,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithoutImageTapped(_ sender: Any) {
@@ -61,7 +61,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: nil)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithWideImageTapped(_ sender: Any) {
@@ -77,7 +77,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithNarrowImageTapped(_ sender: Any) {
@@ -93,7 +93,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithLargeBodyTextTapped(_ sender: Any) {
@@ -109,7 +109,7 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 
   @IBAction func showBannerViewWithLongTitleTextTapped(_ sender: Any) {
@@ -125,6 +125,6 @@ class BannerMessageViewController: CommonMessageTestVC {
                                                    backgroundColor: UIColor.blue,
                                                    imageData: fiamImageData)
 
-    displayImpl.displayMessage(modalMessage, displayDelegate:self)
+    displayImpl.displayMessage(modalMessage, displayDelegate: self)
   }
 }

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
 #import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 NS_SWIFT_NAME(InAppMessagingDefaultDisplayImpl)

@@ -18,8 +18,8 @@ import Foundation
 import XCTest
 
 class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
-  var app:XCUIApplication!
-  var verificationLabel:XCUIElement!
+  var app: XCUIApplication!
+  var verificationLabel: XCUIElement!
 
   override func setUp() {
     super.setUp()
@@ -37,12 +37,10 @@ class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
     verificationLabel = app.staticTexts["verification-label-image-only"]
   }
 
-
   override func tearDown() {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     super.tearDown()
   }
-
 
   func testImageOnlyView() {
     app.tabBars.buttons["Image Only Messages"].tap()

@@ -19,7 +19,6 @@ import Foundation
 import XCTest
 
 class InAppMessagingDisplayBannerViewUITests: InAppMessagingDisplayUITestsBase {
-
   var app: XCUIApplication!
   var verificationLabel: XCUIElement!
 

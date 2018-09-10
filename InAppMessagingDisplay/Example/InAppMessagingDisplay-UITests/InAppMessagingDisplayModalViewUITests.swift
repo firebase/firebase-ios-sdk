@@ -16,9 +16,8 @@
 import XCTest
 
 class InAppMessagingDisplayModalViewUITests: InAppMessagingDisplayUITestsBase {
-
-  var app:XCUIApplication!
-  var verificationLabel:XCUIElement!
+  var app: XCUIApplication!
+  var verificationLabel: XCUIElement!
 
   override func setUp() {
     super.setUp()
@@ -42,7 +41,6 @@ class InAppMessagingDisplayModalViewUITests: InAppMessagingDisplayUITestsBase {
   }
 
   func testNormalModalView() {
-
     app.tabBars.buttons["Modal Messages"].tap()
 
     let messageCardView = app.otherElements["message-card-view"]
@@ -51,7 +49,7 @@ class InAppMessagingDisplayModalViewUITests: InAppMessagingDisplayUITestsBase {
     let actionButton = app.buttons["message-action-button"]
 
     let orientantions = [UIDeviceOrientation.portrait, UIDeviceOrientation.landscapeLeft]
-    
+
     for orientation in orientantions {
       XCUIDevice.shared.orientation = orientation
       app.buttons["Regular"].tap()

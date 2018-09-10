@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 #import <FirebaseInAppMessaging/FIRInAppMessaging.h>
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 
 #import "FIDBannerViewController.h"
 #import "FIDImageOnlyViewController.h"
@@ -40,7 +40,7 @@
 + (void)didReceiveConfigureSDKNotification:(NSNotification *)notification {
   FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID100010",
               @"Got notification for kFIRAppReadyToConfigureSDKNotification. Setting display "
-              "component on headless SDK.");
+               "component on headless SDK.");
 
   FIRIAMDefaultDisplayImpl *display = [[FIRIAMDefaultDisplayImpl alloc] init];
   [FIRInAppMessaging inAppMessaging].messageDisplayComponent = display;
