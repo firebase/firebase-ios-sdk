@@ -2,7 +2,8 @@
 
 This repository contains a subset of the Firebase iOS SDK source. It currently
 includes FirebaseCore, FirebaseAuth, FirebaseDatabase, FirebaseFirestore,
-FirebaseFunctions, FirebaseMessaging and FirebaseStorage.
+FirebaseFunctions, FirebaseInAppMessagingDisplay, FirebaseMessaging and
+FirebaseStorage.
 
 The repository also includes GoogleUtilities source. The
 [GoogleUtilities](GoogleUtilities/README.md) pod is
