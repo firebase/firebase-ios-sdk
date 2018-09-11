@@ -108,7 +108,6 @@ class GrpcStreamTest : public testing::Test {
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { stream().Start(); });
-    ForceFinish({/*Start*/ Ok});
   }
 
  private:
@@ -219,12 +218,6 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
     EXPECT_TRUE(ObserverHas("OnStreamStart"));
     EXPECT_FALSE(ObserverHas("OnStreamError"));
   });
-}
-
-TEST_F(GrpcStreamTest, ErrorOnStart) {
-  async_queue().EnqueueBlocking([&] { stream().Start(); });
-  ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
-  EXPECT_EQ(observed_states(), States({"OnStreamError"}));
 }
 
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
