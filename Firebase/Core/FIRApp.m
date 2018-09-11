@@ -540,6 +540,7 @@ static NSMutableDictionary *sLibraryVersions;
  * @return YES if the app ID fulfills the expected format and fingerprint, NO otherwise.
  */
 - (BOOL)isAppIDValid {
+#ifdef DEBUG
   NSString *appID = _options.googleAppID;
   BOOL isValid = [FIRApp validateAppID:appID];
   if (!isValid) {
@@ -554,6 +555,12 @@ static NSMutableDictionary *sLibraryVersions;
                 kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
   };
   return isValid;
+#else
+  // This method is validation for the developer that their options are set up correctly. In a
+  // non-DEBUG environment we can avoid doing potentially expensive regular expressions and just
+  // return YES.
+  return YES;
+#endif  // ifdef DEBUG
 }
 
 + (BOOL)validateAppID:(NSString *)appID {
