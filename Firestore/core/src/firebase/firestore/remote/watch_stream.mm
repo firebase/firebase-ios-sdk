@@ -35,7 +35,7 @@ WatchStream::WatchStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
                          Datastore* datastore,
-                         id delegate)
+                         id<FSTWatchStreamDelegate> delegate)
     : Stream{async_queue, credentials_provider, datastore,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},

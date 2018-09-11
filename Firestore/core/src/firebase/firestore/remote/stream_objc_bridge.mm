@@ -153,19 +153,16 @@ GCFSListenResponse* WatchStreamSerializer::ParseResponse(
 }
 
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
+  [delegate_ watchStreamDidOpen];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnChange(
     FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:change snapshotVersion:snapshot_version];
+  [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:MakeNSError(status)];
+  [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
 }
 
 }  // namespace bridge

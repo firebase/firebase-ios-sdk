@@ -92,7 +92,8 @@ class WatchStreamSerializer {
  */
 class WatchStreamDelegate {
  public:
-  explicit WatchStreamDelegate(id delegate) : delegate_{delegate} {
+  explicit WatchStreamDelegate(id<FSTWatchStreamDelegate> delegate)
+      : delegate_{delegate} {
   }
 
   void NotifyDelegateOnOpen();
@@ -101,7 +102,7 @@ class WatchStreamDelegate {
   void NotifyDelegateOnClose(const util::Status& status);
 
  private:
-  id delegate_;
+  id<FSTWatchStreamDelegate> delegate_;
 };
 
 }  // namespace bridge

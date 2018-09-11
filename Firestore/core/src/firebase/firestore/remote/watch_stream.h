@@ -54,7 +54,7 @@ class WatchStream : public Stream {
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               Datastore* datastore,
-              id delegate);
+              id<FSTWatchStreamDelegate> delegate);
 
   /**
    * Registers interest in the results of the given query. If the query includes

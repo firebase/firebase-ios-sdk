@@ -249,8 +249,9 @@ void Stream::Close(const Status& status) {
   CancelIdleCheck();
   backoff_.Cancel();
 
-  // Step 3 (both): increment close count, which invalidates the auth callback,
-  // guaranteeing it won't execute.
+  // Step 3 (both): increment close count, which invalidates long-lived
+  // callbacks, guaranteeing they won't execute against a new instance of the
+  // stream or when the stream has been destroyed.
   ++close_count_;
 
   // Step 4 (both): make small adjustments (to backoff/etc.) based on the
@@ -263,7 +264,8 @@ void Stream::Close(const Status& status) {
     HandleErrorStatus(status);
   }
 
-  // Step 5 (graceful stop only): gracefully finish the underlying stream.
+  // Step 5 (graceful stop only): give subclasses a chance to send final
+  // messages.
   if (graceful_stop && grpc_stream_) {
     // If the stream is in the auth stage, gRPC stream might not have been
     // created yet.
@@ -274,9 +276,8 @@ void Stream::Close(const Status& status) {
   grpc_stream_.reset();
 
   // Step 7 (both): update the state machine and notify the listener.
-  State final_state = graceful_stop ? State::Initial : State::Error;
   // State must be updated before calling the delegate.
-  state_ = final_state;
+  state_ = graceful_stop ? State::Initial : State::Error;
   NotifyStreamClose(status);
 }
 
