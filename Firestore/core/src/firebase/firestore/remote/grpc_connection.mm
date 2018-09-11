@@ -53,9 +53,7 @@ GrpcConnection::GrpcConnection(const DatabaseInfo &database_info,
                                grpc::CompletionQueue *grpc_queue)
     : database_info_{&database_info},
       worker_queue_{worker_queue},
-      grpc_queue_{grpc_queue},
-      grpc_channel_{CreateChannel()},
-      grpc_stub_{grpc_channel_} {
+      grpc_queue_{grpc_queue} {
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
@@ -92,15 +90,11 @@ void GrpcConnection::EnsureActiveStub() {
   if (!grpc_channel_ || grpc_channel_->GetState(/*try_to_connect=*/false) ==
                             GRPC_CHANNEL_SHUTDOWN) {
     LOG_DEBUG("Creating Firestore stub.");
-    grpc_channel_ = CreateChannel();
-    grpc_stub_ = grpc::GenericStub{grpc_channel_};
-  }
-}
-
-std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  return grpc::CreateChannel(
+    grpc_channel_ = grpc::CreateChannel(
       database_info_->host(),
       grpc::SslCredentials(grpc::SslCredentialsOptions()));
+    grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
+  }
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -113,7 +107,7 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
 
   auto context = CreateContext(token);
   auto call =
-      grpc_stub_.PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
+      grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
                                        observer, worker_queue_);
 }

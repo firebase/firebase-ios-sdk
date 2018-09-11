@@ -39,7 +39,7 @@ using util::internal::ExecutorLibdispatch;
 namespace {
 
 std::unique_ptr<Executor> CreateExecutor() {
-  auto queue = dispatch_queue_create("com.google.firebase.firestore.datastore",
+  auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",
                                      DISPATCH_QUEUE_SERIAL);
   return absl::make_unique<ExecutorLibdispatch>(queue);
 }
@@ -57,22 +57,22 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 Datastore::Datastore(const DatabaseInfo &database_info,
                      AsyncQueue *worker_queue)
     : grpc_connection_{database_info, worker_queue, &grpc_queue_},
-      dedicated_executor_{CreateExecutor()} {
-  dedicated_executor_->Execute([this] { PollGrpcQueue(); });
+      rpc_executor_{CreateExecutor()} {
+  rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
   // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
   // been called and all submitted tags have been extracted. Without this call,
-  // `dedicated_executor_` will never finish.
+  // `rpc_executor_` will never finish.
   grpc_queue_.Shutdown();
   // Drain the executor to make sure it extracted all the operations from gRPC
   // completion queue.
-  dedicated_executor_->ExecuteBlocking([] {});
+  rpc_executor_->ExecuteBlocking([] {});
 }
 
 void Datastore::PollGrpcQueue() {
-  HARD_ASSERT(dedicated_executor_->IsCurrentExecutor(),
+  HARD_ASSERT(rpc_executor_->IsCurrentExecutor(),
               "PollGrpcQueue should only be called on the "
               "dedicated Datastore executor");
 

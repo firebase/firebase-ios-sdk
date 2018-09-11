@@ -37,7 +37,7 @@
 		54511E8E209805F8005BD28F /* hashing_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54511E8D209805F8005BD28F /* hashing_test.cc */; };
 		5467FB01203E5717009C9584 /* FIRFirestoreTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */; };
 		5467FB08203E6A44009C9584 /* app_testing.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5467FB07203E6A44009C9584 /* app_testing.mm */; };
-		546854AA20A36867004BDBD5 /* datastore_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 546854A820A36867004BDBD5 /* datastore_test.cc */; };
+		546854AA20A36867004BDBD5 /* datastore_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 546854A820A36867004BDBD5 /* datastore_test.mm */; };
 		54740A571FC914BA00713A1A /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
 		54740A581FC914F000713A1A /* autoid_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A521FC913E500713A1A /* autoid_test.cc */; };
 		54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */; };
@@ -298,8 +298,8 @@
 		132E3BB3D5C42282B4ACFB20 /* FSTLevelDBBenchmarkTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTLevelDBBenchmarkTests.mm; sourceTree = "<group>"; };
 		2A0CF41BA5AED6049B0BEB2C /* type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = leveldb_util_test.cc; sourceTree = "<group>"; };
-		3564F6872205C4F7001D5436 /* grpc_stream_tester.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = grpc_stream_tester.cc; sourceTree = "<group>"; };
+		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
+		3564F6872205C4F7001D5436 /* grpc_stream_tester.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = grpc_stream_tester.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		3B843E4A1F3930A400548890 /* remote_store_spec_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = remote_store_spec_test.json; sourceTree = "<group>"; };
 		3C81DE3772628FE297055662 /* Pods-Firestore_Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS/Pods-Firestore_Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -311,7 +311,7 @@
 		5467FAFF203E56F8009C9584 /* FIRFirestoreTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRFirestoreTests.mm; sourceTree = "<group>"; };
 		5467FB06203E6A44009C9584 /* app_testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = app_testing.h; sourceTree = "<group>"; };
 		5467FB07203E6A44009C9584 /* app_testing.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = app_testing.mm; sourceTree = "<group>"; };
-		546854A820A36867004BDBD5 /* datastore_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = datastore_test.cc; sourceTree = "<group>"; };
+		546854A820A36867004BDBD5 /* datastore_test.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = datastore_test.mm; sourceTree = "<group>"; };
 		54740A521FC913E500713A1A /* autoid_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = autoid_test.cc; sourceTree = "<group>"; };
 		54740A531FC913E500713A1A /* secure_random_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = secure_random_test.cc; sourceTree = "<group>"; };
 		54764FAE1FAA21B90085E60A /* FSTGoogleTestTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FSTGoogleTestTests.mm; sourceTree = "<group>"; };
@@ -646,7 +646,7 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				546854A820A36867004BDBD5 /* datastore_test.cc */,
+				546854A820A36867004BDBD5 /* datastore_test.mm */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */,
 				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
@@ -1877,13 +1877,12 @@
 				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
-				B646EE6121224220001A1F18 /* buffered_writer_test.cc in Sources */,
 				618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */,
 				548DB929200D59F600E00ABC /* comparison_test.cc in Sources */,
 				ABC1D7DC2023A04B00BA84F0 /* credentials_provider_test.cc in Sources */,
 				ABE6637A201FA81900ED349A /* database_id_test.cc in Sources */,
 				AB38D93020236E21000A432D /* database_info_test.cc in Sources */,
-				546854AA20A36867004BDBD5 /* datastore_test.cc in Sources */,
+				546854AA20A36867004BDBD5 /* datastore_test.mm in Sources */,
 				618BBEAC20B89AAC00B5BCE7 /* document.pb.cc in Sources */,
 				B6152AD7202A53CB000E5744 /* document_key_test.cc in Sources */,
 				AB6B908420322E4D00CC290A /* document_test.cc in Sources */,
