@@ -57,18 +57,16 @@ class GrpcConnection {
                                            GrpcStreamObserver* observer);
 
  private:
-  // PORTING NOTE: this function is called `AddMetadata` in Web client.
   std::unique_ptr<grpc::ClientContext> CreateContext(
       absl::string_view token) const;
   void EnsureActiveStub();
-  std::shared_ptr<grpc::Channel> CreateChannel() const;
 
   const core::DatabaseInfo* database_info_ = nullptr;
   util::AsyncQueue* worker_queue_ = nullptr;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
 
   std::shared_ptr<grpc::Channel> grpc_channel_;
-  grpc::GenericStub grpc_stub_;
+  std::unique_ptr<grpc::GenericStub> grpc_stub_;
 };
 
 }  // namespace remote

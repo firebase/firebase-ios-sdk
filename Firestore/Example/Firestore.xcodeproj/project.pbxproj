@@ -648,8 +648,6 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				B66D8995213609EE0086DA0C /* stream_test.mm */,
-				B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */,
 				546854A820A36867004BDBD5 /* datastore_test.mm */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */,
