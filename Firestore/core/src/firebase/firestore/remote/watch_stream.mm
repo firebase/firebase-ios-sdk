@@ -86,7 +86,7 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
             serializer_bridge_.Describe(response));
 
   // A successful response means the stream is healthy.
-  ResetBackoff();
+  backoff_.Reset();
 
   delegate_bridge_.NotifyDelegateOnChange(
       serializer_bridge_.ToWatchChange(response),

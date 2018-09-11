@@ -192,8 +192,9 @@ class Stream : public GrpcStreamObserver,
   // `Stream` expects all its methods to be called on the worker queue.
   void EnsureOnQueue() const;
   void Write(grpc::ByteBuffer&& message);
-  void ResetBackoff();
   std::string GetDebugDescription() const;
+
+  ExponentialBackoff backoff_;
 
  private:
   // The interface for the derived classes.
@@ -207,6 +208,9 @@ class Stream : public GrpcStreamObserver,
   virtual void NotifyStreamClose(const util::Status& status) = 0;
   // PORTING NOTE: C++ cannot rely on RTTI, unlike other platforms.
   virtual std::string GetDebugName() const = 0;
+
+  void Close(const util::Status& status);
+  void HandleErrorStatus(const util::Status& status);
 
   void RequestCredentials();
   void ResumeStartWithCredentials(
@@ -223,7 +227,6 @@ class Stream : public GrpcStreamObserver,
   util::AsyncQueue* worker_queue_ = nullptr;
   Datastore* datastore_ = nullptr;
 
-  ExponentialBackoff backoff_;
   util::TimerId idle_timer_id_{};
   util::DelayedOperation idleness_timer_;
 
