@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,6 +45,7 @@ using nanopb::Reader;
 using nanopb::Tag;
 using nanopb::Writer;
 using util::Status;
+using util::StringFormat;
 
 void LocalSerializer::EncodeMaybeDocument(
     Writer* writer, const MaybeDocument& maybe_doc) const {
@@ -73,37 +75,24 @@ void LocalSerializer::EncodeMaybeDocument(
 }
 
 std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
-    Reader* reader) const {
-  std::unique_ptr<MaybeDocument> result;
+    Reader* reader, const firestore_client_MaybeDocument& proto) const {
+  if (!reader->status().ok()) return nullptr;
 
-  while (reader->good()) {
-    switch (reader->ReadTag()) {
-      case firestore_client_MaybeDocument_document_tag:
-        // TODO(rsgowman): If multiple 'document' values are found, we should
-        // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<Document>(
-            rpc_serializer_, &remote::Serializer::DecodeDocument);
-        break;
+  switch (proto.which_document_type) {
+    case firestore_client_MaybeDocument_document_tag:
+      return rpc_serializer_.DecodeDocument(reader, proto.document);
 
-      case firestore_client_MaybeDocument_no_document_tag:
-        // TODO(rsgowman): If multiple 'no_document' values are found, we should
-        // merge them (rather than using the last one.)
-        result = reader->ReadNestedMessage<NoDocument>(
-            *this, &LocalSerializer::DecodeNoDocument);
-        break;
+    case firestore_client_MaybeDocument_no_document_tag:
+      return DecodeNoDocument(reader, proto.no_document);
 
-      default:
-        reader->SkipUnknown();
-    }
+    default:
+      reader->Fail(
+          "Invalid MaybeDocument message: Neither 'no_document' nor 'document' "
+          "fields set.");
+      return nullptr;
   }
 
-  if (!result) {
-    reader->Fail(
-        "Invalid MaybeDocument message: Neither 'no_document' nor 'document' "
-        "fields set.");
-    return nullptr;
-  }
-  return result;
+  UNREACHABLE();
 }
 
 void LocalSerializer::EncodeDocument(Writer* writer,
@@ -146,30 +135,16 @@ void LocalSerializer::EncodeNoDocument(Writer* writer,
 }
 
 std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
-    Reader* reader) const {
-  std::string name;
-  absl::optional<SnapshotVersion> version = SnapshotVersion::None();
+    Reader* reader, const firestore_client_NoDocument& proto) const {
+  if (!reader->status().ok()) return nullptr;
 
-  while (reader->good()) {
-    switch (reader->ReadTag()) {
-      case firestore_client_NoDocument_name_tag:
-        name = reader->ReadString();
-        break;
-
-      case firestore_client_NoDocument_read_time_tag:
-        version = reader->ReadNestedMessage<SnapshotVersion>(
-            rpc_serializer_.DecodeSnapshotVersion);
-        break;
-
-      default:
-        reader->SkipUnknown();
-        break;
-    }
-  }
+  absl::optional<SnapshotVersion> version =
+      rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
 
   if (!reader->status().ok()) return nullptr;
-  return absl::make_unique<NoDocument>(rpc_serializer_.DecodeKey(name),
-                                       *std::move(version));
+  return absl::make_unique<NoDocument>(
+      rpc_serializer_.DecodeKey(rpc_serializer_.DecodeString(proto.name)),
+      *std::move(version));
 }
 
 void LocalSerializer::EncodeQueryData(Writer* writer,
@@ -207,45 +182,28 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
 }
 
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(
-    Reader* reader) const {
-  model::TargetId target_id = 0;
-  absl::optional<SnapshotVersion> version = SnapshotVersion::None();
-  std::vector<uint8_t> resume_token;
+    Reader* reader, const firestore_client_Target& proto) const {
+  if (!reader->status().ok()) return absl::nullopt;
+
+  model::TargetId target_id = proto.target_id;
+  absl::optional<SnapshotVersion> version =
+      rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
+  std::vector<uint8_t> resume_token =
+      rpc_serializer_.DecodeBytes(proto.resume_token);
   absl::optional<Query> query = Query::Invalid();
 
-  while (reader->good()) {
-    switch (reader->ReadTag()) {
-      case firestore_client_Target_target_id_tag:
-        // TODO(rsgowman): How to handle truncation of integer types?
-        target_id = static_cast<model::TargetId>(reader->ReadInteger());
-        break;
+  switch (proto.which_target_type) {
+    case firestore_client_Target_query_tag:
+      query = rpc_serializer_.DecodeQueryTarget(reader, proto.query);
+      break;
 
-      case firestore_client_Target_snapshot_version_tag:
-        version = reader->ReadNestedMessage<SnapshotVersion>(
-            rpc_serializer_.DecodeSnapshotVersion);
-        break;
+    case firestore_client_Target_documents_tag:
+      // TODO(rsgowman): Implement.
+      abort();
 
-      case firestore_client_Target_resume_token_tag:
-        resume_token = reader->ReadBytes();
-        break;
-
-      case firestore_client_Target_query_tag:
-        // TODO(rsgowman): Clear 'documents' field (since query and documents
-        // are part of a 'oneof').
-        query =
-            reader->ReadNestedMessage<Query>(rpc_serializer_.DecodeQueryTarget);
-        break;
-
-      case firestore_client_Target_documents_tag:
-        // Clear 'query' field (since query and documents are part of a 'oneof')
-        query = Query::Invalid();
-        // TODO(rsgowman): Implement.
-        abort();
-
-      default:
-        reader->SkipUnknown();
-        break;
-    }
+    default:
+      reader->Fail(
+          StringFormat("Unknown target_type: %s", proto.which_target_type));
   }
 
   if (!reader->status().ok()) return absl::nullopt;

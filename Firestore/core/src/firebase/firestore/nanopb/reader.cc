@@ -73,6 +73,10 @@ void Reader::ReadNanopbMessage(const pb_field_t fields[], void* dest_struct) {
   }
 }
 
+void Reader::FreeNanopbMessage(const pb_field_t fields[], void* dest_struct) {
+  pb_release(fields, dest_struct);
+}
+
 /**
  * Note that (despite the return type) this works for bool, enum, int32, int64,
  * uint32 and uint64 proto field types.
