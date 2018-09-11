@@ -69,7 +69,7 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   HARD_ASSERT(IsOpen(), "Not yet open");
   HARD_ASSERT(is_handshake_complete_, "Mutations sent out of turn");
 
-  GCFSWriteRequest* request = serializer_bridge_.CreateRequest(mutations);
+  GCFSWriteRequest* request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(request));

@@ -130,12 +130,9 @@ grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
   return ConvertToByteBuffer([request data]);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
-  return [request description];
-}
-
-NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
-  return [response description];
+GCFSListenResponse* WatchStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSListenResponse>(message, out_status);
 }
 
 FSTWatchChange* WatchStreamSerializer::ToWatchChange(
@@ -148,12 +145,19 @@ SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
   return [serializer_ versionFromListenResponse:proto];
 }
 
-GCFSListenResponse* WatchStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSListenResponse>(message, out_status);
+NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
+  return [request description];
+}
+
+NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
+  return [response description];
 }
 
 // WriteStreamSerializer
+
+void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
+  last_stream_token_ = proto.streamToken;
+}
 
 GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
   // The initial request cannot contain mutations, but must contain a projectID.
@@ -162,7 +166,7 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
   return request;
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
+GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
     NSArray<FSTMutation*>* mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.count];
@@ -177,16 +181,22 @@ GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
   return request;
 }
 
-void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
-  last_stream_token_ = proto.streamToken;
+grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
+    GCFSWriteRequest* request) {
+  return ConvertToByteBuffer([request data]);
 }
 
- model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
+GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSWriteResponse>(message, out_status);
+}
+
+model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
     GCFSWriteResponse* proto) const {
   return [serializer_ decodedVersion:proto.commitTime];
 }
 
- NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
+NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
     GCFSWriteResponse* proto) const {
   NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
   NSMutableArray<FSTMutationResult*>* results =
@@ -197,21 +207,11 @@ void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
   return results;
 }
 
- GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSWriteResponse>(message, out_status);
-}
-
-grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    GCFSWriteRequest* request) const {
-  return ConvertToByteBuffer([request data]);
-}
-
-NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) const {
+NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) {
   return [request description];
 }
 
-NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) const {
+NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
   return [response description];
 }
 
@@ -244,7 +244,7 @@ void WriteStreamDelegate::NotifyDelegateOnCommit(
     const SnapshotVersion& commit_version,
     NSArray<FSTMutationResult*>* results) {
   [delegate_ writeStreamDidReceiveResponseWithVersion:commit_version
-                                     mutationResults:results];
+                                      mutationResults:results];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
