@@ -20,6 +20,8 @@
 #include <memory>
 #include <vector>
 
+#include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
+#include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/query_data.h"
 #include "Firestore/core/src/firebase/firestore/model/document.h"
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
@@ -62,19 +64,19 @@ class LocalSerializer {
                            const model::MaybeDocument& maybe_doc) const;
 
   /**
-   * @brief Decodes bytes representing a MaybeDocument proto to the equivalent
-   * model.
+   * @brief Decodes nanopb proto representing a MaybeDocument proto to the
+   * equivalent model.
    *
    * Check reader->status() to determine if an error occured while decoding.
    *
-   * @param reader The reader object containing the bytes to convert. It's
-   * assumed that exactly all of the bytes will be used by this conversion.
+   * @param reader The Reader object. Used only for error handling.
    * @return The model equivalent of the bytes or nullopt if an error occurred.
    * @post (reader->status().ok() && result) ||
    * (!reader->status().ok() && !result)
    */
   std::unique_ptr<model::MaybeDocument> DecodeMaybeDocument(
-      nanopb::Reader* reader) const;
+      nanopb::Reader* reader,
+      const firestore_client_MaybeDocument& proto) const;
 
   /**
    * @brief Encodes a QueryData to the equivalent bytes, representing a
@@ -88,19 +90,19 @@ class LocalSerializer {
                        const QueryData& query_data) const;
 
   /**
-   * @brief Decodes bytes representing a ::firestore::proto::Target proto to the
-   * equivalent QueryData.
+   * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
+   * to the equivalent QueryData.
    *
-   * Check writer->status() to determine if an error occured while decoding.
+   * Check reader->status() to determine if an error occured while decoding.
    *
-   * @param reader The reader object containing the bytes to convert. It's
-   * assumed that exactly all of the bytes will be used by this conversion.
+   * @param reader The Reader object. Used only for error handling.
    * @return The QueryData equivalent of the bytes or nullopt if an error
    * occurred.
    * @post (reader->status().ok() && result.has_value()) ||
    * (!reader->status().ok() && !result.has_value())
    */
-  absl::optional<QueryData> DecodeQueryData(nanopb::Reader* reader) const;
+  absl::optional<QueryData> DecodeQueryData(
+      nanopb::Reader* reader, const firestore_client_Target& proto) const;
 
  private:
   /**
@@ -114,7 +116,7 @@ class LocalSerializer {
                         const model::NoDocument& no_doc) const;
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
-      nanopb::Reader* reader) const;
+      nanopb::Reader* reader, const firestore_client_NoDocument& proto) const;
 
   const remote::Serializer& rpc_serializer_;
 };
