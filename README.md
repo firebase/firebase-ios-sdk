@@ -105,7 +105,7 @@ See the sections below for any special instructions for those components.
 ### Firebase Auth
 
 If you're doing specific Firebase Auth development, see
-[AuthSamples/README.md](AuthSamples/README.md) for instructions about
+[the Auth Sample README](Example/Auth/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
 
 ### Firebase Database
