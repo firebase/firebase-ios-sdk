@@ -47,6 +47,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ResourcePath;
@@ -162,9 +163,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)updateData:(NSDictionary<id, id> *)fields
         completion:(nullable void (^)(NSError *_Nullable error))completion {
-  FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
   return [self.firestore.client
-      writeMutations:[parsed mutationsWithKey:self.key precondition:Precondition::Exists(true)]
+      writeMutations:std::move(parsed).ToMutations(self.key, Precondition::Exists(true))
           completion:completion];
 }
 

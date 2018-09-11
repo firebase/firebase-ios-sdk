@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Stores mutations for the given key and update data, to be committed when commitWithCompletion
  * is called.
  */
-- (void)updateData:(FSTParsedUpdateData *)data
+- (void)updateData:(firebase::firestore::core::ParsedUpdateData &&)data
        forDocument:(const firebase::firestore::model::DocumentKey &)key;
 
 /**

@@ -29,6 +29,8 @@ using model::FieldMask;
 using model::FieldTransform;
 using model::Precondition;
 
+#pragma mark - ParsedSetData
+
 ParsedSetData::ParsedSetData(FSTObjectValue* data,
                              std::vector<FieldTransform> field_transforms)
     : data_{data},
@@ -63,6 +65,33 @@ NSArray<FSTMutation*>* ParsedSetData::ToMutations(
     [mutations
         addObject:[[FSTTransformMutation alloc] initWithKey:key
                                             fieldTransforms:field_transforms_]];
+  }
+  return mutations;
+}
+
+#pragma mark - ParsedUpdateData
+
+ParsedUpdateData::ParsedUpdateData(
+    FSTObjectValue* data,
+    model::FieldMask field_mask,
+    std::vector<model::FieldTransform> field_transforms)
+    : data_{data},
+      field_mask_{std::move(field_mask)},
+      field_transforms_{field_transforms} {
+}
+
+NSArray<FSTMutation*>* ParsedUpdateData::ToMutations(
+    const DocumentKey& key, const Precondition& precondition) && {
+  NSMutableArray<FSTMutation*>* mutations = [NSMutableArray array];
+  [mutations
+      addObject:[[FSTPatchMutation alloc] initWithKey:key
+                                            fieldMask:std::move(field_mask_)
+                                                value:std::move(data_)
+                                         precondition:precondition]];
+  if (!field_transforms_.empty()) {
+    [mutations addObject:[[FSTTransformMutation alloc]
+                                 initWithKey:key
+                             fieldTransforms:std::move(field_transforms_)]];
   }
   return mutations;
 }

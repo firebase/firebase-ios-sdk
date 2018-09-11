@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/model/precondition.h"
 
 using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::Precondition;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -96,9 +97,9 @@ NS_ASSUME_NONNULL_BEGIN
                   forDocument:(FIRDocumentReference *)document {
   [self verifyNotCommitted];
   [self validateReference:document];
-  FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.mutations addObjectsFromArray:[parsed mutationsWithKey:document.key
-                                                  precondition:Precondition::Exists(true)]];
+  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  [self.mutations
+      addObjectsFromArray:std::move(parsed).ToMutations(document.key, Precondition::Exists(true))];
   return self;
 }
 

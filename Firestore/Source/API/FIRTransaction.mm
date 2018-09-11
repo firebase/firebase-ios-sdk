@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -92,8 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRTransaction *)updateData:(NSDictionary<id, id> *)fields
                    forDocument:(FIRDocumentReference *)document {
   [self validateReference:document];
-  FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.internalTransaction updateData:parsed forDocument:document.key];
+  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  [self.internalTransaction updateData:std::move(parsed) forDocument:document.key];
   return self;
 }
 

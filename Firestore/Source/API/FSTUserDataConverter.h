@@ -31,32 +31,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** The result of parsing "update" data (i.e. for an updateData call). */
-@interface FSTParsedUpdateData : NSObject
-
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(firebase::firestore::model::FieldMask)fieldMask
-             fieldTransforms:
-                 (std::vector<firebase::firestore::model::FieldTransform>)fieldTransforms
-    NS_DESIGNATED_INITIALIZER;
-
-- (const firebase::firestore::model::FieldMask &)fieldMask;
-- (const std::vector<firebase::firestore::model::FieldTransform> &)fieldTransforms;
-
-@property(nonatomic, strong, readonly) FSTObjectValue *data;
-
-/**
- * Converts the parsed update data into 1 or 2 mutations (depending on whether there are any
- * field transforms) using the specified document key and precondition.
- */
-- (NSArray<FSTMutation *> *)mutationsWithKey:(const firebase::firestore::model::DocumentKey &)key
-                                precondition:
-                                    (const firebase::firestore::model::Precondition &)precondition;
-
-@end
-
 /**
  * An internal representation of FIRDocumentReference, representing a key in a specific database.
  * This is necessary because keys assume a database from context (usually the current one).
@@ -103,7 +77,7 @@ typedef id _Nullable (^FSTPreConverterBlock)(id _Nullable);
                                                   fieldMask:(nullable NSArray<id> *)fieldMask;
 
 /** Parse update data from an updateData call. */
-- (FSTParsedUpdateData *)parsedUpdateData:(id)input;
+- (firebase::firestore::core::ParsedUpdateData)parsedUpdateData:(id)input;
 
 /** Parse a "query value" (e.g. value in a where filter or a value in a cursor bound). */
 - (FSTFieldValue *)parsedQueryValue:(id)input;

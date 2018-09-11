@@ -36,6 +36,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::SnapshotVersion;
@@ -185,14 +186,14 @@ NS_ASSUME_NONNULL_BEGIN
   [self writeMutations:std::move(data).ToMutations(key, [self preconditionForDocumentKey:key])];
 }
 
-- (void)updateData:(FSTParsedUpdateData *)data forDocument:(const DocumentKey &)key {
+- (void)updateData:(ParsedUpdateData &&)data forDocument:(const DocumentKey &)key {
   NSError *error = nil;
   const Precondition precondition = [self preconditionForUpdateWithDocumentKey:key error:&error];
   if (precondition.IsNone()) {
     HARD_ASSERT(error, "Got nil precondition, but error was not set");
     self.lastWriteError = error;
   } else {
-    [self writeMutations:[data mutationsWithKey:key precondition:precondition]];
+    [self writeMutations:std::move(data).ToMutations(key, precondition)];
   }
 }
 

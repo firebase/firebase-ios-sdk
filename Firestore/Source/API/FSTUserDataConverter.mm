@@ -47,6 +47,7 @@
 
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
@@ -60,51 +61,6 @@ using firebase::firestore::model::TransformOperation;
 NS_ASSUME_NONNULL_BEGIN
 
 static const char *RESERVED_FIELD_DESIGNATOR = "__";
-
-#pragma mark - ParsedSetData
-
-#pragma mark - FSTParsedUpdateData
-
-@implementation FSTParsedUpdateData {
-  FieldMask _fieldMask;
-  std::vector<FieldTransform> _fieldTransforms;
-}
-
-- (instancetype)initWithData:(FSTObjectValue *)data
-                   fieldMask:(FieldMask)fieldMask
-             fieldTransforms:(std::vector<FieldTransform>)fieldTransforms {
-  self = [super init];
-  if (self) {
-    _data = data;
-    _fieldMask = std::move(fieldMask);
-    _fieldTransforms = std::move(fieldTransforms);
-  }
-  return self;
-}
-
-- (NSArray<FSTMutation *> *)mutationsWithKey:(const DocumentKey &)key
-                                precondition:(const Precondition &)precondition {
-  NSMutableArray<FSTMutation *> *mutations = [NSMutableArray array];
-  [mutations addObject:[[FSTPatchMutation alloc] initWithKey:key
-                                                   fieldMask:self.fieldMask
-                                                       value:self.data
-                                                precondition:precondition]];
-  if (!self.fieldTransforms.empty()) {
-    [mutations addObject:[[FSTTransformMutation alloc] initWithKey:key
-                                                   fieldTransforms:self.fieldTransforms]];
-  }
-  return mutations;
-}
-
-- (const firebase::firestore::model::FieldMask &)fieldMask {
-  return _fieldMask;
-}
-
-- (const std::vector<FieldTransform> &)fieldTransforms {
-  return _fieldTransforms;
-}
-
-@end
 
 /**
  * Represents what type of API method provided the data being parsed; useful for determining which
@@ -449,7 +405,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
   return ParsedSetData{updateData, *context.fieldTransforms};
 }
 
-- (FSTParsedUpdateData *)parsedUpdateData:(id)input {
+- (ParsedUpdateData)parsedUpdateData:(id)input {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
   if (![input isKindOfClass:[NSDictionary class]]) {
@@ -490,9 +446,7 @@ typedef NS_ENUM(NSInteger, FSTUserDataSource) {
     }
   }];
 
-  return [[FSTParsedUpdateData alloc] initWithData:updateData
-                                         fieldMask:FieldMask{fieldMaskPaths}
-                                   fieldTransforms:*context.fieldTransforms];
+  return ParsedUpdateData{updateData, FieldMask{fieldMaskPaths}, *context.fieldTransforms};
 }
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {

@@ -31,7 +31,7 @@ namespace firebase {
 namespace firestore {
 namespace core {
 
-/** The result of parsing document data (e.g. for a setData call). */
+/** The result of parsing document data (e.g. for a SetData call). */
 class ParsedSetData {
  public:
   ParsedSetData(FSTObjectValue* data,
@@ -39,18 +39,6 @@ class ParsedSetData {
   ParsedSetData(FSTObjectValue* data,
                 model::FieldMask field_mask,
                 std::vector<model::FieldTransform> field_transforms);
-
-  const std::vector<model::FieldTransform>& field_transforms() {
-    return field_transforms_;
-  }
-
-  FSTObjectValue* data() {
-    return data_;
-  }
-
-  bool patch() {
-    return patch_;
-  }
 
   /**
    * Converts the parsed document data into 1 or 2 mutations (depending on
@@ -68,6 +56,38 @@ class ParsedSetData {
   model::FieldMask field_mask_;
   std::vector<model::FieldTransform> field_transforms_;
   bool patch_;
+};
+
+/** The result of parsing "update" data (i.e. for an UpdateData call). */
+class ParsedUpdateData {
+ public:
+  ParsedUpdateData(FSTObjectValue* data,
+                   model::FieldMask field_mask,
+                   std::vector<model::FieldTransform> fieldTransforms);
+
+  FSTObjectValue* data() const {
+    return data_;
+  }
+
+  const std::vector<model::FieldTransform>& field_transforms() const {
+    return field_transforms_;
+  }
+
+  /**
+   * Converts the parsed update data into 1 or 2 mutations (depending on whether
+   * there are any field transforms) using the specified document key and
+   * precondition.
+   *
+   * This method consumes the values stored in the ParsedUpdateData
+   */
+  NSArray<FSTMutation*>* ToMutations(
+      const model::DocumentKey& key,
+      const model::Precondition& precondition) &&;
+
+ private:
+  FSTObjectValue* data_;
+  model::FieldMask field_mask_;
+  std::vector<model::FieldTransform> field_transforms_;
 };
 
 }  // namespace core
