@@ -108,7 +108,6 @@ class GrpcStreamTest : public testing::Test {
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { stream().Start(); });
-    ForceFinish({/*Start*/ Ok});
   }
 
  private:
@@ -221,19 +220,13 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
   });
 }
 
-TEST_F(GrpcStreamTest, ErrorOnStart) {
-  async_queue().EnqueueBlocking([&] { stream().Start(); });
-  ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
-  EXPECT_EQ(observed_states(), States({"OnStreamError"}));
-}
-
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
   StartStream();
   async_queue().EnqueueBlocking([&] { stream().Write({}); });
 
-  ForceFinish({/*Read*/ Ok, /*Write*/ Error});
+  ForceFinish({/*Write*/ Error, /*Read*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
+  ForceFinish({/*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamError");
 }
@@ -245,7 +238,7 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
     stream().Write({});
   });
 
-  ForceFinish({/*Read*/ Ok, /*Write*/ Error});
+  ForceFinish({/*Write*/ Ok, /*Write*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
   ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
 
