@@ -126,7 +126,7 @@ GCFSListenRequest* WatchStreamSerializer::CreateUnwatchRequest(
 }
 
 grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
-    GCFSListenRequest* request) const {
+    GCFSListenRequest* request) {
   return ConvertToByteBuffer([request data]);
 }
 

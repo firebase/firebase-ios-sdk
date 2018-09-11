@@ -52,8 +52,8 @@ NSData* WriteStream::GetLastStreamToken() const {
 
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
-  HARD_ASSERT(IsOpen(), "Not yet open");
-  HARD_ASSERT(!is_handshake_complete_, "Handshake sent out of turn");
+  HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
+  HARD_ASSERT(!is_handshake_complete_, "Handshake already completed");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
@@ -66,8 +66,8 @@ void WriteStream::WriteHandshake() {
 
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
-  HARD_ASSERT(IsOpen(), "Not yet open");
-  HARD_ASSERT(is_handshake_complete_, "Mutations sent out of turn");
+  HARD_ASSERT(IsOpen(), "Handshake already completed");
+  HARD_ASSERT(is_handshake_complete_, "Handshake must be complete before writing mutations");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
@@ -77,8 +77,18 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
     Datastore* datastore, absl::string_view token) {
+  // TODO(varconst): use `GrpcConnection` instead of `Datastore`.
   return datastore->CreateGrpcStream(
       token, "/google.firestore.v1beta1.Firestore/Write", this);
+}
+
+void WriteStream::TearDown(GrpcStream* grpc_stream) {
+  if (IsHandshakeComplete()) {
+    // Send an empty write request to the backend to indicate imminent stream closure. This isn't
+    // mandatory, but it allows the backend to clean up resources.
+    GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
+    grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
+  }
 }
 
 void WriteStream::NotifyStreamOpen() {
@@ -103,6 +113,7 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
             serializer_bridge_.Describe(response));
 
+    // Always capture the last stream token.
   serializer_bridge_.UpdateLastStreamToken(response);
 
   if (!is_handshake_complete_) {
@@ -121,11 +132,6 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   }
 
   return Status::OK();
-}
-
-void WriteStream::TearDown(GrpcStream* grpc_stream) {
-  GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
-  grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
 }
 
 }  // namespace remote

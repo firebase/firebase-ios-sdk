@@ -110,7 +110,7 @@ class WriteStreamSerializer {
   GCFSWriteRequest* CreateWriteMutationsRequest(
       NSArray<FSTMutation*>* mutations) const;
   GCFSWriteRequest* CreateEmptyMutationsList() {
-    return CreateRequest(@[]);
+    return CreateWriteMutationsRequest(@[]);
   }
   static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
 
