@@ -91,8 +91,8 @@ void GrpcConnection::EnsureActiveStub() {
                             GRPC_CHANNEL_SHUTDOWN) {
     LOG_DEBUG("Creating Firestore stub.");
     grpc_channel_ = grpc::CreateChannel(
-      database_info_->host(),
-      grpc::SslCredentials(grpc::SslCredentialsOptions()));
+        database_info_->host(),
+        grpc::SslCredentials(grpc::SslCredentialsOptions()));
     grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
   }
 }
