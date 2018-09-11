@@ -187,7 +187,6 @@ class StreamTest : public testing::Test {
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
-    ForceFinish({/*Start*/ Ok});
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -275,17 +274,6 @@ TEST_F(StreamTest, CanStop) {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
     EXPECT_EQ(observed_states(), States({"NotifyStreamOpen", "NotifyStreamClose(0)"}));
-  });
-}
-
-TEST_F(StreamTest, GrpcFailureOnStart) {
-  async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
-  ForceFinish({/*Start*/ Error, /*Finish*/ Ok});
-
-  async_queue().EnqueueBlocking([&] {
-    EXPECT_FALSE(firestore_stream->IsStarted());
-    EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(1)"}));
   });
 }
 
