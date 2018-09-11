@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/exponential_backoff.h"
 
+#include <algorithm>
 #include <random>
 #include <utility>
 
@@ -39,7 +40,8 @@ ExponentialBackoff::ExponentialBackoff(AsyncQueue* queue,
       timer_id_{timer_id},
       backoff_factor_{backoff_factor},
       initial_delay_{initial_delay},
-      max_delay_{max_delay} {
+      max_delay_{max_delay},
+      last_attempt_time_{chr::steady_clock::now()} {
   HARD_ASSERT(queue, "Queue can't be null");
 
   HARD_ASSERT(backoff_factor >= 1.0, "Backoff factor must be at least 1");
@@ -55,14 +57,30 @@ void ExponentialBackoff::BackoffAndRun(AsyncQueue::Operation&& operation) {
 
   // First schedule the block using the current base (which may be 0 and should
   // be honored as such).
-  Milliseconds delay_with_jitter = current_base_ + GetDelayWithJitter();
-  if (delay_with_jitter.count() > 0) {
-    LOG_DEBUG("Backing off for %s milliseconds (base delay: %s milliseconds)",
-              delay_with_jitter.count(), current_base_.count());
+  Milliseconds desired_delay_with_jitter = current_base_ + GetDelayWithJitter();
+
+  Milliseconds delay_so_far = chr::duration_cast<Milliseconds>(
+      chr::steady_clock::now() - last_attempt_time_);
+
+  // Guard against the backoff delay already being past.
+  auto remaining_delay =
+      std::max(Milliseconds::zero(), desired_delay_with_jitter - delay_so_far);
+
+  if (current_base_.count() > 0) {
+    LOG_DEBUG(
+        "Backing off for %s ms "
+        "(base delay: %s ms, "
+        "delay with jitter: %s ms, "
+        "last attempt: %s ms ago)",
+        remaining_delay.count(), current_base_.count(),
+        desired_delay_with_jitter.count(), delay_so_far.count());
   }
 
-  delayed_operation_ = queue_->EnqueueAfterDelay(delay_with_jitter, timer_id_,
-                                                 std::move(operation));
+  delayed_operation_ =
+      queue_->EnqueueAfterDelay(remaining_delay, timer_id_, [this, operation] {
+        last_attempt_time_ = chr::steady_clock::now();
+        operation();
+      });
 
   // Apply backoff factor to determine next delay, but ensure it is within
   // bounds.

@@ -54,14 +54,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     ;;
 
   Firestore-*-cmake)
-    # xcpretty is helpful for the intermediate step which builds FirebaseCore
-    # using xcodebuild.
-    gem install xcpretty
     brew outdated cmake || brew upgrade cmake
     brew outdated go || brew upgrade go # Somehow the build for Abseil requires this.
-    bundle exec pod install --project-directory=Example --repo-update
-    bundle exec pod install --project-directory=Firestore/Example \
-        --no-repo-update
+
+    # Install python packages required to generate proto sources
+    pip install six
     ;;
 
   *)

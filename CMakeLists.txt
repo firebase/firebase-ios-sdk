@@ -176,13 +176,12 @@ endif()
 
 # nanopb
 set(nanopb_BUILD_GENERATOR ON CACHE BOOL "Enable the nanopb generator")
-set(nanopb_PROTOC_PATH ${NANOPB_PROTOC_BIN} CACHE STRING "Protoc location")
 set(nanopb_MSVC_STATIC_RUNTIME OFF CACHE BOOL "Link static runtime libraries")
 add_external_subdirectory(nanopb)
 
 target_compile_definitions(
   protobuf-nanopb
-  PUBLIC -DPB_FIELD_16BIT
+  PUBLIC -DPB_FIELD_32BIT -DPB_ENABLE_MALLOC
 )
 
 target_include_directories(
