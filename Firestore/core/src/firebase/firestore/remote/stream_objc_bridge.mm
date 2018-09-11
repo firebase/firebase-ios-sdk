@@ -106,6 +106,8 @@ bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
 }
 
+// WatchStreamSerializer
+
 GCFSListenRequest* WatchStreamSerializer::CreateWatchRequest(
     FSTQueryData* query) const {
   GCFSListenRequest* request = [GCFSListenRequest message];
@@ -151,6 +153,70 @@ GCFSListenResponse* WatchStreamSerializer::ParseResponse(
   return ToProto<GCFSListenResponse>(message, out_status);
 }
 
+// WriteStreamSerializer
+
+GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
+  // The initial request cannot contain mutations, but must contain a projectID.
+  GCFSWriteRequest* request = [GCFSWriteRequest message];
+  request.database = [serializer_ encodedDatabaseID];
+  return request;
+}
+
+GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
+    NSArray<FSTMutation*>* mutations) const {
+  NSMutableArray<GCFSWrite*>* protos =
+      [NSMutableArray arrayWithCapacity:mutations.count];
+  for (FSTMutation* mutation in mutations) {
+    [protos addObject:[serializer_ encodedMutation:mutation]];
+  };
+
+  GCFSWriteRequest* request = [GCFSWriteRequest message];
+  request.writesArray = protos;
+  request.streamToken = last_stream_token_;
+
+  return request;
+}
+
+void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
+  last_stream_token_ = proto.streamToken;
+}
+
+ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
+    GCFSWriteResponse* proto) const {
+  return [serializer_ decodedVersion:proto.commitTime];
+}
+
+ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
+    GCFSWriteResponse* proto) const {
+  NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
+  NSMutableArray<FSTMutationResult*>* results =
+      [NSMutableArray arrayWithCapacity:protos.count];
+  for (GCFSWriteResult* proto in protos) {
+    [results addObject:[serializer_ decodedMutationResult:proto]];
+  };
+  return results;
+}
+
+ GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSWriteResponse>(message, out_status);
+}
+
+grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
+    GCFSWriteRequest* request) const {
+  return ConvertToByteBuffer([request data]);
+}
+
+NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) const {
+  return [request description];
+}
+
+NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) const {
+  return [response description];
+}
+
+// WatchStreamDelegate
+
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
   [delegate_ watchStreamDidOpen];
 }
@@ -162,6 +228,27 @@ void WatchStreamDelegate::NotifyDelegateOnChange(
 
 void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
   [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
+}
+
+// WriteStreamDelegate
+
+void WriteStreamDelegate::NotifyDelegateOnOpen() {
+  [delegate_ writeStreamDidOpen];
+}
+
+void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
+  [delegate_ writeStreamDidCompleteHandshake];
+}
+
+void WriteStreamDelegate::NotifyDelegateOnCommit(
+    const SnapshotVersion& commit_version,
+    NSArray<FSTMutationResult*>* results) {
+  [delegate_ writeStreamDidReceiveResponseWithVersion:commit_version
+                                     mutationResults:results];
+}
+
+void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
+  [delegate_ writeStreamWasInterruptedWithError:MakeNSError(status)];
 }
 
 }  // namespace bridge
