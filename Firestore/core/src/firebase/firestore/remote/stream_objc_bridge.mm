@@ -21,7 +21,6 @@
 #include <vector>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/Remote/FSTStream.h"
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -43,23 +42,6 @@ using util::StringFormat;
 
 namespace {
 
-NSData* ToNsData(const grpc::ByteBuffer& buffer) {
-  std::vector<grpc::Slice> slices;
-  grpc::Status status = buffer.Dump(&slices);
-  HARD_ASSERT(status.ok(), "Trying to convert an invalid grpc::ByteBuffer");
-
-  if (slices.size() == 1) {
-    return [NSData dataWithBytes:slices.front().begin()
-                          length:slices.front().size()];
-  } else {
-    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
-    for (const auto& slice : slices) {
-      [data appendBytes:slice.begin() length:slice.size()];
-    }
-    return data;
-  }
-}
-
 std::string ToHexString(const grpc::ByteBuffer& buffer) {
   std::vector<grpc::Slice> slices;
   grpc::Status status = buffer.Dump(&slices);
@@ -76,10 +58,32 @@ std::string ToHexString(const grpc::ByteBuffer& buffer) {
   return output.str();
 }
 
+NSData* ConvertToNsData(const grpc::ByteBuffer& buffer) {
+  std::vector<grpc::Slice> slices;
+  grpc::Status status = buffer.Dump(&slices);
+  HARD_ASSERT(status.ok(), "Trying to convert an invalid grpc::ByteBuffer");
+
+  if (slices.size() == 1) {
+    return [NSData dataWithBytes:slices.front().begin()
+                          length:slices.front().size()];
+  } else {
+    NSMutableData* data = [NSMutableData dataWithCapacity:buffer.Length()];
+    for (const auto& slice : slices) {
+      [data appendBytes:slice.begin() length:slice.size()];
+    }
+    return data;
+  }
+}
+
+grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
+  grpc::Slice slice{[data bytes], [data length]};
+  return grpc::ByteBuffer{&slice, 1};
+}
+
 template <typename Proto>
 Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   NSError* error = nil;
-  Proto* proto = [Proto parseFromData:ToNsData(message) error:&error];
+  Proto* proto = [Proto parseFromData:ConvertToNsData(message) error:&error];
   if (!error) {
     *out_status = Status::OK();
     return proto;
@@ -96,16 +100,13 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   return nil;
 }
 
-grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
-  grpc::Slice slice{[data bytes], [data length]};
-  return grpc::ByteBuffer{&slice, 1};
-}
-
 }  // namespace
 
 bool IsLoggingEnabled() {
   return [FIRFirestore isLoggingEnabled];
 }
+
+// WatchStreamSerializer
 
 GCFSListenRequest* WatchStreamSerializer::CreateWatchRequest(
     FSTQueryData* query) const {
@@ -125,16 +126,37 @@ GCFSListenRequest* WatchStreamSerializer::CreateUnwatchRequest(
 }
 
 grpc::ByteBuffer WatchStreamSerializer::ToByteBuffer(
-    GCFSListenRequest* request) const {
+    GCFSListenRequest* request) {
   return ConvertToByteBuffer([request data]);
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) const {
+GCFSListenResponse* WatchStreamSerializer::ParseResponse(
+    const grpc::ByteBuffer& message, Status* out_status) const {
+  return ToProto<GCFSListenResponse>(message, out_status);
+}
+
+FSTWatchChange* WatchStreamSerializer::ToWatchChange(
+    GCFSListenResponse* proto) const {
+  return [serializer_ decodedWatchChange:proto];
+}
+
+SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
+    GCFSListenResponse* proto) const {
+  return [serializer_ versionFromListenResponse:proto];
+}
+
+NSString* WatchStreamSerializer::Describe(GCFSListenRequest* request) {
   return [request description];
 }
 
-NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) const {
+NSString* WatchStreamSerializer::Describe(GCFSListenResponse* response) {
   return [response description];
+}
+
+// WriteStreamSerializer
+
+void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
+  last_stream_token_ = proto.streamToken;
 }
 
 GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
@@ -144,7 +166,7 @@ GCFSWriteRequest* WriteStreamSerializer::CreateHandshake() const {
   return request;
 }
 
-GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
+GCFSWriteRequest* WriteStreamSerializer::CreateWriteMutationsRequest(
     NSArray<FSTMutation*>* mutations) const {
   NSMutableArray<GCFSWrite*>* protos =
       [NSMutableArray arrayWithCapacity:mutations.count];
@@ -160,35 +182,13 @@ GCFSWriteRequest* WriteStreamSerializer::CreateRequest(
 }
 
 grpc::ByteBuffer WriteStreamSerializer::ToByteBuffer(
-    GCFSWriteRequest* request) const {
+    GCFSWriteRequest* request) {
   return ConvertToByteBuffer([request data]);
 }
 
-NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) const {
-  return [request description];
-}
-
-NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) const {
-  return [response description];
-}
-
-FSTWatchChange* WatchStreamSerializer::ToWatchChange(
-    GCFSListenResponse* proto) const {
-  return [serializer_ decodedWatchChange:proto];
-}
-
-SnapshotVersion WatchStreamSerializer::ToSnapshotVersion(
-    GCFSListenResponse* proto) const {
-  return [serializer_ versionFromListenResponse:proto];
-}
-
-GCFSListenResponse* WatchStreamSerializer::ParseResponse(
+GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
     const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSListenResponse>(message, out_status);
-}
-
-void WriteStreamSerializer::UpdateLastStreamToken(GCFSWriteResponse* proto) {
-  last_stream_token_ = proto.streamToken;
+  return ToProto<GCFSWriteResponse>(message, out_status);
 }
 
 model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
@@ -207,48 +207,48 @@ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
   return results;
 }
 
-GCFSWriteResponse* WriteStreamSerializer::ParseResponse(
-    const grpc::ByteBuffer& message, Status* out_status) const {
-  return ToProto<GCFSWriteResponse>(message, out_status);
+NSString* WriteStreamSerializer::Describe(GCFSWriteRequest* request) {
+  return [request description];
 }
 
+NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
+  return [response description];
+}
+
+// WatchStreamDelegate
+
 void WatchStreamDelegate::NotifyDelegateOnOpen() {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidOpen];
+  [delegate_ watchStreamDidOpen];
 }
 
 void WatchStreamDelegate::NotifyDelegateOnChange(
     FSTWatchChange* change, const model::SnapshotVersion& snapshot_version) {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamDidChange:change snapshotVersion:snapshot_version];
+  [delegate_ watchStreamDidChange:change snapshotVersion:snapshot_version];
 }
 
-void WatchStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
-  id<FSTWatchStreamDelegate> delegate = delegate_;
-  [delegate watchStreamWasInterruptedWithError:MakeNSError(status)];
+void WatchStreamDelegate::NotifyDelegateOnClose(const Status& status) {
+  [delegate_ watchStreamWasInterruptedWithError:MakeNSError(status)];
 }
+
+// WriteStreamDelegate
 
 void WriteStreamDelegate::NotifyDelegateOnOpen() {
-  id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamDidOpen];
+  [delegate_ writeStreamDidOpen];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnHandshakeComplete() {
-  id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamDidCompleteHandshake];
+  [delegate_ writeStreamDidCompleteHandshake];
 }
 
 void WriteStreamDelegate::NotifyDelegateOnCommit(
     const SnapshotVersion& commit_version,
     NSArray<FSTMutationResult*>* results) {
-  id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamDidReceiveResponseWithVersion:commit_version
-                                     mutationResults:results];
+  [delegate_ writeStreamDidReceiveResponseWithVersion:commit_version
+                                      mutationResults:results];
 }
 
-void WriteStreamDelegate::NotifyDelegateOnStreamFinished(const Status& status) {
-  id<FSTWriteStreamDelegate> delegate = delegate_;
-  [delegate writeStreamWasInterruptedWithError:MakeNSError(status)];
+void WriteStreamDelegate::NotifyDelegateOnClose(const Status& status) {
+  [delegate_ writeStreamWasInterruptedWithError:MakeNSError(status)];
 }
 
 }  // namespace bridge

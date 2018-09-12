@@ -94,9 +94,20 @@ GrpcStream::~GrpcStream() {
 }
 
 void GrpcStream::Start() {
+  // Make starting a quick operation that avoids a roundtrip to the server by
+  // skipping the wait for initial server metadata (instead, it will be
+  // automatically coalesced with the first write operation).
   context_->set_initial_metadata_corked(true);
+  // It's generally okay to pass a null pointer as a tag; in this case in
+  // particular, the tag will never come back from the completion queue (by
+  // design).
   call_->StartCall(nullptr);
-  OnStart();
+
+  if (observer_) {
+    observer_->OnStreamStart();
+    // Start listening for new messages.
+    Read();
+  }
 }
 
 void GrpcStream::Read() {
@@ -202,14 +213,6 @@ GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
 }
 
 // Callbacks
-
-void GrpcStream::OnStart() {
-  if (observer_) {
-    observer_->OnStreamStart();
-    // Start listening for new messages.
-    Read();
-  }
-}
 
 void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
   if (observer_) {

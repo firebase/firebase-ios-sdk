@@ -35,7 +35,7 @@ WatchStream::WatchStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
                          Datastore* datastore,
-                         id delegate)
+                         id<FSTWatchStreamDelegate> delegate)
     : Stream{async_queue, credentials_provider, datastore,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
@@ -66,15 +66,15 @@ std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
       token, "/google.firestore.v1beta1.Firestore/Listen", this);
 }
 
-void WatchStream::FinishGrpcStream(GrpcStream* grpc_stream) {
+void WatchStream::TearDown(GrpcStream* grpc_stream) {
   grpc_stream->Finish();
 }
 
-void WatchStream::DoOnStreamStart() {
+void WatchStream::NotifyStreamOpen() {
   delegate_bridge_.NotifyDelegateOnOpen();
 }
 
-Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
+Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   Status status;
   GCFSListenResponse* response =
       serializer_bridge_.ParseResponse(message, &status);
@@ -86,7 +86,7 @@ Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
             serializer_bridge_.Describe(response));
 
   // A successful response means the stream is healthy.
-  ResetBackoff();
+  backoff_.Reset();
 
   delegate_bridge_.NotifyDelegateOnChange(
       serializer_bridge_.ToWatchChange(response),
@@ -94,8 +94,8 @@ Status WatchStream::DoOnStreamRead(const grpc::ByteBuffer& message) {
   return Status::OK();
 }
 
-void WatchStream::DoOnStreamFinish(const Status& status) {
-  delegate_bridge_.NotifyDelegateOnStreamFinished(status);
+void WatchStream::NotifyStreamClose(const Status& status) {
+  delegate_bridge_.NotifyDelegateOnClose(status);
 }
 
 }  // namespace remote

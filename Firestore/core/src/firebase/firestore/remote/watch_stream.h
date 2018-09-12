@@ -54,7 +54,7 @@ class WatchStream : public Stream {
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               Datastore* datastore,
-              id delegate);
+              id<FSTWatchStreamDelegate> delegate);
 
   /**
    * Registers interest in the results of the given query. If the query includes
@@ -73,11 +73,11 @@ class WatchStream : public Stream {
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, absl::string_view token) override;
-  void FinishGrpcStream(GrpcStream* grpc_stream) override;
+  void TearDown(GrpcStream* grpc_stream) override;
 
-  void DoOnStreamStart() override;
-  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamFinish(const util::Status& status) override;
+  void NotifyStreamOpen() override;
+  util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override;
+  void NotifyStreamClose(const util::Status& status) override;
 
   std::string GetDebugName() const override {
     return "WatchStream";

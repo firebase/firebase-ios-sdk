@@ -107,6 +107,7 @@ class ExponentialBackoff {
   const Milliseconds initial_delay_;
   const Milliseconds max_delay_;
   util::SecureRandom secure_random_;
+  std::chrono::steady_clock::time_point last_attempt_time_;
 };
 
 }  // namespace remote

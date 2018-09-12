@@ -64,6 +64,18 @@ Stream::Stream(AsyncQueue* worker_queue,
       idle_timer_id_{idle_timer_id} {
 }
 
+// Check state
+
+bool Stream::IsOpen() const {
+  EnsureOnQueue();
+  return state_ == State::Open;
+}
+
+bool Stream::IsStarted() const {
+  EnsureOnQueue();
+  return state_ == State::Starting || state_ == State::Backoff || IsOpen();
+}
+
 // Starting
 
 void Stream::Start() {
@@ -79,36 +91,37 @@ void Stream::Start() {
   HARD_ASSERT(state_ == State::Initial, "Already started");
   state_ = State::Starting;
 
-  Authenticate();
+  RequestCredentials();
 }
 
-void Stream::Authenticate() {
+void Stream::RequestCredentials() {
   EnsureOnQueue();
 
   // Auth may outlive the stream, so make sure it doesn't try to access a
   // deleted object.
   std::weak_ptr<Stream> weak_this{shared_from_this()};
-  int auth_generation = generation_;
-  credentials_provider_->GetToken(
-      [weak_this, auth_generation](StatusOr<Token> maybe_token) {
-        auto strong_this = weak_this.lock();
-        if (!strong_this) {
-          return;
-        }
-        strong_this->worker_queue_->EnqueueRelaxed(
-            [maybe_token, weak_this, auth_generation] {
-              auto strong_this = weak_this.lock();
-              // Streams can be stopped while waiting for authorization, so need
-              // to check generation.
-              if (!strong_this || strong_this->generation_ != auth_generation) {
-                return;
-              }
-              strong_this->ResumeStartAfterAuth(maybe_token);
-            });
-      });
+  int initial_close_count = close_count_;
+  credentials_provider_->GetToken([weak_this, initial_close_count](
+                                      const StatusOr<Token>& maybe_token) {
+    auto strong_this = weak_this.lock();
+    if (!strong_this) {
+      return;
+    }
+
+    strong_this->worker_queue_->EnqueueRelaxed([maybe_token, weak_this,
+                                                initial_close_count] {
+      auto strong_this = weak_this.lock();
+      // Streams can be stopped while waiting for authorization, so need
+      // to check the close count.
+      if (!strong_this || strong_this->close_count_ != initial_close_count) {
+        return;
+      }
+      strong_this->ResumeStartWithCredentials(maybe_token);
+    });
+  });
 }
 
-void Stream::ResumeStartAfterAuth(const StatusOr<Token>& maybe_token) {
+void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
   EnsureOnQueue();
 
   HARD_ASSERT(state_ == State::Starting,
@@ -119,24 +132,20 @@ void Stream::ResumeStartAfterAuth(const StatusOr<Token>& maybe_token) {
     return;
   }
 
-  absl::string_view token = [&] {
-    auto token = maybe_token.ValueOrDie();
-    return token.user().is_authenticated() ? token.token()
-                                           : absl::string_view{};
-  }();
+  Token credential = maybe_token.ValueOrDie();
+  absl::string_view token = credential.user().is_authenticated()
+                                ? credential.token()
+                                : absl::string_view{};
 
   grpc_stream_ = CreateGrpcStream(datastore_, token);
   grpc_stream_->Start();
-
-  state_ = State::Open;
-  DoOnStreamStart();
 }
 
 void Stream::OnStreamStart() {
   EnsureOnQueue();
 
-  //state_ = State::Open;
-  //DoOnStreamStart();
+  state_ = State::Open;
+  NotifyStreamOpen();
 }
 
 // Backoff
@@ -150,18 +159,14 @@ void Stream::BackoffAndTryRestarting() {
               "Should only perform backoff in an error case");
 
   state_ = State::Backoff;
-  backoff_.BackoffAndRun([this] { ResumeStartFromBackoff(); });
-}
+  backoff_.BackoffAndRun([this] {
+    HARD_ASSERT(state_ == State::Backoff,
+                "Backoff elapsed but state is now: %s", state_);
 
-void Stream::ResumeStartFromBackoff() {
-  EnsureOnQueue();
-
-  HARD_ASSERT(state_ == State::Backoff, "Backoff elapsed but state is now: %s",
-              state_);
-
-  state_ = State::Initial;
-  Start();
-  HARD_ASSERT(IsStarted(), "Stream should have started.");
+    state_ = State::Initial;
+    Start();
+    HARD_ASSERT(IsStarted(), "Stream should have started.");
+  });
 }
 
 void Stream::InhibitBackoff() {
@@ -172,11 +177,6 @@ void Stream::InhibitBackoff() {
 
   // Clear the error condition.
   state_ = State::Initial;
-  ResetBackoff();
-}
-
-void Stream::ResetBackoff() {
-  EnsureOnQueue();
   backoff_.Reset();
 }
 
@@ -209,10 +209,10 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
                   grpc_stream_->GetResponseHeaders()));
   }
 
-  Status read_status = DoOnStreamRead(message);
+  Status read_status = NotifyStreamResponse(message);
   if (!read_status.ok()) {
     grpc_stream_->Finish();
-    // Don't expect GRPC to produce status -- since the error happened on the
+    // Don't expect gRPC to produce status -- since the error happened on the
     // client, we have all the information we need.
     OnStreamError(read_status);
     return;
@@ -223,42 +223,65 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
 
 void Stream::Stop() {
   EnsureOnQueue();
-
   LOG_DEBUG("%s stop", GetDebugDescription());
 
-  if (!IsStarted()) {
-    return;
-  }
-
-  RaiseGeneration();
-
-  // If the stream is in the auth stage, GRPC stream might not have been created
-  // yet.
-  if (grpc_stream_) {
-    LOG_DEBUG("%s Finishing GRPC stream", GetDebugDescription());
-    FinishGrpcStream(grpc_stream_.get());
-    ResetGrpcStream();
-  }
-
-  // If this is an intentional close ensure we don't delay our next connection
-  // attempt.
-  ResetBackoff();
-
-  // State must be updated before calling the delegate.
-  state_ = State::Initial;
-  // Stopping the stream was initiated by the client, so we have all the
-  // information we need.
-  DoOnStreamFinish(Status::OK());
+  Close(Status::OK());
 }
 
-void Stream::OnStreamError(const Status& status) {
+void Stream::Close(const Status& status) {
+  // This function ensures that both graceful stop and stop due to error go
+  // through the same sequence of steps. While it leads to more conditional
+  // logic, the benefit is reducing the chance of divergence across the two
+  // cases.
+
   EnsureOnQueue();
+  bool graceful_stop = status.ok();
 
-  // TODO(varconst): log error here?
-  LOG_DEBUG("%s Stream error", GetDebugDescription());
+  // Step 1 (both): check current state.
+  if (graceful_stop && !IsStarted()) {
+    // Graceful stop is idempotent.
+    return;
+  }
+  HARD_ASSERT(IsStarted(), "Trying to close a non-started stream");
 
-  RaiseGeneration();
+  // Step 2 (both): cancel any outstanding timers (they're guaranteed not to
+  // execute).
+  CancelIdleCheck();
+  backoff_.Cancel();
 
+  // Step 3 (both): increment close count, which invalidates long-lived
+  // callbacks, guaranteeing they won't execute against a new instance of the
+  // stream or when the stream has been destroyed.
+  ++close_count_;
+
+  // Step 4 (both): make small adjustments (to backoff/etc.) based on the
+  // status.
+  if (graceful_stop) {
+    // If this is an intentional close, ensure we don't delay our next
+    // connection attempt.
+    backoff_.Reset();
+  } else {
+    HandleErrorStatus(status);
+  }
+
+  // Step 5 (graceful stop only): give subclasses a chance to send final
+  // messages.
+  if (graceful_stop && grpc_stream_) {
+    // If the stream is in the auth stage, gRPC stream might not have been
+    // created yet.
+    LOG_DEBUG("%s Finishing gRPC stream", GetDebugDescription());
+    TearDown(grpc_stream_.get());
+  }
+  // Step 6 (both): destroy the underlying stream.
+  grpc_stream_.reset();
+
+  // Step 7 (both): update the state machine and notify the listener.
+  // State must be updated before calling the delegate.
+  state_ = graceful_stop ? State::Initial : State::Error;
+  NotifyStreamClose(status);
+}
+
+void Stream::HandleErrorStatus(const Status& status) {
   if (status.code() == FirestoreErrorCode::ResourceExhausted) {
     LOG_DEBUG(
         "%s Using maximum backoff delay to prevent overloading the backend.",
@@ -269,31 +292,14 @@ void Stream::OnStreamError(const Status& status) {
     // refreshing it in case it just expired.
     credentials_provider_->InvalidateToken();
   }
-
-  ResetGrpcStream();
-
-  // State must be updated before calling the delegate.
-  state_ = State::Error;
-  DoOnStreamFinish(status);
 }
 
-void Stream::ResetGrpcStream() {
+void Stream::OnStreamError(const Status& status) {
   EnsureOnQueue();
+  // TODO(varconst): log error here?
+  LOG_DEBUG("%s Stream error", GetDebugDescription());
 
-  grpc_stream_.reset();
-  backoff_.Cancel();
-}
-
-// Check state
-
-bool Stream::IsOpen() const {
-  EnsureOnQueue();
-  return state_ == State::Open;
-}
-
-bool Stream::IsStarted() const {
-  EnsureOnQueue();
-  return state_ == State::Starting || state_ == State::Backoff || IsOpen();
+  Close(status);
 }
 
 // Protected helpers

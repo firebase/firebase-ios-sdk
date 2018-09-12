@@ -41,35 +41,65 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+/**
+ * A Stream that implements the Write RPC.
+ *
+ * The Write RPC requires the caller to maintain special stream token
+ * state in-between calls, to help the server understand which responses the
+ * client has processed by the time the next request is made. Every response
+ * will contain a stream token; this value must be passed to the next
+ * request.
+ *
+ * After calling `Start` on this stream, the next request must be a handshake,
+ * containing whatever stream token is on hand. Once a response to this
+ * request is received, all pending mutations may be submitted. When
+ * submitting multiple batches of mutations at the same time, it's
+ * okay to use the same stream token for the calls to `WriteMutations`.
+ */
 class WriteStream : public Stream {
  public:
   WriteStream(util::AsyncQueue* async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
               Datastore* datastore,
-              id delegate);
+              id<FSTWriteStreamDelegate> delegate);
 
   void SetLastStreamToken(NSData* token);
+  /**
+   * The last received stream token from the server, used to acknowledge which
+   * responses the client has processed. Stream tokens are opaque checkpoint
+   * markers whose only real value is their inclusion in the next request.
+   *
+   * `WriteStream` manages propagating this value from responses to the
+   * next request.
+   */
   NSData* GetLastStreamToken() const;
 
-  void WriteHandshake();
-  void WriteMutations(NSArray<FSTMutation*>* mutations);
-
+  /**
+   * Tracks whether or not a handshake has been successfully exchanged and
+   * the stream is ready to accept mutations.
+   */
   bool IsHandshakeComplete() const {
     return is_handshake_complete_;
   }
-  // FIXME exists for tests
-  void SetHandshakeComplete() {
-    is_handshake_complete_ = true;
-  }
+
+  /**
+   * Sends an initial stream token to the server, performing the handshake
+   * required to make the StreamingWrite RPC work.
+   */
+  void WriteHandshake();
+
+  /** Sends a group of mutations to the Firestore backend to apply. */
+  void WriteMutations(NSArray<FSTMutation*>* mutations);
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
       Datastore* datastore, const absl::string_view token) override;
-  void FinishGrpcStream(GrpcStream* call) override;
-  void DoOnStreamStart() override;
-  util::Status DoOnStreamRead(const grpc::ByteBuffer& message) override;
-  void DoOnStreamFinish(const util::Status& status) override;
+  void TearDown(GrpcStream* call) override;
+
+  void NotifyStreamOpen() override;
+  util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override;
+  void NotifyStreamClose(const util::Status& status) override;
 
   std::string GetDebugName() const override { return "WriteStream"; }
 

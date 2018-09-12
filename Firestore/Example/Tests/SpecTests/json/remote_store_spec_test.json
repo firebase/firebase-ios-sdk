@@ -482,10 +482,7 @@
   "Cleans up watch state correctly": {
     "describeName": "Remote store:",
     "itName": "Cleans up watch state correctly",
-    "tags": [
-      "no-android",
-      "no-ios"
-    ],
+    "tags": [],
     "config": {
       "useGarbageCollection": false,
       "numClients": 1

@@ -62,9 +62,9 @@ class Datastore {
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);
 
-  // A separate executor dedicatd to polling gRPC completion queue (which is
+  // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned `GrpcStream`s).
-  std::unique_ptr<util::internal::Executor> dedicated_executor_;
+  std::unique_ptr<util::internal::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
   GrpcConnection grpc_connection_;
 };
