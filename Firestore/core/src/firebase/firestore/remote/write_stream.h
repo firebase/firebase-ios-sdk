@@ -21,6 +21,7 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
 #include <memory>
 #include <string>
 
@@ -32,7 +33,6 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import <Foundation/Foundation.h>
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
