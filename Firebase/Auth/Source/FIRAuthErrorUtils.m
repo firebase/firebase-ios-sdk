@@ -410,8 +410,8 @@ static NSString *const kFIRAuthErrorMessageNullUser = @"A null user object was p
 /** @var kFIRAuthErrorMessageInvalidDynamicLinkDomain
     @brief Message for @c kFIRAuthErrorMessageInvalidDynamicLinkDomain error code.
  */
-static NSString *const kFIRAuthErrorMessageInvalidDynamicLinkDomain = @"The"
-    "Firebase Dynamic Link domain used is either not configured or is unauthorized"
+static NSString *const kFIRAuthErrorMessageInvalidDynamicLinkDomain = @"The "
+    "Firebase Dynamic Link domain used is either not configured or is unauthorized "
     "for the current project.";
 
 /** @var kFIRAuthErrorMessageInternalError
