@@ -53,7 +53,7 @@ NSData* WriteStream::GetLastStreamToken() const {
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
-  HARD_ASSERT(!is_handshake_complete_, "Handshake already completed");
+  HARD_ASSERT(!IsHandshakeComplete(), "Handshake already completed");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
@@ -67,7 +67,7 @@ void WriteStream::WriteHandshake() {
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Handshake already completed");
-  HARD_ASSERT(is_handshake_complete_, "Handshake must be complete before writing mutations");
+  HARD_ASSERT(IsHandshakeComplete(), "Handshake must be complete before writing mutations");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
@@ -88,6 +88,8 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     // mandatory, but it allows the backend to clean up resources.
     GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
     grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
+  } else {
+    grpc_stream->Finish();
   }
 }
 
@@ -116,7 +118,7 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
     // Always capture the last stream token.
   serializer_bridge_.UpdateLastStreamToken(response);
 
-  if (!is_handshake_complete_) {
+  if (!IsHandshakeComplete()) {
     // The first response is the handshake response
     is_handshake_complete_ = true;
     delegate_bridge_.NotifyDelegateOnHandshakeComplete();
