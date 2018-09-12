@@ -66,8 +66,6 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   if (token.data()) {
     context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
   }
-  
-  //context->set_initial_metadata_corked(true);
 
   // TODO(dimond): This should ideally also include the grpc version, however,
   // gRPC defines the version as a macro, so it would be hardcoded based on

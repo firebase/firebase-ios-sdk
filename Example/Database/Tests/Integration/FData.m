@@ -742,6 +742,7 @@
     }];
 }
 
+#ifdef FLAKY_TEST
 - (void) testSettingANodeWithChildrenToAPrimitiveAndBack {
     // Can't tolerate stale data; so disable persistence.
     FTupleFirebase* tuple = [FTestHelpers getRandomNodePairWithoutPersistence];
@@ -827,6 +828,7 @@
 
     XCTAssertTrue(done, @"Properly finished");
 }
+#endif
 
 - (void) testWriteLeafRemoveLeafAddChildToRemovedNode {
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
@@ -2188,6 +2190,7 @@
     XCTAssertTrue([result isEqualToNumber:toSet], @"Should get back same number");
 }
 
+#ifdef FLAKY_TEST
 - (void) testParentDeleteShadowsChildListeners {
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];
     FIRDatabaseReference * writer = refs.one;
@@ -2213,6 +2216,7 @@
     WAIT_FOR(done);
     [deleter removeAllObservers];
 }
+#endif
 
 - (void) testParentDeleteShadowsChildListenersWithNonDefaultQuery {
     FTupleFirebase* refs = [FTestHelpers getRandomNodePair];

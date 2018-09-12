@@ -54,7 +54,8 @@ void WatchStream::WatchQuery(FSTQueryData* query) {
 void WatchStream::UnwatchTargetId(TargetId target_id) {
   EnsureOnQueue();
 
-  GCFSListenRequest* request = serializer_bridge_.CreateUnwatchRequest(target_id);
+  GCFSListenRequest* request =
+      serializer_bridge_.CreateUnwatchRequest(target_id);
   LOG_DEBUG("%s unwatch: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(request));
