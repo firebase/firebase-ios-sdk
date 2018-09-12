@@ -108,6 +108,17 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 #pragma mark - Private class methods
 
+#ifdef DEBUG
++ (void)logOptionsInDictionary:(NSDictionary *)dictionary {
+  if (FIRIsLoggableLevel(FIRLoggerLevelDebug, kFIRLoggerCore)) {
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key, id _Nonnull value,
+                                                    BOOL *_Nonnull stop) {
+      FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Read option '%@'='%@'", key, value);
+    }];
+  }
+}
+#endif  // ifdef DEBUG
+
 + (void)initialize {
   // Report FirebaseCore version for useragent string
   NSRange major = NSMakeRange(0, 1);
@@ -147,6 +158,11 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
                 @"'%@.%@'.",
                 kServiceInfoFileName, kServiceInfoFileType);
   }
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Read configuration file: %@.%@",
+              kServiceInfoFileName, kServiceInfoFileType);
+  [self logOptionsInDictionary:sDefaultOptionsDictionary];
+#endif  // ifdef DEBUG
   return sDefaultOptionsDictionary;
 }
 
@@ -167,6 +183,7 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 + (void)resetDefaultOptions {
   sDefaultOptions = nil;
   sDefaultOptionsDictionary = nil;
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Reset options to defaults.");
 }
 
 #pragma mark - Private instance methods
@@ -176,6 +193,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
   if (self) {
     _optionsDictionary = [optionsDictionary mutableCopy];
     _usingOptionsFromDefaultPlist = YES;
+#ifdef DEBUG
+    [[self class] logOptionsInDictionary:_optionsDictionary];
+#endif  // ifdef DEBUG
   }
   return self;
 }
@@ -208,6 +228,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
                   plistPath);
       return nil;
     }
+#ifdef DEBUG
+    FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Read configuration file: %@", plistPath);
+    [[self class] logOptionsInDictionary:_optionsDictionary];
+#endif  // ifdef DEBUG
     // TODO: Do we want to validate the dictionary here? It says we do that already in
     // the public header.
   }
@@ -221,7 +245,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
     [mutableOptionsDict setValue:googleAppID forKey:kFIRGoogleAppID];
     [mutableOptionsDict setValue:GCMSenderID forKey:kFIRGCMSenderID];
     [mutableOptionsDict setValue:[[NSBundle mainBundle] bundleIdentifier] forKey:kFIRBundleID];
-    self.optionsDictionary = mutableOptionsDict;
+    _optionsDictionary = mutableOptionsDict;
+#ifdef DEBUG
+    [[self class] logOptionsInDictionary:_optionsDictionary];
+#endif  // ifdef DEBUG
   }
   return self;
 }
@@ -238,6 +265,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setAPIKey:(NSString *)APIKey {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set APIKey to %@", APIKey);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRAPIKey] = [APIKey copy];
 }
 
@@ -247,6 +277,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setClientID:(NSString *)clientID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set clientID to %@", clientID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRClientID] = [clientID copy];
 }
 
@@ -256,6 +289,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setTrackingID:(NSString *)trackingID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set trackingID to %@", trackingID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRTrackingID] = [trackingID copy];
 }
 
@@ -265,6 +301,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setGCMSenderID:(NSString *)GCMSenderID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set GCMSenderID to %@", GCMSenderID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRGCMSenderID] = [GCMSenderID copy];
 }
 
@@ -274,6 +313,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setProjectID:(NSString *)projectID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set projectID to %@", projectID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRProjectID] = [projectID copy];
 }
 
@@ -283,6 +325,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setAndroidClientID:(NSString *)androidClientID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set androidClientID to %@", androidClientID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRAndroidClientID] = [androidClientID copy];
 }
 
@@ -292,6 +337,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setGoogleAppID:(NSString *)googleAppID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set googleAppID to %@", googleAppID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRGoogleAppID] = [googleAppID copy];
 }
 
@@ -300,6 +348,10 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 }
 
 - (void)setLibraryVersionID:(NSString *)libraryVersionID {
+  // TODO: Should this be checkEditingLocked too?
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set libraryVersionID to %@", libraryVersionID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRLibraryVersionID] = [libraryVersionID copy];
 }
 
@@ -309,7 +361,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setDatabaseURL:(NSString *)databaseURL {
   [self checkEditingLocked];
-
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set databaseURL to %@", databaseURL);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRDatabaseURL] = [databaseURL copy];
 }
 
@@ -319,11 +373,17 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setStorageBucket:(NSString *)storageBucket {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set storageBucket to %@", storageBucket);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRStorageBucket] = [storageBucket copy];
 }
 
 - (void)setDeepLinkURLScheme:(NSString *)deepLinkURLScheme {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set deepLinkURLScheme to %@", deepLinkURLScheme);
+#endif  // ifdef DEBUG
   _deepLinkURLScheme = [deepLinkURLScheme copy];
 }
 
@@ -333,6 +393,9 @@ static NSDictionary *sDefaultOptionsDictionary = nil;
 
 - (void)setBundleID:(NSString *)bundleID {
   [self checkEditingLocked];
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR0000##", @"Set bundleID to %@", bundleID);
+#endif  // ifdef DEBUG
   _optionsDictionary[kFIRBundleID] = [bundleID copy];
 }
 
