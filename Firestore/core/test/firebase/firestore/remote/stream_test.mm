@@ -273,7 +273,8 @@ TEST_F(StreamTest, CanStop) {
 
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"NotifyStreamOpen", "NotifyStreamClose(0)"}));
+    EXPECT_EQ(observed_states(),
+              States({"NotifyStreamOpen", "NotifyStreamClose(0)"}));
   });
 }
 
@@ -313,7 +314,8 @@ TEST_F(StreamTest, ErrorAfterStart) {
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"NotifyStreamOpen", "NotifyStreamClose(1)"}));
+    EXPECT_EQ(observed_states(),
+              States({"NotifyStreamOpen", "NotifyStreamClose(1)"}));
   });
 }
 
