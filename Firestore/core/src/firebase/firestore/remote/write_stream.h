@@ -101,7 +101,9 @@ class WriteStream : public Stream {
   util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override;
   void NotifyStreamClose(const util::Status& status) override;
 
-  std::string GetDebugName() const override { return "WriteStream"; }
+  std::string GetDebugName() const override {
+    return "WriteStream";
+  }
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;
