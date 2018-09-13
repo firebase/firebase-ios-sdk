@@ -209,7 +209,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   if (!read_status.ok()) {
     grpc_stream_->Finish();
     // Don't expect gRPC to produce status -- since the error happened on the
-    // client,grpc_connection we have all the information we need.
+    // client, we have all the information we need.
     OnStreamError(read_status);
     return;
   }
