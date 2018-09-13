@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "grpcpp/client_context.h"
@@ -44,12 +45,12 @@ class GrpcStreamTester {
   GrpcStreamTester();
   ~GrpcStreamTester();
 
-  // Must be called before the stream can be used.
-  void InitializeStream(remote::GrpcStreamObserver* observer);
-  std::unique_ptr<remote::GrpcStream> CreateStream(
-      remote::GrpcStreamObserver* observer);
   /** Finishes the stream and shuts down the gRPC completion queue. */
   void Shutdown();
+
+  std::unique_ptr<remote::GrpcStream> CreateStream(
+      remote::GrpcStreamObserver* observer);
+  std::unique_ptr<remote::GrpcStreamingReader> CreateStreamingReader();
 
   /**
    * Takes as many completions off gRPC completion queue as there are elements
@@ -74,26 +75,19 @@ class GrpcStreamTester {
 
   void ShutdownGrpcQueue();
 
-  remote::GrpcStream& stream() {
-    return *grpc_stream_;
-  }
-  AsyncQueue& async_queue() {
-    return async_queue_;
-  }
-  grpc::GenericClientAsyncReaderWriter* call() {
-    return grpc_call_;
+  AsyncQueue& worker_queue() {
+    return worker_queue_;
   }
 
  private:
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
-  AsyncQueue async_queue_;
+  AsyncQueue worker_queue_;
 
   grpc::GenericStub grpc_stub_;
   grpc::CompletionQueue grpc_queue_;
+  // Context is needed to be able to cancel pending operations.
   grpc::ClientContext* grpc_context_ = nullptr;
-  grpc::GenericClientAsyncReaderWriter* grpc_call_ = nullptr;
 
-  std::unique_ptr<remote::GrpcStream> grpc_stream_;
   bool is_shut_down_ = false;
 };
 

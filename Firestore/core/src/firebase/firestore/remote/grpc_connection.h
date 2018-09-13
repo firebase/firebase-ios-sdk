@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -56,6 +57,11 @@ class GrpcConnection {
   std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
                                            const auth::Token& token,
                                            GrpcStreamObserver* observer);
+
+  std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
+      absl::string_view rpc_name,
+      const auth::Token& token,
+      const grpc::ByteBuffer& message);
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
