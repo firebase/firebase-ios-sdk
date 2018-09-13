@@ -218,6 +218,7 @@ cc_library(
     absl_base
     absl_strings
     firebase_firestore_util_base
+    grpc
 )
 
 
