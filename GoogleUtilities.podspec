@@ -90,4 +90,11 @@ other Google CocoaPods. They're not intended for direct public usage.
     sths.source_files = 'GoogleUtilities/SwizzlerTestHelpers/*.[hm]'
     sths.private_header_files = 'GoogleUtilities/SwizzlerTestHelpers/*.h'
   end
+
+  s.subspec 'UserDefaults' do |ud|
+    ud.source_files = 'GoogleUtilities/UserDefaults/**/*.[hm]'
+    ud.public_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
+    ud.private_header_files = 'GoogleUtilities/UserDefaults/Private/*.h'
+    ud.dependency 'GoogleUtilities/Logger'
+  end
 end
