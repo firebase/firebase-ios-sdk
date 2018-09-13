@@ -89,7 +89,9 @@ static NSMutableArray<Class<FIRCoreConfigurable>> *gRegisteredAsConfigurable;
 
 @property(nonatomic) BOOL alreadySentDeleteNotification;
 
+#ifdef DEBUG
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
+#endif  // DEBUG
 
 @end
 
