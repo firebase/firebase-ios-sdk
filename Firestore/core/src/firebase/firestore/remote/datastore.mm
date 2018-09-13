@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
 #include <unordered_set>
+#include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
