@@ -28,6 +28,10 @@ Status Status::FromGrpcStatus(const grpc::Status& from) {
   }
 
   grpc::StatusCode error_code = from.error_code();
+  // Both `grpc::Status` and Firestore's `util::Status` use canonical error
+  // codes for Google APIs. The canonical codes define integer values, so this
+  // conversion should be safe.
+  // See https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
   HARD_ASSERT(
       error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
       "Unknown gRPC error code: %s", error_code);
