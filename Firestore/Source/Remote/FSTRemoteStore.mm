@@ -495,7 +495,7 @@ static const int kMaxPendingWrites = 10;
 
   if ([self shouldStartWriteStream]) {
     [self startWriteStream];
-  } else if ([self isNetworkEnabled] && _writeStream->IsHandshakeComplete()) {
+  } else if ([self isNetworkEnabled] && _writeStream->is_handshake_complete()) {
     _writeStream->WriteMutations(batch.mutations);
   }
 }
@@ -552,7 +552,7 @@ static const int kMaxPendingWrites = 10;
   // If the write stream closed due to an error, invoke the error callbacks if there are pending
   // writes.
   if (error != nil && self.writePipeline.count > 0) {
-    if (_writeStream->IsHandshakeComplete()) {
+    if (_writeStream->is_handshake_complete()) {
       // This error affects the actual writes.
       [self handleWriteError:error];
     } else {
