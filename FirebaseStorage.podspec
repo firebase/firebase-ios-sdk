@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseStorage'
-  s.version          = '3.0.1'
+  s.version          = '3.0.2'
   s.summary          = 'Firebase Storage for iOS (plus community support for macOS and tvOS)'
 
   s.description      = <<-DESC
