@@ -16,8 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 
-#include <chrono>  // NOLINT(build/c++11)
-#include <future>  // NOLINT(build/c++11)
 #include <utility>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
