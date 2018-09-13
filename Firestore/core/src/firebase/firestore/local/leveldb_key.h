@@ -121,6 +121,7 @@ class LevelDbMutationKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
+  ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
   /** The user that owns the mutation batches. */
@@ -184,6 +185,7 @@ class LevelDbDocumentMutationKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
+  ABSL_MUST_USE_RESULT
   bool Decode(absl::string_view key);
 
   /** The user that owns the mutation batches. */
@@ -235,7 +237,8 @@ class LevelDbMutationQueueKey {
    * returned, this instance is in an undefined state until the next call to
    * `Decode()`.
    */
-  bool Decode(leveldb::Slice key);
+  ABSL_MUST_USE_RESULT
+  bool Decode(absl::string_view key);
 
   const std::string& user_id() const {
     return user_id_;
