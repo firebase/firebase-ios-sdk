@@ -365,7 +365,7 @@ static NSMutableDictionary *sLibraryVersions;
 - (void)setDataCollectionDefaultEnabled:(BOOL)dataCollectionDefaultEnabled {
 #ifdef DEBUG
   FIRLogDebug(kFIRLoggerCore, @"I-COR000034", @"Explicitly %@ data collection flag.",
-              [defaultsObject boolValue] ? @"enabled" : @"disabled");
+              dataCollectionDefaultEnabled ? @"enabled" : @"disabled");
   self.alreadyOutputDataCollectionFlag = YES;
 #endif  // DEBUG
 
