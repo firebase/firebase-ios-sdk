@@ -363,7 +363,12 @@ static NSMutableDictionary *sLibraryVersions;
 }
 
 - (void)setDataCollectionDefaultEnabled:(BOOL)dataCollectionDefaultEnabled {
-  self.alreadyOutputDataCollectionFlag = NO;  // Reset this flag to re-output the new value.
+#ifdef DEBUG
+  FIRLogDebug(kFIRLoggerCore, @"I-COR000034", @"Explicitly %@ data collection flag.",
+              [defaultsObject boolValue] ? @"enabled" : @"disabled");
+  self.alreadyOutputDataCollectionFlag = YES;
+#endif  // DEBUG
+
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
   [[NSUserDefaults standardUserDefaults] setBool:dataCollectionDefaultEnabled forKey:key];
