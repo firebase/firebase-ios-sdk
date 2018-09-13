@@ -107,7 +107,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void HandleCallStatus(const util::Status& status);
 
-  void RemoveGrpcCall(GrpcStreamingReader *to_remove);
+  void RemoveGrpcCall(GrpcStreamingReader* to_remove);
 
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);

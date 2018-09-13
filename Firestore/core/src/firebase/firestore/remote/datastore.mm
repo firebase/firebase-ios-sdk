@@ -206,10 +206,11 @@ void Datastore::HandleCallStatus(const Status &status) {
 }
 
 void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
-  auto found = std::find_if(lookup_calls_.begin(), lookup_calls_.end(),
-                            [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
-                              return call.get() == to_remove;
-                            });
+  auto found = std::find_if(
+      lookup_calls_.begin(), lookup_calls_.end(),
+      [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
+        return call.get() == to_remove;
+      });
   HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
   lookup_calls_.erase(found);
 }
