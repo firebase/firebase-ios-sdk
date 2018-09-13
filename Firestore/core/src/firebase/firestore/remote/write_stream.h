@@ -79,7 +79,7 @@ class WriteStream : public Stream {
    * Tracks whether or not a handshake has been successfully exchanged and
    * the stream is ready to accept mutations.
    */
-  bool IsHandshakeComplete() const {
+  bool is_handshake_complete() const {
     return is_handshake_complete_;
   }
 
