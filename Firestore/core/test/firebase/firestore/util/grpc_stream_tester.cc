@@ -29,7 +29,6 @@ using remote::GrpcCompletion;
 using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
-using remote::GrpcUnaryCall;
 
 GrpcStreamTester::GrpcStreamTester()
     : worker_queue_{absl::make_unique<ExecutorStd>()},
