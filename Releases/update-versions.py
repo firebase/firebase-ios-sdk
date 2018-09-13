@@ -61,6 +61,12 @@ def SetupArguments():
       default='master',
       help='Base branch for new release')
 
+  parser.add_argument(
+      '--push_only',
+      dest='push_only',
+      action='store_true',
+      help='Skip all of script except pushing podspecs to cpdc_internal')
+
   args = parser.parse_args()
   return args
 
@@ -154,7 +160,7 @@ def UpdatePodfiles(git_root, version):
   firestore_podfile = os.path.join(git_root, 'Firestore', 'Example', 'Podfile')
 
   sed_command = ("sed -i.bak -e \"s#\\(pod "
-                 "'Firebase/Core',[[:space:]]*'\\).*'#\\1{}'#\" {}")
+                 "'Firebase/CoreOnly',[[:space:]]*'\\).*'#\\1{}'#\" {}")
   os.system(sed_command.format(version, firebase_podfile))
   os.system(sed_command.format(version, firestore_podfile))
 
@@ -224,6 +230,7 @@ def UpdateVersions():
   global test_mode
   args = SetupArguments()
   test_mode = args.test_mode
+
   # Validate version is proper format
   major, minor, patch = args.version.split('.')
   if (not major.isdigit()) or (not minor.isdigit()) or (not patch.isdigit()):
@@ -234,20 +241,23 @@ def UpdateVersions():
       stdout=subprocess.PIPE).communicate()[0].rstrip().decode('utf-8')
 
   version_data = GetVersionData(git_root, args.version)
-  if args.tag_update:
-    UpdateTags(version_data, args.version)
-    return
 
-  release_branch = 'release-{}'.format(args.version)
-  CreateReleaseBranch(release_branch, args.base_branch)
-  UpdateFIROptions(git_root, version_data)
-  UpdatePodSpecs(git_root, version_data, args.version)
-  UpdatePodfiles(git_root, args.version)
+  if not args.push_only:
+    if args.tag_update:
+      UpdateTags(version_data, args.version)
+      return
 
-  LogOrRun('git commit -am "Update versions for Release {}"'
-           .format(args.version))
-  LogOrRun('git push origin {}'.format(release_branch))
-  UpdateTags(version_data, args.version, True)
+    release_branch = 'release-{}'.format(args.version)
+    CreateReleaseBranch(release_branch, args.base_branch)
+    UpdateFIROptions(git_root, version_data)
+    UpdatePodSpecs(git_root, version_data, args.version)
+    UpdatePodfiles(git_root, args.version)
+
+    LogOrRun('git commit -am "Update versions for Release {}"'
+             .format(args.version))
+    LogOrRun('git push origin {}'.format(release_branch))
+    UpdateTags(version_data, args.version, True)
+
   PushPodspecs(version_data)
 
 
