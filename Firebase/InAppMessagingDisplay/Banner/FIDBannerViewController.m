@@ -34,7 +34,7 @@
 
 // Banner view will be rendered and dismissed with animation. Within viewDidLayoutSubviews function,
 // we would position the view so that it's out of UIWindow range on the top so that later on it can
-// be slided in with animation. However, viewDidLayoutSubviews is also triggred in other scenarios
+// slide in with animation. However, viewDidLayoutSubviews is also triggred in other scenarios
 // like split view on iPad or device orientation changes where we don't want to hide the banner for
 // animations. So to have different logic, we use this property to tell the two different
 // cases apart and apply different positioning logic accordingly in viewDidLayoutSubviews.
@@ -56,6 +56,8 @@ static const NSTimeInterval kBannerAutoDimissTime = 12;
 // If the window width is larger than this threshold, we cap banner view width
 // by it: showing a non full-width banner when it happens.
 static const CGFloat kBannerViewMaxWidth = 736;
+
+static const CGFloat kSwipeUpThreshold = -10.0f;
 
 @implementation FIDBannerViewController
 
@@ -97,7 +99,6 @@ static const CGFloat kBannerViewMaxWidth = 736;
   [self.view addGestureRecognizer:tapGestureRecognizer];
 }
 
-static const CGFloat kSwipeUpThreshold = -10.0f;
 - (void)handlePanSwipe:(UIPanGestureRecognizer *)recognizer {
   // Detect the swipe gesture
   if (recognizer.state == UIGestureRecognizerStateEnded) {

@@ -20,7 +20,6 @@
 // Firebase InAppMessagingDisplay is merged into master. Keep them separate now to help
 // with build from development folder and avoid merge conflicts.
 
-// this should eventually be in FIRLogger.h
 extern FIRLoggerService kFIRLoggerInAppMessagingDisplay;
 
 // this should eventually be in FIRError.h

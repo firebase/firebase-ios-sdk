@@ -100,7 +100,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper uiWindowForModalView];
+    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForModalView];
     displayUIWindow.rootViewController = modalVC;
     [displayUIWindow setHidden:NO];
   });
@@ -137,7 +137,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper uiWindowForBannerView];
+    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForBannerView];
     displayUIWindow.rootViewController = bannerVC;
     [displayUIWindow setHidden:NO];
   });
@@ -175,7 +175,7 @@
       return;
     }
 
-    UIWindow *displayUIWindow = [FIDRenderingWindowHelper uiWindowForImageOnlyView];
+    UIWindow *displayUIWindow = [FIDRenderingWindowHelper UIWindowForImageOnlyView];
     displayUIWindow.rootViewController = imageOnlyVC;
     [displayUIWindow setHidden:NO];
   });

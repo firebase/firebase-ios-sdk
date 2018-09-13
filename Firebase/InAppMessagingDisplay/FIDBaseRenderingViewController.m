@@ -135,7 +135,8 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   if (self.displayDelegate) {
     [self.displayDelegate messageDismissedWithType:dismissType];
   } else {
-    FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200007", @"Display delegate is nil");
+    FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200007",
+                  @"Display delegate is nil while message is being dismissed.");
   }
   return;
 }
@@ -148,7 +149,8 @@ static const NSTimeInterval kMinValidImpressionTime = 3.0;
   if (self.displayDelegate) {
     [self.displayDelegate messageClicked];
   } else {
-    FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008", @"Display delegate is nil");
+    FIRLogWarning(kFIRLoggerInAppMessagingDisplay, @"I-FID200008",
+                  @"Display delegate is nil while trying to follow action URL.");
   }
   return;
 }

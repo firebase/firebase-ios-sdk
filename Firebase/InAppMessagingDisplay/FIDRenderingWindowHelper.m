@@ -19,41 +19,41 @@
 
 @implementation FIDRenderingWindowHelper
 
-+ (UIWindow *)uiWindowForModalView {
-  static UIWindow *uiWindowForModal;
++ (UIWindow *)UIWindowForModalView {
+  static UIWindow *UIWindowForModal;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
     UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    uiWindowForModal = [[UIWindow alloc] initWithFrame:[appWindow frame]];
-    uiWindowForModal.windowLevel = UIWindowLevelNormal;
+    UIWindowForModal = [[UIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForModal.windowLevel = UIWindowLevelNormal;
   });
-  return uiWindowForModal;
+  return UIWindowForModal;
 }
 
-+ (UIWindow *)uiWindowForBannerView {
-  static UIWindow *uiWindowForBanner;
++ (UIWindow *)UIWindowForBannerView {
+  static UIWindow *UIWindowForBanner;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
     UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    uiWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithFrame:[appWindow frame]];
-    uiWindowForBanner.windowLevel = UIWindowLevelNormal;
+    UIWindowForBanner = [[FIDBannerViewUIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForBanner.windowLevel = UIWindowLevelNormal;
   });
 
-  return uiWindowForBanner;
+  return UIWindowForBanner;
 }
 
-+ (UIWindow *)uiWindowForImageOnlyView {
-  static UIWindow *uiWindowForImageOnly;
++ (UIWindow *)UIWindowForImageOnlyView {
+  static UIWindow *UIWindowForImageOnly;
   static dispatch_once_t onceToken;
 
   dispatch_once(&onceToken, ^{
     UIWindow *appWindow = [[[UIApplication sharedApplication] delegate] window];
-    uiWindowForImageOnly = [[UIWindow alloc] initWithFrame:[appWindow frame]];
-    uiWindowForImageOnly.windowLevel = UIWindowLevelNormal;
+    UIWindowForImageOnly = [[UIWindow alloc] initWithFrame:[appWindow frame]];
+    UIWindowForImageOnly.windowLevel = UIWindowLevelNormal;
   });
 
-  return uiWindowForImageOnly;
+  return UIWindowForImageOnly;
 }
 @end

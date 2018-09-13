@@ -26,12 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIDRenderingWindowHelper : NSObject
 
 // Return the singleton UIWindow that can be used for rendering modal IAM views
-+ (UIWindow *)uiWindowForModalView;
++ (UIWindow *)UIWindowForModalView;
 
 // Return the singleton UIWindow that can be used for rendering banner IAM views
-+ (UIWindow *)uiWindowForBannerView;
++ (UIWindow *)UIWindowForBannerView;
 
 // Return the singleton UIWindow that can be used for rendering banner IAM views
-+ (UIWindow *)uiWindowForImageOnlyView;
++ (UIWindow *)UIWindowForImageOnlyView;
 @end
 NS_ASSUME_NONNULL_END
