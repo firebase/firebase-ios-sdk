@@ -126,8 +126,8 @@ class TestStream : public Stream {
   }
 
  private:
-  std::unique_ptr<GrpcStream> CreateGrpcStream(
-      GrpcConnection*, const Token&) override {
+  std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
+                                               const Token&) override {
     return tester_->CreateStream(this);
   }
   void TearDown(GrpcStream* stream) override {

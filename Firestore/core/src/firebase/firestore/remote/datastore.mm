@@ -99,19 +99,15 @@ void Datastore::PollGrpcQueue() {
 
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
     id<FSTWatchStreamDelegate> delegate) {
-  return std::make_shared<WatchStream>(worker_queue_, credentials_,
-                                       serializer_,
+  return std::make_shared<WatchStream>(worker_queue_, credentials_, serializer_,
                                        &grpc_connection_, delegate);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
     id<FSTWriteStreamDelegate> delegate) {
-  return std::make_shared<WriteStream>(worker_queue_, credentials_,
-                                       serializer_,
+  return std::make_shared<WriteStream>(worker_queue_, credentials_, serializer_,
                                        &grpc_connection_, delegate);
 }
-
-
 
 std::string Datastore::GetWhitelistedHeadersAsString(
     const GrpcStream::MetadataT &headers) {
