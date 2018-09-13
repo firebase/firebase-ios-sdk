@@ -19,13 +19,12 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
+using util::Status;
 
 // When invoking an async gRPC method, `GrpcStream` will create a new
 // `GrpcCompletion` and use it as a tag to put on the gRPC completion queue.
@@ -267,7 +266,7 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
     // The call to observer could end this `GrpcStream`'s lifetime.
     GrpcStreamObserver* observer = observer_;
     UnsetObserver();
-    observer->OnStreamError(Datastore::ConvertStatus(status));
+    observer->OnStreamError(Status::FromGrpcStatus(status));
   }
 }
 

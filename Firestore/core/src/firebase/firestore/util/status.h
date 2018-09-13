@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
+#include "grpcpp/support/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -56,6 +57,8 @@ class ABSL_MUST_USE_RESULT Status {
 
   /// Creates a status object from the given errno error code and message.
   static Status FromErrno(int errno_code, absl::string_view message);
+
+  static Status FromGrpcStatus(const grpc::Status& from);
 
 #if defined(_WIN32)
   static Status FromLastError(DWORD error, absl::string_view message);

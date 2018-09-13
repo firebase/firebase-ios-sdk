@@ -24,6 +24,8 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -38,15 +40,24 @@ namespace remote {
 class Datastore {
  public:
   Datastore(const core::DatabaseInfo& database_info,
-            util::AsyncQueue* worker_queue);
+            util::AsyncQueue* worker_queue,
+            auth::CredentialsProvider* credentials,
+            FSTSerializerBeta* serializer);
 
   void Shutdown();
 
-  std::unique_ptr<GrpcStream> CreateGrpcStream(absl::string_view rpc_name,
-                                               absl::string_view token,
-                                               GrpcStreamObserver* observer);
-
-  static util::Status ConvertStatus(grpc::Status from);
+  /**
+   * Creates a new `WatchStream` that is still unstarted but uses a common
+   * shared channel.
+   */
+  std::shared_ptr<WatchStream> CreateWatchStream(
+      id<FSTWatchStreamDelegate> delegate);
+  /**
+   * Creates a new `WriteStream` that is still unstarted but uses a common
+   * shared channel.
+   */
+  std::shared_ptr<WriteStream> CreateWriteStream(
+      id<FSTWriteStreamDelegate> delegate);
 
   static std::string GetWhitelistedHeadersAsString(
       const GrpcStream::MetadataT& headers);
@@ -61,6 +72,10 @@ class Datastore {
 
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);
+
+  util::AsyncQueue* worker_queue_ = nullptr;
+  auth::CredentialsProvider* credentials_ = nullptr;
+  FSTSerializerBeta* serializer_;
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned `GrpcStream`s).

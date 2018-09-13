@@ -206,6 +206,7 @@ cc_library(
     status.cc
     status.h
     status_apple.mm
+    status_grpc.cc
     status_posix.cc
     status_win.cc
     statusor.cc

@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -53,12 +54,12 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 Stream::Stream(AsyncQueue* worker_queue,
                CredentialsProvider* credentials_provider,
-               Datastore* datastore,
+               GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
                TimerId idle_timer_id)
     : worker_queue_{worker_queue},
       credentials_provider_{credentials_provider},
-      datastore_{datastore},
+      grpc_connection_{grpc_connection},
       backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
       idle_timer_id_{idle_timer_id} {
@@ -132,12 +133,7 @@ void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
     return;
   }
 
-  Token credential = maybe_token.ValueOrDie();
-  absl::string_view token = credential.user().is_authenticated()
-                                ? credential.token()
-                                : absl::string_view{};
-
-  grpc_stream_ = CreateGrpcStream(datastore_, token);
+  grpc_stream_ = CreateGrpcStream(grpc_connection_, maybe_token.ValueOrDie());
   grpc_stream_->Start();
 }
 
@@ -213,7 +209,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
   if (!read_status.ok()) {
     grpc_stream_->Finish();
     // Don't expect gRPC to produce status -- since the error happened on the
-    // client, we have all the information we need.
+    // client,grpc_connection we have all the information we need.
     OnStreamError(read_status);
     return;
   }
