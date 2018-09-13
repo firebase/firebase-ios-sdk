@@ -21,6 +21,7 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
 #include <memory>
 #include <string>
 
@@ -32,7 +33,6 @@
 #include "absl/strings/string_view.h"
 #include "grpcpp/support/byte_buffer.h"
 
-#import <Foundation/Foundation.h>
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
@@ -79,7 +79,7 @@ class WriteStream : public Stream {
    * Tracks whether or not a handshake has been successfully exchanged and
    * the stream is ready to accept mutations.
    */
-  bool IsHandshakeComplete() const {
+  bool is_handshake_complete() const {
     return is_handshake_complete_;
   }
 
@@ -101,7 +101,9 @@ class WriteStream : public Stream {
   util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override;
   void NotifyStreamClose(const util::Status& status) override;
 
-  std::string GetDebugName() const override { return "WriteStream"; }
+  std::string GetDebugName() const override {
+    return "WriteStream";
+  }
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;

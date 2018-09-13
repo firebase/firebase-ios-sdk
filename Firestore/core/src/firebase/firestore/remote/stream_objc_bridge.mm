@@ -80,6 +80,7 @@ grpc::ByteBuffer ConvertToByteBuffer(NSData* data) {
   return grpc::ByteBuffer{&slice, 1};
 }
 
+// Note: `StatusOr` cannot be used with ARC-managed objects.
 template <typename Proto>
 Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   NSError* error = nil;
@@ -197,11 +198,11 @@ model::SnapshotVersion WriteStreamSerializer::ToCommitVersion(
 }
 
 NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
-    GCFSWriteResponse* proto) const {
-  NSMutableArray<GCFSWriteResult*>* protos = proto.writeResultsArray;
+    GCFSWriteResponse* response) const {
+  NSMutableArray<GCFSWriteResult*>* responses = response.writeResultsArray;
   NSMutableArray<FSTMutationResult*>* results =
-      [NSMutableArray arrayWithCapacity:protos.count];
-  for (GCFSWriteResult* proto in protos) {
+      [NSMutableArray arrayWithCapacity:responses.count];
+  for (GCFSWriteResult* proto in responses) {
     [results addObject:[serializer_ decodedMutationResult:proto]];
   };
   return results;

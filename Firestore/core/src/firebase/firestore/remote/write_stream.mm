@@ -53,7 +53,7 @@ NSData* WriteStream::GetLastStreamToken() const {
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
-  HARD_ASSERT(!IsHandshakeComplete(), "Handshake already completed");
+  HARD_ASSERT(!is_handshake_complete(), "Handshake already completed");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
@@ -66,10 +66,12 @@ void WriteStream::WriteHandshake() {
 
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
-  HARD_ASSERT(IsOpen(), "Handshake already completed");
-  HARD_ASSERT(IsHandshakeComplete(), "Handshake must be complete before writing mutations");
+  HARD_ASSERT(IsOpen(), "Writing mutations requires an opened stream");
+  HARD_ASSERT(is_handshake_complete(),
+              "Handshake must be complete before writing mutations");
 
-  GCFSWriteRequest* request = serializer_bridge_.CreateWriteMutationsRequest(mutations);
+  GCFSWriteRequest* request =
+      serializer_bridge_.CreateWriteMutationsRequest(mutations);
   LOG_DEBUG("%s write request: %s", GetDebugDescription(),
             serializer_bridge_.Describe(request));
   Write(serializer_bridge_.ToByteBuffer(request));
@@ -83,9 +85,10 @@ std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {
-  if (IsHandshakeComplete()) {
-    // Send an empty write request to the backend to indicate imminent stream closure. This isn't
-    // mandatory, but it allows the backend to clean up resources.
+  if (is_handshake_complete()) {
+    // Send an empty write request to the backend to indicate imminent stream
+    // closure. This isn't mandatory, but it allows the backend to clean up
+    // resources.
     GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
     grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
   } else {
@@ -115,10 +118,10 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   LOG_DEBUG("%s response: %s", GetDebugDescription(),
             serializer_bridge_.Describe(response));
 
-    // Always capture the last stream token.
+  // Always capture the last stream token.
   serializer_bridge_.UpdateLastStreamToken(response);
 
-  if (!IsHandshakeComplete()) {
+  if (!is_handshake_complete()) {
     // The first response is the handshake response
     is_handshake_complete_ = true;
     delegate_bridge_.NotifyDelegateOnHandshakeComplete();
