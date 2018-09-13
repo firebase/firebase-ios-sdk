@@ -19,7 +19,6 @@
 #include <unordered_set>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
-#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
@@ -60,9 +59,8 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
-template <typename T>
 void LogGrpcCallFinished(absl::string_view rpc_name,
-                         T *call,
+                         GrpcStreamingReader *call,
                          const Status &status) {
   LOG_DEBUG("RPC %s completed. Error: %s: %s", rpc_name, status.code(),
             status.error_message());
@@ -71,16 +69,6 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
         Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
     LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
   }
-}
-
-template <typename T>
-void RemoveGrpcCall(std::vector<std::unique_ptr<T>> *container, T *to_remove) {
-  auto found = std::find_if(container->begin(), container->end(),
-                            [to_remove](const std::unique_ptr<T> &call) {
-                              return call.get() == to_remove;
-                            });
-  HARD_ASSERT(found != container->end(), "Missing gRPC call");
-  container->erase(found);
 }
 
 }  // namespace
@@ -184,7 +172,7 @@ void Datastore::LookupDocuments(
             on_success(responses);
           }
 
-          RemoveGrpcCall(&lookup_calls_, call);
+          RemoveGrpcCall(call);
         });
       },
       on_error);
@@ -204,8 +192,9 @@ void Datastore::WithToken(const OnToken &on_token, const OnError &on_error) {
 
       if (!maybe_token.ok()) {
         on_error(maybe_token.status());
+      } else {
+        on_token(maybe_token.ValueOrDie());
       }
-      on_token(maybe_token.ValueOrDie());
     });
   });
 }
@@ -214,6 +203,15 @@ void Datastore::HandleCallStatus(const Status &status) {
   if (status.code() == FirestoreErrorCode::Unauthenticated) {
     credentials_->InvalidateToken();
   }
+}
+
+void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
+  auto found = std::find_if(lookup_calls_.begin(), lookup_calls_.end(),
+                            [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
+                              return call.get() == to_remove;
+                            });
+  HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
+  lookup_calls_.erase(found);
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(

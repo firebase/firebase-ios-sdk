@@ -21,11 +21,14 @@
 #error "This header only supports Objective-C++"
 #endif  // !defined(__OBJC__)
 
+#import <Foundation/Foundation.h>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
@@ -40,7 +43,6 @@
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/status.h"
 
-#import <Foundation/Foundation.h>
 #import "Firestore/Source/Core/FSTTypes.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
@@ -104,6 +106,8 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void WithToken(const OnToken& on_token, const OnError& on_error);
 
   void HandleCallStatus(const util::Status& status);
+
+  void RemoveGrpcCall(GrpcStreamingReader *to_remove);
 
   static GrpcStream::MetadataT ExtractWhitelistedHeaders(
       const GrpcStream::MetadataT& headers);

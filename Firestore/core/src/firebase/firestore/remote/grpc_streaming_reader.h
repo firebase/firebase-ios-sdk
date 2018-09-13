@@ -41,8 +41,8 @@ class GrpcStreamingReader {
  public:
   using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
   /**
-   * The first argument is status of the call; the second argument is a vector
-   * of accumulated server responses.
+   * The first argument is the status of the call; the second argument is
+   * a vector of accumulated server responses.
    */
   using CallbackT = std::function<void(const util::Status&,
                                        const std::vector<grpc::ByteBuffer>&)>;
