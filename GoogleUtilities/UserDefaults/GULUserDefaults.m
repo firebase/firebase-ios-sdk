@@ -16,6 +16,8 @@
 
 #import <GoogleUtilities/GULLogger.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSTimeInterval const kGULSynchronizeInterval = 1.0;
 
 static NSString *const kGULLogFormat = @"I-GUL%06ld";
@@ -32,7 +34,7 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 
 @interface GULUserDefaults ()
 
-///
+/// Equivalent to the suite name for NSUserDefaults.
 @property(readonly) CFStringRef appNameRef;
 
 @property(atomic) BOOL isPreferenceFileExcluded;
@@ -45,7 +47,7 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
   CFStringRef _appNameRef;
 }
 
-+ (nonnull GULUserDefaults *)standardUserDefaults {
++ (GULUserDefaults *)standardUserDefaults {
   static GULUserDefaults *standardUserDefaults;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -54,11 +56,11 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
   return standardUserDefaults;
 }
 
-- (nonnull instancetype)init {
+- (instancetype)init {
   return [self initWithSuiteName:nil];
 }
 
-- (nonnull instancetype)initWithSuiteName:(NSString *)suiteName {
+- (instancetype)initWithSuiteName:(nullable NSString *)suiteName {
   self = [super init];
 
   NSString *name = [suiteName copy];
@@ -96,7 +98,7 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
   return (__bridge_transfer id)CFPreferencesCopyAppValue((__bridge CFStringRef)key, _appNameRef);
 }
 
-- (void)setObject:(nullable id)value forKey:(nonnull NSString *)defaultName {
+- (void)setObject:(nullable id)value forKey:(NSString *)defaultName {
   NSString *key = [defaultName copy];
   if (![key isKindOfClass:[NSString class]] || !key.length) {
     GULLogWarning(kGULLogUserDefaultsService, NO,
@@ -132,31 +134,31 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 
 #pragma mark - Getters
 
-- (NSInteger)integerForKey:(nonnull NSString *)defaultName {
+- (NSInteger)integerForKey:(NSString *)defaultName {
   NSNumber *object = [self objectForKey:defaultName];
   return object.integerValue;
 }
 
-- (float)floatForKey:(nonnull NSString *)defaultName {
+- (float)floatForKey:(NSString *)defaultName {
   NSNumber *object = [self objectForKey:defaultName];
   return object.floatValue;
 }
 
-- (double)doubleForKey:(nonnull NSString *)defaultName {
+- (double)doubleForKey:(NSString *)defaultName {
   NSNumber *object = [self objectForKey:defaultName];
   return object.doubleValue;
 }
 
-- (BOOL)boolForKey:(nonnull NSString *)defaultName {
+- (BOOL)boolForKey:(NSString *)defaultName {
   NSNumber *object = [self objectForKey:defaultName];
   return object.boolValue;
 }
 
-- (nullable NSString *)stringForKey:(nonnull NSString *)defaultName {
+- (nullable NSString *)stringForKey:(NSString *)defaultName {
   return [self objectForKey:defaultName];
 }
 
-- (nullable NSArray *)arrayForKey:(nonnull NSString *)defaultName {
+- (nullable NSArray *)arrayForKey:(NSString *)defaultName {
   return [self objectForKey:defaultName];
 }
 
@@ -166,34 +168,20 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 
 #pragma mark - Setters
 
-- (void)setInteger:(NSInteger)integer forKey:(nonnull NSString *)defaultName {
+- (void)setInteger:(NSInteger)integer forKey:(NSString *)defaultName {
   [self setObject:@(integer) forKey:defaultName];
 }
 
-- (void)setFloat:(float)value forKey:(nonnull NSString *)defaultName {
+- (void)setFloat:(float)value forKey:(NSString *)defaultName {
   [self setObject:@(value) forKey:defaultName];
 }
 
-- (void)setDouble:(double)doubleNumber forKey:(nonnull NSString *)defaultName {
+- (void)setDouble:(double)doubleNumber forKey:(NSString *)defaultName {
   [self setObject:@(doubleNumber) forKey:defaultName];
 }
 
-- (void)setBool:(BOOL)boolValue forKey:(nonnull NSString *)defaultName {
+- (void)setBool:(BOOL)boolValue forKey:(NSString *)defaultName {
   [self setObject:@(boolValue) forKey:defaultName];
-}
-
-#pragma mark - Clear data
-
-- (void)clearAllData {
-  CFArrayRef keyList =
-      CFPreferencesCopyKeyList(_appNameRef, kCFPreferencesCurrentUser, kCFPreferencesAnyHost);
-  if (!keyList) {
-    return;
-  }
-  CFPreferencesSetMultiple(NULL, keyList, _appNameRef, kCFPreferencesCurrentUser,
-                           kCFPreferencesCurrentHost);
-  CFRelease(keyList);
-  [self scheduleSynchronize];
 }
 
 #pragma mark - Save data
@@ -207,6 +195,28 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 }
 
 #pragma mark - Private methods
+
+/// Removes all values from the search list entry specified by 'domainName', the current user, and
+/// any host. The change is persistent. Equivalent to -removePersistentDomainForName: of
+/// NSUserDefaults.
+- (void)clearAllData {
+  // On macOS, using `kCFPreferencesCurrentHost` will not set all the keys necessary to match
+  // `NSUserDefaults`.
+#if TARGET_OS_MAC
+  CFStringRef host = kCFPreferencesAnyHost;
+#else
+  CFStringRef host = kCFPreferencesCurrentHost;
+#endif  // TARGET_OS_OSX
+
+  CFArrayRef keyList = CFPreferencesCopyKeyList(_appNameRef, kCFPreferencesCurrentUser, host);
+  if (!keyList) {
+    return;
+  }
+
+  CFPreferencesSetMultiple(NULL, keyList, _appNameRef, kCFPreferencesCurrentUser, host);
+  CFRelease(keyList);
+  [self scheduleSynchronize];
+}
 
 - (void)scheduleSynchronize {
   // Synchronize data using a timer so that multiple set... calls can be coalesced under one
@@ -222,3 +232,5 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
