@@ -385,7 +385,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         absl::optional<ObjectValue::Map> optional_map =
             reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue);
         if (reader->status().ok())
-          result = FieldValue::ObjectValueFromMap(*optional_map);
+          result = FieldValue::FromMap(*optional_map);
         break;
       }
 
@@ -551,7 +551,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(
-      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name),
+      FieldValue::FromMap(fields_internal), DecodeKey(name),
       *std::move(version),
       /*has_local_modifications=*/false);
 }

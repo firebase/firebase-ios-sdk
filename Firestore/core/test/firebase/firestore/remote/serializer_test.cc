@@ -434,7 +434,7 @@ TEST_F(SerializerTest, EncodesTimestamps) {
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = FieldValue::ObjectValueFromMap({});
+  FieldValue model = FieldValue::FromMap({});
 
   v1beta1::Value proto;
   proto.mutable_map_value();
@@ -443,7 +443,7 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
-  FieldValue model = FieldValue::ObjectValueFromMap({
+  FieldValue model = FieldValue::FromMap({
       {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
@@ -452,9 +452,9 @@ TEST_F(SerializerTest, EncodesNestedObjects) {
       {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
-      {"o", FieldValue::ObjectValueFromMap({
+      {"o", FieldValue::FromMap({
                 {"d", FieldValue::FromInteger(100)},
-                {"nested", FieldValue::ObjectValueFromMap({
+                {"nested", FieldValue::FromMap({
                                {
                                    "e",
                                    FieldValue::FromInteger(
@@ -777,7 +777,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue empty_value = FieldValue::ObjectValueFromMap({});
+  FieldValue empty_value = FieldValue::FromMap({});
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1beta1::BatchGetDocumentsResponse proto;
@@ -797,10 +797,10 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue fields = FieldValue::ObjectValueFromMap({
+  FieldValue fields = FieldValue::FromMap({
       {"foo", FieldValue::FromString("bar")},
       {"two", FieldValue::FromInteger(2)},
-      {"nested", FieldValue::ObjectValueFromMap({
+      {"nested", FieldValue::FromMap({
                      {"fourty-two", FieldValue::FromInteger(42)},
                  })},
   });

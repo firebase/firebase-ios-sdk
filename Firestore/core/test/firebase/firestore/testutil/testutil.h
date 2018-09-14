@@ -71,7 +71,7 @@ inline model::SnapshotVersion Version(int64_t version) {
 inline model::Document Doc(absl::string_view key,
                            int64_t version = 0,
                            const model::ObjectValue::Map& data = {}) {
-  return model::Document{model::FieldValue::ObjectValueFromMap(data), Key(key),
+  return model::Document{model::FieldValue::FromMap(data), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
 }
