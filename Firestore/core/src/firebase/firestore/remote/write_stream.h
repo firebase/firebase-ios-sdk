@@ -79,8 +79,8 @@ class WriteStream : public Stream {
    * Tracks whether or not a handshake has been successfully exchanged and
    * the stream is ready to accept mutations.
    */
-  bool is_handshake_complete() const {
-    return is_handshake_complete_;
+  bool handshake_complete() const {
+    return handshake_complete_;
   }
 
   /**
@@ -107,7 +107,7 @@ class WriteStream : public Stream {
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;
-  bool is_handshake_complete_ = false;
+  bool handshake_complete_ = false;
 };
 
 }  // namespace remote
