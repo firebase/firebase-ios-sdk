@@ -448,41 +448,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return [FSTReferenceValue referenceValue:reference.key databaseID:self.databaseID];
 
-  } else if ([input isKindOfClass:[FIRFieldValue class]]) {
-    if ([input isKindOfClass:[FSTDeleteFieldValue class]]) {
-      if (context.data_source() == UserDataSource::MergeSet) {
-        return nil;
-      } else if (context.data_source() == UserDataSource::Update) {
-        HARD_ASSERT(context.path()->size() > 0,
-                    "FieldValue.delete() at the top level should have already been handled.");
-        FSTThrowInvalidArgument(
-            @"FieldValue.delete() can only appear at the top level of your update data%s",
-            context.FieldDescription().c_str());
-      } else {
-        // We shouldn't encounter delete sentinels for queries or non-merge setData calls.
-        FSTThrowInvalidArgument(
-            @"FieldValue.delete() can only be used with updateData() and setData() with "
-            @"merge: true.");
-      }
-    } else if ([input isKindOfClass:[FSTServerTimestampFieldValue class]]) {
-      if (!context.write()) {
-        FSTThrowInvalidArgument(
-            @"FieldValue.serverTimestamp() can only be used with setData() and updateData().");
-      }
-      if (!context.path()) {
-        FSTThrowInvalidArgument(
-            @"FieldValue.serverTimestamp() is not currently supported inside arrays%s",
-            context.FieldDescription().c_str());
-      }
-      context.AddToFieldTransforms(*context.path(), absl::make_unique<ServerTimestampTransform>(
-                                                        ServerTimestampTransform::Get()));
-
-      // Return nil so this value is omitted from the parsed result.
-      return nil;
-    } else {
-      HARD_FAIL("Unknown FIRFieldValue type: %s", NSStringFromClass([input class]));
-    }
-
   } else {
     FSTThrowInvalidArgument(@"Unsupported type: %@%s", NSStringFromClass([input class]),
                             context.FieldDescription().c_str());
