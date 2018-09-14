@@ -113,7 +113,11 @@ void ClearQueryCache(leveldb::DB* db) {
   transaction.Commit();
 }
 
-void RemoveMutationDocuments(LevelDbTransaction *transaction,
+/**
+ * Removes document associations for the given user's mutation queue for
+ * any mutation with a `batch_id` less than or equal to `last_acknowledged_batch_id`.
+ */
+void RemoveMutationDocuments(LevelDbTransaction* transaction,
                              absl::string_view user_id,
                              int32_t last_acknowledged_batch_id) {
   LevelDbDocumentMutationKey doc_key;
@@ -130,10 +134,13 @@ void RemoveMutationDocuments(LevelDbTransaction *transaction,
   }
 }
 
-void RemoveMutationBatches(LevelDbTransaction *transaction,
+/**
+ * Removes mutation batches for the given user with a `batch_id` less than
+ * or equal to `last_acknowledged_batch_id`
+ */
+void RemoveMutationBatches(LevelDbTransaction* transaction,
                            absl::string_view user_id,
                            int32_t last_acknowledged_batch_id) {
-  LevelDbMutationKey key;
   std::string mutations_key = LevelDbMutationKey::KeyPrefix(user_id);
   std::string last_key =
       LevelDbMutationKey::Key(user_id, last_acknowledged_batch_id);
