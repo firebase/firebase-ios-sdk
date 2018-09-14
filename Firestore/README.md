@@ -11,7 +11,7 @@
 
 ### Running Integration Tests
 
-  * [Set up a `GoogleServices-Info.plist`](/firebase/firebase-ios-sdk#running-sample-apps)
+  * [Set up a `GoogleServices-Info.plist`](//github.com/firebase/firebase-ios-sdk#running-sample-apps)
     file in `Firestore/Example/App`.
   * In Xcode select the Firestore_IntegrationTests_iOS scheme
   * ⌘-u to build and run the integration tests
