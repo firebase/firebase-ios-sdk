@@ -115,7 +115,8 @@ void ClearQueryCache(leveldb::DB* db) {
 
 /**
  * Removes document associations for the given user's mutation queue for
- * any mutation with a `batch_id` less than or equal to `last_acknowledged_batch_id`.
+ * any mutation with a `batch_id` less than or equal to
+ * `last_acknowledged_batch_id`.
  */
 void RemoveMutationDocuments(LevelDbTransaction* transaction,
                              absl::string_view user_id,
