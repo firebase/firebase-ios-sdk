@@ -376,12 +376,6 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeNullUser =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNullUser,
 
-  /** Indicates that the Firebase Dynamic Link domain used is either not configured or is unauthorized
-      for the current project.
-   */
-  FIRAuthInternalErrorCodeInvalidDynamicLinkDomain =
-    FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidDynamicLinkDomain,
-
   FIRAuthInternalErrorCodeMalformedJWT =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
 

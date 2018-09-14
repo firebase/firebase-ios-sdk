@@ -126,16 +126,6 @@ static NSString *const kAndroidMinimumVersionKey = @"androidMinimumVersion";
  */
 static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
 
-/** @var kDynamicLinkDomainKey
-    @brief The key for the "dynamic link domain" value in the request.
- */
-static NSString *const kDynamicLinkDomainKey = @"dynamicLinkDomain";
-
-/** @var kDynamicLinkDomain
-    @brief Fake dynamic link domain for testing.
- */
-static NSString *const kDynamicLinkDomain = @"test.page.link";
-
 /** @class FIRGetOOBConfirmationCodeRequestTests
     @brief Tests for @c FIRGetOOBConfirmationCodeRequest.
  */
@@ -204,7 +194,6 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
                         [NSNumber numberWithBool:YES]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
                         [NSNumber numberWithBool:YES]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
 }
 
 /** @fn testSignInWithEmailLinkRequest
@@ -241,7 +230,6 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
                         [NSNumber numberWithBool:YES]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
                         [NSNumber numberWithBool:YES]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
 }
 
 
@@ -280,7 +268,6 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
                         [NSNumber numberWithBool:YES]);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCanHandleCodeInAppKey],
                         [NSNumber numberWithBool:YES]);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kDynamicLinkDomainKey], kDynamicLinkDomain);
 }
 
 #pragma mark - Helpers
@@ -297,7 +284,6 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
                              minimumVersion:kAndroidMinimumVersion];
   actionCodeSettings.handleCodeInApp = YES;
   actionCodeSettings.URL = [NSURL URLWithString:kContinueURL];
-  actionCodeSettings.dynamicLinkDomain = kDynamicLinkDomain;
   return actionCodeSettings;
 }
 
