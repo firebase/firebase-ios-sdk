@@ -30,4 +30,4 @@ util::Status ConvertStatus(const grpc::Status& from);
 }  // namespace firestore
 }  // namespace firebase
 
-#endif   // ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_UTIL_H_
+#endif  // ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_UTIL_H_
