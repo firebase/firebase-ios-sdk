@@ -54,7 +54,7 @@ NSData* WriteStream::GetLastStreamToken() const {
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
-  HARD_ASSERT(!is_handshake_complete(), "Handshake already completed");
+  HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
@@ -68,7 +68,7 @@ void WriteStream::WriteHandshake() {
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing mutations requires an opened stream");
-  HARD_ASSERT(is_handshake_complete(),
+  HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
   GCFSWriteRequest* request =
@@ -85,7 +85,7 @@ std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {
-  if (is_handshake_complete()) {
+  if (handshake_complete()) {
     // Send an empty write request to the backend to indicate imminent stream
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
@@ -104,7 +104,7 @@ void WriteStream::NotifyStreamClose(const Status& status) {
   delegate_bridge_.NotifyDelegateOnClose(status);
   // Delegate's logic might depend on whether handshake was completed, so only
   // reset it after notifying.
-  is_handshake_complete_ = false;
+  handshake_complete_ = false;
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
@@ -121,9 +121,9 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // Always capture the last stream token.
   serializer_bridge_.UpdateLastStreamToken(response);
 
-  if (!is_handshake_complete()) {
+  if (!handshake_complete()) {
     // The first response is the handshake response
-    is_handshake_complete_ = true;
+    handshake_complete_ = true;
     delegate_bridge_.NotifyDelegateOnHandshakeComplete();
   } else {
     // A successful first write response means the stream is healthy.

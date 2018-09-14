@@ -17,6 +17,7 @@
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 #import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
 #import <FirebaseFirestore/FIRCollectionReference.h>
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
@@ -64,6 +65,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 @end
 
+static NSString *defaultProjectId;
+static FIRFirestoreSettings *defaultSettings;
+
 @implementation FSTIntegrationTestCase {
   NSMutableArray<FIRFirestore *> *_firestores;
 }
@@ -103,46 +107,70 @@ NS_ASSUME_NONNULL_BEGIN
   return [self firestoreWithProjectID:[FSTIntegrationTestCase projectID]];
 }
 
-+ (NSString *)projectID {
++ (void)setUpDefaults {
+  defaultSettings = [[FIRFirestoreSettings alloc] init];
+  defaultSettings.persistenceEnabled = YES;
+  defaultSettings.timestampsInSnapshotsEnabled = YES;
+
+  // Check for a MobileHarness configuration, running against nightly or prod, which have live
+  // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
-  if (!project) {
-    project = @"test-db";
+  NSString *host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
+  if (project && host) {
+    defaultProjectId = project;
+    defaultSettings.host = host;
+    return;
   }
-  return project;
+
+  // Check for configuration of a prod project via GoogleServices-Info.plist.
+  FIROptions *options = [FIROptions defaultOptions];
+  if (options && ![options.projectID isEqualToString:@"abc-xyz-123"]) {
+    defaultProjectId = options.projectID;
+    if (host) {
+      // Allow access to nightly or other hosts via this mechanism too.
+      defaultSettings.host = host;
+    }
+    return;
+  }
+
+  // Otherwise fall back on assuming Hexa on localhost.
+  defaultProjectId = @"test-db";
+  defaultSettings.host = @"localhost:8081";
+
+  // Hexa uses a self-signed cert: the first bundle location is used by bazel builds. The second is
+  // used for github clones.
+  NSString *certsPath =
+      [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
+                                      ofType:@"pem"];
+  if (certsPath == nil) {
+    certsPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"CAcert" ofType:@"pem"];
+  }
+  unsigned long long fileSize =
+      [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
+
+  if (fileSize == 0) {
+    NSLog(
+        @"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
+         "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
+         "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
+         "setup_integration_tests.py to properly configure testing SSL certificates.");
+  }
+  [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
+}
+
++ (NSString *)projectID {
+  if (!defaultProjectId) {
+    [self setUpDefaults];
+  }
+  return defaultProjectId;
 }
 
 + (FIRFirestoreSettings *)settings {
-  FIRFirestoreSettings *settings = [[FIRFirestoreSettings alloc] init];
-  NSString *host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
-  settings.sslEnabled = YES;
-  if (!host) {
-    // If host is nil, there is no GoogleService-Info.plist. Check if a hexa integration test
-    // configuration is configured. The first bundle location is used by bazel builds. The
-    // second is used for github clones.
-    host = @"localhost:8081";
-    settings.sslEnabled = YES;
-    NSString *certsPath =
-        [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
-                                        ofType:@"pem"];
-    if (certsPath == nil) {
-      certsPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"CAcert" ofType:@"pem"];
-    }
-    unsigned long long fileSize =
-        [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
-
-    if (fileSize == 0) {
-      NSLog(
-          @"The cert is not properly configured. Make sure setup_integration_tests.py "
-           "has been run.");
-    }
-    [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
+  if (!defaultSettings) {
+    [self setUpDefaults];
   }
-  settings.host = host;
-  settings.persistenceEnabled = YES;
-  settings.timestampsInSnapshotsEnabled = YES;
-  NSLog(@"Configured integration test for %@ with SSL: %@", settings.host,
-        settings.sslEnabled ? @"YES" : @"NO");
-  return settings;
+
+  return defaultSettings;
 }
 
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {

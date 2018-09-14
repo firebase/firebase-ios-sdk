@@ -288,7 +288,6 @@
 		DE1FAEB11FBCF60D00897AAA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE53894D1FBB635400199FC2 /* AppDelegate.m */; };
 		DE1FAEB21FBCF60D00897AAA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389501FBB635400199FC2 /* main.m */; };
 		DE1FAEB31FBCF60D00897AAA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE5389531FBB635400199FC2 /* ViewController.m */; };
-		DE1FAEB41FBCF60D00897AAA /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE53894F1FBB635400199FC2 /* Info.plist */; };
 		DE1FAEB51FBCF60D00897AAA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE5389511FBB635400199FC2 /* Main.storyboard */; };
 		DE1FAEB61FBCF60D00897AAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE53894E1FBB635400199FC2 /* Assets.xcassets */; };
 		DE1FAEB71FBCF6CA00897AAA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE9314F61E86C6FF0083EDBF /* GoogleService-Info.plist */; };
@@ -3308,7 +3307,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE1FAEB41FBCF60D00897AAA /* Info.plist in Resources */,
 				DE1FAEB71FBCF6CA00897AAA /* GoogleService-Info.plist in Resources */,
 				DE1FAEB51FBCF60D00897AAA /* Main.storyboard in Resources */,
 				DE1FAEB61FBCF60D00897AAA /* Assets.xcassets in Resources */,
