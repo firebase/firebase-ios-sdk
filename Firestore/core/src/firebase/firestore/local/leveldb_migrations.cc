@@ -158,8 +158,7 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
   for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
        it->Next()) {
     HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
-    firestore_client_MutationQueue mutation_queue
-        firestore_client_MutationQueue_init_zero;
+    firestore_client_MutationQueue mutation_queue{};
     Reader reader = Reader::Wrap(it->value());
     reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
                              &mutation_queue);
