@@ -74,11 +74,6 @@ static NSString *const kAndroidMinimumVersionKey = @"androidMinimumVersion";
  */
 static NSString *const kCanHandleCodeInAppKey = @"canHandleCodeInApp";
 
-/** @var kDynamicLinkDomainKey
-    @brief The key for the "dynamic link domain" value in the request.
- */
-static NSString *const kDynamicLinkDomainKey = @"dynamicLinkDomain";
-
 /** @var kPasswordResetRequestTypeValue
     @brief The value for the "PASSWORD_RESET" request type.
  */
@@ -182,7 +177,6 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
     _androidMinimumVersion = actionCodeSettings.androidMinimumVersion;
     _androidInstallApp = actionCodeSettings.androidInstallIfNotAvailable;
     _handleCodeInApp = actionCodeSettings.handleCodeInApp;
-    _dynamicLinkDomain = actionCodeSettings.dynamicLinkDomain;
   }
   return self;
 }
@@ -232,10 +226,6 @@ static NSString *const kVerifyEmailRequestTypeValue = @"VERIFY_EMAIL";
 
   if (_handleCodeInApp) {
     body[kCanHandleCodeInAppKey] = @YES;
-  }
-
-  if (_dynamicLinkDomain) {
-    body[kDynamicLinkDomainKey] = _dynamicLinkDomain;
   }
 
   return body;
