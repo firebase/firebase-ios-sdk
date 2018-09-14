@@ -159,11 +159,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   [super setUp];
 
-  NSString *projectID = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
-  if (!projectID) {
-    projectID = @"test-db";
-  }
-
+  NSString *projectID = [FSTIntegrationTestCase projectID];
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
   if (!settings.sslEnabled) {
     [GRPCCall useInsecureConnectionsForHost:settings.host];
