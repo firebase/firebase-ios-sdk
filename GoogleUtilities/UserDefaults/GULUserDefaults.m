@@ -29,7 +29,6 @@ typedef NS_ENUM(NSInteger, GULUDMessageCode) {
   GULUDMessageCodeInvalidKeySet = 2,
   GULUDMessageCodeInvalidObjectSet = 3,
   GULUDMessageCodeSynchronizeFailed = 4,
-  GULUDMessageCodeLibraryDirNotFound = 5,
 };
 
 @interface GULUserDefaults ()
