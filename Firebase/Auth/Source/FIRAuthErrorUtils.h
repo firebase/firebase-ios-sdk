@@ -501,6 +501,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)nullUserErrorWithMessage:(nullable NSString *)message;
 
+/** @fn invalidDynamicLinkDomainErrorWithMessage:
+    @brief Constructs an @c NSError with the code and message provided.
+    @param message Error message from the backend, if any.
+    @return The nullable NSError instance associated with the given error message, if one is found.
+ */
++ (NSError *)invalidDynamicLinkDomainErrorWithMessage:(nullable NSString *)message;
+
 /** @fn keychainErrorWithFunction:status:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeKeychainError code.
     @param keychainFunction The keychain function which was invoked and yielded an unexpected
