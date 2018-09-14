@@ -39,7 +39,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -107,7 +106,7 @@ class Serializer {
   // used for is error handling. This seems questionable. We probably need to
   // rework error handling. Again. But we'll defer that for now and continue
   // just passing the reader object.
-  static absl::optional<model::FieldValue> DecodeFieldValue(
+  static model::FieldValue DecodeFieldValue(
       nanopb::Reader* reader, const google_firestore_v1beta1_Value& proto);
 
   /**
@@ -173,13 +172,13 @@ class Serializer {
   static void EncodeTimestamp(nanopb::Writer* writer,
                               const Timestamp& timestamp_value);
 
-  static absl::optional<model::SnapshotVersion> DecodeSnapshotVersion(
+  static model::SnapshotVersion DecodeSnapshotVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
 
-  static absl::optional<Timestamp> DecodeTimestamp(
+  static Timestamp DecodeTimestamp(
       nanopb::Reader* reader, const google_protobuf_Timestamp& timestamp_proto);
 
-  static absl::optional<core::Query> DecodeQueryTarget(
+  core::Query DecodeQueryTarget(
       nanopb::Reader* reader,
       const google_firestore_v1beta1_Target_QueryTarget& proto);
 

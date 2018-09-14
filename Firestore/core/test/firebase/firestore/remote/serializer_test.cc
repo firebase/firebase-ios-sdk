@@ -44,7 +44,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
-#include "absl/types/optional.h"
 #include "google/protobuf/stubs/common.h"
 #include "google/protobuf/util/message_differencer.h"
 #include "gtest/gtest.h"
@@ -118,7 +117,7 @@ class SerializerTest : public ::testing::Test {
       const DocumentKey& key,
       const SnapshotVersion& read_time,
       const v1beta1::BatchGetDocumentsResponse& proto) {
-    ExpectDeserializationRoundTrip(key, absl::nullopt, read_time, proto);
+    ExpectDeserializationRoundTrip(key, FieldValue::NullValue(), read_time, proto);
   }
 
   /**
@@ -310,15 +309,14 @@ class SerializerTest : public ::testing::Test {
         google_firestore_v1beta1_Value_init_zero;
     reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                              &nanopb_proto);
-    absl::optional<FieldValue> actual_model =
+    FieldValue actual_model =
         serializer.DecodeFieldValue(&reader, nanopb_proto);
     reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                              &nanopb_proto);
 
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model->type());
-    ASSERT_TRUE(actual_model.has_value());
-    EXPECT_EQ(model, *actual_model);
+    EXPECT_EQ(type, actual_model.type());
+    EXPECT_EQ(model, actual_model);
   }
 
   void ExpectSerializationRoundTrip(
@@ -356,7 +354,7 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(
       const DocumentKey& key,
-      const absl::optional<FieldValue> value,
+      const FieldValue& value,
       const SnapshotVersion& version,  // either update_time or read_time
       const v1beta1::BatchGetDocumentsResponse& proto) {
     size_t size = proto.ByteSizeLong();
@@ -384,12 +382,11 @@ class SerializerTest : public ::testing::Test {
     EXPECT_EQ(version, actual_model->version());
     switch (actual_model->type()) {
       case MaybeDocument::Type::Document: {
-        Document* actual_doc_model = static_cast<Document*>(actual_model.get());
+        auto actual_doc_model = static_cast<Document*>(actual_model.get());
         EXPECT_EQ(value, actual_doc_model->data());
         break;
       }
       case MaybeDocument::Type::NoDocument:
-        EXPECT_FALSE(value.has_value());
         break;
       case MaybeDocument::Type::Unknown:
         FAIL() << "We somehow created an invalid model object";
@@ -555,7 +552,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
                boolean_value, 0),
       PB_FIELD(2, INT64, SINGULAR, STATIC, OTHER,
                google_firestore_v1beta1_Value_Fake, integer_value,
-               boolean_value, 0),
+               boolean_value, nullptr),
       PB_LAST_FIELD,
   };
 
@@ -573,7 +570,7 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
       google_firestore_v1beta1_Value_init_zero;
   reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
-  absl::optional<FieldValue> actual_model =
+  FieldValue actual_model =
       serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
@@ -581,8 +578,8 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::IntegerValue(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
-  EXPECT_EQ(expected_model, *actual_model);
+  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
@@ -736,7 +733,7 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
       google_firestore_v1beta1_Value_init_zero;
   reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
-  absl::optional<FieldValue> actual_model =
+  FieldValue actual_model =
       serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
@@ -744,8 +741,8 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::BooleanValue(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
-  EXPECT_EQ(expected_model, *actual_model);
+  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
 }
 
 /* TODO(rsgowman): nanopb doesn't handle cases where the type as read on the
@@ -870,7 +867,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
       {"foo", FieldValue::StringValue("bar")},
       {"two", FieldValue::IntegerValue(2)},
       {"nested", FieldValue::ObjectValueFromMap({
-                     {"fourty-two", FieldValue::IntegerValue(42)},
+                     {"forty-two", FieldValue::IntegerValue(42)},
                  })},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
@@ -878,7 +875,7 @@ TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   v1beta1::Value inner_proto;
   google::protobuf::Map<std::string, v1beta1::Value>& inner_fields =
       *inner_proto.mutable_map_value()->mutable_fields();
-  inner_fields["fourty-two"] = ValueProto(int64_t{42});
+  inner_fields["forty-two"] = ValueProto(int64_t{42});
 
   v1beta1::BatchGetDocumentsResponse proto;
   v1beta1::Document* doc_proto = proto.mutable_found();
