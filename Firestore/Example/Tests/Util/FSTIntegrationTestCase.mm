@@ -150,8 +150,10 @@ static FIRFirestoreSettings *defaultSettings;
 
   if (fileSize == 0) {
     NSLog(
-        @"The cert is not properly configured. Make sure setup_integration_tests.py "
-         "has been run.");
+        @"Please set up a GoogleServices-Info.plist for Firestore in Firestore/Example/App using "
+         "instructions at <https://github.com/firebase/firebase-ios-sdk#running-sample-apps>. "
+         "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
+         "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
   [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
 }
