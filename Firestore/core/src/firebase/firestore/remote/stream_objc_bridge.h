@@ -46,14 +46,14 @@ namespace bridge {
 bool IsLoggingEnabled();
 
 /**
- * This file contains operations in `WatchStream` that are still delegated to
+ * This file contains operations in remote/ folder that are still delegated to
  * Objective-C: proto parsing and delegates.
  *
  * The principle is that the C++ implementation can only take Objective-C
  * objects as parameters or return them, but never instantiate them or call any
  * methods on them -- if that is necessary, it's delegated to one of the bridge
- * classes. This allows easily identifying which parts of `WatchStream` still
- * rely on not-yet-ported code.
+ * classes. This allows easily identifying which parts of remote/ still rely on
+ * not-yet-ported code.
  */
 
 /**
@@ -68,7 +68,7 @@ class WatchStreamSerializer {
 
   GCFSListenRequest* CreateWatchRequest(FSTQueryData* query) const;
   GCFSListenRequest* CreateUnwatchRequest(model::TargetId target_id) const;
-  grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request) const;
+  static grpc::ByteBuffer ToByteBuffer(GCFSListenRequest* request);
 
   /**
    * If parsing fails, will return nil and write information on the error to
@@ -89,8 +89,52 @@ class WatchStreamSerializer {
 };
 
 /**
- * A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`.
+ * A C++ bridge to `FSTSerializerBeta` that allows creating
+ * `GCFSWriteRequest`s and parsing `GCFSWriteResponse`s.
  */
+class WriteStreamSerializer {
+ public:
+  explicit WriteStreamSerializer(FSTSerializerBeta* serializer)
+      : serializer_{serializer} {
+  }
+
+  void UpdateLastStreamToken(GCFSWriteResponse* proto);
+  void SetLastStreamToken(NSData* token) {
+    last_stream_token_ = token;
+  }
+  NSData* GetLastStreamToken() const {
+    return last_stream_token_;
+  }
+
+  GCFSWriteRequest* CreateHandshake() const;
+  GCFSWriteRequest* CreateWriteMutationsRequest(
+      NSArray<FSTMutation*>* mutations) const;
+  GCFSWriteRequest* CreateEmptyMutationsList() {
+    return CreateWriteMutationsRequest(@[]);
+  }
+  static grpc::ByteBuffer ToByteBuffer(GCFSWriteRequest* request);
+
+  /**
+   * If parsing fails, will return nil and write information on the error to
+   * `out_status`. Otherwise, returns the parsed proto and sets `out_status` to
+   * ok.
+   */
+  GCFSWriteResponse* ParseResponse(const grpc::ByteBuffer& message,
+                                   util::Status* out_status) const;
+  model::SnapshotVersion ToCommitVersion(GCFSWriteResponse* proto) const;
+  NSArray<FSTMutationResult*>* ToMutationResults(
+      GCFSWriteResponse* proto) const;
+
+  /** Creates a pretty-printed description of the proto for debugging. */
+  static NSString* Describe(GCFSWriteRequest* request);
+  static NSString* Describe(GCFSWriteResponse* request);
+
+ private:
+  FSTSerializerBeta* serializer_;
+  NSData* last_stream_token_;
+};
+
+/** A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`. */
 class WatchStreamDelegate {
  public:
   explicit WatchStreamDelegate(id<FSTWatchStreamDelegate> delegate)
@@ -104,6 +148,23 @@ class WatchStreamDelegate {
 
  private:
   id<FSTWatchStreamDelegate> delegate_;
+};
+
+/** A C++ bridge that invokes methods on an `FSTWriteStreamDelegate`. */
+class WriteStreamDelegate {
+ public:
+  explicit WriteStreamDelegate(id<FSTWriteStreamDelegate> delegate)
+      : delegate_{delegate} {
+  }
+
+  void NotifyDelegateOnOpen();
+  void NotifyDelegateOnHandshakeComplete();
+  void NotifyDelegateOnCommit(const model::SnapshotVersion& commit_version,
+                              NSArray<FSTMutationResult*>* results);
+  void NotifyDelegateOnClose(const util::Status& status);
+
+ private:
+  id<FSTWriteStreamDelegate> delegate_;
 };
 
 }  // namespace bridge
