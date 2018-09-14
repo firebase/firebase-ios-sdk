@@ -160,11 +160,7 @@ void RemoveAcknowledgedMutations(leveldb::DB* db) {
     HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
     firestore_client_MutationQueue mutation_queue
         firestore_client_MutationQueue_init_zero;
-    size_t byte_len = it->value().size();
-    const char* bytes = it->value().data();
-    // const uint8_t *bytes = static_cast<const uint8_t *>(it->value().data());
-    Reader reader =
-        Reader::Wrap(reinterpret_cast<const uint8_t*>(bytes), byte_len);
+    Reader reader = Reader::Wrap(it->value());
     reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
                              &mutation_queue);
     HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
