@@ -140,18 +140,18 @@ static FIRFirestoreSettings *defaultSettings;
   // Hexa uses a self-signed cert: the first bundle location is used by bazel builds. The second is
   // used for github clones.
   NSString *certsPath =
-  [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
-                                  ofType:@"pem"];
+      [[NSBundle mainBundle] pathForResource:@"PlugIns/IntegrationTests.xctest/CAcert"
+                                      ofType:@"pem"];
   if (certsPath == nil) {
     certsPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"CAcert" ofType:@"pem"];
   }
   unsigned long long fileSize =
-  [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
+      [[[NSFileManager defaultManager] attributesOfItemAtPath:certsPath error:nil] fileSize];
 
   if (fileSize == 0) {
     NSLog(
-          @"The cert is not properly configured. Make sure setup_integration_tests.py "
-          "has been run.");
+        @"The cert is not properly configured. Make sure setup_integration_tests.py "
+         "has been run.");
   }
   [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:host];
 }
