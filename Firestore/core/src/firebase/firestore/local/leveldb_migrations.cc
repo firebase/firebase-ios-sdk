@@ -139,9 +139,7 @@ void RemoveMutationBatches(LevelDbTransaction *transaction,
       LevelDbMutationKey::Key(user_id, last_acknowledged_batch_id);
   auto it = transaction->NewIterator();
   it->Seek(mutations_key);
-  for (; it->Valid() && absl::StartsWith(it->key(), mutations_key) &&
-         it->key() <= last_key;
-       it->Next()) {
+  for (; it->Valid() && it->key() <= last_key; it->Next()) {
     transaction->Delete(it->key());
   }
 }
