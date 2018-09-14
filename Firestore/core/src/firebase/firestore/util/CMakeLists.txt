@@ -206,7 +206,6 @@ cc_library(
     status.cc
     status.h
     status_apple.mm
-    status_grpc.cc
     status_posix.cc
     status_win.cc
     statusor.cc
@@ -218,7 +217,6 @@ cc_library(
     absl_base
     absl_strings
     firebase_firestore_util_base
-    grpc
 )
 
 

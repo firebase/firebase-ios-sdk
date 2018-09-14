@@ -75,7 +75,7 @@ class Datastore {
 
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
-  FSTSerializerBeta* serializer_;
+  FSTSerializerBeta* serializer_ = nullptr;
 
   // A separate executor dedicated to polling gRPC completion queue (which is
   // shared for all spawned `GrpcStream`s).
