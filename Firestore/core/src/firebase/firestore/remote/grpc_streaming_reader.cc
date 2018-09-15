@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -101,7 +102,7 @@ void GrpcStreamingReader::OnOperationFailed() {
   // fail; in other words, `OnOperationFailed` will always be invoked, even when
   // `Finish` will produce a successful status.
   SetCompletion([this](const GrpcCompletion* completion) {
-    callback_(Status::FromGrpcStatus(*completion->status()), responses_);
+    callback_(ConvertStatus(*completion->status()), responses_);
     // This `GrpcStreamingReader`'s lifetime might have been ended by the
     // callback.
   });
