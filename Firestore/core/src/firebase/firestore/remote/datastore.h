@@ -101,6 +101,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  private:
   void PollGrpcQueue();
 
+  void LookupDocumentsWithToken(const grpc::ByteBuffer& message,
+                                FSTVoidMaybeDocumentArrayErrorBlock completion,
+                                const auth::Token& token);
+
   using OnToken = std::function<void(const auth::Token&)>;
   using OnError = std::function<void(const util::Status&)>;
   void WithToken(const OnToken& on_token, const OnError& on_error);

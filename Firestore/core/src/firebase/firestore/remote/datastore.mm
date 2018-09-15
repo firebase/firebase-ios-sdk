@@ -46,6 +46,9 @@ using util::internal::ExecutorLibdispatch;
 
 namespace {
 
+const auto kRpcNameLookup =
+    "/google.firestore.v1beta1.Firestore/BatchGetDocuments";
+
 std::unique_ptr<Executor> CreateExecutor() {
   auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",
                                      DISPATCH_QUEUE_SERIAL);
@@ -138,98 +141,111 @@ void Datastore::LookupDocuments(
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateLookupRequest(keys));
 
-  auto on_error = [completion](const Status &status) {
+  WithToken(
+      [this, message, completion](const Token &token) {
+        LookupDocumentsWithToken(message, completion, token);
+      },
+      [completion](const Status &status) {
+        completion(nil, util::MakeNSError(status));
+      });
+}
+
+void Datastore::LookupDocumentsWithToken(
+    const grpc::ByteBuffer &message,
+    FSTVoidMaybeDocumentArrayErrorBlock completion,
+    const Token &token) {
+  lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
+      kRpcNameLookup, token, std::move(message)));
+  GrpcStreamingReader *call = lookup_calls_.back().get();
+
+  auto on_success = [this, call, completion](NSArray<FSTMaybeDocument *> *docs) {
+    completion(docs, nil);
+    RemoveGrpcCall(call);
+  };
+  auto on_error = [this, call, completion](const Status &status) {
     completion(nil, util::MakeNSError(status));
+    RemoveGrpcCall(call);
   };
 
-  auto on_success =
-      [this, completion](const std::vector<grpc::ByteBuffer> &responses) {
-        Status parse_status;
-        NSArray<FSTMaybeDocument *> *docs =
-            serializer_bridge_.MergeLookupResponses(responses, &parse_status);
-        if (!parse_status.ok()) {
-          completion(nil, util::MakeNSError(parse_status));
-        } else {
-          completion(docs, nil);
-        }
-      };
-
-  WithToken(
-      [this, message, on_success, on_error](const Token &token) {
-        lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
-            "/google.firestore.v1beta1.Firestore/BatchGetDocuments", token,
-            std::move(message)));
-        GrpcStreamingReader *call = lookup_calls_.back().get();
-
-        call->Start([this, on_success, on_error, call](
+  call->Start([this, call, on_success, on_error](
                         const Status &status,
                         const std::vector<grpc::ByteBuffer> &responses) {
-          LogGrpcCallFinished("BatchGetDocuments", call, status);
-          HandleCallStatus(status);
+    LogGrpcCallFinished("BatchGetDocuments", call, status);
+    HandleCallStatus(status);
 
-          if (!status.ok()) {
-            on_error(status);
-          } else {
-            on_success(responses);
-          }
+    if (!status.ok()) {
+      on_error(status);
+      return;
+    }
 
-          RemoveGrpcCall(call);
-        });
-      },
-      on_error);
+    Status parse_status;
+    NSArray<FSTMaybeDocument *> *docs =
+        serializer_bridge_.MergeLookupResponses(responses, &parse_status);
+    if (parse_status.ok()) {
+      on_success(docs);
+    } else {
+      on_error(parse_status);
+    }
+    });
 }
 
 void Datastore::WithToken(const OnToken &on_token, const OnError &on_error) {
-  // Auth may outlive Firestore
-  std::weak_ptr<Datastore> weak_this{shared_from_this()};
+    // Auth may outlive Firestore
+    std::weak_ptr<Datastore> weak_this{shared_from_this()};
 
-  credentials_->GetToken([this, weak_this, on_token,
-                          on_error](StatusOr<Token> maybe_token) {
-    worker_queue_->EnqueueRelaxed([weak_this, maybe_token, on_token, on_error] {
-      auto strong_this = weak_this.lock();
-      if (!strong_this) {
-        return;
-      }
+    credentials_->GetToken(
+        [weak_this, on_token, on_error](StatusOr<Token> maybe_token) {
+          auto strong_this = weak_this.lock();
+          if (!strong_this) {
+            return;
+          }
 
-      if (!maybe_token.ok()) {
-        on_error(maybe_token.status());
-      } else {
-        on_token(maybe_token.ValueOrDie());
-      }
-    });
-  });
+          strong_this->worker_queue_->EnqueueRelaxed(
+              [weak_this, maybe_token, on_token, on_error] {
+                auto strong_this = weak_this.lock();
+                if (!strong_this) {
+                  return;
+                }
+
+                if (!maybe_token.ok()) {
+                  on_error(maybe_token.status());
+                } else {
+                  on_token(maybe_token.ValueOrDie());
+                }
+              });
+        });
 }
 
 void Datastore::HandleCallStatus(const Status &status) {
-  if (status.code() == FirestoreErrorCode::Unauthenticated) {
-    credentials_->InvalidateToken();
-  }
+    if (status.code() == FirestoreErrorCode::Unauthenticated) {
+      credentials_->InvalidateToken();
+    }
 }
 
 void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
-  auto found = std::find_if(
-      lookup_calls_.begin(), lookup_calls_.end(),
-      [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
-        return call.get() == to_remove;
-      });
-  HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
-  lookup_calls_.erase(found);
+    auto found = std::find_if(
+        lookup_calls_.begin(), lookup_calls_.end(),
+        [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
+          return call.get() == to_remove;
+        });
+    HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
+    lookup_calls_.erase(found);
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
     const GrpcStream::MetadataT &headers) {
-  static std::unordered_set<std::string> whitelist = {
-      "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
-      "x-google-gfe-request-trace"};
+    static std::unordered_set<std::string> whitelist = {
+        "date", "x-google-backends", "x-google-netmon-label",
+        "x-google-service", "x-google-gfe-request-trace"};
 
-  std::string result;
-  for (const auto &kv : headers) {
-    if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
-      absl::StrAppend(&result, MakeStringView(kv.first), ": ",
-                      MakeStringView(kv.second), "\n");
+    std::string result;
+    for (const auto &kv : headers) {
+      if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
+        absl::StrAppend(&result, MakeStringView(kv.first), ": ",
+                        MakeStringView(kv.second), "\n");
+      }
     }
-  }
-  return result;
+    return result;
 }
 
 }  // namespace remote
