@@ -92,7 +92,8 @@
 /// Sends an async POST request using NSURLSession for iOS >= 7.0, and returns an ID of the
 /// connection.
 - (NSString *)sessionIDFromAsyncPOSTRequest:(NSURLRequest *)request
-                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler  API_AVAILABLE(ios(7.0)) {
+                          completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+    API_AVAILABLE(ios(7.0)) {
   // NSURLSessionUploadTask does not work with NSData in the background.
   // To avoid this issue, write the data to a temporary file to upload it.
   // Make a temporary file with the data subset.
@@ -169,7 +170,8 @@
 
 /// Sends an async GET request using NSURLSession for iOS >= 7.0, and returns an ID of the session.
 - (NSString *)sessionIDFromAsyncGETRequest:(NSURLRequest *)request
-                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler  API_AVAILABLE(ios(7.0)) {
+                         completionHandler:(GULNetworkURLSessionCompletionHandler)handler
+    API_AVAILABLE(ios(7.0)) {
   if (_backgroundNetworkEnabled) {
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
   } else {
@@ -215,7 +217,7 @@
 /// be called with the downloaded data.
 - (void)URLSession:(NSURLSession *)session
                  downloadTask:(NSURLSessionDownloadTask *)task
-didFinishDownloadingToURL:(NSURL *)url  API_AVAILABLE(ios(7.0)){
+    didFinishDownloadingToURL:(NSURL *)url API_AVAILABLE(ios(7.0)) {
   if (!url.path) {
     [_loggerDelegate
         GULNetwork_logWithLevel:kGULNetworkLogLevelError
@@ -238,7 +240,8 @@ didFinishDownloadingToURL:(NSURL *)url  API_AVAILABLE(ios(7.0)){
 }
 
 #if TARGET_OS_IOS || TARGET_OS_TV
-- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session  API_AVAILABLE(ios(7.0)){
+- (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
+    API_AVAILABLE(ios(7.0)) {
   [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
                                messageCode:kGULNetworkMessageCodeURLSession003
                                    message:@"Background session finished"
@@ -249,7 +252,7 @@ didFinishDownloadingToURL:(NSURL *)url  API_AVAILABLE(ios(7.0)){
 
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
-didCompleteWithError:(NSError *)error  API_AVAILABLE(ios(7.0)){
+    didCompleteWithError:(NSError *)error API_AVAILABLE(ios(7.0)) {
   // Avoid any chance of recursive behavior leading to it being used repeatedly.
   GULNetworkURLSessionCompletionHandler handler = _completionHandler;
   _completionHandler = nil;
@@ -284,7 +287,8 @@ didCompleteWithError:(NSError *)error  API_AVAILABLE(ios(7.0)){
                    task:(NSURLSessionTask *)task
     didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
       completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition,
-                                  NSURLCredential *credential))completionHandler  API_AVAILABLE(ios(7.0)){
+                                  NSURLCredential *credential))completionHandler
+    API_AVAILABLE(ios(7.0)) {
   // The handling is modeled after GTMSessionFetcher.
   if ([challenge.protectionSpace.authenticationMethod
           isEqualToString:NSURLAuthenticationMethodServerTrust]) {
@@ -427,7 +431,8 @@ didCompleteWithError:(NSError *)error  API_AVAILABLE(ios(7.0)){
 }
 
 /// Creates a background session configuration with the session ID using the supported method.
-- (NSURLSessionConfiguration *)backgroundSessionConfigWithSessionID:(NSString *)sessionID  API_AVAILABLE(ios(7.0)){
+- (NSURLSessionConfiguration *)backgroundSessionConfigWithSessionID:(NSString *)sessionID
+    API_AVAILABLE(ios(7.0)) {
 #if (TARGET_OS_OSX && defined(MAC_OS_X_VERSION_10_10) &&         \
      MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10) || \
     TARGET_OS_TV ||                                              \
@@ -619,7 +624,7 @@ didCompleteWithError:(NSError *)error  API_AVAILABLE(ios(7.0)){
                           task:(NSURLSessionTask *)task
     willPerformHTTPRedirection:(NSHTTPURLResponse *)response
                     newRequest:(NSURLRequest *)request
- completionHandler:(void (^)(NSURLRequest *))completionHandler  API_AVAILABLE(ios(7.0)){
+             completionHandler:(void (^)(NSURLRequest *))completionHandler API_AVAILABLE(ios(7.0)) {
   NSArray *nonAllowedRedirectionCodes = @[
     @(kGULNetworkHTTPStatusCodeFound), @(kGULNetworkHTTPStatusCodeMovedPermanently),
     @(kGULNetworkHTTPStatusCodeMovedTemporarily), @(kGULNetworkHTTPStatusCodeMultipleChoices)
@@ -662,7 +667,7 @@ didCompleteWithError:(NSError *)error  API_AVAILABLE(ios(7.0)){
 }
 
 - (void)populateSessionConfig:(NSURLSessionConfiguration *)sessionConfig
-                  withRequest:(NSURLRequest *)request  API_AVAILABLE(ios(7.0)) {
+                  withRequest:(NSURLRequest *)request API_AVAILABLE(ios(7.0)) {
   sessionConfig.HTTPAdditionalHeaders = request.allHTTPHeaderFields;
   sessionConfig.timeoutIntervalForRequest = request.timeoutInterval;
   sessionConfig.timeoutIntervalForResource = request.timeoutInterval;
