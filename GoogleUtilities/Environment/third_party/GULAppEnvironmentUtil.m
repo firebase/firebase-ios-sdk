@@ -187,10 +187,12 @@ static BOOL HasEmbeddedMobileProvision() {
       ![enableSandboxCheck boolValue]) {
     return NO;
   }
-
-  NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
-  NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
-  return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
+  if (@available(iOS 7.0, *)) {
+    NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
+    NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
+    return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
+  }
+  return NO;
 }
 
 + (BOOL)isSimulator {
