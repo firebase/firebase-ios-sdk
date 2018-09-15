@@ -49,7 +49,7 @@ enum class UserDataSource {
   Update,
   /**
    * Indicates the source is a where clause, cursor bound, array union element,
-   * etc. In particular, this will result in ParseContext.write() to return
+   * etc. In particular, this will result in ParseContext.write() returning
    * false.
    */
   Argument,
@@ -67,42 +67,13 @@ class ParsedUpdateData;
  *     server-generated behavior. In the wire protocol these are encoded
  *     separately from the Value.
  */
-class ParseResult {
+class ParseAccumulator {
  public:
   /**
    * @param data_source Indicates what kind of API method this data came from.
    */
-  explicit ParseResult(UserDataSource data_source) : data_source_{data_source} {
-  }
-
-  /**
-   * Returns a new ParseContext representing the root of a user document.
-   */
-  ParseContext RootContext();
-
-  /**
-   * Returns `true` if `field_path` was traversed when creating this result.
-   */
-  bool Contains(const model::FieldPath& field_path) const;
-
-  /**
-   * Adds the given field_path to the FieldMask that this result is
-   * accumulating.
-   */
-  void AddToFieldMask(model::FieldPath field_path);
-
-  /**
-   * Adds a transformation for the given field path.
-   */
-  void AddToFieldTransforms(
-      model::FieldPath field_path,
-      std::unique_ptr<model::TransformOperation> transform_operation);
-
-  /**
-   * Returns the current list of transforms.
-   */
-  const std::vector<model::FieldTransform>& field_transforms() const {
-    return field_transforms_;
+  explicit ParseAccumulator(UserDataSource data_source)
+      : data_source_{data_source} {
   }
 
   /**
@@ -115,10 +86,41 @@ class ParseResult {
   }
 
   /**
+   * Returns the current list of transforms.
+   */
+  const std::vector<model::FieldTransform>& field_transforms() const {
+    return field_transforms_;
+  }
+
+  /**
+   * Returns a new ParseContext representing the root of a user document.
+   */
+  ParseContext RootContext();
+
+  /**
+   * Returns `true` if the given `field_path` was encountered in the current
+   * document.
+   */
+  bool Contains(const model::FieldPath& field_path) const;
+
+  /**
+   * Adds the given `field_path` to the accumulated FieldMask.
+   */
+  void AddToFieldMask(model::FieldPath field_path);
+
+  /**
+   * Adds a transformation for the given field path.
+   */
+  void AddToFieldTransforms(
+      model::FieldPath field_path,
+      std::unique_ptr<model::TransformOperation> transform_operation);
+
+  /**
    * Wraps the given `data` along with any accumulated field mask and transforms
    * into a ParsedSetData representing a user-issued merge.
    *
-   * @return ParsedSetData that has consumed the contents of this ParseResult.
+   * @return ParsedSetData that has consumed the contents of this
+   * ParseAccumulator.
    */
   ParsedSetData MergeData(FSTObjectValue* data) &&;
 
@@ -131,9 +133,9 @@ class ParseResult {
    * @param user_field_mask The user-supplied field mask that masks out any
    *     changes that have been accumulated so far.
    *
-   * @return ParsedSetData that has consumed the contents of this ParseResult.
-   *     The field mask in the result will be the user_field_mask and only
-   *     transforms that are covered by the mask will be included.
+   * @return ParsedSetData that has consumed the contents of this
+   * ParseAccumulator. The field mask in the result will be the user_field_mask
+   * and only transforms that are covered by the mask will be included.
    */
   ParsedSetData MergeData(FSTObjectValue* data,
                           model::FieldMask user_field_mask) &&;
@@ -142,7 +144,8 @@ class ParseResult {
    * Wraps the given `data` along with any accumulated transforms into a
    * ParsedSetData that represents a user-issued Set.
    *
-   * @return ParsedSetData that has consumed the contents of this ParseResult.
+   * @return ParsedSetData that has consumed the contents of this
+   * ParseAccumulator.
    */
   ParsedSetData SetData(FSTObjectValue* data) &&;
 
@@ -150,7 +153,8 @@ class ParseResult {
    * Wraps the given `data` along with any accumulated field mask and transforms
    * into a ParsedUpdateData that represents a user-issued Update.
    *
-   * @return ParsedSetData that has consumed the contents of this ParseResult.
+   * @return ParsedSetData that has consumed the contents of this
+   * ParseAccumulator.
    */
   ParsedUpdateData UpdateData(FSTObjectValue* data) &&;
 
@@ -167,8 +171,10 @@ class ParseResult {
 };
 
 /**
- * A "context" object passed around while parsing user data. A Context
- * represents a location within a user-supplied document.
+ * A "context" object that wraps a ParseAccumulator and refers to a specific
+ * location in a user-supplied document. Instances are created and passed around
+ * while traversing user data during parsing in order to conveniently accumulate
+ * data in the ParseAccumulator.
  */
 class ParseContext {
  public:
@@ -185,10 +191,12 @@ class ParseContext {
    * which case certain features will not work and errors will be somewhat
    * compromised).
    */
-  ParseContext(ParseResult* result,
+  ParseContext(ParseAccumulator* accumulator,
                std::unique_ptr<model::FieldPath> path,
                bool array_element)
-      : result_{result}, path_{std::move(path)}, array_element_{array_element} {
+      : accumulator_{accumulator},
+        path_{std::move(path)},
+        array_element_{array_element} {
   }
 
   /** Whether or not this context corresponds to an element of an array. */
@@ -202,7 +210,7 @@ class ParseContext {
    * better error messages.
    */
   UserDataSource data_source() const {
-    return result_->data_source_;
+    return accumulator_->data_source_;
   }
 
   const model::FieldPath* path() const {
@@ -231,7 +239,7 @@ class ParseContext {
   void ValidatePath() const;
   void ValidatePathSegment(absl::string_view segment) const;
 
-  ParseResult* result_;  // Non owning
+  ParseAccumulator* accumulator_;  // Non owning
 
   /** The current path being parsed. */
   // TODO(b/34871131): path should never be nullptr, but we don't support array

@@ -48,8 +48,8 @@
 namespace util = firebase::firestore::util;
 using firebase::firestore::core::ParsedSetData;
 using firebase::firestore::core::ParsedUpdateData;
+using firebase::firestore::core::ParseAccumulator;
 using firebase::firestore::core::ParseContext;
-using firebase::firestore::core::ParseResult;
 using firebase::firestore::core::UserDataSource;
 using firebase::firestore::model::ArrayTransform;
 using firebase::firestore::model::DatabaseId;
@@ -111,10 +111,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
   }
 
-  ParseResult result{UserDataSource::MergeSet};
+  ParseAccumulator accumulator{UserDataSource::MergeSet};
 
   FSTObjectValue *updateData =
-      (FSTObjectValue *)[self parseData:input context:result.RootContext()];
+      (FSTObjectValue *)[self parseData:input context:accumulator.RootContext()];
 
   if (fieldMask) {
     std::vector<FieldPath> fieldMaskPaths;
@@ -131,7 +131,7 @@ NS_ASSUME_NONNULL_BEGIN
       }
 
       // Verify that all elements specified in the field mask are part of the parsed context.
-      if (!result.Contains(path)) {
+      if (!accumulator.Contains(path)) {
         FSTThrowInvalidArgument(
             @"Field '%s' is specified in your field mask but missing from your input data.",
             path.CanonicalString().c_str());
@@ -140,10 +140,10 @@ NS_ASSUME_NONNULL_BEGIN
       fieldMaskPaths.push_back(path);
     }
 
-    return std::move(result).MergeData(updateData, FieldMask{std::move(fieldMaskPaths)});
+    return std::move(accumulator).MergeData(updateData, FieldMask{std::move(fieldMaskPaths)});
 
   } else {
-    return std::move(result).MergeData(updateData);
+    return std::move(accumulator).MergeData(updateData);
   }
 }
 
@@ -154,10 +154,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
   }
 
-  ParseResult result{UserDataSource::Set};
-  FSTFieldValue *updateData = [self parseData:input context:result.RootContext()];
+  ParseAccumulator accumulator{UserDataSource::Set};
+  FSTFieldValue *updateData = [self parseData:input context:accumulator.RootContext()];
 
-  return std::move(result).SetData((FSTObjectValue *)updateData);
+  return std::move(accumulator).SetData((FSTObjectValue *)updateData);
 }
 
 - (ParsedUpdateData)parsedUpdateData:(id)input {
@@ -171,8 +171,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
 
-  ParseResult result{UserDataSource::Update};
-  ParseContext context = result.RootContext();
+  ParseAccumulator accumulator{UserDataSource::Update};
+  ParseContext context = accumulator.RootContext();
   ParseContext *context_ptr = &context;
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
     FieldPath path;
@@ -200,15 +200,15 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }];
 
-  return std::move(result).UpdateData(updateData);
+  return std::move(accumulator).UpdateData(updateData);
 }
 
 - (FSTFieldValue *)parsedQueryValue:(id)input {
-  ParseResult result{UserDataSource::Argument};
+  ParseAccumulator accumulator{UserDataSource::Argument};
 
-  FSTFieldValue *_Nullable parsed = [self parseData:input context:result.RootContext()];
+  FSTFieldValue *_Nullable parsed = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(parsed, "Parsed data should not be nil.");
-  HARD_ASSERT(result.field_transforms().empty(), "Field transforms should have been disallowed.");
+  HARD_ASSERT(accumulator.field_transforms().empty(), "Field transforms should have been disallowed.");
   return parsed;
 }
 
@@ -455,17 +455,17 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (std::vector<FSTFieldValue *>)parseArrayTransformElements:(NSArray<id> *)elements {
-  ParseResult result{UserDataSource::Argument};
+  ParseAccumulator accumulator{UserDataSource::Argument};
 
   std::vector<FSTFieldValue *> values;
   for (NSUInteger i = 0; i < elements.count; i++) {
     id element = elements[i];
     // Although array transforms are used with writes, the actual elements being unioned or removed
     // are not considered writes since they cannot contain any FieldValue sentinels, etc.
-    ParseContext context = result.RootContext();
+    ParseContext context = accumulator.RootContext();
 
     FSTFieldValue *parsedElement = [self parseData:element context:context.ChildContext(i)];
-    HARD_ASSERT(parsedElement && result.field_transforms().size() == 0,
+    HARD_ASSERT(parsedElement && accumulator.field_transforms().size() == 0,
                 "Failed to properly parse array transform element: %s", element);
     values.push_back(parsedElement);
   }

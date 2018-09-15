@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2018 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@ using model::TransformOperation;
 #pragma mark - ParseContext
 
 namespace {
-static const char* RESERVED_FIELD_DESIGNATOR = "__";
+
+const char* RESERVED_FIELD_DESIGNATOR = "__";
 
 }  // namespace
 
@@ -47,7 +48,7 @@ ParseContext ParseContext::ChildContext(const std::string& field_name) {
     path = absl::make_unique<FieldPath>(path_->Append(field_name));
   }
 
-  ParseContext context{result_, std::move(path), false};
+  ParseContext context{accumulator_, std::move(path), false};
   context.ValidatePathSegment(field_name);
   return context;
 }
@@ -58,7 +59,7 @@ ParseContext ParseContext::ChildContext(const FieldPath& fieldPath) {
     path = absl::make_unique<FieldPath>(path_->Append(fieldPath));
   }
 
-  ParseContext context{result_, std::move(path), false};
+  ParseContext context{accumulator_, std::move(path), false};
   context.ValidatePath();
   return context;
 }
@@ -66,7 +67,7 @@ ParseContext ParseContext::ChildContext(const FieldPath& fieldPath) {
 ParseContext ParseContext::ChildContext(size_t array_index) {
   // TODO(b/34871131): We don't support array paths right now; make path null.
   (void)array_index;
-  return {result_, /* path= */ nullptr, /* array_element= */ true};
+  return {accumulator_, /* path= */ nullptr, /* array_element= */ true};
 }
 
 /**
@@ -84,7 +85,7 @@ std::string ParseContext::FieldDescription() const {
 }
 
 bool ParseContext::write() const {
-  switch (result_->data_source()) {
+  switch (accumulator_->data_source()) {
     case UserDataSource::Set:       // Falls through.
     case UserDataSource::MergeSet:  // Falls through.
     case UserDataSource::Update:
@@ -92,8 +93,8 @@ bool ParseContext::write() const {
     case UserDataSource::Argument:
       return false;
     default:
-      FSTThrowInvalidArgument(@"Unexpected case for FSTUserDataSource: %d",
-                              result_->data_source());
+      FSTThrowInvalidArgument(@"Unexpected case for UserDataSource: %d",
+                              accumulator_->data_source());
   }
 }
 
@@ -119,24 +120,24 @@ void ParseContext::ValidatePathSegment(absl::string_view segment) const {
 }
 
 void ParseContext::AddToFieldMask(FieldPath field_path) {
-  result_->AddToFieldMask(std::move(field_path));
+  accumulator_->AddToFieldMask(std::move(field_path));
 }
 
 void ParseContext::AddToFieldTransforms(
     FieldPath field_path,
     std::unique_ptr<TransformOperation> transform_operation) {
-  result_->AddToFieldTransforms(std::move(field_path),
-                                std::move(transform_operation));
+  accumulator_->AddToFieldTransforms(std::move(field_path),
+                                     std::move(transform_operation));
 }
 
 #pragma mark - ParseResult
 
-ParseContext ParseResult::RootContext() {
+ParseContext ParseAccumulator::RootContext() {
   return ParseContext{
       this, absl::make_unique<FieldPath>(FieldPath::EmptyPath()), false};
 }
 
-bool ParseResult::Contains(const FieldPath& field_path) const {
+bool ParseAccumulator::Contains(const FieldPath& field_path) const {
   for (const FieldPath& field : field_mask_) {
     if (field_path.IsPrefixOf(field)) {
       return true;
@@ -152,24 +153,24 @@ bool ParseResult::Contains(const FieldPath& field_path) const {
   return false;
 }
 
-void ParseResult::AddToFieldMask(FieldPath field_path) {
+void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
   field_mask_.push_back(std::move(field_path));
 }
 
-void ParseResult::AddToFieldTransforms(
+void ParseAccumulator::AddToFieldTransforms(
     FieldPath field_path,
     std::unique_ptr<TransformOperation> transform_operation) {
   field_transforms_.emplace_back(std::move(field_path),
                                  std::move(transform_operation));
 }
 
-ParsedSetData ParseResult::MergeData(FSTObjectValue* data) && {
+ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data) && {
   return ParsedSetData{data, FieldMask{std::move(field_mask_)},
                        std::move(field_transforms_)};
 }
 
-ParsedSetData ParseResult::MergeData(FSTObjectValue* data,
-                                     model::FieldMask user_field_mask) && {
+ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data,
+                                          model::FieldMask user_field_mask) && {
   std::vector<FieldTransform> covered_field_transforms;
 
   for (FieldTransform& field_transform : field_transforms_) {
@@ -182,11 +183,11 @@ ParsedSetData ParseResult::MergeData(FSTObjectValue* data,
                        std::move(covered_field_transforms)};
 }
 
-ParsedSetData ParseResult::SetData(FSTObjectValue* data) && {
+ParsedSetData ParseAccumulator::SetData(FSTObjectValue* data) && {
   return ParsedSetData{data, std::move(field_transforms_)};
 }
 
-ParsedUpdateData ParseResult::UpdateData(FSTObjectValue* data) && {
+ParsedUpdateData ParseAccumulator::UpdateData(FSTObjectValue* data) && {
   return ParsedUpdateData{data, FieldMask{std::move(field_mask_)},
                           std::move(field_transforms_)};
 }
@@ -216,11 +217,11 @@ NSArray<FSTMutation*>* ParsedSetData::ToMutations(
     [mutations
         addObject:[[FSTPatchMutation alloc] initWithKey:key
                                               fieldMask:std::move(field_mask_)
-                                                  value:std::move(data_)
+                                                  value:data_
                                            precondition:precondition]];
   } else {
     [mutations addObject:[[FSTSetMutation alloc] initWithKey:key
-                                                       value:std::move(data_)
+                                                       value:data_
                                                 precondition:precondition]];
   }
   if (!field_transforms_.empty()) {
@@ -239,7 +240,7 @@ ParsedUpdateData::ParsedUpdateData(
     std::vector<model::FieldTransform> field_transforms)
     : data_{data},
       field_mask_{std::move(field_mask)},
-      field_transforms_{field_transforms} {
+      field_transforms_{std::move(field_transforms)} {
 }
 
 NSArray<FSTMutation*>* ParsedUpdateData::ToMutations(
@@ -248,7 +249,7 @@ NSArray<FSTMutation*>* ParsedUpdateData::ToMutations(
   [mutations
       addObject:[[FSTPatchMutation alloc] initWithKey:key
                                             fieldMask:std::move(field_mask_)
-                                                value:std::move(data_)
+                                                value:data_
                                          precondition:precondition]];
   if (!field_transforms_.empty()) {
     [mutations addObject:[[FSTTransformMutation alloc]
