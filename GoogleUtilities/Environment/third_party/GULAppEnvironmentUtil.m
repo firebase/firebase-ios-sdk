@@ -188,8 +188,7 @@ static BOOL HasEmbeddedMobileProvision() {
     return NO;
   }
 // The #else is for pre Xcode 9 where @available is not yet implemented.
-#if defined(__has_feature) && defined(__has_attribute)
-#if __has_attribute(availability)
+#if __has_builtin(__builtin_available)
   if (@available(iOS 7.0, *)) {
 #else
   if ([[UIDevice currentDevice].systemVersion integerValue] >= 7) {
@@ -198,7 +197,6 @@ static BOOL HasEmbeddedMobileProvision() {
     NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
     return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
   }
-#endif
   return NO;
 }
 
