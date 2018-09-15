@@ -187,7 +187,12 @@ static BOOL HasEmbeddedMobileProvision() {
       ![enableSandboxCheck boolValue]) {
     return NO;
   }
+// The #else is for pre Xcode 9 where @available is not yet implemented.
+#if defined(TARGET_OS_TV) || defined(TARGET_OS_OSX) || defined(__IPHONE_11_0)
   if (@available(iOS 7.0, *)) {
+#else
+  if ([[UIDevice currentDevice].systemVersion integerValue] >= 7) {
+#endif
     NSURL *appStoreReceiptURL = [NSBundle mainBundle].appStoreReceiptURL;
     NSString *appStoreReceiptFileName = appStoreReceiptURL.lastPathComponent;
     return [appStoreReceiptFileName isEqualToString:kFIRAIdentitySandboxReceiptFileName];
