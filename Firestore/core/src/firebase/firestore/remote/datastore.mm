@@ -143,7 +143,7 @@ void Datastore::LookupDocuments(
 
   WithToken(
       [this, message, completion](const Token &token) {
-        LookupDocumentsWithToken(message, completion, token);
+        LookupDocumentsWithToken(token, message, completion);
       },
       [completion](const Status &status) {
         completion(nil, util::MakeNSError(status));
@@ -151,16 +151,16 @@ void Datastore::LookupDocuments(
 }
 
 void Datastore::LookupDocumentsWithToken(
-    const grpc::ByteBuffer &message,
-    FSTVoidMaybeDocumentArrayErrorBlock completion,
-    const Token &token) {
+    const Token &token, const grpc::ByteBuffer &message,
+    FSTVoidMaybeDocumentArrayErrorBlock completion
+    ) {
   lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
       kRpcNameLookup, token, std::move(message)));
   GrpcStreamingReader *call = lookup_calls_.back().get();
 
-  call->Start([this, call](const Status &status,
+  call->Start([this, call, completion](const Status &status,
                            const std::vector<grpc::ByteBuffer> &responses) {
-    OnLookupDocumentsResponse(call, status, responses);
+    OnLookupDocumentsResponse(call, status, responses, completion);
     RemoveGrpcCall(call);
   });
 }
@@ -168,12 +168,14 @@ void Datastore::LookupDocumentsWithToken(
 void Datastore::OnLookupDocumentsResponse(
     GrpcStreamingReader *call,
     const Status &status,
-    const std::vector<grpc::ByteBuffer> &responses) {
+    const std::vector<grpc::ByteBuffer> &responses,
+    FSTVoidMaybeDocumentArrayErrorBlock completion
+    ) {
   LogGrpcCallFinished("BatchGetDocuments", call, status);
   HandleCallStatus(status);
 
   if (!status.ok()) {
-    on_error(status);
+    completion(nil, util::MakeNSError(status));
     return;
   }
 
@@ -181,9 +183,9 @@ void Datastore::OnLookupDocumentsResponse(
   NSArray<FSTMaybeDocument *> *docs =
       serializer_bridge_.MergeLookupResponses(responses, &parse_status);
   if (parse_status.ok()) {
-    on_success(docs);
+    completion(docs, nil);
   } else {
-    on_error(parse_status);
+    completion(nil, util::MakeNSError(parse_status));
   }
 }
 
@@ -205,10 +207,10 @@ void Datastore::WithToken(const OnToken &on_token, const OnError &on_error) {
                 return;
               }
 
-              if (!maybe_token.ok()) {
-                on_error(maybe_token.status());
-              } else {
+              if (maybe_token.ok()) {
                 on_token(maybe_token.ValueOrDie());
+              } else {
+                on_error(maybe_token.status());
               }
             });
       });
