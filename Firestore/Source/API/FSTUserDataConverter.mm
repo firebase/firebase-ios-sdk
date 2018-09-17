@@ -104,6 +104,19 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (ParsedSetData)parsedSetData:(id)input {
+  // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
+  // Obj-C to verify the type for us.
+  if (![input isKindOfClass:[NSDictionary class]]) {
+    FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
+  }
+
+  ParseAccumulator accumulator{UserDataSource::Set};
+  FSTFieldValue *updateData = [self parseData:input context:accumulator.RootContext()];
+
+  return std::move(accumulator).SetData((FSTObjectValue *)updateData);
+}
+
 - (ParsedSetData)parsedMergeData:(id)input fieldMask:(nullable NSArray<id> *)fieldMask {
   // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
   // Obj-C to verify the type for us.
@@ -145,19 +158,6 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     return std::move(accumulator).MergeData(updateData);
   }
-}
-
-- (ParsedSetData)parsedSetData:(id)input {
-  // NOTE: The public API is typed as NSDictionary but we type 'input' as 'id' since we can't trust
-  // Obj-C to verify the type for us.
-  if (![input isKindOfClass:[NSDictionary class]]) {
-    FSTThrowInvalidArgument(@"Data to be written must be an NSDictionary.");
-  }
-
-  ParseAccumulator accumulator{UserDataSource::Set};
-  FSTFieldValue *updateData = [self parseData:input context:accumulator.RootContext()];
-
-  return std::move(accumulator).SetData((FSTObjectValue *)updateData);
 }
 
 - (ParsedUpdateData)parsedUpdateData:(id)input {
