@@ -390,7 +390,7 @@ static const char *kReservedPathComponent = "firestore";
   leveldb::Status status = DB::Open(options, directory.ToUtf8String(), &database);
   if (!status.ok()) {
     return Status{FirestoreErrorCode::Internal,
-                  StringFormat("Failed to open LevelDD database at %s", directory.ToUtf8String())}
+                  StringFormat("Failed to open LevelDB database at %s", directory.ToUtf8String())}
         .CausedBy(ConvertStatus(status));
   }
 
