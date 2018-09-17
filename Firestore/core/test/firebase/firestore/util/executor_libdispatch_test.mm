@@ -89,12 +89,12 @@ TEST_F(ExecutorLibdispatchOnlyTests,
   // Invoke destructor on the executor's own queue to make sure there is no
   // deadlock.
   std::function<void()> reset = [this] { executor.reset(); };
-  auto queue = static_cast<ExecutorLibdispatch*>(executor.get())->dispatch_queue();
-  dispatch_sync_f(
-      queue, &reset, [](void* const raw_reset) {
-        const auto unwrap = static_cast<std::function<void()>*>(raw_reset);
-        (*unwrap)();
-      });
+  auto queue =
+      static_cast<ExecutorLibdispatch*>(executor.get())->dispatch_queue();
+  dispatch_sync_f(queue, &reset, [](void* const raw_reset) {
+    const auto unwrap = static_cast<std::function<void()>*>(raw_reset);
+    (*unwrap)();
+  });
   // Try to wait until libdispatch invokes the scheduled operation. This is
   // flaky but unlikely to not work in practice. The test is successful if
   // there is no crash/data race under TSan.
