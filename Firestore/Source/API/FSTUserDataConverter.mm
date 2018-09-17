@@ -207,7 +207,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FSTFieldValue *_Nullable parsed = [self parseData:input context:accumulator.RootContext()];
   HARD_ASSERT(parsed, "Parsed data should not be nil.");
-  HARD_ASSERT(accumulator.field_transforms().empty(), "Field transforms should have been disallowed.");
+  HARD_ASSERT(accumulator.field_transforms().empty(),
+              "Field transforms should have been disallowed.");
   return parsed;
 }
 
