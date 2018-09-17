@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @typedef FIRFetchAuthDomainCallback
     @brief The callback invoked at the end of the flow to fetch the Auth domain.
     @param authDomain The Auth domain.
-    @param error The error that occured while fetching the auth domain, if any.
+    @param error The error that occurred while fetching the auth domain, if any.
  */
 typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
                                            NSError *_Nullable error);

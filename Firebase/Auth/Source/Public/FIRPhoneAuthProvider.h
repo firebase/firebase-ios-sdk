@@ -37,7 +37,7 @@ extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuth
     @brief The type of block invoked when a request to send a verification code has finished.
 
     @param verificationID On success, the verification ID provided, nil otherwise.
-    @param error On error, the error that occured, nil otherwise.
+    @param error On error, the error that occurred, nil otherwise.
  */
 typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID,
                                               NSError *_Nullable error)
