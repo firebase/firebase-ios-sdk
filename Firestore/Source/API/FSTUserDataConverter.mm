@@ -130,7 +130,7 @@ NS_ASSUME_NONNULL_BEGIN
       (FSTObjectValue *)[self parseData:input context:accumulator.RootContext()];
 
   if (fieldMask) {
-    std::vector<FieldPath> fieldMaskPaths;
+    std::vector<FieldPath> validatedFieldPaths;
     for (id fieldPath in fieldMask) {
       FieldPath path;
 
@@ -150,10 +150,10 @@ NS_ASSUME_NONNULL_BEGIN
             path.CanonicalString().c_str());
       }
 
-      fieldMaskPaths.push_back(path);
+      validatedFieldPaths.push_back(path);
     }
 
-    return std::move(accumulator).MergeData(updateData, FieldMask{std::move(fieldMaskPaths)});
+    return std::move(accumulator).MergeData(updateData, FieldMask{std::move(validatedFieldPaths)});
 
   } else {
     return std::move(accumulator).MergeData(updateData);
