@@ -56,7 +56,7 @@ static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oau
 static NSString *const kURLResponseErrorCodeNetworkRequestFailed = @"auth/network-request-failed";
 
 /** @var kURLResponseErrorCodeInternalError
-    @brief Error code that indicates that an internal error occured within the
+    @brief Error code that indicates that an internal error occurred within the
         SFSafariViewController or UIWebView failed.
  */
 static NSString *const kURLResponseErrorCodeInternalError = @"auth/internal-error";

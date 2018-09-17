@@ -348,7 +348,7 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeWebNetworkRequestFailed =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebNetworkRequestFailed,
 
-  /** Indicates that an internal error occured within a SFSafariViewController or UIWebview.
+  /** Indicates that an internal error occurred within a SFSafariViewController or UIWebview.
    */
   FIRAuthInternalErrorCodeWebInternalError =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWebInternalError,

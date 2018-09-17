@@ -114,7 +114,7 @@ class NanopbGenerator(object):
     self.proto_files = proto_files
 
   def run(self):
-    """Performs the action of the the generator."""
+    """Performs the action of the generator."""
 
     nanopb_out = os.path.join(self.args.output_dir, 'nanopb')
     mkdir(nanopb_out)
