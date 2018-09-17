@@ -28,8 +28,11 @@
   /// Session ID generated randomly with a fixed prefix.
   NSString *_sessionID;
 
-  /// The session configuration.
-  id _sessionConfig;  // 'NSURLSessionConfiguration' is only available on iOS 7.0 or newer
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunguarded-availability"
+  /// The session configuration. NSURLSessionConfiguration' is only available on iOS 7.0 or newer.
+  NSURLSessionConfiguration *_sessionConfig;
+#pragma pop
 
   /// The path to the directory where all temporary files are stored before uploading.
   NSURL *_networkDirectoryURL;
@@ -138,7 +141,7 @@
     // If we cannot write to file, just send it in the foreground.
     _sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
     [self populateSessionConfig:_sessionConfig withRequest:request];
-    ((NSURLSessionConfiguration *)_sessionConfig).URLCache = nil;
+    _sessionConfig.URLCache = nil;
     session = [NSURLSession sessionWithConfiguration:_sessionConfig
                                             delegate:self
                                        delegateQueue:[NSOperationQueue mainQueue]];
@@ -181,7 +184,7 @@
   [self populateSessionConfig:_sessionConfig withRequest:request];
 
   // Do not cache the GET request.
-  ((NSURLSessionConfiguration *)_sessionConfig).URLCache = nil;
+  _sessionConfig.URLCache = nil;
 
   NSURLSession *session = [NSURLSession sessionWithConfiguration:_sessionConfig
                                                         delegate:self
