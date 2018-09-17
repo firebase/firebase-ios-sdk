@@ -34,6 +34,68 @@ using model::FieldTransform;
 using model::Precondition;
 using model::TransformOperation;
 
+#pragma mark - ParseAccumulator
+
+ParseContext ParseAccumulator::RootContext() {
+  return ParseContext{
+      this, absl::make_unique<FieldPath>(FieldPath::EmptyPath()), false};
+}
+
+bool ParseAccumulator::Contains(const FieldPath& field_path) const {
+  for (const FieldPath& field : field_mask_) {
+    if (field_path.IsPrefixOf(field)) {
+      return true;
+    }
+  }
+
+  for (const FieldTransform& field_transform : field_transforms_) {
+    if (field_path.IsPrefixOf(field_transform.path())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
+  field_mask_.push_back(std::move(field_path));
+}
+
+void ParseAccumulator::AddToFieldTransforms(
+    FieldPath field_path,
+    std::unique_ptr<TransformOperation> transform_operation) {
+  field_transforms_.emplace_back(std::move(field_path),
+                                 std::move(transform_operation));
+}
+
+ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data) && {
+  return ParsedSetData{data, FieldMask{std::move(field_mask_)},
+                       std::move(field_transforms_)};
+}
+
+ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data,
+                                          model::FieldMask user_field_mask) && {
+  std::vector<FieldTransform> covered_field_transforms;
+
+  for (FieldTransform& field_transform : field_transforms_) {
+    if (user_field_mask.covers(field_transform.path())) {
+      covered_field_transforms.push_back(std::move(field_transform));
+    }
+  }
+
+  return ParsedSetData{data, std::move(user_field_mask),
+                       std::move(covered_field_transforms)};
+}
+
+ParsedSetData ParseAccumulator::SetData(FSTObjectValue* data) && {
+  return ParsedSetData{data, std::move(field_transforms_)};
+}
+
+ParsedUpdateData ParseAccumulator::UpdateData(FSTObjectValue* data) && {
+  return ParsedUpdateData{data, FieldMask{std::move(field_mask_)},
+                          std::move(field_transforms_)};
+}
+
 #pragma mark - ParseContext
 
 namespace {
@@ -128,68 +190,6 @@ void ParseContext::AddToFieldTransforms(
     std::unique_ptr<TransformOperation> transform_operation) {
   accumulator_->AddToFieldTransforms(std::move(field_path),
                                      std::move(transform_operation));
-}
-
-#pragma mark - ParseResult
-
-ParseContext ParseAccumulator::RootContext() {
-  return ParseContext{
-      this, absl::make_unique<FieldPath>(FieldPath::EmptyPath()), false};
-}
-
-bool ParseAccumulator::Contains(const FieldPath& field_path) const {
-  for (const FieldPath& field : field_mask_) {
-    if (field_path.IsPrefixOf(field)) {
-      return true;
-    }
-  }
-
-  for (const FieldTransform& field_transform : field_transforms_) {
-    if (field_path.IsPrefixOf(field_transform.path())) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-void ParseAccumulator::AddToFieldMask(FieldPath field_path) {
-  field_mask_.push_back(std::move(field_path));
-}
-
-void ParseAccumulator::AddToFieldTransforms(
-    FieldPath field_path,
-    std::unique_ptr<TransformOperation> transform_operation) {
-  field_transforms_.emplace_back(std::move(field_path),
-                                 std::move(transform_operation));
-}
-
-ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data) && {
-  return ParsedSetData{data, FieldMask{std::move(field_mask_)},
-                       std::move(field_transforms_)};
-}
-
-ParsedSetData ParseAccumulator::MergeData(FSTObjectValue* data,
-                                          model::FieldMask user_field_mask) && {
-  std::vector<FieldTransform> covered_field_transforms;
-
-  for (FieldTransform& field_transform : field_transforms_) {
-    if (user_field_mask.covers(field_transform.path())) {
-      covered_field_transforms.push_back(std::move(field_transform));
-    }
-  }
-
-  return ParsedSetData{data, std::move(user_field_mask),
-                       std::move(covered_field_transforms)};
-}
-
-ParsedSetData ParseAccumulator::SetData(FSTObjectValue* data) && {
-  return ParsedSetData{data, std::move(field_transforms_)};
-}
-
-ParsedUpdateData ParseAccumulator::UpdateData(FSTObjectValue* data) && {
-  return ParsedUpdateData{data, FieldMask{std::move(field_mask_)},
-                          std::move(field_transforms_)};
 }
 
 #pragma mark - ParsedSetData
