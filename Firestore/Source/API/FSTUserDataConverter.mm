@@ -169,11 +169,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   NSDictionary *dict = input;
 
+  ParseAccumulator accumulator{UserDataSource::Update};
+  __block ParseContext context = accumulator.RootContext();
   __block FSTObjectValue *updateData = [FSTObjectValue objectValue];
 
-  ParseAccumulator accumulator{UserDataSource::Update};
-  ParseContext context = accumulator.RootContext();
-  ParseContext *context_ptr = &context;
   [dict enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
     FieldPath path;
 
@@ -189,12 +188,12 @@ NS_ASSUME_NONNULL_BEGIN
     value = self.preConverter(value);
     if ([value isKindOfClass:[FSTDeleteFieldValue class]]) {
       // Add it to the field mask, but don't add anything to updateData.
-      context_ptr->AddToFieldMask(std::move(path));
+      context.AddToFieldMask(std::move(path));
     } else {
       FSTFieldValue *_Nullable parsedValue =
-          [self parseData:value context:context_ptr->ChildContext(path)];
+          [self parseData:value context:context.ChildContext(path)];
       if (parsedValue) {
-        context_ptr->AddToFieldMask(path);
+        context.AddToFieldMask(path);
         updateData = [updateData objectBySettingValue:parsedValue forPath:path];
       }
     }
