@@ -819,26 +819,18 @@
 		6003F593195388D20070C39A /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				6003F594195388D20070C39A /* Supporting Files */,
 				6003F59C195388D20070C39A /* FIRAppDelegate.h */,
 				6003F59D195388D20070C39A /* FIRAppDelegate.m */,
 				6003F5A5195388D20070C39A /* FIRViewController.h */,
 				6003F5A6195388D20070C39A /* FIRViewController.m */,
+				6003F595195388D20070C39A /* Firestore-Info.plist */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
+				6003F596195388D20070C39A /* InfoPlist.strings */,
 				71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
-			);
-			path = iOS;
-			sourceTree = "<group>";
-		};
-		6003F594195388D20070C39A /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				6003F595195388D20070C39A /* Firestore-Info.plist */,
-				6003F596195388D20070C39A /* InfoPlist.strings */,
 				6003F599195388D20070C39A /* main.m */,
 			);
-			name = "Supporting Files";
+			path = iOS;
 			sourceTree = "<group>";
 		};
 		6003F5B5195388D20070C39A /* Tests */ = {

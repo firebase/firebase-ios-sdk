@@ -25,6 +25,8 @@ cc_library(
     query.h
     relation_filter.cc
     relation_filter.h
+    user_data.h
+    user_data.mm
   DEPENDS
     absl_strings
     firebase_firestore_model
