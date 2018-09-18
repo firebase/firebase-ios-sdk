@@ -1,4 +1,6 @@
 # Unreleased
+
+# v0.13.4
 - [fixed] Fixed an issue where the first `get()` call made after being offline
   could incorrectly return cached data without attempting to reach the backend.
 - [changed] Changed `get()` to only make 1 attempt to reach the backend before
