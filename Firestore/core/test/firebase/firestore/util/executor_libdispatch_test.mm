@@ -33,6 +33,8 @@ std::unique_ptr<internal::Executor> ExecutorFactory() {
       dispatch_queue_create("ExecutorLibdispatchTests", DISPATCH_QUEUE_SERIAL));
 }
 
+namespace chr = std::chrono;
+
 }  // namespace
 
 INSTANTIATE_TEST_CASE_P(ExecutorTestLibdispatch,
@@ -66,6 +68,37 @@ TEST_F(ExecutorLibdispatchOnlyTests,
     signal_finished();
   });
   EXPECT_TRUE(WaitForTestToFinish());
+}
+
+TEST_F(ExecutorLibdispatchOnlyTests, ScheduledOperationOutlivesExecutor) {
+  namespace chr = std::chrono;
+  const auto far_away = chr::milliseconds(100);
+  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+  executor.reset();
+  // Try to wait until libdispatch invokes the scheduled operation. This is
+  // flaky but unlikely to not work in practice. The test is successful if
+  // there is no crash/data race under TSan.
+  std::this_thread::sleep_for(chr::milliseconds(500));
+}
+
+TEST_F(ExecutorLibdispatchOnlyTests,
+       ScheduledOperationOutlivesExecutor_DestroyedOnOwnQueue) {
+  const auto far_away = chr::milliseconds(100);
+  executor->Schedule(far_away, {Executor::Tag{1}, [] {}});
+
+  // Invoke destructor on the executor's own queue to make sure there is no
+  // deadlock.
+  std::function<void()> reset = [this] { executor.reset(); };
+  auto queue =
+      static_cast<ExecutorLibdispatch*>(executor.get())->dispatch_queue();
+  dispatch_sync_f(queue, &reset, [](void* const raw_reset) {
+    const auto unwrap = static_cast<std::function<void()>*>(raw_reset);
+    (*unwrap)();
+  });
+  // Try to wait until libdispatch invokes the scheduled operation. This is
+  // flaky but unlikely to not work in practice. The test is successful if
+  // there is no crash/data race under TSan.
+  std::this_thread::sleep_for(chr::milliseconds(500));
 }
 
 }  // namespace internal
