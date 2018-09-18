@@ -48,12 +48,16 @@ std::string MakeString(absl::string_view view) {
 
 }  // namespace
 
-GrpcConnection::GrpcConnection(const DatabaseInfo &database_info,
-                               util::AsyncQueue *worker_queue,
-                               grpc::CompletionQueue *grpc_queue)
+GrpcConnection::GrpcConnection(
+    const DatabaseInfo &database_info,
+    util::AsyncQueue *worker_queue,
+    grpc::CompletionQueue *grpc_queue,
+    std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{worker_queue},
-      grpc_queue_{grpc_queue} {
+      grpc_queue_{grpc_queue},
+      connectivity_monitor_{std::move(connectivity_monitor)} {
+  RegisterConnectivityMonitor();
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
@@ -110,6 +114,13 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
                                        observer, worker_queue_);
+}
+
+void GrpcConnection::RegisterConnectivityMonitor() {
+  connectivity_monitor_->AddCallback(
+      [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
+        // TODO(varconst): implement
+      });
 }
 
 }  // namespace remote

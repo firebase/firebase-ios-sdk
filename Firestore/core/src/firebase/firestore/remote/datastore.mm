@@ -20,6 +20,7 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -56,7 +57,8 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 
 Datastore::Datastore(const DatabaseInfo &database_info,
                      AsyncQueue *worker_queue)
-    : grpc_connection_{database_info, worker_queue, &grpc_queue_},
+    : grpc_connection_{database_info, worker_queue, &grpc_queue_,
+                       ConnectivityMonitor::Create(worker_queue)},
       rpc_executor_{CreateExecutor()} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }

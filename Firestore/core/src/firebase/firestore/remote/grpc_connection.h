@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "absl/strings/string_view.h"
@@ -44,7 +45,8 @@ class GrpcConnection {
  public:
   GrpcConnection(const core::DatabaseInfo& database_info,
                  util::AsyncQueue* worker_queue,
-                 grpc::CompletionQueue* grpc_queue);
+                 grpc::CompletionQueue* grpc_queue,
+                 std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
 
   /**
    * Creates a stream to the given stream RPC endpoint. The resulting stream
@@ -61,12 +63,16 @@ class GrpcConnection {
       absl::string_view token) const;
   void EnsureActiveStub();
 
+  void RegisterConnectivityMonitor();
+
   const core::DatabaseInfo* database_info_ = nullptr;
   util::AsyncQueue* worker_queue_ = nullptr;
   grpc::CompletionQueue* grpc_queue_ = nullptr;
 
   std::shared_ptr<grpc::Channel> grpc_channel_;
   std::unique_ptr<grpc::GenericStub> grpc_stub_;
+
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
 };
 
 }  // namespace remote
