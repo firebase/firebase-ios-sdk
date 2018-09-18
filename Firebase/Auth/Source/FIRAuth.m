@@ -1750,6 +1750,12 @@ static NSDictionary<NSString *, NSString *> *FIRAuthParseURL(NSString *urlString
   if (saveToDisk) {
     success = [self saveUser:user error:error];
   }
+  if (success) {
+    success = user.tenantID == self.tenantID || [user.tenantID isEqual:self.tenantID];
+    if (!success && error) {
+      *error = [FIRAuthErrorUtils tenantIDMismatchError];
+    }
+  }
   if (success || force) {
     _currentUser = user;
     [self possiblyPostAuthStateChangeNotification];

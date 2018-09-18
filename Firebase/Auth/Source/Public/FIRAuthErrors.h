@@ -304,6 +304,12 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeNullUser = 17067,
 
+    /**
+     * Represents the error code for when an attempt is made to update the current user with a
+     * tenantId that differs from the current FirebaseAuth instance's tenantId.
+     */
+    FIRAuthErrorCodeTenantIDMismatch = 17072,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

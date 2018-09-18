@@ -512,6 +512,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status;
 
+/** @fn tenantIDMismatchError
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeTenantIDMismatch code.
+    @remarks This error is used when an attempt is made to update the current user with a
+        tenantId that differs from the current FirebaseAuth instance's tenantId.
+ */
++ (NSError *)tenantIDMismatchError;
+
 @end
 
 NS_ASSUME_NONNULL_END

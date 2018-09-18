@@ -149,6 +149,12 @@ static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"This user's cred
 static NSString *const kFIRAuthErrorMessageNetworkError = @"Network error (such as timeout, "
     "interrupted connection or unreachable host) has occurred.";
 
+/** @var kFIRAuthErrorMessageTenantIDMismatch.
+    @brief Message for @c FIRAuthErrorCodeTenantIDMismatch error code.
+ */
+static NSString *const kFIRAuthErrorMessageTenantIDMismatch = @"The provided user's tenant ID does"
+    "not match the Auth instance's tenant ID.";
+
 /** @var kFIRAuthErrorMessageKeychainError
     @brief Message for @c FIRAuthErrorCodeKeychainError error code.
  */
@@ -453,6 +459,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidUserToken;
     case FIRAuthErrorCodeNetworkError:
       return kFIRAuthErrorMessageNetworkError;
+    case FIRAuthErrorCodeTenantIDMismatch:
+      return kFIRAuthErrorMessageTenantIDMismatch;
     case FIRAuthErrorCodeKeychainError:
       return kFIRAuthErrorMessageKeychainError;
     case FIRAuthErrorCodeUserTokenExpired:
@@ -576,6 +584,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_USER_TOKEN";
     case FIRAuthErrorCodeNetworkError:
       return @"ERROR_NETWORK_REQUEST_FAILED";
+    case FIRAuthErrorCodeTenantIDMismatch:
+      return @"ERROR_TENANT_ID_MISMATCH";
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
     case FIRAuthErrorCodeUserTokenExpired:
@@ -1025,6 +1035,11 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     NSLocalizedFailureReasonErrorKey : failureReason,
   }];
 }
+
++ (NSError *)tenantIDMismatchError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeTenantIDMismatch];
+}
+
 
 @end
 

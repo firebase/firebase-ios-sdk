@@ -109,6 +109,11 @@ NS_SWIFT_NAME(User)
  */
 @property(nonatomic, readonly, nonnull) FIRUserMetadata *metadata;
 
+/** @property tenantID
+    @brief The tenant ID of the current user. nil if none is available.
+ */
+@property(nonatomic, readonly, nullable) NSString *tenantID;
+
 /** @fn init
     @brief This class should not be instantiated.
     @remarks To retrieve the current user, use `FIRAuth.currentUser`. To sign a user

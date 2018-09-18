@@ -294,6 +294,11 @@ NS_SWIFT_NAME(Auth)
  */
 @property (nonatomic, copy, nullable) FIRAuthSettings *settings;
 
+/** @property tenantID
+    @brief The tenant ID of the auth instance. nil if none is available.
+ */
+@property(nonatomic, copy, nullable) NSString *tenantID;
+
 #if TARGET_OS_IOS
 /** @property APNSToken
     @brief The APNs token used for phone number authentication. The type of the token (production

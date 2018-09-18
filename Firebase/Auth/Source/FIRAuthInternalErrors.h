@@ -90,6 +90,13 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeKeychainError =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeKeychainError,
 
+  /** @var FIRAuthInternalErrorCodeTenantIDMismatch
+      @brief Indicates an error occurred when an attempt is made to update the current user with a
+          tenantId that differs from the current FirebaseAuth instance's tenantId.
+   */
+  FIRAuthInternalErrorCodeTenantIDMismatch =
+      FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeTenantIDMismatch,
+
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.
       @remarks This value is here for consistency. It's also used to make the implementation of
