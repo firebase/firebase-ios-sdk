@@ -46,6 +46,8 @@ endif()
 cc_library(
   firebase_firestore_local
   SOURCES
+    document_reference.h
+    document_reference.cc
     local_serializer.h
     local_serializer.cc
     query_data.cc
