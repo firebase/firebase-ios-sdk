@@ -41,9 +41,9 @@ class ConnectivityMonitor {
     * established connections.
     */
   enum class NetworkStatus {
-    Unreachable,
-    Reachable,
-    ReachableViaCellular,
+    Unavailable,
+    Available,
+    AvailableViaCellular,
   };
 
   using CallbackT = std::function<void(NetworkStatus)>;
