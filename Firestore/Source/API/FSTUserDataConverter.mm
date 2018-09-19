@@ -257,13 +257,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTFieldValue *)parseDictionary:(NSDictionary *)dict context:(ParseContext &&)context {
   NSMutableDictionary<NSString *, FSTFieldValue *> *result =
       [NSMutableDictionary dictionaryWithCapacity:dict.count];
-  [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-    FSTFieldValue *_Nullable parsedValue =
-        [self parseData:value context:context.ChildContext(util::MakeString(key))];
-    if (parsedValue) {
-      result[key] = parsedValue;
+
+  if ([dict count] == 0) {
+    const FieldPath *path = context.path();
+    if (path && !path->empty()) {
+      context.AddToFieldMask(*path);
     }
-  }];
+    return [FSTObjectValue objectValue];
+  } else {
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
+      FSTFieldValue *_Nullable parsedValue =
+          [self parseData:value context:context.ChildContext(util::MakeString(key))];
+      if (parsedValue) {
+        result[key] = parsedValue;
+      }
+    }];
+  }
   return [[FSTObjectValue alloc] initWithDictionary:result];
 }
 
