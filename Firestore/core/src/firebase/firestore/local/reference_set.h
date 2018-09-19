@@ -17,7 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_SET_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_LOCAL_REFERENCE_SET_H_
 
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+#include "Firestore/core/src/firebase/firestore/immutable/sorted_set.h"
+#include "Firestore/core/src/firebase/firestore/local/document_reference.h"
 
 namespace firebase {
 namespace firestore {
@@ -25,7 +28,7 @@ namespace local {
 
 /**
  * A collection of references to a document from some kind of numbered entity
- * (either a targetID or batchID). As references are added to or removed from
+ * (either a TargetId or BatchId). As references are added to or removed from
  * the set corresponding events are emitted to a registered garbage collector.
  *
  * Each reference is represented by a DocumentReference object. Each of them
@@ -35,23 +38,31 @@ namespace local {
  * sorting by key).
  *
  * ReferenceSet also keeps a secondary set that contains references sorted by
- * IDs. This one is used to efficiently implement removal of all references by
- * some target ID.
+ * Id. This one is used to efficiently implement removal of all references by
+ * some TargetId.
  */
 class ReferenceSet {
-  /** Returns true if the reference set contains no references. */
-  bool empty();
+ public:
 
-  /** Adds a reference to the given document key for the given ID. */
+  /** Returns true if the reference set contains no references. */
+  bool empty() const {
+    return by_key_.empty();
+  }
+
+  size_t size() const {
+    return by_key_.size();
+  }
+
+  /** Adds a reference to the given document key for the given Id. */
   void AddReference(const model::DocumentKey& key, int id);
 
-  /** Add references to the given document keys for the given ID. */
+  /** Add references to the given document keys for the given Id. */
   void AddReferences(const model::DocumentKeySet& keys, int id);
 
-  /** Removes a reference to the given document key for the given ID. */
+  /** Removes a reference to the given document key for the given Id. */
   void RemoveReference(const model::DocumentKey& key, int id);
 
-  /** Removes references to the given document keys for the given ID. */
+  /** Removes references to the given document keys for the given Id. */
   void RemoveReferences(const model::DocumentKeySet& keys, int id);
 
   /** Clears all references with a given ID. Calls -removeReferenceToKey: for
@@ -69,6 +80,12 @@ class ReferenceSet {
    * Checks to see if there are any references to a document with the given key.
    */
   bool ContainsKey(const model::DocumentKey& key);
+
+ private:
+  void RemoveReference(const DocumentReference& reference);
+
+  immutable::SortedSet<DocumentReference, DocumentReference::ByKey> by_key_;
+  immutable::SortedSet<DocumentReference, DocumentReference::ById> by_id_;
 };
 
 }  // namespace local

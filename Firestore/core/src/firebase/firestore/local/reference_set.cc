@@ -22,141 +22,72 @@
 namespace firebase {
 namespace firestore {
 namespace local {
-using firebase::firestore::model::DocumentKey;
-using firebase::firestore::model::DocumentKeySet;
+
 using model::DocumentKey;
 using model::DocumentKeySet;
 
-#pragma mark - FSTReferenceSet
-
-class ReferenceSet {
-  /** A set of outstanding references to a document sorted by key. */
-  SortedSet<DocumentReference> references_by_key() const {
-    return references_by_key_;
-  }
-  void set_references_by_key(SortedSet<DocumentReference> references_by_key) {
-    references_by_key_ = references_by_key;
-  }
-
-  /** A set of outstanding references to a document sorted by target ID (or
-   * batch ID). */
-  SortedSet<DocumentReference> references_by_id() const {
-    return references_by_id_;
-  }
-  void set_references_by_id(SortedSet<DocumentReference> references_by_id) {
-    references_by_id_ = references_by_id;
-  }
-
- private:
-  SortedSet<DocumentReference> references_by_key_;
-  SortedSet<DocumentReference> references_by_id_;
-};
-
-#pragma mark - Initializer
-
-ReferenceSet::ReferenceSet() {
-  self = [super init];
-  if (self) {
-    references_by_key_ =
-        [SortedSet setWithComparator:DocumentReferenceComparatorByKey];
-    references_by_id_ =
-        [SortedSet setWithComparator:DocumentReferenceComparatorById];
-  }
-  return self;
+void ReferenceSet::AddReference(const DocumentKey& key, int id) {
+  DocumentReference reference{key, id};
+  by_key_ = by_key_.insert(reference);
+  by_id_ = by_id_.insert(reference);
 }
 
-#pragma mark - Testing helper methods
-
-bool ReferenceSet::empty() {
-  return [references_by_key_ isEmpty];
-}
-
-size_t ReferenceSet::size() {
-  return references_by_key_.count;
-}
-
-#pragma mark - Public methods
-
-void ReferenceSet::AddReference(
-    const firebase::firestore::model::DocumentKey& key, int id) {
-  DocumentReference reference =
-      [[DocumentReference alloc] initWithKey:key ID:ID];
-  references_by_key_ = [references_by_key_ setByAddingObject:reference];
-  references_by_id_ = [references_by_id_ setByAddingObject:reference];
-}
-
-void ReferenceSet::AddReferences(
-    const firebase::firestore::model::DocumentKeySet& keys, int id) {
+void ReferenceSet::AddReferences(const DocumentKeySet& keys, int id) {
   for (const DocumentKey& key : keys) {
-    [self addReferenceToKey:key forID:ID];
+    AddReference(key, id);
   }
 }
 
-void ReferenceSet::RemoveReference(
-    const firebase::firestore::model::DocumentKey& key, int id) {
-  [self removeReference:[[DocumentReference alloc] initWithKey:key ID:ID]];
+void ReferenceSet::RemoveReference(const DocumentKey& key, int id) {
+  RemoveReference(DocumentReference{key, id});
 }
 
 void ReferenceSet::RemoveReferences(
     const firebase::firestore::model::DocumentKeySet& keys, int id) {
   for (const DocumentKey& key : keys) {
-    [self removeReferenceToKey:key forID:ID];
+    RemoveReference(key, id);
   }
 }
 
 void ReferenceSet::RemoveReferences(int id) {
-  DocumentReference start =
-      [[DocumentReference alloc] initWithKey:DocumentKey::Empty() ID:ID];
-  DocumentReference end =
-      [[DocumentReference alloc] initWithKey:DocumentKey::Empty() ID:(ID + 1)];
+  DocumentReference start{DocumentKey::Empty(), id};
+  DocumentReference end{DocumentKey::Empty(), id + 1};
 
-  [references_by_id_
-      enumerateObjectsFrom:start
-                        to:end
-                usingBlock:^(DocumentReference reference, BOOL* stop) {
-                  [self removeReference:reference];
-                }];
+  for (const auto& reference : by_id_.values_in(start, end)) {
+    RemoveReference(reference);
+  }
 }
 
 void ReferenceSet::RemoveAllReferences() {
-  for (DocumentReference reference in references_by_key_.objectEnumerator) {
-    [self removeReference:reference];
+  for (const DocumentReference& reference : by_key_) {
+    RemoveReference(reference);
   }
 }
 
 void ReferenceSet::RemoveReference(const DocumentReference& reference) {
-  references_by_key_ = [references_by_key_ setByRemovingObject:reference];
-  references_by_id_ = [references_by_id_ setByRemovingObject:reference];
+  by_key_ = by_key_.erase(reference);
+  by_id_ = by_id_.erase(reference);
 }
 
-firebase::firestore::model::DocumentKeySet ReferenceSet::ReferencedKeys(
-    int id) {
-  DocumentReference start =
-      [[DocumentReference alloc] initWithKey:DocumentKey::Empty() ID:ID];
-  DocumentReference end =
-      [[DocumentReference alloc] initWithKey:DocumentKey::Empty() ID:(ID + 1)];
+DocumentKeySet ReferenceSet::ReferencedKeys(int id) {
+  DocumentReference start{DocumentKey::Empty(), id};
+  DocumentReference end{DocumentKey::Empty(), id + 1};
 
-  __block DocumentKeySet keys;
-  [references_by_id_
-      enumerateObjectsFrom:start
-                        to:end
-                usingBlock:^(DocumentReference reference, BOOL* stop) {
-                  keys = keys.insert(reference.key);
-                }];
+  DocumentKeySet keys;
+  for (const auto& reference : by_id_.values_in(start, end)) {
+    keys = keys.insert(reference.key());
+  }
   return keys;
 }
 
-bool ReferenceSet::ContainsKey(
-    const firebase::firestore::model::DocumentKey& key) {
+bool ReferenceSet::ContainsKey(const DocumentKey& key) {
   // Create a reference with a zero ID as the start position to find any
   // document reference with this key.
-  DocumentReference reference =
-      [[DocumentReference alloc] initWithKey:key ID:0];
+  DocumentReference start{key, 0};
 
-  NSEnumerator<DocumentReference>* enumerator =
-      [references_by_key_ objectEnumeratorFrom:reference];
-  DocumentReference nullable_ firstReference = [enumerator nextObject];
-  return firstReference && firstReference.key == reference.key;
+  auto range = by_key_.values_from(start);
+  auto begin = range.begin();
+  return begin != range.end() && begin->key() == key;
 }
 
 }  // namespace local
