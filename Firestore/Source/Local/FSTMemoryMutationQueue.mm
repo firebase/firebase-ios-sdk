@@ -229,7 +229,7 @@ using DocumentReferenceSet = SortedSet<DocumentReference, DocumentReference::ByK
   NSMutableArray<FSTMutationBatch *> *result = [NSMutableArray array];
 
   DocumentReference start{documentKey, 0};
-  for (const auto& reference : _batchesByDocumentKey.values_from(start)) {
+  for (const auto &reference : _batchesByDocumentKey.values_from(start)) {
     if (documentKey != reference.key()) break;
 
     FSTMutationBatch *batch = [self lookupMutationBatch:reference.ref_id()];

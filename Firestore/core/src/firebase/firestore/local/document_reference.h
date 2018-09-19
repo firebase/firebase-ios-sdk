@@ -85,7 +85,8 @@ class DocumentReference {
  private:
   model::DocumentKey key_;
 
-  // PORTING NOTE: this is `id` on other platforms but that's a reserved word in Objective-C++.
+  // PORTING NOTE: this is `id` on other platforms but that's a reserved word in
+  // Objective-C++.
   int32_t ref_id_ = 0;
 };
 
