@@ -7221,6 +7221,7 @@
 					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
 					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
 					"\"${PODS_ROOT}/../../Firebase\"",
+					"\"$(PODS_ROOT)/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
@@ -7267,6 +7268,7 @@
 					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
 					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
 					"\"${PODS_ROOT}/../../Firebase\"",
+					"\"$(PODS_ROOT)/Headers/Private\"",
 				);
 				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.1;

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@import FirebaseCore;  // verify the Firebase module import is working
-
 #import "FIRAppDelegate.h"
 
 @implementation FIRAppDelegate
