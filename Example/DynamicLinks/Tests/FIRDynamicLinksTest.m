@@ -798,9 +798,8 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://www.google.com/maps/place/@1,1/My+Home/", @"https://mydomain.com/t439gfde",
     @"https://goo.gl/309dht4", @"https://59eh.goo.gl/309dht4", @"https://app.59eh.goo.gl/309dht4",
-    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4",
-    @"https://fjo3eh.goo.gl/i/309dht4", @"https://app.fjo3eh.goo.gl/i/309dht4",
-    @"https://1234.page.link/link/dismiss"
+    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4", @"https://fjo3eh.goo.gl/i/309dht4",
+    @"https://app.fjo3eh.goo.gl/i/309dht4", @"https://1234.page.link/link/dismiss"
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -914,9 +913,8 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://www.google.com/maps/place/@1,1/My+Home/", @"https://mydomain.com/t439gfde",
     @"https://goo.gl/309dht4", @"https://59eh.goo.gl/309dht4", @"https://app.59eh.goo.gl/309dht4",
-    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4",
-    @"https://fjo3eh.goo.gl/i/309dht4", @"https://app.fjo3eh.goo.gl/i/309dht4",
-    @"https://1234.page.link/link/dismiss"
+    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4", @"https://fjo3eh.goo.gl/i/309dht4",
+    @"https://app.fjo3eh.goo.gl/i/309dht4", @"https://1234.page.link/link/dismiss"
   ];
 
   [urlStrings enumerateObjectsUsingBlock:^(NSString *_Nonnull urlString, NSUInteger idx,
