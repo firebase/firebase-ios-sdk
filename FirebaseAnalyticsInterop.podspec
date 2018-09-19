@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAnalyticsInterop'
   s.version          = '1.0.0'
-  s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
+  s.summary          = 'Interfaces that allow other Firebase SDKs to use Analytics functionality.'
 
   s.description      = <<-DESC
   Not for public use.
