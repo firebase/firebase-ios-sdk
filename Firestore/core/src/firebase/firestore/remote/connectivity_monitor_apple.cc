@@ -19,8 +19,8 @@
 #if defined(__APPLE__)
 
 #include <SystemConfiguration/SystemConfiguration.h>
+#include <dispatch/dispatch.h>
 #include <netinet/in.h>
-#include "dispatch/dispatch.h"
 
 #include <memory>
 

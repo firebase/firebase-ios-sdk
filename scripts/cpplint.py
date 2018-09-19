@@ -415,7 +415,10 @@ _CPP_HEADERS = frozenset([
     ])
 
 _C_SYSTEM_DIRECTORIES = frozenset([
+    'SystemConfiguration',
+    'dispatch',
     'libkern',
+    'netinet',
     'mach',
     'sys',
 ])
