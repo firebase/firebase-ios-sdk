@@ -15,7 +15,7 @@ target 'Core_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.8.0'
+  pod 'Firebase/CoreOnly', '5.8.1'
 
   target 'Core_Tests_iOS' do
     inherit! :search_paths
@@ -54,9 +54,6 @@ target 'DynamicLinks_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDynamicLinks', :path => '../'
-  # Temporary for testing until 5.9.0 goes out
-  pod 'FirebaseAnalytics', :path => '../'
-  pod 'GoogleAppMeasurement', :path => '../'
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
