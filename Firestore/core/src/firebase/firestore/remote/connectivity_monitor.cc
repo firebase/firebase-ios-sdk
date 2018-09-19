@@ -29,18 +29,14 @@ void ConnectivityMonitor::SetInitialStatus(NetworkStatus new_status) {
 }
 
 void ConnectivityMonitor::MaybeInvokeCallbacks(NetworkStatus new_status) {
-  // TODO(varconst): cancel the enqueued operation in destructor or use
-  // shared/weak_ptr.
-  worker_queue_->Enqueue([this, new_status] {
-    if (new_status == status_) {
-      return;
-    }
-    status_ = new_status;
+  if (new_status == status_) {
+    return;
+  }
+  status_ = new_status;
 
-    for (auto& callback : callbacks_) {
-      callback(status_.value());
-    }
-  });
+  for (auto& callback : callbacks_) {
+    callback(status_.value());
+  }
 }
 
 }  // namespace remote

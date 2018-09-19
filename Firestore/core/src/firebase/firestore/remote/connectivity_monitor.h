@@ -68,8 +68,10 @@ class ConnectivityMonitor {
   // The status may be retrieved asynchronously.
   void SetInitialStatus(NetworkStatus new_status);
 
-  // Invokes callbacks on the worker queue if the status changed.
+  // Invokes callbacks only if the status changed.
   void MaybeInvokeCallbacks(NetworkStatus new_status);
+
+  util::AsyncQueue* queue() { return worker_queue_; }
 
  private:
   util::AsyncQueue* worker_queue_ = nullptr;

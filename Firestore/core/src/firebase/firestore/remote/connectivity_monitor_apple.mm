@@ -24,6 +24,7 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "absl/memory/memory.h"
@@ -36,6 +37,7 @@ namespace {
 
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
+using util::internal::ExecutorLibdispatch;
 
 NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
   if (!(flags & kSCNetworkReachabilityFlagsReachable)) {
@@ -90,9 +92,11 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-    auto queue =
-        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-    success = SCNetworkReachabilitySetDispatchQueue(reachability_, queue);
+    // On Apple platforms, the executor implementation must be the
+    // libdispatch-based one.
+    auto executor = static_cast<ExecutorLibdispatch*>(queue()->executor());
+    success = SCNetworkReachabilitySetDispatchQueue(reachability_,
+                                                    executor->dispatch_queue());
     if (!success) {
       LOG_DEBUG("Couldn't set reachability queue");
       return;
@@ -105,13 +109,11 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     if (!success) {
       LOG_DEBUG("Couldn't unset reachability queue");
     }
-    if (reachability_) {
-      CFRelease(reachability_);
-    }
   }
 
   void OnReachabilityChanged(SCNetworkReachabilityFlags flags) {
-    MaybeInvokeCallbacks(ToNetworkStatus(flags));
+    queue()->ExecuteBlocking(
+        [this, flags] { MaybeInvokeCallbacks(ToNetworkStatus(flags)); });
   }
 
  private:
