@@ -59,6 +59,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
@@ -85,6 +86,7 @@ jobs:
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
