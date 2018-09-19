@@ -280,6 +280,30 @@
 		DE0E5BBC1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */; };
 		DE0E5BBD1EA7D93100FAA825 /* FIRAuthAppCredentialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB51EA7D91C00FAA825 /* FIRAuthAppCredentialTests.m */; };
 		DE0E5BBE1EA7D93500FAA825 /* FIRAuthAppDelegateProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */; };
+		DE17A2BA214215C0002A15ED /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
+		DE17A2BB214215C0002A15ED /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
+		DE17A2BC214215C0002A15ED /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
+		DE17A2CE21421735002A15ED /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEDFF0391FD6143000F7D466 /* LaunchScreen.storyboard */; };
+		DE17A2CF21421735002A15ED /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEDFF03B1FD6143000F7D466 /* Main.storyboard */; };
+		DE17A2D021421743002A15ED /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
+		DE17A2D121421769002A15ED /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF03E1FD6143000F7D466 /* FIRAppDelegate.m */; };
+		DE17A2D221421769002A15ED /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0401FD6143000F7D466 /* FIRViewController.m */; };
+		DE17A2D321421769002A15ED /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0421FD6143000F7D466 /* main.m */; };
+		DE17A2D42142179C002A15ED /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEDFF0371FD6143000F7D466 /* GoogleService-Info.plist */; };
+		DE17A2D62142F1A5002A15ED /* UtilitiesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF05D1FD6FEEE00F7D466 /* UtilitiesTests.m */; };
+		DE17A2D72142F1A5002A15ED /* FDLURLComponentsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF05B1FD6FCE400F7D466 /* FDLURLComponentsTests.m */; };
+		DE17A2D82142F1A5002A15ED /* FIRDLScionLoggingTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0441FD6143000F7D466 /* FIRDLScionLoggingTest.m */; };
+		DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0451FD6143000F7D466 /* FIRDynamicLinkNetworkingTests.m */; };
+		DE17A2DA2142F1A5002A15ED /* FIRDynamicLinksImportsTest3P.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0461FD6143000F7D466 /* FIRDynamicLinksImportsTest3P.m */; };
+		DE17A2DB2142F1A5002A15ED /* FIRDynamicLinksTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0471FD6143000F7D466 /* FIRDynamicLinksTest.m */; };
+		DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */; };
+		DE17A3CC21472FF2002A15ED /* LinkTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */; };
+		DE17A3CD21472FF2002A15ED /* ParamTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */; };
+		DE17A3CE21472FF2002A15ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE17A3C321472FF1002A15ED /* Assets.xcassets */; };
+		DE17A3CF21472FF2002A15ED /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3C421472FF1002A15ED /* main.m */; };
+		DE17A3D021472FF2002A15ED /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3C621472FF1002A15ED /* ViewController.m */; };
+		DE17A3D221472FF2002A15ED /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE17A3C921472FF2002A15ED /* LaunchScreen.storyboard */; };
+		DE17A3D321472FF2002A15ED /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3CB21472FF2002A15ED /* AppDelegate.m */; };
 		DE1EC2921FBA5EB5007D18D8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1EC28B1FBA5EB5007D18D8 /* AppDelegate.m */; };
 		DE1EC2931FBA5EB5007D18D8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE1EC28C1FBA5EB5007D18D8 /* Assets.xcassets */; };
 		DE1EC2951FBA5EB5007D18D8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE1EC28E1FBA5EB5007D18D8 /* main.m */; };
@@ -338,6 +362,8 @@
 		DE47C142207ACAA900B1AEDF /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13B207ACAA900B1AEDF /* main.m */; };
 		DE47C143207ACAA900B1AEDF /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13C207ACAA900B1AEDF /* FIRAppDelegate.m */; };
 		DE47C144207ACAA900B1AEDF /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE47C13D207ACAA900B1AEDF /* FIRViewController.m */; };
+		DE4A62D42148109400670B27 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEDFF0371FD6143000F7D466 /* GoogleService-Info.plist */; };
+		DE4A62E72148196400670B27 /* FDLBuilderTestAppObjCEarlGreyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4A62D021480F6100670B27 /* FDLBuilderTestAppObjCEarlGreyTests.m */; };
 		DE750DBD1EB3DD5B00A75E47 /* FIRAuthAPNSTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB61EB3DD4000A75E47 /* FIRAuthAPNSTokenTests.m */; };
 		DE750DBE1EB3DD6800A75E47 /* FIRAuthAPNSTokenManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB51EB3DD4000A75E47 /* FIRAuthAPNSTokenManagerTests.m */; };
 		DE750DBF1EB3DD6C00A75E47 /* FIRAuthAppCredentialManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE750DB71EB3DD4000A75E47 /* FIRAuthAppCredentialManagerTests.m */; };
@@ -679,6 +705,13 @@
 			remoteGlobalIDString = D0FE8A1E1ED9C804003F6722;
 			remoteInfo = Database_Example_macOS;
 		};
+		DE17A2CA214216F2002A15ED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE17A2B3214215C0002A15ED;
+			remoteInfo = DynamicLinks_Example_iOS;
+		};
 		DE1E3B301FEB1E7600EAEBB0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6003F582195388D10070C39A /* Project object */;
@@ -734,6 +767,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DEB13A0A1E73507E00AC236D;
 			remoteInfo = Storage_Tests_iOS;
+		};
+		DE4A62E2214816BD00670B27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6003F582195388D10070C39A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DE17A39921472F3A002A15ED;
+			remoteInfo = FDLBuilderTestAppObjC;
 		};
 		DE545C831FBCA41C00C637AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -972,6 +1012,22 @@
 		DE0E5BB61EA7D91C00FAA825 /* FIRAuthAppDelegateProxyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthAppDelegateProxyTests.m; sourceTree = "<group>"; };
 		DE0E5BB91EA7D92E00FAA825 /* FIRVerifyClientRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientRequestTest.m; sourceTree = "<group>"; };
 		DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
+		DE17A2A02141FA61002A15ED /* DL-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "DL-Info.plist"; sourceTree = "<group>"; };
+		DE17A2C8214215C1002A15ED /* DynamicLinks_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynamicLinks_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GINDurableDeepLinkServiceReceivingTests.m; sourceTree = "<group>"; };
+		DE17A39A21472F3A002A15ED /* FDLBuilderTestAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FDLBuilderTestAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LinkTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/LinkTableViewCell.m; sourceTree = SOURCE_ROOT; };
+		DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ParamTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/ParamTableViewCell.m; sourceTree = SOURCE_ROOT; };
+		DE17A3C021472FF0002A15ED /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = DynamicLinks/FDLBuilderTestAppObjC/ViewController.h; sourceTree = SOURCE_ROOT; };
+		DE17A3C121472FF1002A15ED /* LinkTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkTableViewCell.h; path = DynamicLinks/FDLBuilderTestAppObjC/LinkTableViewCell.h; sourceTree = SOURCE_ROOT; };
+		DE17A3C221472FF1002A15ED /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = DynamicLinks/FDLBuilderTestAppObjC/AppDelegate.h; sourceTree = SOURCE_ROOT; };
+		DE17A3C321472FF1002A15ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = DynamicLinks/FDLBuilderTestAppObjC/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		DE17A3C421472FF1002A15ED /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = DynamicLinks/FDLBuilderTestAppObjC/main.m; sourceTree = SOURCE_ROOT; };
+		DE17A3C521472FF1002A15ED /* ParamTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParamTableViewCell.h; path = DynamicLinks/FDLBuilderTestAppObjC/ParamTableViewCell.h; sourceTree = SOURCE_ROOT; };
+		DE17A3C621472FF1002A15ED /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ViewController.m; path = DynamicLinks/FDLBuilderTestAppObjC/ViewController.m; sourceTree = SOURCE_ROOT; };
+		DE17A3C721472FF1002A15ED /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DynamicLinks/FDLBuilderTestAppObjC/Info.plist; sourceTree = SOURCE_ROOT; };
+		DE17A3CA21472FF2002A15ED /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DE17A3CB21472FF2002A15ED /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = DynamicLinks/FDLBuilderTestAppObjC/AppDelegate.m; sourceTree = SOURCE_ROOT; };
 		DE1CD5971FBA55AF00FC031E /* Database_Example_tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Database_Example_tvOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE1EC27F1FBA5E63007D18D8 /* Database_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE1EC28A1FBA5EB5007D18D8 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -1065,6 +1121,9 @@
 		DE47C13B207ACAA900B1AEDF /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE47C13C207ACAA900B1AEDF /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
 		DE47C13D207ACAA900B1AEDF /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
+		DE4A62D021480F6100670B27 /* FDLBuilderTestAppObjCEarlGreyTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FDLBuilderTestAppObjCEarlGreyTests.m; path = DynamicLinks/FDLBuilderTestAppObjCTests/FDLBuilderTestAppObjCEarlGreyTests.m; sourceTree = SOURCE_ROOT; };
+		DE4A62D121480F6100670B27 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DynamicLinks/FDLBuilderTestAppObjCTests/Info.plist; sourceTree = SOURCE_ROOT; };
+		DE4A62DD214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FDLBuilderTestAppObjCEarlGrey.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_Tests_tvOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE53894C1FBB635400199FC2 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE53894D1FBB635400199FC2 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1234,6 +1293,21 @@
 		DEB61EC31E7C5DBB00C04B96 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DEB61EC41E7C5DBB00C04B96 /* Storage-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Storage-Info.plist"; sourceTree = "<group>"; };
 		DECE03991E9ECFF500164CA4 /* FIRPhoneAuthProviderTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRPhoneAuthProviderTests.m; sourceTree = "<group>"; };
+		DEDFF0131FD6135D00F7D466 /* DynamicLinks_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DynamicLinks_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEDFF0371FD6143000F7D466 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		DEDFF03A1FD6143000F7D466 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DEDFF03C1FD6143000F7D466 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DEDFF03D1FD6143000F7D466 /* FIRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
+		DEDFF03E1FD6143000F7D466 /* FIRAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAppDelegate.m; sourceTree = "<group>"; };
+		DEDFF03F1FD6143000F7D466 /* FIRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRViewController.h; sourceTree = "<group>"; };
+		DEDFF0401FD6143000F7D466 /* FIRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRViewController.m; sourceTree = "<group>"; };
+		DEDFF0421FD6143000F7D466 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DEDFF0441FD6143000F7D466 /* FIRDLScionLoggingTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDLScionLoggingTest.m; sourceTree = "<group>"; };
+		DEDFF0451FD6143000F7D466 /* FIRDynamicLinkNetworkingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDynamicLinkNetworkingTests.m; sourceTree = "<group>"; };
+		DEDFF0461FD6143000F7D466 /* FIRDynamicLinksImportsTest3P.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDynamicLinksImportsTest3P.m; sourceTree = "<group>"; };
+		DEDFF0471FD6143000F7D466 /* FIRDynamicLinksTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDynamicLinksTest.m; sourceTree = "<group>"; };
+		DEDFF05B1FD6FCE400F7D466 /* FDLURLComponentsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FDLURLComponentsTests.m; sourceTree = "<group>"; };
+		DEDFF05D1FD6FEEE00F7D466 /* UtilitiesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilitiesTests.m; sourceTree = "<group>"; };
 		DEE14D411E84464D006FA992 /* Core_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Core_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D591E84464D006FA992 /* Core_Tests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE14D691E844677006FA992 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -1277,6 +1351,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		0624F3DE1EC0ECFA00E5940D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AEC1C964E4211C8E5B7CD8C6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1361,6 +1442,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE17A2B9214215C0002A15ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A2BA214215C0002A15ED /* CoreGraphics.framework in Frameworks */,
+				DE17A2BB214215C0002A15ED /* UIKit.framework in Frameworks */,
+				DE17A2BC214215C0002A15ED /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE17A39721472F3A002A15ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE1CD5941FBA55AF00FC031E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1411,6 +1509,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DE47C0E4207AC87D00B1AEDF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4A62DA214816BD00670B27 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1597,6 +1702,7 @@
 				DE9314EB1E86C6FF0083EDBF /* Auth */,
 				DEE14D661E844677006FA992 /* Core */,
 				DE7B8D2A1E8EF202009EB6DF /* Database */,
+				DEDFF0351FD6143000F7D466 /* DynamicLinks */,
 				DE9315B41E8738B70083EDBF /* Messaging */,
 				AFC8BAA01EC24B1600B8EEAE /* Shared */,
 				DEB139B31E734D9D00AC236D /* Storage */,
@@ -1643,6 +1749,10 @@
 				DE53893E1FBB62E100199FC2 /* Auth_Tests_tvOS.xctest */,
 				DE1FAE901FBCF5E100897AAA /* Auth_Example_tvOS.app */,
 				DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */,
+				DEDFF0131FD6135D00F7D466 /* DynamicLinks_Tests_iOS.xctest */,
+				DE17A2C8214215C1002A15ED /* DynamicLinks_Example_iOS.app */,
+				DE17A39A21472F3A002A15ED /* FDLBuilderTestAppObjC.app */,
+				DE4A62DD214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1801,6 +1911,44 @@
 			);
 			name = macOS;
 			sourceTree = "<group>";
+		};
+		DE17A39B21472F3A002A15ED /* FDLBuilderTestAppObjC */ = {
+			isa = PBXGroup;
+			children = (
+				DE17A3C221472FF1002A15ED /* AppDelegate.h */,
+				DE17A3CB21472FF2002A15ED /* AppDelegate.m */,
+				DE17A3C321472FF1002A15ED /* Assets.xcassets */,
+				DE17A3C821472FF2002A15ED /* Base.lproj */,
+				DE17A3C721472FF1002A15ED /* Info.plist */,
+				DE17A3C121472FF1002A15ED /* LinkTableViewCell.h */,
+				DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */,
+				DE17A3C421472FF1002A15ED /* main.m */,
+				DE17A3C521472FF1002A15ED /* ParamTableViewCell.h */,
+				DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */,
+				DE17A3C021472FF0002A15ED /* ViewController.h */,
+				DE17A3C621472FF1002A15ED /* ViewController.m */,
+			);
+			name = FDLBuilderTestAppObjC;
+			path = Tests/FDLBuilderTestAppObjC;
+			sourceTree = "<group>";
+		};
+		DE17A3B421472F3C002A15ED /* FDLBuilderTestAppObjCTests */ = {
+			isa = PBXGroup;
+			children = (
+				DE4A62D021480F6100670B27 /* FDLBuilderTestAppObjCEarlGreyTests.m */,
+				DE4A62D121480F6100670B27 /* Info.plist */,
+			);
+			name = FDLBuilderTestAppObjCTests;
+			sourceTree = "<group>";
+		};
+		DE17A3C821472FF2002A15ED /* Base.lproj */ = {
+			isa = PBXGroup;
+			children = (
+				DE17A3C921472FF2002A15ED /* LaunchScreen.storyboard */,
+			);
+			name = Base.lproj;
+			path = DynamicLinks/FDLBuilderTestAppObjC/Base.lproj;
+			sourceTree = SOURCE_ROOT;
 		};
 		DE1EC2891FBA5EB5007D18D8 /* tvOS */ = {
 			isa = PBXGroup;
@@ -2252,6 +2400,55 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		DEDFF0351FD6143000F7D466 /* DynamicLinks */ = {
+			isa = PBXGroup;
+			children = (
+				DEDFF0361FD6143000F7D466 /* App */,
+				DEDFF0431FD6143000F7D466 /* Tests */,
+				DE17A39B21472F3A002A15ED /* FDLBuilderTestAppObjC */,
+				DE17A3B421472F3C002A15ED /* FDLBuilderTestAppObjCTests */,
+			);
+			path = DynamicLinks;
+			sourceTree = "<group>";
+		};
+		DEDFF0361FD6143000F7D466 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DEDFF0371FD6143000F7D466 /* GoogleService-Info.plist */,
+				DEDFF0381FD6143000F7D466 /* iOS */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DEDFF0381FD6143000F7D466 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				DEDFF03D1FD6143000F7D466 /* FIRAppDelegate.h */,
+				DEDFF03F1FD6143000F7D466 /* FIRViewController.h */,
+				DEDFF03E1FD6143000F7D466 /* FIRAppDelegate.m */,
+				DEDFF0401FD6143000F7D466 /* FIRViewController.m */,
+				DEDFF0421FD6143000F7D466 /* main.m */,
+				DE17A2A02141FA61002A15ED /* DL-Info.plist */,
+				DEDFF0391FD6143000F7D466 /* LaunchScreen.storyboard */,
+				DEDFF03B1FD6143000F7D466 /* Main.storyboard */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		DEDFF0431FD6143000F7D466 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */,
+				DEDFF05D1FD6FEEE00F7D466 /* UtilitiesTests.m */,
+				DEDFF05B1FD6FCE400F7D466 /* FDLURLComponentsTests.m */,
+				DEDFF0441FD6143000F7D466 /* FIRDLScionLoggingTest.m */,
+				DEDFF0451FD6143000F7D466 /* FIRDynamicLinkNetworkingTests.m */,
+				DEDFF0461FD6143000F7D466 /* FIRDynamicLinksImportsTest3P.m */,
+				DEDFF0471FD6143000F7D466 /* FIRDynamicLinksTest.m */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		DEE14D661E844677006FA992 /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -2527,6 +2724,40 @@
 			productReference = D0FE8A8C1ED9C87B003F6722 /* Database_IntegrationTests_macOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		DE17A2B3214215C0002A15ED /* DynamicLinks_Example_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE17A2C5214215C0002A15ED /* Build configuration list for PBXNativeTarget "DynamicLinks_Example_iOS" */;
+			buildPhases = (
+				DE17A2B5214215C0002A15ED /* Sources */,
+				DE17A2B9214215C0002A15ED /* Frameworks */,
+				DE17A2BE214215C0002A15ED /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DynamicLinks_Example_iOS;
+			productName = Firebase;
+			productReference = DE17A2C8214215C1002A15ED /* DynamicLinks_Example_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DE17A39921472F3A002A15ED /* FDLBuilderTestAppObjC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE17A3B821472F3C002A15ED /* Build configuration list for PBXNativeTarget "FDLBuilderTestAppObjC" */;
+			buildPhases = (
+				DE17A39621472F3A002A15ED /* Sources */,
+				DE17A39721472F3A002A15ED /* Frameworks */,
+				DE17A39821472F3A002A15ED /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FDLBuilderTestAppObjC;
+			productName = FDLBuilderTestAppObjC;
+			productReference = DE17A39A21472F3A002A15ED /* FDLBuilderTestAppObjC.app */;
+			productType = "com.apple.product-type.application";
+		};
 		DE1CD5961FBA55AF00FC031E /* Database_Example_tvOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DE1CD5B61FBA55B000FC031E /* Build configuration list for PBXNativeTarget "Database_Example_tvOS" */;
@@ -2665,6 +2896,24 @@
 			productName = Messaging_Example_iOS;
 			productReference = DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DE4A62DC214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE4A62E4214816BD00670B27 /* Build configuration list for PBXNativeTarget "FDLBuilderTestAppObjCEarlGrey" */;
+			buildPhases = (
+				DE4A62D9214816BD00670B27 /* Sources */,
+				DE4A62DA214816BD00670B27 /* Frameworks */,
+				DE4A62DB214816BD00670B27 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE4A62E3214816BD00670B27 /* PBXTargetDependency */,
+			);
+			name = FDLBuilderTestAppObjCEarlGrey;
+			productName = FDLBuilderTestAppObjCEarlGrey;
+			productReference = DE4A62DD214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		DE53893D1FBB62E100199FC2 /* Auth_Tests_tvOS */ = {
 			isa = PBXNativeTarget;
@@ -2877,6 +3126,23 @@
 			productReference = DEB13A231E73507E00AC236D /* Storage_Tests_iOS.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		DEDFF0121FD6135D00F7D466 /* DynamicLinks_Tests_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEDFF01F1FD6135D00F7D466 /* Build configuration list for PBXNativeTarget "DynamicLinks_Tests_iOS" */;
+			buildPhases = (
+				DE17A2D52142F195002A15ED /* Sources */,
+				AEC1C964E4211C8E5B7CD8C6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE17A2CB214216F2002A15ED /* PBXTargetDependency */,
+			);
+			name = DynamicLinks_Tests_iOS;
+			productName = DynamicLinks_Example_iOSTests;
+			productReference = DEDFF0131FD6135D00F7D466 /* DynamicLinks_Tests_iOS.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DEE14D401E84464D006FA992 /* Core_Example_iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = DEE14D641E84464D006FA992 /* Build configuration list for PBXNativeTarget "Core_Example_iOS" */;
@@ -2986,6 +3252,11 @@
 					D0FE8A641ED9C87B003F6722 = {
 						TestTargetID = D0FE8A1E1ED9C804003F6722;
 					};
+					DE17A39921472F3A002A15ED = {
+						CreatedOnToolsVersion = 9.4;
+						DevelopmentTeam = 4ANB9W7R3P;
+						ProvisioningStyle = Automatic;
+					};
 					DE1CD5961FBA55AF00FC031E = {
 						CreatedOnToolsVersion = 9.1;
 						DevelopmentTeam = EQHXZ8M8AV;
@@ -3041,6 +3312,12 @@
 					};
 					DE47C0DC207AC87D00B1AEDF = {
 						DevelopmentTeam = EQHXZ8M8AV;
+					};
+					DE4A62DC214816BD00670B27 = {
+						CreatedOnToolsVersion = 9.4;
+						DevelopmentTeam = 4ANB9W7R3P;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DE17A39921472F3A002A15ED;
 					};
 					DE53893D1FBB62E100199FC2 = {
 						CreatedOnToolsVersion = 9.1;
@@ -3102,6 +3379,11 @@
 					DEB13A0A1E73507E00AC236D = {
 						TestTargetID = DEB139E01E73506A00AC236D;
 					};
+					DEDFF0121FD6135D00F7D466 = {
+						DevelopmentTeam = EQHXZ8M8AV;
+						ProvisioningStyle = Automatic;
+						TestTargetID = DE17A2B3214215C0002A15ED;
+					};
 					DEE14D401E84464D006FA992 = {
 						CreatedOnToolsVersion = 8.2.1;
 						ProvisioningStyle = Automatic;
@@ -3155,6 +3437,10 @@
 				D0FE8A641ED9C87B003F6722 /* Database_IntegrationTests_macOS */,
 				DE1CD5961FBA55AF00FC031E /* Database_Example_tvOS */,
 				DE1EC27E1FBA5E63007D18D8 /* Database_Tests_tvOS */,
+				DE17A2B3214215C0002A15ED /* DynamicLinks_Example_iOS */,
+				DEDFF0121FD6135D00F7D466 /* DynamicLinks_Tests_iOS */,
+				DE17A39921472F3A002A15ED /* FDLBuilderTestAppObjC */,
+				DE4A62DC214816BD00670B27 /* FDLBuilderTestAppObjCEarlGrey */,
 				AFD562E41EB13C6D00EA2233 /* Messaging_Example_iOS */,
 				DE9315A61E8738460083EDBF /* Messaging_Tests_iOS */,
 				DE47C0DC207AC87D00B1AEDF /* Messaging_Sample_iOS */,
@@ -3285,6 +3571,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE17A2BE214215C0002A15ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A2CE21421735002A15ED /* LaunchScreen.storyboard in Resources */,
+				DE17A2CF21421735002A15ED /* Main.storyboard in Resources */,
+				DE17A2D42142179C002A15ED /* GoogleService-Info.plist in Resources */,
+				DE17A2D021421743002A15ED /* Shared.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE17A39821472F3A002A15ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A3D221472FF2002A15ED /* LaunchScreen.storyboard in Resources */,
+				DE4A62D42148109400670B27 /* GoogleService-Info.plist in Resources */,
+				DE17A3CE21472FF2002A15ED /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE1CD5951FBA55AF00FC031E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3362,6 +3669,13 @@
 				DE47C114207AC94A00B1AEDF /* GoogleService-Info.plist in Resources */,
 				DE47C117207AC94A00B1AEDF /* LaunchScreen.storyboard in Resources */,
 				DE47C119207AC94A00B1AEDF /* Messaging-Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4A62DB214816BD00670B27 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3749,6 +4063,42 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DE17A2B5214215C0002A15ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A2D121421769002A15ED /* FIRAppDelegate.m in Sources */,
+				DE17A2D221421769002A15ED /* FIRViewController.m in Sources */,
+				DE17A2D321421769002A15ED /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE17A2D52142F195002A15ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */,
+				DE17A2D72142F1A5002A15ED /* FDLURLComponentsTests.m in Sources */,
+				DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */,
+				DE17A2D82142F1A5002A15ED /* FIRDLScionLoggingTest.m in Sources */,
+				DE17A2D62142F1A5002A15ED /* UtilitiesTests.m in Sources */,
+				DE17A2DA2142F1A5002A15ED /* FIRDynamicLinksImportsTest3P.m in Sources */,
+				DE17A2DB2142F1A5002A15ED /* FIRDynamicLinksTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE17A39621472F3A002A15ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE17A3CC21472FF2002A15ED /* LinkTableViewCell.m in Sources */,
+				DE17A3CF21472FF2002A15ED /* main.m in Sources */,
+				DE17A3D021472FF2002A15ED /* ViewController.m in Sources */,
+				DE17A3CD21472FF2002A15ED /* ParamTableViewCell.m in Sources */,
+				DE17A3D321472FF2002A15ED /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		DE1CD5931FBA55AF00FC031E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3865,6 +4215,14 @@
 				DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */,
 				DE47C11C207AC94A00B1AEDF /* NotificationsController.swift in Sources */,
 				DE47C11B207AC94A00B1AEDF /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DE4A62D9214816BD00670B27 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE4A62E72148196400670B27 /* FDLBuilderTestAppObjCEarlGreyTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4245,6 +4603,11 @@
 			target = D0FE8A1E1ED9C804003F6722 /* Database_Example_macOS */;
 			targetProxy = D0FE8A901ED9C9CD003F6722 /* PBXContainerItemProxy */;
 		};
+		DE17A2CB214216F2002A15ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE17A2B3214215C0002A15ED /* DynamicLinks_Example_iOS */;
+			targetProxy = DE17A2CA214216F2002A15ED /* PBXContainerItemProxy */;
+		};
 		DE1E3B311FEB1E7600EAEBB0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DE1FAE8F1FBCF5E100897AAA /* Auth_Example_tvOS */;
@@ -4284,6 +4647,11 @@
 			isa = PBXTargetDependency;
 			target = DEB13A0A1E73507E00AC236D /* Storage_Tests_iOS */;
 			targetProxy = DE3373971E73776F00881891 /* PBXContainerItemProxy */;
+		};
+		DE4A62E3214816BD00670B27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DE17A39921472F3A002A15ED /* FDLBuilderTestAppObjC */;
+			targetProxy = DE4A62E2214816BD00670B27 /* PBXContainerItemProxy */;
 		};
 		DE545C841FBCA41C00C637AE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4385,6 +4753,14 @@
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
+		DE17A3C921472FF2002A15ED /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE17A3CA21472FF2002A15ED /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
 		DE26D1DA1F70333E004AE1D3 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -4481,6 +4857,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				DEB61EBC1E7C5DBB00C04B96 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		DEDFF0391FD6143000F7D466 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DEDFF03A1FD6143000F7D466 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		DEDFF03B1FD6143000F7D466 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DEDFF03C1FD6143000F7D466 /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -5283,6 +5675,123 @@
 			};
 			name = Release;
 		};
+		DE17A2C6214215C0002A15ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/DynamicLinks/App/iOS/DL-Info.plist";
+				MODULE_NAME = ExampleApp;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-all_load",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.DynamicLinks-Example-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		DE17A2C7214215C0002A15ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				HEADER_SEARCH_PATHS = (
+					"\"${PODS_ROOT}/../../Firebase/Storage/Private\"",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/DynamicLinks/App/iOS/DL-Info.plist";
+				MODULE_NAME = ExampleApp;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-all_load",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.DynamicLinks-Example-iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		DE17A3B921472F3C002A15ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4ANB9W7R3P;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FDLBuilderTestAppObjC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DE17A3BA21472F3C002A15ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4ANB9W7R3P;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = "$SRCROOT/DynamicLinks/FDLBuilderTestAppObjC/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FDLBuilderTestAppObjC;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		DE1CD5B21FBA55B000FC031E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -5860,6 +6369,75 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Messaging/Messaging_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+		DE4A62E5214816BD00670B27 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 4ANB9W7R3P;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = DynamicLinks/FDLBuilderTestAppObjCTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FDLBuilderTestAppObjCEarlGrey;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FDLBuilderTestAppObjC.app/FDLBuilderTestAppObjC";
+			};
+			name = Debug;
+		};
+		DE4A62E6214816BD00670B27 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 4ANB9W7R3P;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = DynamicLinks/FDLBuilderTestAppObjCTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FDLBuilderTestAppObjCEarlGrey;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FDLBuilderTestAppObjC.app/FDLBuilderTestAppObjC";
 			};
 			name = Release;
 		};
@@ -6610,6 +7188,99 @@
 			};
 			name = Release;
 		};
+		DEDFF01C1FD6135D00F7D466 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/EarlGrey\"",
+					"\"${PODS_ROOT}/Headers/Public/Firebase\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
+					"\"${PODS_ROOT}/../../Firebase\"",
+					"\"$(PODS_ROOT)/Headers/Private\"",
+				);
+				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.DynamicLinks-Example-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DynamicLinks_Example_iOS.app/DynamicLinks_Example_iOS";
+			};
+			name = Debug;
+		};
+		DEDFF01D1FD6135D00F7D466 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/EarlGrey\"",
+					"\"${PODS_ROOT}/Headers/Public/Firebase\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseAnalytics\"",
+					"\"${PODS_ROOT}/Headers/Public/FirebaseInstanceID\"",
+					"\"${PODS_ROOT}/Headers/Public/GoogleSignIn\"",
+					"\"${PODS_ROOT}/../../Firebase\"",
+					"\"$(PODS_ROOT)/Headers/Private\"",
+				);
+				INFOPLIST_FILE = "Core/Tests/Tests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.google.DynamicLinks-Example-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DynamicLinks_Example_iOS.app/DynamicLinks_Example_iOS";
+			};
+			name = Release;
+		};
 		DEE14D601E84464D006FA992 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -6844,6 +7515,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DE17A2C5214215C0002A15ED /* Build configuration list for PBXNativeTarget "DynamicLinks_Example_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE17A2C6214215C0002A15ED /* Debug */,
+				DE17A2C7214215C0002A15ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE17A3B821472F3C002A15ED /* Build configuration list for PBXNativeTarget "FDLBuilderTestAppObjC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE17A3B921472F3C002A15ED /* Debug */,
+				DE17A3BA21472F3C002A15ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		DE1CD5B61FBA55B000FC031E /* Build configuration list for PBXNativeTarget "Database_Example_tvOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -6930,6 +7619,15 @@
 			buildConfigurations = (
 				DE47C0EB207AC87D00B1AEDF /* Debug */,
 				DE47C0EC207AC87D00B1AEDF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE4A62E4214816BD00670B27 /* Build configuration list for PBXNativeTarget "FDLBuilderTestAppObjCEarlGrey" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE4A62E5214816BD00670B27 /* Debug */,
+				DE4A62E6214816BD00670B27 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7047,6 +7745,15 @@
 			buildConfigurations = (
 				DEB13A211E73507E00AC236D /* Debug */,
 				DEB13A221E73507E00AC236D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DEDFF01F1FD6135D00F7D466 /* Build configuration list for PBXNativeTarget "DynamicLinks_Tests_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEDFF01C1FD6135D00F7D466 /* Debug */,
+				DEDFF01D1FD6135D00F7D466 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
