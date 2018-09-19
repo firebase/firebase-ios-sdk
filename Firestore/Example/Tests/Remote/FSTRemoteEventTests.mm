@@ -104,11 +104,11 @@ NS_ASSUME_NONNULL_BEGIN
  * changes are FSTDocumentWatchChange and FSTWatchTargetChange.
  */
 - (FSTWatchChangeAggregator *)
-    aggregatorWithTargetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
-       outstandingResponses:
-           (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
-               existingKeys:(DocumentKeySet)existingKeys
-                    changes:(NSArray<FSTWatchChange *> *)watchChanges {
+aggregatorWithTargetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
+   outstandingResponses:
+       (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
+           existingKeys:(DocumentKeySet)existingKeys
+                changes:(NSArray<FSTWatchChange *> *)watchChanges {
   FSTWatchChangeAggregator *aggregator =
       [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:_targetMetadataProvider];
 
@@ -160,12 +160,12 @@ NS_ASSUME_NONNULL_BEGIN
  * changes are FSTDocumentWatchChange and FSTWatchTargetChange.
  */
 - (FSTRemoteEvent *)
-    remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
-                       targetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
-            outstandingResponses:
-                (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
-                    existingKeys:(DocumentKeySet)existingKeys
-                         changes:(NSArray<FSTWatchChange *> *)watchChanges {
+remoteEventAtSnapshotVersion:(FSTTestSnapshotVersion)snapshotVersion
+                   targetMap:(NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)targetMap
+        outstandingResponses:
+            (nullable NSDictionary<FSTBoxedTargetID *, NSNumber *> *)outstandingResponses
+                existingKeys:(DocumentKeySet)existingKeys
+                     changes:(NSArray<FSTWatchChange *> *)watchChanges {
   FSTWatchChangeAggregator *aggregator = [self aggregatorWithTargetMap:targetMap
                                                   outstandingResponses:outstandingResponses
                                                           existingKeys:existingKeys
@@ -179,13 +179,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
       [self queryDataForTargets:@[ @1, @2, @3, @4, @5, @6 ]];
 
-  FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *existingDoc = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @2, @3 ]
                                                                     removedTargetIDs:@[ @4, @5, @6 ]
                                                                          documentKey:existingDoc.key
                                                                             document:existingDoc];
 
-  FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *newDoc = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change2 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @4 ]
                                                                     removedTargetIDs:@[ @2, @6 ]
                                                                          documentKey:newDoc.key
@@ -238,7 +238,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillIgnoreEventsForPendingTargets {
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc1.key
@@ -252,14 +252,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                         targetIDs:@[ @1 ]
                                                             cause:nil];
 
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change4 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc2.key
                                                                             document:doc2];
 
   // We're waiting for the unwatch and watch ack
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @2};
+  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{ @1 : @2 };
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
@@ -279,7 +279,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillIgnoreEventsForRemovedTargets {
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc1.key
@@ -290,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                             cause:nil];
 
   // We're waiting for the unwatch ack
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @1};
+  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{ @1 : @1 };
 
   FSTRemoteEvent *event = [self remoteEventAtSnapshotVersion:3
                                                    targetMap:targetMap
@@ -308,7 +308,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testWillKeepResetMappingEvenWithUpdates {
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc1.key
@@ -319,13 +319,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                             cause:nil];
 
   // Add doc2, doc3
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change3 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc2.key
                                                                             document:doc2];
 
-  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
   FSTWatchChange *change4 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc3.key
@@ -387,13 +387,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
       [self queryDataForTargets:@[ @1, @2 ]];
 
-  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1a = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[ @2 ]
                                                                          documentKey:doc1a.key
                                                                             document:doc1a];
 
-  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{@"value" : @2}, NO);
+  FSTDocument *doc1b = FSTTestDoc("docs/1", 1, @{ @"value" : @2 }, NO);
   FSTWatchChange *change2 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @2 ]
                                                                     removedTargetIDs:@[ @1 ]
                                                                          documentKey:doc1b.key
@@ -444,7 +444,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
       [self queryDataForTargets:@[ @1, @3 ]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1, @3 ]
                                                                     removedTargetIDs:@[ @2 ]
                                                                          documentKey:doc1.key
@@ -466,13 +466,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                         targetIDs:@[ @1 ]
                                                             cause:nil];
 
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change6 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[ @3 ]
                                                                          documentKey:doc2.key
                                                                             document:doc2];
 
-  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{@1 : @2, @2 : @1};
+  NSDictionary<NSNumber *, NSNumber *> *outstandingResponses = @{ @1 : @2, @2 : @1 };
 
   FSTRemoteEvent *event =
       [self remoteEventAtSnapshotVersion:3
@@ -531,13 +531,13 @@ NS_ASSUME_NONNULL_BEGIN
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap =
       [self queryDataForTargets:@[ @1, @2 ]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc1.key
                                                                             document:doc1];
 
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change2 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc2.key
@@ -602,7 +602,7 @@ NS_ASSUME_NONNULL_BEGIN
                                 resumeToken:_resumeToken1];
   [aggregator handleTargetChange:markCurrent];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTDocumentWatchChange *addDoc = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                            removedTargetIDs:@[]
                                                                                 documentKey:doc1.key
@@ -633,13 +633,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDocumentUpdate {
   NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *targetMap = [self queryDataForTargets:@[ @1 ]];
 
-  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{@"value" : @1}, NO);
+  FSTDocument *doc1 = FSTTestDoc("docs/1", 1, @{ @"value" : @1 }, NO);
   FSTWatchChange *change1 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc1.key
                                                                             document:doc1];
 
-  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{@"value" : @2}, NO);
+  FSTDocument *doc2 = FSTTestDoc("docs/2", 2, @{ @"value" : @2 }, NO);
   FSTWatchChange *change2 = [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                                                     removedTargetIDs:@[]
                                                                          documentKey:doc2.key
@@ -669,7 +669,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       document:deletedDoc1];
   [aggregator handleDocumentChange:change3];
 
-  FSTDocument *updatedDoc2 = FSTTestDoc("docs/2", 3, @{@"value" : @2}, NO);
+  FSTDocument *updatedDoc2 = FSTTestDoc("docs/2", 3, @{ @"value" : @2 }, NO);
   FSTDocumentWatchChange *change4 =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                               removedTargetIDs:@[]
@@ -677,7 +677,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                       document:updatedDoc2];
   [aggregator handleDocumentChange:change4];
 
-  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{@"value" : @3}, NO);
+  FSTDocument *doc3 = FSTTestDoc("docs/3", 3, @{ @"value" : @3 }, NO);
   FSTDocumentWatchChange *change5 =
       [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:@[ @1 ]
                                               removedTargetIDs:@[]

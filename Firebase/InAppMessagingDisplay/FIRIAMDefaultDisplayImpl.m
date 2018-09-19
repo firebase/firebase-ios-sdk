@@ -143,10 +143,9 @@
   });
 }
 
-+ (void)displayImageOnlyViewWithMessageDefinition:
-            (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
-                                  displayDelegate:
-                                      (id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
++ (void)
+displayImageOnlyViewWithMessageDefinition:(FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
+                          displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate {
   NSBundle *resourceBundle = [self getViewResourceBundle];
 
   if (resourceBundle == nil) {

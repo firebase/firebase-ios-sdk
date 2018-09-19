@@ -289,7 +289,7 @@ NS_ASSUME_NONNULL_BEGIN
     @"n" : [NSNull null],
     @"s" : @"foo",
     @"a" : @[ @2, @"bar",
-              @{@"b" : @NO} ],
+              @{ @"b" : @NO } ],
     @"o" : @{
       @"d" : @100,
       @"nested" : @{@"e" : @(LLONG_MIN)},
@@ -339,7 +339,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testEncodesSetMutation {
-  FSTSetMutation *mutation = FSTTestSetMutation(@"docs/1", @{@"a" : @"b", @"num" : @1});
+  FSTSetMutation *mutation = FSTTestSetMutation(@"docs/1", @{ @"a" : @"b", @"num" : @1 });
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
 
@@ -349,9 +349,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testEncodesPatchMutation {
   FSTPatchMutation *mutation =
       FSTTestPatchMutation("docs/1",
-                           @{@"a" : @"b",
-                             @"num" : @1,
-                             @"some.de\\\\ep.th\\ing'" : @2},
+                           @{ @"a" : @"b",
+                              @"num" : @1,
+                              @"some.de\\\\ep.th\\ing'" : @2 },
                            {});
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];
@@ -388,7 +388,7 @@ NS_ASSUME_NONNULL_BEGIN
   FSTTransformMutation *mutation = FSTTestTransformMutation(@"docs/1", @{
     @"a" : [FIRFieldValue fieldValueForArrayUnion:@[ @"a", @2 ]],
     @"bar.baz" : [FIRFieldValue fieldValueForArrayRemove:@[
-      @{@"x" : @1}
+      @{ @"x" : @1 }
     ]]
   });
   GCFSWrite *proto = [GCFSWrite message];
@@ -408,7 +408,7 @@ NS_ASSUME_NONNULL_BEGIN
   arrayRemove.fieldPath = @"bar.baz";
   arrayRemove.removeAllFromArray_p = [GCFSArrayValue message];
   NSMutableArray *removeElements = arrayRemove.removeAllFromArray_p.valuesArray;
-  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{@"x" : @1})]];
+  [removeElements addObject:[self.serializer encodedFieldValue:FSTTestFieldValue(@{ @"x" : @1 })]];
   [proto.transform.fieldTransformsArray addObject:arrayRemove];
 
   proto.currentDocument.exists = YES;
@@ -420,8 +420,8 @@ NS_ASSUME_NONNULL_BEGIN
   FSTSetMutation *mutation =
       [[FSTSetMutation alloc] initWithKey:FSTTestDocKey(@"foo/bar")
                                     value:FSTTestObjectValue(
-                                              @{@"a" : @"b",
-                                                @"num" : @1})
+                                              @{ @"a" : @"b",
+                                                 @"num" : @1 })
                              precondition:Precondition::UpdateTime(testutil::Version(4))];
   GCFSWrite *proto = [GCFSWrite message];
   proto.update = [self.serializer encodedDocumentWithFields:mutation.value key:mutation.key];

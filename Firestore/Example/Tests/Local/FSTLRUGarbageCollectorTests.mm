@@ -68,7 +68,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   _previousTargetID = 500;
   _previousDocNum = 10;
-  _testValue = FSTTestObjectValue(@{@"baz" : @YES, @"ok" : @"fine"});
+  _testValue = FSTTestObjectValue(@{ @"baz" : @YES, @"ok" : @"fine" });
   NSString *bigString = [@"" stringByPaddingToLength:4096 withString:@"a" startingAtIndex:0];
   _bigObjectValue = FSTTestObjectValue(@{@"BigProperty" : bigString});
   _user = User("user");
@@ -620,7 +620,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
   NSDictionary<NSNumber *, FSTQueryData *> *liveQueries =
-      @{@(oldestTarget.targetID) : oldestTarget};
+      @{ @(oldestTarget.targetID) : oldestTarget };
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
   int docsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];

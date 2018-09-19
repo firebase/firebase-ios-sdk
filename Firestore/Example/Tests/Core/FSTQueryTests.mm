@@ -129,10 +129,10 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query2 =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"<=", @(2))];
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @1}, NO);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, NO);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @3}, NO);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @1 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @3 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
   FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, NO);
 
@@ -156,25 +156,25 @@ NS_ASSUME_NONNULL_BEGIN
       queryByAddingFilter:FSTTestFilter("array", @"array_contains", @42)];
 
   // not an array.
-  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{@"array" : @1}, NO);
+  FSTDocument *doc = FSTTestDoc("collection/1", 0, @{ @"array" : @1 }, NO);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // empty array.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[]}, NO);
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[] }, NO);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // array without element (and make sure it doesn't match in a nested field or a different field).
   doc = FSTTestDoc(
       "collection/1", 0,
-      @{@"array" : @[ @41, @"42",
-                      @{@"a" : @42,
-                        @"b" : @[ @42 ]} ],
-        @"different" : @[ @42 ]},
+      @{ @"array" : @[ @41, @"42",
+                       @{ @"a" : @42,
+                          @"b" : @[ @42 ] } ],
+         @"different" : @[ @42 ] },
       NO);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @1} ]}, NO);
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[ @1, @"2", @42, @{ @"a" : @1 } ] }, NO);
   XCTAssertTrue([query matchesDocument:doc]);
 }
 
@@ -182,23 +182,23 @@ NS_ASSUME_NONNULL_BEGIN
   // Search for arrays containing the object { a: [42] }
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("array", @"array_contains",
-                                                                    @{@"a" : @[ @42 ]})];
+                                                                    @{ @"a" : @[ @42 ] })];
 
   // array without element.
   FSTDocument *doc = FSTTestDoc("collection/1", 0, @{
     @"array" : @[
-      @{@"a" : @42},
-      @{@"a" : @[ @42, @43 ]},
-      @{@"b" : @[ @42 ]},
-      @{@"a" : @[ @42 ],
-        @"b" : @42}
+      @{ @"a" : @42 },
+      @{ @"a" : @[ @42, @43 ] },
+      @{ @"b" : @[ @42 ] },
+      @{ @"a" : @[ @42 ],
+         @"b" : @42 }
     ]
   },
                                 NO);
   XCTAssertFalse([query matchesDocument:doc]);
 
   // array with element.
-  doc = FSTTestDoc("collection/1", 0, @{@"array" : @[ @1, @"2", @42, @{@"a" : @[ @42 ]} ]}, NO);
+  doc = FSTTestDoc("collection/1", 0, @{ @"array" : @[ @1, @"2", @42, @{ @"a" : @[ @42 ] } ] }, NO);
   XCTAssertTrue([query matchesDocument:doc]);
 }
 
@@ -206,9 +206,9 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", [NSNull null])];
   FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : [NSNull null]}, NO);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, NO);
-  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, NO);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{ @"sort" : @3.1 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
 
   XCTAssertTrue([query matchesDocument:doc1]);
@@ -221,10 +221,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testNanFilter {
   FSTQuery *query =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @"==", @(NAN))];
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @(NAN)}, NO);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @2}, NO);
-  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{@"sort" : @3.1}, NO);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @NO}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @(NAN) }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/2", 0, @{ @"sort" : @3.1 }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @NO }, NO);
   FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @"string"}, NO);
 
   XCTAssertTrue([query matchesDocument:doc1]);
@@ -240,13 +240,13 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query2 =
       [FSTTestQuery("collection") queryByAddingFilter:FSTTestFilter("sort", @">=", @(2))];
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, NO);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, NO);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, NO);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, NO);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, NO);
-  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{@"sort" : @{}}, NO);  // no sort field
-  FSTDocument *doc7 = FSTTestDoc("collection/7", 0, @{@"sort" : @[ @3, @1 ]}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @[] }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
+  FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{ @"sort" : @{} }, NO);  // no sort field
+  FSTDocument *doc7 = FSTTestDoc("collection/7", 0, @{ @"sort" : @[ @3, @1 ] }, NO);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
   XCTAssertFalse([query1 matchesDocument:doc2]);
@@ -270,11 +270,11 @@ NS_ASSUME_NONNULL_BEGIN
       queryByAddingSortOrder:[FSTSortOrder sortOrderWithFieldPath:testutil::Field("sort")
                                                         ascending:YES]];
 
-  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{@"sort" : @2}, NO);
-  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{@"sort" : @[]}, NO);
-  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{@"sort" : @[ @1 ]}, NO);
-  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{@"sort" : @{@"foo" : @2}}, NO);
-  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{@"sort" : @{@"foo" : @"bar"}}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/1", 0, @{ @"sort" : @2 }, NO);
+  FSTDocument *doc2 = FSTTestDoc("collection/2", 0, @{ @"sort" : @[] }, NO);
+  FSTDocument *doc3 = FSTTestDoc("collection/3", 0, @{ @"sort" : @[ @1 ] }, NO);
+  FSTDocument *doc4 = FSTTestDoc("collection/4", 0, @{ @"sort" : @{@"foo" : @2} }, NO);
+  FSTDocument *doc5 = FSTTestDoc("collection/5", 0, @{ @"sort" : @{@"foo" : @"bar"} }, NO);
   FSTDocument *doc6 = FSTTestDoc("collection/6", 0, @{}, NO);
 
   XCTAssertTrue([query1 matchesDocument:doc1]);
@@ -287,7 +287,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testFiltersBasedOnArrayValue {
   FSTQuery *baseQuery = FSTTestQuery("collection");
-  FSTDocument *doc1 = FSTTestDoc("collection/doc", 0, @{@"tags" : @[ @"foo", @1, @YES ]}, NO);
+  FSTDocument *doc1 = FSTTestDoc("collection/doc", 0, @{ @"tags" : @[ @"foo", @1, @YES ] }, NO);
 
   NSArray<FSTFilter *> *matchingFilters = @[ FSTTestFilter("tags", @"==", @[ @"foo", @1, @YES ]) ];
 
@@ -310,19 +310,19 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *baseQuery = FSTTestQuery("collection");
   FSTDocument *doc1 =
       FSTTestDoc("collection/doc", 0,
-                 @{@"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)}}, NO);
+                 @{ @"tags" : @{@"foo" : @"foo", @"a" : @0, @"b" : @YES, @"c" : @(NAN)} }, NO);
 
   NSArray<FSTFilter *> *matchingFilters = @[
     FSTTestFilter("tags", @"==",
-                  @{@"foo" : @"foo",
-                    @"a" : @0,
-                    @"b" : @YES,
-                    @"c" : @(NAN)}),
+                  @{ @"foo" : @"foo",
+                     @"a" : @0,
+                     @"b" : @YES,
+                     @"c" : @(NAN) }),
     FSTTestFilter("tags", @"==",
-                  @{@"b" : @YES,
-                    @"a" : @0,
-                    @"foo" : @"foo",
-                    @"c" : @(NAN)}),
+                  @{ @"b" : @YES,
+                     @"a" : @0,
+                     @"foo" : @"foo",
+                     @"c" : @(NAN) }),
     FSTTestFilter("tags.foo", @"==", @"foo")
   ];
 

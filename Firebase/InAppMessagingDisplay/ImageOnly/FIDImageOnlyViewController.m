@@ -31,12 +31,10 @@
 @implementation FIDImageOnlyViewController
 
 + (FIDImageOnlyViewController *)
-    instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:
-                                     (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
-                                displayDelegate:
-                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
+                             displayMessage:(FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
+                            displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard =
       [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
 
