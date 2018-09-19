@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 
+#if defined(__APPLE__)
+
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <netinet/in.h>
 #include "dispatch/dispatch.h"
@@ -136,3 +138,5 @@ std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // defined(__APPLE__)
