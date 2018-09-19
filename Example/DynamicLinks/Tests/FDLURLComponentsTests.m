@@ -21,7 +21,7 @@
 
 #import <OCMock/OCMock.h>
 
-static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
+static NSString *const kFDLURLDomain = @"xyz.page.link";
 
 @interface FDLURLComponentsTests : XCTestCase
 @end
@@ -567,7 +567,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   // URL. Since the parameters are not guaranteed to be in any specific order, we must compare
   // arrays of properties of the URLs rather than the URLs themselves.
   NSString *possibleExpectedURLString =
-      @"https://xyz.app.goo.gl/?afl=https%3A%2F%2Fgoogle%2Ecom%2F"
+      @"https://xyz.page.link/?afl=https%3A%2F%2Fgoogle%2Ecom%2F"
        "android&amv=14&apn=com.google.android.gms&ibi=com%2Eiphone%2Eapp&utm_term=t&link=https%3A%"
        "2F"
        "%2Fgoogle%2Ecom&ipbi=com%2Eipad%2Eapp&ius=mycustomsheme&ifl=https%3A%2F%2Fgoogle%2Ecom%2"
@@ -622,7 +622,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 }
 
 - (void)testShortenURL {
-  NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
+  NSString *shortURLString = @"https://xyz.page.link/abcd";
 
   // Mock key provider
   id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
@@ -658,7 +658,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 }
 
 - (void)testShortenURLReturnsErrorWhenAPIKeyMissing {
-  NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
+  NSString *shortURLString = @"https://xyz.page.link/abcd";
 
   // Mock key provider
   id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
@@ -697,7 +697,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 }
 
 - (void)testShortenURLReturnsErrorWhenDomainIsMalformed {
-  NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
+  NSString *shortURLString = @"https://xyz.page.link/abcd";
 
   // Mock key provider
   id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);

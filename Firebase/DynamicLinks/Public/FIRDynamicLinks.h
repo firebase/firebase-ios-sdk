@@ -68,7 +68,7 @@ NS_SWIFT_NAME(DynamicLinks)
  * @method dynamicLinkFromUniversalLinkURL:
  * @abstract Get a Dynamic Link from a universal link URL. This method parses universal link
  *     URLs, for instance,
- *     "https://example.app.goo.gl?link=https://www.google.com&ibi=com.google.app&ius=comgoogleapp".
+ *     "https://example.page.link?link=https://www.google.com&ibi=com.google.app&ius=comgoogleapp".
  *     It is suggested to call it inside your |UIApplicationDelegate|'s
  *     |application:continueUserActivity:restorationHandler:| method.
  * @param url Custom scheme URL.

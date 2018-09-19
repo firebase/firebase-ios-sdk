@@ -40,9 +40,9 @@ static NSString *const kStructuredLinkFmtDeepLinkAndInvitation =
 static NSString *const kStructuredUniversalLinkFmtFreeForm = @"https://goo.gl/app/sample%@";
 static NSString *const kStructuredUniversalLinkFmtDeepLink =
     @"https://goo.gl/app/sample?link=%@&isi=585027354";
-static NSString *const kStructuredUniversalLinkFmtSubdomain = @"https://sample.app.goo.gl%@";
+static NSString *const kStructuredUniversalLinkFmtSubdomain = @"https://sample.page.link%@";
 static NSString *const kStructuredUniversalLinkFmtSubdomainDeepLink =
-    @"https://sample.app.goo.gl?link=%@&isi=585027354";
+    @"https://sample.page.link?link=%@&isi=585027354";
 static NSString *const kURLScheme = @"gindeeplinkurl";
 
 static const NSTimeInterval kAsyncTestTimout = 0.5;
@@ -495,7 +495,7 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)testDynamicLinkFromUniversalLinkURLWithSpecialCharacters {
   NSString *durableDeepLinkString =
-      [NSString stringWithFormat:@"https://xyz.app.goo.gl/?link=%@", kEncodedComplicatedURLString];
+      [NSString stringWithFormat:@"https://xyz.page.link/?link=%@", kEncodedComplicatedURLString];
   NSURL *durabledeepLinkURL = [NSURL URLWithString:durableDeepLinkString];
 
   SwizzleDynamicLinkNetworkingWithMock();
@@ -511,7 +511,7 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)testDynamicLinkFromUniversalLinkURLWithEncodedCharacters {
   NSString *durableDeepLinkString =
-      [NSString stringWithFormat:@"https://xyz.app.goo.gl/?link=%@", kEncodedComplicatedURLString];
+      [NSString stringWithFormat:@"https://xyz.page.link/?link=%@", kEncodedComplicatedURLString];
   NSURL *durabledeepLinkURL = [NSURL URLWithString:durableDeepLinkString];
 
   SwizzleDynamicLinkNetworkingWithMock();
@@ -574,7 +574,7 @@ static void UnswizzleDynamicLinkNetworking() {
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSString *urlString = @"http://reinl.app.goo.gl/t4ionvr";
+  NSString *urlString = @"http://reinl.page.link/t4ionvr";
   NSURL *url = [NSURL URLWithString:urlString];
 
   void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
@@ -614,7 +614,7 @@ static void UnswizzleDynamicLinkNetworking() {
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSString *urlString = @"http://reinl.app.goo.gl/t4ionvr";
+  NSString *urlString = @"http://reinl.page.link/t4ionvr";
   NSURL *url = [NSURL URLWithString:urlString];
 
   void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
@@ -771,7 +771,7 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)testMatchesUnversalLinkWithLongDurableLink {
   NSString *urlString =
-      @"https://sample.app.goo.gl?link=https://google.com/test&ibi=com.google.sample&ius=79306483";
+      @"https://sample.page.link?link=https://google.com/test&ibi=com.google.sample&ius=79306483";
   NSURL *url = [NSURL URLWithString:urlString];
   BOOL matchesShort = [self.service matchesShortLinkFormat:url];
 
@@ -779,7 +779,7 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testMatchesUnversalLinkWithShortDurableLink {
-  NSString *urlString = @"https://sample.app.goo.gl/79g49s";
+  NSString *urlString = @"https://sample.page.link/79g49s";
   NSURL *url = [NSURL URLWithString:urlString];
   BOOL matchesShort = [self.service matchesShortLinkFormat:url];
 
@@ -787,7 +787,7 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testMatchesUnversalLinkWithAppInvite {
-  NSString *urlString = @"https://sample.app.goo.gl/i/79g49s";
+  NSString *urlString = @"https://sample.page.link/i/79g49s";
   NSURL *url = [NSURL URLWithString:urlString];
   BOOL matchesShort = [self.service matchesShortLinkFormat:url];
 
@@ -798,9 +798,9 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://www.google.com/maps/place/@1,1/My+Home/", @"https://mydomain.com/t439gfde",
     @"https://goo.gl/309dht4", @"https://59eh.goo.gl/309dht4", @"https://app.59eh.goo.gl/309dht4",
-    @"https://goo.gl/i/309dht4", @"https://app.goo.gl/i/309dht4",
+    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4",
     @"https://fjo3eh.goo.gl/i/309dht4", @"https://app.fjo3eh.goo.gl/i/309dht4",
-    @"https://1234.app.goo.gl/link/dismiss"
+    @"https://1234.page.link/link/dismiss"
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -813,7 +813,7 @@ static void UnswizzleDynamicLinkNetworking() {
 }
 
 - (void)testHandleUniversalLinkWithShortLink {
-  NSString *shortLinkString = @"https://sample.app.goo.gl/549igo";
+  NSString *shortLinkString = @"https://sample.page.link/549igo";
 
   NSString *bundleID = [NSBundle mainBundle].bundleIdentifier;
 
@@ -848,7 +848,7 @@ static void UnswizzleDynamicLinkNetworking() {
 
 - (void)testHandleUniversalLinkWithLongLink {
   NSString *longLinkString = [NSString
-      stringWithFormat:@"https://sample.app.goo.gl?link=%@&ibi=com.google.sample&ius=79306483",
+      stringWithFormat:@"https://sample.page.link?link=%@&ibi=com.google.sample&ius=79306483",
                        kEncodedComplicatedURLString];
 
   XCTestExpectation *handleLinkCompletionExpectation =
@@ -914,9 +914,9 @@ static void UnswizzleDynamicLinkNetworking() {
   NSArray<NSString *> *urlStrings = @[
     @"https://www.google.com/maps/place/@1,1/My+Home/", @"https://mydomain.com/t439gfde",
     @"https://goo.gl/309dht4", @"https://59eh.goo.gl/309dht4", @"https://app.59eh.goo.gl/309dht4",
-    @"https://goo.gl/i/309dht4", @"https://app.goo.gl/i/309dht4",
+    @"https://goo.gl/i/309dht4", @"https://page.link/i/309dht4",
     @"https://fjo3eh.goo.gl/i/309dht4", @"https://app.fjo3eh.goo.gl/i/309dht4",
-    @"https://1234.app.goo.gl/link/dismiss"
+    @"https://1234.page.link/link/dismiss"
   ];
 
   [urlStrings enumerateObjectsUsingBlock:^(NSString *_Nonnull urlString, NSUInteger idx,

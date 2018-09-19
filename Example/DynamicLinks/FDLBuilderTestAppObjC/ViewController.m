@@ -157,7 +157,7 @@ static NSArray *kParamsConfiguration;
       @{
         @"id" : @"domain",
         @"label" : @"App domain (required)",
-        @"defaultValue" : @"testfdl.app.goo.gl",
+        @"defaultValue" : @"testfdl.page.link",
       },
       // analytics params
       @{
