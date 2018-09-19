@@ -17,7 +17,7 @@ cc_library(
   SOURCES
     connectivity_monitor.cc
     connectivity_monitor.h
-    connectivity_monitor_apple.cc
+    connectivity_monitor_apple.mm
   DEPENDS
     absl_base
     firebase_firestore_util
