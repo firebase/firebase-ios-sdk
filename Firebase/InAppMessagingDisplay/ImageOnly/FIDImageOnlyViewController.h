@@ -25,11 +25,9 @@
 NS_ASSUME_NONNULL_BEGIN
 @interface FIDImageOnlyViewController : FIDBaseRenderingViewController
 + (FIDImageOnlyViewController *)
-    instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:
-                                     (FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
-                                displayDelegate:
-                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
+instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
+                             displayMessage:(FIRInAppMessagingImageOnlyDisplay *)imageOnlyMessage
+                            displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                timeFetcher:(id<FIDTimeFetcher>)timeFetcher;
 @end
 NS_ASSUME_NONNULL_END

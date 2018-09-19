@@ -62,11 +62,10 @@ static const CGFloat kSwipeUpThreshold = -10.0f;
 @implementation FIDBannerViewController
 
 + (FIDBannerViewController *)
-    instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
-                                 displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
-                                displayDelegate:
-                                    (id<FIRInAppMessagingDisplayDelegate>)displayDelegate
-                                    timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
+instantiateViewControllerWithResourceBundle:(NSBundle *)resourceBundle
+                             displayMessage:(FIRInAppMessagingBannerDisplay *)bannerMessage
+                            displayDelegate:(id<FIRInAppMessagingDisplayDelegate>)displayDelegate
+                                timeFetcher:(id<FIDTimeFetcher>)timeFetcher {
   UIStoryboard *storyboard =
       [UIStoryboard storyboardWithName:@"FIRInAppMessageDisplayStoryboard" bundle:resourceBundle];
 

@@ -56,8 +56,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @return A storage directory unique to the instance identified by databaseInfo.
  */
 + (firebase::firestore::util::Path)
-    storageDirectoryForDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                 documentsDirectory:(const firebase::firestore::util::Path &)documentsDirectory;
+storageDirectoryForDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
+             documentsDirectory:(const firebase::firestore::util::Path &)documentsDirectory;
 
 /**
  * Starts LevelDB-backed persistent storage by opening the database files, creating the DB if it

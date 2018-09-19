@@ -58,10 +58,10 @@ typedef NS_ENUM(NSInteger, FSTQueryPurpose) {
  * number.
  */
 - (instancetype)
-    queryDataByReplacingSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
-                            resumeToken:(NSData *)resumeToken
-                         sequenceNumber:
-                             (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
+queryDataByReplacingSnapshotVersion:(firebase::firestore::model::SnapshotVersion)snapshotVersion
+                        resumeToken:(NSData *)resumeToken
+                     sequenceNumber:
+                         (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
 
 /** The latest snapshot version seen for this target. */
 - (const firebase::firestore::model::SnapshotVersion &)snapshotVersion;
