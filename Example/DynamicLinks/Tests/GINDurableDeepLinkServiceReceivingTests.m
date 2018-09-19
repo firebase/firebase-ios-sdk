@@ -17,8 +17,8 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-#import "OCMock.h"
 #import "DynamicLinks/GINDurableDeepLinkServiceReceiving+Private.h"
+#import "OCMock.h"
 
 @interface GINDurableDeepLinkServiceReceivingTests : XCTestCase
 @end

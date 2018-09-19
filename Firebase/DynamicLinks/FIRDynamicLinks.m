@@ -19,6 +19,7 @@
 #import <UIKit/UIKit.h>
 
 #ifdef FIRDynamicLinks3P
+#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
@@ -27,7 +28,6 @@
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIROptionsInternal.h>
 #import "DynamicLinks/FIRDLScionLogging.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #endif
 
 #import "DynamicLinks/FIRDLRetrievalProcessFactory.h"
@@ -41,7 +41,8 @@
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
 #ifndef FIRDynamicLinks_VERSION
-#error "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
+#error \
+    "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
 invocation"
 #endif
 
@@ -61,7 +62,7 @@ static NSString *const kFIRDLOpenURLKey = @"com.google.appinvite.openURL";
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDynamicLinks ()<FIRDLRetrievalProcessDelegate>
+@interface FIRDynamicLinks () <FIRDLRetrievalProcessDelegate>
 
 // API Key for API access.
 @property(nonatomic, copy) NSString *APIKey;
@@ -80,12 +81,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #ifdef FIRDynamicLinks3P
-@interface FIRDynamicLinks (){
+@interface FIRDynamicLinks () {
   /// Stored Analytics reference, if it exists.
   id<FIRAnalyticsInterop> _Nullable _analytics;
 }
 @end
-
 
 // DynamicLinks doesn't provide any functionality to other components,
 // so it provides a private, empty protocol that it conforms to and use it for registration.
@@ -93,7 +93,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRDynamicLinksInstanceProvider
 @end
 
-@interface FIRDynamicLinks () <FIRDynamicLinksInstanceProvider, FIRCoreConfigurable,
+@interface FIRDynamicLinks () <FIRDynamicLinksInstanceProvider,
+                               FIRCoreConfigurable,
                                FIRComponentRegistrant>
 @end
 
@@ -140,8 +141,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)configureWithApp:(FIRApp *)app {
   if (!app.isDefaultApp) {
     // Only configure for the default FIRApp.
-    FDLLog(FDLLogLevelInfo, FDLLogIdentifierSetupNonDefaultApp, @"Firebase Dynamic Links only "
-        "works with the default app.");
+    FDLLog(FDLLogLevelInfo, FDLLogIdentifierSetupNonDefaultApp,
+           @"Firebase Dynamic Links only "
+            "works with the default app.");
     return;
   }
   [[FIRDynamicLinks dynamicLinks] configureDynamicLinks:app];
@@ -191,24 +193,26 @@ NS_ASSUME_NONNULL_BEGIN
     NSString *message = nil;
     if (options.usingOptionsFromDefaultPlist) {
       // Configured using plist file
-      message = [NSString stringWithFormat:@"Firebase Dynamic Links has stopped your project "
-                    @"because there are missing or incorrect values provided in %@.%@ that may "
-                    @"prevent your app from behaving as expected:\n\n"
-                    @"Error: %@\n\n"
-                    @"Please fix these issues to ensure that Firebase is correctly configured in "
-                    @"your project.",
-                    kServiceInfoFileName,
-                    kServiceInfoFileType,
-                    error.localizedFailureReason];
+      message = [NSString
+          stringWithFormat:
+              @"Firebase Dynamic Links has stopped your project "
+              @"because there are missing or incorrect values provided in %@.%@ that may "
+              @"prevent your app from behaving as expected:\n\n"
+              @"Error: %@\n\n"
+              @"Please fix these issues to ensure that Firebase is correctly configured in "
+              @"your project.",
+              kServiceInfoFileName, kServiceInfoFileType, error.localizedFailureReason];
     } else {
       // Configured manually
-      message = [NSString stringWithFormat:@"Firebase Dynamic Links has stopped your project "
-                    @"because there are incorrect values provided in Firebase's configuration "
-                    @"options that may prevent your app from behaving as expected:\n\n"
-                    @"Error: %@\n\n"
-                    @"Please fix these issues to ensure that Firebase is correctly configured in "
-                    @"your project.",
-                    error.localizedFailureReason];
+      message = [NSString
+          stringWithFormat:
+              @"Firebase Dynamic Links has stopped your project "
+              @"because there are incorrect values provided in Firebase's configuration "
+              @"options that may prevent your app from behaving as expected:\n\n"
+              @"Error: %@\n\n"
+              @"Please fix these issues to ensure that Firebase is correctly configured in "
+              @"your project.",
+              error.localizedFailureReason];
     }
     [NSException raise:kFirebaseDurableDeepLinkErrorDomain format:@"%@", message];
   }
@@ -224,8 +228,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)dynamicLinks {
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
-  id<FIRDynamicLinksInstanceProvider> instance = FIR_COMPONENT(FIRDynamicLinksInstanceProvider,
-                                                               defaultApp.container);
+  id<FIRDynamicLinksInstanceProvider> instance =
+      FIR_COMPONENT(FIRDynamicLinksInstanceProvider, defaultApp.container);
   return (FIRDynamicLinks *)instance;
 }
 
@@ -287,8 +291,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   if (appInviteDeepLinkRead || self.retrievingPendingDynamicLink) {
     NSString *errorDescription =
-    appInviteDeepLinkRead ? NSLocalizedString(@"Link was already retrieved", @"Error message")
-    : NSLocalizedString(@"Already retrieving link", @"Error message");
+        appInviteDeepLinkRead ? NSLocalizedString(@"Link was already retrieved", @"Error message")
+                              : NSLocalizedString(@"Already retrieving link", @"Error message");
     [self handlePendingDynamicLinkRetrievalFailureWithErrorCode:-1
                                                errorDescription:errorDescription
                                                 underlyingError:nil];
@@ -298,12 +302,12 @@ NS_ASSUME_NONNULL_BEGIN
   self.retrievingPendingDynamicLink = YES;
 
   FIRDLRetrievalProcessFactory *factory =
-  [[FIRDLRetrievalProcessFactory alloc] initWithNetworkingService:self.dynamicLinkNetworking
-                                                         clientID:_clientID
-                                                        URLScheme:_URLScheme
-                                                           APIKey:_APIKey
-                                                    FDLSDKVersion:kFIRDLVersion
-                                                         delegate:self];
+      [[FIRDLRetrievalProcessFactory alloc] initWithNetworkingService:self.dynamicLinkNetworking
+                                                             clientID:_clientID
+                                                            URLScheme:_URLScheme
+                                                               APIKey:_APIKey
+                                                        FDLSDKVersion:kFIRDLVersion
+                                                             delegate:self];
   _retrievalProcess = [factory automaticRetrievalProcess];
   [_retrievalProcess retrievePendingDynamicLink];
 }
@@ -444,8 +448,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion {
-  [self.dynamicLinkNetworking resolveShortLink:url
-                                    completion:completion];
+  [self.dynamicLinkNetworking resolveShortLink:url completion:completion];
 }
 
 - (BOOL)matchesShortLinkFormat:(NSURL *)url {
@@ -555,10 +558,9 @@ static NSString *kSelfDiagnoseOutputFooter =
   // Disable deprecated warning for internal methods.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [genericDiagnosticInfo
-      appendFormat:@"Device locale %@ (raw %@), timezone %@\n",
-                   FIRDLDeviceLocale(), FIRDLDeviceLocaleRaw(),
-                   FIRDLDeviceTimezone()];
+  [genericDiagnosticInfo appendFormat:@"Device locale %@ (raw %@), timezone %@\n",
+                                      FIRDLDeviceLocale(), FIRDLDeviceLocaleRaw(),
+                                      FIRDLDeviceTimezone()];
 #pragma clang pop
 
   return genericDiagnosticInfo;
@@ -661,20 +663,21 @@ static NSString *kSelfDiagnoseOutputFooter =
 
 #if TARGET_IPHONE_SIMULATOR
   // check is Simulator and print WARNING that Universal Links is not supported on Simulator
-  [diagnosticString
-      appendString:@"WARNING: iOS Simulator does not support Universal Links. Firebase "
-                   @"Dynamic Links SDK functionality will be limited. Some FDL "
-                   @"features may be missing or will not work correctly.\n"];
+  [diagnosticString appendString:
+                        @"WARNING: iOS Simulator does not support Universal Links. Firebase "
+                        @"Dynamic Links SDK functionality will be limited. Some FDL "
+                        @"features may be missing or will not work correctly.\n"];
 #endif  // TARGET_IPHONE_SIMULATOR
 
   id<UIApplicationDelegate> applicationDelegate = [UIApplication sharedApplication].delegate;
   if (![applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
     detectedErrorsCnt++;
-    [diagnosticString appendFormat:@"ERROR: UIApplication delegate %@ does not implements selector "
-                                   @"%@. FDL depends on this implementation to retrieve pending "
-                                   @"dynamic link.\n",
-                                   applicationDelegate,
-                                   NSStringFromSelector(@selector(application:openURL:options:))];
+    [diagnosticString appendFormat:
+                          @"ERROR: UIApplication delegate %@ does not implements selector "
+                          @"%@. FDL depends on this implementation to retrieve pending "
+                          @"dynamic link.\n",
+                          applicationDelegate,
+                          NSStringFromSelector(@selector(application:openURL:options:))];
   }
 
   // check that Info.plist has custom URL scheme and the scheme is the same as bundleID or
@@ -696,14 +699,16 @@ static NSString *kSelfDiagnoseOutputFooter =
   }
   if (!URLSchemeFoundInPlist) {
     detectedErrorsCnt++;
-    [diagnosticString appendFormat:@"ERROR: Specified custom URL scheme is %@ but Info.plist do "
-                                   @"not contain such scheme in "
-                                    "CFBundleURLTypes key.\n",
-                                   URLScheme];
+    [diagnosticString appendFormat:
+                          @"ERROR: Specified custom URL scheme is %@ but Info.plist do "
+                          @"not contain such scheme in "
+                           "CFBundleURLTypes key.\n",
+                          URLScheme];
   } else {
-    [diagnosticString appendFormat:@"\tSpecified custom URL scheme is %@ and Info.plist contains "
-                                   @"such scheme in CFBundleURLTypes key.\n",
-                                   URLScheme];
+    [diagnosticString appendFormat:
+                          @"\tSpecified custom URL scheme is %@ and Info.plist contains "
+                          @"such scheme in CFBundleURLTypes key.\n",
+                          URLScheme];
   }
 
 #if !TARGET_IPHONE_SIMULATOR

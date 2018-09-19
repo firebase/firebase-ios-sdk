@@ -76,10 +76,13 @@ NSDictionary *FIRDLDictionaryFromQuery(NSString *queryString);
  */
 NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable deepLinkString,
-                                    NSString *_Nullable utmSource, NSString *_Nullable utmMedium,
-                                    NSString *_Nullable utmCampaign, BOOL isWeakLink,
+                                    NSString *_Nullable utmSource,
+                                    NSString *_Nullable utmMedium,
+                                    NSString *_Nullable utmCampaign,
+                                    BOOL isWeakLink,
                                     NSString *_Nullable weakMatchEndpoint,
-                                    NSString *_Nullable minAppVersion, NSString *URLScheme,
+                                    NSString *_Nullable minAppVersion,
+                                    NSString *URLScheme,
                                     NSString *_Nullable matchMessage);
 
 /**

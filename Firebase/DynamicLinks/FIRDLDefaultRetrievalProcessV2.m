@@ -35,7 +35,7 @@ static NSString *expectedCopiedLinkStringSuffix = @"_icp=1";
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDLDefaultRetrievalProcessV2 ()<FIRDLJavaScriptExecutorDelegate>
+@interface FIRDLDefaultRetrievalProcessV2 () <FIRDLJavaScriptExecutorDelegate>
 
 @property(atomic, strong) NSMutableArray *requestResults;
 
@@ -102,8 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self retrievePendingDynamicLinkInternal];
 }
 
-- (void)javaScriptExecutor:(FIRDLJavaScriptExecutor *)executor
-           failedWithError:(NSError *)error {
+- (void)javaScriptExecutor:(FIRDLJavaScriptExecutor *)executor failedWithError:(NSError *)error {
   _localeFromWebView = @"";
   _jsExecutor = nil;
   [self retrievePendingDynamicLinkInternal];
@@ -126,34 +125,34 @@ NS_ASSUME_NONNULL_BEGIN
 
   __weak typeof(self) weakSelf = self;
   FIRPostInstallAttributionCompletionHandler completionHandler =
-  ^(NSDictionary *_Nullable dynamicLinkParameters, NSString *_Nullable matchMessage,
-    NSError *_Nullable error) {
-    typeof(self) strongSelf = weakSelf;
-    if (!strongSelf) {
-      return;
-    }
-    if (strongSelf.completed) {
-      // we may abort process and return previously found dynamic link before all requests
-      // completed
-      return;
-    }
+      ^(NSDictionary *_Nullable dynamicLinkParameters, NSString *_Nullable matchMessage,
+        NSError *_Nullable error) {
+        typeof(self) strongSelf = weakSelf;
+        if (!strongSelf) {
+          return;
+        }
+        if (strongSelf.completed) {
+          // we may abort process and return previously found dynamic link before all requests
+          // completed
+          return;
+        }
 
-    FIRDynamicLink *dynamicLink;
-    if (dynamicLinkParameters.count) {
-      dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:dynamicLinkParameters];
-    }
-    FIRDLRetrievalProcessResult *result =
-    [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:dynamicLink
-                                                       error:error
-                                                     message:matchMessage
-                                                 matchSource:nil];
+        FIRDynamicLink *dynamicLink;
+        if (dynamicLinkParameters.count) {
+          dynamicLink = [[FIRDynamicLink alloc] initWithParametersDictionary:dynamicLinkParameters];
+        }
+        FIRDLRetrievalProcessResult *result =
+            [[FIRDLRetrievalProcessResult alloc] initWithDynamicLink:dynamicLink
+                                                               error:error
+                                                             message:matchMessage
+                                                         matchSource:nil];
 
-    [strongSelf.requestResults addObject:result];
-    [strongSelf handleRequestResultsUpdated];
-    if (!error) {
-      [strongSelf clearUsedUniqueMatchLinkToCheckFromClipboard];
-    }
-  };
+        [strongSelf.requestResults addObject:result];
+        [strongSelf handleRequestResultsUpdated];
+        if (!error) {
+          [strongSelf clearUsedUniqueMatchLinkToCheckFromClipboard];
+        }
+      };
 
   // Disable deprecated warning for internal methods.
 #pragma clang diagnostic push
@@ -161,21 +160,21 @@ NS_ASSUME_NONNULL_BEGIN
   // If not unique match, we send request twice, since there are two server calls:
   // one for IPv4, another for IPV6.
   [_networkingService
-   retrievePendingDynamicLinkWithIOSVersion:[UIDevice currentDevice].systemVersion
-   resolutionHeight:resolutionHeight
-   resolutionWidth:resolutionWidth
-   locale:FIRDLDeviceLocale()
-   localeRaw:FIRDLDeviceLocaleRaw()
-   localeFromWebView:_localeFromWebView
-   timezone:FIRDLDeviceTimezone()
-   modelName:FIRDLDeviceModelName()
-   FDLSDKVersion:_FDLSDKVersion
-   appInstallationDate:FIRDLAppInstallationDate()
-   uniqueMatchVisualStyle:FIRDynamicLinkNetworkingUniqueMatchVisualStyleUnknown
-   retrievalProcessType:
-   FIRDynamicLinkNetworkingRetrievalProcessTypeImplicitDefault
-   uniqueMatchLinkToCheck:uniqueMatchLinkToCheck
-   handler:completionHandler];
+      retrievePendingDynamicLinkWithIOSVersion:[UIDevice currentDevice].systemVersion
+                              resolutionHeight:resolutionHeight
+                               resolutionWidth:resolutionWidth
+                                        locale:FIRDLDeviceLocale()
+                                     localeRaw:FIRDLDeviceLocaleRaw()
+                             localeFromWebView:_localeFromWebView
+                                      timezone:FIRDLDeviceTimezone()
+                                     modelName:FIRDLDeviceModelName()
+                                 FDLSDKVersion:_FDLSDKVersion
+                           appInstallationDate:FIRDLAppInstallationDate()
+                        uniqueMatchVisualStyle:FIRDynamicLinkNetworkingUniqueMatchVisualStyleUnknown
+                          retrievalProcessType:
+                              FIRDynamicLinkNetworkingRetrievalProcessTypeImplicitDefault
+                        uniqueMatchLinkToCheck:uniqueMatchLinkToCheck
+                                       handler:completionHandler];
 #pragma clang pop
 }
 
@@ -301,8 +300,7 @@ NS_ASSUME_NONNULL_BEGIN
   // See discussion in b/65304652
   // We will clear clipboard after we used the unique match link from the clipboard
   if (_clipboardContentAtMatchProcessStart.length > 0 &&
-      [_clipboardContentAtMatchProcessStart isEqualToString:_clipboardContentAtMatchProcessStart])
-  {
+      [_clipboardContentAtMatchProcessStart isEqualToString:_clipboardContentAtMatchProcessStart]) {
     [UIPasteboard generalPasteboard].string = @"";
   }
 }
@@ -316,8 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
       @"languageCode=navigator.languages?navigator.languages[0]:navigator."
       @"language;return languageCode;}catch(b){return"
        "}};";
-  _jsExecutor =
-      [[FIRDLJavaScriptExecutor alloc] initWithDelegate:self script:jsString];
+  _jsExecutor = [[FIRDLJavaScriptExecutor alloc] initWithDelegate:self script:jsString];
 }
 
 @end

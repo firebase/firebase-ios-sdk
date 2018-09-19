@@ -21,16 +21,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** A definition for a block used by methods that are asynchronous and may produce errors. */
-typedef void (^FIRDynamicLinkNetworkingErrorHandler)(NSError * _Nullable error);
+typedef void (^FIRDynamicLinkNetworkingErrorHandler)(NSError *_Nullable error);
 
 /** A definition for a block used to return a pending Dynamic Link. */
 typedef void (^FIRPostInstallAttributionCompletionHandler)(
-    NSDictionary *_Nullable dynamicLinkParameters, NSString *_Nullable matchMessage,
+    NSDictionary *_Nullable dynamicLinkParameters,
+    NSString *_Nullable matchMessage,
     NSError *_Nullable error);
 
 /** A definition for a block used to return data and errors after an asynchronous task. */
-typedef void (^FIRNetworkRequestCompletionHandler)(NSData * _Nullable data,
-                                                   NSError * _Nullable error);
+typedef void (^FIRNetworkRequestCompletionHandler)(NSData *_Nullable data,
+                                                   NSError *_Nullable error);
 
 // these enums must be in sync with google/firebase/dynamiclinks/v1/dynamic_links.proto
 typedef NS_ENUM(NSInteger, FIRDynamicLinkNetworkingUniqueMatchVisualStyle) {
@@ -90,8 +91,7 @@ FOUNDATION_EXPORT NSString *const kApiaryRestBaseUrl;
  * @param url A Short Dynamic Link.
  * @param completion Block to be run upon completion.
  */
-- (void)resolveShortLink:(NSURL *)url
-              completion:(FIRDynamicLinkResolverHandler)completion;
+- (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion;
 
 /**
  * @method

@@ -42,29 +42,25 @@ static const NSUInteger kVInset = 4;
 }
 
 - (void)layoutSubviews {
-  _titleLabel.frame = CGRectMake(
-      kHInset, kVInset, self.contentView.frame.size.width - 2 * kHInset,
-      (self.contentView.frame.size.height / 2) - 2 * kVInset);
-  _linkTextView.frame =
-      CGRectMake(kHInset, (self.contentView.frame.size.height / 2) + kVInset,
-                 self.contentView.frame.size.width - 2 * kHInset,
-                 (self.contentView.frame.size.height / 2) - 2 * kVInset);
+  _titleLabel.frame = CGRectMake(kHInset, kVInset, self.contentView.frame.size.width - 2 * kHInset,
+                                 (self.contentView.frame.size.height / 2) - 2 * kVInset);
+  _linkTextView.frame = CGRectMake(kHInset, (self.contentView.frame.size.height / 2) + kVInset,
+                                   self.contentView.frame.size.width - 2 * kHInset,
+                                   (self.contentView.frame.size.height / 2) - 2 * kVInset);
 }
 
 - (void)setTitle:(NSString *)title link:(NSString *)link {
-  self.accessibilityIdentifier = [NSString
-      stringWithFormat:@"%@-%@", NSStringFromClass(self.class), title];
+  self.accessibilityIdentifier =
+      [NSString stringWithFormat:@"%@-%@", NSStringFromClass(self.class), title];
   _linkTextView.accessibilityIdentifier =
-      [NSString stringWithFormat:@"%@-LinkTextView-%@",
-                                 NSStringFromClass(self.class), title];
+      [NSString stringWithFormat:@"%@-LinkTextView-%@", NSStringFromClass(self.class), title];
 
   _titleLabel.text = title;
 
   if (link) {
     NSURL *URL = [NSURL URLWithString:link];
-    NSAttributedString *attributedLink = [[NSAttributedString alloc]
-        initWithString:link
-            attributes:@{NSLinkAttributeName : URL}];
+    NSAttributedString *attributedLink =
+        [[NSAttributedString alloc] initWithString:link attributes:@{NSLinkAttributeName : URL}];
     _linkTextView.attributedText = attributedLink;
   }
   _linkTextView.accessibilityValue = link;

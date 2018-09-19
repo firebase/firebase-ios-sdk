@@ -67,15 +67,15 @@ NS_ASSUME_NONNULL_BEGIN
  * @method sharedInstance
  * @abstract Method for compatibility with old interface of the GINDurableDeepLinkService
  */
-+ (instancetype)sharedInstance
-    DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks dynamicLinks] instead.");
++ (instancetype)
+    sharedInstance DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks dynamicLinks] instead.");
 
 /**
  * @method checkForPendingDeepLink
  * @abstract Method for compatibility with old interface of the GINDurableDeepLinkService
  */
-- (void)checkForPendingDeepLink
-    DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks checkForPendingDynamicLink] instead.");
+- (void)checkForPendingDeepLink DEPRECATED_MSG_ATTRIBUTE(
+    "Use [FIRDynamicLinks checkForPendingDynamicLink] instead.");
 
 /**
  * @method deepLinkFromCustomSchemeURL:
@@ -96,8 +96,9 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract Method for compatibility with old interface of the GINDurableDeepLinkService
  */
 - (BOOL)shouldHandleDeepLinkFromCustomSchemeURL:(NSURL *)url
-    DEPRECATED_MSG_ATTRIBUTE("Use [FIRDynamicLinks shouldHandleDynamicLinkFromCustomSchemeURL:]"
-                             " instead.");
+    DEPRECATED_MSG_ATTRIBUTE(
+        "Use [FIRDynamicLinks shouldHandleDynamicLinkFromCustomSchemeURL:]"
+        " instead.");
 
 @end
 

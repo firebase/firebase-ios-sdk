@@ -39,5 +39,7 @@ typedef NS_ENUM(NSInteger, FDLLogIdentifier) {
 FOUNDATION_EXPORT NSString *const FDLMessageCodeIntegerFormat;
 
 /** Logs a message with FIRLogger. */
-FOUNDATION_EXPORT void FDLLog(FDLLogLevel logLevel, FDLLogIdentifier identifer,
-                              NSString *message, ...) NS_FORMAT_FUNCTION(3, 4);
+FOUNDATION_EXPORT void FDLLog(FDLLogLevel logLevel,
+                              FDLLogIdentifier identifer,
+                              NSString *message,
+                              ...) NS_FORMAT_FUNCTION(3, 4);

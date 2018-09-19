@@ -34,7 +34,7 @@ NSString *const kDDLBaseURLParameterBundleId = @"fdl_ios_bundle_id";
 NSString *const kDDLBaseURLParameterURLScheme = @"fdl_ios_url_scheme";
 
 // Retrieves the main window of the application.
-UIWindow * _Nullable GINGetMainWindow(UIApplication *application) {
+UIWindow *_Nullable GINGetMainWindow(UIApplication *application) {
   UIWindow *mainWindow = [application keyWindow];
   if (!mainWindow && [application.delegate respondsToSelector:@selector(window)]) {
     mainWindow = [application.delegate window];
@@ -42,8 +42,8 @@ UIWindow * _Nullable GINGetMainWindow(UIApplication *application) {
   return mainWindow;
 }
 
-UIViewController * _Nullable GINGetTopViewControllerFromViewController(
-    UIViewController * _Nullable viewController) {
+UIViewController *_Nullable GINGetTopViewControllerFromViewController(
+    UIViewController *_Nullable viewController) {
   if (!viewController) {
     return nil;
   }
@@ -61,12 +61,12 @@ UIViewController * _Nullable GINGetTopViewControllerFromViewController(
   return viewController;
 }
 
-UIViewController * _Nullable GINGetTopViewController(UIApplication *application) {
+UIViewController *_Nullable GINGetTopViewController(UIApplication *application) {
   UIViewController *viewController = GINGetMainWindow(application).rootViewController;
   return GINGetTopViewControllerFromViewController(viewController);
 }
 
-void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewController) {
+void GINRemoveViewControllerFromHierarchy(UIViewController *_Nullable viewController) {
   if (viewController.parentViewController) {
     [viewController removeFromParentViewController];
   }
@@ -98,17 +98,17 @@ void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewContr
       if (!bundleIdentifier) {
         bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
       }
-      
+
       if (!customScheme) {
         customScheme = bundleIdentifier;
       }
-      
+
       NSURLComponents *components = [NSURLComponents new];
       [components setScheme:@"https"];
       [components setHost:@"goo.gl"];
       [components setPath:@"/app/_/deeplink"];
       NSMutableArray *queryItems = [NSMutableArray array];
-      
+
       // NSURLQueryItem and -setQueryItems: are called only if the system version is greater than
       // iOS 8, so these are safe here.
       [queryItems addObject:[NSURLQueryItem queryItemWithName:kDDLBaseURLParameterBundleId
@@ -117,23 +117,24 @@ void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewContr
                                                         value:customScheme]];
       [components setQueryItems:queryItems];
       NSURL *ddlURL = [components URL];
-      
+
       SFSafariViewController *safariViewController =
-      [[SFSafariViewController alloc] initWithURL:ddlURL entersReaderIfAvailable:NO];
-      
+          [[SFSafariViewController alloc] initWithURL:ddlURL entersReaderIfAvailable:NO];
+
       if ([[UIDevice currentDevice].systemVersion integerValue] >= 10) {
-        // Since iOS 10, the SFSafariViewController must be in the view controller hierarchy to load.
+        // Since iOS 10, the SFSafariViewController must be in the view controller hierarchy to
+        // load.
         safariViewController.view.alpha = 0.05f;
         safariViewController.view.userInteractionEnabled = NO;
         safariViewController.view.frame = CGRectMake(0, 0, 1, 1);
         safariViewController.delegate = self;
-        
+
         UIViewController *topViewController =
-        GINGetTopViewController([UIApplication sharedApplication]);
+            GINGetTopViewController([UIApplication sharedApplication]);
         if (topViewController) {
           [topViewController addChildViewController:safariViewController];
           [topViewController.view addSubview:safariViewController.view];
-          
+
           dispatch_after(dispatch_time(DISPATCH_TIME_NOW,
                                        (int64_t)(kAppInviteReadDeepLinkTimeout * NSEC_PER_SEC)),
                          dispatch_get_main_queue(), ^{
@@ -152,27 +153,26 @@ void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewContr
         _hiddenWindow.rootViewController = [[UIViewController alloc] init];
         [_hiddenWindow.rootViewController addChildViewController:safariViewController];
         [_hiddenWindow.rootViewController.view addSubview:safariViewController.view];
-        
+
         if (_dismissWindowTimer) {
           [_dismissWindowTimer invalidate];
           _dismissWindowTimer = nil;
         }
-        _dismissWindowTimer = [NSTimer scheduledTimerWithTimeInterval:kAppInviteReadDeepLinkTimeout
-                                                               target:self
-                                                             selector:@selector(dismissHiddenUIWindow)
-                                                             userInfo:nil
-                                                              repeats:NO];
-        
-        
+        _dismissWindowTimer =
+            [NSTimer scheduledTimerWithTimeInterval:kAppInviteReadDeepLinkTimeout
+                                             target:self
+                                           selector:@selector(dismissHiddenUIWindow)
+                                           userInfo:nil
+                                            repeats:NO];
+
         _dismissWindowTimer.tolerance = kAppInviteReadDeepLinkTimeout / 10.0;
       }
-      
+
       // Make sure we don't call |checkForPendingDeepLink| again.
       [userDefaults setBool:YES forKey:kDeepLinkReadInstallKey];
     }
   }
 }
-
 
 // Set hidden window to nil once any deep link is received.
 // If there is no network access at first launch and no deep link is ever received then
@@ -186,7 +186,7 @@ void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewContr
 }
 
 - (void)safariViewController:(SFSafariViewController *)controller
-      didCompleteInitialLoad:(BOOL)didLoadSuccessfully  API_AVAILABLE(ios(9.0)){
+      didCompleteInitialLoad:(BOOL)didLoadSuccessfully API_AVAILABLE(ios(9.0)) {
   GINRemoveViewControllerFromHierarchy(controller);
 }
 

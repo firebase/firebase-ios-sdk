@@ -44,6 +44,6 @@ FOUNDATION_EXPORT NSString *const kFDLResolvedLinkMinAppVersionKey;
 NSString *_Nullable FIRDynamicLinkAPIKeyParameter(NSString *apiKey);
 
 /** Creates and returns an NSData object from an NSDictionary along with any error. */
-NSData * _Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError ** _Nullable error);
+NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nullable error);
 
 NS_ASSUME_NONNULL_END

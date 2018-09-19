@@ -23,12 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSUInteger, FIRDynamicLinkMatchConfidence) {
   FIRDynamicLinkMatchConfidenceWeak,
   FIRDynamicLinkMatchConfidenceStrong
-} NS_SWIFT_NAME(DynamicLinkMatchConfidence)
-DEPRECATED_MSG_ATTRIBUTE("Use FIRDLMatchType instead.");
+} NS_SWIFT_NAME(DynamicLinkMatchConfidence) DEPRECATED_MSG_ATTRIBUTE("Use FIRDLMatchType instead.");
 
 @property(nonatomic, assign, readonly)
-FIRDynamicLinkMatchConfidence matchConfidence DEPRECATED_MSG_ATTRIBUTE(
-"Use FIRDynamicLink.matchType (DynamicLink.DLMatchType) instead.");
+    FIRDynamicLinkMatchConfidence matchConfidence DEPRECATED_MSG_ATTRIBUTE(
+        "Use FIRDynamicLink.matchType (DynamicLink.DLMatchType) instead.");
 
 @property(nonatomic, copy, nullable) NSURL *url;
 

@@ -85,8 +85,7 @@ NS_SWIFT_NAME(DynamicLinks)
  * @param completion A block that handles the outcome of attempting to create a FIRDynamicLink.
  * @return YES if FIRDynamicLinks is handling the link, otherwise, NO.
  */
-- (BOOL)handleUniversalLink:(NSURL *)url
-                 completion:(FIRDynamicLinkUniversalLinkHandler)completion;
+- (BOOL)handleUniversalLink:(NSURL *)url completion:(FIRDynamicLinkUniversalLinkHandler)completion;
 
 /**
  * @method resolveShortLink:completion:
@@ -94,8 +93,7 @@ NS_SWIFT_NAME(DynamicLinks)
  * @param url A Short Dynamic Link.
  * @param completion Block to be run upon completion.
  */
-- (void)resolveShortLink:(NSURL *)url
-              completion:(FIRDynamicLinkResolverHandler)completion;
+- (void)resolveShortLink:(NSURL *)url completion:(FIRDynamicLinkResolverHandler)completion;
 
 /**
  * @method matchesShortLinkFormat:

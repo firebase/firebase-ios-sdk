@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "DynamicLinks/FIRDynamicLinks.h"
 #import "DynamicLinks/FIRDynamicLinks+FirstParty.h"
+#import "DynamicLinks/FIRDynamicLinks.h"
 
 /**
  * @file GINDurableDeepLinkService.h

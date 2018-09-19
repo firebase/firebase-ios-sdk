@@ -18,8 +18,8 @@
 
 #import "OCMock.h"
 
-#import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
 #import <GoogleUtilities/GULSwizzler.h>
+#import "DynamicLinks/FIRDynamicLinkNetworking+Private.h"
 
 static NSString *const kAPIKey = @"myfakeapikey";
 static NSString *const kClientID = @"myfakeclientid";
@@ -53,8 +53,7 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 
   NSString *parameter = FIRDynamicLinkAPIKeyParameter(kAPIKey);
 
-  XCTAssertEqualObjects(parameter,
-                        expectedValue,
+  XCTAssertEqualObjects(parameter, expectedValue,
                         @"FIRDynamicLinkAPIKeyParameter() returned incorrect parameter string");
 }
 
@@ -71,15 +70,10 @@ static const NSTimeInterval kAsyncTestTimout = 0.5;
 - (void)testResolveShortLinkServiceCompletionDoesntCrashWhenNilDataIsRetrieved {
   NSURL *url = [NSURL URLWithString:@"https://google.com"];
 
-  void (^executeRequestBlock)(id,
-                              NSDictionary *,
-                              NSString *,
-                              FIRNetworkRequestCompletionHandler) =
-      ^(id p1,
-        NSDictionary *requestBody,
-        NSString *requestURLString,
+  void (^executeRequestBlock)(id, NSDictionary *, NSString *, FIRNetworkRequestCompletionHandler) =
+      ^(id p1, NSDictionary *requestBody, NSString *requestURLString,
         FIRNetworkRequestCompletionHandler handler) {
-          handler(nil, nil);
+        handler(nil, nil);
       };
 
   SEL executeRequestSelector = @selector(executeOnePlatformRequest:forURL:completionHandler:);

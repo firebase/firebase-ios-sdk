@@ -24,7 +24,7 @@
 
 #if __LP64__  // 64-bit
 NSString *const FDLMessageCodeIntegerFormat = @"%06ld";
-#else  // 32-bit
+#else   // 32-bit
 NSString *const FDLMessageCodeIntegerFormat = @"%06d";
 #endif  // #if __LP64__
 

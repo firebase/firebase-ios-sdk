@@ -23,7 +23,7 @@
 // A method that performs a selector on a target object, and return the result.
 + (id)objectByPerformingSelector:(SEL)selector
                         onTarget:(id)target
-               numberOfArguments:(NSInteger)numberOfArguments,... {
+               numberOfArguments:(NSInteger)numberOfArguments, ... {
   if (![target respondsToSelector:selector]) {
 #if DEBUG
     [NSException raise:@"InvalidSelectorException" format:@"Invalid selector send to target"];
@@ -62,7 +62,7 @@
 // A method that performs a selector on a target object, and return the result.
 + (double)doubleByPerformingSelector:(SEL)selector
                             onTarget:(id)target
-                   numberOfArguments:(NSInteger)numberOfArguments,... {
+                   numberOfArguments:(NSInteger)numberOfArguments, ... {
   if (![target respondsToSelector:selector]) {
 #if DEBUG
     [NSException raise:@"InvalidSelectorException" format:@"Invalid selector send to target"];

@@ -21,8 +21,10 @@
 static NSString *const kFIRDLLogEventFirstOpenCampaign = @"dynamic_link_first_open";
 static NSString *const kFIRDLLogEventAppOpenCampaign = @"dynamic_link_app_open";
 
-void FIRDLLogEventToScion(FIRDLLogEvent event, NSString *_Nullable source,
-                          NSString *_Nullable medium, NSString *_Nullable campaign,
+void FIRDLLogEventToScion(FIRDLLogEvent event,
+                          NSString *_Nullable source,
+                          NSString *_Nullable medium,
+                          NSString *_Nullable campaign,
                           id<FIRAnalyticsInterop> _Nullable analytics) {
   NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
 

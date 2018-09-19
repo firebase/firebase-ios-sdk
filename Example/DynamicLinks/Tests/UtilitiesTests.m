@@ -29,8 +29,10 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   static NSString *const kCustomScheme = @"customscheme";
   static NSString *const kBundleID = @"com.My.Bundle.ID";
 
-  NSString *expectedURLString = [NSString stringWithFormat:@"https://goo.gl/app/_/deeplink?fdl_ios_"
-                                    "bundle_id=%@&fdl_ios_url_scheme=%@", kBundleID, kCustomScheme];
+  NSString *expectedURLString = [NSString stringWithFormat:
+                                              @"https://goo.gl/app/_/deeplink?fdl_ios_"
+                                               "bundle_id=%@&fdl_ios_url_scheme=%@",
+                                              kBundleID, kCustomScheme];
 
   NSURL *url = FIRDLCookieRetrievalURL(kCustomScheme, kBundleID);
 
@@ -47,7 +49,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *key = @"key";
   NSString *value = @"value";
 
-  NSDictionary *queryDict = @{ key: value };
+  NSDictionary *queryDict = @{key : value};
   NSString *query = FIRDLURLQueryStringFromDictionary(queryDict);
 
   NSString *expectedQuery = [NSString stringWithFormat:@"?%@=%@", key, value];
@@ -57,11 +59,11 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
 
 - (void)testFDLURLQueryStringFromDictionary {
   NSDictionary *expectedQueryDict = @{
-    @"key1": @"va!lue1",
-    @"key2": @"val=ue2",
-    @"key3": @"val&ue3",
-    @"key4": @"valu?e4",
-    @"key5": @"val$ue5",
+    @"key1" : @"va!lue1",
+    @"key2" : @"val=ue2",
+    @"key3" : @"val&ue3",
+    @"key4" : @"valu?e4",
+    @"key5" : @"val$ue5",
   };
 
   NSString *query = FIRDLURLQueryStringFromDictionary(expectedQueryDict);
@@ -77,10 +79,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&key2=value2";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{
-                                       @"key1": @"value1",
-                                       @"key2": @"value2"
-                                       };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1", @"key2" : @"value2"};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -89,10 +88,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&key2=";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{
-                                       @"key1": @"value1",
-                                       @"key2": @""
-                                       };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1", @"key2" : @""};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -101,10 +97,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&=value2";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{
-                                       @"key1": @"value1",
-                                       @"": @"value2"
-                                       };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1", @"" : @"value2"};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -113,10 +106,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&=";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{
-                                       @"key1": @"value1",
-                                       @"": @""
-                                       };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1", @"" : @""};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -125,7 +115,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{ @"key1": @"value1" };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1"};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -134,7 +124,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"&key1=value1";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{ @"key1": @"value1" };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1"};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -143,10 +133,7 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *query = @"key1=value1&&key2=value2";
 
   NSDictionary *returnedDictionary = FIRDLDictionaryFromQuery(query);
-  NSDictionary *expectedDictionary = @{
-                                       @"key1": @"value1",
-                                       @"key2": @"value2"
-                                       };
+  NSDictionary *expectedDictionary = @{@"key1" : @"value1", @"key2" : @"value2"};
 
   XCTAssertEqualObjects(returnedDictionary, expectedDictionary);
 }
@@ -162,11 +149,12 @@ static NSString *const kURLScheme = @"gindeeplinkurl";
   NSString *matchType = @"unique";
 
   NSString *expectedURLString =
-      [NSString stringWithFormat:@"%@://google/link/?utm_campaign=%@"
-                                 @"&deep_link_id=%@&utm_medium=%@&invitation_weakMatchEndpoint=%@"
-                                 @"&utm_source=%@&invitation_id=%@&match_type=%@",
-                                 kURLScheme, utmCampaign, encodedDeepLinkString, utmMedium,
-                                 weakMatchEndpoint, utmSource, inviteID, matchType];
+      [NSString stringWithFormat:
+                    @"%@://google/link/?utm_campaign=%@"
+                    @"&deep_link_id=%@&utm_medium=%@&invitation_weakMatchEndpoint=%@"
+                    @"&utm_source=%@&invitation_id=%@&match_type=%@",
+                    kURLScheme, utmCampaign, encodedDeepLinkString, utmMedium, weakMatchEndpoint,
+                    utmSource, inviteID, matchType];
   NSURLComponents *expectedURLComponents = [NSURLComponents componentsWithString:expectedURLString];
 
   NSURL *actualURL =

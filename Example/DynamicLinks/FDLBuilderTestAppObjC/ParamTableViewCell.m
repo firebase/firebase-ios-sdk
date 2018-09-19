@@ -48,13 +48,11 @@ static const NSUInteger kVInset = 4;
 }
 
 - (void)layoutSubviews {
-  _label.frame = CGRectMake(
-      kHInset, kVInset, self.contentView.frame.size.width - 2 * kHInset,
-      (self.contentView.frame.size.height / 2) - 2 * kVInset);
-  _textField.frame =
-      CGRectMake(kHInset, (self.contentView.frame.size.height / 2) + kVInset,
-                 self.contentView.frame.size.width - 2 * kHInset,
-                 (self.contentView.frame.size.height / 2) - 2 * kVInset);
+  _label.frame = CGRectMake(kHInset, kVInset, self.contentView.frame.size.width - 2 * kHInset,
+                            (self.contentView.frame.size.height / 2) - 2 * kVInset);
+  _textField.frame = CGRectMake(kHInset, (self.contentView.frame.size.height / 2) + kVInset,
+                                self.contentView.frame.size.width - 2 * kHInset,
+                                (self.contentView.frame.size.height / 2) - 2 * kVInset);
 }
 
 - (void)onTextFieldValueChanged {
@@ -64,8 +62,7 @@ static const NSUInteger kVInset = 4;
   }
 }
 
-- (void)onTextFieldDidEndOnExit
-{
+- (void)onTextFieldDidEndOnExit {
   [_textField resignFirstResponder];
 }
 

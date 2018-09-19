@@ -21,14 +21,14 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRDLRetrievalProcessProtocol;
 @class FIRDLRetrievalProcessResult;
 
-@protocol FIRDLRetrievalProcessDelegate<NSObject>
+@protocol FIRDLRetrievalProcessDelegate <NSObject>
 
 - (void)retrievalProcess:(id<FIRDLRetrievalProcessProtocol>)retrievalProcess
      completedWithResult:(FIRDLRetrievalProcessResult *)result;
 
 @end
 
-@protocol FIRDLRetrievalProcessProtocol<NSObject>
+@protocol FIRDLRetrievalProcessProtocol <NSObject>
 
 @property(weak, nonatomic, readonly) id<FIRDLRetrievalProcessDelegate> delegate;
 @property(nonatomic, readonly, getter=isCompleted) BOOL completed;

@@ -21,9 +21,9 @@
 // define below needed because nullability of UIWebViewDelegate method param was changed between
 // iOS SDK versions
 #if (defined(__IPHONE_10_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0))
-  #define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nonnull
+#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nonnull
 #else
-  #define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nullable
+#define FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 nullable
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -53,24 +53,21 @@ NSString *GINFingerprintJSMethodString() {
 @interface FIRDLJavaScriptExecutor () <UIWebViewDelegate, WKNavigationDelegate>
 @end
 
-@implementation FIRDLJavaScriptExecutor
-{
+@implementation FIRDLJavaScriptExecutor {
   __weak id<FIRDLJavaScriptExecutorDelegate> _delegate;
   NSString *_script;
 
   // Web views with which to run JavaScript.
-  UIWebView *_uiWebView; // Used in iOS 7 only.
-  WKWebView *_wkWebView; // Used in iOS 8+ only.
+  UIWebView *_uiWebView;  // Used in iOS 7 only.
+  WKWebView *_wkWebView;  // Used in iOS 8+ only.
 }
 
 - (instancetype)initWithDelegate:(id<FIRDLJavaScriptExecutorDelegate>)delegate
-                          script:(NSString *)script
-{
+                          script:(NSString *)script {
   NSParameterAssert(delegate);
   NSParameterAssert(script);
   NSParameterAssert(script.length > 0);
-  NSAssert([NSThread isMainThread],
-           @"%@ must be used in main thread",
+  NSAssert([NSThread isMainThread], @"%@ must be used in main thread",
            NSStringFromClass([self class]));
   if (self = [super init]) {
     _delegate = delegate;
@@ -81,11 +78,9 @@ NSString *GINFingerprintJSMethodString() {
 }
 
 #pragma mark - Internal methods
-- (void)start
-{
-  NSString *htmlContent = [NSString stringWithFormat:
-                           @"<html><head><script>%@</script></head></html>",
-                           _script];
+- (void)start {
+  NSString *htmlContent =
+      [NSString stringWithFormat:@"<html><head><script>%@</script></head></html>", _script];
 
   // Use WKWebView if available as it executes JavaScript more quickly, otherwise, fall back
   // on UIWebView.
@@ -100,55 +95,49 @@ NSString *GINFingerprintJSMethodString() {
   }
 }
 
-- (void)handleExecutionResult:(NSString *)result
-{
+- (void)handleExecutionResult:(NSString *)result {
   [self cleanup];
   [_delegate javaScriptExecutor:self completedExecutionWithResult:result];
 }
 
-- (void)handleExecutionError:(nullable NSError *)error
-{
+- (void)handleExecutionError:(nullable NSError *)error {
   [self cleanup];
   if (!error) {
-    error = [NSError errorWithDomain:@"com.firebase.durabledeeplink"
-                                code:-1
-                            userInfo:nil];
+    error = [NSError errorWithDomain:@"com.firebase.durabledeeplink" code:-1 userInfo:nil];
   }
   [_delegate javaScriptExecutor:self failedWithError:error];
 }
 
-- (void)cleanup
-{
+- (void)cleanup {
   _uiWebView.delegate = nil;
   _uiWebView = nil;
   _wkWebView.navigationDelegate = nil;
   _wkWebView = nil;
 }
 
-
 #pragma mark - WKNavigationDelegate
 
 - (void)webView:(WKWebView *)webView
-didFinishNavigation:(null_unspecified WKNavigation *)navigation {
+    didFinishNavigation:(null_unspecified WKNavigation *)navigation {
   __weak __typeof__(self) weakSelf = self;
 
   // Make sure that the javascript was loaded successfully before calling the method.
   [webView evaluateJavaScript:FIRDLTypeofFingerprintJSMethodNameString()
-            completionHandler:^(id _Nullable typeofResult, NSError * _Nullable typeError) {
+            completionHandler:^(id _Nullable typeofResult, NSError *_Nullable typeError) {
               if (typeError) {
                 [weakSelf handleExecutionError:typeError];
                 return;
               }
               if ([typeofResult isEqual:@"function"]) {
-                [webView evaluateJavaScript:GINFingerprintJSMethodString()
-                          completionHandler:^(id _Nullable result,
-                                              NSError * _Nullable functionError) {
-                            if ([result isKindOfClass:[NSString class]]) {
-                              [weakSelf handleExecutionResult:result];
-                            } else {
-                              [weakSelf handleExecutionError:nil];
-                            }
-                          }];
+                [webView
+                    evaluateJavaScript:GINFingerprintJSMethodString()
+                     completionHandler:^(id _Nullable result, NSError *_Nullable functionError) {
+                       if ([result isKindOfClass:[NSString class]]) {
+                         [weakSelf handleExecutionResult:result];
+                       } else {
+                         [weakSelf handleExecutionError:nil];
+                       }
+                     }];
               } else {
                 [weakSelf handleExecutionError:nil];
               }
@@ -156,18 +145,17 @@ didFinishNavigation:(null_unspecified WKNavigation *)navigation {
 }
 
 - (void)webView:(WKWebView *)webView
-didFailNavigation:(null_unspecified WKNavigation *)navigation
-      withError:(NSError *)error {
+    didFailNavigation:(null_unspecified WKNavigation *)navigation
+            withError:(NSError *)error {
   [self handleExecutionError:error];
 }
-
 
 #pragma mark - UIWebViewDelegate
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
   // Make sure that the javascript was loaded successfully before calling the method.
   NSString *methodType =
-  [webView stringByEvaluatingJavaScriptFromString:FIRDLTypeofFingerprintJSMethodNameString()];
+      [webView stringByEvaluatingJavaScriptFromString:FIRDLTypeofFingerprintJSMethodNameString()];
   if (![methodType isEqualToString:@"function"]) {
     // Javascript was not loaded successfully.
     [self handleExecutionError:nil];
@@ -175,8 +163,8 @@ didFailNavigation:(null_unspecified WKNavigation *)navigation
   }
 
   // Get the result from javascript.
-  NSString *result = [webView stringByEvaluatingJavaScriptFromString:
-                           GINFingerprintJSMethodString()];
+  NSString *result =
+      [webView stringByEvaluatingJavaScriptFromString:GINFingerprintJSMethodString()];
   if ([result isKindOfClass:[NSString class]]) {
     [self handleExecutionResult:result];
   } else {
@@ -185,7 +173,7 @@ didFailNavigation:(null_unspecified WKNavigation *)navigation
 }
 
 - (void)webView:(UIWebView *)webView
-  didFailLoadWithError:(FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 NSError *)error {
+    didFailLoadWithError:(FIRDL_NULLABLE_IOS9_NONNULLABLE_IOS10 NSError *)error {
   [self handleExecutionError:error];
 }
 

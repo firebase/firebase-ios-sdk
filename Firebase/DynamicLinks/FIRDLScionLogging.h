@@ -38,6 +38,8 @@ typedef NS_ENUM(NSInteger, FIRDLLogEvent) {
  * @param campaign The utm_campaign URL parameter value.
  * @param analytics The class to be used as the receiver of the logging method.
  */
-void FIRDLLogEventToScion(FIRDLLogEvent event, NSString* _Nullable source,
-                          NSString* _Nullable medium, NSString* _Nullable campaign,
+void FIRDLLogEventToScion(FIRDLLogEvent event,
+                          NSString* _Nullable source,
+                          NSString* _Nullable medium,
+                          NSString* _Nullable campaign,
                           id<FIRAnalyticsInterop> _Nullable analytics);

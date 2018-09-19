@@ -23,9 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol FIRDLJavaScriptExecutorDelegate <NSObject>
 
 - (void)javaScriptExecutor:(FIRDLJavaScriptExecutor *)executor
-completedExecutionWithResult:(NSString *)result;
-- (void)javaScriptExecutor:(FIRDLJavaScriptExecutor *)executor
-           failedWithError:(NSError *)error;
+    completedExecutionWithResult:(NSString *)result;
+- (void)javaScriptExecutor:(FIRDLJavaScriptExecutor *)executor failedWithError:(NSError *)error;
 
 @end
 

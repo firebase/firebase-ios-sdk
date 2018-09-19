@@ -17,9 +17,9 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 
-#import <FirebaseDynamicLinks/FIRDynamicLinks.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
+#import <FirebaseDynamicLinks/FIRDynamicLinks.h>
 
 @implementation AppDelegate
 
@@ -35,7 +35,7 @@
 
 #ifdef DEBUG
   [FIRDynamicLinks performDiagnosticsWithCompletion:nil];
-#endif // DEBUG
+#endif  // DEBUG
 
   return YES;
 }
@@ -80,11 +80,10 @@
 
   UIAlertController *alertVC = [UIAlertController
       alertControllerWithTitle:@"Got Dynamic Link!"
-                       message:[NSString
-                                   stringWithFormat:
-                                       @"URL [%@], matchType [%ld], minimumAppVersion [%@]",
-                                       dynamicLink.url, (unsigned long)dynamicLink.matchType,
-                                       dynamicLink.minimumAppVersion]
+                       message:[NSString stringWithFormat:
+                                             @"URL [%@], matchType [%ld], minimumAppVersion [%@]",
+                                             dynamicLink.url, (unsigned long)dynamicLink.matchType,
+                                             dynamicLink.minimumAppVersion]
                 preferredStyle:UIAlertControllerStyleAlert];
   [alertVC addAction:[UIAlertAction actionWithTitle:@"Dismiss"
                                               style:UIAlertActionStyleCancel

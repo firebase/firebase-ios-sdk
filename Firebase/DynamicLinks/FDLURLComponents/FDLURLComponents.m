@@ -17,15 +17,16 @@
 #import <Foundation/Foundation.h>
 
 #import "DynamicLinks/FDLURLComponents/FDLURLComponents+Private.h"
-#import "DynamicLinks/Public/FDLURLComponents.h"
 #import "DynamicLinks/FDLURLComponents/FIRDynamicLinkComponentsKeyProvider.h"
+#import "DynamicLinks/Public/FDLURLComponents.h"
 
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
 /// The exact behavior of dict[key] = value is unclear when value is nil. This function safely adds
 /// the key-value pair to the dictionary, even when value is nil.
 /// This function will treat empty string in the same way as nil.
-NS_INLINE void FDLSafelyAddKeyValuePairToDictionary(id<NSCopying> key, NSString *stringValue,
+NS_INLINE void FDLSafelyAddKeyValuePairToDictionary(id<NSCopying> key,
+                                                    NSString *stringValue,
                                                     NSMutableDictionary *dictionary) {
   if (stringValue != nil && stringValue.length > 0) {
     dictionary[key] = stringValue;
@@ -121,7 +122,6 @@ static NSString *const kFirebaseDurableDeepLinkErrorDomain = @"com.firebase.dura
 
 @end
 
-
 @implementation FIRDynamicLinkIOSParameters {
   NSMutableDictionary<NSString *, NSString *> *_dictionary;
 }
@@ -153,7 +153,7 @@ static NSString *const kFDLIOSIPadFallbackURLKey = @"ipfl";
 
 - (void)setAppStoreID:(NSString *)appStoreID {
   FDLSafelyAddKeyValuePairToDictionary(kFDLIOSAppStoreIdentifierKey, [appStoreID copy],
-    _dictionary);
+                                       _dictionary);
 }
 
 - (NSString *)appStoreID {
@@ -162,7 +162,7 @@ static NSString *const kFDLIOSIPadFallbackURLKey = @"ipfl";
 
 - (void)setFallbackURL:(NSURL *)fallbackURL {
   FDLSafelyAddKeyValuePairToDictionary(kFDLIOSFallbackURLKey, fallbackURL.absoluteString,
-    _dictionary);
+                                       _dictionary);
 }
 
 - (NSURL *)fallbackURL {
@@ -171,8 +171,7 @@ static NSString *const kFDLIOSIPadFallbackURLKey = @"ipfl";
 }
 
 - (void)setCustomScheme:(NSString *)customScheme {
-  FDLSafelyAddKeyValuePairToDictionary(kFDLIOSCustomURLSchemeKey, [customScheme copy],
-                                       _dictionary);
+  FDLSafelyAddKeyValuePairToDictionary(kFDLIOSCustomURLSchemeKey, [customScheme copy], _dictionary);
 }
 
 - (NSString *)customScheme {
@@ -199,7 +198,7 @@ static NSString *const kFDLIOSIPadFallbackURLKey = @"ipfl";
 
 - (void)setIPadFallbackURL:(NSURL *)iPadFallbackURL {
   FDLSafelyAddKeyValuePairToDictionary(kFDLIOSIPadFallbackURLKey, iPadFallbackURL.absoluteString,
-                                _dictionary);
+                                       _dictionary);
 }
 
 - (NSURL *)iPadFallbackURL {
@@ -212,7 +211,6 @@ static NSString *const kFDLIOSIPadFallbackURLKey = @"ipfl";
 }
 
 @end
-
 
 @implementation FIRDynamicLinkItunesConnectAnalyticsParameters {
   NSMutableDictionary<NSString *, NSString *> *_dictionary;
@@ -267,7 +265,6 @@ static NSString *const kFDLITunesConnectProviderTokenKey = @"pt";
 
 @end
 
-
 @implementation FIRDynamicLinkAndroidParameters {
   NSMutableDictionary<NSString *, NSString *> *_dictionary;
 }
@@ -316,7 +313,6 @@ static NSString *const kFDLAndroidPackageNameKey = @"apn";
 }
 
 @end
-
 
 @implementation FIRDynamicLinkSocialMetaTagParameters {
   NSMutableDictionary<NSString *, NSString *> *_dictionary;
@@ -394,8 +390,7 @@ static NSString *const kFDLNavigationInfoForceRedirectKey = @"efr";
 
 - (void)setForcedRedirectEnabled:(BOOL)forcedRedirectEnabled {
   FDLSafelyAddKeyValuePairToDictionary(kFDLNavigationInfoForceRedirectKey,
-                                       forcedRedirectEnabled ? @"1" : @"0",
-                                       _dictionary);
+                                       forcedRedirectEnabled ? @"1" : @"0", _dictionary);
 }
 
 - (NSDictionary<NSString *, NSString *> *)dictionaryRepresentation {
@@ -451,7 +446,6 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
 @end
 
-
 @implementation FIRDynamicLinkComponents
 
 + (instancetype)componentsWithLink:(NSURL *)link domain:(NSString *)domain {
@@ -471,89 +465,92 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
            options:(FIRDynamicLinkComponentsOptions *)options
         completion:(FIRDynamicLinkShortenerCompletion)completion {
   if (![FIRDynamicLinkComponentsKeyProvider APIKey]) {
-    NSError *error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                         code:0
-                                     userInfo:@{
-                                                NSLocalizedFailureReasonErrorKey :
-                                                  NSLocalizedString(@"API key is missing.", @"Error reason message when API key is missing"),
-                                                }];
+    NSError *error = [NSError
+        errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                   code:0
+               userInfo:@{
+                 NSLocalizedFailureReasonErrorKey : NSLocalizedString(
+                     @"API key is missing.", @"Error reason message when API key is missing"),
+               }];
     completion(nil, nil, error);
     return;
   }
   NSURLRequest *request = [self shorteningRequestForLongURL:url options:options];
   if (!request) {
-    NSError *error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                         code:0
-                                     userInfo:nil];
+    NSError *error =
+        [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain code:0 userInfo:nil];
     completion(nil, nil, error);
     return;
   }
-  [self sendHTTPRequest:request completion:^(NSData * _Nullable data, NSError * _Nullable error) {
-    NSURL *shortURL;
-    NSArray *warnings;
-    if (data != nil && error == nil) {
-      NSError *deserializationError;
-      id JSONObject = [NSJSONSerialization JSONObjectWithData:data
-                                                      options:0
-                                                        error:&deserializationError];
+  [self sendHTTPRequest:request
+             completion:^(NSData *_Nullable data, NSError *_Nullable error) {
+               NSURL *shortURL;
+               NSArray *warnings;
+               if (data != nil && error == nil) {
+                 NSError *deserializationError;
+                 id JSONObject = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&deserializationError];
 
-      if ([JSONObject isKindOfClass:[NSDictionary class]]) {
-        if ([JSONObject[@"shortLink"] isKindOfClass:[NSString class]]) {
-          shortURL = [NSURL URLWithString:JSONObject[@"shortLink"]];
-        } else {
-          if ([JSONObject[@"error"] isKindOfClass:[NSDictionary class]]) {
-            NSMutableDictionary *errorUserInfo = [[NSMutableDictionary alloc] init];
+                 if ([JSONObject isKindOfClass:[NSDictionary class]]) {
+                   if ([JSONObject[@"shortLink"] isKindOfClass:[NSString class]]) {
+                     shortURL = [NSURL URLWithString:JSONObject[@"shortLink"]];
+                   } else {
+                     if ([JSONObject[@"error"] isKindOfClass:[NSDictionary class]]) {
+                       NSMutableDictionary *errorUserInfo = [[NSMutableDictionary alloc] init];
 
-            NSDictionary *errorDictionary = JSONObject[@"error"];
-            if ([errorDictionary[@"message"] isKindOfClass:[NSString class]]) {
-              errorUserInfo[NSLocalizedFailureReasonErrorKey] = errorDictionary[@"message"];
-            }
-            if ([errorDictionary[@"status"] isKindOfClass:[NSString class]]) {
-              errorUserInfo[@"remoteStatus"] = errorDictionary[@"status"];
-            }
-            if (errorDictionary[@"code"] &&
-                [errorDictionary[@"code"] isKindOfClass:[NSNumber class]]) {
-              errorUserInfo[@"remoteErrorCode"] = errorDictionary[@"code"];
-            }
-            error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                        code:0
-                                    userInfo:errorUserInfo];
-          }
-        }
-        if ([JSONObject[@"warning"] isKindOfClass:[NSArray class]]) {
-          NSArray *warningsServer = JSONObject[@"warning"];
-          NSMutableArray *warningsTmp = [NSMutableArray arrayWithCapacity:[warningsServer count]];
-          for (NSDictionary *warningServer in warningsServer) {
-            if ([warningServer[@"warningMessage"] isKindOfClass:[NSString class]]) {
-              [warningsTmp addObject:warningServer[@"warningMessage"]];
-            }
-          }
-          if ([warningsTmp count] > 0) {
-            warnings = [warningsTmp copy];
-          }
-        }
-      } else if (deserializationError) {
-        error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
-                                    code:0
-                                userInfo:
-                 @{
-                   NSLocalizedFailureReasonErrorKey :
-  NSLocalizedString(@"Unrecognized server response",
-    @"Error reason message when server response can't be parsed"),
-                   NSUnderlyingErrorKey : deserializationError,
-                   }];
-      }
-    }
-    if (!shortURL && !error) {
-      // provide generic error message if we have no additional details about failure
-      error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                       NSDictionary *errorDictionary = JSONObject[@"error"];
+                       if ([errorDictionary[@"message"] isKindOfClass:[NSString class]]) {
+                         errorUserInfo[NSLocalizedFailureReasonErrorKey] =
+                             errorDictionary[@"message"];
+                       }
+                       if ([errorDictionary[@"status"] isKindOfClass:[NSString class]]) {
+                         errorUserInfo[@"remoteStatus"] = errorDictionary[@"status"];
+                       }
+                       if (errorDictionary[@"code"] &&
+                           [errorDictionary[@"code"] isKindOfClass:[NSNumber class]]) {
+                         errorUserInfo[@"remoteErrorCode"] = errorDictionary[@"code"];
+                       }
+                       error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                                   code:0
+                                               userInfo:errorUserInfo];
+                     }
+                   }
+                   if ([JSONObject[@"warning"] isKindOfClass:[NSArray class]]) {
+                     NSArray *warningsServer = JSONObject[@"warning"];
+                     NSMutableArray *warningsTmp =
+                         [NSMutableArray arrayWithCapacity:[warningsServer count]];
+                     for (NSDictionary *warningServer in warningsServer) {
+                       if ([warningServer[@"warningMessage"] isKindOfClass:[NSString class]]) {
+                         [warningsTmp addObject:warningServer[@"warningMessage"]];
+                       }
+                     }
+                     if ([warningsTmp count] > 0) {
+                       warnings = [warningsTmp copy];
+                     }
+                   }
+                 } else if (deserializationError) {
+                   error = [NSError
+                       errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
                                   code:0
-                              userInfo:nil];
-    }
-    dispatch_async(dispatch_get_main_queue(), ^{
-      completion(shortURL, warnings, error);
-    });
-  }];
+                              userInfo:@{
+                                NSLocalizedFailureReasonErrorKey : NSLocalizedString(
+                                    @"Unrecognized server response",
+                                    @"Error reason message when server response can't be parsed"),
+                                NSUnderlyingErrorKey : deserializationError,
+                              }];
+                 }
+               }
+               if (!shortURL && !error) {
+                 // provide generic error message if we have no additional details about failure
+                 error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
+                                             code:0
+                                         userInfo:nil];
+               }
+               dispatch_async(dispatch_get_main_queue(), ^{
+                 completion(shortURL, warnings, error);
+               });
+             }];
 }
 
 - (void)shortenWithCompletion:(FIRDynamicLinkShortenerCompletion)completion {
@@ -561,12 +558,11 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   if (!url) {
     NSError *error = [NSError errorWithDomain:kFirebaseDurableDeepLinkErrorDomain
                                          code:0
-                                     userInfo:
-                      @{
-                        NSLocalizedFailureReasonErrorKey :
-                          NSLocalizedString(@"Unable to produce long URL",
-                                            @"Error reason when long url can't be produced"),
-                        }];
+                                     userInfo:@{
+                                       NSLocalizedFailureReasonErrorKey : NSLocalizedString(
+                                           @"Unable to produce long URL",
+                                           @"Error reason when long url can't be produced"),
+                                     }];
     completion(nil, nil, error);
     return;
   }
@@ -593,8 +589,7 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
   addEntriesFromDictionaryRepresentingConformerToDictionary(_iOSParameters);
   addEntriesFromDictionaryRepresentingConformerToDictionary(_iTunesConnectParameters);
   addEntriesFromDictionaryRepresentingConformerToDictionary(_androidParameters);
-  addEntriesFromDictionaryRepresentingConformerToDictionary(
-      _navigationInfoParameters);
+  addEntriesFromDictionaryRepresentingConformerToDictionary(_navigationInfoParameters);
   addEntriesFromDictionaryRepresentingConformerToDictionary(_otherPlatformParameters);
 
   NSString *queryString = FIRDLURLQueryStringFromDictionary(queryDictionary);
@@ -605,14 +600,14 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 #pragma mark Helper Methods
 
 + (void)sendHTTPRequest:(NSURLRequest *)request
-             completion:(void (^)(NSData * _Nullable data, NSError * _Nullable error))completion {
+             completion:(void (^)(NSData *_Nullable data, NSError *_Nullable error))completion {
   NSURLSession *session = [NSURLSession sharedSession];
-  NSURLSessionDataTask *task = [session dataTaskWithRequest:request
-                                          completionHandler:^(NSData * _Nullable data,
-                                                              NSURLResponse * _Nullable response,
-                                                              NSError * _Nullable error) {
-    completion(data, error);
-  }];
+  NSURLSessionDataTask *task =
+      [session dataTaskWithRequest:request
+                 completionHandler:^(NSData *_Nullable data, NSURLResponse *_Nullable response,
+                                     NSError *_Nullable error) {
+                   completion(data, error);
+                 }];
   [task resume];
 }
 
@@ -628,8 +623,9 @@ static NSString *const kFDLOtherPlatformParametersFallbackURLKey = @"ofl";
 
   NSString *apiKey = [FIRDynamicLinkComponentsKeyProvider APIKey];
 
-  NSString *postURLString = [NSString stringWithFormat:@"%@%@%@%@", kFDLURLShortenerAPIHost,
-                                kFDLURLShortenerAPIPath, kFDLURLShortenerAPIQuery, apiKey];
+  NSString *postURLString =
+      [NSString stringWithFormat:@"%@%@%@%@", kFDLURLShortenerAPIHost, kFDLURLShortenerAPIPath,
+                                 kFDLURLShortenerAPIQuery, apiKey];
   NSURL *postURL = [NSURL URLWithString:postURLString];
 
   NSMutableDictionary *payloadDictionary =

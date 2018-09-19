@@ -16,8 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "OCMock.h"
 #import "DynamicLinks/FIRDLScionLogging.h"
+#import "OCMock.h"
 
 static const NSTimeInterval kAsyncTestTimout = 0.5;
 
@@ -43,8 +43,9 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
   return self;
 }
 
-- (void)logEventWithOrigin:(nonnull NSString *)origin name:(nonnull NSString *)name
-                parameters:(nullable NSDictionary<NSString *,id> *)parameters {
+- (void)logEventWithOrigin:(nonnull NSString *)origin
+                      name:(nonnull NSString *)name
+                parameters:(nullable NSDictionary<NSString *, id> *)parameters {
   if (_handler) {
     _handler(origin, name, parameters);
   }
@@ -53,12 +54,12 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 // Stubs
 - (void)clearConditionalUserProperty:(nonnull NSString *)userPropertyName
                       clearEventName:(nonnull NSString *)clearEventName
-                        clearEventParameters:(nonnull NSDictionary *)clearEventParameters {
+                clearEventParameters:(nonnull NSDictionary *)clearEventParameters {
 }
 
 - (nonnull NSArray<FIRAConditionalUserProperty *> *)
     conditionalUserProperties:(nonnull NSString *)origin
-    propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
+           propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
   return nil;
 }
 
@@ -83,11 +84,10 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (void)testGINLogEventToScionCallsLogMethodWithFirstOpen {
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
 
-  FakeAnalytics *analytics = [[FakeAnalytics alloc] initWithHandler:^(NSString *origin,
-                                                                      NSString *name,
-                                                                      NSDictionary *parameters) {
-    [expectation fulfill];
-  }];
+  FakeAnalytics *analytics = [[FakeAnalytics alloc]
+      initWithHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        [expectation fulfill];
+      }];
 
   FIRDLLogEventToScion(FIRDLLogEventFirstOpen, nil, nil, nil, analytics);
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
@@ -96,12 +96,11 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (void)testGINLogEventToScionContainsCorrectNameWithFirstOpen {
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
 
-  FakeAnalytics *analytics = [[FakeAnalytics alloc] initWithHandler:^(NSString *origin,
-                                                                      NSString *name,
-                                                                      NSDictionary *parameters) {
-    XCTAssertEqualObjects(name, @"dynamic_link_first_open", @"scion name param was incorrect");
-    [expectation fulfill];
-  }];
+  FakeAnalytics *analytics = [[FakeAnalytics alloc]
+      initWithHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        XCTAssertEqualObjects(name, @"dynamic_link_first_open", @"scion name param was incorrect");
+        [expectation fulfill];
+      }];
 
   FIRDLLogEventToScion(FIRDLLogEventFirstOpen, nil, nil, nil, analytics);
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
@@ -110,11 +109,10 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (void)testGINLogEventToScionCallsLogMethodWithAppOpen {
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
 
-  FakeAnalytics *analytics = [[FakeAnalytics alloc] initWithHandler:^(NSString *origin,
-                                                                      NSString *name,
-                                                                      NSDictionary *parameters) {
-    [expectation fulfill];
-  }];
+  FakeAnalytics *analytics = [[FakeAnalytics alloc]
+      initWithHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        [expectation fulfill];
+      }];
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, nil, nil, nil, analytics);
 
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
@@ -123,12 +121,11 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 - (void)testGINLogEventToScionContainsCorrectNameWithAppOpen {
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
 
-  FakeAnalytics *analytics = [[FakeAnalytics alloc] initWithHandler:^(NSString *origin,
-                                                                      NSString *name,
-                                                                      NSDictionary *parameters) {
-    XCTAssertEqualObjects(name, @"dynamic_link_app_open", @"scion name param was incorrect");
-    [expectation fulfill];
-  }];
+  FakeAnalytics *analytics = [[FakeAnalytics alloc]
+      initWithHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+        XCTAssertEqualObjects(name, @"dynamic_link_app_open", @"scion name param was incorrect");
+        [expectation fulfill];
+      }];
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, nil, nil, nil, analytics);
 
   [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
@@ -145,14 +142,14 @@ static FakeAnalyticsLogEventWithOriginNameParametersHandler _handler;
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
 
-  FakeAnalytics *analytics = [[FakeAnalytics alloc] initWithHandler:^(NSString *origin,
-                                                                      NSString *name,
-                                                                      NSDictionary *params) {
-    XCTAssertEqualObjects(params[sourceKey], source, @"scion logger has incorrect source.");
-    XCTAssertEqualObjects(params[mediumKey], medium, @"scion logger has incorrect medium.");
-    XCTAssertEqualObjects(params[campaignKey], campaign, @"scion logger has incorrect campaign.");
-    [expectation fulfill];
-  }];
+  FakeAnalytics *analytics = [[FakeAnalytics alloc]
+      initWithHandler:^(NSString *origin, NSString *name, NSDictionary *params) {
+        XCTAssertEqualObjects(params[sourceKey], source, @"scion logger has incorrect source.");
+        XCTAssertEqualObjects(params[mediumKey], medium, @"scion logger has incorrect medium.");
+        XCTAssertEqualObjects(params[campaignKey], campaign,
+                              @"scion logger has incorrect campaign.");
+        [expectation fulfill];
+      }];
 
   FIRDLLogEventToScion(FIRDLLogEventAppOpen, source, medium, campaign, analytics);
 

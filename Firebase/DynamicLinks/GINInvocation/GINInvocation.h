@@ -18,21 +18,23 @@
 
 // Calls a method on a class or object.
 #define GINPerformSelector(target, selector) \
-    GINPerformSelectorWithArguments(target, selector, 0, nil)
+  GINPerformSelectorWithArguments(target, selector, 0, nil)
 
 // Calls a method on a class or object, that takes arguments.
 #define GINPerformSelectorWithArguments(target, selector, numArgs, args...) \
-    [GINInvocation objectByPerformingSelector:selector onTarget:target \
-        numberOfArguments:numArgs, args, nil]
+  [GINInvocation objectByPerformingSelector:selector                        \
+                                   onTarget:target                          \
+                          numberOfArguments:numArgs, args, nil]
 
 // Calls a method that returns double on a class or object.
 #define GINDoubleByPerformingSelector(target, selector) \
-    GINDoubleByPerformingSelectorWithArguments(target, selector, 0, nil)
+  GINDoubleByPerformingSelectorWithArguments(target, selector, 0, nil)
 
 // Calls a method that returns double on a class or object, that takes arguments.
 #define GINDoubleByPerformingSelectorWithArguments(target, selector, numArgs, args...) \
-    [GINInvocation doubleByPerformingSelector:selector onTarget:target \
-        numberOfArguments:numArgs, args, nil]
+  [GINInvocation doubleByPerformingSelector:selector                                   \
+                                   onTarget:target                                     \
+                          numberOfArguments:numArgs, args, nil]
 
 /**
  * @class GINInvocation
@@ -51,7 +53,7 @@
  */
 + (id)objectByPerformingSelector:(SEL)selector
                         onTarget:(id)target
-               numberOfArguments:(NSInteger)numberOfArguments,...;
+               numberOfArguments:(NSInteger)numberOfArguments, ...;
 
 /**
  * @method doubleByPerformingSelector:onTarget:numberOfArguments:...
@@ -64,6 +66,6 @@
  */
 + (double)doubleByPerformingSelector:(SEL)selector
                             onTarget:(id)target
-                   numberOfArguments:(NSInteger)numberOfArguments,...;
+                   numberOfArguments:(NSInteger)numberOfArguments, ...;
 
 @end

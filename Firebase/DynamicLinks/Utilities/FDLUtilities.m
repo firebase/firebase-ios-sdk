@@ -91,10 +91,13 @@ NSDictionary *FIRDLDictionaryFromQuery(NSString *queryString) {
 
 NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable deepLinkString,
-                                    NSString *_Nullable utmSource, NSString *_Nullable utmMedium,
-                                    NSString *_Nullable utmCampaign, BOOL isWeakLink,
+                                    NSString *_Nullable utmSource,
+                                    NSString *_Nullable utmMedium,
+                                    NSString *_Nullable utmCampaign,
+                                    BOOL isWeakLink,
                                     NSString *_Nullable weakMatchEndpoint,
-                                    NSString *_Nullable minAppVersion, NSString *URLScheme,
+                                    NSString *_Nullable minAppVersion,
+                                    NSString *URLScheme,
                                     NSString *_Nullable matchMessage) {
   // We are unable to use NSURLComponents as NSURLQueryItem is avilable beginning in iOS 8 and
   // appending our query string with NSURLComponents improperly formats the query by adding
@@ -180,7 +183,9 @@ NSString *FIRDLDeviceLocale() {
                                                                                 withString:@"-"];
 }
 
-NSString *FIRDLDeviceLocaleRaw() { return [[NSLocale currentLocale] localeIdentifier]; }
+NSString *FIRDLDeviceLocaleRaw() {
+  return [[NSLocale currentLocale] localeIdentifier];
+}
 
 NSString *FIRDLDeviceTimezone() {
   NSString *timeZoneName = [[NSTimeZone localTimeZone] name];

@@ -21,7 +21,6 @@
 
 #import <OCMock/OCMock.h>
 
-
 static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 @interface FDLURLComponentsTests : XCTestCase
@@ -38,7 +37,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAnalyticsParamsFactoryReturnsInstanceWithAllNilProperties {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
-    [FIRDynamicLinkGoogleAnalyticsParameters parameters];
+      [FIRDynamicLinkGoogleAnalyticsParameters parameters];
 
   XCTAssertNil(params.source);
   XCTAssertNil(params.medium);
@@ -49,7 +48,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAnalyticsParamsPropertiesSetProperly {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
-    [FIRDynamicLinkGoogleAnalyticsParameters parameters];
+      [FIRDynamicLinkGoogleAnalyticsParameters parameters];
 
   params.source = @"s";
   params.medium = @"m";
@@ -78,7 +77,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAnalyticsParamsDictionaryRepresentationReturnsCorrectDictionaryFull {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
-    [FIRDynamicLinkGoogleAnalyticsParameters parameters];
+      [FIRDynamicLinkGoogleAnalyticsParameters parameters];
 
   params.source = @"s";
   params.medium = @"m";
@@ -87,11 +86,11 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   params.content = @"co";
 
   NSDictionary *expectedDictionary = @{
-    @"utm_source": @"s",
-    @"utm_medium": @"m",
-    @"utm_campaign": @"ca",
-    @"utm_term": @"t",
-    @"utm_content": @"co",
+    @"utm_source" : @"s",
+    @"utm_medium" : @"m",
+    @"utm_campaign" : @"ca",
+    @"utm_term" : @"t",
+    @"utm_content" : @"co",
   };
 
   XCTAssertEqualObjects(expectedDictionary, params.dictionaryRepresentation);
@@ -99,20 +98,19 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAnalyticsParamsDictionaryRepresentationReturnsCorrectDictionaryEmpty {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
-    [FIRDynamicLinkGoogleAnalyticsParameters parameters];
+      [FIRDynamicLinkGoogleAnalyticsParameters parameters];
   XCTAssertEqualObjects(@{}, params.dictionaryRepresentation);
 }
 
 - (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceOfCorrectClass {
-  id returnValue = [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s"
-                                                                          medium:@"m"
-                                                                        campaign:@"c"];
+  id returnValue =
+      [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkGoogleAnalyticsParameters class]]);
 }
 
 - (void)testAnalyticsParamsFactoryWithParamsReturnsInstanceWithCorrectInitalPropertyValues {
   FIRDynamicLinkGoogleAnalyticsParameters *params =
-    [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
+      [FIRDynamicLinkGoogleAnalyticsParameters parametersWithSource:@"s" medium:@"m" campaign:@"c"];
 
   XCTAssertEqualObjects(params.source, @"s");
   XCTAssertEqualObjects(params.medium, @"m");
@@ -130,7 +128,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testIOSParamsFactoryReturnsInstanceWithAllOptionalNilProperties {
   FIRDynamicLinkIOSParameters *params =
-    [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
+      [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
 
   XCTAssertNil(params.fallbackURL);
   XCTAssertNil(params.customScheme);
@@ -142,7 +140,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testIOSParamsPropertiesSetProperly {
   FIRDynamicLinkIOSParameters *params =
-    [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
+      [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
 
   params.fallbackURL = [NSURL URLWithString:@"https://google.com/iphone"];
   params.customScheme = @"mycustomsheme";
@@ -176,7 +174,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testIOSParamsDictionaryRepresentationReturnsCorrectDictionaryFull {
   FIRDynamicLinkIOSParameters *params =
-    [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
+      [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
 
   params.fallbackURL = [NSURL URLWithString:@"https://google.com/iphone"];
   params.customScheme = @"mycustomscheme";
@@ -186,12 +184,12 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   params.appStoreID = @"666";
 
   NSDictionary *expectedDictionary = @{
-    @"ibi": @"com.iphone.app",
-    @"ifl": [NSURL URLWithString:@"https://google.com/iphone"].absoluteString,
-    @"ius": @"mycustomscheme",
-    @"imv": @"1.2.3",
-    @"ipbi": @"com.ipad.app",
-    @"ipfl": [NSURL URLWithString:@"https://google.com/ipad"].absoluteString,
+    @"ibi" : @"com.iphone.app",
+    @"ifl" : [NSURL URLWithString:@"https://google.com/iphone"].absoluteString,
+    @"ius" : @"mycustomscheme",
+    @"imv" : @"1.2.3",
+    @"ipbi" : @"com.ipad.app",
+    @"ipfl" : [NSURL URLWithString:@"https://google.com/ipad"].absoluteString,
     @"isi" : @"666"
   };
 
@@ -200,8 +198,8 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testIOSParamsDictionaryRepresentationReturnsCorrectDictionaryOnlyReqParams {
   FIRDynamicLinkIOSParameters *params =
-    [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
-  XCTAssertEqualObjects(@{@"ibi": @"com.iphone.app"}, params.dictionaryRepresentation);
+      [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
+  XCTAssertEqualObjects(@{@"ibi" : @"com.iphone.app"}, params.dictionaryRepresentation);
 }
 
 #pragma mark - FIRDynamicLinkItunesConnectAnalyticsParameters
@@ -250,9 +248,9 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   params.providerToken = @"provider";
 
   NSDictionary *expectedDictionary = @{
-    @"at": @"affiliate",
-    @"ct": @"campaign",
-    @"pt": @"provider",
+    @"at" : @"affiliate",
+    @"ct" : @"campaign",
+    @"pt" : @"provider",
   };
 
   XCTAssertEqualObjects(expectedDictionary, params.dictionaryRepresentation);
@@ -268,13 +266,13 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAndroidParamsFactoryReturnsInstanceOfCorrectClass {
   id returnValue =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkAndroidParameters class]]);
 }
 
 - (void)testAndroidParamsFactoryReturnsInstanceWithAllOptionalNilProperties {
   FIRDynamicLinkAndroidParameters *params =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
 
   XCTAssertNil(params.fallbackURL);
   XCTAssertEqual(params.minimumVersion, 0);
@@ -282,7 +280,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAndroidParamsPropertiesSetProperly {
   FIRDynamicLinkAndroidParameters *params =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
 
   params.fallbackURL = [NSURL URLWithString:@"https://google.com/android"];
   params.minimumVersion = 14;
@@ -300,15 +298,15 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAndroidParamsDictionaryRepresentationReturnsCorrectDictionaryFull {
   FIRDynamicLinkAndroidParameters *params =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
 
   params.fallbackURL = [NSURL URLWithString:@"https://google.com/android"];
   params.minimumVersion = 14;
 
   NSDictionary *expectedDictionary = @{
-    @"apn": @"com.google.android.gms",
-    @"afl": [NSURL URLWithString:@"https://google.com/android"].absoluteString,
-    @"amv": @"14",
+    @"apn" : @"com.google.android.gms",
+    @"afl" : [NSURL URLWithString:@"https://google.com/android"].absoluteString,
+    @"amv" : @"14",
   };
 
   XCTAssertEqualObjects(expectedDictionary, params.dictionaryRepresentation);
@@ -316,8 +314,8 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testAndroidParamsDictionaryRepresentationReturnsCorrectDictionaryEmpty {
   FIRDynamicLinkAndroidParameters *params =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
-  XCTAssertEqualObjects(@{@"apn": @"com.google.android.gms"}, params.dictionaryRepresentation);
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+  XCTAssertEqualObjects(@{@"apn" : @"com.google.android.gms"}, params.dictionaryRepresentation);
 }
 
 #pragma mark - FIRDynamicLinkSocialMetaTagParameters
@@ -366,9 +364,9 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   params.imageURL = [NSURL URLWithString:@"https://google.com/someimage"];
 
   NSDictionary *expectedDictionary = @{
-    @"st": @"title",
-    @"sd": @"description",
-    @"si": [NSURL URLWithString:@"https://google.com/someimage"].absoluteString,
+    @"st" : @"title",
+    @"sd" : @"description",
+    @"si" : [NSURL URLWithString:@"https://google.com/someimage"].absoluteString,
   };
 
   XCTAssertEqualObjects(expectedDictionary, params.dictionaryRepresentation);
@@ -384,8 +382,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testNavigationOptionsReturnsCorrectClass {
   id returnValue = [FIRDynamicLinkNavigationInfoParameters parameters];
-  XCTAssertTrue([returnValue
-      isKindOfClass:[FIRDynamicLinkNavigationInfoParameters class]]);
+  XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkNavigationInfoParameters class]]);
 }
 
 - (void)testNavigationOptionsFactoryReturnsInstanceWithAllNilProperties {
@@ -416,13 +413,15 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 }
 
 - (void)testOtherPlatformParametersFactoryReturnsInstanceWithAllNilProperties {
-  FIRDynamicLinkOtherPlatformParameters *options = [FIRDynamicLinkOtherPlatformParameters parameters];
+  FIRDynamicLinkOtherPlatformParameters *options =
+      [FIRDynamicLinkOtherPlatformParameters parameters];
 
   XCTAssertNil(options.fallbackUrl);
 }
 
 - (void)testOtherPlatformParametersParamsPropertiesSetProperly {
-  FIRDynamicLinkOtherPlatformParameters *options = [FIRDynamicLinkOtherPlatformParameters parameters];
+  FIRDynamicLinkOtherPlatformParameters *options =
+      [FIRDynamicLinkOtherPlatformParameters parameters];
 
   options.fallbackUrl = [NSURL URLWithString:@"https://google.com"];
 
@@ -462,8 +461,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
 
 - (void)testFDLComponentsFactoryReturnsInstanceOfCorrectClass {
   NSURL *link = [NSURL URLWithString:@"https://google.com"];
-  id returnValue = [FIRDynamicLinkComponents componentsWithLink:link
-                                                         domain:kFDLURLDomain];
+  id returnValue = [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
   XCTAssertTrue([returnValue isKindOfClass:[FIRDynamicLinkComponents class]]);
 }
 
@@ -501,14 +499,14 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   NSURL *link = [NSURL URLWithString:linkString];
 
   FIRDynamicLinkComponents *components =
-  [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
 
   XCTAssertNil(components.url);
 }
 
 - (void)testFDLComponentsCreatesFullLinkCorrectly {
   FIRDynamicLinkGoogleAnalyticsParameters *analyticsParams =
-    [FIRDynamicLinkGoogleAnalyticsParameters parameters];
+      [FIRDynamicLinkGoogleAnalyticsParameters parameters];
   analyticsParams.source = @"s";
   analyticsParams.medium = @"m";
   analyticsParams.campaign = @"ca";
@@ -516,7 +514,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   analyticsParams.content = @"co";
 
   FIRDynamicLinkIOSParameters *iosParams =
-    [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
+      [FIRDynamicLinkIOSParameters parametersWithBundleID:@"com.iphone.app"];
   iosParams.fallbackURL = [NSURL URLWithString:@"https://google.com/iphone"];
   iosParams.customScheme = @"mycustomsheme";
   iosParams.minimumAppVersion = @"1.2.3";
@@ -531,7 +529,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   itcParams.providerToken = @"provider";
 
   FIRDynamicLinkAndroidParameters *androidParams =
-    [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
+      [FIRDynamicLinkAndroidParameters parametersWithPackageName:@"com.google.android.gms"];
   androidParams.fallbackURL = [NSURL URLWithString:@"https://google.com/android"];
   androidParams.minimumVersion = 14;
 
@@ -542,9 +540,9 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   socialParams.imageURL = [NSURL URLWithString:@"https://google.com/someimage"];
 
   FIRDynamicLinkOtherPlatformParameters *otherPlatformParams =
-    [FIRDynamicLinkOtherPlatformParameters parameters];
+      [FIRDynamicLinkOtherPlatformParameters parameters];
   otherPlatformParams.fallbackUrl =
-    [NSURL URLWithString:@"https://google.com/fallbackForOtherPlatform"];
+      [NSURL URLWithString:@"https://google.com/fallbackForOtherPlatform"];
 
   FIRDynamicLinkNavigationInfoParameters *navInfo =
       [FIRDynamicLinkNavigationInfoParameters parameters];
@@ -568,26 +566,31 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   // This is a long FDL URL that has been verified to be a correct representation of the expected
   // URL. Since the parameters are not guaranteed to be in any specific order, we must compare
   // arrays of properties of the URLs rather than the URLs themselves.
-  NSString *possibleExpectedURLString = @"https://xyz.app.goo.gl/?afl=https%3A%2F%2Fgoogle%2Ecom%2F"
-      "android&amv=14&apn=com.google.android.gms&ibi=com%2Eiphone%2Eapp&utm_term=t&link=https%3A%2F"
-      "%2Fgoogle%2Ecom&ipbi=com%2Eipad%2Eapp&ius=mycustomsheme&ifl=https%3A%2F%2Fgoogle%2Ecom%2"
-      "Fiphone&isi=666&utm_content=co&utm_source=s&utm_medium=m&imv=1%2E2%2E3&ct=campaign&ipfl=http"
-      "s%3A%2F%2Fgoogle%2Ecom%2Fipad&si=https%3A%2F%2Fgoogle%2Ecom%2Fsomeimage&at=affiliate&pt=prov"
-      "ider&st=title&utm_campaign=ca&sd=description&efr=1&ofl=https%3A%2F%2Fgoogle%2Ecom%2Ffallback"
-      "ForOtherPlatform";
+  NSString *possibleExpectedURLString =
+      @"https://xyz.app.goo.gl/?afl=https%3A%2F%2Fgoogle%2Ecom%2F"
+       "android&amv=14&apn=com.google.android.gms&ibi=com%2Eiphone%2Eapp&utm_term=t&link=https%3A%"
+       "2F"
+       "%2Fgoogle%2Ecom&ipbi=com%2Eipad%2Eapp&ius=mycustomsheme&ifl=https%3A%2F%2Fgoogle%2Ecom%2"
+       "Fiphone&isi=666&utm_content=co&utm_source=s&utm_medium=m&imv=1%2E2%2E3&ct=campaign&ipfl="
+       "http"
+       "s%3A%2F%2Fgoogle%2Ecom%2Fipad&si=https%3A%2F%2Fgoogle%2Ecom%2Fsomeimage&at=affiliate&pt="
+       "prov"
+       "ider&st=title&utm_campaign=ca&sd=description&efr=1&ofl=https%3A%2F%2Fgoogle%2Ecom%"
+       "2Ffallback"
+       "ForOtherPlatform";
   NSURL *possibleExpectedURL = [NSURL URLWithString:possibleExpectedURLString];
   NSURLComponents *expectedURLComponents =
       [NSURLComponents componentsWithString:possibleExpectedURLString];
   // sort both expected/actual arrays to prevent order influencing the test results
   NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES];
   NSArray<NSURLQueryItem *> *expectedURLQueryItems =
-    [expectedURLComponents.queryItems sortedArrayUsingDescriptors:@[sort]];
+      [expectedURLComponents.queryItems sortedArrayUsingDescriptors:@[ sort ]];
 
   NSURL *actualURL = fdlComponents.url;
   NSURLComponents *actualURLComponents =
       [NSURLComponents componentsWithString:actualURL.absoluteString];
   NSArray<NSURLQueryItem *> *actualQueryItems =
-    [actualURLComponents.queryItems sortedArrayUsingDescriptors:@[sort]];
+      [actualURLComponents.queryItems sortedArrayUsingDescriptors:@[ sort ]];
 
   XCTAssertEqualObjects(actualQueryItems, expectedURLQueryItems);
   XCTAssertEqualObjects(actualURL.host, possibleExpectedURL.host);
@@ -622,30 +625,30 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
 
   // Mock key provider
-  id keyProviderClassMock =
-      OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
+  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
   [[[keyProviderClassMock expect] andReturn:@"fake-api-key"] APIKey];
 
   id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
-  [[componentsClassMock expect] sendHTTPRequest:OCMOCK_ANY
-                                     completion:[OCMArg checkWithBlock:^BOOL(id obj) {
-    void (^completion)(NSData * _Nullable, NSError * _Nullable) = obj;
-    NSDictionary *JSON = @{@"shortLink": shortURLString};
-    NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
-    completion(JSONData, nil);
-    return YES;
-  }]];
+  [[componentsClassMock expect]
+      sendHTTPRequest:OCMOCK_ANY
+           completion:[OCMArg checkWithBlock:^BOOL(id obj) {
+             void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
+             NSDictionary *JSON = @{@"shortLink" : shortURLString};
+             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
+             completion(JSONData, nil);
+             return YES;
+           }]];
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
-  [components shortenWithCompletion:^(NSURL * _Nullable shortURL,
-                                      NSArray<NSString *> * _Nullable warnings,
-                                      NSError * _Nullable error) {
-    XCTAssertEqualObjects(shortURL.absoluteString, shortURLString);
-    [expectation fulfill];
-  }];
+  [components
+      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
+                              NSError *_Nullable error) {
+        XCTAssertEqualObjects(shortURL.absoluteString, shortURLString);
+        [expectation fulfill];
+      }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 
   [keyProviderClassMock verify];
@@ -658,8 +661,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
 
   // Mock key provider
-  id keyProviderClassMock =
-      OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
+  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
   [[[keyProviderClassMock expect] andReturn:nil] APIKey];
 
   id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
@@ -667,10 +669,8 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
       sendHTTPRequest:OCMOCK_ANY
            completion:[OCMArg checkWithBlock:^BOOL(id obj) {
              void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
-             NSDictionary *JSON = @{ @"shortLink" : shortURLString };
-             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON
-                                                                options:0
-                                                                  error:0];
+             NSDictionary *JSON = @{@"shortLink" : shortURLString};
+             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
              completion(JSONData, nil);
              return YES;
            }]];
@@ -680,14 +680,14 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
       [FIRDynamicLinkComponents componentsWithLink:link domain:kFDLURLDomain];
-  [components shortenWithCompletion:^(NSURL *_Nullable shortURL,
-                                      NSArray<NSString *> *_Nullable warnings,
-                                      NSError *_Nullable error) {
-    XCTAssertNil(shortURL);
-    if (error) {
-      [expectation fulfill];
-    }
-  }];
+  [components
+      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
+                              NSError *_Nullable error) {
+        XCTAssertNil(shortURL);
+        if (error) {
+          [expectation fulfill];
+        }
+      }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 
   [keyProviderClassMock verify];
@@ -700,8 +700,7 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
   NSString *shortURLString = @"https://xyz.app.goo.gl/abcd";
 
   // Mock key provider
-  id keyProviderClassMock =
-      OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
+  id keyProviderClassMock = OCMClassMock([FIRDynamicLinkComponentsKeyProvider class]);
   [[keyProviderClassMock reject] APIKey];
 
   id componentsClassMock = OCMClassMock([FIRDynamicLinkComponents class]);
@@ -709,27 +708,25 @@ static NSString *const kFDLURLDomain = @"xyz.app.goo.gl";
       sendHTTPRequest:OCMOCK_ANY
            completion:[OCMArg checkWithBlock:^BOOL(id obj) {
              void (^completion)(NSData *_Nullable, NSError *_Nullable) = obj;
-             NSDictionary *JSON = @{ @"shortLink" : shortURLString };
-             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON
-                                                                options:0
-                                                                  error:0];
+             NSDictionary *JSON = @{@"shortLink" : shortURLString};
+             NSData *JSONData = [NSJSONSerialization dataWithJSONObject:JSON options:0 error:0];
              completion(JSONData, nil);
              return YES;
            }]];
 
   XCTestExpectation *expectation =
-    [self expectationWithDescription:@"completion called with error"];
+      [self expectationWithDescription:@"completion called with error"];
   NSURL *link = [NSURL URLWithString:@"https://google.com/abc"];
   FIRDynamicLinkComponents *components =
-  [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
-  [components shortenWithCompletion:^(NSURL * _Nullable shortURL,
-                                      NSArray<NSString *> * _Nullable warnings,
-                                      NSError * _Nullable error) {
-    XCTAssertNil(shortURL);
-    if (error) {
-      [expectation fulfill];
-    }
-  }];
+      [FIRDynamicLinkComponents componentsWithLink:link domain:@"this is invalid domain"];
+  [components
+      shortenWithCompletion:^(NSURL *_Nullable shortURL, NSArray<NSString *> *_Nullable warnings,
+                              NSError *_Nullable error) {
+        XCTAssertNil(shortURL);
+        if (error) {
+          [expectation fulfill];
+        }
+      }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 
   [keyProviderClassMock verify];

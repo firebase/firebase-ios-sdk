@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
  - added device model name to endpoint;
  - added handling of iPhone Apps running in compatibility mode on iPad.
  */
-@interface FIRDLDefaultRetrievalProcessV2 : NSObject<FIRDLRetrievalProcessProtocol>
+@interface FIRDLDefaultRetrievalProcessV2 : NSObject <FIRDLRetrievalProcessProtocol>
 
 - (instancetype)initWithNetworkingService:(FIRDynamicLinkNetworking *)networkingService
                                  clientID:(NSString *)clientID

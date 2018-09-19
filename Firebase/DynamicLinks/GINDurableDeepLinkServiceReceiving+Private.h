@@ -24,17 +24,17 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GINDurableDeepLinkServiceReceiving (Private)
 
 /** Retrieves the main window of the application. */
-UIWindow * _Nullable GINGetMainWindow(UIApplication *application);
+UIWindow *_Nullable GINGetMainWindow(UIApplication *application);
 
 /** Retrieves the topmost view controller presented from the given view controller. */
-UIViewController * _Nullable GINGetTopViewControllerFromViewController(
-    UIViewController * _Nullable viewController);
+UIViewController *_Nullable GINGetTopViewControllerFromViewController(
+    UIViewController *_Nullable viewController);
 
 /** Retrieves the topmost view controller in the view controller hierarchy. */
-UIViewController * _Nullable GINGetTopViewController(UIApplication *application);
+UIViewController *_Nullable GINGetTopViewController(UIApplication *application);
 
 /** Removes the view controller from the view controller hierarchy. */
-void GINRemoveViewControllerFromHierarchy(UIViewController * _Nullable viewController);
+void GINRemoveViewControllerFromHierarchy(UIViewController *_Nullable viewController);
 
 @end
 

@@ -49,7 +49,9 @@ static NSString *const kFDLAnalyticsDataCampaignKey = @"campaign";
 static NSString *const kHeaderIosBundleIdentifier = @"X-Ios-Bundle-Identifier";
 
 typedef NSDictionary *_Nullable (^FIRDLNetworkingParserBlock)(
-    NSString *requestURLString, NSData *data, NSString *_Nullable *_Nonnull matchMessagePtr,
+    NSString *requestURLString,
+    NSData *data,
+    NSString *_Nullable *_Nonnull matchMessagePtr,
     NSError *_Nullable *_Nullable errorPtr);
 
 NSString *FIRURLParameterString(NSString *key, NSString *value) {
@@ -131,10 +133,9 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
         NSString *utmSource = analytics[kFDLAnalyticsDataSourceKey];
         NSString *utmMedium = analytics[kFDLAnalyticsDataMediumKey];
         NSString *utmCampaign = analytics[kFDLAnalyticsDataCampaignKey];
-        resolvedURL =
-            FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString, utmSource, utmMedium,
-                                         utmCampaign, NO, nil,
-                                         minAppVersion, self->_URLScheme, nil);
+        resolvedURL = FIRDLDeepLinkURLWithInviteID(invitationIDString, deepLinkString, utmSource,
+                                                   utmMedium, utmCampaign, NO, nil, minAppVersion,
+                                                   self->_URLScheme, nil);
       }
     }
     handler(resolvedURL, error);
@@ -348,7 +349,7 @@ NSData *_Nullable FIRDataWithDictionary(NSDictionary *dictionary, NSError **_Nul
 
   // Set the iOS bundleID as a request header.
   NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
-  if(bundleID) {
+  if (bundleID) {
     [request setValue:bundleID forHTTPHeaderField:kHeaderIosBundleIdentifier];
   }
   FIRMakeHTTPRequest(request, handler);

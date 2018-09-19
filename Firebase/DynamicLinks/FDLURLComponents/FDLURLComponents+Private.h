@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRDynamicLinkNavigationInfoParameters () <FDLDictionaryRepresenting>
 @end
 
-@interface FIRDynamicLinkOtherPlatformParameters ()<FDLDictionaryRepresenting>
+@interface FIRDynamicLinkOtherPlatformParameters () <FDLDictionaryRepresenting>
 @end
 
 @interface FIRDynamicLinkComponents ()
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Sends an HTTP request using NSURLSession. Exposed for testing.
 + (void)sendHTTPRequest:(NSURLRequest *)request
-             completion:(void (^)(NSData * _Nullable data, NSError * _Nullable error))completion;
+             completion:(void (^)(NSData *_Nullable data, NSError *_Nullable error))completion;
 
 @end
 
