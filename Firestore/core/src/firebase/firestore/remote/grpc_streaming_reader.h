@@ -22,9 +22,10 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
-#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -37,22 +38,17 @@ namespace remote {
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader {
+class GrpcStreamingReader : public GrpcStreamObserver {
  public:
-  using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
-  /**
-   * The first argument is the status of the call; the second argument is
-   * a vector of accumulated server responses.
-   */
-  using CallbackT = std::function<void(const util::Status&,
-                                       const std::vector<grpc::ByteBuffer>&)>;
+  using MetadataT = GrpcStream::MetadataT;
+  using ResponsesT = std::vector<grpc::ByteBuffer>;
+  using CallbackT = std::function<void(
+      const util::StatusOr<ResponsesT>&)>;
 
-  GrpcStreamingReader(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      util::AsyncQueue* worker_queue,
-      const grpc::ByteBuffer& request);
-  ~GrpcStreamingReader();
+  GrpcStreamingReader(std::unique_ptr<grpc::ClientContext> context,
+             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+             util::AsyncQueue* worker_queue,
+                      const grpc::ByteBuffer& request);
 
   /**
    * Starts the call; the given `callback` will be invoked with the accumulated
@@ -78,31 +74,20 @@ class GrpcStreamingReader {
    *
    * Can only be called once the `GrpcStreamingReader` has finished.
    */
-  MetadataT GetResponseHeaders() const;
+  MetadataT GetResponseHeaders() const {
+    return stream_->GetResponseHeaders();
+  }
+
+  void OnStreamStart() override;
+  void OnStreamRead(const grpc::ByteBuffer& message) override;
+  void OnStreamFinish(const util::Status& status) override;
 
  private:
-  void WriteRequest();
-  void Read();
-
-  void OnOperationFailed();
-
-  using OnSuccess = std::function<void(const GrpcCompletion*)>;
-  void SetCompletion(const OnSuccess& callback);
-  void FastFinishCompletion();
-
-  // See comments in `GrpcStream` on lifetime issues for gRPC objects.
-  std::unique_ptr<grpc::ClientContext> context_;
-  std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
-
-  util::AsyncQueue* worker_queue_ = nullptr;
-
-  // There is never more than a single pending completion; the full chain is:
-  // write -> read -> [read...] -> finish
-  GrpcCompletion* current_completion_ = nullptr;
+  std::unique_ptr<GrpcStream> stream_;
+  grpc::ByteBuffer request_;
 
   CallbackT callback_;
-  grpc::ByteBuffer request_;
-  std::vector<grpc::ByteBuffer> responses_;
+  ResponsesT responses_;
 };
 
 }  // namespace remote

@@ -158,30 +158,29 @@ void Datastore::LookupDocumentsWithToken(
       kRpcNameLookup, token, std::move(message)));
   GrpcStreamingReader *call = lookup_calls_.back().get();
 
-  call->Start([this, call, completion](const Status &status,
-                           const std::vector<grpc::ByteBuffer> &responses) {
-    OnLookupDocumentsResponse(call, status, responses, completion);
+  call->Start([this, call, completion](
+    const StatusOr<std::vector<grpc::ByteBuffer>> & result) {
+    OnLookupDocumentsResponse(call, result, completion);
     RemoveGrpcCall(call);
   });
 }
 
 void Datastore::OnLookupDocumentsResponse(
     GrpcStreamingReader *call,
-    const Status &status,
-    const std::vector<grpc::ByteBuffer> &responses,
+    const StatusOr<std::vector<grpc::ByteBuffer>> & result,
     FSTVoidMaybeDocumentArrayErrorBlock completion
     ) {
-  LogGrpcCallFinished("BatchGetDocuments", call, status);
-  HandleCallStatus(status);
+  LogGrpcCallFinished("BatchGetDocuments", call, result.status());
+  HandleCallStatus(result.status());
 
-  if (!status.ok()) {
-    completion(nil, util::MakeNSError(status));
+  if (!result.ok()) {
+    completion(nil, util::MakeNSError(result.status()));
     return;
   }
 
   Status parse_status;
   NSArray<FSTMaybeDocument *> *docs =
-      serializer_bridge_.MergeLookupResponses(responses, &parse_status);
+      serializer_bridge_.MergeLookupResponses(result.ValueOrDie(), &parse_status);
   if (parse_status.ok()) {
     completion(docs, nil);
   } else {

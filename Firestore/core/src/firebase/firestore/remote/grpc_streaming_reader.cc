@@ -18,7 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -27,108 +26,47 @@ namespace remote {
 
 using util::AsyncQueue;
 using util::Status;
+using util::StatusOr;
 
 GrpcStreamingReader::GrpcStreamingReader(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    AsyncQueue* worker_queue,
+    util::AsyncQueue* worker_queue,
     const grpc::ByteBuffer& request)
-    : context_{std::move(context)},
-      call_{std::move(call)},
-      worker_queue_{worker_queue},
+    : stream_{absl::make_unique<GrpcStream>(
+          std::move(context), std::move(call), this, worker_queue)},
       request_{request} {
-}
-
-GrpcStreamingReader::~GrpcStreamingReader() {
-  HARD_ASSERT(!current_completion_,
-              "GrpcStreamingReader is being destroyed without proper shutdown");
 }
 
 void GrpcStreamingReader::Start(CallbackT&& callback) {
   callback_ = std::move(callback);
-
-  // Coalesce the sending of initial metadata with the first write.
-  context_->set_initial_metadata_corked(true);
-  call_->StartCall(nullptr);
-
-  WriteRequest();
-}
-
-void GrpcStreamingReader::WriteRequest() {
-  SetCompletion([this](const GrpcCompletion* /*ignored*/) { Read(); });
-  *current_completion_->message() = std::move(request_);
-
-  // It is important to indicate to the server that there will be no follow-up
-  // writes; otherwise, the call will never finish.
-  call_->WriteLast(*current_completion_->message(), grpc::WriteOptions{},
-                   current_completion_);
-}
-
-void GrpcStreamingReader::Read() {
-  SetCompletion([this](const GrpcCompletion* completion) {
-    // Accumulate responses
-    responses_.push_back(*completion->message());
-    Read();
-  });
-
-  call_->Read(current_completion_->message(), current_completion_);
+  stream_->Start();
 }
 
 void GrpcStreamingReader::Cancel() {
-  if (!current_completion_) {
-    // Nothing to cancel.
-    return;
+  stream_->Finish();
+}
+
+void GrpcStreamingReader::OnStreamStart() {
+  // It is important to indicate to the server that there will be no follow-up
+  // writes; otherwise, the call will never finish.
+  stream_->WriteLast(std::move(request_));
+}
+
+void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
+  // Accumulate responses
+  responses_.push_back(message);
+}
+
+void GrpcStreamingReader::OnStreamFinish(const util::Status& status) {
+  HARD_ASSERT(callback_,
+              "Received an event from stream after callback was unset");
+  if (status.ok()) {
+    callback_(responses_);
+  } else {
+    callback_(status);
   }
-
-  context_->TryCancel();
-  FastFinishCompletion();
-
-  SetCompletion([this](const GrpcCompletion*) {
-    // Deliberately ignored
-  });
-  call_->Finish(current_completion_->status(), current_completion_);
-  FastFinishCompletion();
-}
-
-void GrpcStreamingReader::FastFinishCompletion() {
-  current_completion_->Cancel();
-  // This function blocks.
-  current_completion_->WaitUntilOffQueue();
-  current_completion_ = nullptr;
-}
-
-void GrpcStreamingReader::OnOperationFailed() {
-  // The next read attempt after the server has sent the last response will also
-  // fail; in other words, `OnOperationFailed` will always be invoked, even when
-  // `Finish` will produce a successful status.
-  SetCompletion([this](const GrpcCompletion* completion) {
-    callback_(ConvertStatus(*completion->status()), responses_);
-    // This `GrpcStreamingReader`'s lifetime might have been ended by the
-    // callback.
-  });
-  call_->Finish(current_completion_->status(), current_completion_);
-}
-
-void GrpcStreamingReader::SetCompletion(const OnSuccess& on_success) {
-  // Can't move into lambda until C++14.
-  GrpcCompletion::Callback decorated =
-      [this, on_success](bool ok, const GrpcCompletion* completion) {
-        current_completion_ = nullptr;
-
-        if (ok) {
-          on_success(completion);
-        } else {
-          OnOperationFailed();
-        }
-      };
-
-  HARD_ASSERT(!current_completion_,
-              "Creating a new completion before the previous one is done");
-  current_completion_ = new GrpcCompletion{worker_queue_, std::move(decorated)};
-}
-
-GrpcStreamingReader::MetadataT GrpcStreamingReader::GetResponseHeaders() const {
-  return context_->GetServerInitialMetadata();
+  callback_ = {};
 }
 
 }  // namespace remote

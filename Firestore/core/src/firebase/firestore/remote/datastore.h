@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/support/status.h"
@@ -106,8 +107,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                                 FSTVoidMaybeDocumentArrayErrorBlock completion);
   void OnLookupDocumentsResponse(
       GrpcStreamingReader* call,
-      const util::Status& status,
-      const std::vector<grpc::ByteBuffer>& responses,
+      const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
       FSTVoidMaybeDocumentArrayErrorBlock completion);
 
   using OnToken = std::function<void(const auth::Token&)>;

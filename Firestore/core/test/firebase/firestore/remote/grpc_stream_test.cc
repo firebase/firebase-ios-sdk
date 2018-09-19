@@ -47,8 +47,8 @@ class Observer : public GrpcStreamObserver {
   void OnStreamRead(const grpc::ByteBuffer& message) override {
     observed_states.push_back("OnStreamRead");
   }
-  void OnStreamError(const util::Status& status) override {
-    observed_states.push_back("OnStreamError");
+  void OnStreamFinish(const util::Status& status) override {
+    observed_states.push_back("OnStreamFinish");
   }
 
   std::vector<std::string> observed_states;
@@ -194,7 +194,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   // on the worker queue.
   worker_queue().EnqueueBlocking([] {});
 
-  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamError"}));
+  EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamFinish"}));
 }
 
 TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
@@ -202,7 +202,7 @@ TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
   KeepPollingGrpcQueue();
 
   worker_queue().EnqueueBlocking([&] { stream().Finish(); });
-  EXPECT_FALSE(ObserverHas("OnStreamError"));
+  EXPECT_FALSE(ObserverHas("OnStreamFinish"));
 }
 
 TEST_F(GrpcStreamTest, WriteAndFinish) {
@@ -214,7 +214,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
     EXPECT_TRUE(did_last_write);
 
     EXPECT_TRUE(ObserverHas("OnStreamStart"));
-    EXPECT_FALSE(ObserverHas("OnStreamError"));
+    EXPECT_FALSE(ObserverHas("OnStreamFinish"));
   });
 }
 
@@ -226,7 +226,7 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
   // Give `GrpcStream` a chance to enqueue a finish operation
   ForceFinish({/*Finish*/ Ok});
 
-  EXPECT_EQ(observed_states().back(), "OnStreamError");
+  EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }
 
 TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
@@ -240,7 +240,7 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   // Give `GrpcStream` a chance to enqueue a finish operation
   ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
 
-  EXPECT_EQ(observed_states().back(), "OnStreamError");
+  EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }
 
 }  // namespace remote

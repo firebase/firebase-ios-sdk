@@ -186,7 +186,7 @@ class Stream : public GrpcStreamObserver,
   // `GrpcStreamObserver` interface -- do not use.
   void OnStreamStart() override;
   void OnStreamRead(const grpc::ByteBuffer& message) override;
-  void OnStreamError(const util::Status& status) override;
+  void OnStreamFinish(const util::Status& status) override;
 
  protected:
   // `Stream` expects all its methods to be called on the worker queue.
