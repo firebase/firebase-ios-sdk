@@ -128,7 +128,7 @@ void OnReachabilityChangedCallback(SCNetworkReachabilityRef /*unused*/,
       flags);
 }
 
-}
+}  // namespace
 
 std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::Create(
     AsyncQueue* worker_queue) {

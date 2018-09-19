@@ -35,11 +35,11 @@ namespace remote {
  */
 class ConnectivityMonitor {
  public:
-   /**
-    * The set of network states is deliberately simplified -- we only care about
-    * states such that transition between them should break currently
-    * established connections.
-    */
+  /**
+   * The set of network states is deliberately simplified -- we only care about
+   * states such that transition between them should break currently
+   * established connections.
+   */
   enum class NetworkStatus {
     Unavailable,
     Available,
