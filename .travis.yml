@@ -54,7 +54,6 @@ jobs:
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
-        - bundle exec pod repo update
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
@@ -85,11 +84,11 @@ jobs:
       script:
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
-        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
