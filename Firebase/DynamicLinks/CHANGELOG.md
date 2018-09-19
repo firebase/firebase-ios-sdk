@@ -1,5 +1,5 @@
 # v3.1.0
-- Open sourced. (#1842)
+- Firebase Dynamic Links is now open source and delivered as a source pod. (#1842)
 
 # v3.0.2
 - Bug fixes.
