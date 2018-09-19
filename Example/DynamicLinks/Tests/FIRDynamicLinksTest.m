@@ -28,9 +28,8 @@
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 #import "OCMock.h"
 
-static NSString *const kAPIKey = @"AIzaSyDCNTvGAV5C0WfPQhTOdSd4mK7hibJuP_c";
-static NSString *const kClientID =
-    @"1008964557875-1e5uttl9rsrdfjud7ivihg7pdk6jlktp.apps.googleusercontent.com";
+static NSString *const kAPIKey = @"myAPIKey";
+static NSString *const kClientID = @"myClientID.apps.googleusercontent.com";
 static NSString *const kStructuredLinkFmtFreeform = @"%@://google/link/%@";
 static NSString *const kStructuredLinkFmtDeepLink = @"%@://google/link/?deep_link_id=%@";
 static NSString *const kStructuredLinkFmtInvitation = @"%@://google/link/?invitation_id=%@";
