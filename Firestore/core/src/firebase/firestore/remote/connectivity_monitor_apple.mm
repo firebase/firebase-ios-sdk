@@ -19,6 +19,7 @@
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <netinet/in.h>
+#include <memory>
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -67,7 +68,7 @@ SCNetworkReachabilityRef CreateReachability() {
  */
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
-  ConnectivityMonitorApple(AsyncQueue* worker_queue)
+  explicit ConnectivityMonitorApple(AsyncQueue* worker_queue)
       : ConnectivityMonitor{worker_queue}, reachability_{CreateReachability()} {
     SCNetworkReachabilityFlags flags;
     if (SCNetworkReachabilityGetFlags(reachability_, &flags)) {
