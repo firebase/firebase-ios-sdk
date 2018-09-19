@@ -54,6 +54,9 @@ target 'DynamicLinks_Example_iOS' do
   platform :ios, '8.0'
 
   pod 'FirebaseDynamicLinks', :path => '../'
+  # Temporary for testing until 5.9.0 goes out
+  pod 'FirebaseAnalytics', :path => '../'
+  pod 'GoogleAppMeasurement', :path => '../'
 
   target 'DynamicLinks_Tests_iOS' do
     inherit! :search_paths
