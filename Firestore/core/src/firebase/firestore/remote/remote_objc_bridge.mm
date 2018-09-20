@@ -240,6 +240,7 @@ grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(
 
 NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
     const std::vector<grpc::ByteBuffer>& responses, Status* out_status) const {
+  // Sort by key.
   std::map<DocumentKey, FSTMaybeDocument*> results;
 
   for (const auto& response : responses) {
@@ -252,7 +253,6 @@ NSArray<FSTMaybeDocument*>* DatastoreSerializer::MergeLookupResponses(
   }
   NSMutableArray<FSTMaybeDocument*>* docs =
       [NSMutableArray arrayWithCapacity:results.size()];
-  // Sort by key.
   for (const auto& kv : results) {
     [docs addObject:kv.second];
   }

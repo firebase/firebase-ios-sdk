@@ -143,25 +143,27 @@ void Datastore::LookupDocuments(
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateLookupRequest(keys));
 
-  WithToken(
-      [this, message, completion](const Token &token) {
-        LookupDocumentsWithToken(token, message, completion);
-      },
-      [completion](const Status &status) {
-        completion(nil, util::MakeNSError(status));
+  ResumeRpcWithCredentials(
+      [this, message, completion](const StatusOr<Token> &maybe_credentials) {
+        if (!maybe_credentials.ok()) {
+          completion(nil, util::MakeNSError(maybe_credentials.status()));
+          return;
+        }
+        LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), message,
+                                       completion);
       });
 }
 
-void Datastore::LookupDocumentsWithToken(
-    const Token &token, const grpc::ByteBuffer &message,
-    FSTVoidMaybeDocumentArrayErrorBlock completion
-    ) {
+void Datastore::LookupDocumentsWithCredentials(
+    const Token &token,
+    const grpc::ByteBuffer &message,
+    FSTVoidMaybeDocumentArrayErrorBlock completion) {
   lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
       kRpcNameLookup, token, std::move(message)));
   GrpcStreamingReader *call = lookup_calls_.back().get();
 
   call->Start([this, call, completion](
-    const StatusOr<std::vector<grpc::ByteBuffer>> & result) {
+                  const StatusOr<std::vector<grpc::ByteBuffer>> &result) {
     OnLookupDocumentsResponse(call, result, completion);
     RemoveGrpcCall(call);
   });
@@ -169,9 +171,8 @@ void Datastore::LookupDocumentsWithToken(
 
 void Datastore::OnLookupDocumentsResponse(
     GrpcStreamingReader *call,
-    const StatusOr<std::vector<grpc::ByteBuffer>> & result,
-    FSTVoidMaybeDocumentArrayErrorBlock completion
-    ) {
+    const StatusOr<std::vector<grpc::ByteBuffer>> &result,
+    FSTVoidMaybeDocumentArrayErrorBlock completion) {
   LogGrpcCallFinished("BatchGetDocuments", call, result.status());
   HandleCallStatus(result.status());
 
@@ -181,8 +182,8 @@ void Datastore::OnLookupDocumentsResponse(
   }
 
   Status parse_status;
-  NSArray<FSTMaybeDocument *> *docs =
-      serializer_bridge_.MergeLookupResponses(result.ValueOrDie(), &parse_status);
+  NSArray<FSTMaybeDocument *> *docs = serializer_bridge_.MergeLookupResponses(
+      result.ValueOrDie(), &parse_status);
   if (parse_status.ok()) {
     completion(docs, nil);
   } else {
@@ -190,29 +191,25 @@ void Datastore::OnLookupDocumentsResponse(
   }
 }
 
-void Datastore::WithToken(const OnToken &on_token, const OnError &on_error) {
+void Datastore::ResumeRpcWithCredentials(const OnCredentials &on_credentials) {
   // Auth may outlive Firestore
   std::weak_ptr<Datastore> weak_this{shared_from_this()};
 
   credentials_->GetToken(
-      [weak_this, on_token, on_error](StatusOr<Token> maybe_token) {
+      [weak_this, on_credentials](const StatusOr<Token> &result) {
         auto strong_this = weak_this.lock();
         if (!strong_this) {
           return;
         }
 
         strong_this->worker_queue_->EnqueueRelaxed(
-            [weak_this, maybe_token, on_token, on_error] {
+            [weak_this, result, on_credentials] {
               auto strong_this = weak_this.lock();
               if (!strong_this) {
                 return;
               }
 
-              if (maybe_token.ok()) {
-                on_token(maybe_token.ValueOrDie());
-              } else {
-                on_error(maybe_token.status());
-              }
+              on_credentials(result);
             });
       });
 }
