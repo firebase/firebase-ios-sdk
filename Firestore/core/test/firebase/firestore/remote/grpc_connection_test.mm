@@ -35,7 +35,9 @@ using auth::User;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::AsyncQueue;
+using util::GrpcStreamTester;
 using util::Status;
+using util::StatusOr;
 using util::internal::ExecutorStd;
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 
@@ -45,7 +47,7 @@ class MockConnectivityMonitor : public ConnectivityMonitor {
  public:
   MockConnectivityMonitor(AsyncQueue* worker_queue)
       : ConnectivityMonitor{worker_queue} {
-    SetInitialStatus(NetworkStatus::Reachable);
+    SetInitialStatus(NetworkStatus::Available);
   }
 
   void set_status(NetworkStatus new_status) {
@@ -64,7 +66,7 @@ class ConnectivityObserver : public GrpcStreamObserver {
   }
   void OnStreamRead(const grpc::ByteBuffer& message) override {
   }
-  void OnStreamError(const util::Status& status) override {
+  void OnStreamFinish(const util::Status& status) override {
     if (IsConnectivityChange(status)) {
       ++connectivity_change_count_;
     }
@@ -80,113 +82,77 @@ class ConnectivityObserver : public GrpcStreamObserver {
 
 class GrpcConnectionTest : public testing::Test {
  public:
-  GrpcConnectionTest()
-      : worker_queue{absl::make_unique<ExecutorStd>()},
-        database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-        mock_grpc_queue{&worker_queue} {
+  GrpcConnectionTest() {
     auto connectivity_monitor_owning =
-        absl::make_unique<MockConnectivityMonitor>(&worker_queue);
+        absl::make_unique<MockConnectivityMonitor>(&tester.worker_queue());
     connectivity_monitor = connectivity_monitor_owning.get();
-    grpc_connection = absl::make_unique<GrpcConnection>(
-        database_info_, &worker_queue, mock_grpc_queue.queue(),
-        std::move(connectivity_monitor_owning));
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {
     connectivity_monitor->set_status(new_status);
     // Make sure the callback executes.
-    worker_queue.EnqueueBlocking([] {});
+    tester.worker_queue().EnqueueBlocking([] {});
   }
 
- private:
-  DatabaseInfo database_info_;
-
- public:
-  AsyncQueue worker_queue;
+  GrpcStreamTester tester;
   MockConnectivityMonitor* connectivity_monitor = nullptr;
-  util::MockGrpcQueue mock_grpc_queue;
-  std::unique_ptr<GrpcConnection> grpc_connection;
 };
 
 TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   ConnectivityObserver observer;
 
-  auto stream = grpc_connection->CreateStream("", Token{"", User{}}, &observer);
+  auto stream = tester.CreateStream(&observer);
   stream->Start();
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
-  SetNetworkStatus(NetworkStatus::Reachable);
+  SetNetworkStatus(NetworkStatus::Available);
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
-  mock_grpc_queue.KeepPolling();
-  SetNetworkStatus(NetworkStatus::Unreachable);
+  SetNetworkStatus(NetworkStatus::Unavailable);
   EXPECT_EQ(observer.connectivity_change_count(), 1);
-}
-
-TEST_F(GrpcConnectionTest, GrpcUnaryCallsNoticeChangeInConnectivity) {
-  int change_count = 0;
-
-  auto unary_call = grpc_connection->CreateUnaryCall("", Token{"", User{}},
-                                                     grpc::ByteBuffer{});
-  unary_call->Start([&](const Status& status, const grpc::ByteBuffer&) {
-    if (IsConnectivityChange(status)) {
-      ++change_count;
-    }
-  });
-
-  SetNetworkStatus(NetworkStatus::Reachable);
-  // Same status shouldn't trigger a callback.
-  EXPECT_EQ(change_count, 0);
-
-  mock_grpc_queue.KeepPolling();
-  SetNetworkStatus(NetworkStatus::Unreachable);
-  EXPECT_EQ(change_count, 1);
 }
 
 TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   int change_count = 0;
-  auto streaming_call = grpc_connection->CreateStreamingReader(
-      "", Token{"", User{}}, grpc::ByteBuffer{});
+  auto streaming_call = tester.CreateStreamingReader();
   streaming_call->Start(
-      [&](const Status& status, const std::vector<grpc::ByteBuffer>&) {
-        if (IsConnectivityChange(status)) {
+      [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
+        if (IsConnectivityChange(result.status())) {
           ++change_count;
         }
       });
 
-  SetNetworkStatus(NetworkStatus::Reachable);
+  SetNetworkStatus(NetworkStatus::Available);
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(change_count, 0);
 
-  mock_grpc_queue.KeepPolling();
-  SetNetworkStatus(NetworkStatus::ReachableViaCellular);
+  SetNetworkStatus(NetworkStatus::AvailableViaCellular);
   EXPECT_EQ(change_count, 1);
 }
 
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
-  auto unary_call_foo = grpc_connection->CreateUnaryCall("", Token{"", User{}},
-                                                         grpc::ByteBuffer{});
-  unary_call_foo->Start([&](const Status&, const grpc::ByteBuffer&) {
-    unary_call_foo.reset();
-    ++changes_count;
-  });
-  auto unary_call_bar = grpc_connection->CreateUnaryCall("", Token{"", User{}},
-                                                         grpc::ByteBuffer{});
-  unary_call_bar->Start([&](const Status&, const grpc::ByteBuffer&) {
-    unary_call_bar.reset();
-    ++changes_count;
-  });
-  auto unary_call_baz = grpc_connection->CreateUnaryCall("", Token{"", User{}},
-                                                         grpc::ByteBuffer{});
-  unary_call_baz->Start([&](const Status&, const grpc::ByteBuffer&) {
-    unary_call_baz.reset();
+
+  auto foo = tester.CreateStreamingReader();
+  foo->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
+    foo.reset();
     ++changes_count;
   });
 
-  mock_grpc_queue.KeepPolling();
-  EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unreachable));
+  auto bar = tester.CreateStreamingReader();
+  bar->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
+    bar.reset();
+    ++changes_count;
+  });
+
+  auto baz = tester.CreateStreamingReader();
+  baz->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
+    baz.reset();
+    ++changes_count;
+  });
+
+  EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unavailable));
   EXPECT_EQ(changes_count, 3);
 }
 

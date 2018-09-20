@@ -17,8 +17,10 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
+#include <condition_variable>
 #include <initializer_list>
 #include <memory>
+#include <mutex>
 #include <queue>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -69,6 +71,8 @@ class MockGrpcQueue {
   grpc::CompletionQueue grpc_queue_;
   bool is_shut_down_ = false;
 
+  std::condition_variable cv_;
+  std::mutex mutex_;
   std::queue<remote::GrpcCompletion*> pending_completions_;
 };
 
@@ -79,7 +83,8 @@ class MockGrpcQueue {
 class GrpcStreamTester {
  public:
   GrpcStreamTester();
-  explicit GrpcStreamTester(
+  GrpcStreamTester(
+      std::unique_ptr<AsyncQueue> worker_queue,
       std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor);
   ~GrpcStreamTester();
 
@@ -105,11 +110,11 @@ class GrpcStreamTester {
   void ShutdownGrpcQueue();
 
   AsyncQueue& worker_queue() {
-    return worker_queue_;
+    return *worker_queue_;
   }
 
  private:
-  AsyncQueue worker_queue_;
+  std::unique_ptr<AsyncQueue> worker_queue_;
   core::DatabaseInfo database_info_;
 
   MockGrpcQueue mock_grpc_queue_;

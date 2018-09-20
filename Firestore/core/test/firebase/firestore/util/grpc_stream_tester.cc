@@ -37,6 +37,7 @@ using remote::GrpcCompletion;
 using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
+namespace chr = std::chrono;
 
 // MockGrpcQueue
 
@@ -63,13 +64,20 @@ void MockGrpcQueue::PollGrpcQueue() {
   while (grpc_queue_.Next(&tag, &ignored_ok)) {
     worker_queue_->Enqueue([this, tag] {
       pending_completions_.push(static_cast<GrpcCompletion*>(tag));
+      cv_.notify_one();
     });
   }
 }
 
 void MockGrpcQueue::RunCompletions(
     std::initializer_list<CompletionResult> results) {
-  HARD_ASSERT(pending_completions_.size() >= results.size(), "");
+  std::unique_lock<std::mutex> lock{mutex_};
+  bool success = cv_.wait_for(lock, chr::milliseconds(500), [&] {
+    return pending_completions_.size() >= results.size();
+  });
+  HARD_ASSERT(success,
+              "Timed out while waiting for completions to come off gRPC "
+              "completion queue");
 
   worker_queue_->EnqueueRelaxed([this, results] {
     for (CompletionResult result : results) {
@@ -85,15 +93,19 @@ void MockGrpcQueue::RunCompletions(
 // GrpcStreamTester
 
 GrpcStreamTester::GrpcStreamTester()
-    : GrpcStreamTester{absl::make_unique<ConnectivityMonitor>(nullptr)} {
+    : GrpcStreamTester{
+          absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorStd>()),
+          absl::make_unique<ConnectivityMonitor>(nullptr)} {
 }
 
 GrpcStreamTester::GrpcStreamTester(
+    std::unique_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{absl::make_unique<ExecutorStd>()},
-      mock_grpc_queue_{&worker_queue_},
+    : worker_queue_{std::move(worker_queue)},
+      mock_grpc_queue_{worker_queue_.get()},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-      grpc_connection_{database_info_, &worker_queue_, mock_grpc_queue_.queue(),
+      grpc_connection_{database_info_, worker_queue_.get(),
+                       mock_grpc_queue_.queue(),
                        std::move(connectivity_monitor)} {
 }
 
@@ -103,7 +115,7 @@ GrpcStreamTester::~GrpcStreamTester() {
 }
 
 void GrpcStreamTester::Shutdown() {
-  worker_queue_.EnqueueBlocking([&] { ShutdownGrpcQueue(); });
+  worker_queue_->EnqueueBlocking([&] { ShutdownGrpcQueue(); });
 }
 
 std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(

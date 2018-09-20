@@ -20,7 +20,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -33,7 +33,7 @@ using auth::EmptyCredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::AsyncQueue;
-using util::internal::ExecutorStd;
+using util::internal::ExecutorLibdispatch;
 
 namespace {
 
@@ -61,7 +61,8 @@ std::unique_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : async_queue{absl::make_unique<ExecutorStd>()},
+      : async_queue{absl::make_unique<ExecutorLibdispatch>(
+            dispatch_queue_create("datastore-test", DISPATCH_QUEUE_SERIAL))},
         database_info_{DatabaseId{"foo", "bar"}, "", "", false},
         datastore{
             CreateDatastore(database_info_, &async_queue, &credentials_)} {
