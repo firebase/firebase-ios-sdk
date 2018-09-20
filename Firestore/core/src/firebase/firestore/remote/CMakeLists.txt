@@ -15,6 +15,8 @@
 cc_library(
   firebase_firestore_remote
   SOURCES
+    grpc_util.h
+    grpc_util.cc
     exponential_backoff.h
     exponential_backoff.cc
     serializer.h

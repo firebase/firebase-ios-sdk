@@ -26,6 +26,7 @@ namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
+using auth::Token;
 using model::TargetId;
 using util::AsyncQueue;
 using util::TimerId;
@@ -34,9 +35,9 @@ using util::Status;
 WatchStream::WatchStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* datastore,
+                         GrpcConnection* grpc_connection,
                          id<FSTWatchStreamDelegate> delegate)
-    : Stream{async_queue, credentials_provider, datastore,
+    : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::ListenStreamConnectionBackoff, TimerId::ListenStreamIdle},
       serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
@@ -62,9 +63,9 @@ void WatchStream::UnwatchTargetId(TargetId target_id) {
 }
 
 std::unique_ptr<GrpcStream> WatchStream::CreateGrpcStream(
-    Datastore* datastore, absl::string_view token) {
-  return datastore->CreateGrpcStream(
-      token, "/google.firestore.v1beta1.Firestore/Listen", this);
+    GrpcConnection* grpc_connection, const Token& token) {
+  return grpc_connection->CreateStream(
+      "/google.firestore.v1beta1.Firestore/Listen", token, this);
 }
 
 void WatchStream::TearDown(GrpcStream* grpc_stream) {

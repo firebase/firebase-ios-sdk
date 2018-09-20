@@ -19,6 +19,8 @@
 #include <unordered_set>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
@@ -30,6 +32,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using auth::CredentialsProvider;
+using auth::Token;
 using core::DatabaseInfo;
 using util::AsyncQueue;
 using util::Status;
@@ -55,9 +59,14 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 }  // namespace
 
 Datastore::Datastore(const DatabaseInfo &database_info,
-                     AsyncQueue *worker_queue)
+                     AsyncQueue *worker_queue,
+                     CredentialsProvider *credentials,
+                     FSTSerializerBeta *serializer)
     : grpc_connection_{database_info, worker_queue, &grpc_queue_},
-      rpc_executor_{CreateExecutor()} {
+      worker_queue_{worker_queue},
+      credentials_{credentials},
+      rpc_executor_{CreateExecutor()},
+      serializer_{serializer} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
@@ -80,29 +89,24 @@ void Datastore::PollGrpcQueue() {
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
     auto completion = static_cast<GrpcCompletion *>(tag);
+    // While it's valid in principle, we never deliberately pass a null pointer
+    // to gRPC completion queue and expect it back. This assertion might be
+    // relaxed if necessary.
     HARD_ASSERT(tag, "gRPC queue returned a null tag");
     completion->Complete(ok);
   }
 }
 
-std::unique_ptr<GrpcStream> Datastore::CreateGrpcStream(
-    absl::string_view rpc_name,
-    absl::string_view token,
-    GrpcStreamObserver *observer) {
-  return grpc_connection_.CreateStream(token, rpc_name, observer);
+std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
+    id<FSTWatchStreamDelegate> delegate) {
+  return std::make_shared<WatchStream>(worker_queue_, credentials_, serializer_,
+                                       &grpc_connection_, delegate);
 }
 
-Status Datastore::ConvertStatus(grpc::Status from) {
-  if (from.ok()) {
-    return Status::OK();
-  }
-
-  grpc::StatusCode error_code = from.error_code();
-  HARD_ASSERT(
-      error_code >= grpc::CANCELLED && error_code <= grpc::UNAUTHENTICATED,
-      "Unknown gRPC error code: %s", error_code);
-
-  return {static_cast<FirestoreErrorCode>(error_code), from.error_message()};
+std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
+    id<FSTWriteStreamDelegate> delegate) {
+  return std::make_shared<WriteStream>(worker_queue_, credentials_, serializer_,
+                                       &grpc_connection_, delegate);
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
