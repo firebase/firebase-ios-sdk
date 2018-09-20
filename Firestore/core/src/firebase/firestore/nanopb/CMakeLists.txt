@@ -27,3 +27,8 @@ cc_library(
     firebase_firestore_util
     firebase_firestore_protos_nanopb
 )
+
+target_compile_definitions(
+  firebase_firestore_nanopb
+  PUBLIC -DPB_ENABLE_MALLOC
+)
