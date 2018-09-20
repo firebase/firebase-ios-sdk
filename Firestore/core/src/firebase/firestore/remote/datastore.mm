@@ -182,8 +182,9 @@ void Datastore::OnLookupDocumentsResponse(
   }
 
   Status parse_status;
+  std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
   NSArray<FSTMaybeDocument *> *docs = serializer_bridge_.MergeLookupResponses(
-      result.ValueOrDie(), &parse_status);
+      responses, &parse_status);
   if (parse_status.ok()) {
     completion(docs, nil);
   } else {
