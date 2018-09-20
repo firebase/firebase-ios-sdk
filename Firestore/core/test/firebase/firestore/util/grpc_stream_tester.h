@@ -36,6 +36,44 @@ namespace util {
 
 enum CompletionResult { Ok, Error };
 
+class MockGrpcQueue {
+ public:
+  explicit MockGrpcQueue(AsyncQueue* worker_queue);
+
+  /**
+   * Takes as many completions off gRPC completion queue as there are elements
+   * in `results` and completes each of them with the corresponding result,
+   * ignoring the actual result from gRPC.
+   *
+   * This is a blocking function; it will finish quickly if the the gRPC
+   * completion queue has at least as many pending completions as there are
+   * elements in `results`; otherwise, it will hang.
+   */
+  void ExtractCompletions(std::initializer_list<CompletionResult> results);
+
+  /**
+   * Using a separate executor, keep polling gRPC completion queue and tell all
+   * the completions that come off the queue that they finished successfully,
+   * ignoring the actual result from gRPC.
+   *
+   * Call this method before calling the blocking functions `GrpcStream::Finish`
+   * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
+   */
+  void KeepPolling();
+
+  void Shutdown();
+
+  grpc::CompletionQueue* queue() {
+    return &grpc_queue_;
+  }
+
+ private:
+  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
+  AsyncQueue* worker_queue_ = nullptr;
+  grpc::CompletionQueue grpc_queue_;
+  bool is_shut_down_ = false;
+};
+
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
  * allows imitating the normal completion of `GrpcCompletion`s.
@@ -57,9 +95,9 @@ class GrpcStreamTester {
    * in `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
-   * This is a blocking function; it will finish quickly if the gRPC completion
-   * queue has at least as many pending completions as there are elements in
-   * `results`; otherwise, it will hang.
+   * This is a blocking function; it will finish quickly if the the gRPC
+   * completion queue has at least as many pending completions as there are
+   * elements in `results`; otherwise, it will hang.
    */
   void ForceFinish(std::initializer_list<CompletionResult> results);
 
@@ -80,15 +118,13 @@ class GrpcStreamTester {
   }
 
  private:
-  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue worker_queue_;
 
   grpc::GenericStub grpc_stub_;
-  grpc::CompletionQueue grpc_queue_;
   // Context is needed to be able to cancel pending operations.
   grpc::ClientContext* grpc_context_ = nullptr;
 
-  bool is_shut_down_ = false;
+  MockGrpcQueue mock_grpc_queue_;
 };
 
 }  // namespace util

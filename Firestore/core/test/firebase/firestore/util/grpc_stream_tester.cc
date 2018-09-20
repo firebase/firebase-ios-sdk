@@ -30,10 +30,51 @@ using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
 
+MockGrpcQueue::MockGrpcQueue(AsyncQueue* worker_queue)
+    : dedicated_executor_{absl::make_unique<ExecutorStd>()},
+      worker_queue_{worker_queue} {
+}
+
+void MockGrpcQueue::Shutdown() {
+  if (is_shut_down_) {
+    return;
+  }
+  is_shut_down_ = true;
+
+  grpc_queue_.Shutdown();
+  // Wait for gRPC completion queue to drain
+  dedicated_executor_->ExecuteBlocking([] {});
+}
+
+void MockGrpcQueue::ExtractCompletions(
+    std::initializer_list<CompletionResult> results) {
+  dedicated_executor_->ExecuteBlocking([&] {
+    for (CompletionResult result : results) {
+      bool ignored_ok = false;
+      void* tag = nullptr;
+      grpc_queue_.Next(&tag, &ignored_ok);
+      auto completion = static_cast<GrpcCompletion*>(tag);
+      completion->Complete(result == CompletionResult::Ok);
+    }
+  });
+
+  worker_queue_->EnqueueBlocking([] {});
+}
+
+void MockGrpcQueue::KeepPolling() {
+  dedicated_executor_->Execute([&] {
+    void* tag = nullptr;
+    bool ignored_ok = false;
+    while (grpc_queue_.Next(&tag, &ignored_ok)) {
+      static_cast<GrpcCompletion*>(tag)->Complete(true);
+    }
+  });
+}
+
 GrpcStreamTester::GrpcStreamTester()
     : worker_queue_{absl::make_unique<ExecutorStd>()},
-      dedicated_executor_{absl::make_unique<ExecutorStd>()},
-      grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
+      grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())},
+      mock_grpc_queue_{&worker_queue_} {
 }
 
 GrpcStreamTester::~GrpcStreamTester() {
@@ -49,34 +90,31 @@ std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
     GrpcStreamObserver* observer) {
   auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
   grpc_context_ = grpc_context_owning.get();
-  auto grpc_call =
-      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
+  auto grpc_call = grpc_stub_.PrepareCall(grpc_context_owning.get(), "",
+                                          mock_grpc_queue_.queue());
 
   return absl::make_unique<GrpcStream>(std::move(grpc_context_owning),
                                        std::move(grpc_call), observer,
-                                       &worker_queue_);
+                                       &worker_queue_, nullptr);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
   auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
   grpc_context_ = grpc_context_owning.get();
-  auto grpc_call =
-      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
+  auto grpc_call = grpc_stub_.PrepareCall(grpc_context_owning.get(), "",
+                                          mock_grpc_queue_.queue());
 
   return absl::make_unique<GrpcStreamingReader>(
       std::move(grpc_context_owning), std::move(grpc_call), &worker_queue_,
-      grpc::ByteBuffer{});
+      nullptr, grpc::ByteBuffer{});
 }
 
 void GrpcStreamTester::ShutdownGrpcQueue() {
-  if (is_shut_down_) {
-    return;
-  }
-  is_shut_down_ = true;
+  mock_grpc_queue_.Shutdown();
+}
 
-  grpc_queue_.Shutdown();
-  // Wait for gRPC completion queue to drain
-  dedicated_executor_->ExecuteBlocking([] {});
+void GrpcStreamTester::KeepPollingGrpcQueue() {
+  mock_grpc_queue_.KeepPolling();
 }
 
 // This is a very hacky way to simulate gRPC finishing operations without
@@ -85,30 +123,10 @@ void GrpcStreamTester::ShutdownGrpcQueue() {
 // complete the associated completion.
 void GrpcStreamTester::ForceFinish(
     std::initializer_list<CompletionResult> results) {
-  dedicated_executor_->ExecuteBlocking([&] {
-    // gRPC allows calling `TryCancel` more than once.
-    grpc_context_->TryCancel();
+  // gRPC allows calling `TryCancel` more than once.
+  grpc_context_->TryCancel();
 
-    for (CompletionResult result : results) {
-      bool ignored_ok = false;
-      void* tag = nullptr;
-      grpc_queue_.Next(&tag, &ignored_ok);
-      auto completion = static_cast<remote::GrpcCompletion*>(tag);
-      completion->Complete(result == CompletionResult::Ok);
-    }
-  });
-
-  worker_queue_.EnqueueBlocking([] {});
-}
-
-void GrpcStreamTester::KeepPollingGrpcQueue() {
-  dedicated_executor_->Execute([&] {
-    void* tag = nullptr;
-    bool ignored_ok = false;
-    while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<GrpcCompletion*>(tag)->Complete(true);
-    }
-  });
+  mock_grpc_queue_.ExtractCompletions(results);
 }
 
 }  // namespace util
