@@ -44,6 +44,7 @@ namespace chr = std::chrono;
 MockGrpcQueue::MockGrpcQueue(AsyncQueue* worker_queue)
     : dedicated_executor_{absl::make_unique<ExecutorStd>()},
       worker_queue_{worker_queue} {
+  run_completions_immediately_ = false;
   dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
@@ -60,11 +61,16 @@ void MockGrpcQueue::Shutdown() {
 
 void MockGrpcQueue::PollGrpcQueue() {
   void* tag = nullptr;
-  bool ignored_ok = false;
-  while (grpc_queue_.Next(&tag, &ignored_ok)) {
-    worker_queue_->Enqueue([this, tag] {
-      pending_completions_.push(static_cast<GrpcCompletion*>(tag));
-      cv_.notify_one();
+  bool ok = false;
+  while (grpc_queue_.Next(&tag, &ok)) {
+          auto completion = static_cast<GrpcCompletion*>(tag);
+      if (run_completions_immediately_) {
+      completion->Complete(ok);
+      continue;
+    }
+    worker_queue_->Enqueue([this, completion] {
+        pending_completions_.push(completion);
+        cv_.notify_one();
     });
   }
 }

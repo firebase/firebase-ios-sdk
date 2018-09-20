@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
+#include <atomic>
 #include <condition_variable>
 #include <initializer_list>
 #include <memory>
@@ -57,6 +58,8 @@ class MockGrpcQueue {
    */
   void RunCompletions(std::initializer_list<CompletionResult> results);
 
+  void RunCompletionsImmediately() { run_completions_immediately_ = true; }
+
   void Shutdown();
 
   grpc::CompletionQueue* queue() {
@@ -74,6 +77,8 @@ class MockGrpcQueue {
   std::condition_variable cv_;
   std::mutex mutex_;
   std::queue<remote::GrpcCompletion*> pending_completions_;
+
+  std::atomic<bool> run_completions_immediately_;
 };
 
 /**
@@ -107,6 +112,7 @@ class GrpcStreamTester {
   void RunCompletions(grpc::ClientContext* grpc_context,
                       std::initializer_list<CompletionResult> results);
 
+  void RunCompletionsImmediately() { mock_grpc_queue_.RunCompletionsImmediately(); }
   void ShutdownGrpcQueue();
 
   AsyncQueue& worker_queue() {
