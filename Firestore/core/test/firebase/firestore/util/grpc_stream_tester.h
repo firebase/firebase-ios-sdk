@@ -19,6 +19,7 @@
 
 #include <initializer_list>
 #include <memory>
+#include <queue>
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
@@ -49,17 +50,7 @@ class MockGrpcQueue {
    * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    */
-  void ExtractCompletions(std::initializer_list<CompletionResult> results);
-
-  /**
-   * Using a separate executor, keep polling gRPC completion queue and tell all
-   * the completions that come off the queue that they finished successfully,
-   * ignoring the actual result from gRPC.
-   *
-   * Call this method before calling the blocking functions `GrpcStream::Finish`
-   * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
-   */
-  void KeepPolling();
+  void RunCompletions(std::initializer_list<CompletionResult> results);
 
   void Shutdown();
 
@@ -68,10 +59,14 @@ class MockGrpcQueue {
   }
 
  private:
+  void PollGrpcQueue();
+
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue* worker_queue_ = nullptr;
   grpc::CompletionQueue grpc_queue_;
   bool is_shut_down_ = false;
+
+  std::queue<remote::GrpcCompletion*> pending_completions_;
 };
 
 /**
@@ -100,16 +95,6 @@ class GrpcStreamTester {
    * elements in `results`; otherwise, it will hang.
    */
   void ForceFinish(std::initializer_list<CompletionResult> results);
-
-  /**
-   * Using a separate executor, keep polling gRPC completion queue and tell all
-   * the completions that come off the queue that they finished successfully,
-   * ignoring the actual result from gRPC.
-   *
-   * Call this method before calling the blocking functions `GrpcStream::Finish`
-   * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
-   */
-  void KeepPollingGrpcQueue();
 
   void ShutdownGrpcQueue();
 

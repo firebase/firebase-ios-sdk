@@ -65,7 +65,6 @@ class GrpcStreamTest : public testing::Test {
 
   ~GrpcStreamTest() {
     if (!stream_->IsFinished()) {
-      KeepPollingGrpcQueue();
       worker_queue().EnqueueBlocking([&] { stream_->Finish(); });
     }
     tester_.Shutdown();
@@ -80,9 +79,6 @@ class GrpcStreamTest : public testing::Test {
 
   void ForceFinish(std::initializer_list<CompletionResult> results) {
     tester_.ForceFinish(results);
-  }
-  void KeepPollingGrpcQueue() {
-    tester_.KeepPollingGrpcQueue();
   }
   void ShutdownGrpcQueue() {
     tester_.ShutdownGrpcQueue();
@@ -119,7 +115,6 @@ TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
 
 TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
   StartStream();
-  KeepPollingGrpcQueue();
 
   worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
@@ -133,7 +128,6 @@ TEST_F(GrpcStreamTest, CanFinishTwice) {
 
 TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
   StartStream();
-  KeepPollingGrpcQueue();
 
   worker_queue().EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream().WriteAndFinish({})); });
@@ -185,7 +179,6 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
 
   // Fail the read, but allow the rest to succeed.
   ForceFinish({/*Read*/ Error});  // Will put a "Finish" operation on the queue
-  KeepPollingGrpcQueue();
   // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
   // extracted from gRPC completion queue (but the completion may not have run
   // yet).
@@ -199,7 +192,6 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
 
 TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
   StartStream();
-  KeepPollingGrpcQueue();
 
   worker_queue().EnqueueBlocking([&] { stream().Finish(); });
   EXPECT_FALSE(ObserverHas("OnStreamFinish"));
@@ -207,7 +199,6 @@ TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
 
 TEST_F(GrpcStreamTest, WriteAndFinish) {
   StartStream();
-  KeepPollingGrpcQueue();
 
   worker_queue().EnqueueBlocking([&] {
     bool did_last_write = stream().WriteAndFinish({});

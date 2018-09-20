@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -30,9 +31,12 @@ using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
 
+// MockGrpcQueue
+
 MockGrpcQueue::MockGrpcQueue(AsyncQueue* worker_queue)
     : dedicated_executor_{absl::make_unique<ExecutorStd>()},
       worker_queue_{worker_queue} {
+  dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void MockGrpcQueue::Shutdown() {
@@ -46,14 +50,24 @@ void MockGrpcQueue::Shutdown() {
   dedicated_executor_->ExecuteBlocking([] {});
 }
 
-void MockGrpcQueue::ExtractCompletions(
+void MockGrpcQueue::PollGrpcQueue() {
+  void* tag = nullptr;
+  bool ignored_ok = false;
+  while (grpc_queue_.Next(&tag, &ignored_ok)) {
+    worker_queue_->Enqueue([this, tag] {
+      pending_completions_.push(static_cast<GrpcCompletion*>(tag));
+    });
+  }
+}
+
+void MockGrpcQueue::RunCompletions(
     std::initializer_list<CompletionResult> results) {
-  dedicated_executor_->ExecuteBlocking([&] {
+  HARD_ASSERT(pending_completions_.size() >= results.size(), "");
+
+  worker_queue_->EnqueueRelaxed([this, results] {
     for (CompletionResult result : results) {
-      bool ignored_ok = false;
-      void* tag = nullptr;
-      grpc_queue_.Next(&tag, &ignored_ok);
-      auto completion = static_cast<GrpcCompletion*>(tag);
+      GrpcCompletion* completion = pending_completions_.front();
+      pending_completions_.pop();
       completion->Complete(result == CompletionResult::Ok);
     }
   });
@@ -61,15 +75,7 @@ void MockGrpcQueue::ExtractCompletions(
   worker_queue_->EnqueueBlocking([] {});
 }
 
-void MockGrpcQueue::KeepPolling() {
-  dedicated_executor_->Execute([&] {
-    void* tag = nullptr;
-    bool ignored_ok = false;
-    while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<GrpcCompletion*>(tag)->Complete(true);
-    }
-  });
-}
+// GrpcStreamTester
 
 GrpcStreamTester::GrpcStreamTester()
     : worker_queue_{absl::make_unique<ExecutorStd>()},
@@ -94,8 +100,8 @@ std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
                                           mock_grpc_queue_.queue());
 
   return absl::make_unique<GrpcStream>(std::move(grpc_context_owning),
-                                       std::move(grpc_call), observer,
-                                       &worker_queue_, nullptr);
+                                       std::move(grpc_call),
+                                       &worker_queue_, nullptr, observer);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
@@ -113,10 +119,6 @@ void GrpcStreamTester::ShutdownGrpcQueue() {
   mock_grpc_queue_.Shutdown();
 }
 
-void GrpcStreamTester::KeepPollingGrpcQueue() {
-  mock_grpc_queue_.KeepPolling();
-}
-
 // This is a very hacky way to simulate gRPC finishing operations without
 // actually connecting to the server: cancel the stream, which will make all
 // operations fail fast and be returned from the completion queue, then
@@ -126,7 +128,7 @@ void GrpcStreamTester::ForceFinish(
   // gRPC allows calling `TryCancel` more than once.
   grpc_context_->TryCancel();
 
-  mock_grpc_queue_.ExtractCompletions(results);
+  mock_grpc_queue_.RunCompletions(results);
 }
 
 }  // namespace util

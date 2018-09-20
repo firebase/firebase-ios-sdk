@@ -172,7 +172,6 @@ class StreamTest : public testing::Test {
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
       if (firestore_stream && firestore_stream->IsStarted()) {
-        tester_.KeepPollingGrpcQueue();
         firestore_stream->Stop();
       }
     });
@@ -181,9 +180,6 @@ class StreamTest : public testing::Test {
 
   void ForceFinish(std::initializer_list<CompletionResult> results) {
     tester_.ForceFinish(results);
-  }
-  void KeepPollingGrpcQueue() {
-    tester_.KeepPollingGrpcQueue();
   }
 
   void StartStream() {
@@ -269,7 +265,6 @@ TEST_F(StreamTest, CanOpen) {
 TEST_F(StreamTest, CanStop) {
   StartStream();
   async_queue().EnqueueBlocking([&] {
-    KeepPollingGrpcQueue();
     firestore_stream->Stop();
 
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -325,7 +320,6 @@ TEST_F(StreamTest, ClosesOnIdle) {
 
   async_queue().EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
 
-  KeepPollingGrpcQueue();
   EXPECT_TRUE(async_queue().IsScheduled(kIdleTimerId));
   async_queue().RunScheduledOperationsUntil(kIdleTimerId);
   async_queue().EnqueueBlocking([&] {
@@ -341,7 +335,6 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   firestore_stream->FailStreamRead();
   ForceFinish({/*Read*/ Ok});
 
-  KeepPollingGrpcQueue();
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
