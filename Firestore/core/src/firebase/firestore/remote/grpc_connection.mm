@@ -37,6 +37,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::Status;
 using util::StringFormat;
 
 namespace {
@@ -60,6 +61,13 @@ GrpcConnection::GrpcConnection(
       grpc_queue_{grpc_queue},
       connectivity_monitor_{std::move(connectivity_monitor)} {
   RegisterConnectivityMonitor();
+}
+
+void GrpcConnection::Shutdown() {
+  // Fast finish any pending calls. This will not trigger the observers.
+  for (GrpcCallInterface* call : active_calls_) {
+    call->Finish();
+  }
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
@@ -100,11 +108,15 @@ void GrpcConnection::EnsureActiveStub() {
   if (!grpc_channel_ || grpc_channel_->GetState(/*try_to_connect=*/false) ==
                             GRPC_CHANNEL_SHUTDOWN) {
     LOG_DEBUG("Creating Firestore stub.");
-    grpc_channel_ = grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()));
+    grpc_channel_ = CreateChannel();
     grpc_stub_ = absl::make_unique<grpc::GenericStub>(grpc_channel_);
   }
+}
+
+std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
+  return grpc::CreateChannel(
+        database_info_->host(),
+        grpc::SslCredentials(grpc::SslCredentialsOptions()));
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -118,8 +130,8 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
   auto context = CreateContext(token);
   auto call =
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
-  return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
-                                       observer, worker_queue_);
+  return absl::make_unique<GrpcStream>(
+      std::move(context), std::move(call), worker_queue_, this, observer);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
@@ -134,14 +146,30 @@ std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
   auto call =
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStreamingReader>(
-      std::move(context), std::move(call), worker_queue_, message);
+      std::move(context), std::move(call), worker_queue_, this, message);
 }
 
 void GrpcConnection::RegisterConnectivityMonitor() {
   connectivity_monitor_->AddCallback(
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
-        // TODO(varconst): implement
+        // Calls may unregister themselves on cancel, so make a protective copy.
+        auto calls = active_calls_;
+        for (GrpcCallInterface *call : calls) {
+          // This will trigger the observers.
+          call->FinishWithError(Status{FirestoreErrorCode::Unavailable,
+                              "Network connectivity changed"});
+        }
       });
+}
+
+void GrpcConnection::Register(GrpcCallInterface *call) {
+  active_calls_.push_back(call);
+}
+
+void GrpcConnection::Unregister(GrpcCallInterface *call) {
+  auto found = std::find(active_calls_.begin(), active_calls_.end(), call);
+  HARD_ASSERT(found != active_calls_.end(), "Missing a gRPC call");
+  active_calls_.erase(found);
 }
 
 }  // namespace remote

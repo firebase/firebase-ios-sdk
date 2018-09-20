@@ -50,6 +50,8 @@ class GrpcConnection {
                  grpc::CompletionQueue* grpc_queue,
                  std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
 
+  void Shutdown();
+
   /**
    * Creates a stream to the given stream RPC endpoint. The resulting stream
    * needs to be `Start`ed before it can be used.
@@ -64,6 +66,9 @@ class GrpcConnection {
       absl::string_view rpc_name,
       const auth::Token& token,
       const grpc::ByteBuffer& message);
+
+  void Register(GrpcCallInterface* call);
+  void Unregister(GrpcCallInterface* call);
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
@@ -81,6 +86,7 @@ class GrpcConnection {
   std::unique_ptr<grpc::GenericStub> grpc_stub_;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
+  std::vector<GrpcCallInterface*> active_calls_;
 };
 
 }  // namespace remote

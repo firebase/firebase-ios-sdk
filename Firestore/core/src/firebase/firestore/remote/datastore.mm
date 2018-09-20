@@ -84,7 +84,8 @@ Datastore::Datastore(const DatabaseInfo &database_info,
                      AsyncQueue *worker_queue,
                      CredentialsProvider *credentials,
                      FSTSerializerBeta *serializer)
-    : grpc_connection_{database_info, worker_queue, &grpc_queue_, ConnectivityMonitor::Create(worker_queue)},
+    : grpc_connection_{database_info, worker_queue, &grpc_queue_,
+                       ConnectivityMonitor::Create(worker_queue)},
       worker_queue_{worker_queue},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
@@ -93,10 +94,10 @@ Datastore::Datastore(const DatabaseInfo &database_info,
 }
 
 void Datastore::Shutdown() {
-  for (auto &call : lookup_calls_) {
-    call->Cancel();
-  }
-  lookup_calls_.clear();
+  // Order matters here: shutting down `grpc_connection_`, which will quickly
+  // finish any pending gRPC calls, must happen before shutting down the gRPC
+  // queue.
+  grpc_connection_.Shutdown();
 
   // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
   // been called and all submitted tags have been extracted. Without this call,
@@ -184,8 +185,8 @@ void Datastore::OnLookupDocumentsResponse(
 
   Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  NSArray<FSTMaybeDocument *> *docs = serializer_bridge_.MergeLookupResponses(
-      responses, &parse_status);
+  NSArray<FSTMaybeDocument *> *docs =
+      serializer_bridge_.MergeLookupResponses(responses, &parse_status);
   if (parse_status.ok()) {
     completion(docs, nil);
   } else {

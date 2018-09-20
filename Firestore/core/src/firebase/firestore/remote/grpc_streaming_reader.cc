@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -32,9 +33,10 @@ GrpcStreamingReader::GrpcStreamingReader(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     util::AsyncQueue* worker_queue,
+    GrpcConnection* grpc_connection,
     const grpc::ByteBuffer& request)
     : stream_{absl::make_unique<GrpcStream>(
-          std::move(context), std::move(call), this, worker_queue)},
+          std::move(context), std::move(call), worker_queue, grpc_connection, this)},
       request_{request} {
 }
 
@@ -43,8 +45,12 @@ void GrpcStreamingReader::Start(CallbackT&& callback) {
   stream_->Start();
 }
 
-void GrpcStreamingReader::Cancel() {
+void GrpcStreamingReader::Finish() {
   stream_->Finish();
+}
+
+void GrpcStreamingReader::FinishWithError(const Status& status) {
+  stream_->FinishWithError(status);
 }
 
 void GrpcStreamingReader::OnStreamStart() {

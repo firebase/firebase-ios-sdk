@@ -19,6 +19,7 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 namespace firebase {
@@ -82,12 +83,15 @@ using internal::BufferedWriter;
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-    GrpcStreamObserver* observer,
-    AsyncQueue* worker_queue)
+    AsyncQueue* worker_queue,
+    GrpcConnection* grpc_connection,
+    GrpcStreamObserver* observer)
     : context_{std::move(context)},
       call_{std::move(call)},
-      observer_{observer},
-      worker_queue_{worker_queue} {
+      worker_queue_{worker_queue},
+      grpc_connection_{grpc_connection},
+      observer_{observer} {
+  grpc_connection_->Register(this);
 }
 
 GrpcStream::~GrpcStream() {
@@ -148,7 +152,24 @@ void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
 }
 
 void GrpcStream::Finish() {
+  Shutdown();
   UnsetObserver();
+}
+
+void GrpcStream::FinishWithError(const Status& status) {
+  Shutdown();
+
+  if (observer_) {
+    // The call to observer could end this `GrpcStream`'s lifetime, so make
+    // a protective copy.
+    GrpcStreamObserver* observer = observer_;
+    UnsetObserver();
+    observer->OnStreamFinish(status);
+  }
+}
+
+void GrpcStream::Shutdown() {
+  grpc_connection_->Unregister(this);
 
   if (completions_.empty()) {
     // Nothing to cancel.
@@ -260,19 +281,12 @@ void GrpcStream::OnOperationFailed() {
   } else {
     // The only reason to finish would be to get the status; if the observer is
     // no longer interested, there is no need to do that.
-    FastFinishCompletionsBlocking();
+    Shutdown();
   }
 }
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
-  FastFinishCompletionsBlocking();
-
-  if (observer_) {
-    // The call to observer could end this `GrpcStream`'s lifetime.
-    GrpcStreamObserver* observer = observer_;
-    UnsetObserver();
-    observer->OnStreamFinish(ConvertStatus(status));
-  }
+  FinishWithError(ConvertStatus(status));
 }
 
 void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {

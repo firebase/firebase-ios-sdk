@@ -34,11 +34,13 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class GrpcConnection;
+
 /**
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader : public GrpcStreamObserver {
+class GrpcStreamingReader : public GrpcCallInterface, public GrpcStreamObserver {
  public:
   using MetadataT = GrpcStream::MetadataT;
   using ResponsesT = std::vector<grpc::ByteBuffer>;
@@ -48,6 +50,7 @@ class GrpcStreamingReader : public GrpcStreamObserver {
   GrpcStreamingReader(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              util::AsyncQueue* worker_queue,
+             GrpcConnection* grpc_connection,
                       const grpc::ByteBuffer& request);
 
   /**
@@ -67,7 +70,9 @@ class GrpcStreamingReader : public GrpcStreamObserver {
    * If this function succeeds in cancelling the call, the callback will not be
    * invoked.
    */
-  void Cancel();
+  void Finish() override;
+
+  void FinishWithError(const util::Status& status) override;
 
   /**
    * Returns the metadata received from the server.
