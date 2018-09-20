@@ -22,9 +22,9 @@ ExternalProject_Add(
   grpc-download
 
   DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
-  DOWNLOAD_NAME grpc-1.15.0.tar.gz
-  URL https://github.com/grpc/grpc/archive/v1.15.0.tar.gz
-  URL_HASH SHA256=013cc34f3c51c0f87e059a12ea203087a7a15dca2e453295345e1d02e2b9634b
+  DOWNLOAD_NAME grpc-1.14.2.tar.gz
+  URL https://github.com/grpc/grpc/archive/v1.14.2.tar.gz
+  URL_HASH SHA256=c747e4d903f7dcf803be53abed4e4efc5d3e96f6c274ed1dfca7a03fa6f4e36b
 
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
