@@ -84,7 +84,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTMutation *)decodedMutation:(GCFSWrite *)mutation;
 
 - (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
-                               commitVersion:(const firebase::firestore::model::SnapshotVersion &)commitVersion;
+                               commitVersion:(const firebase::firestore::model::SnapshotVersion &)
+                                                 commitVersion;
 
 - (nullable NSMutableDictionary<NSString *, NSString *> *)encodedListenRequestLabelsForQueryData:
     (FSTQueryData *)queryData;

@@ -672,11 +672,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMutationResult <= GCFSWriteResult proto
 
-- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation commitVersion:(const SnapshotVersion &)commitVersion {
+- (FSTMutationResult *)decodedMutationResult:(GCFSWriteResult *)mutation
+                               commitVersion:(const SnapshotVersion &)commitVersion {
   // NOTE: Deletes don't have an updateTime. Use commitVersion instead.
-  SnapshotVersion version = mutation.hasUpdateTime
-          ? [self decodedVersion:mutation.updateTime]
-          : commitVersion;
+  SnapshotVersion version =
+      mutation.hasUpdateTime ? [self decodedVersion:mutation.updateTime] : commitVersion;
   NSMutableArray *_Nullable transformResults = nil;
   if (mutation.transformResultsArray.count > 0) {
     transformResults = [NSMutableArray array];

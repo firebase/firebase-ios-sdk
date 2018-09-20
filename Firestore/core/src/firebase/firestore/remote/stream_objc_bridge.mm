@@ -205,7 +205,8 @@ NSArray<FSTMutationResult*>* WriteStreamSerializer::ToMutationResults(
 
   const model::SnapshotVersion commitVersion = ToCommitVersion(response);
   for (GCFSWriteResult* proto in responses) {
-    [results addObject:[serializer_ decodedMutationResult:proto commitVersion:commitVersion]];
+    [results addObject:[serializer_ decodedMutationResult:proto
+                                            commitVersion:commitVersion]];
   };
   return results;
 }
