@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -33,6 +34,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::StringFormat;
@@ -61,7 +63,11 @@ GrpcConnection::GrpcConnection(
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
-    absl::string_view token) const {
+    const Token &credential) const {
+  absl::string_view token = credential.user().is_authenticated()
+                                ? credential.token()
+                                : absl::string_view{};
+
   auto context = absl::make_unique<grpc::ClientContext>();
   if (token.data()) {
     context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
@@ -103,7 +109,7 @@ void GrpcConnection::EnsureActiveStub() {
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
     absl::string_view rpc_name,
-    absl::string_view token,
+    const Token &token,
     GrpcStreamObserver *observer) {
   LOG_DEBUG("Creating gRPC stream");
 
@@ -114,6 +120,21 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
                                        observer, worker_queue_);
+}
+
+std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
+    absl::string_view rpc_name,
+    const Token &token,
+    const grpc::ByteBuffer &message) {
+  LOG_DEBUG("Creating gRPC streaming reader");
+
+  EnsureActiveStub();
+
+  auto context = CreateContext(token);
+  auto call =
+      grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
+  return absl::make_unique<GrpcStreamingReader>(
+      std::move(context), std::move(call), worker_queue_, message);
 }
 
 void GrpcConnection::RegisterConnectivityMonitor() {

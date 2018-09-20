@@ -56,6 +56,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 namespace util = firebase::firestore::util;
+using firebase::firestore::core::ParsedUpdateData;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -263,11 +264,10 @@ FSTPatchMutation *FSTTestPatchMutation(const absl::string_view path,
 FSTTransformMutation *FSTTestTransformMutation(NSString *path, NSDictionary<NSString *, id> *data) {
   FSTDocumentKey *key = [FSTDocumentKey keyWithPath:testutil::Resource(util::MakeString(path))];
   FSTUserDataConverter *converter = FSTTestUserDataConverter();
-  FSTParsedUpdateData *result = [converter parsedUpdateData:data];
-  HARD_ASSERT(result.data.value.count == 0,
+  ParsedUpdateData result = [converter parsedUpdateData:data];
+  HARD_ASSERT(result.data().value.count == 0,
               "FSTTestTransformMutation() only expects transforms; no other data");
-  return [[FSTTransformMutation alloc] initWithKey:key
-                                   fieldTransforms:std::move(result.fieldTransforms)];
+  return [[FSTTransformMutation alloc] initWithKey:key fieldTransforms:result.field_transforms()];
 }
 
 FSTDeleteMutation *FSTTestDeleteMutation(NSString *path) {

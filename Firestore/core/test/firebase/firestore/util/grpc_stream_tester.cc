@@ -24,29 +24,16 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+using internal::ExecutorStd;
+using remote::GrpcCompletion;
+using remote::GrpcStream;
+using remote::GrpcStreamingReader;
+using remote::GrpcStreamObserver;
+
 GrpcStreamTester::GrpcStreamTester()
-    : async_queue_{absl::make_unique<internal::ExecutorStd>()},
-      dedicated_executor_{absl::make_unique<internal::ExecutorStd>()},
+    : worker_queue_{absl::make_unique<ExecutorStd>()},
+      dedicated_executor_{absl::make_unique<ExecutorStd>()},
       grpc_stub_{grpc::CreateChannel("", grpc::InsecureChannelCredentials())} {
-}
-
-void GrpcStreamTester::InitializeStream(remote::GrpcStreamObserver* observer) {
-  auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
-  grpc_context_ = grpc_context_owning.get();
-
-  auto grpc_call_owning =
-      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
-  grpc_call_ = grpc_call_owning.get();
-
-  grpc_stream_ = absl::make_unique<remote::GrpcStream>(
-      std::move(grpc_context_owning), std::move(grpc_call_owning), observer,
-      &async_queue_);
-}
-
-std::unique_ptr<remote::GrpcStream> GrpcStreamTester::CreateStream(
-    remote::GrpcStreamObserver* observer) {
-  InitializeStream(observer);
-  return std::move(grpc_stream_);
 }
 
 GrpcStreamTester::~GrpcStreamTester() {
@@ -55,13 +42,30 @@ GrpcStreamTester::~GrpcStreamTester() {
 }
 
 void GrpcStreamTester::Shutdown() {
-  async_queue_.EnqueueBlocking([&] {
-    if (grpc_stream_ && !grpc_stream_->IsFinished()) {
-      KeepPollingGrpcQueue();
-      grpc_stream_->Finish();
-    }
-    ShutdownGrpcQueue();
-  });
+  worker_queue_.EnqueueBlocking([&] { ShutdownGrpcQueue(); });
+}
+
+std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
+    GrpcStreamObserver* observer) {
+  auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
+  grpc_context_ = grpc_context_owning.get();
+  auto grpc_call =
+      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
+
+  return absl::make_unique<GrpcStream>(std::move(grpc_context_owning),
+                                       std::move(grpc_call), observer,
+                                       &worker_queue_);
+}
+
+std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
+  auto grpc_context_owning = absl::make_unique<grpc::ClientContext>();
+  grpc_context_ = grpc_context_owning.get();
+  auto grpc_call =
+      grpc_stub_.PrepareCall(grpc_context_owning.get(), "", &grpc_queue_);
+
+  return absl::make_unique<GrpcStreamingReader>(
+      std::move(grpc_context_owning), std::move(grpc_call), &worker_queue_,
+      grpc::ByteBuffer{});
 }
 
 void GrpcStreamTester::ShutdownGrpcQueue() {
@@ -94,7 +98,7 @@ void GrpcStreamTester::ForceFinish(
     }
   });
 
-  async_queue_.EnqueueBlocking([] {});
+  worker_queue_.EnqueueBlocking([] {});
 }
 
 void GrpcStreamTester::KeepPollingGrpcQueue() {
@@ -102,7 +106,7 @@ void GrpcStreamTester::KeepPollingGrpcQueue() {
     void* tag = nullptr;
     bool ignored_ok = false;
     while (grpc_queue_.Next(&tag, &ignored_ok)) {
-      static_cast<remote::GrpcCompletion*>(tag)->Complete(true);
+      static_cast<GrpcCompletion*>(tag)->Complete(true);
     }
   });
 }

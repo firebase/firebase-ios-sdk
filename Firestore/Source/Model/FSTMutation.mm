@@ -271,11 +271,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTObjectValue *)patchObjectValue:(FSTObjectValue *)objectValue {
   FSTObjectValue *result = objectValue;
   for (const FieldPath &fieldPath : self.fieldMask) {
-    FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
-    if (newValue) {
-      result = [result objectBySettingValue:newValue forPath:fieldPath];
-    } else {
-      result = [result objectByDeletingPath:fieldPath];
+    if (!fieldPath.empty()) {
+      FSTFieldValue *newValue = [self.value valueForPath:fieldPath];
+      if (newValue) {
+        result = [result objectBySettingValue:newValue forPath:fieldPath];
+      } else {
+        result = [result objectByDeletingPath:fieldPath];
+      }
     }
   }
   return result;

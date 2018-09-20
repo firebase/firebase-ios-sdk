@@ -56,9 +56,11 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
@@ -80,14 +82,13 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        # For GoogleUtilities, allow warnings for iOS 6 but not iOS 7.
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries --allow-warnings
-        - ./scripts/if_cron.sh sed -i -e "s/s.ios.deployment_target = '6.0'/s.ios.deployment_target = '7.0'/" GoogleUtilities.podspec
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries

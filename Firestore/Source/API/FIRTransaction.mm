@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/API/FIRTransaction+Internal.h"
+#import "FIRTransaction.h"
+
+#include <utility>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRTransaction+Internal.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+
+using firebase::firestore::core::ParsedSetData;
+using firebase::firestore::core::ParsedUpdateData;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -69,10 +75,9 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                       merge:(BOOL)merge {
   [self validateReference:document];
-  FSTParsedSetData *parsed = merge
-                                 ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
-                                 : [self.firestore.dataConverter parsedSetData:data];
-  [self.internalTransaction setData:parsed forDocument:document.key];
+  ParsedSetData parsed = merge ? [self.firestore.dataConverter parsedMergeData:data fieldMask:nil]
+                               : [self.firestore.dataConverter parsedSetData:data];
+  [self.internalTransaction setData:std::move(parsed) forDocument:document.key];
   return self;
 }
 
@@ -80,17 +85,16 @@ NS_ASSUME_NONNULL_BEGIN
                 forDocument:(FIRDocumentReference *)document
                 mergeFields:(NSArray<id> *)mergeFields {
   [self validateReference:document];
-  FSTParsedSetData *parsed =
-      [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
-  [self.internalTransaction setData:parsed forDocument:document.key];
+  ParsedSetData parsed = [self.firestore.dataConverter parsedMergeData:data fieldMask:mergeFields];
+  [self.internalTransaction setData:std::move(parsed) forDocument:document.key];
   return self;
 }
 
 - (FIRTransaction *)updateData:(NSDictionary<id, id> *)fields
                    forDocument:(FIRDocumentReference *)document {
   [self validateReference:document];
-  FSTParsedUpdateData *parsed = [self.firestore.dataConverter parsedUpdateData:fields];
-  [self.internalTransaction updateData:parsed forDocument:document.key];
+  ParsedUpdateData parsed = [self.firestore.dataConverter parsedUpdateData:fields];
+  [self.internalTransaction updateData:std::move(parsed) forDocument:document.key];
   return self;
 }
 

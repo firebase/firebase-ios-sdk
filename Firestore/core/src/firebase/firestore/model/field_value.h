@@ -171,30 +171,30 @@ class FieldValue {
   absl::optional<FieldValue> Get(const FieldPath& field_path) const;
 
   /** factory methods. */
-  static const FieldValue& NullValue();
-  static const FieldValue& TrueValue();
-  static const FieldValue& FalseValue();
-  static const FieldValue& BooleanValue(bool value);
-  static const FieldValue& NanValue();
-  static FieldValue IntegerValue(int64_t value);
-  static FieldValue DoubleValue(double value);
-  static FieldValue TimestampValue(const Timestamp& value);
-  static FieldValue ServerTimestampValue(const Timestamp& local_write_time,
-                                         const Timestamp& previous_value);
-  static FieldValue ServerTimestampValue(const Timestamp& local_write_time);
-  static FieldValue StringValue(const char* value);
-  static FieldValue StringValue(const std::string& value);
-  static FieldValue StringValue(std::string&& value);
-  static FieldValue BlobValue(const uint8_t* source, size_t size);
-  static FieldValue ReferenceValue(const DocumentKey& value,
-                                   const DatabaseId* database_id);
-  static FieldValue ReferenceValue(DocumentKey&& value,
-                                   const DatabaseId* database_id);
-  static FieldValue GeoPointValue(const GeoPoint& value);
-  static FieldValue ArrayValue(const std::vector<FieldValue>& value);
-  static FieldValue ArrayValue(std::vector<FieldValue>&& value);
-  static FieldValue ObjectValueFromMap(const ObjectValue::Map& value);
-  static FieldValue ObjectValueFromMap(ObjectValue::Map&& value);
+  static const FieldValue& Null();
+  static const FieldValue& True();
+  static const FieldValue& False();
+  static const FieldValue& Nan();
+  static const FieldValue& FromBoolean(bool value);
+  static FieldValue FromInteger(int64_t value);
+  static FieldValue FromDouble(double value);
+  static FieldValue FromTimestamp(const Timestamp& value);
+  static FieldValue FromServerTimestamp(const Timestamp& local_write_time,
+                                        const Timestamp& previous_value);
+  static FieldValue FromServerTimestamp(const Timestamp& local_write_time);
+  static FieldValue FromString(const char* value);
+  static FieldValue FromString(const std::string& value);
+  static FieldValue FromString(std::string&& value);
+  static FieldValue FromBlob(const uint8_t* source, size_t size);
+  static FieldValue FromReference(const DocumentKey& value,
+                                  const DatabaseId* database_id);
+  static FieldValue FromReference(DocumentKey&& value,
+                                  const DatabaseId* database_id);
+  static FieldValue FromGeoPoint(const GeoPoint& value);
+  static FieldValue FromArray(const std::vector<FieldValue>& value);
+  static FieldValue FromArray(std::vector<FieldValue>&& value);
+  static FieldValue FromMap(const ObjectValue::Map& value);
+  static FieldValue FromMap(ObjectValue::Map&& value);
 
   friend bool operator<(const FieldValue& lhs, const FieldValue& rhs);
 

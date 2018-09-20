@@ -19,10 +19,12 @@
 
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -55,12 +57,18 @@ class GrpcConnection {
   // PORTING NOTE: unlike Web client, the created stream is not open and has to
   // be started manually.
   std::unique_ptr<GrpcStream> CreateStream(absl::string_view rpc_name,
-                                           absl::string_view token,
+                                           const auth::Token& token,
                                            GrpcStreamObserver* observer);
+
+  std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
+      absl::string_view rpc_name,
+      const auth::Token& token,
+      const grpc::ByteBuffer& message);
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
-      absl::string_view token) const;
+      const auth::Token& credential) const;
+  std::shared_ptr<grpc::Channel> CreateChannel() const;
   void EnsureActiveStub();
 
   void RegisterConnectivityMonitor();
