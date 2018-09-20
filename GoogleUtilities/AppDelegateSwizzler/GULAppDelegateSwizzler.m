@@ -594,7 +594,7 @@ static dispatch_once_t sProxyAppDelegateOnceToken;
 #pragma clang diagnostic ignored "-Wstrict-prototypes"
 - (void)application:(UIApplication *)application
     handleEventsForBackgroundURLSession:(NSString *)identifier
-                      completionHandler:(void (^)())completionHandler {
+                      completionHandler:(void (^)())completionHandler API_AVAILABLE(ios(7.0)) {
 #pragma clang diagnostic pop
   NSValue *handleBackgroundSessionPointer =
       objc_getAssociatedObject(self, &kGULHandleBackgroundSessionIMPKey);

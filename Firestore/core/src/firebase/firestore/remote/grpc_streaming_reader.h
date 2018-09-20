@@ -72,7 +72,7 @@ class GrpcStreamingReader : public GrpcStreamObserver {
   /**
    * Returns the metadata received from the server.
    *
-   * Can only be called once the `GrpcStreamingReader` has finished.
+   * Can only be called once the `GrpcStreamingReader` has started.
    */
   MetadataT GetResponseHeaders() const {
     return stream_->GetResponseHeaders();

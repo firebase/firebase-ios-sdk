@@ -304,11 +304,6 @@ typedef NS_ENUM(NSInteger, FIRAuthErrorCode) {
      */
     FIRAuthErrorCodeNullUser = 17067,
 
-    /** Indicates that the Firebase Dynamic Link domain used is either not configured or is unauthorized
-        for the current project.
-     */
-    FIRAuthErrorCodeInvalidDynamicLinkDomain = 17074,
-
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

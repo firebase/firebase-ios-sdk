@@ -90,6 +90,10 @@ extern "C" {
 
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref
+                    data:(NSDictionary<NSString *, id> *)data
+                  fields:(NSArray<id> *)fields;
+
 - (void)disableNetwork;
 
 - (void)enableNetwork;

@@ -57,9 +57,9 @@ class GrpcStreamTester {
    * in `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
-   * This is a blocking function; it will finish quickly if the the gRPC
-   * completion queue has at least as many pending completions as there are
-   * elements in `results`; otherwise, it will hang.
+   * This is a blocking function; it will finish quickly if the gRPC completion
+   * queue has at least as many pending completions as there are elements in
+   * `results`; otherwise, it will hang.
    */
   void ForceFinish(std::initializer_list<CompletionResult> results);
 
