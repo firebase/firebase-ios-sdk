@@ -125,10 +125,14 @@ class TestStream : public Stream {
     return observed_states_;
   }
 
+  grpc::ClientContext* context() { return context_; }
+
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
                                                const Token&) override {
-    return tester_->CreateStream(this);
+    auto result = tester_->CreateStream(this);
+    context_ = result->context();
+    return result;
   }
   void TearDown(GrpcStream* stream) override {
     stream->Finish();
@@ -159,6 +163,8 @@ class TestStream : public Stream {
   GrpcStreamTester* tester_ = nullptr;
   std::vector<std::string> observed_states_;
   bool fail_stream_read_ = false;
+
+  grpc::ClientContext* context_ = nullptr;
 };
 
 }  // namespace
@@ -178,8 +184,8 @@ class StreamTest : public testing::Test {
     tester_.Shutdown();
   }
 
-  void ForceFinish(std::initializer_list<CompletionResult> results) {
-    tester_.ForceFinish(results);
+  void RunCompletions(std::initializer_list<CompletionResult> results) {
+    tester_.RunCompletions(firestore_stream->context(), results);
   }
 
   void StartStream() {
@@ -306,7 +312,7 @@ TEST_F(StreamTest, AuthOutlivesStream) {
 
 TEST_F(StreamTest, ErrorAfterStart) {
   StartStream();
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
+  RunCompletions({/*Read*/ Error, /*Finish*/ Ok});
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
@@ -333,7 +339,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
   firestore_stream->FailStreamRead();
-  ForceFinish({/*Read*/ Ok});
+  RunCompletions({/*Read*/ Ok});
 
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());

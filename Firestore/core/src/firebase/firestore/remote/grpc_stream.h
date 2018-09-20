@@ -176,6 +176,9 @@ class GrpcStream : public GrpcCallInterface {
    */
   MetadataT GetResponseHeaders() const;
 
+  // For tests only
+  grpc::ClientContext* context() { return context_.get(); }
+
  private:
   void Read();
   void MaybeWrite(absl::optional<internal::BufferedWrite> maybe_write);

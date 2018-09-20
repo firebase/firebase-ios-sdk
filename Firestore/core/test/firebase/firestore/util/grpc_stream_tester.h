@@ -21,7 +21,10 @@
 #include <memory>
 #include <queue>
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -76,6 +79,8 @@ class MockGrpcQueue {
 class GrpcStreamTester {
  public:
   GrpcStreamTester();
+  explicit GrpcStreamTester(
+      std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor);
   ~GrpcStreamTester();
 
   /** Finishes the stream and shuts down the gRPC completion queue. */
@@ -94,7 +99,8 @@ class GrpcStreamTester {
    * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    */
-  void ForceFinish(std::initializer_list<CompletionResult> results);
+  void RunCompletions(grpc::ClientContext* grpc_context,
+                      std::initializer_list<CompletionResult> results);
 
   void ShutdownGrpcQueue();
 
@@ -104,12 +110,10 @@ class GrpcStreamTester {
 
  private:
   AsyncQueue worker_queue_;
-
-  grpc::GenericStub grpc_stub_;
-  // Context is needed to be able to cancel pending operations.
-  grpc::ClientContext* grpc_context_ = nullptr;
+  core::DatabaseInfo database_info_;
 
   MockGrpcQueue mock_grpc_queue_;
+  remote::GrpcConnection grpc_connection_;
 };
 
 }  // namespace util

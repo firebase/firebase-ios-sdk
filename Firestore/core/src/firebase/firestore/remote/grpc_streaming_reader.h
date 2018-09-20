@@ -87,6 +87,9 @@ class GrpcStreamingReader : public GrpcCallInterface, public GrpcStreamObserver 
   void OnStreamRead(const grpc::ByteBuffer& message) override;
   void OnStreamFinish(const util::Status& status) override;
 
+  // For tests only
+  grpc::ClientContext* context() { return stream_->context(); }
+
  private:
   std::unique_ptr<GrpcStream> stream_;
   grpc::ByteBuffer request_;

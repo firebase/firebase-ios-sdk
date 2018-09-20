@@ -77,8 +77,8 @@ class GrpcStreamTest : public testing::Test {
     return tester_.worker_queue();
   }
 
-  void ForceFinish(std::initializer_list<CompletionResult> results) {
-    tester_.ForceFinish(results);
+  void RunCompletions(std::initializer_list<CompletionResult> results) {
+    tester_.RunCompletions(stream_->context(), results);
   }
   void ShutdownGrpcQueue() {
     tester_.ShutdownGrpcQueue();
@@ -145,16 +145,16 @@ TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnRead) {
   StartStream();
-  ForceFinish({/*Read*/ Ok});
+  RunCompletions({/*Read*/ Ok});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
   StartStream();
-  ForceFinish({/*Read*/ Ok});
+  RunCompletions({/*Read*/ Ok});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 
-  ForceFinish({/*Read*/ Ok});
+  RunCompletions({/*Read*/ Ok});
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamRead", "OnStreamRead"}));
 }
@@ -167,7 +167,7 @@ TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
     stream().Write({});
     stream().Write({});
   });
-  ForceFinish({/*Read*/ Ok, /*Write*/ Ok, /*Read*/ Ok, /*Write*/ Ok,
+  RunCompletions({/*Read*/ Ok, /*Write*/ Ok, /*Read*/ Ok, /*Write*/ Ok,
                /*Read*/ Ok, /*Write*/ Ok});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead",
@@ -178,7 +178,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   StartStream();
 
   // Fail the read, but allow the rest to succeed.
-  ForceFinish({/*Read*/ Error});  // Will put a "Finish" operation on the queue
+  RunCompletions({/*Read*/ Error});  // Will put a "Finish" operation on the queue
   // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
   // extracted from gRPC completion queue (but the completion may not have run
   // yet).
@@ -213,9 +213,9 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
   StartStream();
   worker_queue().EnqueueBlocking([&] { stream().Write({}); });
 
-  ForceFinish({/*Write*/ Error, /*Read*/ Error});
+  RunCompletions({/*Write*/ Error, /*Read*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  ForceFinish({/*Finish*/ Ok});
+  RunCompletions({/*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }
@@ -227,9 +227,9 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
     stream().Write({});
   });
 
-  ForceFinish({/*Write*/ Ok, /*Write*/ Error});
+  RunCompletions({/*Write*/ Ok, /*Write*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
+  RunCompletions({/*Read*/ Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }
