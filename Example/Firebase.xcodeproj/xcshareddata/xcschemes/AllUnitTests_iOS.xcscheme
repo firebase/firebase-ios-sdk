@@ -167,9 +167,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "DEDFEFEB1FD1B8C100F7D466"
-               BuildableName = "Analytics_Tests_iOS.xctest"
-               BlueprintName = "Analytics_Tests_iOS"
+               BlueprintIdentifier = "DEDFF0121FD6135D00F7D466"
+               BuildableName = "DynamicLinks_Tests_iOS.xctest"
+               BlueprintName = "DynamicLinks_Tests_iOS"
                ReferencedContainer = "container:Firebase.xcodeproj">
             </BuildableReference>
          </TestableReference>

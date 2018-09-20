@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
@@ -153,6 +154,31 @@
 
   FIRDocumentSnapshot *document = [self readDocumentForRef:doc];
   XCTAssertEqualObjects(document.data, finalData);
+}
+
+- (void)testCanMergeEmptyObject {
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"rooms"] documentWithAutoID];
+
+  FSTEventAccumulator *accumulator = [FSTEventAccumulator accumulatorForTest:self];
+  id<FIRListenerRegistration> listenerRegistration =
+      [doc addSnapshotListener:[accumulator valueEventHandler]];
+
+  [self writeDocumentRef:doc data:@{}];
+  FIRDocumentSnapshot *snapshot = [accumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(snapshot.data, @{});
+
+  [self mergeDocumentRef:doc data:@{@"a" : @{}} fields:@[ @"a" ]];
+  snapshot = [accumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(snapshot.data, @{@"a" : @{}});
+
+  [self mergeDocumentRef:doc data:@{@"b" : @{}}];
+  snapshot = [accumulator awaitEventWithName:@"Snapshot"];
+  XCTAssertEqualObjects(snapshot.data, (@{@"a" : @{}, @"b" : @{}}));
+
+  snapshot = [self readDocumentForRef:doc source:FIRFirestoreSourceServer];
+  XCTAssertEqualObjects(snapshot.data, (@{@"a" : @{}, @"b" : @{}}));
+
+  [listenerRegistration remove];
 }
 
 - (void)testCanMergeServerTimestamps {
