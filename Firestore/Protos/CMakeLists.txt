@@ -266,7 +266,6 @@ add_custom_command(
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
-    grpc_objective_c_plugin
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
     ${PROTO_FILES}
