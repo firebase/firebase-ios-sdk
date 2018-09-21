@@ -42,6 +42,11 @@ class GrpcStream;
 
 namespace internal {
 
+struct BufferedWrite {
+  grpc::ByteBuffer message;
+  grpc::WriteOptions options;
+};
+
 /**
  * `BufferedWriter` accepts serialized protos ("writes") on its queue and
  * writes them to the gRPC stream one by one. Only one write
@@ -65,15 +70,21 @@ class BufferedWriter {
  public:
   // Returns the newly-created write operation if the given `write` became
   // active, null pointer otherwise.
-  absl::optional<grpc::ByteBuffer> EnqueueWrite(grpc::ByteBuffer&& write);
+  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write,
+                                             const grpc::WriteOptions& options);
+
+  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write) {
+    return EnqueueWrite(std::move(write), grpc::WriteOptions{});
+  }
+
   // Returns the newly-created write operation if there was a next write in the
   // queue, or nullptr if the queue was empty.
-  absl::optional<grpc::ByteBuffer> DequeueNextWrite();
+  absl::optional<BufferedWrite> DequeueNextWrite();
 
  private:
-  absl::optional<grpc::ByteBuffer> TryStartWrite();
+  absl::optional<BufferedWrite> TryStartWrite();
 
-  std::queue<grpc::ByteBuffer> queue_;
+  std::queue<BufferedWrite> queue_;
   bool has_active_write_ = false;
 };
 
@@ -110,13 +121,20 @@ class GrpcStream {
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              GrpcStreamObserver* observer,
-             util::AsyncQueue* firestore_queue);
+             util::AsyncQueue* worker_queue);
   ~GrpcStream();
 
   void Start();
 
   // Can only be called once the stream has opened.
   void Write(grpc::ByteBuffer&& message);
+
+  /**
+   * Writes the given message and indicates to the server that no more write
+   * operations will be sent using this stream. It is invalid to call `Write` or
+   * `WriteLast` after `WriteLast` was called.
+   */
+  void WriteLast(grpc::ByteBuffer&& message);
 
   // Does not produce a notification. Once this method is called, the stream can
   // no longer be used.
@@ -152,6 +170,7 @@ class GrpcStream {
 
  private:
   void Read();
+  void MaybeWrite(absl::optional<internal::BufferedWrite> maybe_write);
 
   void UnsetObserver() {
     observer_ = nullptr;
@@ -189,7 +208,7 @@ class GrpcStream {
   std::unique_ptr<grpc::ClientContext> context_;
   std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call_;
 
-  util::AsyncQueue* firestore_queue_ = nullptr;
+  util::AsyncQueue* worker_queue_ = nullptr;
 
   GrpcStreamObserver* observer_ = nullptr;
   internal::BufferedWriter buffered_writer_;
