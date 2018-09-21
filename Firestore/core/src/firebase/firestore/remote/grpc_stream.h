@@ -196,7 +196,7 @@ class GrpcStream : public GrpcCallInterface {
   void RemoveCompletion(const GrpcCompletion* to_remove);
 
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
-  GrpcCompletion* NewCompletion(const OnSuccess& callback);
+  GrpcCompletion* NewCompletion(GrpcCompletion::Tag tag, const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`

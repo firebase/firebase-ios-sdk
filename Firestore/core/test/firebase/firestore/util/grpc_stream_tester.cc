@@ -45,7 +45,6 @@ MockGrpcQueue::MockGrpcQueue(AsyncQueue* worker_queue)
     : dedicated_executor_{absl::make_unique<ExecutorStd>()},
       worker_queue_{worker_queue} {
   run_completions_immediately_ = false;
-  dedicated_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void MockGrpcQueue::Shutdown() {
@@ -62,9 +61,8 @@ void MockGrpcQueue::Shutdown() {
 void MockGrpcQueue::PollGrpcQueue() {
   void* tag = nullptr;
   bool ok = false;
-  while (grpc_queue_.Next(&tag, &ok)) {
+  while (!stop_polling_grpc_queue_ && grpc_queue_.Next(&tag, &ok)) {
           auto completion = static_cast<GrpcCompletion*>(tag);
-      if (run_completions_immediately_) {
       completion->Complete(ok);
       continue;
     }

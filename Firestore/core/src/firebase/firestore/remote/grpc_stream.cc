@@ -28,6 +28,7 @@ namespace remote {
 
 using util::AsyncQueue;
 using util::Status;
+using Tag = GrpcCompletion::Tag;
 
 // When invoking an async gRPC method, `GrpcStream` will create a new
 // `GrpcCompletion` and use it as a tag to put on the gRPC completion queue.
@@ -122,7 +123,7 @@ void GrpcStream::Read() {
   }
 
   GrpcCompletion* completion =
-      NewCompletion([this](const GrpcCompletion* completion) {
+      NewCompletion(Tag::Read, [this](const GrpcCompletion* completion) {
         OnRead(*completion->message());
       });
   call_->Read(completion->message(), completion);
@@ -145,7 +146,7 @@ void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
 
   BufferedWrite write = std::move(maybe_write).value();
   GrpcCompletion* completion =
-      NewCompletion([this](const GrpcCompletion*) { OnWrite(); });
+      NewCompletion(Tag::Write, [this](const GrpcCompletion*) { OnWrite(); });
   *completion->message() = write.message;
 
   call_->Write(*completion->message(), write.options, completion);
@@ -187,7 +188,7 @@ void GrpcStream::Shutdown() {
 
   // The observer is not interested in this event -- since it initiated the
   // finish operation, the observer must know the reason.
-  GrpcCompletion* completion = NewCompletion({});
+  GrpcCompletion* completion = NewCompletion(Tag::Finish, {});
   // TODO(varconst): is issuing a finish operation necessary in this case? We
   // don't care about the status, but perhaps it will make the server notice
   // client disconnecting sooner?
@@ -274,7 +275,7 @@ void GrpcStream::OnOperationFailed() {
 
   if (observer_) {
     GrpcCompletion* completion =
-        NewCompletion([this](const GrpcCompletion* completion) {
+        NewCompletion(Tag::Finish, [this](const GrpcCompletion* completion) {
           OnFinishedByServer(*completion->status());
         });
     call_->Finish(completion->status(), completion);
@@ -295,7 +296,7 @@ void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
   completions_.erase(found);
 }
 
-GrpcCompletion* GrpcStream::NewCompletion(const OnSuccess& on_success) {
+GrpcCompletion* GrpcStream::NewCompletion(Tag tag, const OnSuccess& on_success) {
   // Can't move into lambda until C++14.
   GrpcCompletion::Callback decorated =
       [this, on_success](bool ok, const GrpcCompletion* completion) {
@@ -310,7 +311,7 @@ GrpcCompletion* GrpcStream::NewCompletion(const OnSuccess& on_success) {
         }
       };
 
-  auto* completion = new GrpcCompletion{worker_queue_, std::move(decorated)};
+  auto* completion = new GrpcCompletion{worker_queue_, std::move(decorated), tag};
   completions_.push_back(completion);
   return completion;
 }

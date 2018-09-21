@@ -137,7 +137,9 @@ TEST_F(GrpcStreamTest, CanFinishTwice) {
 TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
   worker_queue().EnqueueBlocking([&] {
     stream().Start();
-    RunCompletionsImmediately();
+
+    AddToScenario({/*Read*/ Ok});
+    StartPollingGrpcQueue();
     EXPECT_NO_THROW(stream().WriteAndFinish({}));
   });
 }

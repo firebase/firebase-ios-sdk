@@ -41,24 +41,33 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-enum CompletionResult { Ok, Error };
+struct CompletionResult {
+ using Tag = GrpcCompletion::Tag;
+ enum Result { Ok, Error };
+
+ CompletionResult(Tag tag, Result result): tag{tag}, result{result} {}
+
+ Tag tag;
+ CompletionResult result;
+};
 
 class MockGrpcQueue {
  public:
   explicit MockGrpcQueue(AsyncQueue* worker_queue);
 
-  /**
-   * Takes as many completions off gRPC completion queue as there are elements
-   * in `results` and completes each of them with the corresponding result,
-   * ignoring the actual result from gRPC.
-   *
-   * This is a blocking function; it will finish quickly if the the gRPC
-   * completion queue has at least as many pending completions as there are
-   * elements in `results`; otherwise, it will hang.
-   */
-  void RunCompletions(std::initializer_list<CompletionResult> results);
+  void AddToScenario(std::initializer_list<CompletionResult> results) {
+    scenario_.insert(scenario_.back(), results.begin(), results.end());
+  }
 
-  void RunCompletionsImmediately() { run_completions_immediately_ = true; }
+  void StartPollingGrpcQueue() {
+    stop_polling_grpc_queue_ = false;
+    dedicated_executor_->Execute([&] { PollGrpcQueue(); });
+  }
+
+  void StopPollingGrpcQueue() {
+    stop_polling_grpc_queue_ = true;
+    dedicated_executor_->Execute([] {}); // Drain
+  }
 
   void Shutdown();
 
@@ -74,11 +83,9 @@ class MockGrpcQueue {
   grpc::CompletionQueue grpc_queue_;
   bool is_shut_down_ = false;
 
-  std::condition_variable cv_;
-  std::mutex mutex_;
-  std::queue<remote::GrpcCompletion*> pending_completions_;
+  std::vector<CompletionResult> scenario_;
 
-  std::atomic<bool> run_completions_immediately_;
+  std::atomic<bool> stop_polling_grpc_queue_;
 };
 
 /**
