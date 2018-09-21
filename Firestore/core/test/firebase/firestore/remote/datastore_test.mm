@@ -43,7 +43,7 @@ class NoOpObserver : public GrpcStreamObserver {
   }
   void OnStreamRead(const grpc::ByteBuffer& message) override {
   }
-  void OnStreamError(const util::Status& status) override {
+  void OnStreamFinish(const util::Status& status) override {
   }
 };
 

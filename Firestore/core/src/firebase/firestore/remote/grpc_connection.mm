@@ -122,6 +122,21 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
                                        observer, worker_queue_);
 }
 
+std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
+    absl::string_view rpc_name,
+    const Token &token,
+    const grpc::ByteBuffer &message) {
+  LOG_DEBUG("Creating gRPC streaming reader");
+
+  EnsureActiveStub();
+
+  auto context = CreateContext(token);
+  auto call =
+      grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
+  return absl::make_unique<GrpcStreamingReader>(
+      std::move(context), std::move(call), worker_queue_, message);
+}
+
 void GrpcConnection::RegisterConnectivityMonitor() {
   connectivity_monitor_->AddCallback(
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {

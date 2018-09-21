@@ -129,7 +129,7 @@ void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
               "State should still be 'Starting' (was %s)", state_);
 
   if (!maybe_token.ok()) {
-    OnStreamError(maybe_token.status());
+    OnStreamFinish(maybe_token.status());
     return;
   }
 
@@ -210,7 +210,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
     grpc_stream_->Finish();
     // Don't expect gRPC to produce status -- since the error happened on the
     // client, we have all the information we need.
-    OnStreamError(read_status);
+    OnStreamFinish(read_status);
     return;
   }
 }
@@ -290,7 +290,7 @@ void Stream::HandleErrorStatus(const Status& status) {
   }
 }
 
-void Stream::OnStreamError(const Status& status) {
+void Stream::OnStreamFinish(const Status& status) {
   EnsureOnQueue();
   // TODO(varconst): log error here?
   LOG_DEBUG("%s Stream error", GetDebugDescription());

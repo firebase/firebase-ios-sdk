@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 
 #include <unordered_set>
+#include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -24,8 +25,11 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/str_cat.h"
 
@@ -36,12 +40,17 @@ namespace remote {
 using auth::CredentialsProvider;
 using auth::Token;
 using core::DatabaseInfo;
+using model::DocumentKey;
 using util::AsyncQueue;
 using util::Status;
+using util::StatusOr;
 using util::internal::Executor;
 using util::internal::ExecutorLibdispatch;
 
 namespace {
+
+const auto kRpcNameLookup =
+    "/google.firestore.v1beta1.Firestore/BatchGetDocuments";
 
 std::unique_ptr<Executor> CreateExecutor() {
   auto queue = dispatch_queue_create("com.google.firebase.firestore.rpc",
@@ -57,6 +66,18 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
   return {grpc_str.begin(), grpc_str.size()};
 }
 
+void LogGrpcCallFinished(absl::string_view rpc_name,
+                         GrpcStreamingReader *call,
+                         const Status &status) {
+  LOG_DEBUG("RPC %s completed. Error: %s: %s", rpc_name, status.code(),
+            status.error_message());
+  if (bridge::IsLoggingEnabled()) {
+    auto headers =
+        Datastore::GetWhitelistedHeadersAsString(call->GetResponseHeaders());
+    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpc_name, headers);
+  }
+}
+
 }  // namespace
 
 Datastore::Datastore(const DatabaseInfo &database_info,
@@ -68,11 +89,16 @@ Datastore::Datastore(const DatabaseInfo &database_info,
       worker_queue_{worker_queue},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
-      serializer_{serializer} {
+      serializer_bridge_{serializer} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
+  for (auto &call : lookup_calls_) {
+    call->Cancel();
+  }
+  lookup_calls_.clear();
+
   // `grpc::CompletionQueue::Next` will only return `false` once `Shutdown` has
   // been called and all submitted tags have been extracted. Without this call,
   // `rpc_executor_` will never finish.
@@ -101,14 +127,110 @@ void Datastore::PollGrpcQueue() {
 
 std::shared_ptr<WatchStream> Datastore::CreateWatchStream(
     id<FSTWatchStreamDelegate> delegate) {
-  return std::make_shared<WatchStream>(worker_queue_, credentials_, serializer_,
+  return std::make_shared<WatchStream>(worker_queue_, credentials_,
+                                       serializer_bridge_.GetSerializer(),
                                        &grpc_connection_, delegate);
 }
 
 std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
     id<FSTWriteStreamDelegate> delegate) {
-  return std::make_shared<WriteStream>(worker_queue_, credentials_, serializer_,
+  return std::make_shared<WriteStream>(worker_queue_, credentials_,
+                                       serializer_bridge_.GetSerializer(),
                                        &grpc_connection_, delegate);
+}
+
+void Datastore::LookupDocuments(
+    const std::vector<DocumentKey> &keys,
+    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+  grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
+      serializer_bridge_.CreateLookupRequest(keys));
+
+  ResumeRpcWithCredentials(
+      [this, message, completion](const StatusOr<Token> &maybe_credentials) {
+        if (!maybe_credentials.ok()) {
+          completion(nil, util::MakeNSError(maybe_credentials.status()));
+          return;
+        }
+        LookupDocumentsWithCredentials(maybe_credentials.ValueOrDie(), message,
+                                       completion);
+      });
+}
+
+void Datastore::LookupDocumentsWithCredentials(
+    const Token &token,
+    const grpc::ByteBuffer &message,
+    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+  lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
+      kRpcNameLookup, token, std::move(message)));
+  GrpcStreamingReader *call = lookup_calls_.back().get();
+
+  call->Start([this, call, completion](
+                  const StatusOr<std::vector<grpc::ByteBuffer>> &result) {
+    OnLookupDocumentsResponse(call, result, completion);
+    RemoveGrpcCall(call);
+  });
+}
+
+void Datastore::OnLookupDocumentsResponse(
+    GrpcStreamingReader *call,
+    const StatusOr<std::vector<grpc::ByteBuffer>> &result,
+    FSTVoidMaybeDocumentArrayErrorBlock completion) {
+  LogGrpcCallFinished("BatchGetDocuments", call, result.status());
+  HandleCallStatus(result.status());
+
+  if (!result.ok()) {
+    completion(nil, util::MakeNSError(result.status()));
+    return;
+  }
+
+  Status parse_status;
+  std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
+  NSArray<FSTMaybeDocument *> *docs =
+      serializer_bridge_.MergeLookupResponses(responses, &parse_status);
+  if (parse_status.ok()) {
+    completion(docs, nil);
+  } else {
+    completion(nil, util::MakeNSError(parse_status));
+  }
+}
+
+void Datastore::ResumeRpcWithCredentials(const OnCredentials &on_credentials) {
+  // Auth may outlive Firestore
+  std::weak_ptr<Datastore> weak_this{shared_from_this()};
+
+  credentials_->GetToken(
+      [weak_this, on_credentials](const StatusOr<Token> &result) {
+        auto strong_this = weak_this.lock();
+        if (!strong_this) {
+          return;
+        }
+
+        strong_this->worker_queue_->EnqueueRelaxed(
+            [weak_this, result, on_credentials] {
+              auto strong_this = weak_this.lock();
+              if (!strong_this) {
+                return;
+              }
+
+              on_credentials(result);
+            });
+      });
+}
+
+void Datastore::HandleCallStatus(const Status &status) {
+  if (status.code() == FirestoreErrorCode::Unauthenticated) {
+    credentials_->InvalidateToken();
+  }
+}
+
+void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
+  auto found = std::find_if(
+      lookup_calls_.begin(), lookup_calls_.end(),
+      [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
+        return call.get() == to_remove;
+      });
+  HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
+  lookup_calls_.erase(found);
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(

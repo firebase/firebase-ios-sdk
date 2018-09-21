@@ -813,7 +813,7 @@ static const NSTimeInterval kIdleTimeout = 60.0;
     NSMutableArray<GCFSWriteResult *> *protos = response.writeResultsArray;
     NSMutableArray<FSTMutationResult *> *results = [NSMutableArray arrayWithCapacity:protos.count];
     for (GCFSWriteResult *proto in protos) {
-      [results addObject:[_serializer decodedMutationResult:proto]];
+      [results addObject:[_serializer decodedMutationResult:proto commitVersion:commitVersion]];
     };
 
     [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
