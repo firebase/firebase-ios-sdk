@@ -233,8 +233,11 @@ NS_SWIFT_NAME(MessagingMessageInfo)
 NS_SWIFT_NAME(MessagingRemoteMessage)
 @interface FIRMessagingRemoteMessage : NSObject
 
+/// The message ID of downstream message.
+@property(nonatomic, readonly, copy) NSString *messageID;
 /// The downstream message received by the application.
 @property(nonatomic, readonly, strong) NSDictionary *appData;
+
 @end
 
 @class FIRMessaging;

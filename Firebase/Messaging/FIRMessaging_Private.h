@@ -30,6 +30,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingUserDefaultsKeyAutoInitEnabled;
 
 @interface FIRMessagingRemoteMessage ()
 
+@property(nonatomic, copy) NSString *messageID;
 @property(nonatomic, strong) NSDictionary *appData;
 
 @end
