@@ -36,10 +36,13 @@ namespace firestore {
 namespace util {
 
 enum CompletionResult { Ok, Error };
-struct CompletionEndState  {
-  CompletionEndState(CompletionResult result) : result{result} {
+struct CompletionEndState {
+  CompletionEndState(CompletionResult result)  // NOLINT(runtime/explicit)
+      : result{result} {
   }
-  CompletionEndState(const grpc::Status& status) : result{Ok}, maybe_status{status} {}
+  CompletionEndState(const grpc::Status& status)  // NOLINT(runtime/explicit)
+      : result{Ok}, maybe_status{status} {
+  }
 
   CompletionResult result;
   absl::optional<grpc::Status> maybe_status;

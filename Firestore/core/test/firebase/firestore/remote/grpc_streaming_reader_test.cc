@@ -31,20 +31,21 @@ namespace remote {
 using util::AsyncQueue;
 using util::CompletionEndState;
 using util::GrpcStreamTester;
-using util::StatusOr;
 using util::Status;
+using util::StatusOr;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 
 class GrpcStreamingReaderTest : public testing::Test {
  public:
   GrpcStreamingReaderTest() : reader_{tester_.CreateStreamingReader()} {
-    reader_->Start([this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
-      status_ = result.status();
-      if (status_->ok()) {
-        responses_ = std::move(result).ValueOrDie();
-      }
-    });
+    reader_->Start(
+        [this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
+          status_ = result.status();
+          if (status_->ok()) {
+            responses_ = std::move(result).ValueOrDie();
+          }
+        });
   }
 
   ~GrpcStreamingReaderTest() {
@@ -103,7 +104,8 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   ForceFinish({/*Write*/ Error, /*Read*/ Error});
   EXPECT_FALSE(status().has_value());
 
-  ForceFinish({/*Finish*/ grpc::Status{grpc::StatusCode::RESOURCE_EXHAUSTED, ""}});
+  ForceFinish(
+      {/*Finish*/ grpc::Status{grpc::StatusCode::RESOURCE_EXHAUSTED, ""}});
   EXPECT_TRUE(status().has_value());
   EXPECT_TRUE(responses().empty());
 }
