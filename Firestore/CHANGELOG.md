@@ -1,4 +1,7 @@
 # Unreleased
+- [changed] Some SDK errors that represent common mistakes (such as permission
+  denied or a missing index) will automatically be logged as a warning in
+  addition to being surfaced via the API.
 
 # v0.13.4
 - [fixed] Fixed an issue where the first `get()` call made after being offline
