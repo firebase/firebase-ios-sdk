@@ -51,7 +51,9 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
   _sampleAppMainViewController =
       [[MainViewController alloc] initWithNibName:NSStringFromClass([MainViewController class])
                                            bundle:nil];
-  window.rootViewController = _sampleAppMainViewController;
+  _sampleAppMainViewController.navigationItem.title = @"Firebase Auth";
+  window.rootViewController = [[UINavigationController alloc]
+                               initWithRootViewController:_sampleAppMainViewController];
   self.window = window;
   [self.window makeKeyAndVisible];
 

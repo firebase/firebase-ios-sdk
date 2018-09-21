@@ -1658,7 +1658,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
   SettingsViewController *settingsViewController = [[SettingsViewController alloc]
       initWithNibName:NSStringFromClass([SettingsViewController class])
                bundle:nil];
-  [self presentViewController:settingsViewController animated:YES completion:nil];
+  [self showViewController:settingsViewController sender:self];
 }
 
 /** @fn presentUserInfo
@@ -1667,7 +1667,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (void)presentUserInfo {
   UserInfoViewController *userInfoViewController =
       [[UserInfoViewController alloc] initWithUser:[AppManager auth].currentUser];
-  [self presentViewController:userInfoViewController animated:YES completion:nil];
+  [self showViewController:userInfoViewController sender:self];
 }
 
 /** @fn presentUserInMemoryInfo
@@ -1676,7 +1676,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
 - (void)presentUserInMemoryInfo {
   UserInfoViewController *userInfoViewController =
       [[UserInfoViewController alloc] initWithUser:_userInMemory];
-  [self presentViewController:userInfoViewController animated:YES completion:nil];
+  [self showViewController:userInfoViewController sender:self];
 }
 
 /** @fn signInGoogle
