@@ -18,7 +18,6 @@
 #include <memory>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
@@ -32,6 +31,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::CompletionResult;
 using util::GrpcStreamTester;
+using util::StatusOr;
 using util::Status;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
@@ -39,10 +39,11 @@ using util::CompletionResult::Ok;
 class GrpcStreamingReaderTest : public testing::Test {
  public:
   GrpcStreamingReaderTest() : reader_{tester_.CreateStreamingReader()} {
-    reader_->Start([this](const Status& status,
-                          const std::vector<grpc::ByteBuffer>& responses) {
-      status_ = status;
-      responses_ = responses;
+    reader_->Start([this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
+      status_ = result.status();
+      if (status_->ok()) {
+        responses_ = std::move(result).ValueOrDie();
+      }
     });
   }
 
