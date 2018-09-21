@@ -331,6 +331,15 @@ static FIRFirestoreSettings *defaultSettings;
   [self awaitExpectations];
 }
 
+- (void)mergeDocumentRef:(FIRDocumentReference *)ref
+                    data:(NSDictionary<NSString *, id> *)data
+                  fields:(NSArray<id> *)fields {
+  [ref setData:data
+      mergeFields:fields
+       completion:[self completionForExpectationWithName:@"setDataWithMerge"]];
+  [self awaitExpectations];
+}
+
 - (void)disableNetwork {
   [self.db.client
       disableNetworkWithCompletion:[self completionForExpectationWithName:@"Disable Network."]];

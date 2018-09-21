@@ -178,7 +178,7 @@ static NSUInteger SerializedSize(int32_t value) {
       _FIRMessagingDevAssert(stream == self.inStream, @"Incorrect stream");
       if (![self performRead]) {
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeSecureSocket004,
-                                @"Error occured when reading incoming stream");
+                                @"Error occurred when reading incoming stream");
         [self disconnect];
       }
       break;

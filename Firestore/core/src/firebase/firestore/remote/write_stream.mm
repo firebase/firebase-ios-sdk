@@ -27,6 +27,7 @@ namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
+using auth::Token;
 using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
@@ -34,9 +35,9 @@ using util::Status;
 WriteStream::WriteStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* datastore,
+                         GrpcConnection* grpc_connection,
                          id<FSTWriteStreamDelegate> delegate)
-    : Stream{async_queue, credentials_provider, datastore,
+    : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
       serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
@@ -78,10 +79,9 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
-    Datastore* datastore, absl::string_view token) {
-  // TODO(varconst): use `GrpcConnection` instead of `Datastore`.
-  return datastore->CreateGrpcStream(
-      token, "/google.firestore.v1beta1.Firestore/Write", this);
+    GrpcConnection* grpc_connection, const Token& token) {
+  return grpc_connection->CreateStream(
+      "/google.firestore.v1beta1.Firestore/Write", token, this);
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {

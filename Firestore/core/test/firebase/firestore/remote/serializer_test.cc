@@ -168,7 +168,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(std::nullptr_t) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::NullValue());
+        EncodeFieldValue(&serializer, FieldValue::Null());
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -202,7 +202,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(bool b) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::BooleanValue(b));
+        EncodeFieldValue(&serializer, FieldValue::FromBoolean(b));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -212,7 +212,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(int64_t i) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::IntegerValue(i));
+        EncodeFieldValue(&serializer, FieldValue::FromInteger(i));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -226,7 +226,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(const std::string& s) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::StringValue(s));
+        EncodeFieldValue(&serializer, FieldValue::FromString(s));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -236,7 +236,7 @@ class SerializerTest : public ::testing::Test {
 
   v1beta1::Value ValueProto(const Timestamp& ts) {
     std::vector<uint8_t> bytes =
-        EncodeFieldValue(&serializer, FieldValue::TimestampValue(ts));
+        EncodeFieldValue(&serializer, FieldValue::FromTimestamp(ts));
     v1beta1::Value proto;
     bool ok =
         proto.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()));
@@ -367,13 +367,13 @@ class SerializerTest : public ::testing::Test {
 };
 
 TEST_F(SerializerTest, EncodesNull) {
-  FieldValue model = FieldValue::NullValue();
+  FieldValue model = FieldValue::Null();
   ExpectRoundTrip(model, ValueProto(nullptr), FieldValue::Type::Null);
 }
 
 TEST_F(SerializerTest, EncodesBool) {
   for (bool bool_value : {true, false}) {
-    FieldValue model = FieldValue::BooleanValue(bool_value);
+    FieldValue model = FieldValue::FromBoolean(bool_value);
     ExpectRoundTrip(model, ValueProto(bool_value), FieldValue::Type::Boolean);
   }
 }
@@ -388,7 +388,7 @@ TEST_F(SerializerTest, EncodesIntegers) {
                              std::numeric_limits<int64_t>::max()};
 
   for (int64_t int_value : cases) {
-    FieldValue model = FieldValue::IntegerValue(int_value);
+    FieldValue model = FieldValue::FromInteger(int_value);
     ExpectRoundTrip(model, ValueProto(int_value), FieldValue::Type::Integer);
   }
 }
@@ -411,7 +411,7 @@ TEST_F(SerializerTest, EncodesString) {
   };
 
   for (const std::string& string_value : cases) {
-    FieldValue model = FieldValue::StringValue(string_value);
+    FieldValue model = FieldValue::FromString(string_value);
     ExpectRoundTrip(model, ValueProto(string_value), FieldValue::Type::String);
   }
 }
@@ -428,13 +428,13 @@ TEST_F(SerializerTest, EncodesTimestamps) {
   };
 
   for (const Timestamp& ts_value : cases) {
-    FieldValue model = FieldValue::TimestampValue(ts_value);
+    FieldValue model = FieldValue::FromTimestamp(ts_value);
     ExpectRoundTrip(model, ValueProto(ts_value), FieldValue::Type::Timestamp);
   }
 }
 
 TEST_F(SerializerTest, EncodesEmptyMap) {
-  FieldValue model = FieldValue::ObjectValueFromMap({});
+  FieldValue model = FieldValue::FromMap({});
 
   v1beta1::Value proto;
   proto.mutable_map_value();
@@ -443,21 +443,21 @@ TEST_F(SerializerTest, EncodesEmptyMap) {
 }
 
 TEST_F(SerializerTest, EncodesNestedObjects) {
-  FieldValue model = FieldValue::ObjectValueFromMap({
-      {"b", FieldValue::TrueValue()},
+  FieldValue model = FieldValue::FromMap({
+      {"b", FieldValue::True()},
       // TODO(rsgowman): add doubles (once they're supported)
       // {"d", FieldValue::DoubleValue(std::numeric_limits<double>::max())},
-      {"i", FieldValue::IntegerValue(1)},
-      {"n", FieldValue::NullValue()},
-      {"s", FieldValue::StringValue("foo")},
+      {"i", FieldValue::FromInteger(1)},
+      {"n", FieldValue::Null()},
+      {"s", FieldValue::FromString("foo")},
       // TODO(rsgowman): add arrays (once they're supported)
       // {"a", [2, "bar", {"b", false}]},
-      {"o", FieldValue::ObjectValueFromMap({
-                {"d", FieldValue::IntegerValue(100)},
-                {"nested", FieldValue::ObjectValueFromMap({
+      {"o", FieldValue::FromMap({
+                {"d", FieldValue::FromInteger(100)},
+                {"nested", FieldValue::FromMap({
                                {
                                    "e",
-                                   FieldValue::IntegerValue(
+                                   FieldValue::FromInteger(
                                        std::numeric_limits<int64_t>::max()),
                                },
                            })},
@@ -540,14 +540,14 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::IntegerValue(42);
+  FieldValue expected_model = FieldValue::FromInteger(42);
   EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
   EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
 
   // Alter the null value from 0 to 1.
   Mutate(&bytes[1], /*expected_initial_value=*/0, /*new_value=*/1);
@@ -558,7 +558,7 @@ TEST_F(SerializerTest, BadNullValue) {
 
 TEST_F(SerializerTest, BadBoolValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
 
   // Alter the bool value from 1 to 2. (Value values are 0,1)
   Mutate(&bytes[1], /*expected_initial_value=*/1, /*new_value=*/2);
@@ -571,7 +571,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
   // Encode 'maxint'. This should result in 9 0xff bytes, followed by a 1.
   std::vector<uint8_t> bytes = EncodeFieldValue(
       &serializer,
-      FieldValue::IntegerValue(std::numeric_limits<uint64_t>::max()));
+      FieldValue::FromInteger(std::numeric_limits<uint64_t>::max()));
   ASSERT_EQ(11u, bytes.size());
   for (size_t i = 1; i < bytes.size() - 1; i++) {
     ASSERT_EQ(0xff, bytes[i]);
@@ -588,7 +588,7 @@ TEST_F(SerializerTest, BadIntegerValue) {
 
 TEST_F(SerializerTest, BadStringValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::StringValue("a"));
+      EncodeFieldValue(&serializer, FieldValue::FromString("a"));
 
   // Claim that the string length is 5 instead of 1. (The first two bytes are
   // used by the encoded tag.)
@@ -600,7 +600,7 @@ TEST_F(SerializerTest, BadStringValue) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer, FieldValue::TimestampValue(TimestampInternal::Max()));
+      &serializer, FieldValue::FromTimestamp(TimestampInternal::Max()));
 
   // Add some time, which should push us above the maximum allowed timestamp.
   Mutate(&bytes[4], 0x82, 0x83);
@@ -611,7 +611,7 @@ TEST_F(SerializerTest, BadTimestampValue_TooLarge) {
 
 TEST_F(SerializerTest, BadTimestampValue_TooSmall) {
   std::vector<uint8_t> bytes = EncodeFieldValue(
-      &serializer, FieldValue::TimestampValue(TimestampInternal::Min()));
+      &serializer, FieldValue::FromTimestamp(TimestampInternal::Min()));
 
   // Remove some time, which should push us below the minimum allowed timestamp.
   Mutate(&bytes[4], 0x92, 0x91);
@@ -627,7 +627,7 @@ TEST_F(SerializerTest, BadFieldValueTagAndNoOtherTagPresent) {
   // the deserialization process in this case instead.
 
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
 
   // The v1beta1::Value value_type oneof currently has tags
   // up to 18. For this test, we'll pick a tag that's unlikely to be added in
@@ -683,14 +683,14 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
-  FieldValue expected_model = FieldValue::BooleanValue(true);
+  FieldValue expected_model = FieldValue::FromBoolean(true);
   EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
   EXPECT_EQ(expected_model, *actual_model);
 }
 
 TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::BooleanValue(true));
+      EncodeFieldValue(&serializer, FieldValue::FromBoolean(true));
 
   // 0x0a represents a bool value encoded as a string. (We're using a
   // boolean_value tag here, but any tag that would be represented by a varint
@@ -703,7 +703,7 @@ TEST_F(SerializerTest, TagVarintWiretypeStringMismatch) {
 
 TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::StringValue("foo"));
+      EncodeFieldValue(&serializer, FieldValue::FromString("foo"));
 
   // 0x88 represents a string value encoded as a varint.
   Mutate(&bytes[0], /*expected_initial_value=*/0x8a, /*new_value=*/0x88);
@@ -714,7 +714,7 @@ TEST_F(SerializerTest, TagStringWiretypeVarintMismatch) {
 
 TEST_F(SerializerTest, IncompleteFieldValue) {
   std::vector<uint8_t> bytes =
-      EncodeFieldValue(&serializer, FieldValue::NullValue());
+      EncodeFieldValue(&serializer, FieldValue::Null());
   ASSERT_EQ(2u, bytes.size());
 
   // Remove the (null) payload
@@ -777,7 +777,7 @@ TEST_F(SerializerTest, BadKey) {
 
 TEST_F(SerializerTest, EncodesEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue empty_value = FieldValue::ObjectValueFromMap({});
+  FieldValue empty_value = FieldValue::FromMap({});
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};
 
   v1beta1::BatchGetDocumentsResponse proto;
@@ -797,11 +797,11 @@ TEST_F(SerializerTest, EncodesEmptyDocument) {
 
 TEST_F(SerializerTest, EncodesNonEmptyDocument) {
   DocumentKey key = DocumentKey::FromPathString("path/to/the/doc");
-  FieldValue fields = FieldValue::ObjectValueFromMap({
-      {"foo", FieldValue::StringValue("bar")},
-      {"two", FieldValue::IntegerValue(2)},
-      {"nested", FieldValue::ObjectValueFromMap({
-                     {"fourty-two", FieldValue::IntegerValue(42)},
+  FieldValue fields = FieldValue::FromMap({
+      {"foo", FieldValue::FromString("bar")},
+      {"two", FieldValue::FromInteger(2)},
+      {"nested", FieldValue::FromMap({
+                     {"fourty-two", FieldValue::FromInteger(42)},
                  })},
   });
   SnapshotVersion update_time = SnapshotVersion{{1234, 5678}};

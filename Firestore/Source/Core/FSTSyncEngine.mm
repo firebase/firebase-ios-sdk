@@ -392,9 +392,14 @@ class LimboResolution {
   } else {
     FSTQueryView *queryView = self.queryViewsByTarget[@(targetID)];
     HARD_ASSERT(queryView, "Unknown targetId: %s", targetID);
-    [self.localStore releaseQuery:queryView.query];
+    FSTQuery *query = queryView.query;
+    [self.localStore releaseQuery:query];
     [self removeAndCleanupQuery:queryView];
-    [self.delegate handleError:error forQuery:queryView.query];
+    if ([self errorIsInteresting:error]) {
+      LOG_WARN("Listen for query at %s failed: %s", query.path.CanonicalString(),
+               error.localizedDescription);
+    }
+    [self.delegate handleError:error forQuery:query];
   }
 }
 
@@ -412,13 +417,18 @@ class LimboResolution {
 
 - (void)rejectFailedWriteWithBatchID:(BatchId)batchID error:(NSError *)error {
   [self assertDelegateExistsForSelector:_cmd];
+  FSTMaybeDocumentDictionary *changes = [self.localStore rejectBatchID:batchID];
+
+  if (!changes.isEmpty && [self errorIsInteresting:error]) {
+    LOG_WARN("Write at %s failed: %s", changes.minKey.path.CanonicalString(),
+             error.localizedDescription);
+  }
 
   // The local store may or may not be able to apply the write result and raise events immediately
   // (depending on whether the watcher is caught up), so we raise user callbacks first so that they
   // consistently happen before listen events.
   [self processUserCallbacksForBatchID:batchID error:error];
 
-  FSTMaybeDocumentDictionary *changes = [self.localStore rejectBatchID:batchID];
   [self emitNewSnapshotsWithChanges:changes remoteEvent:nil];
 }
 
@@ -585,6 +595,24 @@ class LimboResolution {
     FSTQueryView *queryView = self.queryViewsByTarget[targetId];
     return queryView ? queryView.view.syncedDocuments : DocumentKeySet{};
   }
+}
+
+/**
+ * Decides if the error likely represents a developer mistake such as forgetting to create an index
+ * or permission denied. Used to decide whether an error is worth automatically logging as a
+ * warning.
+ */
+- (BOOL)errorIsInteresting:(NSError *)error {
+  if (error.domain == FIRFirestoreErrorDomain) {
+    if (error.code == FIRFirestoreErrorCodeFailedPrecondition &&
+        [error.localizedDescription containsString:@"requires an index"]) {
+      return YES;
+    } else if (error.code == FIRFirestoreErrorCodePermissionDenied) {
+      return YES;
+    }
+  }
+
+  return NO;
 }
 
 @end
