@@ -44,6 +44,7 @@ using firebase::firestore::model::Precondition;
 using firebase::firestore::model::ServerTimestampTransform;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TransformOperation;
+using firebase::firestore::util::Hash;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -140,10 +141,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.key.Hash();
-  result = 31 * result + self.precondition.Hash();
-  result = 31 * result + [self.value hash];
-  return result;
+  return Hash(self.key, self.precondition, [self.value hash]);
 }
 
 - (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
@@ -216,11 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.key.Hash();
-  result = 31 * result + self.precondition.Hash();
-  result = 31 * result + self.fieldMask.Hash();
-  result = 31 * result + [self.value hash];
-  return result;
+  return Hash(self.key, self.precondition, self.fieldMask, [self.value hash]);
 }
 
 - (NSString *)description {
@@ -463,9 +457,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-  NSUInteger result = self.key.Hash();
-  result = 31 * result + self.precondition.Hash();
-  return result;
+  return Hash(self.key, self.precondition);
 }
 
 - (NSString *)description {

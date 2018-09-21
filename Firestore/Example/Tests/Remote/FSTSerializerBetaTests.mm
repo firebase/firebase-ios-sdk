@@ -439,21 +439,22 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testDecodesMutationResult {
-  SnapshotVersion commitVersion{Timestamp{0, 3000}};
+  SnapshotVersion commitVersion = testutil::Version(3000);
+  SnapshotVersion updateVersion = testutil::Version(4000);
   GCFSWriteResult *proto = [GCFSWriteResult message];
-  proto.updateTime = [self.serializer encodedTimestamp:Timestamp{0, 4000}];
+  proto.updateTime = [self.serializer encodedTimestamp:updateVersion.timestamp()];
   [proto.transformResultsArray addObject:[self.serializer encodedString:@"result"]];
 
   FSTMutationResult *result =
       [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
 
-  XCTAssertEqual(result.version, (SnapshotVersion{Timestamp{0, 4000}}));
+  XCTAssertEqual(result.version, updateVersion);
   XCTAssertEqualObjects(result.transformResults, @[ [FSTStringValue stringValue:@"result"] ]);
 }
 
 - (void)testDecodesDeleteMutationResult {
   GCFSWriteResult *proto = [GCFSWriteResult message];
-  SnapshotVersion commitVersion{Timestamp{0, 4000}};
+  SnapshotVersion commitVersion = testutil::Version(4000);
 
   FSTMutationResult *result =
       [self.serializer decodedMutationResult:proto commitVersion:commitVersion];
