@@ -67,12 +67,13 @@ void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
 void GrpcStreamingReader::OnStreamFinish(const util::Status& status) {
   HARD_ASSERT(callback_,
               "Received an event from stream after callback was unset");
+  // Invoking the callback may end this reader's lifetime.
+  auto callback = std::move(callback_);
   if (status.ok()) {
-    callback_(responses_);
+    callback(responses_);
   } else {
-    callback_(status);
+    callback(status);
   }
-  callback_ = {};
 }
 
 }  // namespace remote

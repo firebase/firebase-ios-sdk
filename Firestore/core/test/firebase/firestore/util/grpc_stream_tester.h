@@ -17,12 +17,8 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
-#include <atomic>
-#include <condition_variable>
 #include <initializer_list>
 #include <memory>
-#include <mutex>
-#include <queue>
 
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
@@ -32,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
@@ -41,33 +38,25 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-struct CompletionResult {
- using Tag = GrpcCompletion::Tag;
- enum Result { Ok, Error };
+enum CompletionResult { Ok, Error };
+struct CompletionEndState {
+  CompletionEndState(CompletionResult result)  // NOLINT(runtime/explicit)
+      : result{result} {
+  }
+  CompletionEndState(const grpc::Status& status)  // NOLINT(runtime/explicit)
+      : result{Ok}, maybe_status{status} {
+  }
 
- CompletionResult(Tag tag, Result result): tag{tag}, result{result} {}
-
- Tag tag;
- CompletionResult result;
+  CompletionResult result;
+  absl::optional<grpc::Status> maybe_status;
 };
 
 class MockGrpcQueue {
  public:
-  explicit MockGrpcQueue(AsyncQueue* worker_queue);
+  MockGrpcQueue();
 
-  void AddToScenario(std::initializer_list<CompletionResult> results) {
-    scenario_.insert(scenario_.back(), results.begin(), results.end());
-  }
-
-  void StartPollingGrpcQueue() {
-    stop_polling_grpc_queue_ = false;
-    dedicated_executor_->Execute([&] { PollGrpcQueue(); });
-  }
-
-  void StopPollingGrpcQueue() {
-    stop_polling_grpc_queue_ = true;
-    dedicated_executor_->Execute([] {}); // Drain
-  }
+  void ExtractCompletions(std::initializer_list<CompletionEndState> results);
+  void KeepPolling();
 
   void Shutdown();
 
@@ -76,16 +65,9 @@ class MockGrpcQueue {
   }
 
  private:
-  void PollGrpcQueue();
-
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
-  AsyncQueue* worker_queue_ = nullptr;
   grpc::CompletionQueue grpc_queue_;
   bool is_shut_down_ = false;
-
-  std::vector<CompletionResult> scenario_;
-
-  std::atomic<bool> stop_polling_grpc_queue_;
 };
 
 /**
@@ -95,8 +77,7 @@ class MockGrpcQueue {
 class GrpcStreamTester {
  public:
   GrpcStreamTester();
-  GrpcStreamTester(
-      std::unique_ptr<AsyncQueue> worker_queue,
+  explicit GrpcStreamTester(
       std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor);
   ~GrpcStreamTester();
 
@@ -116,18 +97,18 @@ class GrpcStreamTester {
    * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
    */
-  void RunCompletions(grpc::ClientContext* grpc_context,
-                      std::initializer_list<CompletionResult> results);
+  void ForceFinish(grpc::ClientContext* context,
+                   std::initializer_list<CompletionEndState> results);
 
-  void RunCompletionsImmediately() { mock_grpc_queue_.RunCompletionsImmediately(); }
+  void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
 
   AsyncQueue& worker_queue() {
-    return *worker_queue_;
+    return worker_queue_;
   }
 
  private:
-  std::unique_ptr<AsyncQueue> worker_queue_;
+  AsyncQueue worker_queue_;
   core::DatabaseInfo database_info_;
 
   MockGrpcQueue mock_grpc_queue_;

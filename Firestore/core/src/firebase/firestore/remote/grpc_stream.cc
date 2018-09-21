@@ -111,9 +111,9 @@ void GrpcStream::Start() {
   call_->StartCall(nullptr);
 
   if (observer_) {
-    observer_->OnStreamStart();
-    // Start listening for new messages.
+  // Start listening for new messages.
     Read();
+    observer_->OnStreamStart();
   }
 }
 
@@ -222,7 +222,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Only bother with the last write if there is no active write at the moment.
   if (maybe_write) {
     BufferedWrite last_write = std::move(maybe_write).value();
-    auto* completion = new GrpcCompletion(worker_queue_, {});
+    auto* completion = new GrpcCompletion(worker_queue_, {}, Tag::Write);
     *completion->message() = last_write.message;
     call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 
@@ -230,7 +230,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
     // (both with and without network connection), and never more than several
     // dozen milliseconds. Nevertheless, ensure `WriteAndFinish` doesn't hang if
     // there happen to be circumstances under which the write may block
-    // indefinitely (in that case, rely on the fact that canceling GRPC call
+    // indefinitely (in that case, rely on the fact that canceling a gRPC call
     // makes all pending operations come back from the queue quickly).
     auto status = completion->WaitUntilOffQueue(std::chrono::milliseconds(500));
     if (status == std::future_status::ready) {
@@ -250,10 +250,12 @@ GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
 
 void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
   if (observer_) {
-    observer_->OnStreamRead(message);
     // Continue waiting for new messages indefinitely as long as there is an
     // interested observer.
+    // Order is important here -- any call to observer can potentially end this stream's lifetime,
+    // so call `Read` before notifying.
     Read();
+    observer_->OnStreamRead(message);
   }
 }
 

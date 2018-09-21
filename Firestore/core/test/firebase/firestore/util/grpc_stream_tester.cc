@@ -18,9 +18,6 @@
 
 #include <utility>
 
-#include "Firestore/core/src/firebase/firestore/auth/token.h"
-#include "Firestore/core/src/firebase/firestore/auth/user.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
@@ -29,22 +26,19 @@ namespace util {
 
 using auth::Token;
 using auth::User;
-using core::DatabaseInfo;
-using internal::ExecutorStd;
 using model::DatabaseId;
+using internal::ExecutorStd;
 using remote::ConnectivityMonitor;
 using remote::GrpcCompletion;
 using remote::GrpcStream;
 using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
-namespace chr = std::chrono;
+using util::CompletionEndState;
 
 // MockGrpcQueue
 
-MockGrpcQueue::MockGrpcQueue(AsyncQueue* worker_queue)
-    : dedicated_executor_{absl::make_unique<ExecutorStd>()},
-      worker_queue_{worker_queue} {
-  run_completions_immediately_ = false;
+MockGrpcQueue::MockGrpcQueue()
+    : dedicated_executor_{absl::make_unique<ExecutorStd>()} {
 }
 
 void MockGrpcQueue::Shutdown() {
@@ -58,57 +52,43 @@ void MockGrpcQueue::Shutdown() {
   dedicated_executor_->ExecuteBlocking([] {});
 }
 
-void MockGrpcQueue::PollGrpcQueue() {
-  void* tag = nullptr;
-  bool ok = false;
-  while (!stop_polling_grpc_queue_ && grpc_queue_.Next(&tag, &ok)) {
-          auto completion = static_cast<GrpcCompletion*>(tag);
-      completion->Complete(ok);
-      continue;
+void MockGrpcQueue::ExtractCompletions(
+    std::initializer_list<CompletionEndState> end_states) {
+  dedicated_executor_->ExecuteBlocking([&] {
+    for (CompletionEndState end_state : end_states) {
+      bool ignored_ok = false;
+      void* tag = nullptr;
+      grpc_queue_.Next(&tag, &ignored_ok);
+      auto completion = static_cast<remote::GrpcCompletion*>(tag);
+      if (end_state.maybe_status) {
+        *completion->status() = end_state.maybe_status.value();
+      }
+      completion->Complete(end_state.result == CompletionResult::Ok);
     }
-    worker_queue_->Enqueue([this, completion] {
-        pending_completions_.push(completion);
-        cv_.notify_one();
-    });
-  }
+  });
 }
 
-void MockGrpcQueue::RunCompletions(
-    std::initializer_list<CompletionResult> results) {
-  std::unique_lock<std::mutex> lock{mutex_};
-  bool success = cv_.wait_for(lock, chr::milliseconds(500), [&] {
-    return pending_completions_.size() >= results.size();
-  });
-  HARD_ASSERT(success,
-              "Timed out while waiting for completions to come off gRPC "
-              "completion queue");
-
-  worker_queue_->EnqueueRelaxed([this, results] {
-    for (CompletionResult result : results) {
-      GrpcCompletion* completion = pending_completions_.front();
-      pending_completions_.pop();
-      completion->Complete(result == CompletionResult::Ok);
+void MockGrpcQueue::KeepPolling() {
+  dedicated_executor_->Execute([&] {
+    void* tag = nullptr;
+    bool ignored_ok = false;
+    while (grpc_queue_.Next(&tag, &ignored_ok)) {
+      static_cast<GrpcCompletion*>(tag)->Complete(true);
     }
   });
-
-  worker_queue_->EnqueueBlocking([] {});
 }
 
 // GrpcStreamTester
 
 GrpcStreamTester::GrpcStreamTester()
-    : GrpcStreamTester{
-          absl::make_unique<AsyncQueue>(absl::make_unique<ExecutorStd>()),
-          absl::make_unique<ConnectivityMonitor>(nullptr)} {
+    : GrpcStreamTester{absl::make_unique<ConnectivityMonitor>(nullptr)} {
 }
 
 GrpcStreamTester::GrpcStreamTester(
-    std::unique_ptr<AsyncQueue> worker_queue,
     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{std::move(worker_queue)},
-      mock_grpc_queue_{worker_queue_.get()},
+    : worker_queue_{absl::make_unique<ExecutorStd>()},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-      grpc_connection_{database_info_, worker_queue_.get(),
+      grpc_connection_{database_info_, &worker_queue_,
                        mock_grpc_queue_.queue(),
                        std::move(connectivity_monitor)} {
 }
@@ -119,7 +99,7 @@ GrpcStreamTester::~GrpcStreamTester() {
 }
 
 void GrpcStreamTester::Shutdown() {
-  worker_queue_->EnqueueBlocking([&] { ShutdownGrpcQueue(); });
+  worker_queue_.EnqueueBlocking([&] { ShutdownGrpcQueue(); });
 }
 
 std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
@@ -140,12 +120,17 @@ void GrpcStreamTester::ShutdownGrpcQueue() {
 // actually connecting to the server: cancel the stream, which will make all
 // operations fail fast and be returned from the completion queue, then
 // complete the associated completion.
-void GrpcStreamTester::RunCompletions(
-    grpc::ClientContext* grpc_context,
-    std::initializer_list<CompletionResult> results) {
+void GrpcStreamTester::ForceFinish(
+    grpc::ClientContext* context,
+    std::initializer_list<CompletionEndState> end_states) {
   // gRPC allows calling `TryCancel` more than once.
-  grpc_context->TryCancel();
-  mock_grpc_queue_.RunCompletions(results);
+  context->TryCancel();
+  mock_grpc_queue_.ExtractCompletions(end_states);
+  worker_queue_.EnqueueBlocking([] {});
+}
+
+void GrpcStreamTester::KeepPollingGrpcQueue() {
+  mock_grpc_queue_.KeepPolling();
 }
 
 }  // namespace util

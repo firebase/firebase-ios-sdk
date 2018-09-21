@@ -32,7 +32,7 @@ namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
-using util::CompletionResult;
+using util::CompletionEndState;
 using util::GrpcStreamTester;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
@@ -65,7 +65,7 @@ class GrpcStreamTest : public testing::Test {
 
   ~GrpcStreamTest() {
     if (!stream_->IsFinished()) {
-      RunCompletionsImmediately();
+      KeepPollingGrpcQueue();
       worker_queue().EnqueueBlocking([&] { stream_->Finish(); });
     }
     tester_.Shutdown();
@@ -78,14 +78,12 @@ class GrpcStreamTest : public testing::Test {
     return tester_.worker_queue();
   }
 
-  void RunCompletions(std::initializer_list<CompletionResult> results) {
-    tester_.RunCompletions(stream_->context(), results);
+  void ForceFinish(std::initializer_list<CompletionEndState> results) {
+    tester_.ForceFinish(stream_->context(), results);
   }
-
-  void RunCompletionsImmediately() {
-    tester_.RunCompletionsImmediately();
+  void KeepPollingGrpcQueue() {
+    tester_.KeepPollingGrpcQueue();
   }
-
   void ShutdownGrpcQueue() {
     tester_.ShutdownGrpcQueue();
   }
@@ -105,9 +103,8 @@ class GrpcStreamTest : public testing::Test {
                      state) != observed_states().end();
   }
 
-  void FinishStream() {
-    RunCompletionsImmediately();
-    stream().Finish();
+  void StartStream() {
+    worker_queue().EnqueueBlocking([&] { stream().Start(); });
   }
 
  private:
@@ -121,77 +118,74 @@ TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
 }
 
 TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
-  worker_queue().EnqueueBlocking([&] {
-    stream().Start();
-    EXPECT_NO_THROW(FinishStream());
-  });
+  StartStream();
+  KeepPollingGrpcQueue();
+
+  worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishTwice) {
   worker_queue().EnqueueBlocking([&] {
-    EXPECT_NO_THROW(FinishStream());
-    EXPECT_NO_THROW(FinishStream());
+    EXPECT_NO_THROW(stream().Finish());
+    EXPECT_NO_THROW(stream().Finish());
   });
 }
 
 TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
-  worker_queue().EnqueueBlocking([&] {
-    stream().Start();
+  StartStream();
+  KeepPollingGrpcQueue();
 
-    AddToScenario({/*Read*/ Ok});
-    StartPollingGrpcQueue();
-    EXPECT_NO_THROW(stream().WriteAndFinish({}));
-  });
+  worker_queue().EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().WriteAndFinish({})); });
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
-  worker_queue().EnqueueBlocking([&] { stream().Start(); });
+  StartStream();
   EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
 }
 
 TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
-  worker_queue().EnqueueBlocking([&] {
-    stream().Start();
-    EXPECT_NO_THROW(stream().Write({}));
-  });
+  StartStream();
+  worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Write({})); });
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnRead) {
-  worker_queue().EnqueueBlocking([&] { stream().Start(); });
-  RunCompletions({/*Read*/ Ok});
+  StartStream();
+  ForceFinish({/*Read*/ Ok});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
-  worker_queue().EnqueueBlocking([&] { stream().Start(); });
-  RunCompletions({/*Read*/ Ok});
+  StartStream();
+  ForceFinish({/*Read*/ Ok});
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead"}));
 
-  RunCompletions({/*Read*/ Ok});
+  ForceFinish({/*Read*/ Ok});
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamRead", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
+  StartStream();
+
   worker_queue().EnqueueBlocking([&] {
-    stream().Start();
     stream().Write({});
     stream().Write({});
     stream().Write({});
   });
-  RunCompletions({/*Read*/ Ok, /*Write*/ Ok, /*Read*/ Ok, /*Write*/ Ok,
-                  /*Read*/ Ok, /*Write*/ Ok});
+  ForceFinish({/*Read*/ Ok, /*Write*/ Ok, /*Read*/ Ok, /*Write*/ Ok,
+               /*Read*/ Ok, /*Write*/ Ok});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamRead",
                                        "OnStreamRead", "OnStreamRead"}));
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
-  worker_queue().EnqueueBlocking([&] { stream().Start(); });
+  StartStream();
 
   // Fail the read, but allow the rest to succeed.
-  RunCompletions(
-      {/*Read*/ Error});  // Will put a "Finish" operation on the queue
+  ForceFinish({/*Read*/ Error});  // Will put a "Finish" operation on the queue
+  KeepPollingGrpcQueue();
   // Once gRPC queue shutdown succeeds, "Finish" operation is guaranteed to be
   // extracted from gRPC completion queue (but the completion may not have run
   // yet).
@@ -204,46 +198,49 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
 }
 
 TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
-  worker_queue().EnqueueBlocking([&] {
-    stream().Start();
-    stream().Finish();
-  });
+  StartStream();
+  KeepPollingGrpcQueue();
+
+  worker_queue().EnqueueBlocking([&] { stream().Finish(); });
   EXPECT_FALSE(ObserverHas("OnStreamFinish"));
 }
 
 TEST_F(GrpcStreamTest, WriteAndFinish) {
+  StartStream();
+  KeepPollingGrpcQueue();
+
   worker_queue().EnqueueBlocking([&] {
-    stream().Start();
     bool did_last_write = stream().WriteAndFinish({});
-    EXPECT_TRUE(did_last_write);
+    // Canceling gRPC context is not used in this test, so the write operation
+    // won't come back from the completion queue.
+    EXPECT_FALSE(did_last_write);
+
+    EXPECT_TRUE(ObserverHas("OnStreamStart"));
+    EXPECT_FALSE(ObserverHas("OnStreamFinish"));
   });
-  EXPECT_TRUE(ObserverHas("OnStreamStart"));
-  EXPECT_FALSE(ObserverHas("OnStreamFinish"));
 }
 
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
-  worker_queue().EnqueueBlocking([&] {
-    stream().Start();
-    stream().Write({});
-  });
+  StartStream();
+  worker_queue().EnqueueBlocking([&] { stream().Write({}); });
 
-  RunCompletions({/*Write*/ Error, /*Read*/ Error});
+  ForceFinish({/*Write*/ Error, /*Read*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  RunCompletions({/*Finish*/ Ok});
+  ForceFinish({/*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }
 
 TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
+  StartStream();
   worker_queue().EnqueueBlocking([&] {
-    stream().Start();
     stream().Write({});
     stream().Write({});
   });
 
-  RunCompletions({/*Write*/ Ok, /*Write*/ Error});
+  ForceFinish({/*Write*/ Ok, /*Write*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
-  RunCompletions({/*Read*/ Error, /*Finish*/ Ok});
+  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
 
   EXPECT_EQ(observed_states().back(), "OnStreamFinish");
 }

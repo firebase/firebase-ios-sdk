@@ -46,7 +46,7 @@ using auth::Token;
 using auth::TokenListener;
 using util::AsyncQueue;
 using util::GrpcStreamTester;
-using util::CompletionResult;
+using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::TimerId;
@@ -178,18 +178,24 @@ class StreamTest : public testing::Test {
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
       if (firestore_stream && firestore_stream->IsStarted()) {
+        KeepPollingGrpcQueue();
         firestore_stream->Stop();
       }
     });
     tester_.Shutdown();
   }
 
-  void RunCompletions(std::initializer_list<CompletionResult> results) {
-    tester_.RunCompletions(firestore_stream->context(), results);
+  void ForceFinish(std::initializer_list<CompletionEndState> results) {
+    tester_.ForceFinish(firestore_stream->context(), results);
+  }
+  
+  void KeepPollingGrpcQueue() {
+  tester_.KeepPollingGrpcQueue();
   }
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
+    async_queue().EnqueueBlocking([]{});
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -271,6 +277,7 @@ TEST_F(StreamTest, CanOpen) {
 TEST_F(StreamTest, CanStop) {
   StartStream();
   async_queue().EnqueueBlocking([&] {
+    KeepPollingGrpcQueue();
     firestore_stream->Stop();
 
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -312,7 +319,7 @@ TEST_F(StreamTest, AuthOutlivesStream) {
 
 TEST_F(StreamTest, ErrorAfterStart) {
   StartStream();
-  RunCompletions({/*Read*/ Error, /*Finish*/ Ok});
+  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
@@ -327,6 +334,7 @@ TEST_F(StreamTest, ClosesOnIdle) {
   async_queue().EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
 
   EXPECT_TRUE(async_queue().IsScheduled(kIdleTimerId));
+  KeepPollingGrpcQueue();
   async_queue().RunScheduledOperationsUntil(kIdleTimerId);
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -339,7 +347,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
   firestore_stream->FailStreamRead();
-  RunCompletions({/*Read*/ Ok});
+  KeepPollingGrpcQueue();
 
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());

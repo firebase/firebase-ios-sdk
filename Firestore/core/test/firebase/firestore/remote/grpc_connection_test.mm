@@ -84,24 +84,27 @@ class GrpcConnectionTest : public testing::Test {
  public:
   GrpcConnectionTest() {
     auto connectivity_monitor_owning =
-        absl::make_unique<MockConnectivityMonitor>(&tester.worker_queue());
+        absl::make_unique<MockConnectivityMonitor>(&tester->worker_queue());
     connectivity_monitor = connectivity_monitor_owning.get();
+    tester = absl::make_unique<GrpcStreamTester>(std::move(connectivity_monitor_owning));
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {
-    connectivity_monitor->set_status(new_status);
+    tester->worker_queue().EnqueueBlocking([&] {
+      connectivity_monitor->set_status(new_status);
+    });
     // Make sure the callback executes.
-    tester.worker_queue().EnqueueBlocking([] {});
+    tester->worker_queue().EnqueueBlocking([] {});
   }
 
-  GrpcStreamTester tester;
+  std::unique_ptr<GrpcStreamTester> tester;
   MockConnectivityMonitor* connectivity_monitor = nullptr;
 };
 
 TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   ConnectivityObserver observer;
 
-  auto stream = tester.CreateStream(&observer);
+  auto stream = tester->CreateStream(&observer);
   stream->Start();
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
@@ -109,13 +112,14 @@ TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
+  tester->KeepPollingGrpcQueue();
   SetNetworkStatus(NetworkStatus::Unavailable);
   EXPECT_EQ(observer.connectivity_change_count(), 1);
 }
 
 TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   int change_count = 0;
-  auto streaming_call = tester.CreateStreamingReader();
+  auto streaming_call = tester->CreateStreamingReader();
   streaming_call->Start(
       [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
         if (IsConnectivityChange(result.status())) {
@@ -127,6 +131,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(change_count, 0);
 
+  tester->KeepPollingGrpcQueue();
   SetNetworkStatus(NetworkStatus::AvailableViaCellular);
   EXPECT_EQ(change_count, 1);
 }
@@ -134,24 +139,25 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
-  auto foo = tester.CreateStreamingReader();
+  auto foo = tester->CreateStreamingReader();
   foo->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     foo.reset();
     ++changes_count;
   });
 
-  auto bar = tester.CreateStreamingReader();
+  auto bar = tester->CreateStreamingReader();
   bar->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     bar.reset();
     ++changes_count;
   });
 
-  auto baz = tester.CreateStreamingReader();
+  auto baz = tester->CreateStreamingReader();
   baz->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     baz.reset();
     ++changes_count;
   });
 
+  tester->KeepPollingGrpcQueue();
   EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unavailable));
   EXPECT_EQ(changes_count, 3);
 }
