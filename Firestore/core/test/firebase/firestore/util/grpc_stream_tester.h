@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "absl/types/optional.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
@@ -35,6 +36,14 @@ namespace firestore {
 namespace util {
 
 enum CompletionResult { Ok, Error };
+struct CompletionEndState  {
+  CompletionEndState(CompletionResult result) : result{result} {
+  }
+  CompletionEndState(const grpc::Status& status) : result{Ok}, maybe_status{status} {}
+
+  CompletionResult result;
+  absl::optional<grpc::Status> maybe_status;
+};
 
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
@@ -61,7 +70,7 @@ class GrpcStreamTester {
    * queue has at least as many pending completions as there are elements in
    * `results`; otherwise, it will hang.
    */
-  void ForceFinish(std::initializer_list<CompletionResult> results);
+  void ForceFinish(std::initializer_list<CompletionEndState> results);
 
   /**
    * Using a separate executor, keep polling gRPC completion queue and tell all

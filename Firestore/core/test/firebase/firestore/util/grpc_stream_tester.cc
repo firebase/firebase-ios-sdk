@@ -84,17 +84,20 @@ void GrpcStreamTester::ShutdownGrpcQueue() {
 // operations fail fast and be returned from the completion queue, then
 // complete the associated completion.
 void GrpcStreamTester::ForceFinish(
-    std::initializer_list<CompletionResult> results) {
+    std::initializer_list<CompletionEndState> end_states) {
   dedicated_executor_->ExecuteBlocking([&] {
     // gRPC allows calling `TryCancel` more than once.
     grpc_context_->TryCancel();
 
-    for (CompletionResult result : results) {
+    for (CompletionEndState end_state : end_states) {
       bool ignored_ok = false;
       void* tag = nullptr;
       grpc_queue_.Next(&tag, &ignored_ok);
       auto completion = static_cast<remote::GrpcCompletion*>(tag);
-      completion->Complete(result == CompletionResult::Ok);
+      if (end_state.maybe_status) {
+        *completion->status() = end_state.maybe_status.value();
+      }
+      completion->Complete(end_state.result == CompletionResult::Ok);
     }
   });
 

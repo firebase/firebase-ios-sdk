@@ -46,7 +46,7 @@ using auth::Token;
 using auth::TokenListener;
 using util::AsyncQueue;
 using util::GrpcStreamTester;
-using util::CompletionResult;
+using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::TimerId;
@@ -179,7 +179,7 @@ class StreamTest : public testing::Test {
     tester_.Shutdown();
   }
 
-  void ForceFinish(std::initializer_list<CompletionResult> results) {
+  void ForceFinish(std::initializer_list<CompletionEndState> results) {
     tester_.ForceFinish(results);
   }
   void KeepPollingGrpcQueue() {
