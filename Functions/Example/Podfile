@@ -5,7 +5,7 @@ target 'FirebaseFunctions_Example' do
 
   pod 'FirebaseCore', :path => '../../'
   pod 'GoogleUtilities', :path => '../../'
-  pod 'FirebaseFunctions', :path => '../../'
+  pod 'FirebaseFunctions', :path => '../../', :testspecs => ['unit']
 
   target 'FirebaseFunctions_Tests' do
     inherit! :search_paths

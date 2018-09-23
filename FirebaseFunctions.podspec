@@ -26,4 +26,8 @@ iOS SDK for Cloud Functions for Firebase.
 
   s.dependency 'FirebaseCore', '~> 5.0'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Functions/Example/Test*/*.[mh]'
+  end
 end
