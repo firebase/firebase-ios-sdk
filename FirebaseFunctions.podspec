@@ -32,4 +32,8 @@ iOS SDK for Cloud Functions for Firebase.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRFunctions_VERSION=' + s.version.to_s
   }
+
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.source_files = 'Functions/Example/Test*/*.[mh]'
+  end
 end
