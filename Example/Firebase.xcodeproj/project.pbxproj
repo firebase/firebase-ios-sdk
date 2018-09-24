@@ -130,12 +130,6 @@
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA122158606000EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA142158606100EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C852AA152158607600EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA162158607600EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -613,8 +607,10 @@
 		EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 		EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
+		EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -901,9 +897,11 @@
 		0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FArraySortedDictionaryTest.m; path = Database/Tests/Unit/FArraySortedDictionaryTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FCompoundHashTest.m; path = Database/Tests/Unit/FCompoundHashTest.m; sourceTree = SOURCE_ROOT; };
+		063CB4491EBA7AE200038A59 /* FIRMutableDataTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRMutableDataTests.h; path = Database/Tests/Unit/FIRMutableDataTests.h; sourceTree = SOURCE_ROOT; };
 		063CB44A1EBA7AE200038A59 /* FIRMutableDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRMutableDataTests.m; path = Database/Tests/Unit/FIRMutableDataTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44B1EBA7AE200038A59 /* FLevelDBStorageEngineTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FLevelDBStorageEngineTests.m; path = Database/Tests/Unit/FLevelDBStorageEngineTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44C1EBA7AE200038A59 /* FNodeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FNodeTests.m; path = Database/Tests/Unit/FNodeTests.m; sourceTree = SOURCE_ROOT; };
+		063CB44D1EBA7AE200038A59 /* FPathTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPathTests.h; path = Database/Tests/Unit/FPathTests.h; sourceTree = SOURCE_ROOT; };
 		063CB44E1EBA7AE200038A59 /* FPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPathTests.m; path = Database/Tests/Unit/FPathTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44F1EBA7AE200038A59 /* FPersistenceManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPersistenceManagerTest.m; path = Database/Tests/Unit/FPersistenceManagerTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4501EBA7AE200038A59 /* FPruneForestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPruneForestTest.m; path = Database/Tests/Unit/FPruneForestTest.m; sourceTree = SOURCE_ROOT; };
@@ -911,7 +909,9 @@
 		063CB4521EBA7AE200038A59 /* FQueryParamsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FQueryParamsTest.m; path = Database/Tests/Unit/FQueryParamsTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4531EBA7AE200038A59 /* FRangeMergeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FRangeMergeTest.m; path = Database/Tests/Unit/FRangeMergeTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4541EBA7AE200038A59 /* FRepoInfoTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FRepoInfoTest.m; path = Database/Tests/Unit/FRepoInfoTest.m; sourceTree = SOURCE_ROOT; };
+		063CB4551EBA7AE200038A59 /* FSparseSnapshotTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSparseSnapshotTests.h; path = Database/Tests/Unit/FSparseSnapshotTests.h; sourceTree = SOURCE_ROOT; };
 		063CB4561EBA7AE200038A59 /* FSparseSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSparseSnapshotTests.m; path = Database/Tests/Unit/FSparseSnapshotTests.m; sourceTree = SOURCE_ROOT; };
+		063CB4571EBA7AE200038A59 /* FSyncPointTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSyncPointTests.h; path = Database/Tests/Unit/FSyncPointTests.h; sourceTree = SOURCE_ROOT; };
 		063CB4581EBA7AE200038A59 /* FSyncPointTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSyncPointTests.m; path = Database/Tests/Unit/FSyncPointTests.m; sourceTree = SOURCE_ROOT; };
 		063CB4591EBA7AE200038A59 /* FTestBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FTestBase.h; path = Database/Tests/Helpers/FTestBase.h; sourceTree = SOURCE_ROOT; };
 		063CB45A1EBA7AE200038A59 /* FTestBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FTestBase.m; path = Database/Tests/Helpers/FTestBase.m; sourceTree = SOURCE_ROOT; };
@@ -929,6 +929,7 @@
 		063CB4771EBA7AEF00038A59 /* FIRDatabaseQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRDatabaseQueryTests.h; path = Integration/FIRDatabaseQueryTests.h; sourceTree = "<group>"; };
 		063CB4781EBA7AEF00038A59 /* FIRDatabaseQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDatabaseQueryTests.m; path = Integration/FIRDatabaseQueryTests.m; sourceTree = "<group>"; };
 		063CB4791EBA7AEF00038A59 /* FIRDatabaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDatabaseTests.m; path = Integration/FIRDatabaseTests.m; sourceTree = "<group>"; };
+		063CB47A1EBA7AEF00038A59 /* FIRDataSnapshotTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRDataSnapshotTests.h; sourceTree = "<group>"; };
 		063CB47B1EBA7AEF00038A59 /* FIRDataSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDataSnapshotTests.m; sourceTree = "<group>"; };
 		063CB47C1EBA7AEF00038A59 /* FirebaseTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "FirebaseTests-Info.plist"; sourceTree = "<group>"; };
 		063CB47D1EBA7AEF00038A59 /* FIRFakeApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRFakeApp.h; sourceTree = "<group>"; };
@@ -2147,6 +2148,11 @@
 		DE7B8D391E8EF202009EB6DF /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				063CB47A1EBA7AEF00038A59 /* FIRDataSnapshotTests.h */,
+				063CB4491EBA7AE200038A59 /* FIRMutableDataTests.h */,
+				063CB44D1EBA7AE200038A59 /* FPathTests.h */,
+				063CB4551EBA7AE200038A59 /* FSparseSnapshotTests.h */,
+				063CB4571EBA7AE200038A59 /* FSyncPointTests.h */,
 				063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */,
 				063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */,
 				063CB46E1EBA7AEF00038A59 /* FCompoundWriteTest.m */,
@@ -2174,31 +2180,31 @@
 			isa = PBXGroup;
 			children = (
 				DE7B8D781E8EF202009EB6DF /* FDevice.h */,
-				DE7B8D791E8EF202009EB6DF /* FDevice.m */,
 				DE7B8D7A1E8EF202009EB6DF /* FEventTester.h */,
-				DE7B8D7B1E8EF202009EB6DF /* FEventTester.m */,
 				063CB47D1EBA7AEF00038A59 /* FIRFakeApp.h */,
-				063CB47E1EBA7AEF00038A59 /* FIRFakeApp.m */,
 				DE7B8D7C1E8EF202009EB6DF /* FIRTestAuthTokenProvider.h */,
-				DE7B8D7D1E8EF202009EB6DF /* FIRTestAuthTokenProvider.m */,
 				DE7B8D7E1E8EF202009EB6DF /* FMockStorageEngine.h */,
-				DE7B8D7F1E8EF202009EB6DF /* FMockStorageEngine.m */,
 				DE7B8D801E8EF202009EB6DF /* FTestAuthTokenGenerator.h */,
-				DE7B8D811E8EF202009EB6DF /* FTestAuthTokenGenerator.m */,
 				063CB4591EBA7AE200038A59 /* FTestBase.h */,
-				063CB45A1EBA7AE200038A59 /* FTestBase.m */,
 				DE7B8D821E8EF202009EB6DF /* FTestCachePolicy.h */,
-				DE7B8D831E8EF202009EB6DF /* FTestCachePolicy.m */,
 				DE7B8D841E8EF202009EB6DF /* FTestClock.h */,
-				DE7B8D851E8EF202009EB6DF /* FTestClock.m */,
 				063CB48D1EBA7AEF00038A59 /* FTestContants.h */,
 				DE7B8D861E8EF202009EB6DF /* FTestExpectations.h */,
-				DE7B8D871E8EF202009EB6DF /* FTestExpectations.m */,
 				DE7B8D881E8EF202009EB6DF /* FTestHelpers.h */,
-				DE7B8D891E8EF202009EB6DF /* FTestHelpers.m */,
 				DE7B8D8A1E8EF203009EB6DF /* FTupleEventTypeString.h */,
-				DE7B8D8B1E8EF203009EB6DF /* FTupleEventTypeString.m */,
 				DE7B8D8C1E8EF203009EB6DF /* SenTest+FWaiter.h */,
+				DE7B8D791E8EF202009EB6DF /* FDevice.m */,
+				DE7B8D7B1E8EF202009EB6DF /* FEventTester.m */,
+				063CB47E1EBA7AEF00038A59 /* FIRFakeApp.m */,
+				DE7B8D7D1E8EF202009EB6DF /* FIRTestAuthTokenProvider.m */,
+				DE7B8D7F1E8EF202009EB6DF /* FMockStorageEngine.m */,
+				DE7B8D811E8EF202009EB6DF /* FTestAuthTokenGenerator.m */,
+				063CB45A1EBA7AE200038A59 /* FTestBase.m */,
+				DE7B8D831E8EF202009EB6DF /* FTestCachePolicy.m */,
+				DE7B8D851E8EF202009EB6DF /* FTestClock.m */,
+				DE7B8D871E8EF202009EB6DF /* FTestExpectations.m */,
+				DE7B8D891E8EF202009EB6DF /* FTestHelpers.m */,
+				DE7B8D8B1E8EF203009EB6DF /* FTupleEventTypeString.m */,
 				DE7B8D8D1E8EF203009EB6DF /* SenTest+FWaiter.m */,
 			);
 			path = Helpers;
@@ -3980,9 +3986,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D0FE8A941ED9CAAE003F6722 /* FIRAppDelegate.m in Sources */,
-				C852AA122158606000EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */,
-				C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				D0FE8A961ED9CAAE003F6722 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4275,9 +4279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE7B8DCB1E8EF23A009EB6DF /* FIRViewController.m in Sources */,
-				C852AA142158606100EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */,
-				C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				DE7B8DCA1E8EF23A009EB6DF /* FIRAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4461,16 +4463,16 @@
 			files = (
 				DEAAD4251FBA49ED0053BF48 /* FIRStoragePathTests.m in Sources */,
 				DEAAD42A1FBA49ED0053BF48 /* FIRStorageUpdateMetadataTests.m in Sources */,
+				EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
 				DEAAD4221FBA49ED0053BF48 /* FIRStorageDeleteTests.m in Sources */,
 				DEAAD4291FBA49ED0053BF48 /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEAAD4231FBA49ED0053BF48 /* FIRStorageGetMetadataTests.m in Sources */,
 				DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */,
-				C852AA162158607600EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */,
 				ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
+				EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
 				DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */,
 				DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */,
-				C852AA152158607600EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

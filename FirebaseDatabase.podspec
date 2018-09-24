@@ -32,7 +32,6 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.libraries = ['c++', 'icucore']
   s.frameworks = ['CFNetwork', 'Security', 'SystemConfiguration']
   s.dependency 'leveldb-library', '~> 1.18'
-  s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
