@@ -20,6 +20,7 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRComponentRegistrant.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
@@ -33,15 +34,14 @@
 #import "FRepoManager.h"
 #import "FValidation.h"
 
-@interface FIRDatabase ()
+// Empty protocol for use with Interop registration.
+@protocol FIRDatabaseNilProtocol
+@end
+
+@interface FIRDatabase () <FIRComponentRegistrant, FIRDatabaseNilProtocol>
 @property (nonatomic, strong) FRepoInfo *repoInfo;
 @property (nonatomic, strong) FIRDatabaseConfig *config;
 @property (nonatomic, strong) FRepo *repo;
-@end
-
-
-// Empty protocol for use with Interop registration.
-@protocol FIRDatabaseNilProtocol
 @end
 
 @implementation FIRDatabase
