@@ -33,6 +33,7 @@
 namespace firebase {
 namespace firestore {
 
+class CollectionReference;
 class DocumentReference;
 class FirestoreInternal;
 
@@ -153,6 +154,9 @@ class Firestore {
   Firestore& operator=(const Firestore& src) = delete;
 
  private:
+  friend class FieldValueInternal;
+  friend class Wrapper;
+
   explicit Firestore(::firebase::App* app);
 
   // TODO(zxu123): investigate possibility to use std::unique_ptr or
