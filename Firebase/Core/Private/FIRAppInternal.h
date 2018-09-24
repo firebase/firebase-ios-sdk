@@ -134,17 +134,6 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
  */
 @property(nonatomic, readonly) BOOL isDefaultApp;
 
-/** @property getTokenImplementation
-    @brief Gets or sets the block to use for the implementation of
-        @c getTokenForcingRefresh:withCallback:
- */
-@property(nonatomic, copy) FIRAppGetTokenImplementation getTokenImplementation;
-
-/** @property getUIDImplementation
-    @brief Gets or sets the block to use for the implementation of @c getUID.
- */
-@property(nonatomic, copy) FIRAppGetUIDImplementation getUIDImplementation;
-
 /*
  * The container of interop SDKs for this app.
  */

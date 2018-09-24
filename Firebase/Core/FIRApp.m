@@ -305,15 +305,6 @@ static NSMutableDictionary *sLibraryVersions;
   return self;
 }
 
-- (void)getTokenForcingRefresh:(BOOL)forceRefresh withCallback:(FIRTokenCallback)callback {
-  if (!_getTokenImplementation) {
-    callback(nil, nil);
-    return;
-  }
-
-  _getTokenImplementation(forceRefresh, callback);
-}
-
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
@@ -550,15 +541,6 @@ static NSMutableDictionary *sLibraryVersions;
                 @"and replace the current one.",
                 kServiceInfoFileName, kServiceInfoFileType, expectedBundleID, kPlistURL);
   }
-}
-
-// TODO: Remove once SDKs transition to Auth interop library.
-- (nullable NSString *)getUID {
-  if (!_getUIDImplementation) {
-    FIRLogWarning(kFIRLoggerCore, @"I-COR000025", @"FIRAuth getUID implementation wasn't set.");
-    return nil;
-  }
-  return _getUIDImplementation();
 }
 
 #pragma mark - private - App ID Validation

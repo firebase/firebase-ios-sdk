@@ -283,59 +283,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssert([error.description containsString:@"Configuration failed for"]);
 }
 
-- (void)testGetTokenWithCallback {
-  [FIRApp configure];
-  FIRApp *app = [FIRApp defaultApp];
-
-  __block BOOL getTokenImplementationWasCalled = NO;
-  __block BOOL getTokenCallbackWasCalled = NO;
-  __block BOOL passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The callback should be invoked by the base implementation when no block for "
-             "'getTokenImplementation' has been specified.");
-
-  getTokenCallbackWasCalled = NO;
-
-  app.getTokenImplementation = ^(BOOL refresh, FIRTokenCallback callback) {
-    getTokenImplementationWasCalled = YES;
-    passedRefreshValue = refresh;
-    callback(nil, nil);
-  };
-  [app getTokenForcingRefresh:YES
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssert(getTokenImplementationWasCalled,
-            @"The 'getTokenImplementation' block was never called.");
-  XCTAssert(passedRefreshValue,
-            @"The value for the 'refresh' parameter wasn't passed to the 'getTokenImplementation' "
-             "block correctly.");
-  XCTAssert(getTokenCallbackWasCalled,
-            @"The 'getTokenImplementation' should have invoked the callback. This could be an "
-             "error in this test, or the callback parameter may not have been passed to the "
-             "implementation correctly.");
-
-  getTokenImplementationWasCalled = NO;
-  getTokenCallbackWasCalled = NO;
-  passedRefreshValue = NO;
-
-  [app getTokenForcingRefresh:NO
-                 withCallback:^(NSString *_Nullable token, NSError *_Nullable error) {
-                   getTokenCallbackWasCalled = YES;
-                 }];
-
-  XCTAssertFalse(passedRefreshValue,
-                 @"The value for the 'refresh' parameter wasn't passed to the "
-                  "'getTokenImplementation' block correctly.");
-}
-
 - (void)testModifyingOptionsThrows {
   [FIRApp configure];
   FIROptions *options = [[FIRApp defaultApp] options];
@@ -753,16 +700,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 #pragma mark - Internal Methods
-
-// TODO: Remove this test once the `getUIDImplementation` block doesn't need to be set in Core.
-- (void)testAuthGetUID {
-  [FIRApp configure];
-
-  [FIRApp defaultApp].getUIDImplementation = ^NSString * {
-    return @"highlander";
-  };
-  XCTAssertEqual([[FIRApp defaultApp] getUID], @"highlander");
-}
 
 - (void)testIsAppConfigured {
   // Ensure it's false before anything is configured.

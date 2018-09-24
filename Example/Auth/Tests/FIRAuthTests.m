@@ -365,20 +365,6 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil(auth);
 }
 
-/** @fn testGetUID
-    @brief Verifies that FIRApp's getUIDImplementation is correctly set by FIRAuth.
- */
-- (void)testGetUID {
-  // TODO: Remove this test once Firestore, Database, and Storage move over to the new Auth interop
-  //       library.
-  FIRApp *app = [FIRApp defaultApp];
-  XCTAssertNotNil(app.getUIDImplementation);
-  [[FIRAuth auth] signOut:NULL];
-  XCTAssertNil(app.getUIDImplementation());
-  [self waitForSignIn];
-  XCTAssertEqualObjects(app.getUIDImplementation(), kLocalID);
-}
-
 #pragma mark - Server API Tests
 
 /** @fn testFetchProvidersForEmailSuccess
@@ -2275,19 +2261,6 @@ static const NSTimeInterval kWaitInterval = .5;
       [secureTokenResponseExpectation fulfill];
     });
   });
-}
-
-/** @fn enableAutoTokenRefresh
-    @brief Enables automatic token refresh by invoking FIRAuth's implementation of FIRApp's
-        |getTokenWithImplementation|.
- */
-- (void)enableAutoTokenRefresh {
-  XCTestExpectation *expectation = [self expectationWithDescription:@"autoTokenRefreshcallback"];
-  [[FIRAuth auth].app getTokenForcingRefresh:NO withCallback:^(NSString *_Nullable token,
-                                                                NSError *_Nullable error) {
-    [expectation fulfill];
-  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 /** @fn app1
