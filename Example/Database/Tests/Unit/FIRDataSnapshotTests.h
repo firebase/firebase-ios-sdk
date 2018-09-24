@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <XCTest/XCTest.h>
 
-@class FIRComponentContainer;
-@class FIRFakeOptions;
+@interface FIRDataSnapshotTests : XCTestCase
 
-@interface FIRFakeApp : NSObject
-
-- (instancetype) initWithName:(NSString *)name URL:(NSString *)url;
-
-@property(nonatomic, readonly) FIRFakeOptions *options;
-@property(nonatomic, copy, readonly) NSString *name;
-@property(nonatomic, readonly) FIRComponentContainer *container;
 @end

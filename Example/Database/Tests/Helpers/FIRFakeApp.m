@@ -19,7 +19,7 @@
 #import "FIRAuthInteropFake.h"
 #import "FIRComponentTestUtilities.h"
 
-@interface FIRFakeOptions : NSObject
+@interface FIRFakeOptions: NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;
 - (instancetype)initWithURL:(NSString *)url;
 @end
