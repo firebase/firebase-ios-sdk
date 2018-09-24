@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 
-#include <dirent.h>
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -115,8 +114,9 @@ class DirectoryIterator {
   void Advance();
 
   Status status_;
-  DIR* dir_;
-  struct dirent* entry_;
+  // Use a forward-declared struct to enable a portable header.
+  struct Rep;
+  std::unique_ptr<Rep> rep_;
   const Path& parent_;
 };
 

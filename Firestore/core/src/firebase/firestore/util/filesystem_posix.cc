@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/third_party/abseil-cpp/absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -145,11 +146,16 @@ Status RecursivelyDeleteDir(const Path& parent) {
 
 }  // namespace detail
 
+struct DirectoryIterator::Rep {
+  DIR* dir;
+  struct dirent* entry;
+};
+
 DirectoryIterator::DirectoryIterator(
     const firebase::firestore::util::Path& path)
-    : parent_(path) {
-  dir_ = ::opendir(parent_.c_str());
-  if (!dir_) {
+    : parent_(path), rep_(absl::make_unique<DirectoryIterator::Rep>()) {
+  rep_->dir = ::opendir(parent_.c_str());
+  if (!rep_->dir) {
     if (errno == ENOENT) {
       status_ = Status::OK();
     } else {
@@ -166,8 +172,8 @@ DirectoryIterator::DirectoryIterator(
 }
 
 DirectoryIterator::~DirectoryIterator() {
-  if (dir_) {
-    if (::closedir(dir_) != 0) {
+  if (rep_->dir) {
+    if (::closedir(rep_->dir) != 0) {
       HARD_FAIL("Could not close directory %s", parent_.ToUtf8String());
     }
   }
@@ -176,16 +182,16 @@ DirectoryIterator::~DirectoryIterator() {
 void DirectoryIterator::Advance() {
   HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
   errno = 0;
-  entry_ = ::readdir(dir_);
-  if (!entry_) {
+  rep_->entry = ::readdir(rep_->dir);
+  if (!rep_->entry) {
     if (errno != 0) {
       status_ = Status::FromErrno(
           errno, StringFormat("Could not read %s", parent_.ToUtf8String()));
     }
   } else if (status_.ok()) {
     // Skip self- and parent-pointer
-    if (::strcmp(".", entry_->d_name) == 0 ||
-        ::strcmp("..", entry_->d_name) == 0) {
+    if (::strcmp(".", rep_->entry->d_name) == 0 ||
+        ::strcmp("..", rep_->entry->d_name) == 0) {
       Advance();
     }
   }
@@ -197,12 +203,12 @@ void DirectoryIterator::Next() {
 }
 
 bool DirectoryIterator::Valid() {
-  return status_.ok() && entry_ != nullptr;
+  return status_.ok() && rep_->entry != nullptr;
 }
 
 Path DirectoryIterator::file() {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
-  Path child = parent_.AppendUtf8(entry_->d_name, strlen(entry_->d_name));
+  Path child = parent_.AppendUtf8(rep_->entry->d_name, strlen(rep_->entry->d_name));
   return child;
 }
 
