@@ -208,7 +208,8 @@ bool DirectoryIterator::Valid() {
 
 Path DirectoryIterator::file() {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
-  Path child = parent_.AppendUtf8(rep_->entry->d_name, strlen(rep_->entry->d_name));
+  Path child =
+      parent_.AppendUtf8(rep_->entry->d_name, strlen(rep_->entry->d_name));
   return child;
 }
 

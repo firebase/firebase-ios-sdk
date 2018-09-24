@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
