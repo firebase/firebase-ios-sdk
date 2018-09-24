@@ -115,7 +115,7 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return self;
 }
 
-end
+@end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
                            GULReachabilityDelegate>
