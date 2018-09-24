@@ -17,12 +17,12 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_SNAPSHOT_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_DOCUMENT_SNAPSHOT_H_
 
-#include <map>
 #include <string>
 
 #include "firebase/firestore/document_reference.h"
 #include "firebase/firestore/field_value.h"
 #include "firebase/firestore/firestore.h"
+#include "firebase/firestore/map_field_value.h"
 #include "firebase/firestore/snapshot_metadata.h"
 
 namespace firebase {
@@ -30,6 +30,7 @@ namespace firestore {
 
 class DocumentReference;
 class DocumentSnapshotInternal;
+class FieldValue;
 class Firestore;
 class FirestoreInternal;
 
@@ -133,7 +134,7 @@ class DocumentSnapshot {
    *
    * @returns String id of this document location.
    */
-  virtual std::string id_string() const;
+  virtual std::string document_id_string() const;
 
   /**
    * @brief Returns the document location for which this DocumentSnapshot
@@ -163,7 +164,7 @@ class DocumentSnapshot {
    *
    * @return A map containing all fields in the document.
    */
-  virtual std::map<std::string, FieldValue> GetData() const;
+  virtual MapFieldValue GetData() const;
 
   /**
    * Retrieves all fields in the document as a map.
@@ -173,8 +174,7 @@ class DocumentSnapshot {
    *
    * @return A map containing all fields in the document.
    */
-  virtual std::map<std::string, FieldValue> GetData(
-      ServerTimestampBehavior stb) const;
+  virtual MapFieldValue GetData(ServerTimestampBehavior stb) const;
 
   /**
    * @brief Retrieves a specific field from the document.
@@ -223,8 +223,10 @@ class DocumentSnapshot {
   explicit DocumentSnapshot(DocumentSnapshotInternal* internal);
 
  private:
+  friend class EventListenerInternal;
   friend class FirestoreInternal;
   friend class QueryInternal;
+  friend class Wrapper;
 
   DocumentSnapshotInternal* internal_ = nullptr;
 };
