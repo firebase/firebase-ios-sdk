@@ -18,7 +18,7 @@
 #import "FTestBase.h"
 
 @interface FEventTests : FTestBase {
-    BOOL rl;
+  BOOL rl;
 }
 
 @end

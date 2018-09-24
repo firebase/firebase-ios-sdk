@@ -16,23 +16,26 @@
 
 #import <Foundation/Foundation.h>
 #import <XCTest/XCTest.h>
-#import "FTupleFirebase.h"
-#import "FRepoManager.h"
 #import "FIRDatabaseReference_Private.h"
-#import "FTestContants.h"
+#import "FRepoManager.h"
 #import "FSnapshotUtilities.h"
+#import "FTestContants.h"
+#import "FTupleFirebase.h"
 
-#define WAIT_FOR(x) [self waitUntil:^{ return (BOOL)(x); }];
+#define WAIT_FOR(x)   \
+  [self waitUntil:^{  \
+    return (BOOL)(x); \
+  }];
 
 #define NODE(__node) [FSnapshotUtilities nodeFrom:(__node)]
 #define PATH(__path) [FPath pathWithString:(__path)]
 
 @interface FTestHelpers : XCTestCase
-+ (FIRDatabaseReference *) getRandomNode;
-+ (FIRDatabaseReference *) getRandomNodeWithoutPersistence;
-+ (FTupleFirebase *) getRandomNodePair;
-+ (FTupleFirebase *) getRandomNodePairWithoutPersistence;
-+ (FTupleFirebase *) getRandomNodeTriple;
++ (FIRDatabaseReference *)getRandomNode;
++ (FIRDatabaseReference *)getRandomNodeWithoutPersistence;
++ (FTupleFirebase *)getRandomNodePair;
++ (FTupleFirebase *)getRandomNodePairWithoutPersistence;
++ (FTupleFirebase *)getRandomNodeTriple;
 + (id<FNode>)leafNodeOfSize:(NSUInteger)size;
 
 @end

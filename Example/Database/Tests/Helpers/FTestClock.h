@@ -18,9 +18,9 @@
 
 #import "FClock.h"
 
-@interface FTestClock : NSObject<FClock>
+@interface FTestClock : NSObject <FClock>
 
-@property (nonatomic, readonly) NSTimeInterval currentTime;
+@property(nonatomic, readonly) NSTimeInterval currentTime;
 
 - (id)init;
 - (void)tick;

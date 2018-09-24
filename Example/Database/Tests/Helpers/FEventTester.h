@@ -19,19 +19,19 @@
 
 @interface FEventTester : XCTestCase
 
-- (id)initFrom:(XCTestCase *)elsewhere;
-- (void) addLookingFor:(NSArray *)l;
-- (void) wait;
-- (void) waitForInitialization;
-- (void) unregister;
+- (id)initFrom:(XCTestCase*)elsewhere;
+- (void)addLookingFor:(NSArray*)l;
+- (void)wait;
+- (void)waitForInitialization;
+- (void)unregister;
 
-@property (nonatomic, strong) NSMutableArray* lookingFor;
-@property (readwrite) int callbacksCalled;
-@property (nonatomic, strong) NSMutableDictionary* seenFirebaseLocations;
+@property(nonatomic, strong) NSMutableArray* lookingFor;
+@property(readwrite) int callbacksCalled;
+@property(nonatomic, strong) NSMutableDictionary* seenFirebaseLocations;
 //@property (nonatomic, strong) NSMutableDictionary* initializationEvents;
-@property (nonatomic, strong) XCTestCase* from;
-@property (nonatomic, strong) NSMutableArray* errors;
-@property (nonatomic, strong) NSMutableArray* actualPathsAndEvents;
-@property (nonatomic) int initializationEvents;
+@property(nonatomic, strong) XCTestCase* from;
+@property(nonatomic, strong) NSMutableArray* errors;
+@property(nonatomic, strong) NSMutableArray* actualPathsAndEvents;
+@property(nonatomic) int initializationEvents;
 
 @end

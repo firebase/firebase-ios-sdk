@@ -15,9 +15,14 @@
  */
 
 #import "FAuthTokenProvider.h"
-#import "FUtilities.h"
+
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIRLogger.h>
+
+#import "FUtilities.h"
 #import "FIRDatabaseQuery_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
 
@@ -84,8 +89,8 @@
 }
 
 - (void) fetchTokenForcingRefresh:(BOOL)forceRefresh withCallback:(fbt_void_nsstring_nserror)callback {
-    // TODO: Don't fetch token if there is no current user
-    [self.app getTokenForcingRefresh:forceRefresh withCallback:^(NSString * _Nullable token, NSError * _Nullable error) {
+    id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, self.app.container);
+    [auth getTokenForcingRefresh:forceRefresh withCallback:^(NSString * _Nullable token, NSError * _Nullable error) {
         dispatch_async([FIRDatabaseQuery sharedQueue], ^{
             callback(token, error);
         });

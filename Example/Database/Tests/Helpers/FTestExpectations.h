@@ -19,14 +19,14 @@
 #import "FIRDatabaseQuery.h"
 
 @interface FTestExpectations : XCTestCase {
-    NSMutableArray* expectations;
-    XCTestCase* from;
+  NSMutableArray* expectations;
+  XCTestCase* from;
 }
 
-- (id) initFrom:(XCTestCase *)other;
-- (void)addQuery:(FIRDatabaseQuery *)query withExpectation:(id)expectation;
-- (void) validate;
+- (id)initFrom:(XCTestCase*)other;
+- (void)addQuery:(FIRDatabaseQuery*)query withExpectation:(id)expectation;
+- (void)validate;
 
-@property (readonly) BOOL isReady;
+@property(readonly) BOOL isReady;
 
 @end
