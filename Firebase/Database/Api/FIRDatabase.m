@@ -16,24 +16,32 @@
 
 #import <Foundation/Foundation.h>
 
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+#import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLogger.h>
+#import <FirebaseCore/FIROptions.h>
 
 #import "FIRDatabase.h"
-#import "FIRDatabase_Private.h"
+#import "FIRDatabaseConfig_Private.h"
 #import "FIRDatabaseQuery_Private.h"
+#import "FIRDatabaseReference_Private.h"
+#import "FIRDatabase_Private.h"
+#import "FRepoInfo.h"
 #import "FRepoManager.h"
 #import "FValidation.h"
-#import "FIRDatabaseConfig_Private.h"
-#import "FRepoInfo.h"
-#import "FIRDatabaseConfig.h"
-#import "FIRDatabaseReference_Private.h"
-#import <FirebaseCore/FIROptions.h>
 
 @interface FIRDatabase ()
 @property (nonatomic, strong) FRepoInfo *repoInfo;
 @property (nonatomic, strong) FIRDatabaseConfig *config;
 @property (nonatomic, strong) FRepo *repo;
+@end
+
+
+// Empty protocol for use with Interop registration.
+@protocol FIRDatabaseNilProtocol
 @end
 
 @implementation FIRDatabase
@@ -69,6 +77,23 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
           }
       }
   }];
+  [FIRComponentContainer registerAsComponentRegistrant:self];
+}
+
++ (NSArray<FIRComponent *> *)componentsToRegister {
+    FIRDependency *auth =
+        [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
+                                   isRequired:NO];
+    FIRComponentCreationBlock creationBlock =
+        ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+        return [self databaseForApp:container.app];
+    };
+    FIRComponent *databaseProvider =
+        [FIRComponent componentWithProtocol:@protocol(FIRDatabaseNilProtocol)
+                        instantiationTiming:FIRInstantiationTimingLazy
+                               dependencies:@[ auth ]
+                              creationBlock:creationBlock];
+    return @[ databaseProvider ];
 }
 
 /**
