@@ -60,6 +60,16 @@ Status RecursivelyCreateDir(const Path& path);
 Status RecursivelyDelete(const Path& path);
 
 /**
+ * Recursively deletes the contents of the given pathname that is known to be
+ * a directory.
+ *
+ * @return Ok if the directory was deleted or did not exist. Returns a
+ *     system-defined error if the path exists but is not a directory.
+ *
+ */
+Status RecursivelyDeleteDir(const Path& path);
+
+/**
  * Returns system-defined best directory in which to create temporary files.
  * Typical return values are like `/tmp` on UNIX systems. Clients should create
  * randomly named directories or files within this location to avoid collisions.

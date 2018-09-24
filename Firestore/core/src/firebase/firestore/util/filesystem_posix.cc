@@ -130,20 +130,6 @@ Status DeleteFile(const Path& path) {
   return Status::OK();
 }
 
-Status RecursivelyDeleteDir(const Path& parent) {
-  DirectoryIterator iter(parent);
-  for (; iter.Valid(); iter.Next()) {
-    Status status = RecursivelyDelete(iter.file());
-    if (!status.ok()) {
-      return status;
-    }
-  }
-  if (!iter.status().ok()) {
-    return iter.status();
-  }
-  return DeleteDir(parent);
-}
-
 }  // namespace detail
 
 struct DirectoryIterator::Rep {
@@ -153,7 +139,7 @@ struct DirectoryIterator::Rep {
 
 DirectoryIterator::DirectoryIterator(
     const firebase::firestore::util::Path& path)
-    : parent_(path), rep_(absl::make_unique<DirectoryIterator::Rep>()) {
+    : parent_{path}, rep_{absl::make_unique<DirectoryIterator::Rep>()} {
   rep_->dir = ::opendir(parent_.c_str());
   if (!rep_->dir) {
     if (errno == ENOENT) {

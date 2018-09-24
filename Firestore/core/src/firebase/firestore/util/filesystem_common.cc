@@ -47,7 +47,7 @@ Status RecursivelyDelete(const Path& path) {
   Status status = IsDirectory(path);
   switch (status.code()) {
     case FirestoreErrorCode::Ok:
-      return detail::RecursivelyDeleteDir(path);
+      return RecursivelyDeleteDir(path);
 
     case FirestoreErrorCode::FailedPrecondition:
       // Could be a file or something else. Attempt to delete it as a file
@@ -60,6 +60,20 @@ Status RecursivelyDelete(const Path& path) {
     default:
       return status;
   }
+}
+
+Status RecursivelyDeleteDir(const Path& parent) {
+  DirectoryIterator iter(parent);
+  for (; iter.Valid(); iter.Next()) {
+    Status status = RecursivelyDelete(iter.file());
+    if (!status.ok()) {
+      return status;
+    }
+  }
+  if (!iter.status().ok()) {
+    return iter.status();
+  }
+  return detail::DeleteDir(parent);
 }
 
 }  // namespace util
