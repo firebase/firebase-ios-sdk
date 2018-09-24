@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 
+#include <dirent.h>
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -69,6 +70,55 @@ Status RecursivelyDelete(const Path& path);
  * exists.
  */
 Path TempDir();
+
+/**
+ * Implements an iterator over the contents of a directory. Initializes to the
+ * first entry in the directory.
+ */
+class DirectoryIterator {
+ public:
+  /**
+   * `path` should outlive the iterator.
+   */
+  explicit DirectoryIterator(const Path& path);
+  ~DirectoryIterator();
+
+  DirectoryIterator(const DirectoryIterator& other) = delete;
+
+  DirectoryIterator& operator=(const DirectoryIterator& other) = delete;
+
+  /**
+   * Advances the iterator.
+   */
+  void Next();
+
+  /**
+   * Returns true if `Next()` and `file()` can be called on the iterator.
+   * If `Valid() == false && status().ok()`, then iteration has finished.
+   */
+  bool Valid();
+
+  /**
+   * Return the full path of the current entry pointed to by the iterator.
+   */
+  Path file();
+
+  /**
+   * Returns the last error encountered by the iterator, or OK.
+   */
+  Status status() {
+    return status_;
+  }
+
+ private:
+  // Internal method to move to the next directory entry
+  void Advance();
+
+  Status status_;
+  DIR* dir_;
+  struct dirent* entry_;
+  const Path& parent_;
+};
 
 }  // namespace util
 }  // namespace firestore
