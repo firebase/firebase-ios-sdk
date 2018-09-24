@@ -115,15 +115,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return self;
 }
 
-- (instancetype)initWithMessage:(FIRMessagingRemoteMessage *)message {
-  self = [self init];
-  if (self) {
-    _appData = [message.appData copy];
-  }
-
-  return self;
-}
-
 @end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,

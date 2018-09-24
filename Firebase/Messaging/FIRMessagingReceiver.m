@@ -103,6 +103,7 @@ static int downstreamMessageID = 0;
   FIRMessagingRemoteMessage *wrappedMessage = [[FIRMessagingRemoteMessage alloc] init];
   // TODO: wrap title, body, badge and other fields
   wrappedMessage.appData = [message copy];
+  wrappedMessage.messageID = messageID;
   [self.delegate receiver:self receivedRemoteMessage:wrappedMessage];
 }
 
