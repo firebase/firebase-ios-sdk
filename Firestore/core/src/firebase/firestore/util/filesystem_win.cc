@@ -123,7 +123,7 @@ namespace {
 
 class DirectoryIteratorWindows : public DirectoryIterator {
  public:
-  DirectoryIteratorWindows(const util::Path& path);
+  explicit DirectoryIteratorWindows(const util::Path& path);
   virtual ~DirectoryIteratorWindows();
 
   void Next() override;

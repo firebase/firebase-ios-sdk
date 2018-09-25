@@ -136,7 +136,7 @@ namespace {
 
 class DirectoryIteratorPosix : public DirectoryIterator {
  public:
-  DirectoryIteratorPosix(const util::Path& path);
+  explicit DirectoryIteratorPosix(const util::Path& path);
   virtual ~DirectoryIteratorPosix();
 
   void Next() override;
