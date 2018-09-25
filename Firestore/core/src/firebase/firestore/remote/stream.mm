@@ -58,7 +58,7 @@ Stream::Stream(AsyncQueue* worker_queue,
                TimerId backoff_timer_id,
                TimerId idle_timer_id)
     : backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
-        kBackoffInitialDelay, kBackoffMaxDelay},
+               kBackoffInitialDelay, kBackoffMaxDelay},
       credentials_provider_{credentials_provider},
       worker_queue_{worker_queue},
       grpc_connection_{grpc_connection},

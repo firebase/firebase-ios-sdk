@@ -88,7 +88,7 @@ Datastore::Datastore(const DatabaseInfo &database_info,
       rpc_executor_{CreateExecutor()},
       grpc_connection_{database_info, worker_queue, &grpc_queue_},
       serializer_bridge_{serializer} {
-    rpc_executor_->Execute([this] { PollGrpcQueue(); });
+  rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
