@@ -132,71 +132,81 @@ Status DeleteFile(const Path& path) {
 
 }  // namespace detail
 
-struct DirectoryIterator::Rep {
-  DIR* dir;
-  struct dirent* entry;
+namespace {
+
+class DirectoryIteratorPosix : public DirectoryIterator {
+ public:
+  explicit DirectoryIteratorPosix(const util::Path& path);
+  virtual ~DirectoryIteratorPosix();
+
+  void Next() override;
+  bool Valid() const override;
+  Path file() const override;
+
+ private:
+  void Advance();
+
+  DIR* dir_ = nullptr;
+  struct dirent* entry_ = nullptr;
 };
 
-DirectoryIterator::DirectoryIterator(
-    const firebase::firestore::util::Path& path)
-    : parent_{path}, rep_{absl::make_unique<DirectoryIterator::Rep>()} {
-  rep_->dir = ::opendir(parent_.c_str());
-  if (!rep_->dir) {
-    if (errno == ENOENT) {
-      status_ = Status::OK();
-    } else {
-      status_ = Status::FromErrno(
-          errno,
-          StringFormat("Could not open directory %s", parent_.ToUtf8String()));
-    }
-  } else {
-    status_ = Status::OK();
+DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
+    : DirectoryIterator{path} {
+  dir_ = ::opendir(parent_.c_str());
+  if (!dir_) {
+    status_ = Status::FromErrno(
+        errno,
+        StringFormat("Could not open directory %s", parent_.ToUtf8String()));
+    return;
   }
-  if (status_.ok()) {
-    Advance();
-  }
+  Advance();
 }
 
-DirectoryIterator::~DirectoryIterator() {
-  if (rep_->dir) {
-    if (::closedir(rep_->dir) != 0) {
+DirectoryIteratorPosix::~DirectoryIteratorPosix() {
+  if (dir_) {
+    if (::closedir(dir_) != 0) {
       HARD_FAIL("Could not close directory %s", parent_.ToUtf8String());
     }
   }
 }
 
-void DirectoryIterator::Advance() {
+void DirectoryIteratorPosix::Advance() {
   HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
   errno = 0;
-  rep_->entry = ::readdir(rep_->dir);
-  if (!rep_->entry) {
+  entry_ = ::readdir(dir_);
+  if (!entry_) {
     if (errno != 0) {
       status_ = Status::FromErrno(
           errno, StringFormat("Could not read %s", parent_.ToUtf8String()));
     }
   } else if (status_.ok()) {
     // Skip self- and parent-pointer
-    if (::strcmp(".", rep_->entry->d_name) == 0 ||
-        ::strcmp("..", rep_->entry->d_name) == 0) {
+    if (::strcmp(".", entry_->d_name) == 0 ||
+        ::strcmp("..", entry_->d_name) == 0) {
       Advance();
     }
   }
 }
 
-void DirectoryIterator::Next() {
+void DirectoryIteratorPosix::Next() {
   HARD_ASSERT(Valid(), "Next() called on invalid iterator");
   Advance();
 }
 
-bool DirectoryIterator::Valid() {
-  return status_.ok() && rep_->entry != nullptr;
+bool DirectoryIteratorPosix::Valid() const {
+  return status_.ok() && entry_ != nullptr;
 }
 
-Path DirectoryIterator::file() {
+Path DirectoryIteratorPosix::file() const {
   HARD_ASSERT(Valid(), "file() called on invalid iterator");
-  Path child =
-      parent_.AppendUtf8(rep_->entry->d_name, strlen(rep_->entry->d_name));
-  return child;
+  return parent_.AppendUtf8(entry_->d_name, strlen(entry_->d_name));
+}
+
+}  // namespace
+
+std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
+    const util::Path& path) {
+  return absl::make_unique<DirectoryIteratorPosix>(path);
 }
 
 }  // namespace util
