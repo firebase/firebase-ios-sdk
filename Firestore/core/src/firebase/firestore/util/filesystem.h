@@ -17,6 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_UTIL_FILESYSTEM_H_
 
+#include <memory>
+
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 
@@ -58,6 +60,16 @@ Status RecursivelyCreateDir(const Path& path);
 Status RecursivelyDelete(const Path& path);
 
 /**
+ * Recursively deletes the contents of the given pathname that is known to be
+ * a directory.
+ *
+ * @return Ok if the directory was deleted or did not exist. Returns a
+ *     system-defined error if the path exists but is not a directory.
+ *
+ */
+Status RecursivelyDeleteDir(const Path& path);
+
+/**
  * Returns system-defined best directory in which to create temporary files.
  * Typical return values are like `/tmp` on UNIX systems. Clients should create
  * randomly named directories or files within this location to avoid collisions.
@@ -69,6 +81,56 @@ Status RecursivelyDelete(const Path& path);
  * exists.
  */
 Path TempDir();
+
+/**
+ * Implements an iterator over the contents of a directory. Initializes to the
+ * first entry in the directory.
+ */
+class DirectoryIterator {
+ public:
+  /**
+   * `path` should outlive the iterator.
+   */
+  explicit DirectoryIterator(const Path& path);
+  ~DirectoryIterator();
+
+  DirectoryIterator(const DirectoryIterator& other) = delete;
+
+  DirectoryIterator& operator=(const DirectoryIterator& other) = delete;
+
+  /**
+   * Advances the iterator.
+   */
+  void Next();
+
+  /**
+   * Returns true if `Next()` and `file()` can be called on the iterator.
+   * If `Valid() == false && status().ok()`, then iteration has finished.
+   */
+  bool Valid();
+
+  /**
+   * Return the full path of the current entry pointed to by the iterator.
+   */
+  Path file();
+
+  /**
+   * Returns the last error encountered by the iterator, or OK.
+   */
+  Status status() {
+    return status_;
+  }
+
+ private:
+  // Internal method to move to the next directory entry
+  void Advance();
+
+  Status status_;
+  const Path& parent_;
+  // Use a forward-declared struct to enable a portable header.
+  struct Rep;
+  std::unique_ptr<Rep> rep_;
+};
 
 }  // namespace util
 }  // namespace firestore
