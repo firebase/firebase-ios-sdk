@@ -46,17 +46,12 @@ static int downstreamMessageID = 0;
   }
 
   NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
-  if (majorOSVersion >= 10) {
-    // iOS 10 and above
+  if (majorOSVersion >= 10 || self.useDirectChannel) {
+    // iOS 10 and above or use direct channel is enabled.
     [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
   } else {
-    // iOS 9 and below
-    if (self.useDirectChannel) {
-      [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
-    } else {
-      // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
-      [self scheduleNotificationForMessage:message];
-    }
+    // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
+    [self scheduleNotificationForMessage:message];
   }
 }
 
