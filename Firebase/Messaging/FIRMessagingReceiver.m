@@ -18,6 +18,8 @@
 
 #import <UIKit/UIKit.h>
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #import "FIRMessaging.h"
 #import "FIRMessagingLogger.h"
 #import "FIRMessagingUtilities.h"
@@ -32,11 +34,6 @@ NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate =
 NSString *const kFIRMessagingPlistUseMessagingDelegate =
     @"FirebaseMessagingUseMessagingDelegateForDirectChannel";
 
-// Copied from Apple's header in case it is missing in some cases.
-#ifndef NSFoundationVersionNumber_iOS_9_x_Max
-#define NSFoundationVersionNumber_iOS_9_x_Max 1299
-#endif
-
 static int downstreamMessageID = 0;
 
 @implementation FIRMessagingReceiver
@@ -48,7 +45,8 @@ static int downstreamMessageID = 0;
     messageID = [[self class] nextMessageID];
   }
 
-  if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_9_x_Max) {
+  NSInteger majorOSVersion = [[GULAppEnvironmentUtil systemVersion] integerValue];
+  if (majorOSVersion >= 10) {
     // iOS 10 and above
     [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
   } else {

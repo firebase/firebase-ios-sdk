@@ -18,11 +18,8 @@
 
 #import <OCMock/OCMock.h>
 
-#ifdef COCOAPODS
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
-#else
-#import "googlemac/iPhone/InstanceID/Firebase/Lib/Source/FIRInstanceID.h"
-#endif
+
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
 
