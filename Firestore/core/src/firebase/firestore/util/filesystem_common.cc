@@ -26,15 +26,18 @@ namespace util {
 namespace detail {
 
 Status RecursivelyDeleteDir(const Path& parent) {
-  DirectoryIterator iter{parent};
-  for (; iter.Valid(); iter.Next()) {
-    Status status = RecursivelyDelete(iter.file());
+  std::unique_ptr<DirectoryIterator> iter = DirectoryIterator::Create(parent);
+  for (; iter->Valid(); iter->Next()) {
+    Status status = RecursivelyDelete(iter->file());
     if (!status.ok()) {
       return status;
     }
   }
-  if (!iter.status().ok()) {
-    return iter.status();
+  if (!iter->status().ok()) {
+    if (iter->status().code() == FirestoreErrorCode::NotFound) {
+      return Status::OK();
+    }
+    return iter->status();
   }
   return detail::DeleteDir(parent);
 }

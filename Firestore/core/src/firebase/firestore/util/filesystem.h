@@ -79,47 +79,51 @@ Path TempDir();
 class DirectoryIterator {
  public:
   /**
-   * `path` should outlive the iterator.
+   * Creates a new platform-specific directory iterator.
+   *
+   * @param path The path over which to iterate (must outlive the
+   *     DirectoryIterator).
    */
-  explicit DirectoryIterator(const Path& path);
-  ~DirectoryIterator();
+  static std::unique_ptr<DirectoryIterator> Create(const Path& path);
 
-  DirectoryIterator(const DirectoryIterator& other) = delete;
-
-  DirectoryIterator& operator=(const DirectoryIterator& other) = delete;
+  virtual ~DirectoryIterator() {
+  }
 
   /**
    * Advances the iterator.
    */
-  void Next();
+  virtual void Next() = 0;
 
   /**
    * Returns true if `Next()` and `file()` can be called on the iterator.
    * If `Valid() == false && status().ok()`, then iteration has finished.
    */
-  bool Valid();
+  virtual bool Valid() const = 0;
 
   /**
    * Return the full path of the current entry pointed to by the iterator.
    */
-  Path file();
+  virtual Path file() const = 0;
 
   /**
    * Returns the last error encountered by the iterator, or OK.
    */
-  Status status() {
+  Status status() const {
     return status_;
   }
 
- private:
-  // Internal method to move to the next directory entry
-  void Advance();
+ protected:
+  /**
+   * `path` should outlive the iterator.
+   */
+  explicit DirectoryIterator(const Path& path) : parent_{path} {
+  }
+
+  DirectoryIterator(const DirectoryIterator& other) = delete;
+  DirectoryIterator& operator=(const DirectoryIterator& other) = delete;
 
   Status status_;
   const Path& parent_;
-  // Use a forward-declared struct to enable a portable header.
-  struct Rep;
-  std::unique_ptr<Rep> rep_;
 };
 
 }  // namespace util
