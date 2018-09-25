@@ -431,7 +431,7 @@ NS_SWIFT_NAME(Messaging)
     NS_SWIFT_NAME(deleteFCMToken(forSenderID:completion:));
 
 
-#pragma mark - FCM Direct Channel 
+#pragma mark - FCM Direct Channel
 
 /**
  *  Create a FIRMessaging data connection which will be used to send the data notifications
