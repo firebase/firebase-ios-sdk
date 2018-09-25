@@ -126,10 +126,10 @@ class DirectoryIterator {
   void Advance();
 
   Status status_;
+  const Path& parent_;
   // Use a forward-declared struct to enable a portable header.
   struct Rep;
   std::unique_ptr<Rep> rep_;
-  const Path& parent_;
 };
 
 }  // namespace util
