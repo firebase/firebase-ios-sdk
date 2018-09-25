@@ -25,6 +25,12 @@
 
 static NSString *const kUpstreamMessageIDUserInfoKey = @"messageID";
 static NSString *const kUpstreamErrorUserInfoKey = @"error";
+/// "Should use Messaging delegate" key stored in NSUserDefaults
+NSString *const kFIRMessagingUserDefaultsKeyUseMessagingDelegate =
+    @"com.firebase.messaging.useMessagingDelegate";
+/// "Should use Messaging Delegate" key stored in Info.plist
+NSString *const kFIRMessagingPlistUseMessagingDelegate =
+    @"FirebaseMessagingUseMessagingDelegateForDirectChannel";
 
 // Copied from Apple's header in case it is missing in some cases.
 #ifndef NSFoundationVersionNumber_iOS_9_x_Max
@@ -43,11 +49,16 @@ static int downstreamMessageID = 0;
   }
 
   if (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_9_x_Max) {
-    // Use delegate method for iOS 10
+    // iOS 10 and above
     [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
   } else {
-    // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
-    [self scheduleNotificationForMessage:message];
+    // iOS 9 and below
+    if (self.useDirectChannel) {
+      [self scheduleIos10NotificationForMessage:message withIdentifier:messageID];
+    } else {
+      // Post notification directly to AppDelegate handlers. This is valid pre-iOS 10.
+      [self scheduleNotificationForMessage:message];
+    }
   }
 }
 
@@ -143,6 +154,35 @@ static int downstreamMessageID = 0;
   @synchronized (self) {
     ++downstreamMessageID;
     return [NSString stringWithFormat:@"gcm-%d", downstreamMessageID];
+  }
+}
+
+- (BOOL)useDirectChannel {
+  // Check storage
+  NSUserDefaults *messagingDefaults = [NSUserDefaults standardUserDefaults];
+  id shouldUseMessagingDelegate =
+      [messagingDefaults objectForKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
+  if (shouldUseMessagingDelegate) {
+    return [shouldUseMessagingDelegate boolValue];
+  }
+
+  // Check Info.plist
+  shouldUseMessagingDelegate =
+      [[NSBundle mainBundle] objectForInfoDictionaryKey:kFIRMessagingPlistUseMessagingDelegate];
+  if (shouldUseMessagingDelegate) {
+    return [shouldUseMessagingDelegate boolValue];
+  }
+  // If none of above exists, we go back to default behavior which is NO.
+  return NO;
+}
+
+- (void)setUseDirectChannel:(BOOL)useDirectChannel {
+  NSUserDefaults *messagingDefaults = [NSUserDefaults standardUserDefaults];
+  BOOL shouldUseMessagingDelegate = [self useDirectChannel];
+  if (useDirectChannel != shouldUseMessagingDelegate) {
+    [messagingDefaults setBool:useDirectChannel
+                        forKey:kFIRMessagingUserDefaultsKeyUseMessagingDelegate];
+    [messagingDefaults synchronize];
   }
 }
 
