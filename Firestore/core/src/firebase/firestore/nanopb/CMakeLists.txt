@@ -15,7 +15,6 @@
 cc_library(
   firebase_firestore_nanopb
   SOURCES
-    tag.h
     reader.h
     reader.cc
     writer.h

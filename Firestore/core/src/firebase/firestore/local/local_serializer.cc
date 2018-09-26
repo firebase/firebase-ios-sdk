@@ -27,7 +27,6 @@
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
-#include "Firestore/core/src/firebase/firestore/nanopb/tag.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 
@@ -42,7 +41,6 @@ using model::NoDocument;
 using model::ObjectValue;
 using model::SnapshotVersion;
 using nanopb::Reader;
-using nanopb::Tag;
 using nanopb::Writer;
 using util::Status;
 using util::StringFormat;
