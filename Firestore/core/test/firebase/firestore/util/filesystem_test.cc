@@ -45,6 +45,15 @@ static Path TestFilename() {
   return Path::FromUtf8("firestore-testing-" + CreateAutoId());
 }
 
+static void WriteBytesToFile(const Path& path, int byte_count) {
+  std::string bytes(byte_count, 'a');
+  std::ofstream out{path.native_value()};
+  ASSERT_TRUE(out.good());
+  out << bytes;
+  out.close();
+  ASSERT_TRUE(out.good());
+}
+
 #define ASSERT_NOT_FOUND(expression)                              \
   do {                                                            \
     ASSERT_EQ(FirestoreErrorCode::NotFound, (expression).code()); \
@@ -234,6 +243,21 @@ TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
   ASSERT_OK(IsDirectory(child_suffix));
 
   EXPECT_OK(RecursivelyDelete(root_dir));
+}
+
+TEST(FilesystemTest, GetFileSize) {
+  Path file = Path::JoinUtf8(TempDir(), TestFilename());
+  off_t size;
+  ASSERT_NOT_FOUND(GetFileSize(file, &size));
+  Touch(file);
+  ASSERT_OK(GetFileSize(file, &size));
+  ASSERT_EQ(0, size);
+
+  WriteBytesToFile(file, 100);
+  ASSERT_OK(GetFileSize(file, &size));
+  ASSERT_EQ(100, size);
+
+  EXPECT_OK(RecursivelyDelete(file));
 }
 
 }  // namespace util

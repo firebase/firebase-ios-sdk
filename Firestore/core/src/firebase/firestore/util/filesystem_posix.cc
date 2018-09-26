@@ -95,6 +95,17 @@ Path TempDir() {
 }
 #endif  // !defined(__APPLE__)
 
+Status GetFileSize(const Path& path, off_t* size) {
+  struct stat st;
+  if (stat(path.c_str(), &st) == 0) {
+    *size = st.st_size;
+    return Status::OK();
+  } else {
+    return Status::FromErrno(
+        errno, StringFormat("Failed to stat file: %s", path.ToUtf8String()));
+  }
+}
+
 namespace detail {
 
 Status CreateDir(const Path& path) {

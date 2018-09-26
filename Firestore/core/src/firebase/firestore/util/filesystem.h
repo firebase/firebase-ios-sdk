@@ -73,6 +73,12 @@ Status RecursivelyDelete(const Path& path);
 Path TempDir();
 
 /**
+ * On success, sets `size` to be the size in bytes of the file specified by
+ * `path`.
+ */
+Status GetFileSize(const Path& path, off_t* size);
+
+/**
  * Implements an iterator over the contents of a directory. Initializes to the
  * first entry in the directory.
  */
