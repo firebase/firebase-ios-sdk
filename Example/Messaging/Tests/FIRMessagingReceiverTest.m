@@ -37,10 +37,6 @@
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }
 
-- (void)tearDown {
-  [super tearDown];
-}
-
 - (void)testUseMessagingDelegate {
   XCTAssertFalse(_messaging.useMessagingDelegateForDirectChannel);
 
