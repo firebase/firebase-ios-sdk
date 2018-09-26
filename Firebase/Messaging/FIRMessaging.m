@@ -760,6 +760,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
   FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                           @"Cannot parse topic name %@. Will not subscribe.", topic);
+  if (completion) {
+    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+  }
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -786,6 +789,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
   FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
                           @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+  if (completion) {
+    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+  }
 }
 
 #pragma mark - Send
