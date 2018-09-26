@@ -54,11 +54,12 @@ namespace remote {
  * @brief Converts internal model objects to their equivalent protocol buffer
  * form, and protocol buffer objects to their equivalent bytes.
  *
- * Methods starting with "Encode" convert from a model object to a protocol
- * buffer (or directly to bytes in cases where the proto uses a 'oneof', due to
- * limitations in nanopb), and methods starting with "Decode" convert from a
- * protocol buffer to a model object (or from bytes directly to a model
- * objects.)
+ * Methods starting with "Encode" convert from a model object to a nanopb
+ * protocol buffer, and methods starting with "Decode" convert from a nanopb
+ * protocol buffer to a model object
+ *
+ * For encoded messages, pb_release() must be called on the returned nanopb
+ * proto buffer or a memory leak will occur.
  */
 // TODO(rsgowman): Original docs also has this: "Throws an exception if a
 // protocol buffer is missing a critical field or has a value we can't
@@ -73,10 +74,32 @@ class Serializer {
       const firebase::firestore::model::DatabaseId& database_id);
 
   /**
+   * Encodes the string to nanopb bytes.
+   *
+   * This method allocates memory; the caller is responsible for freeing it.
+   * Typically, the returned value will be added to a pointer field within a
+   * nanopb proto struct. Calling pb_release() on the resulting struct will
+   * cause all proto fields to be freed.
+   */
+  static pb_bytes_array_t* EncodeString(const std::string& str);
+
+  /**
    * Decodes the nanopb bytes to a std::string. If the input pointer is null,
    * then this method will return an empty string.
    */
   static std::string DecodeString(const pb_bytes_array_t* str);
+
+  /**
+   * Encodes the std::vector to nanopb bytes. If the input vector is empty, then
+   * the resulting return bytes will have length 0 (but will otherwise be valid,
+   * i.e. not null.)
+   *
+   * This method allocates memory; the caller is responsible for freeing it.
+   * Typically, the returned value will be added to a pointer field within a
+   * nanopb proto struct. Calling pb_release() on the resulting struct will
+   * cause all proto fields to be freed.
+   */
+  static pb_bytes_array_t* EncodeBytes(const std::vector<uint8_t>& bytes);
 
   /**
    * Decodes the nanopb bytes to a std::vector. If the input pointer is null,
@@ -85,15 +108,19 @@ class Serializer {
   static std::vector<uint8_t> DecodeBytes(const pb_bytes_array_t* bytes);
 
   /**
+   * Release memory allocated by the Encode* methods that return protos.
+   *
+   * This essentially wraps calls to nanopb's pb_release() method.
+   */
+  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct);
+
+  /**
    * @brief Converts the FieldValue model passed into bytes.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
-   * @param field_value the model to convert.
    */
-  static void EncodeFieldValue(nanopb::Writer* writer,
-                               const model::FieldValue& field_value);
+  static google_firestore_v1beta1_Value EncodeFieldValue(
+      const model::FieldValue& field_value);
 
   /**
    * @brief Converts from nanopb proto to the model FieldValue format.
@@ -127,12 +154,9 @@ class Serializer {
    * @brief Converts the Document (i.e. key/value) into bytes.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
    */
-  void EncodeDocument(nanopb::Writer* writer,
-                      const model::DocumentKey& key,
-                      const model::ObjectValue& value) const;
+  google_firestore_v1beta1_Document EncodeDocument(
+      const model::DocumentKey& key, const model::ObjectValue& value) const;
 
   /**
    * @brief Converts from nanopb proto to the model Document format.
@@ -151,27 +175,24 @@ class Serializer {
    * firestore::v1beta1::Target::QueryTarget.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
    */
-  void EncodeQueryTarget(nanopb::Writer* writer,
-                         const core::Query& query) const;
+  google_firestore_v1beta1_Target_QueryTarget EncodeQueryTarget(
+      const core::Query& query) const;
 
   std::unique_ptr<model::Document> DecodeDocument(
       nanopb::Reader* reader,
       const google_firestore_v1beta1_Document& proto) const;
 
-  static void EncodeObjectMap(nanopb::Writer* writer,
-                              const model::ObjectValue::Map& object_value_map,
+  static void EncodeObjectMap(const model::ObjectValue::Map& object_value_map,
                               uint32_t map_tag,
                               uint32_t key_tag,
                               uint32_t value_tag);
 
-  static void EncodeVersion(nanopb::Writer* writer,
-                            const model::SnapshotVersion& version);
+  static google_protobuf_Timestamp EncodeVersion(
+      const model::SnapshotVersion& version);
 
-  static void EncodeTimestamp(nanopb::Writer* writer,
-                              const Timestamp& timestamp_value);
+  static google_protobuf_Timestamp EncodeTimestamp(
+      const Timestamp& timestamp_value);
 
   static absl::optional<model::SnapshotVersion> DecodeSnapshotVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
@@ -191,16 +212,10 @@ class Serializer {
       nanopb::Reader* reader,
       const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const;
 
-  static void EncodeMapValue(nanopb::Writer* writer,
-                             const model::ObjectValue& object_value);
-
-  static void EncodeFieldsEntry(nanopb::Writer* writer,
-                                const model::ObjectValue::Map::value_type& kv,
+  static void EncodeFieldsEntry(const model::ObjectValue::Map::value_type& kv,
                                 uint32_t key_tag,
                                 uint32_t value_tag);
 
-  void EncodeQueryPath(nanopb::Writer* writer,
-                       const model::ResourcePath& path) const;
   std::string EncodeQueryPath(const model::ResourcePath& path) const;
 
   const model::DatabaseId& database_id_;

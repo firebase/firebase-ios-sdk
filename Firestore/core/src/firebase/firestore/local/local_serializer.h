@@ -52,16 +52,22 @@ class LocalSerializer {
   }
 
   /**
-   * @brief Encodes a MaybeDocument model to the equivalent bytes for local
-   * storage.
+   * Release memory allocated by the Encode* methods that return protos.
+   *
+   * This essentially wraps calls to nanopb's pb_release() method.
+   */
+  static void FreeNanopbMessage(const pb_field_t fields[], void* dest_struct) {
+    remote::Serializer::FreeNanopbMessage(fields, dest_struct);
+  }
+
+  /**
+   * @brief Encodes a MaybeDocument model to the equivalent nanopb proto for
+   * local storage.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
-   * @param maybe_doc the model to convert.
    */
-  void EncodeMaybeDocument(nanopb::Writer* writer,
-                           const model::MaybeDocument& maybe_doc) const;
+  firestore_client_MaybeDocument EncodeMaybeDocument(
+      const model::MaybeDocument& maybe_doc) const;
 
   /**
    * @brief Decodes nanopb proto representing a MaybeDocument proto to the
@@ -79,15 +85,12 @@ class LocalSerializer {
       const firestore_client_MaybeDocument& proto) const;
 
   /**
-   * @brief Encodes a QueryData to the equivalent bytes, representing a
+   * @brief Encodes a QueryData to the equivalent nanopb proto, representing a
    * ::firestore::proto::Target, for local storage.
    *
    * Any errors that occur during encoding are fatal.
-   *
-   * @param writer The serialized output will be written to the provided writer.
    */
-  void EncodeQueryData(nanopb::Writer* writer,
-                       const QueryData& query_data) const;
+  firestore_client_Target EncodeQueryData(const QueryData& query_data) const;
 
   /**
    * @brief Decodes nanopb proto representing a ::firestore::proto::Target proto
@@ -110,10 +113,11 @@ class LocalSerializer {
    * serializer for Documents in that it preserves the updateTime, which is
    * considered an output only value by the server.
    */
-  void EncodeDocument(nanopb::Writer* writer, const model::Document& doc) const;
+  google_firestore_v1beta1_Document EncodeDocument(
+      const model::Document& doc) const;
 
-  void EncodeNoDocument(nanopb::Writer* writer,
-                        const model::NoDocument& no_doc) const;
+  firestore_client_NoDocument EncodeNoDocument(
+      const model::NoDocument& no_doc) const;
 
   std::unique_ptr<model::NoDocument> DecodeNoDocument(
       nanopb::Reader* reader, const firestore_client_NoDocument& proto) const;

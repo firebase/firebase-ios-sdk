@@ -196,7 +196,10 @@ class SerializerTest : public ::testing::Test {
                                         const FieldValue& fv) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeFieldValue(&writer, fv);
+    google_firestore_v1beta1_Value proto = serializer->EncodeFieldValue(fv);
+    writer.WriteNanopbMessage(google_firestore_v1beta1_Value_fields, &proto);
+    serializer->FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
+                                  &proto);
     return bytes;
   }
 
@@ -205,7 +208,11 @@ class SerializerTest : public ::testing::Test {
                                       const FieldValue& value) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeDocument(&writer, key, value.object_value());
+    google_firestore_v1beta1_Document proto =
+        serializer->EncodeDocument(key, value.object_value());
+    writer.WriteNanopbMessage(google_firestore_v1beta1_Document_fields, &proto);
+    serializer->FreeNanopbMessage(google_firestore_v1beta1_Document_fields,
+                                  &proto);
     return bytes;
   }
 

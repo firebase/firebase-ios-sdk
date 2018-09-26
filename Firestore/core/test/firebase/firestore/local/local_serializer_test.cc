@@ -156,7 +156,11 @@ class LocalSerializerTest : public ::testing::Test {
                                            const MaybeDocument& maybe_doc) {
     std::vector<uint8_t> bytes;
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeMaybeDocument(&writer, maybe_doc);
+    firestore_client_MaybeDocument proto =
+        serializer->EncodeMaybeDocument(maybe_doc);
+    writer.WriteNanopbMessage(firestore_client_MaybeDocument_fields, &proto);
+    serializer->FreeNanopbMessage(firestore_client_MaybeDocument_fields,
+                                  &proto);
     return bytes;
   }
 
@@ -195,7 +199,9 @@ class LocalSerializerTest : public ::testing::Test {
     std::vector<uint8_t> bytes;
     EXPECT_EQ(query_data.purpose(), QueryPurpose::kListen);
     Writer writer = Writer::Wrap(&bytes);
-    serializer->EncodeQueryData(&writer, query_data);
+    firestore_client_Target proto = serializer->EncodeQueryData(query_data);
+    writer.WriteNanopbMessage(firestore_client_Target_fields, &proto);
+    serializer->FreeNanopbMessage(firestore_client_Target_fields, &proto);
     return bytes;
   }
 
@@ -240,7 +246,12 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
   // Let the RPC serializer test various permutations of query serialization.
   std::vector<uint8_t> query_target_bytes;
   Writer writer = Writer::Wrap(&query_target_bytes);
-  remote_serializer.EncodeQueryTarget(&writer, query_data.query());
+  google_firestore_v1beta1_Target_QueryTarget proto =
+      remote_serializer.EncodeQueryTarget(query_data.query());
+  writer.WriteNanopbMessage(google_firestore_v1beta1_Target_QueryTarget_fields,
+                            &proto);
+  remote_serializer.FreeNanopbMessage(
+      google_firestore_v1beta1_Target_QueryTarget_fields, &proto);
   v1beta1::Target::QueryTarget queryTargetProto;
   bool ok = queryTargetProto.ParseFromArray(
       query_target_bytes.data(), static_cast<int>(query_target_bytes.size()));

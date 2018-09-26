@@ -47,24 +47,23 @@ using nanopb::Writer;
 using util::Status;
 using util::StringFormat;
 
-void LocalSerializer::EncodeMaybeDocument(
-    Writer* writer, const MaybeDocument& maybe_doc) const {
+firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
+    const MaybeDocument& maybe_doc) const {
+  firestore_client_MaybeDocument result =
+      firestore_client_MaybeDocument_init_zero;
+
   switch (maybe_doc.type()) {
     case MaybeDocument::Type::Document:
-      writer->WriteTag(
-          {PB_WT_STRING, firestore_client_MaybeDocument_document_tag});
-      writer->WriteNestedMessage([&](Writer* writer) {
-        EncodeDocument(writer, static_cast<const Document&>(maybe_doc));
-      });
-      return;
+      result.which_document_type = firestore_client_MaybeDocument_document_tag;
+      result.document = EncodeDocument(static_cast<const Document&>(maybe_doc));
+      return result;
 
     case MaybeDocument::Type::NoDocument:
-      writer->WriteTag(
-          {PB_WT_STRING, firestore_client_MaybeDocument_no_document_tag});
-      writer->WriteNestedMessage([&](Writer* writer) {
-        EncodeNoDocument(writer, static_cast<const NoDocument&>(maybe_doc));
-      });
-      return;
+      result.which_document_type =
+          firestore_client_MaybeDocument_no_document_tag;
+      result.no_document =
+          EncodeNoDocument(static_cast<const NoDocument&>(maybe_doc));
+      return result;
 
     case MaybeDocument::Type::Unknown:
       // TODO(rsgowman)
@@ -95,43 +94,49 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
   UNREACHABLE();
 }
 
-void LocalSerializer::EncodeDocument(Writer* writer,
-                                     const Document& doc) const {
+google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
+    const Document& doc) const {
+  google_firestore_v1beta1_Document result =
+      google_firestore_v1beta1_Document_init_zero;
+
   // Encode Document.name
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
-  writer->WriteString(rpc_serializer_.EncodeKey(doc.key()));
+  result.name =
+      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
 
   // Encode Document.fields (unless it's empty)
-  const ObjectValue& object_value = doc.data().object_value();
-  if (!object_value.internal_value.empty()) {
-    rpc_serializer_.EncodeObjectMap(
-        writer, object_value.internal_value,
-        google_firestore_v1beta1_Document_fields_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-        google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+  size_t count = doc.data().object_value().internal_value.size();
+  result.fields_count = count;
+  result.fields =
+      reinterpret_cast<google_firestore_v1beta1_Document_FieldsEntry*>(malloc(
+          sizeof(google_firestore_v1beta1_Document_FieldsEntry) * count));
+  int i = 0;
+  for (const auto& kv : doc.data().object_value().internal_value) {
+    result.fields[i] = google_firestore_v1beta1_Document_FieldsEntry_init_zero;
+    result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
+    result.fields[i].value = rpc_serializer_.EncodeFieldValue(kv.second);
+    i++;
   }
 
   // Encode Document.update_time
-  writer->WriteTag(
-      {PB_WT_STRING, google_firestore_v1beta1_Document_update_time_tag});
-  writer->WriteNestedMessage([&](Writer* writer) {
-    rpc_serializer_.EncodeVersion(writer, doc.version());
-  });
+  result.update_time = rpc_serializer_.EncodeVersion(doc.version());
 
   // Ignore Document.create_time. (We don't use this in our on-disk protos.)
+
+  return result;
 }
 
-void LocalSerializer::EncodeNoDocument(Writer* writer,
-                                       const NoDocument& no_doc) const {
+firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
+    const NoDocument& no_doc) const {
+  firestore_client_NoDocument result = firestore_client_NoDocument_init_zero;
+
   // Encode NoDocument.name
-  writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_name_tag});
-  writer->WriteString(rpc_serializer_.EncodeKey(no_doc.key()));
+  result.name =
+      rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(no_doc.key()));
 
   // Encode NoDocument.read_time
-  writer->WriteTag({PB_WT_STRING, firestore_client_NoDocument_read_time_tag});
-  writer->WriteNestedMessage([&](Writer* writer) {
-    rpc_serializer_.EncodeVersion(writer, no_doc.version());
-  });
+  result.read_time = rpc_serializer_.EncodeVersion(no_doc.version());
+
+  return result;
 }
 
 std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
@@ -147,38 +152,30 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
       *std::move(version));
 }
 
-void LocalSerializer::EncodeQueryData(Writer* writer,
-                                      const QueryData& query_data) const {
-  writer->WriteTag({PB_WT_VARINT, firestore_client_Target_target_id_tag});
-  writer->WriteInteger(query_data.target_id());
+firestore_client_Target LocalSerializer::EncodeQueryData(
+    const QueryData& query_data) const {
+  firestore_client_Target result = firestore_client_Target_init_zero;
 
-  writer->WriteTag(
-      {PB_WT_STRING, firestore_client_Target_snapshot_version_tag});
-  writer->WriteNestedMessage([&](Writer* writer) {
-    rpc_serializer_.EncodeTimestamp(writer,
-                                    query_data.snapshot_version().timestamp());
-  });
-
-  writer->WriteTag({PB_WT_STRING, firestore_client_Target_resume_token_tag});
-  writer->WriteBytes(query_data.resume_token());
+  result.target_id = query_data.target_id();
+  result.snapshot_version = rpc_serializer_.EncodeTimestamp(
+      query_data.snapshot_version().timestamp());
+  result.resume_token = rpc_serializer_.EncodeBytes(query_data.resume_token());
 
   const Query& query = query_data.query();
   if (query.IsDocumentQuery()) {
     // TODO(rsgowman): Implement. Probably like this (once EncodeDocumentsTarget
     // exists):
     /*
-    writer->WriteTag({PB_WT_STRING, firestore_client_Target_documents_tag});
-    writer->WriteNestedMessage([&](Writer* writer) {
-      rpc_serializer_.EncodeDocumentsTarget(writer, query);
-    });
+    result.which_target_type = firestore_client_Target_document_tag;
+    result.documents = rpc_serializer_.EncodeDocumentsTarget(query);
     */
     abort();
   } else {
-    writer->WriteTag({PB_WT_STRING, firestore_client_Target_query_tag});
-    writer->WriteNestedMessage([&](Writer* writer) {
-      rpc_serializer_.EncodeQueryTarget(writer, query);
-    });
+    result.which_target_type = firestore_client_Target_query_tag;
+    result.query = rpc_serializer_.EncodeQueryTarget(query);
   }
+
+  return result;
 }
 
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(

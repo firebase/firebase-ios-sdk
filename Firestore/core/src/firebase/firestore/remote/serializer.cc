@@ -75,20 +75,27 @@ constexpr uint32_t StructuredQuery_CollectionSelector_all_descendants_tag =
 
 }  // namespace v1beta1
 
-// TODO(rsgowman): Move this down below the anon namespace
-void Serializer::EncodeTimestamp(Writer* writer,
-                                 const Timestamp& timestamp_value) {
-  google_protobuf_Timestamp timestamp_proto =
-      google_protobuf_Timestamp_init_zero;
-  timestamp_proto.seconds = timestamp_value.seconds();
-  timestamp_proto.nanos = timestamp_value.nanoseconds();
-  writer->WriteNanopbMessage(google_protobuf_Timestamp_fields,
-                             &timestamp_proto);
+pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
+  auto size = static_cast<pb_size_t>(str.size());
+  auto result = reinterpret_cast<pb_bytes_array_t*>(
+      malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
+  result->size = size;
+  memcpy(result->bytes, str.c_str(), size);
+  return result;
 }
 
 std::string Serializer::DecodeString(const pb_bytes_array_t* str) {
   if (str == nullptr) return "";
   return std::string{reinterpret_cast<const char*>(str->bytes), str->size};
+}
+
+pb_bytes_array_t* Serializer::EncodeBytes(const std::vector<uint8_t>& bytes) {
+  auto size = static_cast<pb_size_t>(bytes.size());
+  auto result = reinterpret_cast<pb_bytes_array_t*>(
+      malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size)));
+  result->size = size;
+  memcpy(result->bytes, bytes.data(), size);
+  return result;
 }
 
 std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
@@ -137,6 +144,29 @@ absl::optional<ObjectValue::Map> DecodeFields(
         DecodeFieldsEntry(reader, fields[i]);
     if (!reader->status().ok()) return absl::nullopt;
     result.emplace(*kv);
+  }
+
+  return result;
+}
+
+google_firestore_v1beta1_MapValue EncodeMapValue(
+    const ObjectValue::Map& object_value_map) {
+  google_firestore_v1beta1_MapValue result =
+      google_firestore_v1beta1_MapValue_init_zero;
+
+  size_t count = object_value_map.size();
+
+  result.fields_count = count;
+  result.fields =
+      reinterpret_cast<google_firestore_v1beta1_MapValue_FieldsEntry*>(malloc(
+          sizeof(google_firestore_v1beta1_MapValue_FieldsEntry) * count));
+
+  int i = 0;
+  for (const auto& kv : object_value_map) {
+    result.fields[i] = google_firestore_v1beta1_MapValue_FieldsEntry_init_zero;
+    result.fields[i].key = Serializer::EncodeString(kv.first);
+    result.fields[i].value = Serializer::EncodeFieldValue(kv.second);
+    i++;
   }
 
   return result;
@@ -224,55 +254,57 @@ Serializer::Serializer(
       database_name_(EncodeDatabaseId(database_id).CanonicalString()) {
 }
 
-void Serializer::EncodeFieldValue(Writer* writer,
-                                  const FieldValue& field_value) {
+void Serializer::FreeNanopbMessage(const pb_field_t fields[],
+                                   void* dest_struct) {
+  pb_release(fields, dest_struct);
+}
+
+google_firestore_v1beta1_Value Serializer::EncodeFieldValue(
+    const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
+  google_firestore_v1beta1_Value result =
+      google_firestore_v1beta1_Value_init_zero;
   switch (field_value.type()) {
     case FieldValue::Type::Null:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_null_value_tag});
-      writer->WriteNull();
+      result.which_value_type = google_firestore_v1beta1_Value_null_value_tag;
+      result.null_value = google_protobuf_NullValue_NULL_VALUE;
       break;
 
     case FieldValue::Type::Boolean:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_boolean_value_tag});
-      writer->WriteBool(field_value.boolean_value());
+      result.which_value_type =
+          google_firestore_v1beta1_Value_boolean_value_tag;
+      result.boolean_value = field_value.boolean_value();
       break;
 
     case FieldValue::Type::Integer:
-      writer->WriteTag(
-          {PB_WT_VARINT, google_firestore_v1beta1_Value_integer_value_tag});
-      writer->WriteInteger(field_value.integer_value());
+      result.which_value_type =
+          google_firestore_v1beta1_Value_integer_value_tag;
+      result.integer_value = field_value.integer_value();
       break;
 
     case FieldValue::Type::String:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_string_value_tag});
-      writer->WriteString(field_value.string_value());
+      result.which_value_type = google_firestore_v1beta1_Value_string_value_tag;
+      result.string_value = EncodeString(field_value.string_value());
       break;
 
     case FieldValue::Type::Timestamp:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_timestamp_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeTimestamp(writer, field_value.timestamp_value());
-      });
+      result.which_value_type =
+          google_firestore_v1beta1_Value_timestamp_value_tag;
+      result.timestamp_value = EncodeTimestamp(field_value.timestamp_value());
       break;
 
     case FieldValue::Type::Object:
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_Value_map_value_tag});
-      writer->WriteNestedMessage([&field_value](Writer* writer) {
-        EncodeMapValue(writer, field_value.object_value());
-      });
+      result.which_value_type = google_firestore_v1beta1_Value_map_value_tag;
+      result.map_value =
+          EncodeMapValue(field_value.object_value().internal_value);
       break;
 
     default:
       // TODO(rsgowman): implement the other types
       abort();
   }
+  return result;
 }
 
 absl::optional<FieldValue> Serializer::DecodeFieldValue(
@@ -320,7 +352,8 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(
 
     default:
       // Unspecified type.
-      reader->Fail("Invalid type while decoding FieldValue");
+      reader->Fail(StringFormat("Invalid type while decoding FieldValue: %s",
+                                msg.which_value_type));
       return absl::nullopt;
   }
 
@@ -340,23 +373,32 @@ DocumentKey Serializer::DecodeKey(absl::string_view name) const {
   return DocumentKey{ExtractLocalPathFromResourceName(resource)};
 }
 
-void Serializer::EncodeDocument(Writer* writer,
-                                const DocumentKey& key,
-                                const ObjectValue& object_value) const {
+google_firestore_v1beta1_Document Serializer::EncodeDocument(
+    const DocumentKey& key, const ObjectValue& object_value) const {
+  google_firestore_v1beta1_Document result =
+      google_firestore_v1beta1_Document_init_zero;
+
   // Encode Document.name
-  writer->WriteTag({PB_WT_STRING, google_firestore_v1beta1_Document_name_tag});
-  writer->WriteString(EncodeKey(key));
+  result.name = EncodeString(EncodeKey(key));
 
   // Encode Document.fields (unless it's empty)
-  if (!object_value.internal_value.empty()) {
-    EncodeObjectMap(writer, object_value.internal_value,
-                    google_firestore_v1beta1_Document_fields_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_key_tag,
-                    google_firestore_v1beta1_Document_FieldsEntry_value_tag);
+  size_t count = object_value.internal_value.size();
+  result.fields_count = count;
+  result.fields =
+      reinterpret_cast<google_firestore_v1beta1_Document_FieldsEntry*>(malloc(
+          sizeof(google_firestore_v1beta1_Document_FieldsEntry) * count));
+  int i = 0;
+  for (const auto& kv : object_value.internal_value) {
+    result.fields[i] = google_firestore_v1beta1_Document_FieldsEntry_init_zero;
+    result.fields[i].key = EncodeString(kv.first);
+    result.fields[i].value = EncodeFieldValue(kv.second);
+    i++;
   }
 
   // Skip Document.create_time and Document.update_time, since they're
   // output-only fields.
+
+  return result;
 }
 
 std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
@@ -440,51 +482,54 @@ std::unique_ptr<Document> Serializer::DecodeDocument(
                                      /*has_local_modifications=*/false);
 }
 
-void Serializer::EncodeQueryTarget(Writer* writer,
-                                   const core::Query& query) const {
+google_firestore_v1beta1_Target_QueryTarget Serializer::EncodeQueryTarget(
+    const core::Query& query) const {
+  google_firestore_v1beta1_Target_QueryTarget result =
+      google_firestore_v1beta1_Target_QueryTarget_init_zero;
+
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
   if (query.path().empty()) {
-    writer->WriteTag(
-        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
-    writer->WriteString(EncodeQueryPath(ResourcePath::Empty()));
+    result.parent = EncodeString(EncodeQueryPath(ResourcePath::Empty()));
   } else {
     ResourcePath path = query.path();
     HARD_ASSERT(path.size() % 2 != 0,
                 "Document queries with filters are not supported.");
-    writer->WriteTag(
-        {PB_WT_STRING, google_firestore_v1beta1_Target_QueryTarget_parent_tag});
-    writer->WriteString(EncodeQueryPath(path.PopLast()));
-
+    result.parent = EncodeString(EncodeQueryPath(path.PopLast()));
     collection_id = path.last_segment();
   }
 
-  writer->WriteTag(
-      {PB_WT_STRING,
-       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag});
-  writer->WriteNestedMessage([&](Writer* writer) {
-    if (!collection_id.empty()) {
-      writer->WriteTag(
-          {PB_WT_STRING, google_firestore_v1beta1_StructuredQuery_from_tag});
-      writer->WriteNestedMessage([&](Writer* writer) {
-        writer->WriteTag(
-            {PB_WT_STRING,
-             v1beta1::StructuredQuery_CollectionSelector_collection_id_tag});
-        writer->WriteString(collection_id);
-      });
-    }
+  result.which_query_type =
+      google_firestore_v1beta1_Target_QueryTarget_structured_query_tag;
 
-    // Encode the filters.
-    if (!query.filters().empty()) {
-      // TODO(rsgowman): Implement
-      abort();
+  if (!collection_id.empty()) {
+    size_t count = 1;
+    result.structured_query.from_count = count;
+    result.structured_query.from = reinterpret_cast<
+        google_firestore_v1beta1_StructuredQuery_CollectionSelector*>(malloc(
+        sizeof(google_firestore_v1beta1_StructuredQuery_CollectionSelector) *
+        count));
+    for (size_t i = 0; i < count; i++) {
+      result.structured_query.from[i] =
+          google_firestore_v1beta1_StructuredQuery_CollectionSelector_init_zero;
     }
+    result.structured_query.from[0].collection_id = EncodeString(collection_id);
+  } else {
+    result.structured_query.from_count = 0;
+  }
 
-    // TODO(rsgowman): Encode the orders.
-    // TODO(rsgowman): Encode the limit.
-    // TODO(rsgowman): Encode the startat.
-    // TODO(rsgowman): Encode the endat.
-  });
+  // Encode the filters.
+  if (!query.filters().empty()) {
+    // TODO(rsgowman): Implement
+    abort();
+  }
+
+  // TODO(rsgowman): Encode the orders.
+  // TODO(rsgowman): Encode the limit.
+  // TODO(rsgowman): Encode the startat.
+  // TODO(rsgowman): Encode the endat.
+
+  return result;
 }
 
 ResourcePath DecodeQueryPath(absl::string_view name) {
@@ -540,66 +585,17 @@ std::string Serializer::EncodeQueryPath(const ResourcePath& path) const {
   return EncodeResourceName(database_id_, path);
 }
 
-void Serializer::EncodeMapValue(Writer* writer,
-                                const ObjectValue& object_value) {
-  EncodeObjectMap(writer, object_value.internal_value,
-                  google_firestore_v1beta1_MapValue_fields_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_key_tag,
-                  google_firestore_v1beta1_MapValue_FieldsEntry_value_tag);
+google_protobuf_Timestamp Serializer::EncodeVersion(
+    const model::SnapshotVersion& version) {
+  return EncodeTimestamp(version.timestamp());
 }
 
-void Serializer::EncodeObjectMap(
-    nanopb::Writer* writer,
-    const model::ObjectValue::Map& object_value_map,
-    uint32_t map_tag,
-    uint32_t key_tag,
-    uint32_t value_tag) {
-  // Write each FieldsEntry (i.e. key-value pair.)
-  for (const auto& kv : object_value_map) {
-    writer->WriteTag({PB_WT_STRING, map_tag});
-    writer->WriteNestedMessage([&kv, &key_tag, &value_tag](Writer* writer) {
-      return EncodeFieldsEntry(writer, kv, key_tag, value_tag);
-    });
-  }
-}
-
-void Serializer::EncodeVersion(nanopb::Writer* writer,
-                               const model::SnapshotVersion& version) {
-  EncodeTimestamp(writer, version.timestamp());
-}
-
-/**
- * Encodes a 'FieldsEntry' object, within a FieldValue's map_value type.
- *
- * In protobuf, maps are implemented as a repeated set of key/values. For
- * instance, this:
- *   message Foo {
- *     map<string, Value> fields = 1;
- *   }
- * would be written (in proto text format) as:
- *   {
- *     fields: {key:"key string 1", value:{<Value message here>}}
- *     fields: {key:"key string 2", value:{<Value message here>}}
- *     ...
- *   }
- *
- * This method writes an individual entry from that list. It is expected that
- * this method will be called once for each entry in the map.
- *
- * @param kv The individual key/value pair to write.
- */
-void Serializer::EncodeFieldsEntry(Writer* writer,
-                                   const ObjectValue::Map::value_type& kv,
-                                   uint32_t key_tag,
-                                   uint32_t value_tag) {
-  // Write the key (string)
-  writer->WriteTag({PB_WT_STRING, key_tag});
-  writer->WriteString(kv.first);
-
-  // Write the value (FieldValue)
-  writer->WriteTag({PB_WT_STRING, value_tag});
-  writer->WriteNestedMessage(
-      [&kv](Writer* writer) { EncodeFieldValue(writer, kv.second); });
+google_protobuf_Timestamp Serializer::EncodeTimestamp(
+    const Timestamp& timestamp_value) {
+  google_protobuf_Timestamp result = google_protobuf_Timestamp_init_zero;
+  result.seconds = timestamp_value.seconds();
+  result.nanos = timestamp_value.nanoseconds();
+  return result;
 }
 
 absl::optional<SnapshotVersion> Serializer::DecodeSnapshotVersion(
