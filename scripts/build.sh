@@ -235,8 +235,8 @@ case "$product-$method-$platform" in
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
         -destination 'platform=iOS Simulator,name=iPad Air' \
-        -destination 'platform=iOS Simulator,name=iPhone 8' \
         build \
         test
 
@@ -248,8 +248,8 @@ case "$product-$method-$platform" in
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
         -destination 'platform=iOS Simulator,name=iPad Air' \
-        -destination 'platform=iOS Simulator,name=iPhone 8' \
         build \
         test
     ;;
