@@ -45,6 +45,11 @@ case "$PROJECT-$PLATFORM-$METHOD" in
     bundle exec pod install --project-directory=GoogleUtilities/Example
     ;;
 
+  InAppMessagingDisplay-iOS-xcodebuild)
+    gem install xcpretty
+    bundle exec pod install --project-directory=InAppMessagingDisplay/Example --repo-update
+    ;;
+
   Firestore-*-xcodebuild | Firestore-*-fuzz)
     gem install xcpretty
     bundle exec pod install --project-directory=Firestore/Example --repo-update
