@@ -204,16 +204,6 @@ case "$product-$method-$platform" in
           test
       fi
 
-      # Run UI tests on both iPad and iphone simultors
-      RunXcodebuild \
-          -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
-          -scheme 'FiamDisplaySwiftExample' \
-          -destination 'platform=iOS Simulator,name=iPad Air' \
-          -destination 'platform=iOS Simulator,name=iPhone 8' \
-          build \
-          test
-
-
       # Test iOS Objective-C static library build
       cd Example
       sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
@@ -250,6 +240,30 @@ case "$product-$method-$platform" in
           build \
           test
     fi
+    ;;
+
+  InAppMessagingDisplay-xcodebuild-iOS)
+    # Run UI tests on both iPad and iphone simultors
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -destination 'platform=iOS Simulator,name=iPad Air' \
+        -destination 'platform=iOS Simulator,name=iPhone 8' \
+        build \
+        test
+
+    cd InAppMessagingDisplay/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
+    # Run UI tests on both iPad and iphone simultors
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -destination 'platform=iOS Simulator,name=iPad Air' \
+        -destination 'platform=iOS Simulator,name=iPhone 8' \
+        build \
+        test
     ;;
 
   Firestore-xcodebuild-iOS)

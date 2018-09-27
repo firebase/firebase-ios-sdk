@@ -46,7 +46,11 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-*)
-      check_changes '^(Firebase|Functions|GoogleUtilities|InAppMessagingDisplay|Example)'
+      check_changes '^(Firebase|Functions|GoogleUtilities|Example)'
+      ;;
+
+    InAppMessagingDisplay-*)
+      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay)'
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
