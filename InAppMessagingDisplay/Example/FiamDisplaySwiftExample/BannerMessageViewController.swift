@@ -16,8 +16,6 @@
 
 import UIKit
 
-import FirebaseInAppMessagingDisplay
-
 import FirebaseInAppMessaging
 
 class BannerMessageViewController: CommonMessageTestVC {

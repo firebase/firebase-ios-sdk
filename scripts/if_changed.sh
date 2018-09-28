@@ -49,6 +49,10 @@ else
       check_changes '^(Firebase|Functions|GoogleUtilities|Example)'
       ;;
 
+    InAppMessagingDisplay-*)
+      check_changes '^(Firebase/InAppMessagingDisplay|InAppMessagingDisplay)'
+      ;;
+
     Firestore-xcodebuild|Firestore-pod-lib-lint)
       check_changes '^Firestore'
       ;;

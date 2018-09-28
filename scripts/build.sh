@@ -27,6 +27,7 @@ USAGE: $0 product [platform] [method]
 product can be one of:
   Firebase
   Firestore
+  InAppMessagingDisplay
 
 platform can be one of:
   iOS (default)
@@ -227,6 +228,30 @@ case "$product-$method-$platform" in
           build \
           test
     fi
+    ;;
+
+  InAppMessagingDisplay-xcodebuild-iOS)
+    # Run UI tests on both iPad and iphone simultors
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
+        -destination 'platform=iOS Simulator,name=iPad Air' \
+        build \
+        test
+
+    cd InAppMessagingDisplay/Example
+    sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
+    pod update --no-repo-update
+    cd ../..
+    # Run UI tests on both iPad and iphone simultors
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        "${xcb_flags[@]}" \
+        -destination 'platform=iOS Simulator,name=iPad Air' \
+        build \
+        test
     ;;
 
   Firestore-xcodebuild-iOS)
