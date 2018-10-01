@@ -17,7 +17,11 @@
 #ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_INTERFACE_H_
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_INTERFACE_H_
 
+#include <map>
+
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+
+#include "grpcpp/support/string_ref.h"
 
 namespace firebase {
 namespace firestore {
@@ -25,8 +29,18 @@ namespace remote {
 
 class GrpcCallInterface {
  public:
+  using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
+
   virtual ~GrpcCallInterface() {
   }
+
+  /**
+   * Returns the metadata received from the server.
+   *
+   * Can only be called after the first response has been received from the
+   * server.
+   */
+  virtual MetadataT GetResponseHeaders() const = 0;
 
   /**
    * Finishes the call gracefully. Doesn't produce a notification to any

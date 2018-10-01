@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAMING_READER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAMING_READER_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_UNARY_CALL_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_UNARY_CALL_H_
 
 #include <functional>
 #include <map>
 #include <memory>
-#include <vector>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call_interface.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "grpcpp/client_context.h"
@@ -37,26 +37,25 @@ namespace remote {
 class GrpcConnection;
 
 /**
- * Sends a single request to the server, reads one or more streaming server
- * responses, and invokes the given callback with the accumulated responses.
+ * Sends a single request to the server and invokes the given callback with the
+ * server response.
  */
-class GrpcStreamingReader : public GrpcCallInterface,
-                            public GrpcStreamObserver {
+class GrpcUnaryCall : public GrpcCallInterface {
  public:
-  using ResponsesT = std::vector<grpc::ByteBuffer>;
-  using CallbackT = std::function<void(const util::StatusOr<ResponsesT>&)>;
+  using CallbackT =
+      std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
 
-  GrpcStreamingReader(
-      std::unique_ptr<grpc::ClientContext> context,
-      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-      util::AsyncQueue* worker_queue,
-      GrpcConnection* grpc_connection,
-      const grpc::ByteBuffer& request);
+  GrpcUnaryCall(std::unique_ptr<grpc::ClientContext> context,
+                std::unique_ptr<grpc::GenericClientAsyncResponseReader> call,
+                util::AsyncQueue* worker_queue,
+                GrpcConnection* grpc_connection,
+                const grpc::ByteBuffer& request);
+  ~GrpcUnaryCall();
 
   /**
-   * Starts the call; the given `callback` will be invoked with the accumulated
-   * results of the call. If the call fails, the `callback` will be invoked with
-   * a non-ok status.
+   * Starts the call; the given `callback` will be invoked with the result of
+   * the call. If the call fails, the `callback` will be invoked with a non-ok
+   * status.
    */
   void Start(CallbackT&& callback);
 
@@ -77,32 +76,28 @@ class GrpcStreamingReader : public GrpcCallInterface,
   /**
    * Returns the metadata received from the server.
    *
-   * Can only be called once the `GrpcStreamingReader` has received the first
-   * message from the server.
+   * Can only be called once the `GrpcUnaryCall` has finished.
    */
-  MetadataT GetResponseHeaders() const override {
-    return stream_->GetResponseHeaders();
-  }
-
-  void OnStreamStart() override;
-  void OnStreamRead(const grpc::ByteBuffer& message) override;
-  void OnStreamFinish(const util::Status& status) override;
-
-  // For tests only
-  grpc::ClientContext* context() {
-    return stream_->context();
-  }
+  MetadataT GetResponseHeaders() const override;
 
  private:
-  std::unique_ptr<GrpcStream> stream_;
+  void Shutdown();
+
+  // See comments in `GrpcStream` on lifetime issues for gRPC objects.
+  std::unique_ptr<grpc::ClientContext> context_;
+  std::unique_ptr<grpc::GenericClientAsyncResponseReader> call_;
+  // Stored to avoid lifetime issues with gRPC.
   grpc::ByteBuffer request_;
 
+  util::AsyncQueue* worker_queue_ = nullptr;
+  GrpcConnection* grpc_connection_ = nullptr;
+
+  GrpcCompletion* finish_completion_ = nullptr;
   CallbackT callback_;
-  ResponsesT responses_;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_STREAMING_READER_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_UNARY_CALL_H_

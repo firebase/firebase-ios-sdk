@@ -223,6 +223,24 @@ NSString* WriteStreamSerializer::Describe(GCFSWriteResponse* response) {
 
 // DatastoreSerializer
 
+GCFSCommitRequest* DatastoreSerializer::CreateCommitRequest(
+    NSArray<FSTMutation*>* mutations) const {
+  GCFSCommitRequest* request = [GCFSCommitRequest message];
+  request.database = [serializer_ encodedDatabaseID];
+
+  NSMutableArray<GCFSWrite*>* mutationProtos = [NSMutableArray array];
+  for (FSTMutation* mutation in mutations) {
+    [mutationProtos addObject:[serializer_ encodedMutation:mutation]];
+  }
+  request.writesArray = mutationProtos;
+
+  return request;
+}
+
+grpc::ByteBuffer DatastoreSerializer::ToByteBuffer(GCFSCommitRequest* request) {
+  return ConvertToByteBuffer([request data]);
+}
+
 GCFSBatchGetDocumentsRequest* DatastoreSerializer::CreateLookupRequest(
     const std::vector<DocumentKey>& keys) const {
   GCFSBatchGetDocumentsRequest* request =

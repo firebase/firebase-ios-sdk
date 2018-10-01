@@ -134,6 +134,21 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
                                        worker_queue_, this, observer);
 }
 
+std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
+    absl::string_view rpc_name,
+    const Token &token,
+    const grpc::ByteBuffer &message) {
+  LOG_DEBUG("Creating gRPC unary call");
+
+  EnsureActiveStub();
+
+  auto context = CreateContext(token);
+  auto call = grpc_stub_->PrepareUnaryCall(context.get(), MakeString(rpc_name),
+                                           message, grpc_queue_);
+  return absl::make_unique<GrpcUnaryCall>(std::move(context), std::move(call),
+                                          worker_queue_, this, message);
+}
+
 std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
     absl::string_view rpc_name,
     const Token &token,
