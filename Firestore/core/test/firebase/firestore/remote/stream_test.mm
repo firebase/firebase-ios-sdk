@@ -188,7 +188,7 @@ class StreamTest : public testing::Test {
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
     tester_.ForceFinish(firestore_stream->context(), results);
   }
-  
+ 
   void KeepPollingGrpcQueue() {
   tester_.KeepPollingGrpcQueue();
   }

@@ -72,12 +72,10 @@ class BufferedWriter {
  public:
   // Returns the newly-created write operation if the given `write` became
   // active, null pointer otherwise.
-  absl::optional<BufferedWrite> EnqueueWrite(
-      grpc::ByteBuffer&& write,
-      const grpc::WriteOptions& options);
+  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write,
+                                             const grpc::WriteOptions& options);
 
-  absl::optional<BufferedWrite> EnqueueWrite(
-      grpc::ByteBuffer&& write) {
+  absl::optional<BufferedWrite> EnqueueWrite(grpc::ByteBuffer&& write) {
     return EnqueueWrite(std::move(write), grpc::WriteOptions{});
   }
 

@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 #import "Firestore.pbrpc.h"
 #import "Firestore.pbobjc.h"
-
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriter+Immediate.h>
+
 #import "Annotations.pbobjc.h"
 #import "Common.pbobjc.h"
 #import "Document.pbobjc.h"
 #import "Query.pbobjc.h"
 #import "Write.pbobjc.h"
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Empty.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Empty.pbobjc.h>
 #else
-  #import "Empty.pbobjc.h"
+#import "Empty.pbobjc.h"
 #endif
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-  #import <Protobuf/Timestamp.pbobjc.h>
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+#import <Protobuf/Timestamp.pbobjc.h>
 #else
-  #import "Timestamp.pbobjc.h"
+#import "Timestamp.pbobjc.h"
 #endif
 #import "Status.pbobjc.h"
 
@@ -40,7 +41,10 @@
 
 // Designated initializer
 - (instancetype)initWithHost:(NSString *)host {
-  return (self = [super initWithHost:host packageName:@"google.firestore.v1beta1" serviceName:@"Firestore"]);
+  self = [super initWithHost:host
+                 packageName:@"google.firestore.v1beta1"
+                 serviceName:@"Firestore"];
+  return self;
 }
 
 // Override superclass initializer to disallow different package and service names.
@@ -50,10 +54,13 @@
   return [self initWithHost:host];
 }
 
+#pragma mark - Class Methods
+
 + (instancetype)serviceWithHost:(NSString *)host {
   return [[self alloc] initWithHost:host];
 }
 
+#pragma mark - Method Implementations
 
 #pragma mark GetDocument(GetDocumentRequest) returns (Document)
 
@@ -296,3 +303,4 @@
         responsesWriteable:[GRXWriteable writeableWithSingleHandler:handler]];
 }
 @end
+#endif

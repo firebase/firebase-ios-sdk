@@ -61,7 +61,7 @@ class GrpcStreamingReaderTest : public testing::Test {
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
-    tester_.ForceFinish(results);
+    tester_.ForceFinish(reader_->context(), results);
   }
   void KeepPollingGrpcQueue() {
     tester_.KeepPollingGrpcQueue();
@@ -110,18 +110,18 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
   EXPECT_TRUE(responses().empty());
 }
 
-TEST_F(GrpcStreamingReaderTest, CanCancel) {
+TEST_F(GrpcStreamingReaderTest, CanFinish) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] { reader().Cancel(); });
+  worker_queue().EnqueueBlocking([&] { reader().Finish(); });
   EXPECT_FALSE(status().has_value());
   EXPECT_TRUE(responses().empty());
 }
 
-TEST_F(GrpcStreamingReaderTest, CanCancelTwice) {
+TEST_F(GrpcStreamingReaderTest, CanFinishTwice) {
   KeepPollingGrpcQueue();
   worker_queue().EnqueueBlocking([&] {
-    reader().Cancel();
-    EXPECT_NO_THROW(reader().Cancel());
+    reader().Finish();
+    EXPECT_NO_THROW(reader().Finish());
   });
 }
 
