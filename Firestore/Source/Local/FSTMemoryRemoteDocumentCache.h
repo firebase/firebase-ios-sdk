@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTLocalSerializer;
 @class FSTMemoryLRUReferenceDelegate;
 
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>

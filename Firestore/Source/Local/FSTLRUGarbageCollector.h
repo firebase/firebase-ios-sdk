@@ -105,6 +105,6 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
 - (int)removeOrphanedDocumentsThroughSequenceNumber:
     (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
 
-- (size_t)onDiskSize;
+- (size_t)byteSize;
 
 @end

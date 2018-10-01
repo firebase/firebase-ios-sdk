@@ -470,10 +470,10 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 }
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
-  __block size_t count = 0;
-  [self.queue enumerateObjectsUsingBlock:^(FSTMutationBatch *batch, NSUInteger idx, BOOL *stop) {
+  size_t count = 0;
+  for (FSTMutationBatch *batch in self.queue) {
     count += [[[serializer encodedMutationBatch:batch] data] length];
-  }];
+  };
   return count;
 }
 

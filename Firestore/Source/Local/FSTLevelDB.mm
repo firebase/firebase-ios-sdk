@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
-#include <dirent.h>
-#include <sys/stat.h>
 #include <memory>
 #include <utility>
 
@@ -299,7 +297,7 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (size_t)byteSize {
-  size_t count = 0;
+  off_t count = 0;
   auto iter = util::DirectoryIterator::Create(_directory);
   for (; iter->Valid(); iter->Next()) {
     off_t fileSize = util::FileSize(iter->file()).ValueOrDie();
@@ -307,6 +305,7 @@ static const char *kReservedPathComponent = "firestore";
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
               iter->status().error_message().c_str());
+  HARD_ASSERT(count <= SIZE_MAX, "Overflowed counting bytes cached");
   return count;
 }
 

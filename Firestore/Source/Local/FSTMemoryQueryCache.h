@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTLocalSerializer;
 @class FSTMemoryPersistence;
 
 /**

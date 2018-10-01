@@ -31,7 +31,9 @@ using firebase::firestore::model::ListenSequenceNumber;
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * Returns the number of bytes in the given document key.
+ * Returns an estimate of the number of bytes used to store the given
+ * document key in memory. This is only an estimate and includes the size
+ * of the segments of the path, but not any object overhead or path separators.
  */
 static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
   size_t count = 0;

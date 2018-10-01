@@ -645,7 +645,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   [self newTestResources];
 
-  size_t initialSize = [_gc onDiskSize];
+  size_t initialSize = [_gc byteSize];
 
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
@@ -655,7 +655,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  size_t finalSize = [_gc onDiskSize];
+  size_t finalSize = [_gc byteSize];
   XCTAssertGreaterThan(finalSize, initialSize);
 
   [_persistence shutdown];
