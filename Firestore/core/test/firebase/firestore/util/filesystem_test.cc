@@ -245,17 +245,18 @@ TEST(FilesystemTest, RecursivelyDeletePreservesPeers) {
   EXPECT_OK(RecursivelyDelete(root_dir));
 }
 
-TEST(FilesystemTest, GetFileSize) {
+TEST(FilesystemTest, FileSize) {
   Path file = Path::JoinUtf8(TempDir(), TestFilename());
-  off_t size;
-  ASSERT_NOT_FOUND(GetFileSize(file, &size));
+  ASSERT_NOT_FOUND(FileSize(file).status());
   Touch(file);
-  ASSERT_OK(GetFileSize(file, &size));
-  ASSERT_EQ(0, size);
+  StatusOr<off_t> result = FileSize(file);
+  ASSERT_OK(result.status());
+  ASSERT_EQ(0, result.ValueOrDie());
 
   WriteBytesToFile(file, 100);
-  ASSERT_OK(GetFileSize(file, &size));
-  ASSERT_EQ(100, size);
+  result = FileSize(file);
+  ASSERT_OK(result.status());
+  ASSERT_EQ(100, result.ValueOrDie());
 
   EXPECT_OK(RecursivelyDelete(file));
 }

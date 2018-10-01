@@ -21,6 +21,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
@@ -73,10 +74,10 @@ Status RecursivelyDelete(const Path& path);
 Path TempDir();
 
 /**
- * On success, sets `size` to be the size in bytes of the file specified by
+ * On success, returns the size in bytes of the file specified by
  * `path`.
  */
-Status GetFileSize(const Path& path, off_t* size);
+StatusOr<off_t> FileSize(const Path& path);
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the
