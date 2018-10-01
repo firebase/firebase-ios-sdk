@@ -16,9 +16,10 @@
 
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
 
+#import <Protobuf/GPBProtocolBuffers.h>
+
 #include <set>
 
-#import <Protobuf/GPBProtocolBuffers.h>
 #import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"

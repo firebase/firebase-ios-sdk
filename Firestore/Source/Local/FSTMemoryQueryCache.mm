@@ -16,9 +16,10 @@
 
 #import "Firestore/Source/Local/FSTMemoryQueryCache.h"
 
+#import <Protobuf/GPBProtocolBuffers.h>
+
 #include <utility>
 
-#import <Protobuf/GPBProtocolBuffers.h>
 #import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
