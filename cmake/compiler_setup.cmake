@@ -47,6 +47,8 @@ if(CXX_CLANG OR CXX_GNU)
     # Cut down on symbol clutter
     # TODO(wilhuff) try -fvisibility=hidden
     -fvisibility-inlines-hidden
+
+    -Wreorder -Werror=reorder
   )
 
   set(

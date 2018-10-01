@@ -62,7 +62,7 @@ class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
       : async_queue{absl::make_unique<ExecutorLibdispatch>(
-            dispatch_queue_create("datastore-test", DISPATCH_QUEUE_SERIAL))},
+            dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
         database_info_{DatabaseId{"foo", "bar"}, "", "", false},
         datastore{
             CreateDatastore(database_info_, &async_queue, &credentials_)} {

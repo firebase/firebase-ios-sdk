@@ -115,15 +115,6 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return self;
 }
 
-- (instancetype)initWithMessage:(FIRMessagingRemoteMessage *)message {
-  self = [self init];
-  if (self) {
-    _appData = [message.appData copy];
-  }
-
-  return self;
-}
-
 @end
 
 @interface FIRMessaging ()<FIRMessagingClientDelegate, FIRMessagingReceiverDelegate,
@@ -630,6 +621,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
 }
 
+
+- (void)setUseMessagingDelegateForDirectChannel:(BOOL)useMessagingDelegateForDirectChannel {
+  self.receiver.useDirectChannel = useMessagingDelegateForDirectChannel;
+}
+
+- (BOOL)useMessagingDelegateForDirectChannel {
+  return self.receiver.useDirectChannel;
+}
+
 #pragma mark - Application State Changes
 
 - (void)applicationStateChanged {
@@ -760,6 +760,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
   FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging009,
                           @"Cannot parse topic name %@. Will not subscribe.", topic);
+  if (completion) {
+    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+  }
 }
 
 - (void)unsubscribeFromTopic:(NSString *)topic {
@@ -786,6 +789,9 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   }
   FIRMessagingLoggerError(kFIRMessagingMessageCodeMessaging011,
                           @"Cannot parse topic name %@. Will not unsubscribe.", topic);
+  if (completion) {
+    completion([NSError fcm_errorWithCode:FIRMessagingErrorInvalidTopicName userInfo:nil]);
+  }
 }
 
 #pragma mark - Send
