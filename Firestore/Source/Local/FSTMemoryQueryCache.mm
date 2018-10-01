@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#import <Protobuf/GPBProtocolBuffers.h>
+#import "Firestore/Protos/objc/firestore/local/Target.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
@@ -166,6 +168,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key {
   return [self.references containsKey:key];
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  __block size_t count = 0;
+  [self.queries
+      enumerateKeysAndObjectsUsingBlock:^(FSTQuery *key, FSTQueryData *queryData, BOOL *stop) {
+        count += [[[serializer encodedQueryData:queryData] data] length];
+      }];
+  return count;
 }
 
 @end

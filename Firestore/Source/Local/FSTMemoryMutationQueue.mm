@@ -18,6 +18,8 @@
 
 #include <set>
 
+#import <Protobuf/GPBProtocolBuffers.h>
+#import "Firestore/Protos/objc/firestore/local/Mutation.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTDocumentReference.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
@@ -464,6 +466,14 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   NSInteger index = [self indexOfBatchID:batchID];
   HARD_ASSERT(index >= 0 && index < self.queue.count, "Batches must exist to be %s", action);
   return (NSUInteger)index;
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  __block size_t count = 0;
+  [self.queue enumerateObjectsUsingBlock:^(FSTMutationBatch *batch, NSUInteger idx, BOOL *stop) {
+    count += [[[serializer encodedMutationBatch:batch] data] length];
+  }];
+  return count;
 }
 
 @end

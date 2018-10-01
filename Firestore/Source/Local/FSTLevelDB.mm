@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTLevelDB.h"
 
+#include <dirent.h>
+#include <sys/stat.h>
 #include <memory>
 #include <utility>
 
@@ -76,6 +78,15 @@ using leveldb::ReadOptions;
 using leveldb::WriteOptions;
 
 static const char *kReservedPathComponent = "firestore";
+
+@interface FSTLevelDB ()
+
+- (size_t)byteSize;
+
+@property(nonatomic, assign, getter=isStarted) BOOL started;
+@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
+
+@end
 
 /**
  * Provides LRU functionality for leveldb persistence.
@@ -234,12 +245,9 @@ static const char *kReservedPathComponent = "firestore";
   [self writeSentinelForKey:key];
 }
 
-@end
-
-@interface FSTLevelDB ()
-
-@property(nonatomic, assign, getter=isStarted) BOOL started;
-@property(nonatomic, strong, readonly) FSTLocalSerializer *serializer;
+- (size_t)byteSize {
+  return [_db byteSize];
+}
 
 @end
 
@@ -288,6 +296,18 @@ static const char *kReservedPathComponent = "firestore";
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;
+}
+
+- (size_t)byteSize {
+  size_t count = 0;
+  auto iter = util::DirectoryIterator::Create(_directory);
+  for (; iter->Valid(); iter->Next()) {
+    off_t fileSize = util::FileSize(iter->file()).ValueOrDie();
+    count += fileSize;
+  }
+  HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",
+              iter->status().error_message().c_str());
+  return count;
 }
 
 - (const std::set<std::string> &)users {

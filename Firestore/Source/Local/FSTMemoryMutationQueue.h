@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Checks to see if there are any references to a document with the given key.
  */
 - (BOOL)containsKey:(const firebase::firestore::model::DocumentKey &)key;
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
 

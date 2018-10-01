@@ -639,6 +639,28 @@ NS_ASSUME_NONNULL_BEGIN
   });
   [_persistence shutdown];
 }
+
+- (void)testGetsSize {
+  if ([self isTestBaseClass]) return;
+
+  [self newTestResources];
+
+  size_t initialSize = [_gc onDiskSize];
+
+  _persistence.run("fill cache", [&]() {
+    // Simulate a bunch of ack'd mutations
+    for (int i = 0; i < 50; i++) {
+      FSTDocument *doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key];
+    }
+  });
+
+  size_t finalSize = [_gc onDiskSize];
+  XCTAssertGreaterThan(finalSize, initialSize);
+
+  [_persistence shutdown];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

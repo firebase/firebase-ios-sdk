@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
 
