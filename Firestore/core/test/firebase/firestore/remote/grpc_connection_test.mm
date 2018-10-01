@@ -86,13 +86,13 @@ class GrpcConnectionTest : public testing::Test {
     auto connectivity_monitor_owning =
         absl::make_unique<MockConnectivityMonitor>(&tester->worker_queue());
     connectivity_monitor = connectivity_monitor_owning.get();
-    tester = absl::make_unique<GrpcStreamTester>(std::move(connectivity_monitor_owning));
+    tester = absl::make_unique<GrpcStreamTester>(
+        std::move(connectivity_monitor_owning));
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {
-    tester->worker_queue().EnqueueBlocking([&] {
-      connectivity_monitor->set_status(new_status);
-    });
+    tester->worker_queue().EnqueueBlocking(
+        [&] { connectivity_monitor->set_status(new_status); });
     // Make sure the callback executes.
     tester->worker_queue().EnqueueBlocking([] {});
   }

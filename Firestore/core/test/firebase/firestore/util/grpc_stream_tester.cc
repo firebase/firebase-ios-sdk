@@ -26,8 +26,8 @@ namespace util {
 
 using auth::Token;
 using auth::User;
-using model::DatabaseId;
 using internal::ExecutorStd;
+using model::DatabaseId;
 using remote::ConnectivityMonitor;
 using remote::GrpcCompletion;
 using remote::GrpcStream;
@@ -88,8 +88,7 @@ GrpcStreamTester::GrpcStreamTester(
     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
     : worker_queue_{absl::make_unique<ExecutorStd>()},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-      grpc_connection_{database_info_, &worker_queue_,
-                       mock_grpc_queue_.queue(),
+      grpc_connection_{database_info_, &worker_queue_, mock_grpc_queue_.queue(),
                        std::move(connectivity_monitor)} {
 }
 

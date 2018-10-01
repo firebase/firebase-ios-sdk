@@ -40,18 +40,19 @@ class GrpcConnection;
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader : public GrpcCallInterface, public GrpcStreamObserver {
+class GrpcStreamingReader : public GrpcCallInterface,
+                            public GrpcStreamObserver {
  public:
   using MetadataT = GrpcStream::MetadataT;
   using ResponsesT = std::vector<grpc::ByteBuffer>;
-  using CallbackT = std::function<void(
-      const util::StatusOr<ResponsesT>&)>;
+  using CallbackT = std::function<void(const util::StatusOr<ResponsesT>&)>;
 
-  GrpcStreamingReader(std::unique_ptr<grpc::ClientContext> context,
-             std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
-             util::AsyncQueue* worker_queue,
-             GrpcConnection* grpc_connection,
-                      const grpc::ByteBuffer& request);
+  GrpcStreamingReader(
+      std::unique_ptr<grpc::ClientContext> context,
+      std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
+      util::AsyncQueue* worker_queue,
+      GrpcConnection* grpc_connection,
+      const grpc::ByteBuffer& request);
 
   /**
    * Starts the call; the given `callback` will be invoked with the accumulated
@@ -88,7 +89,9 @@ class GrpcStreamingReader : public GrpcCallInterface, public GrpcStreamObserver 
   void OnStreamFinish(const util::Status& status) override;
 
   // For tests only
-  grpc::ClientContext* context() { return stream_->context(); }
+  grpc::ClientContext* context() {
+    return stream_->context();
+  }
 
  private:
   std::unique_ptr<GrpcStream> stream_;

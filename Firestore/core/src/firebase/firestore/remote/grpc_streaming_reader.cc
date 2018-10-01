@@ -35,8 +35,11 @@ GrpcStreamingReader::GrpcStreamingReader(
     util::AsyncQueue* worker_queue,
     GrpcConnection* grpc_connection,
     const grpc::ByteBuffer& request)
-    : stream_{absl::make_unique<GrpcStream>(
-          std::move(context), std::move(call), worker_queue, grpc_connection, this)},
+    : stream_{absl::make_unique<GrpcStream>(std::move(context),
+                                            std::move(call),
+                                            worker_queue,
+                                            grpc_connection,
+                                            this)},
       request_{request} {
 }
 

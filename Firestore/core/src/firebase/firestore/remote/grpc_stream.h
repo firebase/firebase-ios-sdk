@@ -123,7 +123,7 @@ class GrpcStream : public GrpcCallInterface {
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              util::AsyncQueue* worker_queue,
-    GrpcConnection* grpc_connection,
+             GrpcConnection* grpc_connection,
              GrpcStreamObserver* observer);
   ~GrpcStream();
 
@@ -175,7 +175,9 @@ class GrpcStream : public GrpcCallInterface {
   MetadataT GetResponseHeaders() const;
 
   // For tests only
-  grpc::ClientContext* context() { return context_.get(); }
+  grpc::ClientContext* context() {
+    return context_.get();
+  }
 
  private:
   void Read();
@@ -194,7 +196,8 @@ class GrpcStream : public GrpcCallInterface {
   void RemoveCompletion(const GrpcCompletion* to_remove);
 
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
-  GrpcCompletion* NewCompletion(GrpcCompletion::Tag tag, const OnSuccess& callback);
+  GrpcCompletion* NewCompletion(GrpcCompletion::Tag tag,
+                                const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the
   // gRPC completion queue. Once they do, it is safe to delete this `GrpcStream`

@@ -125,7 +125,9 @@ class TestStream : public Stream {
     return observed_states_;
   }
 
-  grpc::ClientContext* context() { return context_; }
+  grpc::ClientContext* context() {
+    return context_;
+  }
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
@@ -198,7 +200,7 @@ class StreamTest : public testing::Test {
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
-    async_queue().EnqueueBlocking([]{});
+    async_queue().EnqueueBlocking([] {});
   }
 
   const std::vector<std::string>& observed_states() const {

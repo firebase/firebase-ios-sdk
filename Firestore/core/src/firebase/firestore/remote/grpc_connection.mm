@@ -65,7 +65,7 @@ GrpcConnection::GrpcConnection(
 
 void GrpcConnection::Shutdown() {
   // Fast finish any pending calls. This will not trigger the observers.
-  for (GrpcCallInterface* call : active_calls_) {
+  for (GrpcCallInterface *call : active_calls_) {
     call->Finish();
   }
 }
@@ -115,8 +115,8 @@ void GrpcConnection::EnsureActiveStub() {
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   return grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()));
+      database_info_->host(),
+      grpc::SslCredentials(grpc::SslCredentialsOptions()));
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -130,8 +130,8 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
   auto context = CreateContext(token);
   auto call =
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
-  return absl::make_unique<GrpcStream>(
-      std::move(context), std::move(call), worker_queue_, this, observer);
+  return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
+                                       worker_queue_, this, observer);
 }
 
 std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
@@ -157,7 +157,7 @@ void GrpcConnection::RegisterConnectivityMonitor() {
         for (GrpcCallInterface *call : calls) {
           // This will trigger the observers.
           call->FinishWithError(Status{FirestoreErrorCode::Unavailable,
-                              "Network connectivity changed"});
+                                       "Network connectivity changed"});
         }
       });
 }
