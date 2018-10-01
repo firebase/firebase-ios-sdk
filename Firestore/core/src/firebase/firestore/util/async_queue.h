@@ -127,6 +127,11 @@ class AsyncQueue {
   // queue.
   void ExecuteBlocking(const Operation& operation);
 
+  // Returns the underlying platform-dependent executor.
+  internal::Executor* executor() {
+    return executor_.get();
+  }
+
   // Test-only interface follows
   // TODO(varconst): move the test-only interface into a helper object that is
   // a friend of AsyncQueue and delegates its public methods to private methods

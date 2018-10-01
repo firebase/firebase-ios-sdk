@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
@@ -86,7 +87,8 @@ Datastore::Datastore(const DatabaseInfo &database_info,
     : worker_queue_{worker_queue},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
-      grpc_connection_{database_info, worker_queue, &grpc_queue_},
+      grpc_connection_{database_info, worker_queue, &grpc_queue_,
+                       ConnectivityMonitor::Create(worker_queue)},
       serializer_bridge_{serializer} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }

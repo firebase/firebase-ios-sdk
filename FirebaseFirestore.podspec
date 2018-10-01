@@ -41,6 +41,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
+    'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
     'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
     'Firestore/core/src/firebase/firestore/util/hard_assert_stdio.cc',
     'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
@@ -56,7 +57,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.8'
 
-  s.frameworks = 'MobileCoreServices'
+  s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.library = 'c++'
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
