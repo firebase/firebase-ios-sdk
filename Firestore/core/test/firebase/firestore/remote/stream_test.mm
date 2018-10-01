@@ -146,6 +146,9 @@ class TestStream : public Stream {
     observed_states_.push_back("NotifyStreamResponse");
     if (fail_stream_read_) {
       fail_stream_read_ = false;
+      // The parent stream will issue a finish operation and block until it's
+      // completed, so asynchronously polling gRPC queue is necessary.
+      tester_->KeepPollingGrpcQueue();
       return util::Status{FirestoreErrorCode::Internal, ""};
     }
     return util::Status::OK();
@@ -188,9 +191,13 @@ class StreamTest : public testing::Test {
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
     tester_.ForceFinish(firestore_stream->context(), results);
   }
- 
+
   void KeepPollingGrpcQueue() {
-  tester_.KeepPollingGrpcQueue();
+    tester_.KeepPollingGrpcQueue();
+  }
+  
+  void ShutdownGrpcQueue() {
+    tester_.ShutdownGrpcQueue();
   }
 
   void StartStream() {
@@ -347,7 +354,7 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
   firestore_stream->FailStreamRead();
-  KeepPollingGrpcQueue();
+  ForceFinish({/*Read*/ Ok});
 
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());

@@ -111,7 +111,7 @@ void GrpcStream::Start() {
   call_->StartCall(nullptr);
 
   if (observer_) {
-  // Start listening for new messages.
+    // Start listening for new messages.
     Read();
     observer_->OnStreamStart();
   }
@@ -170,7 +170,10 @@ void GrpcStream::FinishWithError(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  grpc_connection_->Unregister(this);
+  if (grpc_connection_) {
+    grpc_connection_->Unregister(this);
+    grpc_connection_ = nullptr;
+  }
 
   if (completions_.empty()) {
     // Nothing to cancel.
@@ -252,8 +255,8 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
   if (observer_) {
     // Continue waiting for new messages indefinitely as long as there is an
     // interested observer.
-    // Order is important here -- any call to observer can potentially end this stream's lifetime,
-    // so call `Read` before notifying.
+    // Order is important here -- any call to observer can potentially end this
+    // stream's lifetime, so call `Read` before notifying.
     Read();
     observer_->OnStreamRead(message);
   }
@@ -298,7 +301,8 @@ void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
   completions_.erase(found);
 }
 
-GrpcCompletion* GrpcStream::NewCompletion(Tag tag, const OnSuccess& on_success) {
+GrpcCompletion* GrpcStream::NewCompletion(Tag tag,
+                                          const OnSuccess& on_success) {
   // Can't move into lambda until C++14.
   GrpcCompletion::Callback decorated =
       [this, on_success](bool ok, const GrpcCompletion* completion) {
@@ -313,7 +317,8 @@ GrpcCompletion* GrpcStream::NewCompletion(Tag tag, const OnSuccess& on_success) 
         }
       };
 
-  auto* completion = new GrpcCompletion{worker_queue_, std::move(decorated), tag};
+  auto* completion =
+      new GrpcCompletion{worker_queue_, std::move(decorated), tag};
   completions_.push_back(completion);
   return completion;
 }
