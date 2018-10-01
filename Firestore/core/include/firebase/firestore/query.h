@@ -26,12 +26,11 @@
 #include <functional>
 #endif
 
+#include "firebase/firestore/event_listener.h"
 #include "firebase/firestore/field_path.h"
-#include "firebase/firestore/field_value.h"
-#include "firebase/firestore/firestore.h"
 #include "firebase/firestore/firestore_errors.h"
+#include "firebase/firestore/listener_registration.h"
 #include "firebase/firestore/metadata_changes.h"
-#include "firebase/firestore/query_snapshot.h"
 #include "firebase/firestore/source.h"
 #include "firebase/future.h"
 
@@ -39,7 +38,12 @@ namespace firebase {
 struct CleanupFn;
 
 namespace firestore {
+class CollectionReference;
+class DocumentSnapshot;
+class FieldValue;
+class Firestore;
 class QueryInternal;
+class QuerySnapshot;
 
 /**
  * A Query which you can read or listen to. You can also construct refined
@@ -444,6 +448,16 @@ class Query {
   virtual Future<QuerySnapshot> Get(Source source) const;
 
   /**
+   * @brief Gets the result of the most recent call to either of the Get()
+   * methods.
+   *
+   * @return The result of last call to Get() or an invalid Future, if there is
+   * no such call.
+   */
+  // TODO(zxu123): raise this in Firebase API discussion for the naming concern.
+  virtual Future<QuerySnapshot> GetLastResult() const;
+
+  /**
    * @brief Starts listening to the QuerySnapshot events referenced by this
    * query.
    *
@@ -481,7 +495,7 @@ class Query {
    * query.
    *
    * @param[in] callback function or lambda to call. When this function is
-   * called, exactly one of the parameters will be non-null.
+   * called, snapshot value is valid if and only if error is Error::Ok.
    *
    * @return A registration object that can be used to remove the listener.
    *
@@ -489,14 +503,14 @@ class Query {
    * std::function is not supported on STLPort.
    */
   virtual ListenerRegistration AddSnapshotListener(
-      std::function<void(const QuerySnapshot*, const Error*)> callback);
+      std::function<void(const QuerySnapshot&, Error)> callback);
 
   /**
    * @brief Starts listening to the QuerySnapshot events referenced by this
    * query.
    *
    * @param[in] callback function or lambda to call. When this function is
-   * called, exactly one of the parameters will be non-null.
+   * called, snapshot value is valid if and only if error is Error::Ok.
    * @param[in] metadata_changes Indicates whether metadata-only changes (i.e.
    * only QuerySnapshot.getMetadata() changed) should trigger snapshot events.
    *
@@ -506,16 +520,16 @@ class Query {
    * std::function is not supported on STLPort.
    */
   virtual ListenerRegistration AddSnapshotListener(
-      std::function<void(const QuerySnapshot*, const Error*)> callback,
+      std::function<void(const QuerySnapshot&, Error)> callback,
       MetadataChanges metadata_changes);
 #endif  // defined(FIREBASE_USE_STD_FUNCTION) || defined(DOXYGEN)
 
  protected:
-  explicit Query(QueryInternal* internal);
-
- private:
   friend class FirestoreInternal;
   friend class QueryInternal;
+  friend class QuerySnapshotInternal;
+
+  explicit Query(QueryInternal* internal);
 
   QueryInternal* internal_ = nullptr;
 };

@@ -269,6 +269,34 @@ static NSString *const kFakeToken =
                                }];
 }
 
+- (void)testSubscriptionCompletionHandlerWithInvalidTopicName {
+  XCTestExpectation *subscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Subscription is complete"];
+  [_messaging subscribeToTopic:@"!@#$%^&*()"
+                    completion:^(NSError *_Nullable error) {
+                      XCTAssertNotNil(error);
+                      XCTAssertEqual(error.code, FIRMessagingErrorInvalidTopicName);
+                      [subscriptionCompletionExpectation fulfill];
+                    }];
+  [self waitForExpectationsWithTimeout:0.2
+                               handler:^(NSError *_Nullable error){
+                               }];
+}
+
+- (void)testUnsubscribeCompletionHandlerWithInvalidTopicName {
+  XCTestExpectation *unsubscriptionCompletionExpectation =
+      [self expectationWithDescription:@"Unsubscription is complete"];
+  [_messaging unsubscribeFromTopic:@"!@#$%^&*()"
+                        completion:^(NSError *error) {
+                          XCTAssertNotNil(error);
+                          XCTAssertEqual(error.code, FIRMessagingErrorInvalidTopicName);
+                          [unsubscriptionCompletionExpectation fulfill];
+                        }];
+  [self waitForExpectationsWithTimeout:0.2
+                               handler:^(NSError *_Nullable error){
+                               }];
+}
+
 - (void)testFIRMessagingSDKVersionInFIRMessagingService {
   Class versionClass = NSClassFromString(kFIRMessagingSDKClassString);
   SEL versionSelector = NSSelectorFromString(kFIRMessagingSDKVersionSelectorString);

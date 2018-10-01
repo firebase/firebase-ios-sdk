@@ -84,11 +84,11 @@ Datastore::Datastore(const DatabaseInfo &database_info,
                      AsyncQueue *worker_queue,
                      CredentialsProvider *credentials,
                      FSTSerializerBeta *serializer)
-    : grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       ConnectivityMonitor::Create(worker_queue)},
-      worker_queue_{worker_queue},
+    : worker_queue_{worker_queue},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
+      grpc_connection_{database_info, worker_queue, &grpc_queue_,
+                       ConnectivityMonitor::Create(worker_queue)},
       serializer_bridge_{serializer} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }

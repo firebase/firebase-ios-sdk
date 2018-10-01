@@ -41,6 +41,14 @@ jobs:
 
     - stage: test
       env:
+        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
         - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
       before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
@@ -64,6 +72,7 @@ jobs:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       env:
@@ -93,6 +102,7 @@ jobs:
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
     - stage: test
       env:

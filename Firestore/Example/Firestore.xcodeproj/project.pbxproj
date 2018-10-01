@@ -653,10 +653,10 @@
 		546854A720A3681B004BDBD5 /* remote */ = {
 			isa = PBXGroup;
 			children = (
-				B6D964922154AB8F00EB9CFB /* grpc_streaming_reader_test.cc */,
 				546854A820A36867004BDBD5 /* datastore_test.mm */,
 				B6D1B68420E2AB1A00B35856 /* exponential_backoff_test.cc */,
 				B6BBE42F21262CF400C6A53E /* grpc_stream_test.cc */,
+				B6D964922154AB8F00EB9CFB /* grpc_streaming_reader_test.cc */,
 				61F72C5520BC48FD001A68CB /* serializer_test.cc */,
 				B66D8995213609EE0086DA0C /* stream_test.mm */,
 			);
@@ -1877,7 +1877,6 @@
 				B6FB4684208EA0EC00554BA2 /* async_queue_libdispatch_test.mm in Sources */,
 				B6FB4685208EA0F000554BA2 /* async_queue_std_test.cc in Sources */,
 				B6FB467D208E9D3C00554BA2 /* async_queue_test.cc in Sources */,
-				B6D964932154AB8F00EB9CFB /* grpc_streaming_reader_test.cc in Sources */,
 				54740A581FC914F000713A1A /* autoid_test.cc in Sources */,
 				AB380D02201BC69F00D97691 /* bits_test.cc in Sources */,
 				618BBEA920B89AAC00B5BCE7 /* common.pb.cc in Sources */,
@@ -1904,6 +1903,7 @@
 				AB7BAB342012B519001E0872 /* geo_point_test.cc in Sources */,
 				B6BBE43121262CF400C6A53E /* grpc_stream_test.cc in Sources */,
 				333FCB7BB0C9986B5DF28FC8 /* grpc_stream_tester.cc in Sources */,
+				B6D964932154AB8F00EB9CFB /* grpc_streaming_reader_test.cc in Sources */,
 				73FE5066020EF9B2892C86BF /* hard_assert_test.cc in Sources */,
 				54511E8E209805F8005BD28F /* hashing_test.cc in Sources */,
 				618BBEB020B89AAC00B5BCE7 /* http.pb.cc in Sources */,

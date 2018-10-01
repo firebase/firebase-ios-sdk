@@ -86,8 +86,8 @@ GrpcStream::GrpcStream(
     AsyncQueue* worker_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
-      observer_{observer},
-      worker_queue_{worker_queue} {
+      worker_queue_{worker_queue},
+      observer_{observer} {
 }
 
 GrpcStream::~GrpcStream() {

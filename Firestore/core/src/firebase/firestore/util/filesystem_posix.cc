@@ -28,6 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/third_party/abseil-cpp/absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -94,6 +95,16 @@ Path TempDir() {
 }
 #endif  // !defined(__APPLE__)
 
+StatusOr<off_t> FileSize(const Path& path) {
+  struct stat st {};
+  if (stat(path.c_str(), &st) == 0) {
+    return StatusOr<off_t>(st.st_size);
+  } else {
+    return StatusOr<off_t>(Status::FromErrno(
+        errno, StringFormat("Failed to stat file: %s", path.ToUtf8String())));
+  }
+}
+
 namespace detail {
 
 Status CreateDir(const Path& path) {
@@ -129,52 +140,85 @@ Status DeleteFile(const Path& path) {
   return Status::OK();
 }
 
-Status RecursivelyDeleteDir(const Path& parent) {
-  DIR* dir = ::opendir(parent.c_str());
-  if (!dir) {
-    if (errno == ENOENT) {
-      return Status::OK();
-    }
+}  // namespace detail
 
-    return Status::FromErrno(errno, StringFormat("Could not read directory %s",
-                                                 parent.ToUtf8String()));
-  }
+namespace {
 
-  Status result;
-  while (result.ok()) {
-    errno = 0;
-    struct dirent* entry = ::readdir(dir);
-    if (!entry) {
-      if (errno != 0) {
-        result = Status::FromErrno(
-            errno,
-            StringFormat("Could not read directory %s", parent.ToUtf8String()));
-      }
-      break;
-    }
+class DirectoryIteratorPosix : public DirectoryIterator {
+ public:
+  explicit DirectoryIteratorPosix(const util::Path& path);
+  virtual ~DirectoryIteratorPosix();
 
-    if (::strcmp(".", entry->d_name) == 0 ||
-        ::strcmp("..", entry->d_name) == 0) {
-      continue;
-    }
+  void Next() override;
+  bool Valid() const override;
+  Path file() const override;
 
-    Path child = parent.AppendUtf8(entry->d_name, strlen(entry->d_name));
-    result = RecursivelyDelete(child);
-  }
+ private:
+  void Advance();
 
-  if (::closedir(dir)) {
-    result.Update(Status::FromErrno(
+  DIR* dir_ = nullptr;
+  struct dirent* entry_ = nullptr;
+};
+
+DirectoryIteratorPosix::DirectoryIteratorPosix(const util::Path& path)
+    : DirectoryIterator{path} {
+  dir_ = ::opendir(parent_.c_str());
+  if (!dir_) {
+    status_ = Status::FromErrno(
         errno,
-        StringFormat("Could not close directory %s", parent.ToUtf8String())));
+        StringFormat("Could not open directory %s", parent_.ToUtf8String()));
+    return;
   }
-
-  if (result.ok()) {
-    result = DeleteDir(parent);
-  }
-  return result;
+  Advance();
 }
 
-}  // namespace detail
+DirectoryIteratorPosix::~DirectoryIteratorPosix() {
+  if (dir_) {
+    if (::closedir(dir_) != 0) {
+      HARD_FAIL("Could not close directory %s", parent_.ToUtf8String());
+    }
+  }
+}
+
+void DirectoryIteratorPosix::Advance() {
+  HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
+  errno = 0;
+  entry_ = ::readdir(dir_);
+  if (!entry_) {
+    if (errno != 0) {
+      status_ = Status::FromErrno(
+          errno, StringFormat("Could not read %s", parent_.ToUtf8String()));
+    }
+  } else if (status_.ok()) {
+    // Skip self- and parent-pointer
+    if (::strcmp(".", entry_->d_name) == 0 ||
+        ::strcmp("..", entry_->d_name) == 0) {
+      Advance();
+    }
+  }
+}
+
+void DirectoryIteratorPosix::Next() {
+  HARD_ASSERT(Valid(), "Next() called on invalid iterator");
+  Advance();
+}
+
+bool DirectoryIteratorPosix::Valid() const {
+  return status_.ok() && entry_ != nullptr;
+}
+
+Path DirectoryIteratorPosix::file() const {
+  HARD_ASSERT(Valid(), "file() called on invalid iterator");
+  return parent_.AppendUtf8(entry_->d_name, strlen(entry_->d_name));
+}
+
+}  // namespace
+
+std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
+    const util::Path& path) {
+  return absl::make_unique<DirectoryIteratorPosix>(path);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
