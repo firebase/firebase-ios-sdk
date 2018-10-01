@@ -112,6 +112,8 @@ void GrpcStream::Start() {
 
   if (observer_) {
     // Start listening for new messages.
+    // Order is important here -- any call to observer can potentially end this
+    // stream's lifetime, so call `Read` before notifying.
     Read();
     observer_->OnStreamStart();
   }

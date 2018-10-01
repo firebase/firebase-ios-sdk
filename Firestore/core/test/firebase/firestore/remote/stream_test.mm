@@ -195,10 +195,6 @@ class StreamTest : public testing::Test {
   void KeepPollingGrpcQueue() {
     tester_.KeepPollingGrpcQueue();
   }
-  
-  void ShutdownGrpcQueue() {
-    tester_.ShutdownGrpcQueue();
-  }
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
