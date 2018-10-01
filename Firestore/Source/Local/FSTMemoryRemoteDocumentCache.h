@@ -22,6 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTLocalSerializer;
 @class FSTMemoryLRUReferenceDelegate;
 
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
@@ -30,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
          throughSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound;
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
 

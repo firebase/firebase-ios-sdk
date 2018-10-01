@@ -119,4 +119,8 @@ class RollingSequenceNumberBuffer {
   return [_delegate removeOrphanedDocumentsThroughSequenceNumber:sequenceNumber];
 }
 
+- (size_t)byteSize {
+  return [_delegate byteSize];
+}
+
 @end

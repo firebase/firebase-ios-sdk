@@ -16,6 +16,8 @@
 
 #import "Firestore/Source/Local/FSTMemoryRemoteDocumentCache.h"
 
+#import <Protobuf/GPBProtocolBuffers.h>
+#import "Firestore/Protos/objc/firestore/local/MaybeDocument.pbobjc.h"
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
 #import "Firestore/Source/Model/FSTDocument.h"
@@ -27,6 +29,19 @@ using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Returns an estimate of the number of bytes used to store the given
+ * document key in memory. This is only an estimate and includes the size
+ * of the segments of the path, but not any object overhead or path separators.
+ */
+static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
+  size_t count = 0;
+  for (auto it = key.path.begin(); it != key.path.end(); it++) {
+    count += (*it).size();
+  }
+  return count;
+}
 
 @interface FSTMemoryRemoteDocumentCache ()
 
@@ -92,6 +107,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
   }
   self.docs = updatedDocs;
+  return count;
+}
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {
+  __block size_t count = 0;
+  [self.docs
+      enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
+        count += FSTDocumentKeyByteSize(key);
+        count += [[[serializer encodedMaybeDocument:doc] data] length];
+      }];
   return count;
 }
 

@@ -44,6 +44,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTMemoryPersistence ()
 
+- (FSTMemoryQueryCache *)queryCache;
+
+- (FSTMemoryRemoteDocumentCache *)remoteDocumentCache;
+
 @property(nonatomic, readonly) MutationQueues &mutationQueues;
 
 @property(nonatomic, assign, getter=isStarted) BOOL started;
@@ -79,10 +83,10 @@ NS_ASSUME_NONNULL_BEGIN
   return persistence;
 }
 
-+ (instancetype)persistenceWithLRUGC {
++ (instancetype)persistenceWithLRUGCAndSerializer:(FSTLocalSerializer *)serializer {
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
   persistence.referenceDelegate =
-      [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence];
+      [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence serializer:serializer];
   return persistence;
 }
 
@@ -136,7 +140,7 @@ NS_ASSUME_NONNULL_BEGIN
   return queue;
 }
 
-- (id<FSTQueryCache>)queryCache {
+- (FSTMemoryQueryCache *)queryCache {
   return _queryCache;
 }
 
@@ -155,9 +159,11 @@ NS_ASSUME_NONNULL_BEGIN
   FSTLRUGarbageCollector *_gc;
   FSTListenSequence *_listenSequence;
   ListenSequenceNumber _currentSequenceNumber;
+  FSTLocalSerializer *_serializer;
 }
 
-- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
+- (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence
+                         serializer:(FSTLocalSerializer *)serializer {
   if (self = [super init]) {
     _persistence = persistence;
     _gc =
@@ -167,6 +173,7 @@ NS_ASSUME_NONNULL_BEGIN
     ListenSequenceNumber highestSequenceNumber =
         _persistence.queryCache.highestListenSequenceNumber;
     _listenSequence = [[FSTListenSequence alloc] initStartingAfter:highestSequenceNumber];
+    _serializer = serializer;
   }
   return self;
 }
@@ -272,6 +279,20 @@ NS_ASSUME_NONNULL_BEGIN
     return YES;
   }
   return NO;
+}
+
+- (size_t)byteSize {
+  // Note that this method is only used for testing because this delegate is only
+  // used for testing. The algorithm here (loop through everything, serialize it
+  // and count bytes) is inefficient and inexact, but won't run in production.
+  size_t count = 0;
+  count += [_persistence.queryCache byteSizeWithSerializer:_serializer];
+  count += [_persistence.remoteDocumentCache byteSizeWithSerializer:_serializer];
+  const MutationQueues &queues = [_persistence mutationQueues];
+  for (auto it = queues.begin(); it != queues.end(); ++it) {
+    count += [it->second byteSizeWithSerializer:_serializer];
+  }
+  return count;
 }
 
 @end
