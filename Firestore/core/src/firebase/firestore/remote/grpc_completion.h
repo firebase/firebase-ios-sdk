@@ -57,6 +57,8 @@ namespace remote {
  */
 class GrpcCompletion {
  public:
+  enum class Tag { Start, Read, Write, Finish };
+
   /**
    * The boolean parameter is used to indicate whether the corresponding gRPC
    * operation finished successfully or not.
@@ -65,7 +67,9 @@ class GrpcCompletion {
    */
   using Callback = std::function<void(bool, const GrpcCompletion*)>;
 
-  GrpcCompletion(util::AsyncQueue* firestore_queue, Callback&& callback);
+  GrpcCompletion(util::AsyncQueue* firestore_queue,
+                 Callback&& callback,
+                 Tag tag);
 
   /**
    * Marks the `GrpcCompletion` as having come back from the gRPC completion
@@ -102,6 +106,10 @@ class GrpcCompletion {
     return &status_;
   }
 
+  Tag tag() const {
+    return tag_;
+  }
+
  private:
   util::AsyncQueue* worker_queue_ = nullptr;
   Callback callback_;
@@ -118,6 +126,8 @@ class GrpcCompletion {
 
   std::promise<void> off_queue_;
   std::future<void> off_queue_future_;
+
+  Tag tag_{};
 };
 
 }  // namespace remote

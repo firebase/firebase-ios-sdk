@@ -79,7 +79,7 @@ class GrpcStreamTest : public testing::Test {
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
-    tester_.ForceFinish(results);
+    tester_.ForceFinish(stream_->context(), results);
   }
   void KeepPollingGrpcQueue() {
     tester_.KeepPollingGrpcQueue();
@@ -211,7 +211,9 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
 
   worker_queue().EnqueueBlocking([&] {
     bool did_last_write = stream().WriteAndFinish({});
-    EXPECT_TRUE(did_last_write);
+    // Canceling gRPC context is not used in this test, so the write operation
+    // won't come back from the completion queue.
+    EXPECT_FALSE(did_last_write);
 
     EXPECT_TRUE(ObserverHas("OnStreamStart"));
     EXPECT_FALSE(ObserverHas("OnStreamFinish"));

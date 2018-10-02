@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CONNECTION_H_
 
 #include <memory>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
@@ -25,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -50,6 +52,8 @@ class GrpcConnection {
                  grpc::CompletionQueue* grpc_queue,
                  std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
 
+  void Shutdown();
+
   /**
    * Creates a stream to the given stream RPC endpoint. The resulting stream
    * needs to be `Start`ed before it can be used.
@@ -60,10 +64,18 @@ class GrpcConnection {
                                            const auth::Token& token,
                                            GrpcStreamObserver* observer);
 
+  std::unique_ptr<GrpcUnaryCall> CreateUnaryCall(
+      absl::string_view rpc_name,
+      const auth::Token& token,
+      const grpc::ByteBuffer& message);
+
   std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
       absl::string_view rpc_name,
       const auth::Token& token,
       const grpc::ByteBuffer& message);
+
+  void Register(GrpcCallInterface* call);
+  void Unregister(GrpcCallInterface* call);
 
   static void SetTestCertificatePath(const std::string& path) {
     test_certificate_path_ = path;
@@ -87,6 +99,7 @@ class GrpcConnection {
   std::unique_ptr<grpc::GenericStub> grpc_stub_;
 
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
+  std::vector<GrpcCallInterface*> active_calls_;
 };
 
 }  // namespace remote

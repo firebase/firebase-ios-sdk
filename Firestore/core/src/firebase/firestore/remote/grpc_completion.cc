@@ -24,8 +24,10 @@ namespace remote {
 
 using util::AsyncQueue;
 
-GrpcCompletion::GrpcCompletion(AsyncQueue* worker_queue, Callback&& callback)
-    : worker_queue_{worker_queue}, callback_{std::move(callback)} {
+GrpcCompletion::GrpcCompletion(AsyncQueue* worker_queue,
+                               Callback&& callback,
+                               Tag tag)
+    : worker_queue_{worker_queue}, callback_{std::move(callback)}, tag_{tag} {
 }
 
 void GrpcCompletion::Cancel() {

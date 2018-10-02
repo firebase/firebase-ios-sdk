@@ -20,9 +20,13 @@
 #include <initializer_list>
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/core/database_info.h"
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "absl/types/optional.h"
@@ -48,6 +52,25 @@ struct CompletionEndState {
   absl::optional<grpc::Status> maybe_status;
 };
 
+class MockGrpcQueue {
+ public:
+  MockGrpcQueue();
+
+  void ExtractCompletions(std::initializer_list<CompletionEndState> results);
+  void KeepPolling();
+
+  void Shutdown();
+
+  grpc::CompletionQueue* queue() {
+    return &grpc_queue_;
+  }
+
+ private:
+  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
+  grpc::CompletionQueue grpc_queue_;
+  bool is_shut_down_ = false;
+};
+
 /**
  * Does the somewhat complicated setup required to create a `GrpcStream` and
  * allows imitating the normal completion of `GrpcCompletion`s.
@@ -55,6 +78,8 @@ struct CompletionEndState {
 class GrpcStreamTester {
  public:
   GrpcStreamTester();
+  explicit GrpcStreamTester(
+      std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor);
   ~GrpcStreamTester();
 
   /** Finishes the stream and shuts down the gRPC completion queue. */
@@ -63,28 +88,21 @@ class GrpcStreamTester {
   std::unique_ptr<remote::GrpcStream> CreateStream(
       remote::GrpcStreamObserver* observer);
   std::unique_ptr<remote::GrpcStreamingReader> CreateStreamingReader();
+  std::unique_ptr<remote::GrpcUnaryCall> CreateUnaryCall();
 
   /**
    * Takes as many completions off gRPC completion queue as there are elements
    * in `results` and completes each of them with the corresponding result,
    * ignoring the actual result from gRPC.
    *
-   * This is a blocking function; it will finish quickly if the gRPC completion
-   * queue has at least as many pending completions as there are elements in
-   * `results`; otherwise, it will hang.
+   * This is a blocking function; it will finish quickly if the the gRPC
+   * completion queue has at least as many pending completions as there are
+   * elements in `results`; otherwise, it will hang.
    */
-  void ForceFinish(std::initializer_list<CompletionEndState> results);
+  void ForceFinish(grpc::ClientContext* context,
+                   std::initializer_list<CompletionEndState> results);
 
-  /**
-   * Using a separate executor, keep polling gRPC completion queue and tell all
-   * the completions that come off the queue that they finished successfully,
-   * ignoring the actual result from gRPC.
-   *
-   * Call this method before calling the blocking functions `GrpcStream::Finish`
-   * or `GrpcStream::WriteAndFinish`, otherwise they would hang.
-   */
   void KeepPollingGrpcQueue();
-
   void ShutdownGrpcQueue();
 
   AsyncQueue& worker_queue() {
@@ -92,15 +110,11 @@ class GrpcStreamTester {
   }
 
  private:
-  std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
   AsyncQueue worker_queue_;
+  core::DatabaseInfo database_info_;
 
-  grpc::GenericStub grpc_stub_;
-  grpc::CompletionQueue grpc_queue_;
-  // Context is needed to be able to cancel pending operations.
-  grpc::ClientContext* grpc_context_ = nullptr;
-
-  bool is_shut_down_ = false;
+  MockGrpcQueue mock_grpc_queue_;
+  remote::GrpcConnection grpc_connection_;
 };
 
 }  // namespace util

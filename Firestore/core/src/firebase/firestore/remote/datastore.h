@@ -31,9 +31,8 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call_interface.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/write_stream.h"
@@ -89,11 +88,13 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   std::shared_ptr<WriteStream> CreateWriteStream(
       id<FSTWriteStreamDelegate> delegate);
 
+  void CommitMutations(NSArray<FSTMutation*>* mutations,
+                       FSTVoidErrorBlock completion);
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
 
   static std::string GetWhitelistedHeadersAsString(
-      const GrpcStream::MetadataT& headers);
+      const GrpcCallInterface::MetadataT& headers);
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
@@ -103,12 +104,17 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
  private:
   void PollGrpcQueue();
 
+  void CommitMutationsWithCredentials(const auth::Token& token,
+                                      const grpc::ByteBuffer& message,
+                                      FSTVoidErrorBlock completion);
+  void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
+                                 FSTVoidErrorBlock completion);
+
   void LookupDocumentsWithCredentials(
       const auth::Token& token,
       const grpc::ByteBuffer& message,
       FSTVoidMaybeDocumentArrayErrorBlock completion);
   void OnLookupDocumentsResponse(
-      GrpcStreamingReader* call,
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,
       FSTVoidMaybeDocumentArrayErrorBlock completion);
 
@@ -117,10 +123,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void HandleCallStatus(const util::Status& status);
 
-  void RemoveGrpcCall(GrpcStreamingReader* to_remove);
+  void RemoveGrpcCall(GrpcCallInterface* to_remove);
 
-  static GrpcStream::MetadataT ExtractWhitelistedHeaders(
-      const GrpcStream::MetadataT& headers);
+  static GrpcCallInterface::MetadataT ExtractWhitelistedHeaders(
+      const GrpcCallInterface::MetadataT& headers);
 
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
@@ -131,7 +137,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   grpc::CompletionQueue grpc_queue_;
   GrpcConnection grpc_connection_;
 
-  std::vector<std::unique_ptr<GrpcStreamingReader>> lookup_calls_;
+  std::vector<std::unique_ptr<GrpcCallInterface>> active_calls_;
   bridge::DatastoreSerializer serializer_bridge_;
 };
 

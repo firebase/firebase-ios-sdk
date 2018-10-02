@@ -125,10 +125,16 @@ class TestStream : public Stream {
     return observed_states_;
   }
 
+  grpc::ClientContext* context() {
+    return context_;
+  }
+
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(GrpcConnection*,
                                                const Token&) override {
-    return tester_->CreateStream(this);
+    auto result = tester_->CreateStream(this);
+    context_ = result->context();
+    return result;
   }
   void TearDown(GrpcStream* stream) override {
     stream->Finish();
@@ -142,6 +148,9 @@ class TestStream : public Stream {
     observed_states_.push_back("NotifyStreamResponse");
     if (fail_stream_read_) {
       fail_stream_read_ = false;
+      // The parent stream will issue a finish operation and block until it's
+      // completed, so asynchronously polling gRPC queue is necessary.
+      tester_->KeepPollingGrpcQueue();
       return util::Status{FirestoreErrorCode::Internal, ""};
     }
     return util::Status::OK();
@@ -159,6 +168,8 @@ class TestStream : public Stream {
   GrpcStreamTester* tester_ = nullptr;
   std::vector<std::string> observed_states_;
   bool fail_stream_read_ = false;
+
+  grpc::ClientContext* context_ = nullptr;
 };
 
 }  // namespace
@@ -172,7 +183,7 @@ class StreamTest : public testing::Test {
   ~StreamTest() {
     async_queue().EnqueueBlocking([&] {
       if (firestore_stream && firestore_stream->IsStarted()) {
-        tester_.KeepPollingGrpcQueue();
+        KeepPollingGrpcQueue();
         firestore_stream->Stop();
       }
     });
@@ -180,14 +191,16 @@ class StreamTest : public testing::Test {
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
-    tester_.ForceFinish(results);
+    tester_.ForceFinish(firestore_stream->context(), results);
   }
+
   void KeepPollingGrpcQueue() {
     tester_.KeepPollingGrpcQueue();
   }
 
   void StartStream() {
     async_queue().EnqueueBlocking([&] { firestore_stream->Start(); });
+    async_queue().EnqueueBlocking([] {});
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -325,8 +338,8 @@ TEST_F(StreamTest, ClosesOnIdle) {
 
   async_queue().EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
 
-  KeepPollingGrpcQueue();
   EXPECT_TRUE(async_queue().IsScheduled(kIdleTimerId));
+  KeepPollingGrpcQueue();
   async_queue().RunScheduledOperationsUntil(kIdleTimerId);
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
@@ -341,7 +354,6 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
   firestore_stream->FailStreamRead();
   ForceFinish({/*Read*/ Ok});
 
-  KeepPollingGrpcQueue();
   async_queue().EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());

@@ -34,13 +34,15 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+class GrpcConnection;
+
 /**
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader : public GrpcStreamObserver {
+class GrpcStreamingReader : public GrpcCallInterface,
+                            public GrpcStreamObserver {
  public:
-  using MetadataT = GrpcStream::MetadataT;
   using ResponsesT = std::vector<grpc::ByteBuffer>;
   using CallbackT = std::function<void(const util::StatusOr<ResponsesT>&)>;
 
@@ -48,6 +50,7 @@ class GrpcStreamingReader : public GrpcStreamObserver {
       std::unique_ptr<grpc::ClientContext> context,
       std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
       util::AsyncQueue* worker_queue,
+      GrpcConnection* grpc_connection,
       const grpc::ByteBuffer& request);
 
   /**
@@ -67,20 +70,28 @@ class GrpcStreamingReader : public GrpcStreamObserver {
    * If this function succeeds in cancelling the call, the callback will not be
    * invoked.
    */
-  void Cancel();
+  void Finish() override;
+
+  void FinishWithError(const util::Status& status) override;
 
   /**
    * Returns the metadata received from the server.
    *
-   * Can only be called once the `GrpcStreamingReader` has started.
+   * Can only be called once the `GrpcStreamingReader` has received the first
+   * message from the server.
    */
-  MetadataT GetResponseHeaders() const {
+  MetadataT GetResponseHeaders() const override {
     return stream_->GetResponseHeaders();
   }
 
   void OnStreamStart() override;
   void OnStreamRead(const grpc::ByteBuffer& message) override;
   void OnStreamFinish(const util::Status& status) override;
+
+  // For tests only
+  grpc::ClientContext* context() {
+    return stream_->context();
+  }
 
  private:
   std::unique_ptr<GrpcStream> stream_;
