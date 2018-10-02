@@ -1,3 +1,17 @@
+# 2018-10-09 -- v3.2.0
+- Now you can access the message ID of FIRMessagingRemoteMessage object. (#1861)
+- Add a new boolean value useFIRMessagingDelegateForDirectMessageDelivery if you
+  want all your direct channel data messages to be delivered in
+  FIRMessagingDelegate. If you don't use the new flag, for iOS 10 and above,
+  direct channel data messages are delivered in
+  `FIRMessagingDelegate messaging:didReceiveMessage:`; for iOS 9 and below,
+  direct channel data messages are delivered in Apple's
+  `AppDelegate application:didReceiveRemoteNotification:fetchCompletionHandler:`.
+  So if you set the useFIRMessagingDelegateForDirectMessageDelivery to true,
+  direct channel data messages are delivered in FIRMessagingDelegate across all
+  iOS versions. (#1875)
+- Fix an issue that callback is not triggered when topic name is invalid. (#1880)
+
 # 2018-08-28 -- v3.1.1
 - Ensure NSUserDefaults is persisted properly before app close. (#1646)
 - Internal code cleanup. (#1666)
