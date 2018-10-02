@@ -111,6 +111,11 @@ std::unique_ptr<GrpcStreamingReader> GrpcStreamTester::CreateStreamingReader() {
                                                 grpc::ByteBuffer{});
 }
 
+std::unique_ptr<remote::GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
+  return grpc_connection_.CreateUnaryCall("", Token{"", User{}},
+                                                grpc::ByteBuffer{});
+}
+
 void GrpcStreamTester::ShutdownGrpcQueue() {
   mock_grpc_queue_.Shutdown();
 }

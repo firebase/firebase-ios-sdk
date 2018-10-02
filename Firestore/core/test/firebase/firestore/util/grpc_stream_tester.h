@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "absl/types/optional.h"
@@ -87,6 +88,7 @@ class GrpcStreamTester {
   std::unique_ptr<remote::GrpcStream> CreateStream(
       remote::GrpcStreamObserver* observer);
   std::unique_ptr<remote::GrpcStreamingReader> CreateStreamingReader();
+  std::unique_ptr<remote::GrpcUnaryCall> CreateUnaryCall();
 
   /**
    * Takes as many completions off gRPC completion queue as there are elements
