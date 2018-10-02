@@ -60,10 +60,11 @@ class GrpcUnaryCall : public GrpcCallInterface {
   void Start(CallbackT&& callback);
 
   /**
-   * If the call is in progress, attempts to cancel the call; otherwise, it's
-   * a no-op. Cancellation is done on best-effort basis; however:
+   * If the call is in progress, attempts to finish the call early, effectively
+   * cancelling it; otherwise, it's a no-op. Cancellation is done on best-effort
+   * basis; however:
    * - the call is guaranteed to be finished when this function returns;
-   * - this function is blocking but should finish very fast (order of
+   * - this function is blocking but should be done very fast (order of
    *   milliseconds).
    *
    * If this function succeeds in cancelling the call, the callback will not be
@@ -71,6 +72,7 @@ class GrpcUnaryCall : public GrpcCallInterface {
    */
   void Finish() override;
 
+  /** Like `Finish`, but always invokes the callback with the given `status`. */
   void FinishWithError(const util::Status& status) override;
 
   /**
