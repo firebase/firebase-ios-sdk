@@ -17,29 +17,29 @@
 #import "FIRDeleteAccountRequest.h"
 
 /** @var kCreateAuthURIEndpoint
-    @brief The "deleteAccount" endpoint.
+ @brief The "deleteAccount" endpoint.
  */
 static NSString *const kDeleteAccountEndpoint = @"deleteAccount";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
+ @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+ despite it's confusing (backwards compatiable) parameter name.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
 /** @var kLocalIDKey
-    @brief The key for the "localID" value in the request.
+ @brief The key for the "localID" value in the request.
  */
 static NSString *const kLocalIDKey = @"localId";
 
 @implementation FIRDeleteAccountRequest {
   /** @var _accessToken
-      @brief The STS Access Token of the authenticated user.
+   @brief The STS Access Token of the authenticated user.
    */
   NSString *_accessToken;
-
+  
   /** @var _localID
-      @brief The localID of the user.
+   @brief The localID of the user.
    */
   NSString *_localID;
 }

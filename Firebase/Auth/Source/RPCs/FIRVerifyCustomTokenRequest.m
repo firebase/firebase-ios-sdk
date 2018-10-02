@@ -17,17 +17,17 @@
 #import "FIRVerifyCustomTokenRequest.h"
 
 /** @var kVerifyCustomTokenEndpoint
-    @brief The "verifyPassword" endpoint.
+ @brief The "verifyPassword" endpoint.
  */
 static NSString *const kVerifyCustomTokenEndpoint = @"verifyCustomToken";
 
 /** @var kTokenKey
-    @brief The key for the "token" value in the request.
+ @brief The key for the "token" value in the request.
  */
 static NSString *const kTokenKey = @"token";
 
 /** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
+ @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
@@ -46,8 +46,8 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *body = [@{
-    kTokenKey : _token
-  } mutableCopy];
+                                 kTokenKey : _token
+                                 } mutableCopy];
   if (_returnSecureToken) {
     body[kReturnSecureTokenKey] = @YES;
   }

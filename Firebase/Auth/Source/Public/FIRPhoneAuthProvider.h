@@ -23,81 +23,81 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var FIRPhoneAuthProviderID
-    @brief A string constant identifying the phone identity provider.
+ @brief A string constant identifying the phone identity provider.
  */
 extern NSString *const FIRPhoneAuthProviderID NS_SWIFT_NAME(PhoneAuthProviderID);
 
 /** @var FIRPhoneAuthProviderID
-    @brief A string constant identifying the phone sign-in method.
+ @brief A string constant identifying the phone sign-in method.
  */
 extern NSString *const _Nonnull FIRPhoneAuthSignInMethod NS_SWIFT_NAME(PhoneAuthSignInMethod);
 
 
 /** @typedef FIRVerificationResultCallback
-    @brief The type of block invoked when a request to send a verification code has finished.
+ @brief The type of block invoked when a request to send a verification code has finished.
 
-    @param verificationID On success, the verification ID provided, nil otherwise.
-    @param error On error, the error that occurred, nil otherwise.
+ @param verificationID On success, the verification ID provided, nil otherwise.
+ @param error On error, the error that occurred, nil otherwise.
  */
 typedef void (^FIRVerificationResultCallback)(NSString *_Nullable verificationID,
                                               NSError *_Nullable error)
-    NS_SWIFT_NAME(VerificationResultCallback);
+NS_SWIFT_NAME(VerificationResultCallback);
 
 /** @class FIRPhoneAuthProvider
-    @brief A concrete implementation of `FIRAuthProvider` for phone auth providers.
+ @brief A concrete implementation of `FIRAuthProvider` for phone auth providers.
  */
 NS_SWIFT_NAME(PhoneAuthProvider)
 @interface FIRPhoneAuthProvider : NSObject
 
 /** @fn provider
-    @brief Returns an instance of `FIRPhoneAuthProvider` for the default `FIRAuth` object.
+ @brief Returns an instance of `FIRPhoneAuthProvider` for the default `FIRAuth` object.
  */
 + (instancetype)provider NS_SWIFT_NAME(provider());
 
 /** @fn providerWithAuth:
-    @brief Returns an instance of `FIRPhoneAuthProvider` for the provided `FIRAuth` object.
+ @brief Returns an instance of `FIRPhoneAuthProvider` for the provided `FIRAuth` object.
 
-    @param auth The auth object to associate with the phone auth provider instance.
+ @param auth The auth object to associate with the phone auth provider instance.
  */
 + (instancetype)providerWithAuth:(FIRAuth *)auth NS_SWIFT_NAME(provider(auth:));
 
 /** @fn verifyPhoneNumber:UIDelegate:completion:
-    @brief Starts the phone number authentication flow by sending a verifcation code to the
-        specified phone number.
-    @param phoneNumber The phone number to be verified.
-    @param UIDelegate An object used to present the SFSafariViewController. The object is retained
-        by this method until the completion block is executed.
-    @param completion The callback to be invoked when the verification flow is finished.
-    @remarks Possible error codes:
+ @brief Starts the phone number authentication flow by sending a verifcation code to the
+ specified phone number.
+ @param phoneNumber The phone number to be verified.
+ @param UIDelegate An object used to present the SFSafariViewController. The object is retained
+ by this method until the completion block is executed.
+ @param completion The callback to be invoked when the verification flow is finished.
+ @remarks Possible error codes:
 
-        + `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-            the Firebase Auth is invalid or has expired.
-        + `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-            project has been exceeded.
-        + `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-            invalid.
-        + `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+ + `FIRAuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+ the Firebase Auth is invalid or has expired.
+ + `FIRAuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+ project has been exceeded.
+ + `FIRAuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+ invalid.
+ + `FIRAuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
  */
 - (void)verifyPhoneNumber:(NSString *)phoneNumber
                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                completion:(nullable FIRVerificationResultCallback)completion;
 
 /** @fn credentialWithVerificationID:verificationCode:
-    @brief Creates an `FIRAuthCredential` for the phone number provider identified by the
-        verification ID and verification code.
+ @brief Creates an `FIRAuthCredential` for the phone number provider identified by the
+ verification ID and verification code.
 
-    @param verificationID The verification ID obtained from invoking
-        verifyPhoneNumber:completion:
-    @param verificationCode The verification code obtained from the user.
-    @return The corresponding phone auth credential for the verification ID and verification code
-        provided.
+ @param verificationID The verification ID obtained from invoking
+ verifyPhoneNumber:completion:
+ @param verificationCode The verification code obtained from the user.
+ @return The corresponding phone auth credential for the verification ID and verification code
+ provided.
  */
 - (FIRPhoneAuthCredential *)credentialWithVerificationID:(NSString *)verificationID
                                         verificationCode:(NSString *)verificationCode;
 
 /** @fn init
-    @brief Please use the `provider` or `providerWithAuth:` methods to obtain an instance of
-        `FIRPhoneAuthProvider`.
+ @brief Please use the `provider` or `providerWithAuth:` methods to obtain an instance of
+ `FIRPhoneAuthProvider`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

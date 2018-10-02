@@ -21,12 +21,12 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRUserMetadata
 
 /** @var kCreationDateCodingKey
-    @brief The key used to encode the creationDate property for NSSecureCoding.
+ @brief The key used to encode the creationDate property for NSSecureCoding.
  */
 static NSString *const kCreationDateCodingKey = @"creationDate";
 
 /** @var kLastSignInDateCodingKey
-    @brief The key used to encode the lastSignInDate property for NSSecureCoding.
+ @brief The key used to encode the lastSignInDate property for NSSecureCoding.
  */
 static NSString *const kLastSignInDateCodingKey = @"lastSignInDate";
 
@@ -48,9 +48,9 @@ static NSString *const kLastSignInDateCodingKey = @"lastSignInDate";
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSDate *creationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kCreationDateCodingKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kCreationDateCodingKey];
   NSDate *lastSignInDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kLastSignInDateCodingKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kLastSignInDateCodingKey];
   return [self initWithCreationDate:creationDate lastSignInDate:lastSignInDate];
 }
 

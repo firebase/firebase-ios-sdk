@@ -22,35 +22,35 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRVerifyCustomTokenRequest
-    @brief Represents the parameters for the verifyCustomToken endpoint.
+ @brief Represents the parameters for the verifyCustomToken endpoint.
  */
 @interface FIRVerifyCustomTokenRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property token
-    @brief The self-signed token from the client's BYOAuth server.
+ @brief The self-signed token from the client's BYOAuth server.
  */
 @property(nonatomic, copy, readonly) NSString *token;
 
 /** @property returnSecureToken
-    @brief Whether the response should return access token and refresh token directly.
-    @remarks The default value is @c YES .
+ @brief Whether the response should return access token and refresh token directly.
+ @remarks The default value is @c YES .
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithToken:requestConfiguration: instead.
+ @brief Please use initWithToken:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint requestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration  NS_UNAVAILABLE;
+(FIRAuthRequestConfiguration *)requestConfiguration  NS_UNAVAILABLE;
 
 /** @fn initWithToken:requestConfiguration:
-    @brief Designated initializer.
-    @param token The self-signed token from the client's BYOAuth server.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param token The self-signed token from the client's BYOAuth server.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithToken:(NSString *)token
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

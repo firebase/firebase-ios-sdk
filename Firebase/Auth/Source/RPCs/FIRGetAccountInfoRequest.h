@@ -22,31 +22,31 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRGetAccountInfoRequest
-    @brief Represents the parameters for the getAccountInfo endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
+ @brief Represents the parameters for the getAccountInfo endpoint.
+ @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
 @interface FIRGetAccountInfoRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property accessToken
-    @brief The STS Access Token for the authenticated user.
+ @brief The STS Access Token for the authenticated user.
  */
 @property(nonatomic, copy) NSString *accessToken;
 
 /** @fn initWithEndpoint:requestConfiguration:requestConfiguration
-    @brief Please use initWithAccessToken:requestConfiguration: instead.
+ @brief Please use initWithAccessToken:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithAccessToken:requestConfiguration
-    @brief Designated initializer.
-    @param accessToken The Access Token of the authenticated user.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param accessToken The Access Token of the authenticated user.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithAccessToken:(NSString *)accessToken
                         requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                            NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

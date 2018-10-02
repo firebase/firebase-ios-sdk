@@ -22,61 +22,61 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthAppCredentialCallback
-    @brief The type of block to receive an app crdential.
-    @param credential The best available app credential at the time.
+ @brief The type of block to receive an app crdential.
+ @param credential The best available app credential at the time.
  */
 typedef void (^FIRAuthAppCredentialCallback)(FIRAuthAppCredential *credential);
 
 /** @class FIRAuthAppCredentialManager
-    @brief A class to manage app credentials backed by iOS Keychain.
+ @brief A class to manage app credentials backed by iOS Keychain.
  */
 @interface FIRAuthAppCredentialManager : NSObject
 
 /** @property credential
-    @brief The full credential (which has a secret) to be used by the app, if one is available.
+ @brief The full credential (which has a secret) to be used by the app, if one is available.
  */
 @property(nonatomic, strong, readonly, nullable) FIRAuthAppCredential *credential;
 
 /** @property maximumNumberOfPendingReceipts
-    @brief The maximum (but not necessarily the minimum) number of pending receipts to be kept.
-    @remarks Only tests should access this property.
+ @brief The maximum (but not necessarily the minimum) number of pending receipts to be kept.
+ @remarks Only tests should access this property.
  */
 @property(nonatomic, assign, readonly) NSUInteger maximumNumberOfPendingReceipts;
 
 /** @fn init
-    @brief Call @c initWithKeychain: to initialize an instance of this class.
+ @brief Call @c initWithKeychain: to initialize an instance of this class.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithKeychain:
-    @brief Initializes the instance.
-    @param keychain The iOS Keychain storage to back up the app credential with.
-    @return The initialized instance.
+ @brief Initializes the instance.
+ @param keychain The iOS Keychain storage to back up the app credential with.
+ @return The initialized instance.
  */
 - (instancetype)initWithKeychain:(FIRAuthKeychain *)keychain NS_DESIGNATED_INITIALIZER;
 
 /** @fn didStartVerificationWithReceipt:timeout:callback:
-    @brief Notifies that the app verification process has started.
-    @param receipt The receipt for verification.
-    @param timeout The timeout value for how long the callback is waited to be called.
-    @param callback The block to be called in future either when the verification finishes, or
-        when timeout occurs, whichever happens earlier.
+ @brief Notifies that the app verification process has started.
+ @param receipt The receipt for verification.
+ @param timeout The timeout value for how long the callback is waited to be called.
+ @param callback The block to be called in future either when the verification finishes, or
+ when timeout occurs, whichever happens earlier.
  */
 - (void)didStartVerificationWithReceipt:(NSString *)receipt
                                 timeout:(NSTimeInterval)timeout
                                callback:(FIRAuthAppCredentialCallback)callback;
 
 /** @fn canFinishVerificationWithReceipt:
-    @brief Attempts to finish verification.
-    @param receipt The receipt to match the original receipt obtained when verification started.
-    @param secret The secret to complete the verification.
-    @return Whether or not the receipt matches a pending verification, and finishes verification
-        if it does.
+ @brief Attempts to finish verification.
+ @param receipt The receipt to match the original receipt obtained when verification started.
+ @param secret The secret to complete the verification.
+ @return Whether or not the receipt matches a pending verification, and finishes verification
+ if it does.
  */
 - (BOOL)canFinishVerificationWithReceipt:(NSString *)receipt secret:(NSString *)secret;
 
 /** @fn clearCredential
-    @brief Clears the saved credential, to be used in the case that it is rejected by the server.
+ @brief Clears the saved credential, to be used in the case that it is rejected by the server.
  */
 - (void)clearCredential;
 

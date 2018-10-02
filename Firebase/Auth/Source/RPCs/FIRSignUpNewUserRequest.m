@@ -17,27 +17,27 @@
 #import "FIRSignUpNewUserRequest.h"
 
 /** @var kSignupNewUserEndpoint
-    @brief The "SingupNewUserEndpoint" endpoint.
+ @brief The "SingupNewUserEndpoint" endpoint.
  */
 static NSString *const kSignupNewUserEndpoint = @"signupNewUser";
 
 /** @var kEmailKey
-    @brief The key for the "email" value in the request.
+ @brief The key for the "email" value in the request.
  */
 static NSString *const kEmailKey = @"email";
 
 /** @var kPasswordKey
-    @brief The key for the "password" value in the request.
+ @brief The key for the "password" value in the request.
  */
 static NSString *const kPasswordKey = @"password";
 
 /** @var kDisplayNameKey
-    @brief The key for the "kDisplayName" value in the request.
+ @brief The key for the "kDisplayName" value in the request.
  */
 static NSString *const kDisplayNameKey = @"displayName";
 
 /** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
+ @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
@@ -58,12 +58,12 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 }
 
 - (nullable instancetype)initWithRequestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration {
-    self = [self initWithEmail:nil
-                      password:nil
-                   displayName:nil
-          requestConfiguration:requestConfiguration];
-    return self;
+(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [self initWithEmail:nil
+                    password:nil
+                 displayName:nil
+        requestConfiguration:requestConfiguration];
+  return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {

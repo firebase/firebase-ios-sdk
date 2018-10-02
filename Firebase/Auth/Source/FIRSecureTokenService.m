@@ -25,27 +25,27 @@
 #import "FIRSecureTokenResponse.h"
 
 /** @var kAPIKeyCodingKey
-    @brief The key used to encode the APIKey for NSSecureCoding.
+ @brief The key used to encode the APIKey for NSSecureCoding.
  */
 static NSString *const kAPIKeyCodingKey = @"APIKey";
 
 /** @var kRefreshTokenKey
-    @brief The key used to encode the refresh token for NSSecureCoding.
+ @brief The key used to encode the refresh token for NSSecureCoding.
  */
 static NSString *const kRefreshTokenKey = @"refreshToken";
 
 /** @var kAccessTokenKey
-    @brief The key used to encode the access token for NSSecureCoding.
+ @brief The key used to encode the access token for NSSecureCoding.
  */
 static NSString *const kAccessTokenKey = @"accessToken";
 
 /** @var kAccessTokenExpirationDateKey
-    @brief The key used to encode the access token expiration date for NSSecureCoding.
+ @brief The key used to encode the access token expiration date for NSSecureCoding.
  */
 static NSString *const kAccessTokenExpirationDateKey = @"accessTokenExpirationDate";
 
 /** @var kFiveMinutes
-    @brief Five minutes (in seconds.)
+ @brief Five minutes (in seconds.)
  */
 static const NSTimeInterval kFiveMinutes = 5 * 60;
 
@@ -55,17 +55,17 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 
 @implementation FIRSecureTokenService {
   /** @var _taskQueue
-      @brief Used to serialize all requests for access tokens.
+   @brief Used to serialize all requests for access tokens.
    */
   FIRAuthSerialTaskQueue *_taskQueue;
-
+  
   /** @var _authorizationCode
-      @brief An authorization code which needs to be exchanged for Secure Token Service tokens.
+   @brief An authorization code which needs to be exchanged for Secure Token Service tokens.
    */
   NSString *_Nullable _authorizationCode;
-
+  
   /** @var _accessToken
-      @brief The currently cached access token. Or |nil| if no token is currently cached.
+   @brief The currently cached access token. Or |nil| if no token is currently cached.
    */
   NSString *_Nullable _accessToken;
 }
@@ -133,7 +133,7 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   NSString *refreshToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kRefreshTokenKey];
   NSString *accessToken = [aDecoder decodeObjectOfClass:[NSString class] forKey:kAccessTokenKey];
   NSDate *accessTokenExpirationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAccessTokenExpirationDateKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAccessTokenExpirationDateKey];
   if (!refreshToken) {
     return nil;
   }
@@ -159,16 +159,16 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
 #pragma mark - Private methods
 
 /** @fn requestAccessToken:
-    @brief Makes a request to STS for an access token.
-    @details This handles both the case that the token has not been granted yet and that it just
-        needs to be refreshed. The caller is responsible for making sure that this is occurring in
-        a @c _taskQueue task.
-    @param callback Called when the fetch is complete. Invoked asynchronously on the main thread in
-        the future.
-    @remarks Because this method is guaranteed to only be called from tasks enqueued in
-        @c _taskQueue, we do not need any @synchronized guards around access to _accessToken/etc.
-        since only one of those tasks is ever running at a time, and those tasks are the only
-        access to and mutation of these instance variables.
+ @brief Makes a request to STS for an access token.
+ @details This handles both the case that the token has not been granted yet and that it just
+ needs to be refreshed. The caller is responsible for making sure that this is occurring in
+ a @c _taskQueue task.
+ @param callback Called when the fetch is complete. Invoked asynchronously on the main thread in
+ the future.
+ @remarks Because this method is guaranteed to only be called from tasks enqueued in
+ @c _taskQueue, we do not need any @synchronized guards around access to _accessToken/etc.
+ since only one of those tasks is ever running at a time, and those tasks are the only
+ access to and mutation of these instance variables.
  */
 - (void)requestAccessToken:(FIRFetchAccessTokenCallback)callback {
   FIRSecureTokenRequest *request;
@@ -182,21 +182,21 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   [FIRAuthBackend secureToken:request
                      callback:^(FIRSecureTokenResponse *_Nullable response,
                                 NSError *_Nullable error) {
-    BOOL tokenUpdated = NO;
-    NSString *newAccessToken = response.accessToken;
+                       BOOL tokenUpdated = NO;
+                       NSString *newAccessToken = response.accessToken;
                        if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
                          self->_accessToken = [newAccessToken copy];
                          self->_accessTokenExpirationDate = response.approximateExpirationDate;
-      tokenUpdated = YES;
-    }
-    NSString *newRefreshToken = response.refreshToken;
+                         tokenUpdated = YES;
+                       }
+                       NSString *newRefreshToken = response.refreshToken;
                        if (newRefreshToken.length &&
                            ![newRefreshToken isEqualToString:self->_refreshToken]) {
                          self->_refreshToken = [newRefreshToken copy];
-      tokenUpdated = YES;
-    }
-    callback(newAccessToken, error, tokenUpdated);
-  }];
+                         tokenUpdated = YES;
+                       }
+                       callback(newAccessToken, error, tokenUpdated);
+                     }];
 }
 
 - (BOOL)hasValidAccessToken {

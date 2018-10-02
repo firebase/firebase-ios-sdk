@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, FIRAuthAPNSTokenType) {
 
   /** Unknown token type.
-      The actual token type will be detected from the provisioning profile in the app's bundle.
+   The actual token type will be detected from the provisioning profile in the app's bundle.
    */
   FIRAuthAPNSTokenTypeUnknown,
 

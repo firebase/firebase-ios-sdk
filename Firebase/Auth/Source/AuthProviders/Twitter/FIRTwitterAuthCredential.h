@@ -21,27 +21,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRTwitterAuthCredential
-    @brief Internal implementation of FIRAuthCredential for Twitter credentials.
+ @brief Internal implementation of FIRAuthCredential for Twitter credentials.
  */
 @interface FIRTwitterAuthCredential : FIRAuthCredential
 
 /** @property token
-    @brief The Twitter OAuth token.
+ @brief The Twitter OAuth token.
  */
 @property(nonatomic, readonly) NSString *token;
 
 /** @property secret
-    @brief The Twitter OAuth secret.
+ @brief The Twitter OAuth secret.
  */
 @property(nonatomic, readonly) NSString *secret;
 
 /** @fn initWithToken:secret:
-    @brief Designated initializer.
-    @param token The Twitter OAuth token.
-    @param secret The Twitter OAuth secret.
+ @brief Designated initializer.
+ @param token The Twitter OAuth token.
+ @param secret The Twitter OAuth secret.
  */
 - (nullable instancetype)initWithToken:(NSString *)token secret:(NSString *)secret
-    NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

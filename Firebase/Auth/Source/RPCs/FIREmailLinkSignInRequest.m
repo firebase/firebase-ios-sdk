@@ -17,27 +17,27 @@
 #import "FIREmailLinkSignInRequest.h"
 
 /** @var kEmailLinkSigninEndpoint
-    @brief The "EmailLinkSignin" endpoint.
+ @brief The "EmailLinkSignin" endpoint.
  */
 static NSString *const kEmailLinkSigninEndpoint = @"emailLinkSignin";
 
 /** @var kEmailKey
-    @brief The key for the "identifier" value in the request.
+ @brief The key for the "identifier" value in the request.
  */
 static NSString *const kEmailKey = @"email";
 
 /** @var kEmailLinkKey
-    @brief The key for the "emailLink" value in the request.
+ @brief The key for the "emailLink" value in the request.
  */
 static NSString *const kOOBCodeKey = @"oobCode";
 
 /** @var kIDTokenKey
-    @brief The key for the "IDToken" value in the request.
+ @brief The key for the "IDToken" value in the request.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
 /** @var kPostBodyKey
-    @brief The key for the "postBody" value in the request.
+ @brief The key for the "postBody" value in the request.
  */
 static NSString *const kPostBodyKey = @"postBody";
 
@@ -57,10 +57,10 @@ static NSString *const kPostBodyKey = @"postBody";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *postBody = [@{
-    kEmailKey : _email,
-    kOOBCodeKey : _oobCode,
-  } mutableCopy];
-
+                                     kEmailKey : _email,
+                                     kOOBCodeKey : _oobCode,
+                                     } mutableCopy];
+  
   if (_IDToken) {
     postBody[kIDTokenKey] = _IDToken;
   }

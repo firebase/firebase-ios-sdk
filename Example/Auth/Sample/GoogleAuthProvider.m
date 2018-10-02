@@ -25,23 +25,23 @@
 #import "ApplicationDelegate.h"
 
 /** @typedef GoogleSignInCallback
-    @brief The type of block invoked when a @c GIDGoogleUser object is ready or an error has
-        occurred.
-    @param user The Google user if any.
-    @param error The error which occurred, if any.
+ @brief The type of block invoked when a @c GIDGoogleUser object is ready or an error has
+ occurred.
+ @param user The Google user if any.
+ @param error The error which occurred, if any.
  */
 typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 
 /** @class GoogleAuthDelegate
-    @brief The designated delegate class for Google Sign-In.
+ @brief The designated delegate class for Google Sign-In.
  */
 @interface GoogleAuthDelegate : NSObject <GIDSignInDelegate, GIDSignInUIDelegate, OpenURLDelegate>
 
 /** @fn initWithPresentingViewController:callback:
-    @brief Initializes the new instance with the callback.
-    @param presentingViewController The view controller to present the UI.
-    @param callback A block which is invoked when the sign-in flow finishes. Invoked asynchronously
-        on an unspecified thread in the future.
+ @brief Initializes the new instance with the callback.
+ @param presentingViewController The view controller to present the UI.
+ @param callback A block which is invoked when the sign-in flow finishes. Invoked asynchronously
+ on an unspecified thread in the future.
  */
 - (instancetype)initWithPresentingViewController:(UIViewController *)presentingViewController
                                         callback:(nullable GoogleSignInCallback)callback;
@@ -64,8 +64,8 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 }
 
 - (void)signIn:(GIDSignIn *)signIn
-    didSignInForUser:(GIDGoogleUser *)user
-           withError:(NSError *)error {
+didSignInForUser:(GIDGoogleUser *)user
+     withError:(NSError *)error {
   GoogleSignInCallback callback = _callback;
   _callback = nil;
   if (callback) {
@@ -94,22 +94,22 @@ typedef void (^GoogleSignInCallback)(GIDGoogleUser *user, NSError *error);
 - (void)getAuthCredentialWithPresentingViewController:(UIViewController *)viewController
                                              callback:(AuthCredentialCallback)callback {
   [self signOut];
-
+  
   // The delegate needs to be retained.
   __block GoogleAuthDelegate *delegate = [[GoogleAuthDelegate alloc]
-      initWithPresentingViewController:viewController
-                              callback:^(GIDGoogleUser *user, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
-    delegate = nil;
-    if (error) {
-      callback(nil, error);
-      return;
-    }
-    GIDAuthentication *auth = user.authentication;
-    FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:auth.idToken
-                                                                     accessToken:auth.accessToken];
-    callback(credential, error);
-  }];
+                                          initWithPresentingViewController:viewController
+                                          callback:^(GIDGoogleUser *user, NSError *error) {
+                                            [ApplicationDelegate setOpenURLDelegate:nil];
+                                            delegate = nil;
+                                            if (error) {
+                                              callback(nil, error);
+                                              return;
+                                            }
+                                            GIDAuthentication *auth = user.authentication;
+                                            FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:auth.idToken
+                                                                                                             accessToken:auth.accessToken];
+                                            callback(credential, error);
+                                          }];
   GIDSignIn *signIn = [GIDSignIn sharedInstance];
   signIn.clientID = [self googleClientID];
   signIn.shouldFetchBasicProfile = YES;

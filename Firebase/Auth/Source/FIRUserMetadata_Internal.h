@@ -21,14 +21,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @extension FIRUserMetadata
-    @brief An internal class used to expose internal methods of FIRUserMetadata.
+ @brief An internal class used to expose internal methods of FIRUserMetadata.
  */
 @interface FIRUserMetadata () <NSSecureCoding>
 
 /** @fn initWithCreationDate:lastSignInDate:
-    @brief Designated initializer.
-    @param creationDate The creation date of the corresponding user.
-    @param lastSignInDate The date of the last recorded sign-in of the corresponding user.
+ @brief Designated initializer.
+ @param creationDate The creation date of the corresponding user.
+ @param lastSignInDate The date of the last recorded sign-in of the corresponding user.
  */
 - (instancetype)initWithCreationDate:(nullable NSDate *)creationDate
                       lastSignInDate:(nullable NSDate *)lastSignInDate NS_DESIGNATED_INITIALIZER;

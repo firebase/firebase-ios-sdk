@@ -19,12 +19,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @fn FIRAuthGlobalWorkQueue
-    @brief Retrieves the global serial work queue for Firebase Auth.
-    @return The global serial dispatch queue.
-    @remarks To ensure thread safety, all auth code must be executed in either this global work
-        queue, or a serial queue that has its target queue set to this work queue. All public method
-        implementations that may involve contested code shall dispatch to this work queue as the
-        first thing they do.
+ @brief Retrieves the global serial work queue for Firebase Auth.
+ @return The global serial dispatch queue.
+ @remarks To ensure thread safety, all auth code must be executed in either this global work
+ queue, or a serial queue that has its target queue set to this work queue. All public method
+ implementations that may involve contested code shall dispatch to this work queue as the
+ first thing they do.
  */
 extern dispatch_queue_t FIRAuthGlobalWorkQueue(void);
 

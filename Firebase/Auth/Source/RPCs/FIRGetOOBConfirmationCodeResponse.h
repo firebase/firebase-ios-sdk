@@ -21,12 +21,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRGetOOBConfirmationCodeResponse
-    @brief Represents the response from the getOobConfirmationCode endpoint.
+ @brief Represents the response from the getOobConfirmationCode endpoint.
  */
 @interface FIRGetOOBConfirmationCodeResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property OOBCode
-    @brief The OOB code returned by the server in some cases.
+ @brief The OOB code returned by the server in some cases.
  */
 @property(nonatomic, copy, readonly, nullable) NSString *OOBCode;
 

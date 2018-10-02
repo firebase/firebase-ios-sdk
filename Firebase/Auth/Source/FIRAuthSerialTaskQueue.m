@@ -20,8 +20,8 @@
 
 @implementation FIRAuthSerialTaskQueue {
   /** @var _dispatchQueue
-      @brief The asyncronous dispatch queue into which tasks are enqueued and processed
-          serially.
+   @brief The asyncronous dispatch queue into which tasks are enqueued and processed
+   serially.
    */
   dispatch_queue_t _dispatchQueue;
 }

@@ -21,18 +21,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRGitHubAuthCredential
-    @brief Internal implementation of FIRAuthCredential for GitHub credentials.
+ @brief Internal implementation of FIRAuthCredential for GitHub credentials.
  */
 @interface FIRGitHubAuthCredential : FIRAuthCredential
 
 /** @property token
-    @brief The GitHub OAuth access token.
+ @brief The GitHub OAuth access token.
  */
 @property(nonatomic, readonly) NSString *token;
 
 /** @fn initWithToken:
-    @brief Designated initializer.
-    @param token The GitHub OAuth access token.
+ @brief Designated initializer.
+ @param token The GitHub OAuth access token.
  */
 - (nullable instancetype)initWithToken:(NSString *)token NS_DESIGNATED_INITIALIZER;
 

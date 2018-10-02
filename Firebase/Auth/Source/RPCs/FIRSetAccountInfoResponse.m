@@ -41,15 +41,15 @@
   _displayName = [dictionary[@"displayName"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
   _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   NSArray<NSDictionary *> *providerUserInfoData = dictionary[@"providerUserInfo"];
   if (providerUserInfoData) {
     NSMutableArray<FIRSetAccountInfoResponseProviderUserInfo *> *providerUserInfoArray =
-        [NSMutableArray arrayWithCapacity:providerUserInfoData.count];
+    [NSMutableArray arrayWithCapacity:providerUserInfoData.count];
     for (NSDictionary *dictionary in providerUserInfoData) {
       [providerUserInfoArray addObject:
-          [[FIRSetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:dictionary]];
+       [[FIRSetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:dictionary]];
     }
     _providerUserInfo = [providerUserInfoArray copy];
   }

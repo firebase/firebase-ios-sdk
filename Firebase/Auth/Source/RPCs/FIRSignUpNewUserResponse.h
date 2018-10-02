@@ -23,19 +23,19 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRSignUpNewUserResponse : NSObject<FIRAuthRPCResponse>
 
 /** @property IDToken
-    @brief Either an authorization code suitable for performing an STS token exchange, or the
-        access token from Secure Token Service, depending on whether @c returnSecureToken is set
-        on the request.
+ @brief Either an authorization code suitable for performing an STS token exchange, or the
+ access token from Secure Token Service, depending on whether @c returnSecureToken is set
+ on the request.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *IDToken;
 
 /** @property approximateExpirationDate
-    @brief The approximate expiration date of the access token.
+ @brief The approximate expiration date of the access token.
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *approximateExpirationDate;
 
 /** @property refreshToken
-    @brief The refresh token from Secure Token Service.
+ @brief The refresh token from Secure Token Service.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *refreshToken;
 

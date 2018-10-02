@@ -24,12 +24,12 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAuthDataResult
 
 /** @var kAdditionalUserInfoCodingKey
-    @brief The key used to encode the additionalUserInfo property for NSSecureCoding.
+ @brief The key used to encode the additionalUserInfo property for NSSecureCoding.
  */
 static NSString *const kAdditionalUserInfoCodingKey = @"additionalUserInfo";
 
 /** @var kUserCodingKey
-    @brief The key used to encode the user property for NSSecureCoding.
+ @brief The key used to encode the user property for NSSecureCoding.
  */
 static NSString *const kUserCodingKey = @"user";
 
@@ -51,11 +51,11 @@ static NSString *const kUserCodingKey = @"user";
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   FIRUser *user =
-      [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
+  [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
   FIRAdditionalUserInfo *additionalUserInfo =
-      [aDecoder decodeObjectOfClass:[FIRAdditionalUserInfo class]
-                             forKey:kAdditionalUserInfoCodingKey];
-
+  [aDecoder decodeObjectOfClass:[FIRAdditionalUserInfo class]
+                         forKey:kAdditionalUserInfoCodingKey];
+  
   return [self initWithUser:user additionalUserInfo:additionalUserInfo];
 }
 

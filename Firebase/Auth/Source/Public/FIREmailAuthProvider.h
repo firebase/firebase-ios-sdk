@@ -21,58 +21,58 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-    @brief A string constant identifying the email & password identity provider.
+ @brief A string constant identifying the email & password identity provider.
  */
 extern NSString *const FIREmailAuthProviderID NS_SWIFT_NAME(EmailAuthProviderID);
 
 /**
-    @brief A string constant identifying the email-link sign-in method.
+ @brief A string constant identifying the email-link sign-in method.
  */
 extern NSString *const FIREmailLinkAuthSignInMethod NS_SWIFT_NAME(EmailLinkAuthSignInMethod);
 
 /**
-    @brief A string constant identifying the email & password sign-in method.
+ @brief A string constant identifying the email & password sign-in method.
  */
 extern NSString *const FIREmailPasswordAuthSignInMethod
-    NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
+NS_SWIFT_NAME(EmailPasswordAuthSignInMethod);
 
 /**
-    @brief Please use `FIREmailAuthProviderID` for Objective-C or `EmailAuthProviderID` for Swift instead.
+ @brief Please use `FIREmailAuthProviderID` for Objective-C or `EmailAuthProviderID` for Swift instead.
  */
 extern NSString *const FIREmailPasswordAuthProviderID __attribute__((deprecated));
 
 /** @class FIREmailAuthProvider
-    @brief A concrete implementation of `FIRAuthProvider` for Email & Password Sign In.
+ @brief A concrete implementation of `FIRAuthProvider` for Email & Password Sign In.
  */
 NS_SWIFT_NAME(EmailAuthProvider)
 @interface FIREmailAuthProvider : NSObject
 
 /** @typedef FIREmailPasswordAuthProvider
-    @brief Please use `FIREmailAuthProvider` instead.
+ @brief Please use `FIREmailAuthProvider` instead.
  */
 typedef FIREmailAuthProvider FIREmailPasswordAuthProvider __attribute__((deprecated));
 
 
 /** @fn credentialWithEmail:password:
-    @brief Creates an `FIRAuthCredential` for an email & password sign in.
-
-    @param email The user's email address.
-    @param password The user's password.
-    @return A FIRAuthCredential containing the email & password credential.
+ @brief Creates an `FIRAuthCredential` for an email & password sign in.
+ 
+ @param email The user's email address.
+ @param password The user's password.
+ @return A FIRAuthCredential containing the email & password credential.
  */
 + (FIRAuthCredential *)credentialWithEmail:(NSString *)email password:(NSString *)password;
 
 /** @fn credentialWithEmail:Link:
-    @brief Creates an `FIRAuthCredential` for an email & link sign in.
-
-    @param email The user's email address.
-    @param link The email sign-in link.
-    @return A FIRAuthCredential containing the email & link credential.
+ @brief Creates an `FIRAuthCredential` for an email & link sign in.
+ 
+ @param email The user's email address.
+ @param link The email sign-in link.
+ @return A FIRAuthCredential containing the email & link credential.
  */
 + (FIRAuthCredential *)credentialWithEmail:(NSString *)email link:(NSString *)link;
 
 /** @fn init
-    @brief This class is not meant to be initialized.
+ @brief This class is not meant to be initialized.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

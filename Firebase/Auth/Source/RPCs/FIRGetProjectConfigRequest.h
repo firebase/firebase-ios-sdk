@@ -23,18 +23,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRGetProjectConfigRequest : FIRIdentityToolkitRequest<FIRAuthRPCRequest>
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithRequestConfiguration:
+ @brief Please use initWithRequestConfiguration:
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithTemporaryProof:phoneNumberAPIKey
-    @brief Designated initializer.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithRequestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration NS_DESIGNATED_INITIALIZER;
+(FIRAuthRequestConfiguration *)requestConfiguration NS_DESIGNATED_INITIALIZER;
 
 @end
 

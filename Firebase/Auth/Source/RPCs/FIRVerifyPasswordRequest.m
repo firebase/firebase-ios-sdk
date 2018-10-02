@@ -17,37 +17,37 @@
 #import "FIRVerifyPasswordRequest.h"
 
 /** @var kVerifyPasswordEndpoint
-    @brief The "verifyPassword" endpoint.
+ @brief The "verifyPassword" endpoint.
  */
 static NSString *const kVerifyPasswordEndpoint = @"verifyPassword";
 
 /** @var kEmailKey
-    @brief The key for the "email" value in the request.
+ @brief The key for the "email" value in the request.
  */
 static NSString *const kEmailKey = @"email";
 
 /** @var kPasswordKey
-    @brief The key for the "password" value in the request.
+ @brief The key for the "password" value in the request.
  */
 static NSString *const kPasswordKey = @"password";
 
 /** @var kPendingIDTokenKey
-    @brief The key for the "pendingIdToken" value in the request.
+ @brief The key for the "pendingIdToken" value in the request.
  */
 static NSString *const kPendingIDTokenKey = @"pendingIdToken";
 
 /** @var kCaptchaChallengeKey
-    @brief The key for the "captchaChallenge" value in the request.
+ @brief The key for the "captchaChallenge" value in the request.
  */
 static NSString *const kCaptchaChallengeKey = @"captchaChallenge";
 
 /** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
+ @brief The key for the "captchaResponse" value in the request.
  */
 static NSString *const kCaptchaResponseKey = @"captchaResponse";
 
 /** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
+ @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 

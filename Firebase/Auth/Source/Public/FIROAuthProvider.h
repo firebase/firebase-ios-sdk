@@ -21,20 +21,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIROAuthProvider
-    @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.
+ @brief A concrete implementation of `FIRAuthProvider` for generic OAuth Providers.
  */
 NS_SWIFT_NAME(OAuthProvider)
 @interface FIROAuthProvider : NSObject
 
 /** @fn credentialWithProviderID:IDToken:accessToken:
-    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
-        token and access token.
-
-    @param providerID The provider ID associated with the Auth credential being created.
-    @param IDToken The IDToken associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created, if
-        available.
-    @return A FIRAuthCredential for the specified provider ID, ID token and access token.
+ @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID, ID
+ token and access token.
+ 
+ @param providerID The provider ID associated with the Auth credential being created.
+ @param IDToken The IDToken associated with the Auth credential being created.
+ @param accessToken The accessstoken associated with the Auth credential be created, if
+ available.
+ @return A FIRAuthCredential for the specified provider ID, ID token and access token.
  */
 + (FIRAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                         IDToken:(NSString *)IDToken
@@ -42,18 +42,18 @@ NS_SWIFT_NAME(OAuthProvider)
 
 
 /** @fn credentialWithProviderID:accessToken:
-    @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID using
-      an ID token.
-
-    @param providerID The provider ID associated with the Auth credential being created.
-    @param accessToken The accessstoken associated with the Auth credential be created
-    @return A FIRAuthCredential.
+ @brief Creates an `FIRAuthCredential` for that OAuth 2 provider identified by providerID using
+ an ID token.
+ 
+ @param providerID The provider ID associated with the Auth credential being created.
+ @param accessToken The accessstoken associated with the Auth credential be created
+ @return A FIRAuthCredential.
  */
 + (FIRAuthCredential *)credentialWithProviderID:(NSString *)providerID
                                     accessToken:(NSString *)accessToken;
 
 /** @fn init
-    @brief This class is not meant to be initialized.
+ @brief This class is not meant to be initialized.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
- #import <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
- #import "FIRAuthTokenResult.h"
+#import "FIRAuthTokenResult.h"
 
- NS_ASSUME_NONNULL_BEGIN
+NS_ASSUME_NONNULL_BEGIN
 
 /** @extension FIRAuthAPNSTokenResult
-    @brief An internal class used to expose internal methods of FIRAuthAPNSTokenResult.
+ @brief An internal class used to expose internal methods of FIRAuthAPNSTokenResult.
  */
 @interface FIRAuthTokenResult () <NSSecureCoding>
 

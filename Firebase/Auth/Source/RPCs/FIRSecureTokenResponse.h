@@ -21,27 +21,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRSecureTokenResponse
-    @brief Represents the response from the token endpoint.
+ @brief Represents the response from the token endpoint.
  */
 @interface FIRSecureTokenResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property approximateExpirationDate
-    @brief The approximate expiration date of the access token.
+ @brief The approximate expiration date of the access token.
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *approximateExpirationDate;
 
 /** @property refreshToken
-    @brief The refresh token. (Possibly an updated one for refresh requests.)
+ @brief The refresh token. (Possibly an updated one for refresh requests.)
  */
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 
 /** @property accessToken
-    @brief The new access token.
+ @brief The new access token.
  */
 @property(nonatomic, copy, readonly, nullable) NSString *accessToken;
 
 /** @property IDToken
-    @brief The new ID Token.
+ @brief The new ID Token.
  */
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 

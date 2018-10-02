@@ -25,7 +25,7 @@
 
 - (instancetype)init {
   [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"This class is not meant to be initialized."];
+   @"This class is not meant to be initialized."];
   return nil;
 }
 

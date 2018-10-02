@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FacebookAuthProvider
-    @brief The implementation for Facebook auth provider related methods.
+ @brief The implementation for Facebook auth provider related methods.
  */
 @interface FacebookAuthProvider : NSObject <AuthProvider>
 @end

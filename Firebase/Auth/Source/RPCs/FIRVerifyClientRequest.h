@@ -23,33 +23,33 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRVerifyClientRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property appToken
-    @brief The APNS device token.
+ @brief The APNS device token.
  */
 @property(nonatomic, readonly, nullable) NSString *appToken;
 
 /** @property isSandbox
-    @brief The flag that denotes if the appToken  pertains to Sandbox or Production.
+ @brief The flag that denotes if the appToken  pertains to Sandbox or Production.
  */
 @property(nonatomic, assign, readonly) BOOL isSandbox;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithToken:requestConfiguration: instead.
+ @brief Please use initWithToken:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithAppToken:isSandbox:requestConfiguration:
-    @brief Designated initializer.
-    @param appToken The APNS device token.
-    @param isSandbox The flag indicating whether or not the app token provided is for Sandbox or
-        Production.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param appToken The APNS device token.
+ @param isSandbox The flag indicating whether or not the app token provided is for Sandbox or
+ Production.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithAppToken:(nullable NSString *)appToken
                                 isSandbox:(BOOL)isSandbox
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

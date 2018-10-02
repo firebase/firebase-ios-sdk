@@ -24,12 +24,12 @@ static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.
 
 @implementation FIRAuthUserDefaultsStorage {
   /** @var _persistentDomainName
-      @brief The name of the persistent domain in user defaults.
+   @brief The name of the persistent domain in user defaults.
    */
   NSString *_persistentDomainName;
-
+  
   /** @var _storage
-      @brief The backing NSUserDefaults storage for this instance.
+   @brief The backing NSUserDefaults storage for this instance.
    */
   NSUserDefaults *_storage;
 }
@@ -53,7 +53,7 @@ static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.
 
 - (BOOL)setData:(NSData *)data forKey:(NSString *)key error:(NSError **_Nullable)error {
   NSMutableDictionary<NSString *, id> *allData =
-      [([_storage persistentDomainForName:_persistentDomainName] ?: @{}) mutableCopy];
+  [([_storage persistentDomainForName:_persistentDomainName] ?: @{}) mutableCopy];
   allData[key] = data;
   [_storage setPersistentDomain:allData forName:_persistentDomainName];
   return YES;
@@ -61,7 +61,7 @@ static NSString *const kPersistentDomainNamePrefix = @"com.google.Firebase.Auth.
 
 - (BOOL)removeDataForKey:(NSString *)key error:(NSError **_Nullable)error {
   NSMutableDictionary<NSString *, id> *allData =
-      [[_storage persistentDomainForName:_persistentDomainName] mutableCopy];
+  [[_storage persistentDomainForName:_persistentDomainName] mutableCopy];
   [allData removeObjectForKey:key];
   [_storage setPersistentDomain:allData forName:_persistentDomainName];
   return YES;

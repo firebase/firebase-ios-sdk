@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRSendVerificationCodeResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property verificationID
-    @brief Encrypted session information returned by the backend.
+ @brief Encrypted session information returned by the backend.
  */
 @property(nonatomic, readonly) NSString *verificationID;
 

@@ -25,48 +25,48 @@
 #import <UIKit/UIKit.h>
 
 /** @var kOSVersionMatcherForUsingUserDefaults
-    @brief The regular expression to match all OS versions that @c FIRAuthUserDefaultsStorage is
-        used instead if available.
+ @brief The regular expression to match all OS versions that @c FIRAuthUserDefaultsStorage is
+ used instead if available.
  */
 static NSString *const kOSVersionMatcherForUsingUserDefaults = @"^10\\.[01](\\..*)?$";
 
 #endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
 
 /** @var kAccountPrefix
-    @brief The prefix string for keychain item account attribute before the key.
-    @remarks A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
+ @brief The prefix string for keychain item account attribute before the key.
+ @remarks A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
  */
 static NSString *const kAccountPrefix = @"firebase_auth_1_";
 
 @implementation FIRAuthKeychain {
   /** @var _service
-      @brief The name of the keychain service.
+   @brief The name of the keychain service.
    */
   NSString *_service;
-
+  
   /** @var _legacyItemDeletedForKey
-      @brief Indicates whether or not this class knows that the legacy item for a particular key has
-          been deleted.
-      @remarks This dictionary is to avoid unecessary keychain operations against legacy items.
+   @brief Indicates whether or not this class knows that the legacy item for a particular key has
+   been deleted.
+   @remarks This dictionary is to avoid unecessary keychain operations against legacy items.
    */
   NSMutableDictionary *_legacyEntryDeletedForKey;
 }
 
 - (id<FIRAuthStorage>)initWithService:(NSString *)service {
-
+  
 #if FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
+  
   NSString *OSVersion = [UIDevice currentDevice].systemVersion;
   NSRegularExpression *regex =
-      [NSRegularExpression regularExpressionWithPattern:kOSVersionMatcherForUsingUserDefaults
-                                                options:0
-                                                  error:NULL];
+  [NSRegularExpression regularExpressionWithPattern:kOSVersionMatcherForUsingUserDefaults
+                                            options:0
+                                              error:NULL];
   if ([regex numberOfMatchesInString:OSVersion options:0 range:NSMakeRange(0, OSVersion.length)]) {
     return (id<FIRAuthStorage>)[[FIRAuthUserDefaultsStorage alloc] initWithService:service];
   }
-
+  
 #endif  // FIRAUTH_USER_DEFAULTS_STORAGE_AVAILABLE
-
+  
   self = [super init];
   if (self) {
     _service = [service copy];
@@ -116,9 +116,9 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
     return NO;
   }
   NSDictionary *attributes = @{
-    (__bridge id)kSecValueData : data,
-    (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-  };
+                               (__bridge id)kSecValueData : data,
+                               (__bridge id)kSecAttrAccessible : (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                               };
   return [self setItemWithQuery:[self genericPasswordQueryWithKey:key]
                      attributes:attributes
                           error:error];
@@ -148,13 +148,13 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
   // Using a match limit of 2 means that we can check whether there is more than one item.
   // If we used a match limit of 1 we would never find out.
   returningQuery[(__bridge id)kSecMatchLimit] = @2;
-
+  
   CFArrayRef result = NULL;
   OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)returningQuery,
                                         (CFTypeRef *)&result);
-
+  
   if (status == noErr && result != NULL) {
-   NSArray *items = (__bridge_transfer NSArray *)result;
+    NSArray *items = (__bridge_transfer NSArray *)result;
     if (items.count != 1) {
       if (error) {
         *error = [FIRAuthErrorUtils keychainErrorWithFunction:@"SecItemCopyMatching"
@@ -162,14 +162,14 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
       }
       return nil;
     }
-
+    
     if (error) {
       *error = nil;
     }
     NSDictionary *item = items[0];
     return item[(__bridge id)kSecValueData];
   }
-
+  
   if (status == errSecItemNotFound) {
     if (error) {
       *error = nil;
@@ -189,12 +189,12 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
   [combined addEntriesFromDictionary:query];
   BOOL hasItem = NO;
   OSStatus status = SecItemAdd((__bridge CFDictionaryRef)combined, NULL);
-
+  
   if (status == errSecDuplicateItem) {
     hasItem = YES;
     status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)attributes);
   }
-
+  
   if (status == noErr) {
     return YES;
   }
@@ -217,8 +217,8 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
 }
 
 /** @fn deleteLegacyItemsWithKey:
-    @brief Deletes legacy item from the keychain if it is not already known to be deleted.
-    @param key The key for the item.
+ @brief Deletes legacy item from the keychain if it is not already known to be deleted.
+ @param key The key for the item.
  */
 - (void)deleteLegacyItemWithKey:(NSString *)key {
   if (_legacyEntryDeletedForKey[key]) {
@@ -230,27 +230,27 @@ static NSString *const kAccountPrefix = @"firebase_auth_1_";
 }
 
 /** @fn genericPasswordQueryWithKey:
-    @brief Returns a keychain query of generic password to be used to manipulate key'ed value.
-    @param key The key for the value being manipulated, used as the account field in the query.
+ @brief Returns a keychain query of generic password to be used to manipulate key'ed value.
+ @param key The key for the value being manipulated, used as the account field in the query.
  */
 - (NSDictionary *)genericPasswordQueryWithKey:(NSString *)key {
   return @{
-    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
-    (__bridge id)kSecAttrAccount : [kAccountPrefix stringByAppendingString:key],
-    (__bridge id)kSecAttrService : _service,
-  };
+           (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+           (__bridge id)kSecAttrAccount : [kAccountPrefix stringByAppendingString:key],
+           (__bridge id)kSecAttrService : _service,
+           };
 }
 
 /** @fn legacyGenericPasswordQueryWithKey:
-    @brief Returns a keychain query of generic password without service field, which is used by
-        previous version of this class.
-    @param key The key for the value being manipulated, used as the account field in the query.
+ @brief Returns a keychain query of generic password without service field, which is used by
+ previous version of this class.
+ @param key The key for the value being manipulated, used as the account field in the query.
  */
 - (NSDictionary *)legacyGenericPasswordQueryWithKey:(NSString *)key {
   return @{
-    (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
-    (__bridge id)kSecAttrAccount : key,
-  };
+           (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
+           (__bridge id)kSecAttrAccount : key,
+           };
 }
 
 @end

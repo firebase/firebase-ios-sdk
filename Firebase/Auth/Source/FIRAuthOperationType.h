@@ -19,26 +19,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
-    @brief Indicates the type of operation performed for RPCs that support the operation
-        parameter.
+ @brief Indicates the type of operation performed for RPCs that support the operation
+ parameter.
  */
 typedef NS_ENUM(NSInteger, FIRAuthOperationType) {
   /** Indicates that the operation type is uspecified.
    */
   FIRAuthOperationTypeUnspecified = 0,
-
+  
   /** Indicates that the operation type is sign in or sign up.
    */
-   FIRAuthOperationTypeSignUpOrSignIn = 1,
-
+  FIRAuthOperationTypeSignUpOrSignIn = 1,
+  
   /** Indicates that the operation type is reauthentication.
    */
   FIRAuthOperationTypeReauth = 2,
-
+  
   /** Indicates that the operation type is update.
    */
   FIRAuthOperationTypeUpdate = 3,
-
+  
   /** Indicates that the operation type is link.
    */
   FIRAuthOperationTypeLink = 4,

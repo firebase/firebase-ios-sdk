@@ -22,7 +22,7 @@
 #import "FIRGetProjectConfigResponse.h"
 
 /** @var kAuthDomainSuffix
-    @brief The suffix of the auth domain pertiaining to a given Firebase project.
+ @brief The suffix of the auth domain pertiaining to a given Firebase project.
  */
 static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
 
@@ -32,7 +32,7 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
   NSMutableString *randomString = [[NSMutableString alloc] init];
   for (int i=0; i < length; i++) {
     [randomString appendString:
-        [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
+     [NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
   }
   return randomString;
 }
@@ -54,31 +54,33 @@ static NSString *const kAuthDomainSuffix = @"firebaseapp.com";
 + (void)fetchAuthDomainWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                      completion:(FIRFetchAuthDomainCallback)completion {
   FIRGetProjectConfigRequest *request =
-      [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
+  [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
   [FIRAuthBackend getProjectConfig:request
-                          callback:^(FIRGetProjectConfigResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-    if (error) {
-      completion(nil, error);
-      return;
-    }
-    NSString *authDomain;
-    for (NSString *domain in response.authorizedDomains) {
-      NSInteger index = domain.length - kAuthDomainSuffix.length;
-      if (index >= 2) {
-        if ([domain hasSuffix:kAuthDomainSuffix] && domain.length >= kAuthDomainSuffix.length + 2) {
-          authDomain = domain;
-          break;
-        }
-      }
-    }
-    if (!authDomain.length) {
-      completion(nil, [FIRAuthErrorUtils unexpectedErrorResponseWithDeserializedResponse:response]);
-      return;
-    }
-    completion(authDomain, nil);
-  }];
+                          callback:
+   ^(FIRGetProjectConfigResponse *_Nullable response,
+     NSError *_Nullable error) {
+     if (error) {
+       completion(nil, error);
+       return;
+     }
+     NSString *authDomain;
+     for (NSString *domain in response.authorizedDomains) {
+       NSInteger index = domain.length - kAuthDomainSuffix.length;
+       if (index >= 2) {
+         if ([domain hasSuffix:kAuthDomainSuffix] &&
+             domain.length >= kAuthDomainSuffix.length + 2) {
+           authDomain = domain;
+           break;
+         }
+       }
+     }
+     if (!authDomain.length) {
+       completion(nil, [FIRAuthErrorUtils unexpectedErrorResponseWithDeserializedResponse:response]);
+       return;
+     }
+     completion(authDomain, nil);
+   }];
 }
 
 /** @fn queryItemValue:from:

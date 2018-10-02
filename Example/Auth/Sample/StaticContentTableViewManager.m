@@ -17,12 +17,12 @@
 #import "StaticContentTableViewManager.h"
 
 /** @var kCellReuseIdentitfier
-    @brief The reuse identifier for default style table view cell.
+ @brief The reuse identifier for default style table view cell.
  */
 static NSString *const kCellReuseIdentitfier = @"reuseIdentifier";
 
 /** @var kCellReuseIdentitfier
-    @brief The reuse identifier for value style table view cell.
+ @brief The reuse identifier for value style table view cell.
  */
 static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
 
@@ -106,12 +106,12 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
 @implementation StaticContentTableViewContent
 
 + (nullable instancetype)contentWithSections:
-    (nullable NSArray<StaticContentTableViewSection *> *)sections {
+(nullable NSArray<StaticContentTableViewSection *> *)sections {
   return [[self alloc] initWithSections:sections];
 }
 
 - (nullable instancetype)initWithSections:
-    (nullable NSArray<StaticContentTableViewSection *> *)sections {
+(nullable NSArray<StaticContentTableViewSection *> *)sections {
   self = [super init];
   if (self) {
     _sections = [sections copy];
@@ -186,11 +186,11 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
                                  value:(nullable NSString *)value
                                 action:(nullable StaticContentTableViewCellAction)action
                        accessibilityID:(nullable NSString *)accessibilityID {
-      return [[self alloc] initWithCustomCell:nil
-                                        title:title
-                                        value:value
-                                       action:action
-                              accessibilityID:accessibilityID];
+  return [[self alloc] initWithCustomCell:nil
+                                    title:title
+                                    value:value
+                                   action:action
+                          accessibilityID:accessibilityID];
 }
 
 + (nullable instancetype)cellWithCustomCell:(nullable UITableViewCell *)customCell {

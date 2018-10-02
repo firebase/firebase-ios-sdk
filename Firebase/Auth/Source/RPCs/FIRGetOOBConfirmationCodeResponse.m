@@ -19,7 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kOOBCodeKey
-    @brief The name of the field in the response JSON for the OOB code.
+ @brief The name of the field in the response JSON for the OOB code.
  */
 static NSString *const kOOBCodeKey = @"oobCode";
 

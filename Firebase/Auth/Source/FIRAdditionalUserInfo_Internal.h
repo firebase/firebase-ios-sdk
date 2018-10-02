@@ -21,20 +21,20 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAdditionalUserInfo () <NSSecureCoding>
 
 /** @fn userInfoWithVerifyAssertionResponse:
-    @brief A convenience factory method for constructing a @c FIRAdditionalUserInfo instance from
-        data returned by the verifyAssertion endpoint.
-    @param verifyAssertionResponse Data returned by the verifyAssertion endpoint.
-    @return A new instance of @c FIRAdditionalUserInfo using data from the verifyAssertion endpoint.
+ @brief A convenience factory method for constructing a @c FIRAdditionalUserInfo instance from
+ data returned by the verifyAssertion endpoint.
+ @param verifyAssertionResponse Data returned by the verifyAssertion endpoint.
+ @return A new instance of @c FIRAdditionalUserInfo using data from the verifyAssertion endpoint.
  */
 + (nullable instancetype)userInfoWithVerifyAssertionResponse:
-    (FIRVerifyAssertionResponse *)verifyAssertionResponse;
+(FIRVerifyAssertionResponse *)verifyAssertionResponse;
 
 /** @fn initWithProviderID:profile:username:
-    @brief Designated initializer.
-    @param providerID The provider identifier.
-    @param profile Dictionary containing the additional IdP specific information.
-    @param username The name of the user.
-    @param isNewUser Indicates whether or not the current user was signed in for the first time.
+ @brief Designated initializer.
+ @param providerID The provider identifier.
+ @param profile Dictionary containing the additional IdP specific information.
+ @param username The name of the user.
+ @param isNewUser Indicates whether or not the current user was signed in for the first time.
  */
 - (nullable instancetype)initWithProviderID:(nullable NSString *)providerID
                                     profile:(nullable NSDictionary<NSString *, NSObject *> *)profile

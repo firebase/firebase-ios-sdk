@@ -25,25 +25,25 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kRegistrationTimeout
-    @brief Timeout for registration for remote notification.
-    @remarks Once we start to handle `application:didFailToRegisterForRemoteNotificationsWithError:`
-        we probably don't have to use timeout at all.
+ @brief Timeout for registration for remote notification.
+ @remarks Once we start to handle `application:didFailToRegisterForRemoteNotificationsWithError:`
+ we probably don't have to use timeout at all.
  */
 static const NSTimeInterval kRegistrationTimeout = 5;
 
 /** @var kLegacyRegistrationTimeout
-    @brief Timeout for registration for remote notification on iOS 7.
+ @brief Timeout for registration for remote notification on iOS 7.
  */
 static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 
 @implementation FIRAuthAPNSTokenManager {
   /** @var _application
-      @brief The @c UIApplication to request the token from.
+   @brief The @c UIApplication to request the token from.
    */
   UIApplication *_application;
-
+  
   /** @var _pendingCallbacks
-      @brief The list of all pending callbacks for the APNs token.
+   @brief The list of all pending callbacks for the APNs token.
    */
   NSMutableArray<FIRAuthAPNSTokenCallback> *_pendingCallbacks;
 }
@@ -53,7 +53,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   if (self) {
     _application = application;
     _timeout = [_application respondsToSelector:@selector(registerForRemoteNotifications)] ?
-        kRegistrationTimeout : kLegacyRegistrationTimeout;
+    kRegistrationTimeout : kLegacyRegistrationTimeout;
   }
   return self;
 }
@@ -68,7 +68,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     return;
   }
   _pendingCallbacks =
-      [[NSMutableArray<FIRAuthAPNSTokenCallback> alloc] initWithObjects:callback, nil];
+  [[NSMutableArray<FIRAuthAPNSTokenCallback> alloc] initWithObjects:callback, nil];
   dispatch_async(dispatch_get_main_queue(), ^{
     if ([self->_application respondsToSelector:@selector(registerForRemoteNotifications)]) {
       [self->_application registerForRemoteNotifications];
@@ -83,12 +83,12 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
   });
   NSArray<FIRAuthAPNSTokenCallback> *applicableCallbacks = _pendingCallbacks;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),
-                               FIRAuthGlobalWorkQueue(), ^{
-    // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
-    if (applicableCallbacks == self->_pendingCallbacks) {
-      [self callBackWithToken:nil error:nil];
-    }
-  });
+                 FIRAuthGlobalWorkQueue(), ^{
+                   // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
+                   if (applicableCallbacks == self->_pendingCallbacks) {
+                     [self callBackWithToken:nil error:nil];
+                   }
+                 });
 }
 
 - (void)setToken:(nullable FIRAuthAPNSToken *)token {
@@ -100,7 +100,7 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     static FIRAuthAPNSTokenType detectedTokenType = FIRAuthAPNSTokenTypeUnknown;
     if (detectedTokenType == FIRAuthAPNSTokenTypeUnknown) {
       detectedTokenType =
-          [[self class] isProductionApp] ? FIRAuthAPNSTokenTypeProd : FIRAuthAPNSTokenTypeSandbox;
+      [[self class] isProductionApp] ? FIRAuthAPNSTokenTypeProd : FIRAuthAPNSTokenTypeSandbox;
     }
     token = [[FIRAuthAPNSToken alloc] initWithData:token.data type:detectedTokenType];
   }
@@ -115,9 +115,9 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 #pragma mark - Internal methods
 
 /** @fn callBack
-    @brief Calls back all pending callbacks with APNs token or error.
-    @param token The APNs token if one is available.
-    @param error The error occurred, if any.
+ @brief Calls back all pending callbacks with APNs token or error.
+ @param token The APNs token if one is available.
+ @param error The error occurred, if any.
  */
 - (void)callBackWithToken:(nullable FIRAuthAPNSToken *)token error:(nullable NSError *)error {
   if (!_pendingCallbacks) {
@@ -131,19 +131,19 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
 };
 
 /** @fn isProductionApp
-    @brief Whether or not the app has production (versus sandbox) provisioning profile.
-    @remarks This method is adapted from @c FIRInstanceID .
+ @brief Whether or not the app has production (versus sandbox) provisioning profile.
+ @remarks This method is adapted from @c FIRInstanceID .
  */
 + (BOOL)isProductionApp {
   const BOOL defaultAppTypeProd = YES;
-
+  
   NSError *error = nil;
-
+  
   if ([GULAppEnvironmentUtil isSimulator]) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000006", @"Assuming prod APNs token type on simulator.");
     return defaultAppTypeProd;
   }
-
+  
   // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
   if ([GULAppEnvironmentUtil isFromAppStore]) {
     return defaultAppTypeProd;
@@ -154,15 +154,15 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     // Distributed via TestFlight
     return defaultAppTypeProd;
   }
-
+  
   NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:path options:0 error:&error];
-
+  
   if (!profileData.length || error) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000007",
                @"Error while reading embedded mobileprovision %@", error);
     return defaultAppTypeProd;
   }
-
+  
   // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals the
   // end of a c-string and halts the ASCII parser, or with value > 127, which violates strict 7-bit
   // ASCII. Replace any 0s or invalid characters in the input.
@@ -173,18 +173,18 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
       profileBytes[i] = '.';
     }
   }
-
+  
   NSString *embeddedProfile = [[NSString alloc] initWithBytesNoCopy:profileBytes
                                                              length:profileData.length
                                                            encoding:NSASCIIStringEncoding
                                                        freeWhenDone:NO];
-
+  
   if (error || !embeddedProfile.length) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000008",
                @"Error while reading embedded mobileprovision %@", error);
     return defaultAppTypeProd;
   }
-
+  
   NSScanner *scanner = [NSScanner scannerWithString:embeddedProfile];
   NSString *plistContents;
   if ([scanner scanUpToString:@"<plist" intoString:nil]) {
@@ -192,18 +192,18 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
       plistContents = [plistContents stringByAppendingString:@"</plist>"];
     }
   }
-
+  
   if (!plistContents.length) {
     return defaultAppTypeProd;
   }
-
+  
   NSData *data = [plistContents dataUsingEncoding:NSUTF8StringEncoding];
   if (!data.length) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000009",
                @"Couldn't read plist fetched from embedded mobileprovision");
     return defaultAppTypeProd;
   }
-
+  
   NSError *plistMapError;
   id plistData = [NSPropertyListSerialization propertyListWithData:data
                                                            options:NSPropertyListImmutable
@@ -216,17 +216,17 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     return defaultAppTypeProd;
   }
   NSDictionary *plistMap = (NSDictionary *)plistData;
-
+  
   if ([plistMap valueForKeyPath:@"ProvisionedDevices"]) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000011",
                @"Provisioning profile has specifically provisioned devices, "
                @"most likely a Dev profile.");
   }
-
+  
   NSString *apsEnvironment = [plistMap valueForKeyPath:@"Entitlements.aps-environment"];
   FIRLogDebug(kFIRLoggerAuth, @"I-AUT000012",
               @"APNS Environment in profile: %@", apsEnvironment);
-
+  
   // No aps-environment in the profile.
   if (!apsEnvironment.length) {
     FIRLogInfo(kFIRLoggerAuth, @"I-AUT000013",
@@ -234,11 +234,11 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
                @"correctly configured. Please recheck your provisioning profiles.");
     return defaultAppTypeProd;
   }
-
+  
   if ([apsEnvironment isEqualToString:@"development"]) {
     return NO;
   }
-
+  
   return defaultAppTypeProd;
 }
 

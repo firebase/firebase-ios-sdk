@@ -21,34 +21,34 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAdditionalUserInfo
-    @brief Represents additional user data returned from an identity provider.
+ @brief Represents additional user data returned from an identity provider.
  */
 NS_SWIFT_NAME(AdditionalUserInfo)
 @interface FIRAdditionalUserInfo : NSObject
 
 /** @fn init
-    @brief This class should not be initialized manually. `FIRAdditionalUserInfo` can be retrieved
-        from from an instance of `FIRAuthDataResult`.
+ @brief This class should not be initialized manually. `FIRAdditionalUserInfo` can be retrieved
+ from from an instance of `FIRAuthDataResult`.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @property providerID
-    @brief The provider identifier.
+ @brief The provider identifier.
  */
 @property(nonatomic, readonly) NSString *providerID;
 
 /** @property profile
-    @brief Dictionary containing the additional IdP specific information.
+ @brief Dictionary containing the additional IdP specific information.
  */
 @property(nonatomic, readonly, nullable) NSDictionary<NSString *, NSObject *> *profile;
 
 /** @property username
-    @brief username The name of the user.
+ @brief username The name of the user.
  */
 @property(nonatomic, readonly, nullable) NSString *username;
 
 /** @property newUser
-    @brief Indicates whether or not the current user was signed in for the first time.
+ @brief Indicates whether or not the current user was signed in for the first time.
  */
 @property(nonatomic, readonly, getter=isNewUser) BOOL newUser;
 

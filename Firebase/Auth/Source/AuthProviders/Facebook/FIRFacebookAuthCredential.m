@@ -32,7 +32,7 @@
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
   [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+   @"Please call the designated initializer."];
   return nil;
 }
 

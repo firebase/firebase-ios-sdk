@@ -23,15 +23,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kProxyEnabledBundleKey
-    @brief The key in application's bundle plist for whether or not proxy should be enabled.
-    @remarks This key is a shared constant with Analytics and FCM.
+ @brief The key in application's bundle plist for whether or not proxy should be enabled.
+ @remarks This key is a shared constant with Analytics and FCM.
  */
 static NSString *const kProxyEnabledBundleKey = @"FirebaseAppDelegateProxyEnabled";
 
 /** @fn noop
-    @brief A function that does nothing.
-    @remarks This is used as the placeholder for unimplemented UApplicationDelegate methods,
-        because once we added a method there is no way to remove it from the class.
+ @brief A function that does nothing.
+ @remarks This is used as the placeholder for unimplemented UApplicationDelegate methods,
+ because once we added a method there is no way to remove it from the class.
  */
 #if !OBJC_OLD_DISPATCH_PROTOTYPES
 static void noop(void) {
@@ -43,8 +43,8 @@ static id noop(id object, SEL cmd, ...) {
 #endif
 
 /** @fn isIOS9orLater
-    @brief Checks whether the iOS version is 9 or later.
-    @returns Whether the iOS version is 9 or later.
+ @brief Checks whether the iOS version is 9 or later.
+ @returns Whether the iOS version is 9 or later.
  */
 static BOOL isIOS9orLater() {
 #if defined(__IPHONE_11_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0)
@@ -60,17 +60,17 @@ static BOOL isIOS9orLater() {
 
 @implementation FIRAuthAppDelegateProxy {
   /** @var _appDelegate
-      @brief The application delegate whose method is being swizzled.
+   @brief The application delegate whose method is being swizzled.
    */
   id<UIApplicationDelegate> _appDelegate;
 
   /** @var _orginalImplementationsBySelector
-      @brief A map from selectors to original implementations that have been swizzled.
+   @brief A map from selectors to original implementations that have been swizzled.
    */
   NSMutableDictionary<NSValue *, NSValue *> *_originalImplementationsBySelector;
 
   /** @var _handlers
-      @brief The array of weak pointers of `id<FIRAuthAppDelegateHandler>`.
+   @brief The array of weak pointers of `id<FIRAuthAppDelegateHandler>`.
    */
   NSPointerArray *_handlers;
 }
@@ -92,47 +92,47 @@ static BOOL isIOS9orLater() {
     // Swizzle the methods.
     __weak FIRAuthAppDelegateProxy *weakSelf = self;
     SEL registerDeviceTokenSelector =
-        @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
+    @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:);
     [self replaceSelector:registerDeviceTokenSelector
                 withBlock:^(id object, UIApplication* application, NSData *deviceToken) {
-      [weakSelf object:object
-                                                  selector:registerDeviceTokenSelector
-                                               application:application
-          didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-    }];
+                  [weakSelf object:object
+                          selector:registerDeviceTokenSelector
+                       application:application
+didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+                }];
     SEL failToRegisterRemoteNotificationSelector =
-        @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
+    @selector(application:didFailToRegisterForRemoteNotificationsWithError:);
     [self replaceSelector:failToRegisterRemoteNotificationSelector
                 withBlock:^(id object, UIApplication* application, NSError *error) {
-      [weakSelf object:object
-                                                  selector:failToRegisterRemoteNotificationSelector
-                                               application:application
-          didFailToRegisterForRemoteNotificationsWithError:error];
-    }];
+                  [weakSelf object:object
+                          selector:failToRegisterRemoteNotificationSelector
+                       application:application
+didFailToRegisterForRemoteNotificationsWithError:error];
+                }];
     SEL receiveNotificationSelector = @selector(application:didReceiveRemoteNotification:);
     SEL receiveNotificationWithHandlerSelector =
-        @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
+    @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:);
     if ([_appDelegate respondsToSelector:receiveNotificationWithHandlerSelector] ||
         ![_appDelegate respondsToSelector:receiveNotificationSelector]) {
       // Replace the modern selector which is available on iOS 7 and above.
       [self replaceSelector:receiveNotificationWithHandlerSelector
                   withBlock:^(id object, UIApplication *application, NSDictionary *notification,
                               void (^completionHandler)(UIBackgroundFetchResult)) {
-        [weakSelf object:object
-                                selector:receiveNotificationWithHandlerSelector
-                             application:application
-            didReceiveRemoteNotification:notification
-                  fetchCompletionHandler:completionHandler];
-      }];
+                    [weakSelf object:object
+                            selector:receiveNotificationWithHandlerSelector
+                         application:application
+        didReceiveRemoteNotification:notification
+              fetchCompletionHandler:completionHandler];
+                  }];
     } else {
       // Replace the deprecated selector because this is the only one that the client app uses.
       [self replaceSelector:receiveNotificationSelector
                   withBlock:^(id object, UIApplication *application, NSDictionary *notification) {
-        [weakSelf object:object
-                                selector:receiveNotificationSelector
-                             application:application
-            didReceiveRemoteNotification:notification];
-      }];
+                    [weakSelf object:object
+                            selector:receiveNotificationSelector
+                         application:application
+        didReceiveRemoteNotification:notification];
+                  }];
     }
     SEL openURLOptionsSelector = @selector(application:openURL:options:);
     SEL openURLAnnotationSelector = @selector(application:openURL:sourceApplication:annotation:);
@@ -141,42 +141,42 @@ static BOOL isIOS9orLater() {
         ([_appDelegate respondsToSelector:openURLOptionsSelector] ||
          (![_appDelegate respondsToSelector:openURLAnnotationSelector] &&
           ![_appDelegate respondsToSelector:handleOpenURLSelector]))) {
-      // Replace the modern selector which is avaliable on iOS 9 and above because this is the one
-      // that the client app uses or the client app doesn't use any of them.
-      [self replaceSelector:openURLOptionsSelector
-                  withBlock:^BOOL(id object, UIApplication *application, NSURL *url,
-                                  NSDictionary *options) {
-        return [weakSelf object:object
-                       selector:openURLOptionsSelector
-                    application:application
-                        openURL:url
-                        options:options];
-       }];
-    } else if ([_appDelegate respondsToSelector:openURLAnnotationSelector] ||
-               ![_appDelegate respondsToSelector:handleOpenURLSelector]) {
-      // Replace the longer form of the deprecated selectors on iOS 8 and below because this is the
-      // one that the client app uses or the client app doesn't use either of the applicable ones.
-      [self replaceSelector:openURLAnnotationSelector
-                  withBlock:^(id object, UIApplication *application, NSURL *url,
-                              NSString *sourceApplication, id annotation) {
-        return [weakSelf object:object
-                       selector:openURLAnnotationSelector
-                    application:application
-                        openURL:url
-              sourceApplication:sourceApplication
-                     annotation:annotation];
-       }];
-    } else {
-      // Replace the shorter form of the deprecated selectors on iOS 8 and below because this is
-      // the only one that the client app uses.
-      [self replaceSelector:handleOpenURLSelector
-                  withBlock:^(id object, UIApplication *application, NSURL *url) {
-        return [weakSelf object:object
-                       selector:handleOpenURLSelector
-                    application:application
-                  handleOpenURL:url];
-       }];
-    }
+           // Replace the modern selector which is avaliable on iOS 9 and above because this is the one
+           // that the client app uses or the client app doesn't use any of them.
+           [self replaceSelector:openURLOptionsSelector
+                       withBlock:^BOOL(id object, UIApplication *application, NSURL *url,
+                                       NSDictionary *options) {
+                         return [weakSelf object:object
+                                        selector:openURLOptionsSelector
+                                     application:application
+                                         openURL:url
+                                         options:options];
+                       }];
+         } else if ([_appDelegate respondsToSelector:openURLAnnotationSelector] ||
+                    ![_appDelegate respondsToSelector:handleOpenURLSelector]) {
+           // Replace the longer form of the deprecated selectors on iOS 8 and below because this is the
+           // one that the client app uses or the client app doesn't use either of the applicable ones.
+           [self replaceSelector:openURLAnnotationSelector
+                       withBlock:^(id object, UIApplication *application, NSURL *url,
+                                   NSString *sourceApplication, id annotation) {
+                         return [weakSelf object:object
+                                        selector:openURLAnnotationSelector
+                                     application:application
+                                         openURL:url
+                               sourceApplication:sourceApplication
+                                      annotation:annotation];
+                       }];
+         } else {
+           // Replace the shorter form of the deprecated selectors on iOS 8 and below because this is
+           // the only one that the client app uses.
+           [self replaceSelector:handleOpenURLSelector
+                       withBlock:^(id object, UIApplication *application, NSURL *url) {
+                         return [weakSelf object:object
+                                        selector:handleOpenURLSelector
+                                     application:application
+                                   handleOpenURL:url];
+                       }];
+         }
     // Reset the application delegate to clear the system cache that indicates whether each of the
     // openURL: methods is implemented on the application delegate.
     application.delegate = nil;
@@ -221,9 +221,9 @@ static BOOL isIOS9orLater() {
 #pragma mark - UIApplicationDelegate proxy methods.
 
 - (void)object:(id)object
-                                            selector:(SEL)selector
-                                         application:(UIApplication *)application
-    didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
   if (object == _appDelegate) {
     for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
       [handler setAPNSToken:deviceToken];
@@ -237,9 +237,9 @@ static BOOL isIOS9orLater() {
 }
 
 - (void)object:(id)object
-                                            selector:(SEL)selector
-                                         application:(UIApplication *)application
-    didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
   if (object == _appDelegate) {
     for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
       [handler handleAPNSTokenError:error];
@@ -253,10 +253,10 @@ static BOOL isIOS9orLater() {
 }
 
 - (void)object:(id)object
-                        selector:(SEL)selector
-                     application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)notification
-          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)notification
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
   if (object == _appDelegate) {
     for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
       if ([handler canHandleNotification:notification]) {
@@ -275,9 +275,9 @@ static BOOL isIOS9orLater() {
 }
 
 - (void)object:(id)object
-                        selector:(SEL)selector
-                     application:(UIApplication *)application
-    didReceiveRemoteNotification:(NSDictionary *)notification {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)notification {
   if (object == _appDelegate) {
     for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
       if ([handler canHandleNotification:notification]) {
@@ -293,10 +293,10 @@ static BOOL isIOS9orLater() {
 }
 
 - (BOOL)object:(id)object
-       selector:(SEL)selector
-    application:(UIApplication *)application
-        openURL:(NSURL *)url
-        options:(NSDictionary *)options {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+       openURL:(NSURL *)url
+       options:(NSDictionary *)options {
   if (object == _appDelegate && [self delegateCanHandleURL:url]) {
     return YES;
   }
@@ -309,11 +309,11 @@ static BOOL isIOS9orLater() {
 }
 
 - (BOOL)object:(id)object
-             selector:(SEL)selector
-          application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+       openURL:(NSURL *)url
+sourceApplication:(NSString *)sourceApplication
+    annotation:(id)annotation {
   if (object == _appDelegate && [self delegateCanHandleURL:url]) {
     return YES;
   }
@@ -327,9 +327,9 @@ static BOOL isIOS9orLater() {
 }
 
 - (BOOL)object:(id)object
-         selector:(SEL)selector
-      application:(UIApplication *)application
-    handleOpenURL:(NSURL *)url {
+      selector:(SEL)selector
+   application:(UIApplication *)application
+ handleOpenURL:(NSURL *)url {
   if (object == _appDelegate && [self delegateCanHandleURL:url]) {
     return YES;
   }
@@ -344,9 +344,9 @@ static BOOL isIOS9orLater() {
 #pragma mark - Internal Methods
 
 /** @fn delegateCanHandleURL:
-    @brief Checks for whether any of the delegates can handle the URL.
-    @param url The URL in question.
-    @return Whether any of the delegate can handle the URL.
+ @brief Checks for whether any of the delegates can handle the URL.
+ @param url The URL in question.
+ @return Whether any of the delegate can handle the URL.
  */
 - (BOOL)delegateCanHandleURL:(NSURL *)url {
   for (id<FIRAuthAppDelegateHandler> handler in [self handlers]) {
@@ -358,12 +358,12 @@ static BOOL isIOS9orLater() {
 }
 
 /** @fn handlers
-    @brief Gets the list of handlers from `_handlers` safely.
+ @brief Gets the list of handlers from `_handlers` safely.
  */
 - (NSArray<id<FIRAuthAppDelegateHandler>> *)handlers {
   @synchronized (_handlers) {
     NSMutableArray<id<FIRAuthAppDelegateHandler>> *liveHandlers =
-       [[NSMutableArray<id<FIRAuthAppDelegateHandler>> alloc] initWithCapacity:_handlers.count];
+    [[NSMutableArray<id<FIRAuthAppDelegateHandler>> alloc] initWithCapacity:_handlers.count];
     for (__weak id<FIRAuthAppDelegateHandler> handler in _handlers) {
       if (handler) {
         [liveHandlers addObject:handler];
@@ -377,9 +377,9 @@ static BOOL isIOS9orLater() {
 }
 
 /** @fn replaceSelector:withBlock:
-    @brief replaces the implementation for a method of `_appDelegate` specified by a selector.
-    @param selector The selector for the method.
-    @param block The block as the new implementation of the method.
+ @brief replaces the implementation for a method of `_appDelegate` specified by a selector.
+ @param selector The selector for the method.
+ @param block The block as the new implementation of the method.
  */
 - (void)replaceSelector:(SEL)selector withBlock:(id)block {
   Method originalMethod = class_getInstanceMethod([_appDelegate class], selector);
@@ -390,18 +390,18 @@ static BOOL isIOS9orLater() {
   } else {
     // The original method was not implemented in the class, add it with the new implementation.
     struct objc_method_description methodDescription =
-        protocol_getMethodDescription(@protocol(UIApplicationDelegate), selector, NO, YES);
+    protocol_getMethodDescription(@protocol(UIApplicationDelegate), selector, NO, YES);
     class_addMethod([_appDelegate class], selector, newImplementation, methodDescription.types);
     originalImplementation = &noop;
   }
   _originalImplementationsBySelector[[NSValue valueWithPointer:selector]] =
-      [NSValue valueWithPointer:originalImplementation];
+  [NSValue valueWithPointer:originalImplementation];
 }
 
 /** @fn originalImplementationForSelector:
-    @brief Gets the original implementation for the given selector.
-    @param selector The selector for the method that has been replaced.
-    @return The original implementation if there was one.
+ @brief Gets the original implementation for the given selector.
+ @param selector The selector for the method that has been replaced.
+ @return The original implementation if there was one.
  */
 - (IMP)originalImplementationForSelector:(SEL)selector {
   return _originalImplementationsBySelector[[NSValue valueWithPointer:selector]].pointerValue;

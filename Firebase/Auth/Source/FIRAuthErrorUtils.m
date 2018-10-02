@@ -26,7 +26,7 @@ NSString *const FIRAuthErrorDomain = @"FIRAuthErrorDomain";
 NSString *const FIRAuthInternalErrorDomain = @"FIRAuthInternalErrorDomain";
 
 NSString *const FIRAuthErrorUserInfoDeserializedResponseKey =
-    @"FIRAuthErrorUserInfoDeserializedResponseKey";
+@"FIRAuthErrorUserInfoDeserializedResponseKey";
 
 NSString *const FIRAuthErrorUserInfoDataKey = @"FIRAuthErrorUserInfoDataKey";
 
@@ -37,391 +37,391 @@ NSString *const FIRAuthErrorNameKey = @"error_name";
 NSString *const FIRAuthUpdatedCredentialKey = @"FIRAuthUpdatedCredentialKey";
 
 /** @var kServerErrorDetailMarker
-    @brief This marker indicates that the server error message contains a detail error message which
-        should be used instead of the hardcoded client error message.
+ @brief This marker indicates that the server error message contains a detail error message which
+ should be used instead of the hardcoded client error message.
  */
 static NSString *const kServerErrorDetailMarker = @" : ";
 
 #pragma mark - URL response error codes
 
 /** @var kURLResponseErrorCodeInvalidClientID
-    @brief Error code that indicates that the client ID provided was invalid.
+ @brief Error code that indicates that the client ID provided was invalid.
  */
 static NSString *const kURLResponseErrorCodeInvalidClientID = @"auth/invalid-oauth-client-id";
 
 /** @var kURLResponseErrorCodeNetworkRequestFailed
-    @brief Error code that indicates that a network request within the SFSafariViewController or
-        UIWebView failed.
+ @brief Error code that indicates that a network request within the SFSafariViewController or
+ UIWebView failed.
  */
 static NSString *const kURLResponseErrorCodeNetworkRequestFailed = @"auth/network-request-failed";
 
 /** @var kURLResponseErrorCodeInternalError
-    @brief Error code that indicates that an internal error occurred within the
-        SFSafariViewController or UIWebView failed.
+ @brief Error code that indicates that an internal error occurred within the
+ SFSafariViewController or UIWebView failed.
  */
 static NSString *const kURLResponseErrorCodeInternalError = @"auth/internal-error";
 
 #pragma mark - Standard Error Messages
 
 /** @var kFIRAuthErrorMessageInvalidCustomToken
-    @brief Message for @c FIRAuthErrorCodeInvalidCustomToken error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidCustomToken error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidCustomToken = @"The custom token format is "
-    "incorrect. Please check the documentation.";
+"incorrect. Please check the documentation.";
 
 /** @var kFIRAuthErrorMessageCustomTokenMismatch
-    @brief Message for @c FIRAuthErrorCodeCustomTokenMismatch error code.
+ @brief Message for @c FIRAuthErrorCodeCustomTokenMismatch error code.
  */
 static NSString *const kFIRAuthErrorMessageCustomTokenMismatch = @"The custom token corresponds to "
-    "a different audience.";
+"a different audience.";
 
 /** @var kFIRAuthErrorMessageInvalidEmail
-    @brief Message for @c FIRAuthErrorCodeInvalidEmail error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidEmail error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidEmail = @"The email address is badly formatted.";
 
 /** @var kFIRAuthErrorMessageInvalidCredential
-    @brief Message for @c FIRAuthErrorCodeInvalidCredential error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidCredential = @"The supplied auth credential is "
-    "malformed or has expired.";
+"malformed or has expired.";
 
 /** @var kFIRAuthErrorMessageUserDisabled
-    @brief Message for @c FIRAuthErrorCodeUserDisabled error code.
+ @brief Message for @c FIRAuthErrorCodeUserDisabled error code.
  */
 static NSString *const kFIRAuthErrorMessageUserDisabled = @"The user account has been disabled by "
-    "an administrator.";
+"an administrator.";
 
 /** @var kFIRAuthErrorMessageEmailAlreadyInUse
-    @brief Message for @c FIRAuthErrorCodeEmailAlreadyInUse error code.
+ @brief Message for @c FIRAuthErrorCodeEmailAlreadyInUse error code.
  */
 static NSString *const kFIRAuthErrorMessageEmailAlreadyInUse = @"The email address is already in "
-    "use by another account.";
+"use by another account.";
 
 /** @var kFIRAuthErrorMessageWrongPassword
-    @brief Message for @c FIRAuthErrorCodeWrongPassword error code.
+ @brief Message for @c FIRAuthErrorCodeWrongPassword error code.
  */
 static NSString *const kFIRAuthErrorMessageWrongPassword = @"The password is invalid or the user "
-    "does not have a password.";
+"does not have a password.";
 
 /** @var kFIRAuthErrorMessageTooManyRequests
-    @brief Message for @c FIRAuthErrorCodeTooManyRequests error code.
+ @brief Message for @c FIRAuthErrorCodeTooManyRequests error code.
  */
 static NSString *const kFIRAuthErrorMessageTooManyRequests = @"We have blocked all requests from "
-    "this device due to unusual activity. Try again later.";
+"this device due to unusual activity. Try again later.";
 
 /** @var kFIRAuthErrorMessageAccountExistsWithDifferentCredential
-    @brief Message for @c FIRAuthErrorCodeAccountExistsWithDifferentCredential error code.
+ @brief Message for @c FIRAuthErrorCodeAccountExistsWithDifferentCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageAccountExistsWithDifferentCredential = @"An account "
-    "already exists with the same email address but different sign-in credentials. Sign in using a "
-    "provider associated with this email address.";
+"already exists with the same email address but different sign-in credentials. Sign in using a "
+"provider associated with this email address.";
 
 /** @var kFIRAuthErrorMessageRequiresRecentLogin
-    @brief Message for @c FIRAuthErrorCodeRequiresRecentLogin error code.
+ @brief Message for @c FIRAuthErrorCodeRequiresRecentLogin error code.
  */
 static NSString *const kFIRAuthErrorMessageRequiresRecentLogin= @"This operation is sensitive and "
-    "requires recent authentication. Log in again before retrying this request.";
+"requires recent authentication. Log in again before retrying this request.";
 
 /** @var kFIRAuthErrorMessageProviderAlreadyLinked
-    @brief Message for @c FIRAuthErrorCodeProviderAlreadyExists error code.
+ @brief Message for @c FIRAuthErrorCodeProviderAlreadyExists error code.
  */
 static NSString *const kFIRAuthErrorMessageProviderAlreadyLinked =
-    @"[ERROR_PROVIDER_ALREADY_LINKED] - User can only be linked to one identity for the given "
-        "provider.";
+@"[ERROR_PROVIDER_ALREADY_LINKED] - User can only be linked to one identity for the given "
+"provider.";
 
 /** @var kFIRAuthErrorMessageNoSuchProvider
-    @brief Message for @c FIRAuthErrorCodeNoSuchProvider error code.
+ @brief Message for @c FIRAuthErrorCodeNoSuchProvider error code.
  */
 static NSString *const kFIRAuthErrorMessageNoSuchProvider = @"User was not linked to an account "
-    "with the given provider.";
+"with the given provider.";
 
 /** @var kFIRAuthErrorMessageInvalidUserToken
-    @brief Message for @c FIRAuthErrorCodeInvalidUserToken error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidUserToken error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidUserToken = @"This user's credential isn't valid "
-    "for this project. This can happen if the user's token has been tampered with, or if the user "
-    "doesn’t belong to the project associated with the API key used in your request.";
+"for this project. This can happen if the user's token has been tampered with, or if the user "
+"doesn’t belong to the project associated with the API key used in your request.";
 
 /** @var kFIRAuthErrorMessageNetworkError
-    @brief Message for @c FIRAuthErrorCodeNetworkError error code.
+ @brief Message for @c FIRAuthErrorCodeNetworkError error code.
  */
 static NSString *const kFIRAuthErrorMessageNetworkError = @"Network error (such as timeout, "
-    "interrupted connection or unreachable host) has occurred.";
+"interrupted connection or unreachable host) has occurred.";
 
 /** @var kFIRAuthErrorMessageKeychainError
-    @brief Message for @c FIRAuthErrorCodeKeychainError error code.
+ @brief Message for @c FIRAuthErrorCodeKeychainError error code.
  */
 static NSString *const kFIRAuthErrorMessageKeychainError = @"An error occurred when accessing the "
-    "keychain. The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo dictionary "
-    "will contain more information about the error encountered";
+"keychain. The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo dictionary "
+"will contain more information about the error encountered";
 
 /** @var kFIRAuthErrorMessageUserTokenExpired
-    @brief Message for @c FIRAuthErrorCodeTokenExpired error code.
+ @brief Message for @c FIRAuthErrorCodeTokenExpired error code.
  */
 static NSString *const kFIRAuthErrorMessageUserTokenExpired = @"The user's credential is no longer "
-    "valid. The user must sign in again.";
+"valid. The user must sign in again.";
 
 /** @var kFIRAuthErrorMessageUserNotFound
-    @brief Message for @c FIRAuthErrorCodeUserNotFound error code.
+ @brief Message for @c FIRAuthErrorCodeUserNotFound error code.
  */
 static NSString *const kFIRAuthErrorMessageUserNotFound = @"There is no user record corresponding "
-    "to this identifier. The user may have been deleted.";
+"to this identifier. The user may have been deleted.";
 
 /** @var kFIRAuthErrorMessageInvalidAPIKey
-    @brief Message for @c FIRAuthErrorCodeInvalidAPIKey error code.
-    @remarks This error is not thrown by the server.
+ @brief Message for @c FIRAuthErrorCodeInvalidAPIKey error code.
+ @remarks This error is not thrown by the server.
  */
 static NSString *const kFIRAuthErrorMessageInvalidAPIKey = @"An invalid API Key was supplied in "
-    "the request.";
+"the request.";
 
 /** @var kFIRAuthErrorMessageUserMismatch.
-    @brief Message for @c FIRAuthErrorCodeInvalidAPIKey error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidAPIKey error code.
  */
 static NSString *const FIRAuthErrorMessageUserMismatch = @"The supplied credentials do not "
-    "correspond to the previously signed in user.";
+"correspond to the previously signed in user.";
 
 /** @var kFIRAuthErrorMessageCredentialAlreadyInUse
-    @brief Message for @c FIRAuthErrorCodeCredentialAlreadyInUse error code.
+ @brief Message for @c FIRAuthErrorCodeCredentialAlreadyInUse error code.
  */
 static NSString *const kFIRAuthErrorMessageCredentialAlreadyInUse = @"This credential is already "
-    "associated with a different user account.";
+"associated with a different user account.";
 
 /** @var kFIRAuthErrorMessageOperationNotAllowed
-    @brief Message for @c FIRAuthErrorCodeOperationNotAllowed error code.
+ @brief Message for @c FIRAuthErrorCodeOperationNotAllowed error code.
  */
 static NSString *const kFIRAuthErrorMessageOperationNotAllowed = @"The given sign-in provider is "
-    "disabled for this Firebase project. Enable it in the Firebase console, under the sign-in "
-    "method tab of the Auth section.";
+"disabled for this Firebase project. Enable it in the Firebase console, under the sign-in "
+"method tab of the Auth section.";
 
 /** @var kFIRAuthErrorMessageWeakPassword
-    @brief Message for @c FIRAuthErrorCodeWeakPassword error code.
+ @brief Message for @c FIRAuthErrorCodeWeakPassword error code.
  */
 static NSString *const kFIRAuthErrorMessageWeakPassword = @"The password must be 6 characters long "
-    "or more.";
+"or more.";
 
 /** @var kFIRAuthErrorMessageAppNotAuthorized
-    @brief Message for @c FIRAuthErrorCodeAppNotAuthorized error code.
+ @brief Message for @c FIRAuthErrorCodeAppNotAuthorized error code.
  */
 static NSString *const kFIRAuthErrorMessageAppNotAuthorized = @"This app is not authorized to use "
-    "Firebase Authentication with the provided API key. Review your key configuration in the "
-    "Google API console and ensure that it accepts requests from your app's bundle ID.";
+"Firebase Authentication with the provided API key. Review your key configuration in the "
+"Google API console and ensure that it accepts requests from your app's bundle ID.";
 
 /** @var kFIRAuthErrorMessageExpiredActionCode
-    @brief Message for @c FIRAuthErrorCodeExpiredActionCode error code.
+ @brief Message for @c FIRAuthErrorCodeExpiredActionCode error code.
  */
 static NSString *const kFIRAuthErrorMessageExpiredActionCode = @"The action code has expired.";
 
 /** @var kFIRAuthErrorMessageInvalidActionCode
-    @brief Message for @c FIRAuthErrorCodeInvalidActionCode error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidActionCode error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidActionCode = @"The action code is invalid. This "
-   "can happen if the code is malformed, expired, or has already been used.";
+"can happen if the code is malformed, expired, or has already been used.";
 
 /** @var kFIRAuthErrorMessageInvalidMessagePayload
-    @brief Message for @c FIRAuthErrorCodeInvalidMessagePayload error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidMessagePayload error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidMessagePayload = @"The action code is invalid. "
-   "This can happen if the code is malformed, expired, or has already been used.";
+"This can happen if the code is malformed, expired, or has already been used.";
 
 /** @var kFIRAuthErrorMessageInvalidSender
-    @brief Message for @c FIRAuthErrorCodeInvalidSender error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidSender error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidSender = @"The email template corresponding to "
-    "this action contains invalid characters in its message. Please fix by going to the Auth email "
-    "templates section in the Firebase Console.";
+"this action contains invalid characters in its message. Please fix by going to the Auth email "
+"templates section in the Firebase Console.";
 
 /** @var kFIRAuthErrorMessageInvalidRecipientEmail
-    @brief Message for @c FIRAuthErrorCodeInvalidRecipient error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidRecipient error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidRecipientEmail = @"The action code is invalid. "
-   "This can happen if the code is malformed, expired, or has already been used.";
+"This can happen if the code is malformed, expired, or has already been used.";
 
 /** @var kFIRAuthErrorMessageMissingIosBundleID
-    @brief Message for @c FIRAuthErrorCodeMissingIosbundleID error code.
+ @brief Message for @c FIRAuthErrorCodeMissingIosbundleID error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingIosBundleID =
-    @"An iOS Bundle ID must be provided if an App Store ID is provided.";
+@"An iOS Bundle ID must be provided if an App Store ID is provided.";
 
 /** @var kFIRAuthErrorMessageMissingAndroidPackageName
-    @brief Message for @c FIRAuthErrorCodeMissingAndroidPackageName error code.
+ @brief Message for @c FIRAuthErrorCodeMissingAndroidPackageName error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingAndroidPackageName =
-    @"An Android Package Name must be provided if the Android App is required to be installed.";
+@"An Android Package Name must be provided if the Android App is required to be installed.";
 
 /** @var kFIRAuthErrorMessageUnauthorizedDomain
-    @brief Message for @c FIRAuthErrorCodeUnauthorizedDomain error code.
+ @brief Message for @c FIRAuthErrorCodeUnauthorizedDomain error code.
  */
 static NSString *const kFIRAuthErrorMessageUnauthorizedDomain = @"The domain of the continue URL "
-    "is not whitelisted. Please whitelist the domain in the Firebase console.";
+"is not whitelisted. Please whitelist the domain in the Firebase console.";
 
 /** @var kFIRAuthErrorMessageInvalidContinueURI
-    @brief Message for @c FIRAuthErrorCodeInvalidContinueURI error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidContinueURI error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidContinueURI =
-    @"The continue URL provided in the request is invalid.";
+@"The continue URL provided in the request is invalid.";
 
 /** @var kFIRAuthErrorMessageMissingEmail
-    @brief Message for @c FIRAuthErrorCodeMissingEmail error code.
+ @brief Message for @c FIRAuthErrorCodeMissingEmail error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingEmail = @"An email address must be provided.";
 
 /** @var kFIRAuthErrorMessageMissingContinueURI
-    @brief Message for @c FIRAuthErrorCodeMissingContinueURI error code.
+ @brief Message for @c FIRAuthErrorCodeMissingContinueURI error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingContinueURI =
-    @"A continue URL must be provided in the request.";
+@"A continue URL must be provided in the request.";
 
 /** @var kFIRAuthErrorMessageMissingPhoneNumber
-    @brief Message for @c FIRAuthErrorCodeMissingPhoneNumber error code.
+ @brief Message for @c FIRAuthErrorCodeMissingPhoneNumber error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingPhoneNumber =
-    @"To send verification codes, provide a phone number for the recipient.";
+@"To send verification codes, provide a phone number for the recipient.";
 
 /** @var kFIRAuthErrorMessageInvalidPhoneNumber
-    @brief Message for @c FIRAuthErrorCodeInvalidPhoneNumber error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidPhoneNumber error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidPhoneNumber =
-    @"The format of the phone number provided is incorrect. Please enter the phone number in a "
-    "format that can be parsed into E.164 format. E.164 phone numbers are written in the format "
-    "[+][country code][subscriber number including area code].";
+@"The format of the phone number provided is incorrect. Please enter the phone number in a "
+"format that can be parsed into E.164 format. E.164 phone numbers are written in the format "
+"[+][country code][subscriber number including area code].";
 
 /** @var kFIRAuthErrorMessageMissingVerificationCode
-    @brief Message for @c FIRAuthErrorCodeMissingVerificationCode error code.
+ @brief Message for @c FIRAuthErrorCodeMissingVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationCode =
-    @"The phone auth credential was created with an empty SMS verification Code.";
+@"The phone auth credential was created with an empty SMS verification Code.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationCode
-    @brief Message for @c FIRAuthErrorCodeInvalidVerificationCode error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationCode =
-    @"The SMS verification code used to create the phone auth credential is invalid. Please resend "
-    "the verification code SMS and be sure to use the verification code provided by the user.";
+@"The SMS verification code used to create the phone auth credential is invalid. Please resend "
+"the verification code SMS and be sure to use the verification code provided by the user.";
 
 /** @var kFIRAuthErrorMessageMissingVerificationID
-    @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingVerificationID =
-    @"The phone auth credential was created with an empty verification ID.";
+@"The phone auth credential was created with an empty verification ID.";
 
 /** @var kFIRAuthErrorMessageInvalidVerificationID
-    @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidVerificationID error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationID =
-    @"The verification ID used to create the phone auth credential is invalid.";
+@"The verification ID used to create the phone auth credential is invalid.";
 
 /** @var kFIRAuthErrorMessageSessionExpired
-    @brief Message for @c FIRAuthErrorCodeSessionExpired error code.
+ @brief Message for @c FIRAuthErrorCodeSessionExpired error code.
  */
 static NSString *const kFIRAuthErrorMessageSessionExpired = @"The SMS code has expired. Please "
-    @"re-send the verification code to try again.";
+@"re-send the verification code to try again.";
 
 /** @var kFIRAuthErrorMessageMissingAppCredential
-    @brief Message for @c FIRAuthErrorCodeMissingAppCredential error code.
+ @brief Message for @c FIRAuthErrorCodeMissingAppCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingAppCredential = @"The phone verification request "
-    "is missing an APNs Device token. Firebase Auth automatically detects APNs Device Tokens, "
-    "however, if method swizzling is disabled, the APNs token must be set via the APNSToken "
-    "property on FIRAuth or by calling setAPNSToken:type on FIRAuth.";
+"is missing an APNs Device token. Firebase Auth automatically detects APNs Device Tokens, "
+"however, if method swizzling is disabled, the APNs token must be set via the APNSToken "
+"property on FIRAuth or by calling setAPNSToken:type on FIRAuth.";
 
 /** @var kFIRAuthErrorMessageInvalidAppCredential
-    @brief Message for @c FIRAuthErrorCodeInvalidAppCredential error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidAppCredential error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidAppCredential = @"The APNs device token provided "
-    "is either incorrect or does not match the private certificate uploaded to the Firebase "
-    "Console.";
+"is either incorrect or does not match the private certificate uploaded to the Firebase "
+"Console.";
 
 /** @var kFIRAuthErrorMessageQuotaExceeded
-    @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
+ @brief Message for @c FIRAuthErrorCodeQuotaExceeded error code.
  */
 static NSString *const kFIRAuthErrorMessageQuotaExceeded = @"The phone verification quota for this "
-    "project has been exceeded.";
+"project has been exceeded.";
 
 /** @var kFIRAuthErrorMessageMissingAppToken
-    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
 static NSString *const kFIRAuthErrorMessageMissingAppToken = @"There seems to be a problem with "
-    "your project's Firebase phone number authentication set-up, please make sure to follow the "
-    "instructions found at https://firebase.google.com/docs/auth/ios/phone-auth";
+"your project's Firebase phone number authentication set-up, please make sure to follow the "
+"instructions found at https://firebase.google.com/docs/auth/ios/phone-auth";
 
 /** @var kFIRAuthErrorMessageMissingAppToken
-    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
 static NSString *const kFIRAuthErrorMessageNotificationNotForwarded = @"If app delegate swizzling "
-    "is disabled, remote notifications received by UIApplicationDelegate need to be forwarded to "
-    "FIRAuth's canHandleNotificaton: method.";
+"is disabled, remote notifications received by UIApplicationDelegate need to be forwarded to "
+"FIRAuth's canHandleNotificaton: method.";
 
 /** @var kFIRAuthErrorMessageAppNotVerified
-    @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
+ @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
 static NSString *const kFIRAuthErrorMessageAppNotVerified = @"Firebase could not retrieve the "
-    "silent push notification and therefore could not verify your app. Ensure that you configured "
-    "your app correctly to receive push notifications.";
+"silent push notification and therefore could not verify your app. Ensure that you configured "
+"your app correctly to receive push notifications.";
 
 /** @var kFIRAuthErrorMessageCaptchaCheckFailed
-    @brief Message for @c FIRAuthErrorCodeCaptchaCheckFailed error code.
+ @brief Message for @c FIRAuthErrorCodeCaptchaCheckFailed error code.
  */
 static NSString *const kFIRAuthErrorMessageCaptchaCheckFailed = @"The reCAPTCHA response token "
-    "provided is either invalid, expired or already";
+"provided is either invalid, expired or already";
 
 /** @var kFIRAuthErrorMessageWebContextAlreadyPresented
-    @brief Message for @c FIRAuthErrorCodeWebContextAlreadyPresented error code.
+ @brief Message for @c FIRAuthErrorCodeWebContextAlreadyPresented error code.
  */
 static NSString *const kFIRAuthErrorMessageWebContextAlreadyPresented = @"User interaction is "
-    "still ongoing, another view cannot be presented.";
+"still ongoing, another view cannot be presented.";
 
 /** @var kFIRAuthErrorMessageWebContextCancelled
-    @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
+ @brief Message for @c FIRAuthErrorCodeWebContextCancelled error code.
  */
 static NSString *const kFIRAuthErrorMessageWebContextCancelled = @"The interaction was cancelled "
-    "by the user.";
+"by the user.";
 
 /** @var kFIRAuthErrorMessageInvalidClientID
-    @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidClientID = @"The OAuth client ID provided is "
-    "either invalid or does not match the specified API key.";
+"either invalid or does not match the specified API key.";
 
 /** @var kFIRAuthErrorMessageWebRequestFailed
-    @brief Message for @c FIRAuthErrorCodeWebRequestFailed error code.
+ @brief Message for @c FIRAuthErrorCodeWebRequestFailed error code.
  */
 static NSString *const kFIRAuthErrorMessageWebRequestFailed = @"A network error (such as timeout, "
-    "interrupted connection, or unreachable host) has occurred within the web context.";
+"interrupted connection, or unreachable host) has occurred within the web context.";
 
 /** @var kFIRAuthErrorMessageWebInternalError
-    @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
+ @brief Message for @c FIRAuthErrorCodeWebInternalError error code.
  */
 static NSString *const kFIRAuthErrorMessageWebInternalError = @"An internal error has occurred "
-    "within the SFSafariViewController or UIWebView.";
+"within the SFSafariViewController or UIWebView.";
 
 /** @var kFIRAuthErrorMessageAppVerificationUserInteractionFailure
-    @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
+ @brief Message for @c FIRAuthErrorCodeInvalidClientID error code.
  */
 static NSString *const kFIRAuthErrorMessageAppVerificationUserInteractionFailure = @"The app "
-  "verification process has failed, print and inspect the error details for more information";
+"verification process has failed, print and inspect the error details for more information";
 
 /** @var kFIRAuthErrorMessageNullUser
-    @brief Message for @c FIRAuthErrorCodeNullUser error code.
+ @brief Message for @c FIRAuthErrorCodeNullUser error code.
  */
 static NSString *const kFIRAuthErrorMessageNullUser = @"A null user object was provided as the "
-    "argument for an operation which requires a non-null user object.";
+"argument for an operation which requires a non-null user object.";
 
 /** @var kFIRAuthErrorMessageInternalError
-    @brief Message for @c FIRAuthErrorCodeInternalError error code.
+ @brief Message for @c FIRAuthErrorCodeInternalError error code.
  */
 static NSString *const kFIRAuthErrorMessageInternalError = @"An internal error has occurred, "
-    "print and inspect the error details for more information.";
+"print and inspect the error details for more information.";
 
 /** @var kFIRAuthErrorMessageMalformedJWT
-    @brief Error message constant describing @c FIRAuthErrorCodeMalformedJWT errors.
+ @brief Error message constant describing @c FIRAuthErrorCodeMalformedJWT errors.
  */
 static NSString *const kFIRAuthErrorMessageMalformedJWT =
-    @"Failed to parse JWT. Check the userInfo dictionary for the full token.";
+@"Failed to parse JWT. Check the userInfo dictionary for the full token.";
 
 /** @var FIRAuthErrorDescription
-    @brief The error descrioption, based on the error code.
-    @remarks No default case so that we get a compiler warning if a new value was added to the enum.
+ @brief The error descrioption, based on the error code.
+ @remarks No default case so that we get a compiler warning if a new value was added to the enum.
  */
 static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
   switch (code) {
@@ -543,8 +543,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
 }
 
 /** @var FIRAuthErrorCodeString
-    @brief The the error short string, based on the error code.
-    @remarks No default case so that we get a compiler warning if a new value was added to the enum.
+ @brief The the error short string, based on the error code.
+ @remarks No default case so that we get a compiler warning if a new value was added to the enum.
  */
 static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   switch (code) {
@@ -676,8 +676,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   NSDictionary *userInfo = nil;
   if (message.length) {
     userInfo = @{
-      NSLocalizedDescriptionKey : message
-    };
+                 NSLocalizedDescriptionKey : message
+                 };
   }
   return [self errorWithCode:code userInfo:userInfo];
 }
@@ -687,8 +687,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   NSDictionary *errorUserInfo = nil;
   if (underlyingError) {
     errorUserInfo = @{
-      NSUnderlyingErrorKey : underlyingError
-    };
+                      NSUnderlyingErrorKey : underlyingError
+                      };
   }
   return [self errorWithCode:code userInfo:errorUserInfo];
 }
@@ -708,7 +708,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   } else {
     // This is an internal error. Wrap it in an internal error.
     NSError *error =
-        [NSError errorWithDomain:FIRAuthInternalErrorDomain code:code userInfo:userInfo];
+    [NSError errorWithDomain:FIRAuthInternalErrorDomain code:code userInfo:userInfo];
     return [self errorWithCode:FIRAuthInternalErrorCodeInternalError underlyingError:error];
   }
 }
@@ -734,23 +734,25 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)unexpectedErrorResponseWithData:(NSData *)data
                              underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:@{
-    FIRAuthErrorUserInfoDataKey : data,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:
+          @{
+            FIRAuthErrorUserInfoDataKey : data,
+            NSUnderlyingErrorKey : underlyingError
+            }];
 }
 
 + (NSError *)unexpectedErrorResponseWithDeserializedResponse:(id)deserializedResponse {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedErrorResponse userInfo:
+          @{
+            FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
+            }];
 }
 
 + (NSError *)malformedJWTErrorWithToken:(NSString *)token
                         underlyingError:(NSError *_Nullable)underlyingError {
   NSMutableDictionary *userInfo =
-      [NSMutableDictionary dictionaryWithObject:kFIRAuthErrorMessageMalformedJWT
-                                         forKey:NSLocalizedDescriptionKey];
+  [NSMutableDictionary dictionaryWithObject:kFIRAuthErrorMessageMalformedJWT
+                                     forKey:NSLocalizedDescriptionKey];
   [userInfo setObject:token forKey:FIRAuthErrorUserInfoDataKey];
   if (underlyingError != nil) {
     [userInfo setObject:underlyingError forKey:NSUnderlyingErrorKey];
@@ -760,22 +762,24 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)unexpectedResponseWithData:(NSData *)data
                         underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:@{
-    FIRAuthErrorUserInfoDataKey : data,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:
+          @{
+            FIRAuthErrorUserInfoDataKey : data,
+            NSUnderlyingErrorKey : underlyingError
+            }];
 }
 
 + (NSError *)unexpectedResponseWithDeserializedResponse:(id)deserializedResponse {
-  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeUnexpectedResponse userInfo:
+          @{
+            FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse
+            }];
 }
 
 + (NSError *)unexpectedResponseWithDeserializedResponse:(nullable id)deserializedResponse
                                         underlyingError:(NSError *)underlyingError {
   NSMutableDictionary *userInfo =
-      [NSMutableDictionary dictionaryWithDictionary:@{ NSUnderlyingErrorKey : underlyingError }];
+  [NSMutableDictionary dictionaryWithDictionary:@{ NSUnderlyingErrorKey : underlyingError }];
   if (deserializedResponse) {
     userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse;
   }
@@ -784,10 +788,11 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)RPCResponseDecodingErrorWithDeserializedResponse:(id)deserializedResponse
                                               underlyingError:(NSError *)underlyingError {
-  return [self errorWithCode:FIRAuthInternalErrorCodeRPCResponseDecodingError userInfo:@{
-    FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
-    NSUnderlyingErrorKey : underlyingError
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeRPCResponseDecodingError userInfo:
+          @{
+            FIRAuthErrorUserInfoDeserializedResponseKey : deserializedResponse,
+            NSUnderlyingErrorKey : underlyingError
+            }];
 }
 
 + (NSError *)emailAlreadyInUseErrorWithEmail:(nullable NSString *)email {
@@ -867,7 +872,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
                                          credential:(nullable FIRPhoneAuthCredential *)credential {
   if (credential) {
     return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse
-                    userInfo:@{ FIRAuthUpdatedCredentialKey : credential }];
+                      userInfo:@{ FIRAuthUpdatedCredentialKey : credential }];
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeCredentialAlreadyInUse message:message];
 }
@@ -877,9 +882,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 }
 
 + (NSError *)weakPasswordErrorWithServerResponseReason:(nullable NSString *)reason {
-  return [self errorWithCode:FIRAuthInternalErrorCodeWeakPassword userInfo:@{
-    NSLocalizedFailureReasonErrorKey : reason
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeWeakPassword userInfo:
+          @{
+            NSLocalizedFailureReasonErrorKey : reason
+            }];
 }
 
 + (NSError *)appNotAuthorizedError {
@@ -998,11 +1004,12 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 + (NSError *)appVerificationUserInteractionFailureWithReason:(NSString *)reason {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppVerificationUserInteractionFailure
                     userInfo:@{
-    NSLocalizedFailureReasonErrorKey : reason
-  }];
+                               NSLocalizedFailureReasonErrorKey : reason
+                               }];
 }
 
-+ (nullable NSError *)URLResponseErrorWithCode:(NSString *)code message:(nullable NSString *)message {
++ (nullable NSError *)URLResponseErrorWithCode:(NSString *)code
+                                       message:(nullable NSString *)message {
   if ([code isEqualToString:kURLResponseErrorCodeInvalidClientID]) {
     return [self errorWithCode:FIRAuthInternalErrorCodeInvalidClientID message:message];
   }
@@ -1021,9 +1028,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)keychainErrorWithFunction:(NSString *)keychainFunction status:(OSStatus)status {
   NSString *failureReason = [NSString stringWithFormat:@"%@ (%li)", keychainFunction, (long)status];
-  return [self errorWithCode:FIRAuthInternalErrorCodeKeychainError userInfo:@{
-    NSLocalizedFailureReasonErrorKey : failureReason,
-  }];
+  return [self errorWithCode:FIRAuthInternalErrorCodeKeychainError userInfo:
+          @{
+            NSLocalizedFailureReasonErrorKey : failureReason,
+            }];
 }
 
 @end

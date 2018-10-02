@@ -17,25 +17,25 @@
 #import "FIRResetPasswordRequest.h"
 
 /** @var kResetPasswordEndpoint
-    @brief The "resetPassword" endpoint.
+ @brief The "resetPassword" endpoint.
  */
 static NSString *const kResetPasswordEndpoint = @"resetPassword";
 
 /** @var kOOBCodeKey
-    @brief The "resetPassword" key.
+ @brief The "resetPassword" key.
  */
 static NSString *const kOOBCodeKey = @"oobCode";
 
 /** @var kCurrentPasswordKey
-    @brief The "newPassword" key.
+ @brief The "newPassword" key.
  */
 static NSString *const kCurrentPasswordKey = @"newPassword";
 
 @implementation FIRResetPasswordRequest
 
 - (instancetype)initWithOobCode:(NSString *)oobCode
-                   newPassword:(NSString *)newPassword
-          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+                    newPassword:(NSString *)newPassword
+           requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kResetPasswordEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _oobCode = oobCode;

@@ -25,7 +25,7 @@
   _displayName = [dictionary[@"displayName"] copy];
   _IDToken = [dictionary[@"idToken"] copy];
   _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _photoURL = dictionary[@"photoUrl"] ? [NSURL URLWithString:dictionary[@"photoUrl"]] : nil;
   return YES;

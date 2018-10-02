@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** @fn initializeSubviews
-    @brief Initializes the subviews of this view.
+ @brief Initializes the subviews of this view.
  */
 - (void)initializeSubviews {
   UIWebView *webView = [self createWebView];
@@ -53,8 +53,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** @fn createWebView
-    @brief Creates a web view to be used by this view.
-    @return The newly created web view.
+ @brief Creates a web view to be used by this view.
+ @return The newly created web view.
  */
 - (UIWebView *)createWebView {
   UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
@@ -71,13 +71,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /** @fn createSpinner
-    @brief Creates a spinner to be used by this view.
-    @return The newly created spinner.
+ @brief Creates a spinner to be used by this view.
+ @return The newly created spinner.
  */
 - (UIActivityIndicatorView *)createSpinner {
   UIActivityIndicatorViewStyle spinnerStyle = UIActivityIndicatorViewStyleGray;
   UIActivityIndicatorView *spinner =
-      [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
+  [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:spinnerStyle];
   return spinner;
 }
 

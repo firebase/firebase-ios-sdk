@@ -24,7 +24,7 @@
 #import "AuthCredentials.h"
 
 /** @var kFacebookAppId
-    @brief The App ID for the Facebook SDK.
+ @brief The App ID for the Facebook SDK.
  */
 static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
 
@@ -52,17 +52,17 @@ static NSString *const kFacebookAppID = KFACEBOOK_APP_ID;
   [_loginManager logInWithReadPermissions:@[ @"email" ]
                        fromViewController:viewController
                                   handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
-    [ApplicationDelegate setOpenURLDelegate:nil];
-    if (!error && result.isCancelled) {
-      error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
-    }
-    if (error) {
-      callback(nil, error);
-      return;
-    }
-    NSString *accessToken = [FBSDKAccessToken currentAccessToken].tokenString;
-    callback([FIRFacebookAuthProvider credentialWithAccessToken:accessToken], nil);
-  }];
+                                    [ApplicationDelegate setOpenURLDelegate:nil];
+                                    if (!error && result.isCancelled) {
+                                      error = [NSError errorWithDomain:@"com.google.FirebaseAuthSample" code:-1 userInfo:nil];
+                                    }
+                                    if (error) {
+                                      callback(nil, error);
+                                      return;
+                                    }
+                                    NSString *accessToken = [FBSDKAccessToken currentAccessToken].tokenString;
+                                    callback([FIRFacebookAuthProvider credentialWithAccessToken:accessToken], nil);
+                                  }];
 }
 
 - (void)signOut {

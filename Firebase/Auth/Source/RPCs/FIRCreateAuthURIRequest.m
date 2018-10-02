@@ -17,42 +17,42 @@
 #import "FIRCreateAuthURIRequest.h"
 
 /** @var kCreateAuthURIEndpoint
-    @brief The "createAuthUri" endpoint.
+ @brief The "createAuthUri" endpoint.
  */
 static NSString *const kCreateAuthURIEndpoint = @"createAuthUri";
 
 /** @var kProviderIDKey
-    @brief The key for the "providerId" value in the request.
+ @brief The key for the "providerId" value in the request.
  */
 static NSString *const kProviderIDKey = @"providerId";
 
 /** @var kIdentifierKey
-    @brief The key for the "identifier" value in the request.
+ @brief The key for the "identifier" value in the request.
  */
 static NSString *const kIdentifierKey = @"identifier";
 
 /** @var kContinueURIKey
-    @brief The key for the "continueUri" value in the request.
+ @brief The key for the "continueUri" value in the request.
  */
 static NSString *const kContinueURIKey = @"continueUri";
 
 /** @var kOpenIDRealmKey
-    @brief The key for the "openidRealm" value in the request.
+ @brief The key for the "openidRealm" value in the request.
  */
 static NSString *const kOpenIDRealmKey = @"openidRealm";
 
 /** @var kClientIDKey
-    @brief The key for the "clientId" value in the request.
+ @brief The key for the "clientId" value in the request.
  */
 static NSString *const kClientIDKey = @"clientId";
 
 /** @var kContextKey
-    @brief The key for the "context" value in the request.
+ @brief The key for the "context" value in the request.
  */
 static NSString *const kContextKey = @"context";
 
 /** @var kAppIDKey
-    @brief The key for the "appId" value in the request.
+ @brief The key for the "appId" value in the request.
  */
 static NSString *const kAppIDKey = @"appId";
 
@@ -71,9 +71,9 @@ static NSString *const kAppIDKey = @"appId";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *postBody = [@{
-    kIdentifierKey : _identifier,
-    kContinueURIKey : _continueURI
-  } mutableCopy];
+                                     kIdentifierKey : _identifier,
+                                     kContinueURIKey : _continueURI
+                                     } mutableCopy];
   if (_providerID) {
     postBody[kProviderIDKey] = _providerID;
   }

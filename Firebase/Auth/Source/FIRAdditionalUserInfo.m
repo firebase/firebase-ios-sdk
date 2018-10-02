@@ -23,27 +23,27 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAdditionalUserInfo
 
 /** @var kProviderIDCodingKey
-    @brief The key used to encode the providerID property for NSSecureCoding.
+ @brief The key used to encode the providerID property for NSSecureCoding.
  */
 static NSString *const kProviderIDCodingKey = @"providerID";
 
 /** @var kProfileCodingKey
-    @brief The key used to encode the profile property for NSSecureCoding.
+ @brief The key used to encode the profile property for NSSecureCoding.
  */
 static NSString *const kProfileCodingKey = @"profile";
 
 /** @var kUsernameCodingKey
-    @brief The key used to encode the username property for NSSecureCoding.
+ @brief The key used to encode the username property for NSSecureCoding.
  */
 static NSString *const kUsernameCodingKey = @"username";
 
 /** @var kNewUserKey
-    @brief The key used to encode the newUser property for NSSecureCoding.
+ @brief The key used to encode the newUser property for NSSecureCoding.
  */
 static NSString *const kNewUserKey = @"newUser";
 
 + (nullable instancetype)userInfoWithVerifyAssertionResponse:
-    (FIRVerifyAssertionResponse *)verifyAssertionResponse {
+(FIRVerifyAssertionResponse *)verifyAssertionResponse {
   return [[self alloc] initWithProviderID:verifyAssertionResponse.providerID
                                   profile:verifyAssertionResponse.profile
                                  username:verifyAssertionResponse.username
@@ -74,9 +74,9 @@ static NSString *const kNewUserKey = @"newUser";
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *providerID =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
+  [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
   NSDictionary<NSString *, NSObject *> *profile =
-      [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:kProfileCodingKey];
+  [aDecoder decodeObjectOfClass:[NSDictionary class] forKey:kProfileCodingKey];
   NSString *username = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUsernameCodingKey];
   NSNumber *isNewUser = [aDecoder decodeObjectOfClass:[NSNumber class] forKey:kNewUserKey];
 

@@ -19,7 +19,7 @@
 #import "FIRAuthErrorUtils.h"
 
 /** @var kErrorKey
-    @brief The key for the "error" value in JSON responses from the server.
+ @brief The key for the "error" value in JSON responses from the server.
  */
 static NSString *const kErrorKey = @"error";
 
@@ -51,10 +51,10 @@ static NSString *const kErrorKey = @"error";
     NSArray<NSDictionary *> *providerUserInfoData = dictionary[@"providerUserInfo"];
     if (providerUserInfoData) {
       NSMutableArray<FIRGetAccountInfoResponseProviderUserInfo *> *providerUserInfoArray =
-          [NSMutableArray arrayWithCapacity:providerUserInfoData.count];
+      [NSMutableArray arrayWithCapacity:providerUserInfoData.count];
       for (NSDictionary *dictionary in providerUserInfoData) {
         [providerUserInfoArray addObject:
-            [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:dictionary]];
+         [[FIRGetAccountInfoResponseProviderUserInfo alloc] initWithDictionary:dictionary]];
       }
       _providerUserInfo = [providerUserInfoArray copy];
     }

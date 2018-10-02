@@ -19,37 +19,37 @@
 #import "FIRGetAccountInfoResponse.h"
 
 /** @var kProviderIDCodingKey
-    @brief The key used to encode the providerID property for NSSecureCoding.
+ @brief The key used to encode the providerID property for NSSecureCoding.
  */
 static NSString *const kProviderIDCodingKey = @"providerID";
 
 /** @var kUserIDCodingKey
-    @brief The key used to encode the userID property for NSSecureCoding.
+ @brief The key used to encode the userID property for NSSecureCoding.
  */
 static NSString *const kUserIDCodingKey = @"userID";
 
 /** @var kDisplayNameCodingKey
-    @brief The key used to encode the displayName property for NSSecureCoding.
+ @brief The key used to encode the displayName property for NSSecureCoding.
  */
 static NSString *const kDisplayNameCodingKey = @"displayName";
 
 /** @var kProfileURLCodingKey
-    @brief The key used to encode the profileURL property for NSSecureCoding.
+ @brief The key used to encode the profileURL property for NSSecureCoding.
  */
 static NSString *const kProfileURLCodingKey = @"profileURL";
 
 /** @var kPhotoURLCodingKey
-    @brief The key used to encode the photoURL property for NSSecureCoding.
+ @brief The key used to encode the photoURL property for NSSecureCoding.
  */
 static NSString *const kPhotoURLCodingKey = @"photoURL";
 
 /** @var kEmailCodingKey
-    @brief The key used to encode the email property for NSSecureCoding.
+ @brief The key used to encode the email property for NSSecureCoding.
  */
 static NSString *const kEmailCodingKey = @"email";
 
 /** @var kPhoneNumberCodingKey
-    @brief The key used to encode the phoneNumber property for NSSecureCoding.
+ @brief The key used to encode the phoneNumber property for NSSecureCoding.
  */
 static NSString *const kPhoneNumberCodingKey = @"phoneNumber";
 
@@ -63,7 +63,7 @@ static NSString *const kPhoneNumberCodingKey = @"phoneNumber";
 @synthesize phoneNumber = _phoneNumber;
 
 + (nullable instancetype)userInfoWithGetAccountInfoResponseProviderUserInfo:
-    (FIRGetAccountInfoResponseProviderUserInfo *)providerUserInfo {
+(FIRGetAccountInfoResponseProviderUserInfo *)providerUserInfo {
   return [[self alloc] initWithProviderID:providerUserInfo.providerID
                                    userID:providerUserInfo.federatedID
                               displayName:providerUserInfo.displayName
@@ -98,14 +98,14 @@ static NSString *const kPhoneNumberCodingKey = @"phoneNumber";
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *providerID =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
+  [aDecoder decodeObjectOfClass:[NSString class] forKey:kProviderIDCodingKey];
   NSString *userID = [aDecoder decodeObjectOfClass:[NSString class] forKey:kUserIDCodingKey];
   NSString *displayName =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kDisplayNameCodingKey];
+  [aDecoder decodeObjectOfClass:[NSString class] forKey:kDisplayNameCodingKey];
   NSURL *photoURL = [aDecoder decodeObjectOfClass:[NSURL class] forKey:kPhotoURLCodingKey];
   NSString *email = [aDecoder decodeObjectOfClass:[NSString class] forKey:kEmailCodingKey];
   NSString *phoneNumber =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
+  [aDecoder decodeObjectOfClass:[NSString class] forKey:kPhoneNumberCodingKey];
 
   return [self initWithProviderID:providerID
                            userID:userID

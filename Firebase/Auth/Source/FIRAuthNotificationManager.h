@@ -22,8 +22,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthNotificationForwardingCallback
-    @brief The type of block to receive whether or not remote notifications are being forwarded.
-    @param isNotificationBeingForwarded Whether or not remote notifications are being forwarded.
+ @brief The type of block to receive whether or not remote notifications are being forwarded.
+ @param isNotificationBeingForwarded Whether or not remote notifications are being forwarded.
  */
 typedef void (^FIRAuthNotificationForwardingCallback)(BOOL isNotificationBeingForwarded);
 
@@ -32,37 +32,37 @@ typedef void (^FIRAuthNotificationForwardingCallback)(BOOL isNotificationBeingFo
 @interface FIRAuthNotificationManager : NSObject
 
 /** @property timeout
-    @brief The timeout for checking for notification forwarding.
-    @remarks Only tests should access this property.
+ @brief The timeout for checking for notification forwarding.
+ @remarks Only tests should access this property.
  */
 @property(nonatomic, assign) NSTimeInterval timeout;
 
 /** @fn initWithApplication:appCredentialManager:
-    @brief Initializes the instance.
-    @param application The application.
-    @param appCredentialManager The object to handle app credentials delivered via notification.
-    @return The initialized instance.
+ @brief Initializes the instance.
+ @param application The application.
+ @param appCredentialManager The object to handle app credentials delivered via notification.
+ @return The initialized instance.
  */
 - (instancetype)initWithApplication:(UIApplication *)application
                appCredentialManager:(FIRAuthAppCredentialManager *)appCredentialManager
-    NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 /** @fn init
-    @brief please use initWithAppCredentialManager: instead.
+ @brief please use initWithAppCredentialManager: instead.
  */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn checkNotificationForwardingWithCallback:
-    @brief Checks whether or not remote notifications are being forwarded to this class.
-    @param callback The block to be called either immediately or in future once a result
-        is available.
+ @brief Checks whether or not remote notifications are being forwarded to this class.
+ @param callback The block to be called either immediately or in future once a result
+ is available.
  */
 - (void)checkNotificationForwardingWithCallback:(FIRAuthNotificationForwardingCallback)callback;
 
 /** @fn canHandleNotification:
-    @brief Attempts to handle the remote notification.
-    @param notification The notification in question.
-    @return Whether or the notification has been handled.
+ @brief Attempts to handle the remote notification.
+ @param notification The notification in question.
+ @return Whether or the notification has been handled.
  */
 - (BOOL)canHandleNotification:(NSDictionary *)notification;
 

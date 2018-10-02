@@ -21,20 +21,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthDefaultUIDelegate
-    @brief Class responsible for providing a default FIRAuthUIDelegte.
-    @remarks This class should be used in the case that a UIDelegate was expected and necessary to
-        continue a given flow, but none was provided.
+ @brief Class responsible for providing a default FIRAuthUIDelegte.
+ @remarks This class should be used in the case that a UIDelegate was expected and necessary to
+ continue a given flow, but none was provided.
  */
 @interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
 
 /** @fn defaultUIDelegate
-    @brief Unavailable. Please use @c +defaultUIDelegate:
+ @brief Unavailable. Please use @c +defaultUIDelegate:
  */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn defaultUIDelegate
-    @brief Returns a default FIRAuthUIDelegate object.
-    @return The default FIRAuthUIDelegate object.
+ @brief Returns a default FIRAuthUIDelegate object.
+ @return The default FIRAuthUIDelegate object.
  */
 + (id<FIRAuthUIDelegate>)defaultUIDelegate;
 

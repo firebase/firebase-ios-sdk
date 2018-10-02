@@ -23,41 +23,41 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRIdentityToolkitRequest
-    @brief Represents a request to an identity toolkit endpoint.
+ @brief Represents a request to an identity toolkit endpoint.
  */
 @interface FIRIdentityToolkitRequest : NSObject
 
 /** @property endpoint
-    @brief Gets the RPC's endpoint.
+ @brief Gets the RPC's endpoint.
  */
 @property(nonatomic, copy, readonly) NSString *endpoint;
 
 /** @property APIKey
-    @brief Gets the client's API key used for the request.
+ @brief Gets the client's API key used for the request.
  */
 @property(nonatomic, copy, readonly) NSString *APIKey;
 
 /** @fn init
-    @brief Please use initWithEndpoint:APIKey:
+ @brief Please use initWithEndpoint:APIKey:
  */
 - (instancetype)init NS_UNAVAILABLE;
 
 /** @fn initWithEndpoint:APIKey:
-    @brief Designated initializer.
-    @param endpoint The endpoint name.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param endpoint The endpoint name.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 /** @fn requestURL
-    @brief Gets the request's full URL.
+ @brief Gets the request's full URL.
  */
 - (NSURL *)requestURL;
 
 /** @fn requestConfiguration
-    @brief Gets the request's configuration.
+ @brief Gets the request's configuration.
  */
 - (FIRAuthRequestConfiguration *)requestConfiguration;
 

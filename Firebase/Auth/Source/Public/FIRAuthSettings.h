@@ -17,14 +17,14 @@
 #import <Foundation/Foundation.h>
 
 /** @class FIRAuthSettings
-    @brief Determines settings related to an auth object.
+ @brief Determines settings related to an auth object.
  */
 @interface FIRAuthSettings : NSObject
 
 /** @property appVerificationDisabledForTesting
-    @brief Flag to determine whether app verification should be disabled for testing or not.
+ @brief Flag to determine whether app verification should be disabled for testing or not.
  */
 @property (nonatomic, assign, getter=isAppVerificationDisabledForTesting) BOOL
-    appVerificationDisabledForTesting;
+appVerificationDisabledForTesting;
 
 @end

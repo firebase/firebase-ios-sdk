@@ -22,59 +22,59 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRVerifyPasswordRequest
-    @brief Represents the parameters for the verifyPassword endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
+ @brief Represents the parameters for the verifyPassword endpoint.
+ @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
 @interface FIRVerifyPasswordRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property email
-    @brief The email of the user.
+ @brief The email of the user.
  */
 @property(nonatomic, copy) NSString *email;
 
 /** @property password
-    @brief The password inputed by the user.
+ @brief The password inputed by the user.
  */
 @property(nonatomic, copy) NSString *password;
 
 /** @property pendingIDToken
-    @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
+ @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
  */
 @property(nonatomic, copy, nullable) NSString *pendingIDToken;
 
 /** @property captchaChallenge
-    @brief The captcha challenge.
+ @brief The captcha challenge.
  */
 @property(nonatomic, copy, nullable) NSString *captchaChallenge;
 
 /** @property captchaResponse
-    @brief Response to the captcha.
+ @brief Response to the captcha.
  */
 @property(nonatomic, copy, nullable) NSString *captchaResponse;
 
 /** @property returnSecureToken
-    @brief Whether the response should return access token and refresh token directly.
-    @remarks The default value is @c YES .
+ @brief Whether the response should return access token and refresh token directly.
+ @remarks The default value is @c YES .
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithEmail:password:requestConfiguration:
+ @brief Please use initWithEmail:password:requestConfiguration:
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithEmail:password:requestConfiguration:
-    @brief Designated initializer.
-    @param email The email of the user.
-    @param password The password inputed by the user.
-    @param requestConfiguration The configu
+ @brief Designated initializer.
+ @param email The email of the user.
+ @param password The password inputed by the user.
+ @param requestConfiguration The configu
  */
 - (nullable instancetype)initWithEmail:(NSString *)email
                               password:(NSString *)password
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                      NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 

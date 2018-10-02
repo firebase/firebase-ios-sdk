@@ -20,7 +20,7 @@
 
 @implementation UserTableViewCell {
   /** @var _lastPhotoURL
-      @brief Used to make sure only the last requested image is used to update the UIImageView.
+   @brief Used to make sure only the last requested image is used to update the UIImageView.
    */
   NSURL *_lastPhotoURL;
 }

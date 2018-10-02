@@ -17,13 +17,13 @@
 #import "FIRGetAccountInfoRequest.h"
 
 /** @var kGetAccountInfoEndpoint
-    @brief The "getAccountInfo" endpoint.
+ @brief The "getAccountInfo" endpoint.
  */
 static NSString *const kGetAccountInfoEndpoint = @"getAccountInfo";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
+ @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+ despite it's confusing (backwards compatiable) parameter name.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
@@ -41,8 +41,8 @@ static NSString *const kIDTokenKey = @"idToken";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   return @{
-    kIDTokenKey : _accessToken
-  };
+           kIDTokenKey : _accessToken
+           };
 }
 
 @end

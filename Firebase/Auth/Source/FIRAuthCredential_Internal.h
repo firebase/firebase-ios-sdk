@@ -23,16 +23,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthCredential ()
 
 /** @fn initWithProvider:
-    @brief Designated initializer.
-    @remarks This is the designated initializer for internal/friend subclasses.
-    @param provider The provider name.
+ @brief Designated initializer.
+ @remarks This is the designated initializer for internal/friend subclasses.
+ @param provider The provider name.
  */
 - (nullable instancetype)initWithProvider:(NSString *)provider NS_DESIGNATED_INITIALIZER;
 
 /** @fn prepareVerifyAssertionRequest:
-    @brief Called immediately before a request to the verifyAssertion endpoint is made. Implementers
-        should update the passed request instance with their credentials.
-    @param request The request to be updated with credentials.
+ @brief Called immediately before a request to the verifyAssertion endpoint is made. Implementers
+ should update the passed request instance with their credentials.
+ @param request The request to be updated with credentials.
  */
 - (void)prepareVerifyAssertionRequest:(FIRVerifyAssertionRequest *)request;
 

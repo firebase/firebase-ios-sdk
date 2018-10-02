@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
  @brief The type of block which gets called when a token is ready.
  */
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error)
-    NS_SWIFT_NAME(TokenCallback);
+NS_SWIFT_NAME(TokenCallback);
 
 /// Common methods for Auth interoperability.
 NS_SWIFT_NAME(AuthInterop)

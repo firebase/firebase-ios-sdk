@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthAPNSToken {
   /** @var _string
-      @brief The lazy-initialized string form of the token data.
+   @brief The lazy-initialized string form of the token data.
    */
   NSString *_string;
 }

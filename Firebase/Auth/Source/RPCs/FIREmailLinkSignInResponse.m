@@ -25,7 +25,7 @@
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
   _refreshToken = [dictionary[@"refreshToken"] copy];
   _approximateExpirationDate = [dictionary[@"expiresIn"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
+  [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] doubleValue]] : nil;
   return YES;
 }
 

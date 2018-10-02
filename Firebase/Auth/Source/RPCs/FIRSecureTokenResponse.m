@@ -19,22 +19,22 @@
 #import "FIRAuthErrorUtils.h"
 
 /** @var kExpiresInKey
-    @brief The key for the number of seconds till the access token expires.
+ @brief The key for the number of seconds till the access token expires.
  */
 static NSString *const kExpiresInKey = @"expires_in";
 
 /** @var kRefreshTokenKey
-    @brief The key for the refresh token.
+ @brief The key for the refresh token.
  */
 static NSString *const kRefreshTokenKey = @"refresh_token";
 
 /** @var kAccessTokenKey
-    @brief The key for the access token.
+ @brief The key for the access token.
  */
 static NSString *const kAccessTokenKey = @"access_token";
 
 /** @var kIDTokenKey
-    @brief The key for the "id_token" value in the response.
+ @brief The key for the "id_token" value in the response.
  */
 static NSString *const kIDTokenKey = @"id_token";
 
@@ -62,7 +62,7 @@ static NSString *const kIDTokenKey = @"id_token";
     }
     return NO;
   }
-
+  
   _approximateExpirationDate = [NSDate dateWithTimeIntervalSinceNow:[expiresIn doubleValue]];
   return YES;
 }

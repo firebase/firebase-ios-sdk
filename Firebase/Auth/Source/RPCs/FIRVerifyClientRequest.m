@@ -20,17 +20,17 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kVerifyClientEndpoint
-    @brief The endpoint for the verifyClient request.
+ @brief The endpoint for the verifyClient request.
  */
 static NSString *const kVerifyClientEndpoint = @"verifyClient";
 
 /** @var kAppTokenKey
-    @brief The key for the appToken request paramenter.
+ @brief The key for the appToken request paramenter.
  */
 static NSString *const kAPPTokenKey = @"appToken";
 
 /** @var kIsSandboxKey
-    @brief The key for the isSandbox request parameter
+ @brief The key for the isSandbox request parameter
  */
 static NSString *const kIsSandboxKey = @"isSandbox";
 

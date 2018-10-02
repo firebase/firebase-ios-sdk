@@ -18,38 +18,38 @@
 #import "FIRAuthRequestConfiguration.h"
 
 /** @var kFIRSecureTokenServiceGetTokenURLFormat
-    @brief The format of the secure token service URLs. Requires string format substitution with
-        the client's API Key.
+ @brief The format of the secure token service URLs. Requires string format substitution with
+ the client's API Key.
  */
 static NSString *const kFIRSecureTokenServiceGetTokenURLFormat = @"https://%@/v1/token?key=%@";
 
 /** @var kFIRSecureTokenServiceGrantTypeRefreshToken
-    @brief The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
+ @brief The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
  */
 static NSString *const kFIRSecureTokenServiceGrantTypeRefreshToken = @"refresh_token";
 
 /** @var kFIRSecureTokenServiceGrantTypeAuthorizationCode
-    @brief The string value of the @c FIRSecureTokenRequestGrantTypeAuthorizationCode request type.
+ @brief The string value of the @c FIRSecureTokenRequestGrantTypeAuthorizationCode request type.
  */
 static NSString *const kFIRSecureTokenServiceGrantTypeAuthorizationCode = @"authorization_code";
 
 /** @var kGrantTypeKey
-    @brief The key for the "grantType" parameter in the request.
+ @brief The key for the "grantType" parameter in the request.
  */
 static NSString *const kGrantTypeKey = @"grantType";
 
 /** @var kScopeKey
-    @brief The key for the "scope" parameter in the request.
+ @brief The key for the "scope" parameter in the request.
  */
 static NSString *const kScopeKey = @"scope";
 
 /** @var kRefreshTokenKey
-    @brief The key for the "refreshToken" parameter in the request.
+ @brief The key for the "refreshToken" parameter in the request.
  */
 static NSString *const kRefreshTokenKey = @"refreshToken";
 
 /** @var kCodeKey
-    @brief The key for the "code" parameter in the request.
+ @brief The key for the "code" parameter in the request.
  */
 static NSString *const kCodeKey = @"code";
 
@@ -60,14 +60,14 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 
 @implementation FIRSecureTokenRequest {
   /** @var _requestConfiguration
-      @brief Contains configuration relevant to the request.
+   @brief Contains configuration relevant to the request.
    */
   FIRAuthRequestConfiguration *_requestConfiguration;
 }
 
 + (FIRSecureTokenRequest *)authCodeRequestWithCode:(NSString *)code
-                                     requestConfiguration:(FIRAuthRequestConfiguration *)
-                                         requestConfiguration {
+                              requestConfiguration:(FIRAuthRequestConfiguration *)
+requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeAuthorizationCode
                                    scope:nil
                             refreshToken:nil
@@ -77,7 +77,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 
 + (FIRSecureTokenRequest *)refreshRequestWithRefreshToken:(NSString *)refreshToken
                                      requestConfiguration:(FIRAuthRequestConfiguration *)
-                                         requestConfiguration {
+requestConfiguration {
   return [[self alloc] initWithGrantType:FIRSecureTokenRequestGrantTypeRefreshToken
                                    scope:nil
                             refreshToken:refreshToken
@@ -86,7 +86,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 }
 
 /** @fn grantTypeStringWithGrantType:
-    @brief Converts a @c FIRSecureTokenRequestGrantType to it's @c NSString equivilent.
+ @brief Converts a @c FIRSecureTokenRequestGrantType to it's @c NSString equivilent.
  */
 + (NSString *)grantTypeStringWithGrantType:(FIRSecureTokenRequestGrantType)grantType {
   switch (grantType) {
@@ -94,7 +94,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
       return kFIRSecureTokenServiceGrantTypeAuthorizationCode;
     case FIRSecureTokenRequestGrantTypeRefreshToken:
       return kFIRSecureTokenServiceGrantTypeRefreshToken;
-    // No Default case so we will notice if new grant types are added to the enum.
+      // No Default case so we will notice if new grant types are added to the enum.
   }
 }
 
@@ -121,7 +121,7 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 
 - (NSURL *)requestURL {
   NSString *URLString =
-      [NSString stringWithFormat:kFIRSecureTokenServiceGetTokenURLFormat, gAPIHost, _APIKey];
+  [NSString stringWithFormat:kFIRSecureTokenServiceGetTokenURLFormat, gAPIHost, _APIKey];
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }
@@ -132,8 +132,8 @@ static NSString *gAPIHost = @"securetoken.googleapis.com";
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *_Nullable *_Nullable)error {
   NSMutableDictionary *postBody = [@{
-    kGrantTypeKey : [[self class] grantTypeStringWithGrantType:_grantType]
-  } mutableCopy];
+                                     kGrantTypeKey : [[self class] grantTypeStringWithGrantType:_grantType]
+                                     } mutableCopy];
   if (_scope) {
     postBody[kScopeKey] = _scope;
   }

@@ -23,13 +23,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRVerifyClientResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property receipt
-    @brief Receipt that the APNS token was successfully validated with APNS.
+ @brief Receipt that the APNS token was successfully validated with APNS.
  */
 @property(nonatomic, copy, readonly, nullable) NSString *receipt;
 
 /** @property suggestedTimeOut
-    @brief The date after which delivery of the silent push notification is considered to have
-        failed.
+ @brief The date after which delivery of the silent push notification is considered to have
+ failed.
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *suggestedTimeOutDate;
 

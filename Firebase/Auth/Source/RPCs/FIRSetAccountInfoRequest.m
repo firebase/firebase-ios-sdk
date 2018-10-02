@@ -31,90 +31,90 @@ NSString *const FIRSetAccountInfoUserAttributePhotoURL = @"PHOTO_URL";
 NSString *const FIRSetAccountInfoUserAttributePassword = @"PASSWORD";
 
 /** @var kCreateAuthURIEndpoint
-    @brief The "setAccountInfo" endpoint.
+ @brief The "setAccountInfo" endpoint.
  */
 static NSString *const kSetAccountInfoEndpoint = @"setAccountInfo";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
+ @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+ despite it's confusing (backwards compatiable) parameter name.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
 /** @var kDisplayNameKey
-    @brief The key for the "displayName" value in the request.
+ @brief The key for the "displayName" value in the request.
  */
 static NSString *const kDisplayNameKey = @"displayName";
 
 /** @var kLocalIDKey
-    @brief The key for the "localID" value in the request.
+ @brief The key for the "localID" value in the request.
  */
 static NSString *const kLocalIDKey = @"localId";
 
 /** @var kEmailKey
-    @brief The key for the "email" value in the request.
+ @brief The key for the "email" value in the request.
  */
 static NSString *const kEmailKey = @"email";
 
 /** @var kPasswordKey
-    @brief The key for the "password" value in the request.
+ @brief The key for the "password" value in the request.
  */
 static NSString *const kPasswordKey = @"password";
 
 /** @var kPhotoURLKey
-    @brief The key for the "photoURL" value in the request.
+ @brief The key for the "photoURL" value in the request.
  */
 static NSString *const kPhotoURLKey = @"photoUrl";
 
 /** @var kProvidersKey
-    @brief The key for the "providers" value in the request.
+ @brief The key for the "providers" value in the request.
  */
 static NSString *const kProvidersKey = @"provider";
 
 /** @var kOOBCodeKey
-    @brief The key for the "OOBCode" value in the request.
+ @brief The key for the "OOBCode" value in the request.
  */
 static NSString *const kOOBCodeKey = @"oobCode";
 
 /** @var kEmailVerifiedKey
-    @brief The key for the "emailVerified" value in the request.
+ @brief The key for the "emailVerified" value in the request.
  */
 static NSString *const kEmailVerifiedKey = @"emailVerified";
 
 /** @var kUpgradeToFederatedLoginKey
-    @brief The key for the "upgradeToFederatedLogin" value in the request.
+ @brief The key for the "upgradeToFederatedLogin" value in the request.
  */
 static NSString *const kUpgradeToFederatedLoginKey = @"upgradeToFederatedLogin";
 
 /** @var kCaptchaChallengeKey
-    @brief The key for the "captchaChallenge" value in the request.
+ @brief The key for the "captchaChallenge" value in the request.
  */
 static NSString *const kCaptchaChallengeKey = @"captchaChallenge";
 
 /** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
+ @brief The key for the "captchaResponse" value in the request.
  */
 static NSString *const kCaptchaResponseKey = @"captchaResponse";
 
 /** @var kDeleteAttributesKey
-    @brief The key for the "deleteAttribute" value in the request.
+ @brief The key for the "deleteAttribute" value in the request.
  */
 static NSString *const kDeleteAttributesKey = @"deleteAttribute";
 
 /** @var kDeleteProvidersKey
-    @brief The key for the "deleteProvider" value in the request.
+ @brief The key for the "deleteProvider" value in the request.
  */
 static NSString *const kDeleteProvidersKey = @"deleteProvider";
 
 /** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
+ @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
 @implementation FIRSetAccountInfoRequest
 
 - (nullable instancetype)initWithRequestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration {
+(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kSetAccountInfoEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _returnSecureToken = YES;

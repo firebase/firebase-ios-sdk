@@ -19,12 +19,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kReceiptKey
-    @brief The key used to encode the receipt property for NSSecureCoding.
+ @brief The key used to encode the receipt property for NSSecureCoding.
  */
 static NSString *const kReceiptKey = @"receipt";
 
 /** @var kSecretKey
-    @brief The key used to encode the secret property for NSSecureCoding.
+ @brief The key used to encode the secret property for NSSecureCoding.
  */
 static NSString *const kSecretKey = @"secret";
 

@@ -19,42 +19,42 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthDispatcherImplBlock
-    @brief The type of block which can be set as the implementation for @c
-        dispatchAfterDelay:queue:callback: .
-
-    @param delay The delay in seconds after which the task will be scheduled to execute.
-    @param queue The dispatch queue on which the task will be submitted.
-    @param task The task (block) to be scheduled for future execution.
+ @brief The type of block which can be set as the implementation for @c
+ dispatchAfterDelay:queue:callback: .
+ 
+ @param delay The delay in seconds after which the task will be scheduled to execute.
+ @param queue The dispatch queue on which the task will be submitted.
+ @param task The task (block) to be scheduled for future execution.
  */
 typedef void(^FIRAuthDispatcherImplBlock)(NSTimeInterval delay,
                                           dispatch_queue_t queue,
                                           void (^task)(void));
 
 /** @class FIRAuthDispatchAfter
-    @brief A utility class used to facilitate scheduling tasks to be executed in the future.
+ @brief A utility class used to facilitate scheduling tasks to be executed in the future.
  */
 @interface FIRAuthDispatcher : NSObject
 
 /** @property dispatchAfterImplementation
-    @brief Allows custom implementation of dispatchAfterDelay:queue:callback:.
-    @remarks Set to nil to restore default implementation.
+ @brief Allows custom implementation of dispatchAfterDelay:queue:callback:.
+ @remarks Set to nil to restore default implementation.
  */
 @property(nonatomic, nullable, copy) FIRAuthDispatcherImplBlock dispatchAfterImplementation;
 
 /** @fn dispatchAfterDelay:queue:callback:
-    @brief Schedules task in the future after a specified delay.
-
-    @param delay The delay in seconds after which the task will be scheduled to execute.
-    @param queue The dispatch queue on which the task will be submitted.
-    @param task The task (block) to be scheduled for future execution.
+ @brief Schedules task in the future after a specified delay.
+ 
+ @param delay The delay in seconds after which the task will be scheduled to execute.
+ @param queue The dispatch queue on which the task will be submitted.
+ @param task The task (block) to be scheduled for future execution.
  */
- - (void)dispatchAfterDelay:(NSTimeInterval)delay
-                      queue:(dispatch_queue_t)queue
-                       task:(void (^)(void))task;
+- (void)dispatchAfterDelay:(NSTimeInterval)delay
+                     queue:(dispatch_queue_t)queue
+                      task:(void (^)(void))task;
 
 /** @fn sharedInstance
-    @brief Gets the shared instance of this class.
-    @returns The shared instance of this clss
+ @brief Gets the shared instance of this class.
+ @returns The shared instance of this clss
  */
 + (instancetype)sharedInstance;
 

@@ -19,12 +19,12 @@
 @interface FIRAuthDataResult () <NSSecureCoding>
 
 /** @fn initWithUser:additionalUserInfo:
-    @brief Designated initializer.
-    @param user The signed in user reference.
-    @param additionalUserInfo The additional user info if available.
+ @brief Designated initializer.
+ @param user The signed in user reference.
+ @param additionalUserInfo The additional user info if available.
  */
 - (nullable instancetype)initWithUser:(nullable FIRUser *)user
                    additionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo
-    NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end

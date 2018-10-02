@@ -30,13 +30,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthUserDefaultsStorage
-    @brief The utility class to storage data in NSUserDefaults.
+ @brief The utility class to storage data in NSUserDefaults.
  */
 @interface FIRAuthUserDefaultsStorage : NSObject <FIRAuthStorage>
 
 /** @fn clear
-    @brief Clears all data from the storage.
-    @remarks This method is only supposed to be called from tests.
+ @brief Clears all data from the storage.
+ @remarks This method is only supposed to be called from tests.
  */
 - (void)clear;
 

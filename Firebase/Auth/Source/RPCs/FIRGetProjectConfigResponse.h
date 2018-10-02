@@ -19,17 +19,17 @@
 #import "FIRAuthRPCResponse.h"
 
 /** @class FIRGetProjectConfigResponse
-    @brief Represents the response from the getProjectConfig endpoint.
+ @brief Represents the response from the getProjectConfig endpoint.
  */
 @interface FIRGetProjectConfigResponse : NSObject <FIRAuthRPCResponse>
 
 /** @property projectID
-    @brief The unique ID pertaining to the current project.
+ @brief The unique ID pertaining to the current project.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *projectID;
 
 /** @property authorizedDomains
-    @brief A list of domains whitelisted for the current project.
+ @brief A list of domains whitelisted for the current project.
  */
 @property(nonatomic, strong, readonly, nullable) NSArray *authorizedDomains;
 

@@ -21,27 +21,27 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kSendVerificationCodeEndPoint
-    @brief The "sendVerificationCodeEnd" endpoint.
+ @brief The "sendVerificationCodeEnd" endpoint.
  */
 static NSString *const kSendVerificationCodeEndPoint = @"sendVerificationCode";
 
 /** @var kPhoneNumberKey
-    @brief The key for the Phone Number parameter in the request.
+ @brief The key for the Phone Number parameter in the request.
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 /** @var kReceiptKey
-    @brief The key for the receipt parameter in the request.
+ @brief The key for the receipt parameter in the request.
  */
 static NSString *const kReceiptKey = @"iosReceipt";
 
 /** @var kSecretKey
-    @brief The key for the Secret parameter in the request.
+ @brief The key for the Secret parameter in the request.
  */
 static NSString *const kSecretKey = @"iosSecret";
 
 /** @var kreCAPTCHATokenKey
-    @brief The key for the reCAPTCHAToken parameter in the request.
+ @brief The key for the reCAPTCHAToken parameter in the request.
  */
 static NSString *const kreCAPTCHATokenKey = @"recaptchaToken";
 

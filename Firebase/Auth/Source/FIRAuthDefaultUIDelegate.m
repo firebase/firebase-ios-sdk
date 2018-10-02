@@ -23,10 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthDefaultUIDelegate ()
 
 /** @fn initWithViewController:
-    @brief Initializes the instance with a view controller.
-    @param viewController The view controller as the presenting view controller in @c
-        FIRAuthUIDelegate.
-    @return The initialized instance.
+ @brief Initializes the instance with a view controller.
+ @param viewController The view controller as the presenting view controller in @c
+ FIRAuthUIDelegate.
+ @return The initialized instance.
  */
 - (instancetype)initWithViewController:(nullable UIViewController *)viewController NS_DESIGNATED_INITIALIZER;
 
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthDefaultUIDelegate {
   /** @var _viewController
-      @brief The presenting view controller.
+   @brief The presenting view controller.
    */
   UIViewController *_viewController;
 }

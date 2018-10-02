@@ -21,34 +21,34 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRFetchAuthDomainCallback
-    @brief The callback invoked at the end of the flow to fetch the Auth domain.
-    @param authDomain The Auth domain.
-    @param error The error that occurred while fetching the auth domain, if any.
+ @brief The callback invoked at the end of the flow to fetch the Auth domain.
+ @param authDomain The Auth domain.
+ @param error The error that occurred while fetching the auth domain, if any.
  */
 typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
                                            NSError *_Nullable error);
 
 /** @class FIRAuthURLUtils
-    @brief A utility class used to facilitate the creation of auth related URLs.
+ @brief A utility class used to facilitate the creation of auth related URLs.
  */
 @interface FIRAuthWebUtils : NSObject
 
 /** @fn randomStringWithLength:
-    @brief Generates a random string of a specified length.
+ @brief Generates a random string of a specified length.
  */
 + (NSString *)randomStringWithLength:(NSUInteger)length;
 
 /** @fn isCallbackSchemeRegisteredForCustomURLScheme:
-    @brief Checks whether or not the provided custom URL scheme has been registered by the app.
-    @param URLScheme The custom URL scheme to be checked against all custom URL schemes registered by the app.
-    @return whether or not the provided custom URL scheme has been registered by the app.
+ @brief Checks whether or not the provided custom URL scheme has been registered by the app.
+ @param URLScheme The custom URL scheme to be checked against all custom URL schemes registered by the app.
+ @return whether or not the provided custom URL scheme has been registered by the app.
  */
 + (BOOL)isCallbackSchemeRegisteredForCustomURLScheme:(NSString *)URLScheme;
 
 /** @fn fetchAuthDomainWithCompletion:completion:
-    @brief Fetches the auth domain associated with the Firebase Project.
-    @param completion The callback invoked after the auth domain has been constructed or an error
-        has been encountered.
+ @brief Fetches the auth domain associated with the Firebase Project.
+ @param completion The callback invoked after the auth domain has been constructed or an error
+ has been encountered.
  */
 + (void)fetchAuthDomainWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                      completion:(FIRFetchAuthDomainCallback)completion;

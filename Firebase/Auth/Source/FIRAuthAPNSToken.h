@@ -21,36 +21,36 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthAPNSToken
-    @brief A data structure for an APNs token.
+ @brief A data structure for an APNs token.
  */
 @interface FIRAuthAPNSToken : NSObject
 
 /** @property data
-    @brief The APNs token data.
+ @brief The APNs token data.
  */
 @property(nonatomic, strong, readonly) NSData *data;
 
 /** @property string
-    @brief The uppercase hexadecimal string form of the APNs token data.
+ @brief The uppercase hexadecimal string form of the APNs token data.
  */
 @property(nonatomic, strong, readonly) NSString *string;
 
 /** @property type
-    @brief The APNs token type.
+ @brief The APNs token type.
  */
 @property(nonatomic, assign, readonly) FIRAuthAPNSTokenType type;
 
 /** @fn initWithData:type:
-    @brief Initializes the instance.
-    @param data The APNs token data.
-    @param type The APNs token type.
-    @return The initialized instance.
+ @brief Initializes the instance.
+ @param data The APNs token data.
+ @param type The APNs token type.
+ @return The initialized instance.
  */
 - (instancetype)initWithData:(NSData *)data type:(FIRAuthAPNSTokenType)type
-    NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 /** @fn init
-    @brief Call @c initWithData:type: to get an instance of this class.
+ @brief Call @c initWithData:type: to get an instance of this class.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

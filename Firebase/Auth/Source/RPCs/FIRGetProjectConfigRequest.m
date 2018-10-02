@@ -19,14 +19,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kGetProjectConfigEndPoint
-    @brief The "getProjectConfig" endpoint.
+ @brief The "getProjectConfig" endpoint.
  */
 static NSString *const kGetProjectConfigEndPoint = @"getProjectConfig";
 
 @implementation FIRGetProjectConfigRequest
 
 - (nullable instancetype)initWithRequestConfiguration:
-    (FIRAuthRequestConfiguration *)requestConfiguration {
+(FIRAuthRequestConfiguration *)requestConfiguration {
   return [super initWithEndpoint:kGetProjectConfigEndPoint
             requestConfiguration:requestConfiguration];
 }

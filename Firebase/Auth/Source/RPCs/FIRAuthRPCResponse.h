@@ -19,15 +19,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @protocol FIRAuthRPCResponse
-    @brief The generic interface for an RPC response needed by @c FIRAuthBackend.
+ @brief The generic interface for an RPC response needed by @c FIRAuthBackend.
  */
 @protocol FIRAuthRPCResponse <NSObject>
 
 /** @fn setFieldsWithDictionary:error:
-    @brief Sets the response instance from the decoded JSON response.
-    @param dictionary The dictionary decoded from HTTP JSON response.
-    @param error An out field for an error which occurred constructing the request.
-    @return Whether the operation was successful or not.
+ @brief Sets the response instance from the decoded JSON response.
+ @param dictionary The dictionary decoded from HTTP JSON response.
+ @param error An out field for an error which occurred constructing the request.
+ @return Whether the operation was successful or not.
  */
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
                     error:(NSError *_Nullable *_Nullable)error;
@@ -35,11 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 
 /** @fn clientErrorWithshortErrorMessage:detailErrorMessage
-    @brief This optional method allows response classes to create client errors given a short error
-        message and a detail error message from the server.
-    @param shortErrorMessage The short error message from the server.
-    @param detailErrorMessage The detailed error message from the server.
-    @return A client error, if any.
+ @brief This optional method allows response classes to create client errors given a short error
+ message and a detail error message from the server.
+ @param shortErrorMessage The short error message from the server.
+ @param detailErrorMessage The detailed error message from the server.
+ @return A client error, if any.
  */
 - (nullable NSError *)clientErrorWithShortErrorMessage:(NSString *)shortErrorMessage
                                     detailErrorMessage:(nullable NSString *)detailErrorMessage;

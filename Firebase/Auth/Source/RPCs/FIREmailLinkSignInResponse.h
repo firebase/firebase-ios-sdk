@@ -20,32 +20,32 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRVerifyAssertionResponse
-    @brief Represents the response from the emailLinkSignin endpoint.
+ @brief Represents the response from the emailLinkSignin endpoint.
  */
 @interface FIREmailLinkSignInResponse : NSObject<FIRAuthRPCResponse>
 
 /** @property IDToken
-    @brief The ID token in the email link sign-in response.
+ @brief The ID token in the email link sign-in response.
  */
 @property(nonatomic, copy, readonly) NSString *IDToken;
 
 /** @property email
-    @brief The email returned by the IdP.
+ @brief The email returned by the IdP.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *email;
 
 /** @property refreshToken
-    @brief The refreshToken returned by the server.
+ @brief The refreshToken returned by the server.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *refreshToken;
 
 /** @property approximateExpirationDate
-    @brief The approximate expiration date of the access token.
+ @brief The approximate expiration date of the access token.
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *approximateExpirationDate;
 
 /** @property isNewUser
-    @brief Flag indicating that the user signing in is a new user and not a returning user.
+ @brief Flag indicating that the user signing in is a new user and not a returning user.
  */
 @property(nonatomic, assign) BOOL isNewUser;
 

@@ -25,8 +25,8 @@
   if ([authorizedDomains isKindOfClass:[NSString class]]) {
     NSData *data = [authorizedDomains dataUsingEncoding:NSUTF8StringEncoding];
     authorizedDomains = [NSJSONSerialization JSONObjectWithData:data
-                                                       options:NSJSONReadingMutableLeaves
-                                                         error:nil];
+                                                        options:NSJSONReadingMutableLeaves
+                                                          error:nil];
   }
   if ([authorizedDomains isKindOfClass:[NSArray class]]) {
     _authorizedDomains = [[NSArray alloc] initWithArray:authorizedDomains

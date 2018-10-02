@@ -19,12 +19,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kAPIURLFormat
-    @brief URL format for server API calls.
+ @brief URL format for server API calls.
  */
 static NSString *const kAPIURLFormat = @"https://%@/identitytoolkit/v3/relyingparty/%@?key=%@";
 
 /** @var gAPIHost
-    @brief Host for server API calls.
+ @brief Host for server API calls.
  */
 static NSString *gAPIHost = @"www.googleapis.com";
 

@@ -21,29 +21,29 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthResetPasswordResponse
-    @brief Represents the response from the resetPassword endpoint.
-    @remarks Possible error codes:
-       - FIRAuthErrorCodeWeakPassword
-       - FIRAuthErrorCodeUserDisabled
-       - FIRAuthErrorCodeOperationNotAllowed
-       - FIRAuthErrorCodeExpiredActionCode
-       - FIRAuthErrorCodeInvalidActionCode
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
+ @brief Represents the response from the resetPassword endpoint.
+ @remarks Possible error codes:
+ - FIRAuthErrorCodeWeakPassword
+ - FIRAuthErrorCodeUserDisabled
+ - FIRAuthErrorCodeOperationNotAllowed
+ - FIRAuthErrorCodeExpiredActionCode
+ - FIRAuthErrorCodeInvalidActionCode
+ @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
  */
 @interface FIRResetPasswordResponse : NSObject<FIRAuthRPCResponse>
 
 /** @property email
-    @brief The email address corresponding to the reset password request.
+ @brief The email address corresponding to the reset password request.
  */
 @property(nonatomic, strong, readonly) NSString *email;
 
 /** @property verifiedEmail
-    @brief The verified email returned from the backend.
+ @brief The verified email returned from the backend.
  */
 @property(nonatomic, strong, readonly) NSString *verifiedEmail;
 
 /** @property requestType
-    @brief The tpye of request as returned by the backend.
+ @brief The tpye of request as returned by the backend.
  */
 @property(nonatomic, strong, readonly) NSString *requestType;
 

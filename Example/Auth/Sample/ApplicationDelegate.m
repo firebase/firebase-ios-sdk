@@ -25,7 +25,7 @@
 #import "MainViewController.h"
 
 /** @var gOpenURLDelegate
-    @brief The delegate to for application:openURL:... method.
+ @brief The delegate to for application:openURL:... method.
  */
 static __weak id<OpenURLDelegate> gOpenURLDelegate;
 
@@ -39,7 +39,7 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application
-    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [GTMSessionFetcher  setLoggingEnabled:YES];
   FIRSetLoggerLevel(FIRLoggerLevelInfo);
 
@@ -49,8 +49,8 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
   // Load and present the UI:
   UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
   _sampleAppMainViewController =
-      [[MainViewController alloc] initWithNibName:NSStringFromClass([MainViewController class])
-                                           bundle:nil];
+  [[MainViewController alloc] initWithNibName:NSStringFromClass([MainViewController class])
+                                       bundle:nil];
   _sampleAppMainViewController.navigationItem.title = @"Firebase Auth";
   window.rootViewController = [[UINavigationController alloc]
                                initWithRootViewController:_sampleAppMainViewController];
@@ -70,9 +70,9 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application
-              openURL:(NSURL *)url
-    sourceApplication:(NSString *)sourceApplication
-           annotation:(id)annotation {
+            openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication
+         annotation:(id)annotation {
   if ([gOpenURLDelegate handleOpenURL:url sourceApplication:sourceApplication]) {
     return YES;
   }
@@ -83,8 +83,8 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application
-   continueUserActivity:(NSUserActivity *)userActivity
-     restorationHandler:(void (^)(NSArray *))restorationHandler {
+continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *))restorationHandler {
   if (userActivity.webpageURL) {
     return [_sampleAppMainViewController handleIncomingLinkWithURL:userActivity.webpageURL];
   }

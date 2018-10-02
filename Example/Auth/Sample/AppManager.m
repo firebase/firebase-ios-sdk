@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation AppManager {
   /** @var _createdAppNames
-      @brief The set of names of live (created but not deleted) app, to avoid iCore warnings.
+   @brief The set of names of live (created but not deleted) app, to avoid iCore warnings.
    */
   NSMutableSet<NSString *> *_liveAppNames;
 }
@@ -79,9 +79,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static AppManager *sharedInstance;
-   dispatch_once(&onceToken, ^{
-     sharedInstance = [[self alloc] init];
-   });
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[self alloc] init];
+  });
   return sharedInstance;
 }
 
@@ -101,18 +101,18 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Helpers
 
 /** @fn appNameWithIndex:
-    @brief Gets the app name for the given index.
-    @param index The index of the app managed by this instance.
-    @returns The app name for the FIRApp instance.
+ @brief Gets the app name for the given index.
+ @param index The index of the app managed by this instance.
+ @returns The app name for the FIRApp instance.
  */
 - (NSString *)appNameWithIndex:(int)index {
   return [NSString stringWithFormat:@"APP_%02d", index];
 }
 
 /** @fn deleteAppAtIndex:withOptions:completion:
-    @brief Deletes the app at the given index.
-    @param index The index of the app to be deleted, 0 being the default app.
-    @param completion The block to call when completes.
+ @brief Deletes the app at the given index.
+ @param index The index of the app to be deleted, 0 being the default app.
+ @param completion The block to call when completes.
  */
 - (void)deleteAppAtIndex:(int)index
               completion:(void (^)())completion {

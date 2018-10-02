@@ -21,13 +21,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRFacebookAuthCredential
-    @brief Internal implementation of FIRAuthCredential for the Facebook IdP.
+ @brief Internal implementation of FIRAuthCredential for the Facebook IdP.
  */
 @interface FIRFacebookAuthCredential : FIRAuthCredential
 
 /** @fn initWithAccessToken:
-    @brief Designated initializer.
-    @param accessToken The Access Token obtained from Facebook.
+ @brief Designated initializer.
+ @param accessToken The Access Token obtained from Facebook.
  */
 - (nullable instancetype)initWithAccessToken:(NSString *)accessToken NS_DESIGNATED_INITIALIZER;
 

@@ -17,7 +17,7 @@
 #import "FIRAuthExceptionUtils.h"
 
 /** @var FIRMethodNotImplementedException
-    @brief The name of the "Method Not Implemented" exception.
+ @brief The name of the "Method Not Implemented" exception.
  */
 static NSString *const FIRMethodNotImplementedException = @"FIRMethodNotImplementedException";
 
@@ -29,7 +29,7 @@ static NSString *const FIRMethodNotImplementedException = @"FIRMethodNotImplemen
 
 + (void)raiseMethodNotImplementedExceptionWithReason:(nullable NSString *)reason {
   NSException *exception =
-      [NSException exceptionWithName:FIRMethodNotImplementedException reason:reason userInfo:nil];
+  [NSException exceptionWithName:FIRMethodNotImplementedException reason:reason userInfo:nil];
   [exception raise];
 }
 

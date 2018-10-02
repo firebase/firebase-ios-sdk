@@ -19,37 +19,37 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /*! @typedef AlertPromptCompletionBlock
-    @brief The type of callback used to report text input prompt results.
+ @brief The type of callback used to report text input prompt results.
  */
 typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullable userInput);
 
 /*! @category UIViewController(Alerts)
-    @brief Wrapper for @c UIAlertController and @c UIAlertView for backwards compatability with
-        iOS 6+.
+ @brief Wrapper for @c UIAlertController and @c UIAlertView for backwards compatability with
+ iOS 6+.
  */
 @interface UIViewController (Alerts)
 
 /*! @property useStatusBarSpinner
-    @brief Uses the status bar to indicate work is occuring instead of a modal "please wait" dialog.
-        This is generally useful for allowing user interaction while things are happening.
+ @brief Uses the status bar to indicate work is occuring instead of a modal "please wait" dialog.
+ This is generally useful for allowing user interaction while things are happening.
  */
 @property(nonatomic, assign) BOOL useStatusBarSpinner;
 
 /*! @fn showMessagePrompt:
-    @brief Displays an alert with an 'OK' button and a message.
-    @param message The message to display.
-    @remarks The message is also copied to the pasteboard.
+ @brief Displays an alert with an 'OK' button and a message.
+ @param message The message to display.
+ @remarks The message is also copied to the pasteboard.
  */
 - (void)showMessagePrompt:(NSString *)message;
 
 /*! @fn showMessagePromptWithTitle:message:
-    @brief Displays a titled alert with an 'OK' button and a message.
-    @param title The title of the alert if it exists.
-    @param message The message to display.
-    @param showCancelButton A flag indicating whether or not a cancel option is available.
-    @param completion The completion block to be executed after the alert is dismissed, if it
-        exists.
-    @remarks The message is also copied to the pasteboard.
+ @brief Displays a titled alert with an 'OK' button and a message.
+ @param title The title of the alert if it exists.
+ @param message The message to display.
+ @param showCancelButton A flag indicating whether or not a cancel option is available.
+ @param completion The completion block to be executed after the alert is dismissed, if it
+ exists.
+ @remarks The message is also copied to the pasteboard.
  */
 - (void)showMessagePromptWithTitle:(nullable NSString *)title
                            message:(NSString *)message
@@ -57,32 +57,32 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
                         completion:(nullable AlertPromptCompletionBlock)completion;
 
 /*! @fn showTextInputPromptWithMessage:keyboardType:completionBlock:
-    @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
-    @param message The message to display.
-    @param keyboardType The type of keyboard to display for the UITextView in the prompt.
-    @param completion A block to call when the user taps 'OK' or 'Cancel'.
+ @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
+ @param message The message to display.
+ @param keyboardType The type of keyboard to display for the UITextView in the prompt.
+ @param completion A block to call when the user taps 'OK' or 'Cancel'.
  */
 - (void)showTextInputPromptWithMessage:(NSString *)message
                           keyboardType:(UIKeyboardType)keyboardType
                        completionBlock:(AlertPromptCompletionBlock)completion;
 
 /*! @fn showTextInputPromptWithMessage:completionBlock:
-    @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
-    @param message The message to display.
-    @param completion A block to call when the user taps 'OK' or 'Cancel'.
+ @brief Shows a prompt with a text field and 'OK'/'Cancel' buttons.
+ @param message The message to display.
+ @param completion A block to call when the user taps 'OK' or 'Cancel'.
  */
 - (void)showTextInputPromptWithMessage:(NSString *)message
                        completionBlock:(AlertPromptCompletionBlock)completion;
 
 /*! @fn showSpinner
-    @brief Shows the please wait spinner.
-    @param completion Called after the spinner has been hidden.
+ @brief Shows the please wait spinner.
+ @param completion Called after the spinner has been hidden.
  */
 - (void)showSpinner:(nullable void(^)(void))completion;
 
 /*! @fn hideSpinner
-    @brief Hides the please wait spinner.
-    @param completion Called after the spinner has been hidden.
+ @brief Hides the please wait spinner.
+ @param completion Called after the spinner has been hidden.
  */
 - (void)hideSpinner:(nullable void(^)(void))completion;
 

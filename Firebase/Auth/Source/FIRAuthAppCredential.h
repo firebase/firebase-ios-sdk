@@ -19,31 +19,31 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthAppCredential
-    @brief A class represents a credential that proves the identity of the app.
+ @brief A class represents a credential that proves the identity of the app.
  */
 @interface FIRAuthAppCredential : NSObject <NSSecureCoding>
 
 /** @property receipt
-    @brief The server acknowledgement of receiving client's claim of identity.
+ @brief The server acknowledgement of receiving client's claim of identity.
  */
 @property(nonatomic, strong, readonly) NSString *receipt;
 
 /** @property secret
-    @brief The secret that the client received from server via a trusted channel, if ever.
+ @brief The secret that the client received from server via a trusted channel, if ever.
  */
 @property(nonatomic, strong, readonly, nullable) NSString *secret;
 
 /** @fn initWithReceipt:secret:
-    @brief Initializes the instance.
-    @param receipt The server acknowledgement of receiving client's claim of identity.
-    @param secret The secret that the client received from server via a trusted channel, if ever.
-    @return The initialized instance.
+ @brief Initializes the instance.
+ @param receipt The server acknowledgement of receiving client's claim of identity.
+ @param secret The secret that the client received from server via a trusted channel, if ever.
+ @return The initialized instance.
  */
 - (instancetype)initWithReceipt:(NSString *)receipt secret:(nullable NSString *)secret
-    NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 /** @fn init
-    @brief Call @c initWithReceipt:secret: to get an instance of this class.
+ @brief Call @c initWithReceipt:secret: to get an instance of this class.
  */
 - (instancetype)init NS_UNAVAILABLE;
 

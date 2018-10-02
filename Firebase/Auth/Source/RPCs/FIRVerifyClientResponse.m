@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
                     error:(NSError *_Nullable *_Nullable)error {
   _receipt = dictionary[@"receipt"];
   _suggestedTimeOutDate = [dictionary[@"suggestedTimeout"] isKindOfClass:[NSString class]] ?
-      [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"suggestedTimeout"] doubleValue]] : nil;
+  [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"suggestedTimeout"] doubleValue]] : nil;
   return YES;
 }
 

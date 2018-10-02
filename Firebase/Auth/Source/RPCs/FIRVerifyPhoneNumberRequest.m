@@ -19,37 +19,37 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kVerifyPhoneNumberEndPoint
-    @brief The "verifyPhoneNumber" endpoint.
+ @brief The "verifyPhoneNumber" endpoint.
  */
 static NSString *const kVerifyPhoneNumberEndPoint = @"verifyPhoneNumber";
 
 /** @var kVerificationIDKey
-    @brief The key for the verification ID parameter in the request.
+ @brief The key for the verification ID parameter in the request.
  */
 static NSString *const kVerificationIDKey = @"sessionInfo";
 
 /** @var kVerificationCodeKey
-    @brief The key for the verification code parameter in the request.
+ @brief The key for the verification code parameter in the request.
  */
 static NSString *const kVerificationCodeKey = @"code";
 
 /** @var kIDTokenKey
-    @brief The key for the "ID Token" value in the request.
+ @brief The key for the "ID Token" value in the request.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
 /** @var kTemporaryProofKey
-    @brief The key for the temporary proof value in the request.
+ @brief The key for the temporary proof value in the request.
  */
 static NSString *const kTemporaryProofKey = @"temporaryProof";
 
 /** @var kPhoneNumberKey
-    @brief The key for the phone number value in the request.
+ @brief The key for the phone number value in the request.
  */
 static NSString *const kPhoneNumberKey = @"phoneNumber";
 
 /** @var kOperationKey
-    @brief The key for the operation value in the request.
+ @brief The key for the operation value in the request.
  */
 static NSString *const kOperationKey = @"operation";
 
@@ -59,7 +59,7 @@ static NSString *const kOperationKey = @"operation";
                                     phoneNumber:(NSString *)phoneNumber
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:
-                              (FIRAuthRequestConfiguration *)requestConfiguration {
+(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
@@ -74,7 +74,7 @@ static NSString *const kOperationKey = @"operation";
                                verificationCode:(NSString *)verificationCode
                                       operation:(FIRAuthOperationType)operation
                            requestConfiguration:
-                              (FIRAuthRequestConfiguration *)requestConfiguration {
+(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kVerifyPhoneNumberEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
@@ -86,10 +86,10 @@ static NSString *const kOperationKey = @"operation";
 }
 
 /** @fn FIRAuthOperationString
-    @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
-    @param operationType The value of the FIRAuthOperationType enum which will be translated to its
-        corresponding string value.
-    @return The string value corresponding to the FIRAuthOperationType argument.
+ @brief Returns a string object corresponding to the provided FIRAuthOperationType value.
+ @param operationType The value of the FIRAuthOperationType enum which will be translated to its
+ corresponding string value.
+ @return The string value corresponding to the FIRAuthOperationType argument.
  */
 NSString *const FIRAuthOperationString(FIRAuthOperationType operationType) {
   switch(operationType){

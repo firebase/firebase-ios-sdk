@@ -17,63 +17,63 @@
 #import "FIRVerifyAssertionRequest.h"
 
 /** @var kVerifyAssertionEndpoint
-    @brief The "verifyAssertion" endpoint.
+ @brief The "verifyAssertion" endpoint.
  */
 static NSString *const kVerifyAssertionEndpoint = @"verifyAssertion";
 
 /** @var kProviderIDKey
-    @brief The key for the "providerId" value in the request.
+ @brief The key for the "providerId" value in the request.
  */
 static NSString *const kProviderIDKey = @"providerId";
 
 /** @var kProviderIDTokenKey
-    @brief The key for the "id_token" value in the request.
+ @brief The key for the "id_token" value in the request.
  */
 static NSString *const kProviderIDTokenKey = @"id_token";
 
 /** @var kProviderAccessTokenKey
-    @brief The key for the "access_token" value in the request.
+ @brief The key for the "access_token" value in the request.
  */
 static NSString *const kProviderAccessTokenKey = @"access_token";
 
 /** @var kProviderOAuthTokenSecretKey
-    @brief The key for the "oauth_token_secret" value in the request.
+ @brief The key for the "oauth_token_secret" value in the request.
  */
 static NSString *const kProviderOAuthTokenSecretKey = @"oauth_token_secret";
 
 /** @var kIdentifierKey
-    @brief The key for the "identifier" value in the request.
+ @brief The key for the "identifier" value in the request.
  */
 static NSString *const kIdentifierKey = @"identifier";
 
 /** @var kRequestURIKey
-    @brief The key for the "requestUri" value in the request.
+ @brief The key for the "requestUri" value in the request.
  */
 static NSString *const kRequestURIKey = @"requestUri";
 
 /** @var kPostBodyKey
-    @brief The key for the "postBody" value in the request.
+ @brief The key for the "postBody" value in the request.
  */
 static NSString *const kPostBodyKey = @"postBody";
 
 /** @var kPendingIDTokenKey
-    @brief The key for the "pendingIdToken" value in the request.
+ @brief The key for the "pendingIdToken" value in the request.
  */
 static NSString *const kPendingIDTokenKey = @"pendingIdToken";
 
 /** @var kAutoCreateKey
-    @brief The key for the "autoCreate" value in the request.
+ @brief The key for the "autoCreate" value in the request.
  */
 static NSString *const kAutoCreateKey = @"autoCreate";
 
 /** @var kIDTokenKey
-    @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
-        despite it's confusing (backwards compatiable) parameter name.
+ @brief The key for the "idToken" value in the request. This is actually the STS Access Token,
+ despite it's confusing (backwards compatiable) parameter name.
  */
 static NSString *const kIDTokenKey = @"idToken";
 
 /** @var kReturnSecureTokenKey
-    @brief The key for the "returnSecureToken" value in the request.
+ @brief The key for the "returnSecureToken" value in the request.
  */
 static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
 
@@ -96,37 +96,37 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   NSMutableArray<NSURLQueryItem *> *queryItems = [@[[NSURLQueryItem queryItemWithName:kProviderIDKey
                                                                                 value:_providerID]]
                                                   mutableCopy];
-
+  
   if (_providerIDToken) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderIDTokenKey
                                                       value:_providerIDToken]];
   }
-
+  
   if (_providerAccessToken) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderAccessTokenKey
                                                       value:_providerAccessToken]];
   }
-
+  
   if (!_providerIDToken && !_providerAccessToken) {
     [NSException raise:NSInvalidArgumentException
                 format:@"Either IDToken or accessToken must be supplied."];
   }
-
+  
   if (_providerOAuthTokenSecret) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
                                                       value:_providerOAuthTokenSecret]];
   }
-
+  
   if (_inputEmail) {
     [queryItems addObject:[NSURLQueryItem queryItemWithName:kIdentifierKey
                                                       value:_inputEmail]];
   }
   [components setQueryItems:queryItems];
   NSMutableDictionary *body = [@{
-      kRequestURIKey : @"http://localhost", // Unused by server, but required
-      kPostBodyKey : [components query]
-      } mutableCopy];
-
+                                 kRequestURIKey : @"http://localhost", // Unused by server, but required
+                                 kPostBodyKey : [components query]
+                                 } mutableCopy];
+  
   if (_pendingIDToken) {
     body[kPendingIDTokenKey] = _pendingIDToken;
   }
@@ -136,9 +136,9 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
   if (_returnSecureToken) {
     body[kReturnSecureTokenKey] = @YES;
   }
-
+  
   body[kAutoCreateKey] = @(_autoCreate);
-
+  
   return body;
 }
 

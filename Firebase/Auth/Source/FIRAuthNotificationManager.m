@@ -24,53 +24,53 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kNotificationKey
-    @brief The key to locate payload data in the remote notification.
+ @brief The key to locate payload data in the remote notification.
  */
 static NSString *const kNotificationDataKey = @"com.google.firebase.auth";
 
 /** @var kNotificationReceiptKey
-    @brief The key for the receipt in the remote notification payload data.
+ @brief The key for the receipt in the remote notification payload data.
  */
 static NSString *const kNotificationReceiptKey = @"receipt";
 
 /** @var kNotificationSecretKey
-    @brief The key for the secret in the remote notification payload data.
+ @brief The key for the secret in the remote notification payload data.
  */
 static NSString *const kNotificationSecretKey = @"secret";
 
 /** @var kNotificationProberKey
-    @brief The key for marking the prober in the remote notification payload data.
+ @brief The key for marking the prober in the remote notification payload data.
  */
 static NSString *const kNotificationProberKey = @"warning";
 
 /** @var kProbingTimeout
-    @brief Timeout for probing whether the app delegate forwards the remote notification to us.
+ @brief Timeout for probing whether the app delegate forwards the remote notification to us.
  */
 static const NSTimeInterval kProbingTimeout = 1;
 
 @implementation FIRAuthNotificationManager {
   /** @var _application
-      @brief The application.
+   @brief The application.
    */
   UIApplication *_application;
 
   /** @var _appCredentialManager
-      @brief The object to handle app credentials delivered via notification.
+   @brief The object to handle app credentials delivered via notification.
    */
   FIRAuthAppCredentialManager *_appCredentialManager;
 
   /** @var _hasCheckedNotificationForwarding
-      @brief Whether notification forwarding has been checked or not.
+   @brief Whether notification forwarding has been checked or not.
    */
   BOOL _hasCheckedNotificationForwarding;
 
   /** @var _isNotificationBeingForwarded
-      @brief Whether or not notification is being forwarded
+   @brief Whether or not notification is being forwarded
    */
   BOOL _isNotificationBeingForwarded;
 
   /** @var _pendingCallbacks
-      @brief All pending callbacks while a check is being performed.
+   @brief All pending callbacks while a check is being performed.
    */
   NSMutableArray<FIRAuthNotificationForwardingCallback> *_pendingCallbacks;
 }
@@ -97,23 +97,24 @@ static const NSTimeInterval kProbingTimeout = 1;
   }
   _hasCheckedNotificationForwarding = YES;
   _pendingCallbacks =
-      [[NSMutableArray<FIRAuthNotificationForwardingCallback> alloc] initWithObjects:callback, nil];
+  [[NSMutableArray<FIRAuthNotificationForwardingCallback> alloc] initWithObjects:callback, nil];
   dispatch_async(dispatch_get_main_queue(), ^{
     NSDictionary *proberNotification = @{
-      kNotificationDataKey : @{
-        kNotificationProberKey : @"This fake notification should be forwarded to Firebase Auth."
-      }
-    };
+                                         kNotificationDataKey :
+                                           @{
+                                             kNotificationProberKey : @"This fake notification should be forwarded to Firebase Auth."
+                                             }
+                                         };
     if ([self->_application.delegate respondsToSelector:
-            @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+         @selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
       [self->_application.delegate application:self->_application
-            didReceiveRemoteNotification:proberNotification
-                  fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
+                  didReceiveRemoteNotification:proberNotification
+                        fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
 #if !TARGET_OS_TV
     } else if ([self->_application.delegate respondsToSelector:
-                   @selector(application:didReceiveRemoteNotification:)]) {
+                @selector(application:didReceiveRemoteNotification:)]) {
       [self->_application.delegate application:self->_application
-            didReceiveRemoteNotification:proberNotification];
+                  didReceiveRemoteNotification:proberNotification];
 #endif
     } else {
       FIRLogWarning(kFIRLoggerAuth, @"I-AUT000015",
@@ -122,9 +123,9 @@ static const NSTimeInterval kProbingTimeout = 1;
     }
   });
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)),
-                               FIRAuthGlobalWorkQueue(), ^{
-    [self callBack];
-  });
+                 FIRAuthGlobalWorkQueue(), ^{
+                   [self callBack];
+                 });
 }
 
 - (BOOL)canHandleNotification:(NSDictionary *)notification {
@@ -160,7 +161,7 @@ static const NSTimeInterval kProbingTimeout = 1;
 #pragma mark - Internal methods
 
 /** @fn callBack
-    @brief Calls back all pending callbacks with the result of notification forwarding check.
+ @brief Calls back all pending callbacks with the result of notification forwarding check.
  */
 - (void)callBack {
   if (!_pendingCallbacks) {

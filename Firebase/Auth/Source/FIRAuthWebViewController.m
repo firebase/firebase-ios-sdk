@@ -25,17 +25,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthWebViewController {
   /** @var _URL
-      @brief The initial URL to display.
+   @brief The initial URL to display.
    */
   NSURL *_URL;
 
   /** @var _delegate
-      @brief The delegate to call.
+   @brief The delegate to call.
    */
   __weak id<FIRAuthWebViewControllerDelegate> _delegate;
 
   /** @var _webView;
-      @brief The web view instance for easier access.
+   @brief The web view instance for easier access.
    */
   __weak FIRAuthWebView *_webView;
 }
@@ -58,9 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
   self.view = webView;
   _webView = webView;
   self.navigationItem.leftBarButtonItem =
-      [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                                    target:self
-                                                    action:@selector(cancel)];
+  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                target:self
+                                                action:@selector(cancel)];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -79,8 +79,8 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - UIWebViewDelegate
 
 - (BOOL)webView:(UIWebView *)webView
-    shouldStartLoadWithRequest:(NSURLRequest *)request
-                navigationType:(UIWebViewNavigationType)navigationType {
+shouldStartLoadWithRequest:(NSURLRequest *)request
+ navigationType:(UIWebViewNavigationType)navigationType {
   return ![_delegate webViewController:self canHandleURL:request.URL];
 }
 

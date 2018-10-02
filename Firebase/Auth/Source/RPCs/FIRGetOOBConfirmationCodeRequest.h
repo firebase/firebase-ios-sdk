@@ -24,123 +24,123 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @enum FIRGetOOBConfirmationCodeRequestType
-    @brief Types of OOB Confirmation Code requests.
+ @brief Types of OOB Confirmation Code requests.
  */
 typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
   /** @var FIRGetOOBConfirmationCodeRequestTypePasswordReset
-      @brief Requests a password reset code.
+   @brief Requests a password reset code.
    */
   FIRGetOOBConfirmationCodeRequestTypePasswordReset,
-
+  
   /** @var FIRGetOOBConfirmationCodeRequestTypeVerifyEmail
-      @brief Requests an email verification code.
+   @brief Requests an email verification code.
    */
   FIRGetOOBConfirmationCodeRequestTypeVerifyEmail,
-
+  
   /** @var FIRGetOOBConfirmationCodeRequestTypeEmailLink
-      @brief Requests an email sign-in link.
+   @brief Requests an email sign-in link.
    */
   FIRGetOOBConfirmationCodeRequestTypeEmailLink,
 };
 
 /** @enum FIRGetOOBConfirmationCodeRequest
-    @brief Represents the parameters for the getOOBConfirmationCode endpoint.
+ @brief Represents the parameters for the getOOBConfirmationCode endpoint.
  */
 @interface FIRGetOOBConfirmationCodeRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property requestType
-    @brief The types of OOB Confirmation Code to request.
+ @brief The types of OOB Confirmation Code to request.
  */
 @property(nonatomic, assign, readonly) FIRGetOOBConfirmationCodeRequestType requestType;
 
 /** @property email
-    @brief The email of the user.
-    @remarks For password reset.
+ @brief The email of the user.
+ @remarks For password reset.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *email;
 
 /** @property accessToken
-    @brief The STS Access Token of the authenticated user.
-    @remarks For email change.
+ @brief The STS Access Token of the authenticated user.
+ @remarks For email change.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *accessToken;
 
 /** @property continueURL
-    @brief This URL represents the state/Continue URL in the form of a universal link.
+ @brief This URL represents the state/Continue URL in the form of a universal link.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *continueURL;
 
 /** @property iOSBundleID
-    @brief The iOS bundle Identifier, if available.
+ @brief The iOS bundle Identifier, if available.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *iOSBundleID;
 
 /** @property androidPackageName
-    @brief The Android package name, if available.
+ @brief The Android package name, if available.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *androidPackageName;
 
 /** @property androidMinimumVersion
-    @brief The minimum Android version supported, if available.
+ @brief The minimum Android version supported, if available.
  */
 @property(nonatomic, copy, nullable, readonly) NSString *androidMinimumVersion;
 
 /** @property androidInstallIfNotAvailable
-    @brief Indicates whether or not the Android app should be installed if not already available.
+ @brief Indicates whether or not the Android app should be installed if not already available.
  */
 @property(nonatomic, assign, readonly) BOOL androidInstallApp;
 
 /** @property handleCodeInApp
-    @brief Indicates whether the action code link will open the app directly or after being
-        redirected from a Firebase owned web widget.
+ @brief Indicates whether the action code link will open the app directly or after being
+ redirected from a Firebase owned web widget.
  */
 @property(assign, nonatomic) BOOL handleCodeInApp;
 
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
-    @brief Creates a password reset request.
-    @param email The user's email address.
-    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
-        settings to be applied to the password reset request.
-    @param requestConfiguration An object containing configurations to be added to the request.
-    @return A password reset request.
+ @brief Creates a password reset request.
+ @param email The user's email address.
+ @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+ settings to be applied to the password reset request.
+ @param requestConfiguration An object containing configurations to be added to the request.
+ @return A password reset request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
-    passwordResetRequestWithEmail:(NSString *)email
-               actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+passwordResetRequestWithEmail:(NSString *)email
+actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn verifyEmailRequestWithAccessToken:actionCodeSettings:requestConfiguration:
-    @brief Creates a password reset request.
-    @param accessToken The user's STS Access Token.
-    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
-        settings to be applied to the email verification request.
-    @param requestConfiguration An object containing configurations to be added to the request.
-    @return A password reset request.
+ @brief Creates a password reset request.
+ @param accessToken The user's STS Access Token.
+ @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+ settings to be applied to the email verification request.
+ @param requestConfiguration An object containing configurations to be added to the request.
+ @return A password reset request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
-    verifyEmailRequestWithAccessToken:(NSString *)accessToken
-                   actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-                 requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+verifyEmailRequestWithAccessToken:(NSString *)accessToken
+actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn signInWithEmailLinkRequest:actionCodeSettings:requestConfiguration:
-    @brief Creates a sign-in with email link.
-    @param email The user's email address.
-    @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
-        settings to be applied to the email sign-in link.
-    @param requestConfiguration An object containing configurations to be added to the request.
-    @return An email sign-in link request.
+ @brief Creates a sign-in with email link.
+ @param email The user's email address.
+ @param actionCodeSettings An object of FIRActionCodeSettings which specifies action code
+ settings to be applied to the email sign-in link.
+ @param requestConfiguration An object containing configurations to be added to the request.
+ @return An email sign-in link request.
  */
 + (nullable FIRGetOOBConfirmationCodeRequest *)
-    signInWithEmailLinkRequest:(NSString *)email
-            actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
-          requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+signInWithEmailLinkRequest:(NSString *)email
+actionCodeSettings:(nullable FIRActionCodeSettings *)actionCodeSettings
+requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 /** @fn init
-    @brief Please use a factory method.
+ @brief Please use a factory method.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 @end
 

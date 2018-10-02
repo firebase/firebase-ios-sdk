@@ -19,20 +19,20 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthExceptionUtils
-    @brief Utility class used to raise standardized Auth related exceptions.
-*/
+ @brief Utility class used to raise standardized Auth related exceptions.
+ */
 @interface FIRAuthExceptionUtils : NSObject
 
 /** @fn raiseInvalidParameterExceptionWithReason:
-    @brief raises the "invalid parameter" exception
-    @param reason string will contain a description of the error.
+ @brief raises the "invalid parameter" exception
+ @param reason string will contain a description of the error.
  */
 + (void)raiseInvalidParameterExceptionWithReason:(nullable NSString *)reason;
 
 /** @fn raiseMethodNotImplementedExceptionWithReason:
-    @brief raises the "method not implemented" exception
-    @param reason string will contain a description of the error.
-    @see FIRMethodNotImplementedException
+ @brief raises the "method not implemented" exception
+ @param reason string will contain a description of the error.
+ @see FIRMethodNotImplementedException
  */
 + (void)raiseMethodNotImplementedExceptionWithReason:(nullable NSString *)reason;
 

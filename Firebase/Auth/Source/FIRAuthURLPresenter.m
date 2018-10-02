@@ -27,7 +27,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate,
-                                   FIRAuthWebViewControllerDelegate>
+FIRAuthWebViewControllerDelegate>
 @end
 
 // Disable unguarded availability warnings because SFSafariViewController is been used throughout
@@ -37,33 +37,33 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthURLPresenter {
   /** @var _isPresenting
-      @brief Whether or not some web-based content is being presented.
+   @brief Whether or not some web-based content is being presented.
    */
   BOOL _isPresenting;
-
+  
   /** @var _callbackMatcher
-      @brief The callback URL matcher for the current presentation, if one is active.
+   @brief The callback URL matcher for the current presentation, if one is active.
    */
   FIRAuthURLCallbackMatcher _Nullable _callbackMatcher;
-
+  
   /** @var _safariViewController
-      @brief The SFSafariViewController used for the current presentation, if any.
+   @brief The SFSafariViewController used for the current presentation, if any.
    */
   SFSafariViewController *_Nullable _safariViewController;
-
+  
   /** @var _webViewController
-      @brief The FIRAuthWebViewController used for the current presentation, if any.
+   @brief The FIRAuthWebViewController used for the current presentation, if any.
    */
   FIRAuthWebViewController *_Nullable _webViewController;
-
+  
   /** @var _UIDelegate
-      @brief The UIDelegate used to present the SFSafariViewController.
+   @brief The UIDelegate used to present the SFSafariViewController.
    */
   id<FIRAuthUIDelegate> _UIDelegate;
-
+  
   /** @var _completion
-      @brief The completion handler for the current presentaion, if one is active.
-      @remarks This variable is also used as a flag to indicate a presentation is active.
+   @brief The completion handler for the current presentaion, if one is active.
+   @remarks This variable is also used as a flag to indicate a presentation is active.
    */
   FIRAuthURLPresentationCompletion _Nullable _completion;
 }
@@ -92,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
     } else {
       self->_webViewController = [[FIRAuthWebViewController alloc] initWithURL:URL delegate:self];
       UINavigationController *navController =
-          [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
+      [[UINavigationController alloc] initWithRootViewController:self->_webViewController];
       [self->_UIDelegate presentViewController:navController animated:YES completion:nil];
     }
   });
@@ -153,9 +153,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Private methods
 
 /** @fn finishPresentationWithURL:error:
-    @brief Finishes the presentation for a given URL, if any.
-    @param URL The URL to finish presenting.
-    @param error The error with which to finish presenting, if any.
+ @brief Finishes the presentation for a given URL, if any.
+ @param URL The URL to finish presenting.
+ @param error The error with which to finish presenting, if any.
  */
 - (void)finishPresentationWithURL:(nullable NSURL *)URL
                             error:(nullable NSError *)error {

@@ -15,19 +15,19 @@
  */
 
 /*
-Some of the Auth Credentials needs to be populated for the Sample build to work.
-
-Please follow the following steps to populate the valid AuthCredentials
-and copy it to AuthCredentials.h file
-
-You will need to replace the following values:
-
-$KFACEBOOK_APP_ID
-FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the
-'Signing in with Facebook' feature of Firebase Auth. Follow the instructions
-on the Facebook developer site: https://developers.facebook.com/docs/apps/register
-to obtain such an id.
-*/
+ Some of the Auth Credentials needs to be populated for the Sample build to work.
+ 
+ Please follow the following steps to populate the valid AuthCredentials
+ and copy it to AuthCredentials.h file
+ 
+ You will need to replace the following values:
+ 
+ $KFACEBOOK_APP_ID
+ FACEBOOK_APP_ID is the developer's Facebook app's ID, to be used to test the
+ 'Signing in with Facebook' feature of Firebase Auth. Follow the instructions
+ on the Facebook developer site: https://developers.facebook.com/docs/apps/register
+ to obtain such an id.
+ */
 
 #define KFACEBOOK_APP_ID $KFACEBOOK_APP_ID
 #define KCONTINUE_URL $KCONTINUE_URL

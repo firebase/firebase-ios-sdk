@@ -24,27 +24,27 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRResetPasswordRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property oobCode
-    @brief The oobCode sent in the request.
+ @brief The oobCode sent in the request.
  */
 @property(nonatomic, copy, readonly) NSString *oobCode;
 
 /** @property updatedPassword
-    @brief The new password sent in the request.
+ @brief The new password sent in the request.
  */
 @property(nonatomic, copy, readonly) NSString *updatedPassword;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithOobCode:newPassword:requestConfiguration: instead.
+ @brief Please use initWithOobCode:newPassword:requestConfiguration: instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithOobCode:newPassword:requestConfiguration:
-    @brief Designated initializer.
-    @param oobCode The OOB Code.
-    @param newPassword The new password.
-    @param requestConfiguration An object containing configurations to be added to the request.
+ @brief Designated initializer.
+ @param oobCode The OOB Code.
+ @param newPassword The new password.
+ @param requestConfiguration An object containing configurations to be added to the request.
  */
 - (nullable instancetype)initWithOobCode:(NSString *)oobCode
                              newPassword:(nullable NSString *)newPassword

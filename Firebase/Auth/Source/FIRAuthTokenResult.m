@@ -19,32 +19,32 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kExpirationDateKey
-    @brief The key used to encode the expirationDate property for NSSecureCoding.
+ @brief The key used to encode the expirationDate property for NSSecureCoding.
  */
 static NSString *const kExpirationDateKey = @"expiratinDate";
 
 /** @var kTokenKey
-    @brief The key used to encode the token property for NSSecureCoding.
+ @brief The key used to encode the token property for NSSecureCoding.
  */
 static NSString *const kTokenKey = @"token";
 
 /** @var kAuthDateKey
-    @brief The key used to encode the authDate property for NSSecureCoding.
+ @brief The key used to encode the authDate property for NSSecureCoding.
  */
 static NSString *const kAuthDateKey = @"authDate";
 
 /** @var kIssuedDateKey
-    @brief The key used to encode the issuedDate property for NSSecureCoding.
+ @brief The key used to encode the issuedDate property for NSSecureCoding.
  */
 static NSString *const kIssuedDateKey = @"issuedDate";
 
 /** @var kSignInProviderKey
-    @brief The key used to encode the signInProvider property for NSSecureCoding.
+ @brief The key used to encode the signInProvider property for NSSecureCoding.
  */
 static NSString *const kSignInProviderKey = @"signInProvider";
 
 /** @var kClaimsKey
-    @brief The key used to encode the claims property for NSSecureCoding.
+ @brief The key used to encode the claims property for NSSecureCoding.
  */
 static NSString *const kClaimsKey = @"claims";
 
@@ -76,18 +76,18 @@ static NSString *const kClaimsKey = @"claims";
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   NSString *token =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
   NSDate *expirationDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kExpirationDateKey];
   NSDate *authDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
   NSDate *issuedAtDate =
-      [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
+  [aDecoder decodeObjectOfClass:[NSDate class] forKey:kAuthDateKey];
   NSString *signInProvider =
-      [aDecoder decodeObjectOfClass:[NSString class] forKey:kSignInProviderKey];
+  [aDecoder decodeObjectOfClass:[NSString class] forKey:kSignInProviderKey];
   NSDictionary<NSString *, NSString *> *claims =
-      [aDecoder decodeObjectOfClass:[NSDictionary<NSString *, NSString *> class] forKey:kClaimsKey];
-
+  [aDecoder decodeObjectOfClass:[NSDictionary<NSString *, NSString *> class] forKey:kClaimsKey];
+  
   return [self initWithToken:token
               expirationDate:expirationDate
                     authDate:authDate

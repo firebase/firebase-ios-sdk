@@ -19,7 +19,7 @@
 @implementation FIRDeleteAccountResponse
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary
-                   error:(NSError *_Nullable *_Nullable)error {
+                    error:(NSError *_Nullable *_Nullable)error {
   return YES;
 }
 

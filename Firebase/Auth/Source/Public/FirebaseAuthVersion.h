@@ -17,11 +17,11 @@
 #import <Foundation/Foundation.h>
 
 /**
-    Version number for FirebaseAuth.
+ Version number for FirebaseAuth.
  */
 extern const double FirebaseAuthVersionNum;
 
 /**
-    Version string for FirebaseAuth.
+ Version string for FirebaseAuth.
  */
 extern const unsigned char *const FirebaseAuthVersionStr;

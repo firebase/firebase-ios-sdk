@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithProvider:(NSString *)provider {
   [FIRAuthExceptionUtils raiseMethodNotImplementedExceptionWithReason:
-      @"Please call the designated initializer."];
+   @"Please call the designated initializer."];
   return nil;
 }
 

@@ -22,81 +22,81 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRVerifyAssertionRequest
-    @brief Represents the parameters for the verifyAssertion endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
+ @brief Represents the parameters for the verifyAssertion endpoint.
+ @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
 @interface FIRVerifyAssertionRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 /** @property requestURI
-    @brief The URI to which the IDP redirects the user back. It may contain federated login result
-        params added by the IDP.
+ @brief The URI to which the IDP redirects the user back. It may contain federated login result
+ params added by the IDP.
  */
 @property(nonatomic, copy, nullable) NSString *requestURI;
 
 /** @property pendingIDToken
-    @brief The Firebase ID Token for the non-trusted IDP pending to be confirmed by the user.
+ @brief The Firebase ID Token for the non-trusted IDP pending to be confirmed by the user.
  */
 @property(nonatomic, copy, nullable) NSString *pendingIDToken;
 
 /** @property accessToken
-    @brief The STS Access Token for the authenticated user, only needed for linking the user.
+ @brief The STS Access Token for the authenticated user, only needed for linking the user.
  */
 @property(nonatomic, copy, nullable) NSString *accessToken;
 
 /** @property returnSecureToken
-    @brief Whether the response should return access token and refresh token directly.
-    @remarks The default value is @c YES .
+ @brief Whether the response should return access token and refresh token directly.
+ @remarks The default value is @c YES .
  */
 @property(nonatomic, assign) BOOL returnSecureToken;
 
 #pragma mark - Components of "postBody"
 
 /** @property providerID
-    @brief The ID of the IDP whose credentials are being presented to the endpoint.
+ @brief The ID of the IDP whose credentials are being presented to the endpoint.
  */
 @property(nonatomic, copy, readonly) NSString *providerID;
 
 /** @property providerAccessToken
-    @brief An access token from the IDP.
+ @brief An access token from the IDP.
  */
 @property(nonatomic, copy, nullable) NSString *providerAccessToken;
 
 /** @property providerIDToken
-    @brief An ID Token from the IDP.
+ @brief An ID Token from the IDP.
  */
 @property(nonatomic, copy, nullable) NSString *providerIDToken;
 
 /** @property providerOAuthTokenSecret
-    @brief An OAuth client secret from the IDP.
+ @brief An OAuth client secret from the IDP.
  */
 @property(nonatomic, copy, nullable) NSString *providerOAuthTokenSecret;
 
 /** @property inputEmail
-    @brief The originally entered email in the UI.
+ @brief The originally entered email in the UI.
  */
 @property(nonatomic, copy, nullable) NSString *inputEmail;
 
 /** @property autoCreate
-    @brief A flag that indicates whether or not the user should be automatically created.
+ @brief A flag that indicates whether or not the user should be automatically created.
  */
 @property(nonatomic, assign) BOOL autoCreate;
 
 /** @fn initWithEndpoint:requestConfiguration:
-    @brief Please use initWithProviderID:requestConfifuration instead.
+ @brief Please use initWithProviderID:requestConfifuration instead.
  */
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                         NS_UNAVAILABLE;
+NS_UNAVAILABLE;
 
 /** @fn initWithProviderID:requestConfifuration
-    @brief Designated initializer.
-    @param providerID The auth provider's ID.
-    @param requestConfiguration An object containing configurations to be added to the request.
-
+ @brief Designated initializer.
+ @param providerID The auth provider's ID.
+ @param requestConfiguration An object containing configurations to be added to the request.
+ 
  */
 - (nullable instancetype)initWithProviderID:(NSString *)providerID
                        requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-                           NS_DESIGNATED_INITIALIZER;
+NS_DESIGNATED_INITIALIZER;
 
 @end
 
