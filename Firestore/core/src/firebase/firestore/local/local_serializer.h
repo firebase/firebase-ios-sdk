@@ -31,7 +31,6 @@
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -99,13 +98,11 @@ class LocalSerializer {
    * Check reader->status() to determine if an error occurred while decoding.
    *
    * @param reader The Reader object. Used only for error handling.
-   * @return The QueryData equivalent of the bytes or nullopt if an error
-   * occurred.
-   * @post (reader->status().ok() && result.has_value()) ||
-   * (!reader->status().ok() && !result.has_value())
+   * @return The QueryData equivalent of the bytes. On error, the return value
+   * is unspecified.
    */
-  absl::optional<QueryData> DecodeQueryData(
-      nanopb::Reader* reader, const firestore_client_Target& proto) const;
+  QueryData DecodeQueryData(nanopb::Reader* reader,
+                            const firestore_client_Target& proto) const;
 
  private:
   /**

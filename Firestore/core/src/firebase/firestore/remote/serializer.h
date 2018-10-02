@@ -39,7 +39,6 @@
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/base/attributes.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -126,15 +125,14 @@ class Serializer {
    * @brief Converts from nanopb proto to the model FieldValue format.
    *
    * @param reader The Reader object. Used only for error handling.
-   * @return The model equivalent of the bytes or nullopt if an error occurred.
-   * @post (reader->status().ok() && result) ||
-   * (!reader->status().ok() && !result)
+   * @return The model equivalent of the bytes. On error, the return value is
+   * unspecified.
    */
   // TODO(rsgowman): Once the proto is read, the only thing the reader object is
   // used for is error handling. This seems questionable. We probably need to
   // rework error handling. Again. But we'll defer that for now and continue
   // just passing the reader object.
-  static absl::optional<model::FieldValue> DecodeFieldValue(
+  static model::FieldValue DecodeFieldValue(
       nanopb::Reader* reader, const google_firestore_v1beta1_Value& proto);
 
   /**
@@ -194,13 +192,13 @@ class Serializer {
   static google_protobuf_Timestamp EncodeTimestamp(
       const Timestamp& timestamp_value);
 
-  static absl::optional<model::SnapshotVersion> DecodeSnapshotVersion(
+  static model::SnapshotVersion DecodeSnapshotVersion(
       nanopb::Reader* reader, const google_protobuf_Timestamp& proto);
 
-  static absl::optional<Timestamp> DecodeTimestamp(
+  static Timestamp DecodeTimestamp(
       nanopb::Reader* reader, const google_protobuf_Timestamp& timestamp_proto);
 
-  static absl::optional<core::Query> DecodeQueryTarget(
+  static core::Query DecodeQueryTarget(
       nanopb::Reader* reader,
       const google_firestore_v1beta1_Target_QueryTarget& proto);
 

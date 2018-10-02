@@ -103,45 +103,35 @@ std::vector<uint8_t> Serializer::DecodeBytes(const pb_bytes_array_t* bytes) {
 
 namespace {
 
-absl::optional<ObjectValue::Map> DecodeMapValue(
+ObjectValue::Map DecodeMapValue(
     Reader* reader, const google_firestore_v1beta1_MapValue& map_value);
 
-absl::optional<ObjectValue::Map::value_type> DecodeFieldsEntry(
+ObjectValue::Map::value_type DecodeFieldsEntry(
     Reader* reader,
     const google_firestore_v1beta1_Document_FieldsEntry& fields) {
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return {};
 
   std::string key = Serializer::DecodeString(fields.key);
-  absl::optional<FieldValue> value =
-      Serializer::DecodeFieldValue(reader, fields.value);
+  FieldValue value = Serializer::DecodeFieldValue(reader, fields.value);
 
   if (key.empty()) {
     reader->Fail(
         "Invalid message: Empty key while decoding a Map field value.");
-    return absl::nullopt;
+    return {};
   }
 
-  if (!value.has_value()) {
-    reader->Fail(
-        "Invalid message: Empty value while decoding a Map field value.");
-    return absl::nullopt;
-  }
-
-  return ObjectValue::Map::value_type{std::move(key), *std::move(value)};
+  return ObjectValue::Map::value_type{std::move(key), std::move(value)};
 }
 
-absl::optional<ObjectValue::Map> DecodeFields(
+ObjectValue::Map DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1beta1_Document_FieldsEntry* fields) {
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return {};
 
   ObjectValue::Map result;
   for (size_t i = 0; i < count; i++) {
-    absl::optional<ObjectValue::Map::value_type> kv =
-        DecodeFieldsEntry(reader, fields[i]);
-    if (!reader->status().ok()) return absl::nullopt;
-    result.emplace(*kv);
+    result.emplace(DecodeFieldsEntry(reader, fields[i]));
   }
 
   return result;
@@ -170,18 +160,17 @@ google_firestore_v1beta1_MapValue EncodeMapValue(
   return result;
 }
 
-absl::optional<ObjectValue::Map> DecodeMapValue(
+ObjectValue::Map DecodeMapValue(
     Reader* reader, const google_firestore_v1beta1_MapValue& map_value) {
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return {};
   ObjectValue::Map result;
 
   for (size_t i = 0; i < map_value.fields_count; i++) {
     std::string key = Serializer::DecodeString(map_value.fields[i].key);
-    absl::optional<FieldValue> value =
+    FieldValue value =
         Serializer::DecodeFieldValue(reader, map_value.fields[i].value);
-    if (!reader->status().ok()) return absl::nullopt;
 
-    result[key] = *value;
+    result[key] = value;
   }
 
   return result;
@@ -305,9 +294,9 @@ google_firestore_v1beta1_Value Serializer::EncodeFieldValue(
   return result;
 }
 
-absl::optional<FieldValue> Serializer::DecodeFieldValue(
+FieldValue Serializer::DecodeFieldValue(
     Reader* reader, const google_firestore_v1beta1_Value& msg) {
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return FieldValue::Null();
 
   switch (msg.which_value_type) {
     case google_firestore_v1beta1_Value_null_value_tag:
@@ -317,6 +306,11 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(
       return FieldValue::Null();
 
     case google_firestore_v1beta1_Value_boolean_value_tag:
+      // TODO(rsgowman): Due to the nanopb implementation, msg.boolean_value
+      // could be an integer other than 0 or 1, (such as 2). This leads to
+      // undefined behaviour when it's read as a boolean. eg. on at least gcc,
+      // the value is treated as both true *and* false. We need to decide if we
+      // care enough to do anything about this.
       return FieldValue::FromBoolean(msg.boolean_value);
 
     case google_firestore_v1beta1_Value_integer_value_tag:
@@ -326,17 +320,12 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(
       return FieldValue::FromString(DecodeString(msg.string_value));
 
     case google_firestore_v1beta1_Value_timestamp_value_tag: {
-      absl::optional<Timestamp> timestamp =
-          DecodeTimestamp(reader, msg.timestamp_value);
-      if (!reader->status().ok()) return absl::nullopt;
-      return FieldValue::FromTimestamp(*timestamp);
+      return FieldValue::FromTimestamp(
+          DecodeTimestamp(reader, msg.timestamp_value));
     }
 
     case google_firestore_v1beta1_Value_map_value_tag: {
-      absl::optional<ObjectValue::Map> optional_map =
-          DecodeMapValue(reader, msg.map_value);
-      if (!reader->status().ok()) return absl::nullopt;
-      return FieldValue::FromMap(*optional_map);
+      return FieldValue::FromMap(DecodeMapValue(reader, msg.map_value));
     }
 
     case google_firestore_v1beta1_Value_double_value_tag:
@@ -352,7 +341,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(
       // Unspecified type.
       reader->Fail(StringFormat("Invalid type while decoding FieldValue: %s",
                                 msg.which_value_type));
-      return absl::nullopt;
+      return FieldValue::Null();
   }
 
   UNREACHABLE();
@@ -428,17 +417,17 @@ std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
               "Tried to deserialize a found document from a missing document.");
 
   DocumentKey key = DecodeKey(DecodeString(response.found.name));
-  absl::optional<ObjectValue::Map> value =
+  ObjectValue::Map value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
-  absl::optional<SnapshotVersion> version =
+  SnapshotVersion version =
       DecodeSnapshotVersion(reader, response.found.update_time);
   if (!reader->status().ok()) return nullptr;
 
-  HARD_ASSERT(*version != SnapshotVersion::None(),
+  HARD_ASSERT(version != SnapshotVersion::None(),
               "Got a document response with no snapshot version");
 
-  return absl::make_unique<Document>(FieldValue::FromMap(*std::move(value)),
-                                     std::move(key), *std::move(version),
+  return absl::make_unique<Document>(FieldValue::FromMap(std::move(value)),
+                                     std::move(key), std::move(version),
                                      /*has_local_modifications=*/false);
 }
 
@@ -452,32 +441,30 @@ std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
       "Tried to deserialize a missing document from a found document.");
 
   DocumentKey key = DecodeKey(DecodeString(response.missing));
-  absl::optional<SnapshotVersion> version =
-      DecodeSnapshotVersion(reader, response.read_time);
+  SnapshotVersion version = DecodeSnapshotVersion(reader, response.read_time);
   if (!reader->status().ok()) return nullptr;
 
-  if (*version == SnapshotVersion::None()) {
+  if (version == SnapshotVersion::None()) {
     reader->Fail("Got a no document response with no snapshot version");
     return nullptr;
   }
 
-  return absl::make_unique<NoDocument>(std::move(key), *std::move(version));
+  return absl::make_unique<NoDocument>(std::move(key), std::move(version));
 }
 
 std::unique_ptr<Document> Serializer::DecodeDocument(
     Reader* reader, const google_firestore_v1beta1_Document& proto) const {
   if (!reader->status().ok()) return nullptr;
 
-  absl::optional<ObjectValue::Map> fields_internal =
+  ObjectValue::Map fields_internal =
       DecodeFields(reader, proto.fields_count, proto.fields);
-  absl::optional<SnapshotVersion> version =
-      DecodeSnapshotVersion(reader, proto.update_time);
+  SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
 
   if (!reader->status().ok()) return nullptr;
-  return absl::make_unique<Document>(FieldValue::FromMap(*fields_internal),
-                                     DecodeKey(DecodeString(proto.name)),
-                                     *version,
-                                     /*has_local_modifications=*/false);
+  return absl::make_unique<Document>(
+      FieldValue::FromMap(std::move(fields_internal)),
+      DecodeKey(DecodeString(proto.name)), std::move(version),
+      /*has_local_modifications=*/false);
 }
 
 google_firestore_v1beta1_Target_QueryTarget Serializer::EncodeQueryTarget(
@@ -541,7 +528,7 @@ ResourcePath DecodeQueryPath(absl::string_view name) {
   }
 }
 
-absl::optional<Query> Serializer::DecodeQueryTarget(
+Query Serializer::DecodeQueryTarget(
     nanopb::Reader* reader,
     const google_firestore_v1beta1_Target_QueryTarget& proto) {
   if (!reader->status().ok()) return Query::Invalid();
@@ -551,7 +538,7 @@ absl::optional<Query> Serializer::DecodeQueryTarget(
       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag) {
     reader->Fail(
         StringFormat("Unknown query_type: %s", proto.which_query_type));
-    return absl::nullopt;
+    return Query::Invalid();
   }
 
   ResourcePath path = DecodeQueryPath(DecodeString(proto.parent));
@@ -596,14 +583,12 @@ google_protobuf_Timestamp Serializer::EncodeTimestamp(
   return result;
 }
 
-absl::optional<SnapshotVersion> Serializer::DecodeSnapshotVersion(
+SnapshotVersion Serializer::DecodeSnapshotVersion(
     nanopb::Reader* reader, const google_protobuf_Timestamp& proto) {
-  absl::optional<Timestamp> version = DecodeTimestamp(reader, proto);
-  if (!reader->status().ok()) return absl::nullopt;
-  return SnapshotVersion{*version};
+  return SnapshotVersion{DecodeTimestamp(reader, proto)};
 }
 
-absl::optional<Timestamp> Serializer::DecodeTimestamp(
+Timestamp Serializer::DecodeTimestamp(
     nanopb::Reader* reader, const google_protobuf_Timestamp& timestamp_proto) {
   // The Timestamp ctor will assert if we provide values outside the valid
   // range. However, since we're decoding, a single corrupt byte could cause
@@ -619,7 +604,7 @@ absl::optional<Timestamp> Serializer::DecodeTimestamp(
         "Invalid message: timestamp nanos must be between 0 and 999999999");
   }
 
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return Timestamp();
   return Timestamp{timestamp_proto.seconds, timestamp_proto.nanos};
 }
 

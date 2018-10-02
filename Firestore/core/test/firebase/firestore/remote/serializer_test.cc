@@ -317,15 +317,14 @@ class SerializerTest : public ::testing::Test {
         google_firestore_v1beta1_Value_init_zero;
     reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                              &nanopb_proto);
-    absl::optional<FieldValue> actual_model =
+    FieldValue actual_model =
         serializer.DecodeFieldValue(&reader, nanopb_proto);
     reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                              &nanopb_proto);
 
     EXPECT_OK(reader.status());
-    EXPECT_EQ(type, actual_model->type());
-    ASSERT_TRUE(actual_model.has_value());
-    EXPECT_EQ(model, *actual_model);
+    EXPECT_EQ(type, actual_model.type());
+    EXPECT_EQ(model, actual_model);
   }
 
   void ExpectSerializationRoundTrip(
@@ -580,16 +579,15 @@ TEST_F(SerializerTest, EncodesFieldValuesWithRepeatedEntries) {
       google_firestore_v1beta1_Value_init_zero;
   reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
-  absl::optional<FieldValue> actual_model =
-      serializer.DecodeFieldValue(&reader, nanopb_proto);
+  FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::FromInteger(42);
-  EXPECT_EQ(FieldValue::Type::Integer, actual_model->type());
-  EXPECT_EQ(expected_model, *actual_model);
+  EXPECT_EQ(FieldValue::Type::Integer, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
 }
 
 TEST_F(SerializerTest, BadNullValue) {
@@ -743,16 +741,15 @@ TEST_F(SerializerTest, BadFieldValueTagWithOtherValidTagsPresent) {
       google_firestore_v1beta1_Value_init_zero;
   reader.ReadNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
-  absl::optional<FieldValue> actual_model =
-      serializer.DecodeFieldValue(&reader, nanopb_proto);
+  FieldValue actual_model = serializer.DecodeFieldValue(&reader, nanopb_proto);
   reader.FreeNanopbMessage(google_firestore_v1beta1_Value_fields,
                            &nanopb_proto);
   EXPECT_OK(reader.status());
 
   // Ensure the decoded model is as expected.
   FieldValue expected_model = FieldValue::FromBoolean(true);
-  EXPECT_EQ(FieldValue::Type::Boolean, actual_model->type());
-  EXPECT_EQ(expected_model, *actual_model);
+  EXPECT_EQ(FieldValue::Type::Boolean, actual_model.type());
+  EXPECT_EQ(expected_model, actual_model);
 }
 
 /* TODO(rsgowman): nanopb doesn't handle cases where the type as read on the

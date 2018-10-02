@@ -141,13 +141,13 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
     Reader* reader, const firestore_client_NoDocument& proto) const {
   if (!reader->status().ok()) return nullptr;
 
-  absl::optional<SnapshotVersion> version =
+  SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.read_time);
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<NoDocument>(
       rpc_serializer_.DecodeKey(rpc_serializer_.DecodeString(proto.name)),
-      *std::move(version));
+      std::move(version));
 }
 
 firestore_client_Target LocalSerializer::EncodeQueryData(
@@ -176,16 +176,16 @@ firestore_client_Target LocalSerializer::EncodeQueryData(
   return result;
 }
 
-absl::optional<QueryData> LocalSerializer::DecodeQueryData(
+QueryData LocalSerializer::DecodeQueryData(
     Reader* reader, const firestore_client_Target& proto) const {
-  if (!reader->status().ok()) return absl::nullopt;
+  if (!reader->status().ok()) return QueryData::Invalid();
 
   model::TargetId target_id = proto.target_id;
-  absl::optional<SnapshotVersion> version =
+  SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
   std::vector<uint8_t> resume_token =
       rpc_serializer_.DecodeBytes(proto.resume_token);
-  absl::optional<Query> query = Query::Invalid();
+  Query query = Query::Invalid();
 
   switch (proto.which_target_type) {
     case firestore_client_Target_query_tag:
@@ -201,9 +201,9 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
           StringFormat("Unknown target_type: %s", proto.which_target_type));
   }
 
-  if (!reader->status().ok()) return absl::nullopt;
-  return QueryData(*std::move(query), target_id, QueryPurpose::kListen,
-                   *std::move(version), std::move(resume_token));
+  if (!reader->status().ok()) return QueryData::Invalid();
+  return QueryData(std::move(query), target_id, QueryPurpose::kListen,
+                   std::move(version), std::move(resume_token));
 }
 
 }  // namespace local

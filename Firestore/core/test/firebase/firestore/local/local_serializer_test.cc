@@ -141,13 +141,11 @@ class LocalSerializerTest : public ::testing::Test {
         firestore_client_MaybeDocument_init_zero;
     reader.ReadNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
-    absl::optional<std::unique_ptr<MaybeDocument>> actual_model_optional =
+    std::unique_ptr<MaybeDocument> actual_model =
         serializer.DecodeMaybeDocument(&reader, nanopb_proto);
     reader.FreeNanopbMessage(firestore_client_MaybeDocument_fields,
                              &nanopb_proto);
     EXPECT_OK(reader.status());
-    std::unique_ptr<MaybeDocument> actual_model =
-        std::move(actual_model_optional).value();
     EXPECT_EQ(type, actual_model->type());
     EXPECT_EQ(model, *actual_model);
   }
@@ -184,13 +182,11 @@ class LocalSerializerTest : public ::testing::Test {
 
     firestore_client_Target nanopb_proto = firestore_client_Target_init_zero;
     reader.ReadNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
-    absl::optional<QueryData> actual_query_data_optional =
+    QueryData actual_query_data =
         serializer.DecodeQueryData(&reader, nanopb_proto);
     reader.FreeNanopbMessage(firestore_client_Target_fields, &nanopb_proto);
 
     EXPECT_OK(reader.status());
-    QueryData actual_query_data = std::move(actual_query_data_optional).value();
-
     EXPECT_EQ(query_data, actual_query_data);
   }
 
