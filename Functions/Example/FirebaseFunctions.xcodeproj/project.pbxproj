@@ -72,7 +72,6 @@
 		7C58B0391F1441F0005ED954 /* FUNSerializerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FUNSerializerTests.m; sourceTree = "<group>"; };
 		7C9BFD3F1F10A12F001A19ED /* FIRIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRIntegrationTests.m; sourceTree = "<group>"; };
 		7CBFAA91205702AB00A65866 /* FirebaseFunctions_IntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FirebaseFunctions_IntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7CBFAA92205702AC00A65866 /* FirebaseFunctions_Tests copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "FirebaseFunctions_Tests copy-Info.plist"; path = "/Users/klimt/src/firebase-ios-sdk/Functions/Example/FirebaseFunctions_Tests copy-Info.plist"; sourceTree = "<absolute>"; };
 		7CF3BEC01F97EE2F00B16B6E /* FUNFakeInstanceID.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FUNFakeInstanceID.m; sourceTree = "<group>"; };
 		7CF3BEC11F97EE2F00B16B6E /* FUNFakeInstanceID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FUNFakeInstanceID.h; sourceTree = "<group>"; };
 		7CF563081F1FE70600FEE1F4 /* FUNFakeApp.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FUNFakeApp.m; sourceTree = "<group>"; };
@@ -126,7 +125,6 @@
 				6003F5B5195388D20070C39A /* Tests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
-				7CBFAA92205702AC00A65866 /* FirebaseFunctions_Tests copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};

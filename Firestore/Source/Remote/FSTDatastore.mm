@@ -93,7 +93,7 @@ using firebase::firestore::remote::WatchStream;
 using firebase::firestore::remote::WriteStream;
 
 @implementation FSTDatastore {
-  std::unique_ptr<Datastore> _datastore;
+  std::shared_ptr<Datastore> _datastore;
 }
 
 + (instancetype)datastoreWithDatabase:(const DatabaseInfo *)databaseInfo
@@ -119,7 +119,7 @@ using firebase::firestore::remote::WriteStream;
     _credentials = credentials;
     _serializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&databaseInfo->database_id()];
 
-    _datastore = absl::make_unique<Datastore>(*_databaseInfo, [_workerDispatchQueue implementation]);
+    _datastore = std::make_shared<Datastore>(*_databaseInfo, [_workerDispatchQueue implementation], _credentials, _serializer);
   }
   return self;
 }
@@ -192,179 +192,22 @@ using firebase::firestore::remote::WriteStream;
   }
 }
 
-/** Returns the string to be used as x-goog-api-client header value. */
-+ (NSString *)googAPIClientHeaderValue {
-  // TODO(dimond): This should ideally also include the grpc version, however, gRPC defines the
-  // version as a macro, so it would be hardcoded based on version we have at compile time of
-  // the Firestore library, rather than the version available at runtime/at compile time by the
-  // user of the library.
-  return [NSString stringWithFormat:@"gl-objc/ fire/%s grpc/", FIRFirestoreVersionString];
-}
-
-/** Returns the string to be used as google-cloud-resource-prefix header value. */
-+ (NSString *)googleCloudResourcePrefixForDatabaseID:(const DatabaseId *)databaseID {
-  return [NSString stringWithFormat:@"projects/%s/databases/%s", databaseID->project_id().c_str(),
-                                    databaseID->database_id().c_str()];
-}
-/**
- * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
- * (for logging purposes).
- */
-+ (NSDictionary<NSString *, NSString *> *)extractWhiteListedHeaders:
-    (NSDictionary<NSString *, NSString *> *)headers {
-  NSMutableDictionary<NSString *, NSString *> *whiteListedHeaders =
-      [NSMutableDictionary dictionary];
-  NSArray<NSString *> *whiteList = @[
-    @"date", @"x-google-backends", @"x-google-netmon-label", @"x-google-service",
-    @"x-google-gfe-request-trace"
-  ];
-  [headers
-      enumerateKeysAndObjectsUsingBlock:^(NSString *headerName, NSString *headerValue, BOOL *stop) {
-        if ([whiteList containsObject:[headerName lowercaseString]]) {
-          whiteListedHeaders[headerName] = headerValue;
-        }
-      }];
-  return whiteListedHeaders;
-}
-
-/** Logs the (whitelisted) headers returned for an GRPCProtoCall RPC. */
-+ (void)logHeadersForRPC:(GRPCProtoCall *)rpc RPCName:(NSString *)rpcName {
-  if ([FIRFirestore isLoggingEnabled]) {
-    LOG_DEBUG("RPC %s returned headers (whitelisted): %s", rpcName,
-              [FSTDatastore extractWhiteListedHeaders:rpc.responseHeaders]);
-  }
-}
-
 - (void)commitMutations:(NSArray<FSTMutation *> *)mutations
              completion:(FSTVoidErrorBlock)completion {
-  GCFSCommitRequest *request = [GCFSCommitRequest message];
-  request.database = [self.serializer encodedDatabaseID];
-
-  NSMutableArray<GCFSWrite *> *mutationProtos = [NSMutableArray array];
-  for (FSTMutation *mutation in mutations) {
-    [mutationProtos addObject:[self.serializer encodedMutation:mutation]];
-  }
-  request.writesArray = mutationProtos;
-
-  RPCFactory rpcFactory = ^GRPCProtoCall * {
-    __block GRPCProtoCall *rpc = [self.service
-        RPCToCommitWithRequest:request
-                       handler:^(GCFSCommitResponse *response, NSError *_Nullable error) {
-                         error = [FSTDatastore firestoreErrorForError:error];
-                         [self.workerDispatchQueue dispatchAsync:^{
-                           if (error != nil && error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                             self->_credentials->InvalidateToken();
-                           }
-                           LOG_DEBUG("RPC CommitRequest completed. Error: %s", error);
-                           [FSTDatastore logHeadersForRPC:rpc RPCName:@"CommitRequest"];
-                           completion(error);
-                         }];
-                       }];
-    return rpc;
-  };
-
-  [self invokeRPCWithFactory:rpcFactory errorHandler:completion];
+  // TODO(varconst) _datastore->CommitMutations(mutations, completion);
 }
 
 - (void)lookupDocuments:(const std::vector<DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion {
-  GCFSBatchGetDocumentsRequest *request = [GCFSBatchGetDocumentsRequest message];
-  request.database = [self.serializer encodedDatabaseID];
-  for (const DocumentKey &key : keys) {
-    [request.documentsArray addObject:[self.serializer encodedDocumentKey:key]];
-  }
-
-  struct Closure {
-    std::map<DocumentKey, FSTMaybeDocument *> results;
-  };
-
-  __block std::shared_ptr<Closure> closure = std::make_shared<Closure>(Closure{});
-  RPCFactory rpcFactory = ^GRPCProtoCall * {
-    __block GRPCProtoCall *rpc = [self.service
-        RPCToBatchGetDocumentsWithRequest:request
-                             eventHandler:^(BOOL done,
-                                            GCFSBatchGetDocumentsResponse *_Nullable response,
-                                            NSError *_Nullable error) {
-                               error = [FSTDatastore firestoreErrorForError:error];
-                               [self.workerDispatchQueue dispatchAsync:^{
-                                 if (error) {
-                                   LOG_DEBUG("RPC BatchGetDocuments completed. Error: %s", error);
-                                   if (error.code == FIRFirestoreErrorCodeUnauthenticated) {
-                                     self->_credentials->InvalidateToken();
-                                   }
-                                   [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
-                                   completion(nil, error);
-                                   return;
-                                 }
-
-                                 if (!done) {
-                                   // Streaming response, accumulate result
-                                   FSTMaybeDocument *doc =
-                                       [self.serializer decodedMaybeDocumentFromBatch:response];
-                                   closure->results.insert({doc.key, doc});
-                                 } else {
-                                   // Streaming response is done, call completion
-                                   LOG_DEBUG("RPC BatchGetDocuments completed successfully.");
-                                   [FSTDatastore logHeadersForRPC:rpc RPCName:@"BatchGetDocuments"];
-                                   HARD_ASSERT(!response, "Got response after done.");
-                                   NSMutableArray<FSTMaybeDocument *> *docs =
-                                       [NSMutableArray arrayWithCapacity:closure->results.size()];
-                                   for (auto &&entry : closure->results) {
-                                     FSTMaybeDocument *doc = entry.second;
-                                     [docs addObject:doc];
-                                   }
-                                   completion(docs, nil);
-                                 }
-                               }];
-                             }];
-    return rpc;
-  };
-
-  [self invokeRPCWithFactory:rpcFactory
-                errorHandler:^(NSError *_Nonnull error) {
-                  error = [FSTDatastore firestoreErrorForError:error];
-                  completion(nil, error);
-                }];
-}
-
-- (void)invokeRPCWithFactory:(GRPCProtoCall * (^)(void))rpcFactory
-                errorHandler:(FSTVoidErrorBlock)errorHandler {
-  _credentials->GetToken([self, rpcFactory, errorHandler](util::StatusOr<Token> result) {
-    [self.workerDispatchQueue dispatchAsyncAllowingSameQueue:^{
-      if (!result.ok()) {
-        errorHandler(util::MakeNSError(result.status()));
-      } else {
-        GRPCProtoCall *rpc = rpcFactory();
-        const Token &token = result.ValueOrDie();
-        [FSTDatastore prepareHeadersForRPC:rpc
-                                databaseID:&self.databaseInfo->database_id()
-                                     token:(token.user().is_authenticated() ? token.token()
-                                                                            : absl::string_view())];
-        [rpc start];
-      }
-    }];
-  });
+  _datastore->LookupDocuments(keys, completion);
 }
 
 - (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:(id)delegate {
-  return std::make_shared<WatchStream>(
-      [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
+  return _datastore->CreateWatchStream(delegate);
 }
 
 - (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id)delegate {
-  return std::make_shared<WriteStream>(
-      [_workerDispatchQueue implementation], _credentials, _serializer, _datastore.get(), delegate);
-}
-
-/** Adds headers to the RPC including any OAuth access token if provided .*/
-+ (void)prepareHeadersForRPC:(GRPCCall *)rpc
-                  databaseID:(const DatabaseId *)databaseID
-                       token:(const absl::string_view)token {
-  rpc.oauth2AccessToken = token.data() == nullptr ? nil : util::WrapNSString(token);
-  rpc.requestHeaders[kXGoogAPIClientHeader] = [FSTDatastore googAPIClientHeaderValue];
-  // This header is used to improve routing and project isolation by the backend.
-  rpc.requestHeaders[kGoogleCloudResourcePrefix] =
-      [FSTDatastore googleCloudResourcePrefixForDatabaseID:databaseID];
+  return _datastore->CreateWriteStream(delegate);
 }
 
 @end

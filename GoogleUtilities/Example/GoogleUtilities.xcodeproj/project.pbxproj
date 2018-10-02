@@ -46,6 +46,9 @@
 		DEC9788720F6E1E000014E20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DEC9788020F6E1DF00014E20 /* Main.storyboard */; };
 		DEC9788820F6E1E000014E20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788120F6E1DF00014E20 /* main.m */; };
 		DEC9788920F6E1E000014E20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DEC9788220F6E1DF00014E20 /* AppDelegate.m */; };
+		ED18C2A0213EDB98009F633D /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED18C29F213EDB98009F633D /* GULUserDefaultsTests.m */; };
+		ED18C2A1213EDB98009F633D /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED18C29F213EDB98009F633D /* GULUserDefaultsTests.m */; };
+		ED18C2A2213EDB98009F633D /* GULUserDefaultsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ED18C29F213EDB98009F633D /* GULUserDefaultsTests.m */; };
 		EFBE67FA2101401100E756A7 /* GULSwizzlerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F02101401100E756A7 /* GULSwizzlerTest.m */; };
 		EFBE67FB2101401100E756A7 /* GULSwizzlingCacheTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F12101401100E756A7 /* GULSwizzlingCacheTest.m */; };
 		EFBE67FC2101401100E756A7 /* GULRuntimeClassDiffTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EFBE67F22101401100E756A7 /* GULRuntimeClassDiffTests.m */; };
@@ -126,6 +129,7 @@
 		DEC9788320F6E1DF00014E20 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEC9788420F6E1DF00014E20 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		E0A8D570636E99E7C3396DF8 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		ED18C29F213EDB98009F633D /* GULUserDefaultsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GULUserDefaultsTests.m; sourceTree = "<group>"; };
 		EFBE67F02101401100E756A7 /* GULSwizzlerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlerTest.m; sourceTree = "<group>"; };
 		EFBE67F12101401100E756A7 /* GULSwizzlingCacheTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULSwizzlingCacheTest.m; sourceTree = "<group>"; };
 		EFBE67F22101401100E756A7 /* GULRuntimeClassDiffTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GULRuntimeClassDiffTests.m; sourceTree = "<group>"; };
@@ -231,6 +235,7 @@
 		6003F5B5195388D20070C39A /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				ED18C29E213ED7B9009F633D /* User Defaults */,
 				EFBE67EF2101401100E756A7 /* Swizzler */,
 				DEC977DE20F6A7A700014E20 /* Logger */,
 				DEC977D420F68C3300014E20 /* Network */,
@@ -345,6 +350,14 @@
 				DEC9788420F6E1DF00014E20 /* ViewController.h */,
 			);
 			path = tvOS;
+			sourceTree = "<group>";
+		};
+		ED18C29E213ED7B9009F633D /* User Defaults */ = {
+			isa = PBXGroup;
+			children = (
+				ED18C29F213EDB98009F633D /* GULUserDefaultsTests.m */,
+			);
+			path = "User Defaults";
 			sourceTree = "<group>";
 		};
 		EFBE67EF2101401100E756A7 /* Swizzler */ = {
@@ -597,6 +610,7 @@
 				EFBE67FF2101401100E756A7 /* GULRuntimeDiffTests.m in Sources */,
 				DEC977DD20F68FE100014E20 /* GTMHTTPServer.m in Sources */,
 				EFBE68022101401100E756A7 /* GULRuntimeSnapshotTests.m in Sources */,
+				ED18C2A0213EDB98009F633D /* GULUserDefaultsTests.m in Sources */,
 				EFBE68002101401100E756A7 /* GULSwizzlerInheritedMethodsSwizzlingTest.m in Sources */,
 				EFBE68012101401100E756A7 /* GULRuntimeStateHelperTests.m in Sources */,
 				DEC977D820F68C3300014E20 /* GULMutableDictionaryTest.m in Sources */,
@@ -629,6 +643,7 @@
 				DEC9781920F6D38500014E20 /* GULAppEnvironmentUtilTest.m in Sources */,
 				DEC9781A20F6D38800014E20 /* GULReachabilityCheckerTest.m in Sources */,
 				DEC9781820F6D37400014E20 /* GULLoggerTest.m in Sources */,
+				ED18C2A1213EDB98009F633D /* GULUserDefaultsTests.m in Sources */,
 				DEC9781D20F6D39900014E20 /* GTMHTTPServer.m in Sources */,
 				DEC9781B20F6D39500014E20 /* GULMutableDictionaryTest.m in Sources */,
 				DEC9781C20F6D39500014E20 /* GULNetworkTest.m in Sources */,
@@ -652,6 +667,7 @@
 				DEC9786920F6D66300014E20 /* GTMHTTPServer.m in Sources */,
 				DEC9786B20F6D66300014E20 /* GULNetworkTest.m in Sources */,
 				DEC9786A20F6D66300014E20 /* GULMutableDictionaryTest.m in Sources */,
+				ED18C2A2213EDB98009F633D /* GULUserDefaultsTests.m in Sources */,
 				DEC9786C20F6D66700014E20 /* GULReachabilityCheckerTest.m in Sources */,
 				DEC9786820F6D65B00014E20 /* GULLoggerTest.m in Sources */,
 				DEC9786D20F6D66B00014E20 /* GULAppEnvironmentUtilTest.m in Sources */,

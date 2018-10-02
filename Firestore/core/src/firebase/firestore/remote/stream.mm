@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/error_apple.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
@@ -53,14 +54,14 @@ const AsyncQueue::Milliseconds kIdleTimeout{std::chrono::seconds(60)};
 
 Stream::Stream(AsyncQueue* worker_queue,
                CredentialsProvider* credentials_provider,
-               Datastore* datastore,
+               GrpcConnection* grpc_connection,
                TimerId backoff_timer_id,
                TimerId idle_timer_id)
-    : worker_queue_{worker_queue},
-      credentials_provider_{credentials_provider},
-      datastore_{datastore},
-      backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
+    : backoff_{worker_queue, backoff_timer_id, kBackoffFactor,
                kBackoffInitialDelay, kBackoffMaxDelay},
+      credentials_provider_{credentials_provider},
+      worker_queue_{worker_queue},
+      grpc_connection_{grpc_connection},
       idle_timer_id_{idle_timer_id} {
 }
 
@@ -128,16 +129,11 @@ void Stream::ResumeStartWithCredentials(const StatusOr<Token>& maybe_token) {
               "State should still be 'Starting' (was %s)", state_);
 
   if (!maybe_token.ok()) {
-    OnStreamError(maybe_token.status());
+    OnStreamFinish(maybe_token.status());
     return;
   }
 
-  Token credential = maybe_token.ValueOrDie();
-  absl::string_view token = credential.user().is_authenticated()
-                                ? credential.token()
-                                : absl::string_view{};
-
-  grpc_stream_ = CreateGrpcStream(datastore_, token);
+  grpc_stream_ = CreateGrpcStream(grpc_connection_, maybe_token.ValueOrDie());
   grpc_stream_->Start();
 }
 
@@ -214,7 +210,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
     grpc_stream_->Finish();
     // Don't expect gRPC to produce status -- since the error happened on the
     // client, we have all the information we need.
-    OnStreamError(read_status);
+    OnStreamFinish(read_status);
     return;
   }
 }
@@ -294,7 +290,7 @@ void Stream::HandleErrorStatus(const Status& status) {
   }
 }
 
-void Stream::OnStreamError(const Status& status) {
+void Stream::OnStreamFinish(const Status& status) {
   EnsureOnQueue();
   // TODO(varconst): log error here?
   LOG_DEBUG("%s Stream error", GetDebugDescription());

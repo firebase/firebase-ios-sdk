@@ -2,22 +2,16 @@
 
 First, make sure you have necessary prereqs for building:
 ```
-brew install automake libtool protobuf
+brew install automake libtool protobuf golang
 ```
 
-Take a nap while that completes. Then, build protobuf and nanopb:
+Take a nap while that completes. Then, build the protos:
 ```
 cd firebase-ios-sdk
 mkdir -p build
 cd build
 cmake ..
-make -j protobuf nanopb
-```
-
-Next, build the protos:
-```
-cd firebase-ios-sdk/Firestore/Protos
-./build_protos.py
+make -j generate_protos
 ```
 
 Verify diffs, make sure tests still pass, and create a PR.

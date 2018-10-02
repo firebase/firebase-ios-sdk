@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pN-pw-EY2">
+    <device id="retina5_5" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Banner Messages-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="BannerMessageViewController" customModule="FiamDisplaySwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="1sp-53-Fq2">
+                                <rect key="frame" x="0.0" y="20" width="414" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IdT-2g-OHS">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="95.333333333333329"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="verification-label-banner"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tuR-ox-JKe">
+                                        <rect key="frame" x="0.0" y="95.333333333333343" width="414" height="95.333333333333343"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Show Regular Banner View"/>
+                                        <connections>
+                                            <action selector="showRegularBannerTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0Lv-Md-RGu"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OdV-sK-hN2">
+                                        <rect key="frame" x="0.0" y="190.66666666666666" width="414" height="95.333333333333343"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Without Image"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithoutImageTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HRI-rM-P77"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eqR-qV-6QA">
+                                        <rect key="frame" x="0.0" y="286" width="414" height="95"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="With Wide Image"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithWideImageTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="vWg-y6-usw"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5lo-cz-mMm">
+                                        <rect key="frame" x="0.0" y="381" width="414" height="95.333333333333314"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="With Thin Image"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithNarrowImageTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="GMU-k5-ECE"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gvO-6a-zu2">
+                                        <rect key="frame" x="0.0" y="476.33333333333331" width="414" height="95.333333333333314"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="With Large Body Text"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithLargeBodyTextTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="c7d-hN-EnM"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZhT-VP-zCp">
+                                        <rect key="frame" x="0.0" y="571.66666666666663" width="414" height="95.333333333333371"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="With Long Title"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithLongTitleTextTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nKO-LN-iNn"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="1sp-53-Fq2" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="5cV-mf-DA3"/>
+                            <constraint firstItem="1sp-53-Fq2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Klu-61-G0K"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="1sp-53-Fq2" secondAttribute="bottom" id="m8X-BL-WyI"/>
+                            <constraint firstItem="1sp-53-Fq2" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="qI1-dX-8ui"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Banner Messages" id="lmF-KU-1Kz"/>
+                    <connections>
+                        <outlet property="verifyLabel" destination="IdT-2g-OHS" id="8M6-6a-FCQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="912.22826086956525" y="95.652173913043484"/>
+        </scene>
+        <!--Modal Messages-->
+        <scene sceneID="1TO-S8-SV0">
+            <objects>
+                <viewController id="ttC-lg-4V1" customClass="ModalMessageViewController" customModule="FiamDisplaySwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="09s-Er-Yft"/>
+                        <viewControllerLayoutGuide type="bottom" id="Vu8-In-JUX"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="hES-vq-3sa">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="9Ui-uS-L7z">
+                                <rect key="frame" x="0.0" y="20" width="414" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PaF-mG-SKa">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="55.666666666666664"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="verification-label-modal"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9iR-Xj-FUj">
+                                        <rect key="frame" x="0.0" y="55.666666666666671" width="414" height="55.666666666666671"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Regular"/>
+                                        <connections>
+                                            <action selector="showRegular:" destination="ttC-lg-4V1" eventType="touchUpInside" id="XB1-eN-Dxj"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pcE-sH-wZt">
+                                        <rect key="frame" x="0.0" y="111.33333333333333" width="414" height="55.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Without Image"/>
+                                        <connections>
+                                            <action selector="showWithoutImage:" destination="ttC-lg-4V1" eventType="touchUpInside" id="ZJB-U8-XWp"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9k0-UI-Puj">
+                                        <rect key="frame" x="0.0" y="166.66666666666666" width="414" height="55.666666666666657"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Without Action Button"/>
+                                        <connections>
+                                            <action selector="showWithoutButton:" destination="ttC-lg-4V1" eventType="touchUpInside" id="8t6-t5-tFf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2z0-64-rZk">
+                                        <rect key="frame" x="0.0" y="222.33333333333334" width="414" height="55.666666666666657"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Wthout Image or Action Button"/>
+                                        <connections>
+                                            <action selector="showWithoutImageAndButton:" destination="ttC-lg-4V1" eventType="touchUpInside" id="Sob-M5-UjN"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8kw-uD-YSC">
+                                        <rect key="frame" x="0.0" y="278" width="414" height="55.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Large Body Text"/>
+                                        <connections>
+                                            <action selector="showWithLargeBody:" destination="ttC-lg-4V1" eventType="touchUpInside" id="zSU-aM-eV8"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z3a-46-Bju">
+                                        <rect key="frame" x="0.0" y="333.66666666666669" width="414" height="55.333333333333314"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="With Large Title and Body"/>
+                                        <connections>
+                                            <action selector="showWithLargeTitleAndBody:" destination="ttC-lg-4V1" eventType="touchUpInside" id="GpZ-Ch-lJf"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j3k-tM-eGm">
+                                        <rect key="frame" x="0.0" y="389" width="414" height="55.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="Large Title Text"/>
+                                        <connections>
+                                            <action selector="showWithLargeTitle:" destination="ttC-lg-4V1" eventType="touchUpInside" id="38U-Wq-hKm"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iWk-4F-kna">
+                                        <rect key="frame" x="0.0" y="444.66666666666669" width="414" height="55.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="With Large Title and Body Without Image"/>
+                                        <connections>
+                                            <action selector="showWithLargeTitleAndBodyWithoutImage:" destination="ttC-lg-4V1" eventType="touchUpInside" id="rEV-RD-evh"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1rD-Fa-6dO">
+                                        <rect key="frame" x="0.0" y="500.33333333333343" width="414" height="55.666666666666686"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                        <state key="normal" title="With Large Title, No Image, No Body and No Button"/>
+                                        <connections>
+                                            <action selector="showWithLargeTitleWithoutBodyWithoutImageWithoutButton:" destination="ttC-lg-4V1" eventType="touchUpInside" id="vqK-6n-Jb1"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kMO-Q0-pYH">
+                                        <rect key="frame" x="0.0" y="556" width="414" height="55.333333333333371"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <state key="normal" title="Wide Image"/>
+                                        <connections>
+                                            <action selector="showWithWideImage:" destination="ttC-lg-4V1" eventType="touchUpInside" id="tOI-8R-sTB"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dc6-6u-d3T">
+                                        <rect key="frame" x="0.0" y="611.33333333333337" width="414" height="55.666666666666629"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                        <state key="normal" title="Thin Image"/>
+                                        <connections>
+                                            <action selector="showWithThinImage:" destination="ttC-lg-4V1" eventType="touchUpInside" id="whs-EW-I4T"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Vu8-In-JUX" firstAttribute="top" secondItem="9Ui-uS-L7z" secondAttribute="bottom" id="B1P-Yu-WC8"/>
+                            <constraint firstItem="9Ui-uS-L7z" firstAttribute="centerX" secondItem="hES-vq-3sa" secondAttribute="centerX" id="G30-2I-9CC"/>
+                            <constraint firstItem="9Ui-uS-L7z" firstAttribute="width" secondItem="hES-vq-3sa" secondAttribute="width" id="o1m-mS-rrp"/>
+                            <constraint firstItem="9Ui-uS-L7z" firstAttribute="top" secondItem="09s-Er-Yft" secondAttribute="bottom" id="vwb-Bs-qWi"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Modal Messages" id="bHQ-TR-Bdx"/>
+                    <connections>
+                        <outlet property="verifyLabel" destination="PaF-mG-SKa" id="7LE-kU-qxT"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NrN-aK-e3o" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="701" y="988"/>
+        </scene>
+        <!--Image Only Messages-->
+        <scene sceneID="HXM-v0-E4s">
+            <objects>
+                <viewController id="3X5-S5-3oo" customClass="ImageOnlyMessageViewController" customModule="FiamDisplaySwiftExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="13a-L7-BOa"/>
+                        <viewControllerLayoutGuide type="bottom" id="zAY-eT-fg9"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="xfK-2M-H3U">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="38M-yp-03l">
+                                <rect key="frame" x="0.0" y="20" width="414" height="667"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Verification Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dlu-T5-GYf">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="111.33333333333333"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="verification-label-image-only"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9ar-mi-FoK">
+                                        <rect key="frame" x="0.0" y="111.33333333333334" width="414" height="111"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Show Regular Image Only View"/>
+                                        <connections>
+                                            <action selector="showRegularImageOnlyTapped:" destination="3X5-S5-3oo" eventType="touchUpInside" id="APA-1d-Y5W"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UZp-Pk-0ed">
+                                        <rect key="frame" x="0.0" y="222.33333333333334" width="414" height="111.33333333333334"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="High Dimension Image"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithNarrowImageTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="PLo-vX-TLK"/>
+                                            <action selector="showImageViewWithLargeImageDimensionTapped:" destination="3X5-S5-3oo" eventType="touchUpInside" id="HLn-KU-CF0"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mXn-l2-D6C">
+                                        <rect key="frame" x="0.0" y="333.66666666666669" width="414" height="111"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <state key="normal" title="Low Dimension Image"/>
+                                        <connections>
+                                            <action selector="showBannerViewWithLargeBodyTextTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wRK-nw-dTf"/>
+                                            <action selector="showImageViewWithSmallImageDimensionTapped:" destination="3X5-S5-3oo" eventType="touchUpInside" id="msb-HF-l1Q"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fDd-Wu-yBe">
+                                        <rect key="frame" x="0.0" y="444.66666666666669" width="414" height="111.33333333333331"/>
+                                        <state key="normal" title="Wide Image"/>
+                                        <connections>
+                                            <action selector="showImageViewWithWideImage:" destination="3X5-S5-3oo" eventType="touchUpInside" id="Ugg-Pg-sj9"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6jV-cV-4wX">
+                                        <rect key="frame" x="0.0" y="556" width="414" height="111"/>
+                                        <state key="normal" title="Narrow Image"/>
+                                        <connections>
+                                            <action selector="showImageViewWithNarrowImage:" destination="3X5-S5-3oo" eventType="touchUpInside" id="Vrk-pH-OXv"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="38M-yp-03l" firstAttribute="centerX" secondItem="xfK-2M-H3U" secondAttribute="centerX" id="9mP-ix-nl8"/>
+                            <constraint firstItem="zAY-eT-fg9" firstAttribute="top" secondItem="38M-yp-03l" secondAttribute="bottom" id="UE4-hL-iKs"/>
+                            <constraint firstItem="38M-yp-03l" firstAttribute="top" secondItem="13a-L7-BOa" secondAttribute="bottom" id="b6G-fN-c25"/>
+                            <constraint firstItem="38M-yp-03l" firstAttribute="width" secondItem="xfK-2M-H3U" secondAttribute="width" id="vGo-e5-3CT"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Image Only Messages" id="dqq-9B-dai"/>
+                    <connections>
+                        <outlet property="verifyLabel" destination="Dlu-T5-GYf" id="ztW-DT-gd4"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fvj-p2-57e" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1437" y="861"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="tPF-Vb-3VY">
+            <objects>
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="3pN-pw-EY2" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="i66-KK-YQT">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="vjd-Pj-odJ"/>
+                        <segue destination="ttC-lg-4V1" kind="relationship" relationship="viewControllers" id="KIt-l5-XTe"/>
+                        <segue destination="3X5-S5-3oo" kind="relationship" relationship="viewControllers" id="c5a-QK-OKw"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kJN-c1-1dl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="139.4021739130435" y="95.652173913043484"/>
+        </scene>
+    </scenes>
+</document>

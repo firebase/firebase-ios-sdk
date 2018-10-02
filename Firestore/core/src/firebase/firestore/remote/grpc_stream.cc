@@ -19,13 +19,14 @@
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
 
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 using util::AsyncQueue;
+using util::Status;
 
 // When invoking an async gRPC method, `GrpcStream` will create a new
 // `GrpcCompletion` and use it as a tag to put on the gRPC completion queue.
@@ -51,41 +52,42 @@ using util::AsyncQueue;
 
 namespace internal {
 
-absl::optional<grpc::ByteBuffer> BufferedWriter::EnqueueWrite(
-    grpc::ByteBuffer&& write) {
-  queue_.push(write);
+absl::optional<BufferedWrite> BufferedWriter::EnqueueWrite(
+    grpc::ByteBuffer&& message, const grpc::WriteOptions& options) {
+  queue_.push({std::move(message), options});
   return TryStartWrite();
 }
 
-absl::optional<grpc::ByteBuffer> BufferedWriter::TryStartWrite() {
+absl::optional<BufferedWrite> BufferedWriter::TryStartWrite() {
   if (queue_.empty() || has_active_write_) {
     return absl::nullopt;
   }
 
   has_active_write_ = true;
-  grpc::ByteBuffer message = std::move(queue_.front());
+  BufferedWrite message = std::move(queue_.front());
   queue_.pop();
   return std::move(message);
 }
 
-absl::optional<grpc::ByteBuffer> BufferedWriter::DequeueNextWrite() {
+absl::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
   has_active_write_ = false;
   return TryStartWrite();
 }
 
 }  // namespace internal
 
+using internal::BufferedWrite;
 using internal::BufferedWriter;
 
 GrpcStream::GrpcStream(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     GrpcStreamObserver* observer,
-    AsyncQueue* firestore_queue)
+    AsyncQueue* worker_queue)
     : context_{std::move(context)},
       call_{std::move(call)},
-      observer_{observer},
-      firestore_queue_{firestore_queue} {
+      worker_queue_{worker_queue},
+      observer_{observer} {
 }
 
 GrpcStream::~GrpcStream() {
@@ -123,17 +125,26 @@ void GrpcStream::Read() {
 }
 
 void GrpcStream::Write(grpc::ByteBuffer&& message) {
-  absl::optional<grpc::ByteBuffer> maybe_write =
-      buffered_writer_.EnqueueWrite(std::move(message));
+  MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message)));
+}
+
+void GrpcStream::WriteLast(grpc::ByteBuffer&& message) {
+  grpc::WriteOptions options;
+  options.set_last_message();
+  MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message), options));
+}
+
+void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
   if (!maybe_write) {
     return;
   }
 
+  BufferedWrite write = std::move(maybe_write).value();
   GrpcCompletion* completion =
       NewCompletion([this](const GrpcCompletion*) { OnWrite(); });
-  *completion->message() = std::move(maybe_write).value();
+  *completion->message() = write.message;
 
-  call_->Write(*completion->message(), completion);
+  call_->Write(*completion->message(), write.options, completion);
 }
 
 void GrpcStream::Finish() {
@@ -184,13 +195,14 @@ void GrpcStream::FastFinishCompletionsBlocking() {
 bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   bool did_last_write = false;
 
-  absl::optional<grpc::ByteBuffer> last_write =
+  absl::optional<BufferedWrite> maybe_write =
       buffered_writer_.EnqueueWrite(std::move(message));
   // Only bother with the last write if there is no active write at the moment.
-  if (last_write) {
-    auto* completion = new GrpcCompletion(firestore_queue_, {});
-    *completion->message() = std::move(last_write).value();
-    call_->Write(*completion->message(), completion);
+  if (maybe_write) {
+    BufferedWrite last_write = std::move(maybe_write).value();
+    auto* completion = new GrpcCompletion(worker_queue_, {});
+    *completion->message() = last_write.message;
+    call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 
     // Empirically, the write normally takes less than a millisecond to finish
     // (both with and without network connection), and never more than several
@@ -225,15 +237,7 @@ void GrpcStream::OnRead(const grpc::ByteBuffer& message) {
 
 void GrpcStream::OnWrite() {
   if (observer_) {
-    absl::optional<grpc::ByteBuffer> maybe_write =
-        buffered_writer_.DequeueNextWrite();
-    if (!maybe_write) {
-      return;
-    }
-    GrpcCompletion* completion =
-        NewCompletion([this](const GrpcCompletion*) { OnWrite(); });
-    *completion->message() = std::move(maybe_write).value();
-    call_->Write(*completion->message(), completion);
+    MaybeWrite(buffered_writer_.DequeueNextWrite());
     // Observer is not interested in this event.
   }
 }
@@ -267,7 +271,7 @@ void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
     // The call to observer could end this `GrpcStream`'s lifetime.
     GrpcStreamObserver* observer = observer_;
     UnsetObserver();
-    observer->OnStreamError(Datastore::ConvertStatus(status));
+    observer->OnStreamFinish(ConvertStatus(status));
   }
 }
 
@@ -292,7 +296,7 @@ GrpcCompletion* GrpcStream::NewCompletion(const OnSuccess& on_success) {
         }
       };
 
-  auto* completion = new GrpcCompletion{firestore_queue_, std::move(decorated)};
+  auto* completion = new GrpcCompletion{worker_queue_, std::move(decorated)};
   completions_.push_back(completion);
   return completion;
 }

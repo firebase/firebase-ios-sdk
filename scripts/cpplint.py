@@ -415,7 +415,10 @@ _CPP_HEADERS = frozenset([
     ])
 
 _C_SYSTEM_DIRECTORIES = frozenset([
+    'SystemConfiguration',
+    'dispatch',
     'libkern',
+    'netinet',
     'mach',
     'sys',
 ])
@@ -561,7 +564,7 @@ def ProcessHppHeadersOption(val):
     # Automatically append to extensions list so it does not have to be set 2 times
     _valid_extensions.update(_hpp_headers)
   except ValueError:
-    PrintUsage('Header extensions must be comma seperated list.')
+    PrintUsage('Header extensions must be comma separated list.')
 
 def IsHeaderExtension(file_extension):
   return file_extension in _hpp_headers
@@ -6227,7 +6230,7 @@ def ParseArguments(args):
       try:
           _valid_extensions = set(val.split(','))
       except ValueError:
-          PrintUsage('Extensions must be comma seperated list.')
+          PrintUsage('Extensions must be comma separated list.')
     elif opt == '--headers':
       ProcessHppHeadersOption(val)
 

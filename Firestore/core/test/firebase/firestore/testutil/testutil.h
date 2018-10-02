@@ -71,7 +71,7 @@ inline model::SnapshotVersion Version(int64_t version) {
 inline model::Document Doc(absl::string_view key,
                            int64_t version = 0,
                            const model::ObjectValue::Map& data = {}) {
-  return model::Document{model::FieldValue::ObjectValueFromMap(data), Key(key),
+  return model::Document{model::FieldValue::FromMap(data), Key(key),
                          Version(version),
                          /* has_local_mutations= */ false};
 }
@@ -104,19 +104,19 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             const std::string& value) {
-  return Filter(key, op, model::FieldValue::StringValue(value));
+  return Filter(key, op, model::FieldValue::FromString(value));
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             int value) {
-  return Filter(key, op, model::FieldValue::IntegerValue(value));
+  return Filter(key, op, model::FieldValue::FromInteger(value));
 }
 
 inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
                                             absl::string_view op,
                                             double value) {
-  return Filter(key, op, model::FieldValue::DoubleValue(value));
+  return Filter(key, op, model::FieldValue::FromDouble(value));
 }
 
 inline core::Query Query(absl::string_view path) {

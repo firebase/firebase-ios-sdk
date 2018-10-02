@@ -17,19 +17,23 @@
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
-#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
+using auth::CredentialsProvider;
+using auth::EmptyCredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::AsyncQueue;
-using util::internal::ExecutorStd;
+using util::internal::ExecutorLibdispatch;
 
 namespace {
 
@@ -39,18 +43,29 @@ class NoOpObserver : public GrpcStreamObserver {
   }
   void OnStreamRead(const grpc::ByteBuffer& message) override {
   }
-  void OnStreamError(const util::Status& status) override {
+  void OnStreamFinish(const util::Status& status) override {
   }
 };
+
+std::unique_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
+                                           AsyncQueue* async_queue,
+                                           CredentialsProvider* credentials) {
+  return absl::make_unique<Datastore>(
+      database_info, async_queue, credentials,
+      [[FSTSerializerBeta alloc]
+          initWithDatabaseID:&database_info.database_id()]);
+}
 
 }  // namespace
 
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : async_queue{absl::make_unique<ExecutorStd>()},
-        datastore{DatabaseInfo{DatabaseId{"foo", "bar"}, "", "", false},
-                  &async_queue} {
+      : async_queue{absl::make_unique<ExecutorLibdispatch>(
+            dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
+        database_info_{DatabaseId{"foo", "bar"}, "", "", false},
+        datastore{
+            CreateDatastore(database_info_, &async_queue, &credentials_)} {
   }
 
   ~DatastoreTest() {
@@ -61,27 +76,20 @@ class DatastoreTest : public testing::Test {
 
   void Shutdown() {
     is_shut_down_ = true;
-    datastore.Shutdown();
+    datastore->Shutdown();
   }
 
  private:
   bool is_shut_down_ = false;
+  DatabaseInfo database_info_;
+  EmptyCredentialsProvider credentials_;
 
  public:
   AsyncQueue async_queue;
-  Datastore datastore;
+  std::unique_ptr<Datastore> datastore;
 };
 
 TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
-  Shutdown();
-}
-
-TEST_F(DatastoreTest, CanShutdownWithPendingOperations) {
-  NoOpObserver observer;
-  std::unique_ptr<GrpcStream> grpc_stream =
-      datastore.CreateGrpcStream("", "", &observer);
-  async_queue.EnqueueBlocking([&] { grpc_stream->Start(); });
-  async_queue.EnqueueBlocking([&] { grpc_stream->Finish(); });
   Shutdown();
 }
 

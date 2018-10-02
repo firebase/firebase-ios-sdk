@@ -27,6 +27,7 @@ namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
+using auth::Token;
 using util::AsyncQueue;
 using util::TimerId;
 using util::Status;
@@ -34,9 +35,9 @@ using util::Status;
 WriteStream::WriteStream(AsyncQueue* async_queue,
                          CredentialsProvider* credentials_provider,
                          FSTSerializerBeta* serializer,
-                         Datastore* datastore,
+                         GrpcConnection* grpc_connection,
                          id<FSTWriteStreamDelegate> delegate)
-    : Stream{async_queue, credentials_provider, datastore,
+    : Stream{async_queue, credentials_provider, grpc_connection,
              TimerId::WriteStreamConnectionBackoff, TimerId::WriteStreamIdle},
       serializer_bridge_{serializer},
       delegate_bridge_{delegate} {
@@ -53,7 +54,7 @@ NSData* WriteStream::GetLastStreamToken() const {
 void WriteStream::WriteHandshake() {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing handshake requires an opened stream");
-  HARD_ASSERT(!is_handshake_complete(), "Handshake already completed");
+  HARD_ASSERT(!handshake_complete(), "Handshake already completed");
 
   GCFSWriteRequest* request = serializer_bridge_.CreateHandshake();
   LOG_DEBUG("%s initial request: %s", GetDebugDescription(),
@@ -67,7 +68,7 @@ void WriteStream::WriteHandshake() {
 void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
   EnsureOnQueue();
   HARD_ASSERT(IsOpen(), "Writing mutations requires an opened stream");
-  HARD_ASSERT(is_handshake_complete(),
+  HARD_ASSERT(handshake_complete(),
               "Handshake must be complete before writing mutations");
 
   GCFSWriteRequest* request =
@@ -78,14 +79,13 @@ void WriteStream::WriteMutations(NSArray<FSTMutation*>* mutations) {
 }
 
 std::unique_ptr<GrpcStream> WriteStream::CreateGrpcStream(
-    Datastore* datastore, absl::string_view token) {
-  // TODO(varconst): use `GrpcConnection` instead of `Datastore`.
-  return datastore->CreateGrpcStream(
-      token, "/google.firestore.v1beta1.Firestore/Write", this);
+    GrpcConnection* grpc_connection, const Token& token) {
+  return grpc_connection->CreateStream(
+      "/google.firestore.v1beta1.Firestore/Write", token, this);
 }
 
 void WriteStream::TearDown(GrpcStream* grpc_stream) {
-  if (is_handshake_complete()) {
+  if (handshake_complete()) {
     // Send an empty write request to the backend to indicate imminent stream
     // closure. This isn't mandatory, but it allows the backend to clean up
     // resources.
@@ -104,7 +104,7 @@ void WriteStream::NotifyStreamClose(const Status& status) {
   delegate_bridge_.NotifyDelegateOnClose(status);
   // Delegate's logic might depend on whether handshake was completed, so only
   // reset it after notifying.
-  is_handshake_complete_ = false;
+  handshake_complete_ = false;
 }
 
 Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
@@ -121,9 +121,9 @@ Status WriteStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // Always capture the last stream token.
   serializer_bridge_.UpdateLastStreamToken(response);
 
-  if (!is_handshake_complete()) {
+  if (!handshake_complete()) {
     // The first response is the handshake response
-    is_handshake_complete_ = true;
+    handshake_complete_ = true;
     delegate_bridge_.NotifyDelegateOnHandshakeComplete();
   } else {
     // A successful first write response means the stream is healthy.

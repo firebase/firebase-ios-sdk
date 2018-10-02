@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.13.3'
+  s.version          = '0.13.4'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -41,6 +41,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/third_party/Immutable/Tests/**',
 
     # Exclude alternate implementations for other platforms
+    'Firestore/core/src/firebase/firestore/remote/connectivity_monitor_noop.cc',
     'Firestore/core/src/firebase/firestore/util/filesystem_win.cc',
     'Firestore/core/src/firebase/firestore/util/hard_assert_stdio.cc',
     'Firestore/core/src/firebase/firestore/util/log_stdio.cc',
@@ -49,14 +50,14 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
-  s.dependency 'FirebaseCore', '~> 5.0'
+  s.dependency 'FirebaseCore', '~> 5.1'
   s.dependency 'gRPC-ProtoRPC', '~> 1.0'
   s.dependency 'gRPC-C++', '~> 0.0.3'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
   s.dependency 'nanopb', '~> 0.3.8'
 
-  s.frameworks = 'MobileCoreServices'
+  s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.library = 'c++'
   s.pod_target_xcconfig = {
     'GCC_PREPROCESSOR_DEFINITIONS' =>
@@ -80,6 +81,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
         Firestore/core/src/firebase/firestore/util/config.h.in > \
         Firestore/core/src/firebase/firestore/util/config.h
   CMD
+
+  s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder'
 
   s.subspec 'abseil-cpp' do |ss|
     ss.preserve_path = [

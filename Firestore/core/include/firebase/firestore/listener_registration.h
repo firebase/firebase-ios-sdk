@@ -77,8 +77,9 @@ class ListenerRegistration {
 
  private:
   friend class DocumentReferenceInternal;
-  friend class ListenerRegistrationInternal;
   friend class FirestoreInternal;
+  friend class ListenerRegistrationInternal;
+  friend class QueryInternal;
 
   explicit ListenerRegistration(ListenerRegistrationInternal* internal);
 

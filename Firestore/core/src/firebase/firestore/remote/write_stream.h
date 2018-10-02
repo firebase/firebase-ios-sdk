@@ -25,9 +25,9 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "absl/strings/string_view.h"
@@ -61,7 +61,7 @@ class WriteStream : public Stream {
   WriteStream(util::AsyncQueue* async_queue,
               auth::CredentialsProvider* credentials_provider,
               FSTSerializerBeta* serializer,
-              Datastore* datastore,
+              GrpcConnection* grpc_connection,
               id<FSTWriteStreamDelegate> delegate);
 
   void SetLastStreamToken(NSData* token);
@@ -79,8 +79,8 @@ class WriteStream : public Stream {
    * Tracks whether or not a handshake has been successfully exchanged and
    * the stream is ready to accept mutations.
    */
-  bool is_handshake_complete() const {
-    return is_handshake_complete_;
+  bool handshake_complete() const {
+    return handshake_complete_;
   }
 
   /**
@@ -94,7 +94,7 @@ class WriteStream : public Stream {
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
-      Datastore* datastore, const absl::string_view token) override;
+      GrpcConnection* grpc_connection, const auth::Token& token) override;
   void TearDown(GrpcStream* call) override;
 
   void NotifyStreamOpen() override;
@@ -107,7 +107,7 @@ class WriteStream : public Stream {
 
   bridge::WriteStreamSerializer serializer_bridge_;
   bridge::WriteStreamDelegate delegate_bridge_;
-  bool is_handshake_complete_ = false;
+  bool handshake_complete_ = false;
 };
 
 }  // namespace remote
