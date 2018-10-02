@@ -16,6 +16,8 @@
 
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
@@ -45,7 +47,7 @@ namespace {
 
 class MockConnectivityMonitor : public ConnectivityMonitor {
  public:
-  MockConnectivityMonitor(AsyncQueue* worker_queue)
+  explicit MockConnectivityMonitor(AsyncQueue* worker_queue)
       : ConnectivityMonitor{worker_queue} {
     SetInitialStatus(NetworkStatus::Available);
   }
