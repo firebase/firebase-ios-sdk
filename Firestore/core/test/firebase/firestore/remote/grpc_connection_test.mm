@@ -120,7 +120,8 @@ TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
 
 TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   int change_count = 0;
-  std::unique_ptr<GrpcStreamingReader> streaming_call = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> streaming_call =
+      tester->CreateStreamingReader();
   streaming_call->Start(
       [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
         if (IsConnectivityChange(result.status())) {
