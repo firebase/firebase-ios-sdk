@@ -127,7 +127,7 @@ class GrpcCompletion {
   std::promise<void> off_queue_;
   std::future<void> off_queue_future_;
 
-  Tag tag_{Tag::Start};
+  Tag tag_{};
 };
 
 }  // namespace remote

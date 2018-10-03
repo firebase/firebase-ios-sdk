@@ -172,7 +172,7 @@ class GrpcStream : public GrpcCallInterface {
    */
   MetadataT GetResponseHeaders() const override;
 
-  // For tests only
+  /** For tests only */
   grpc::ClientContext* context() {
     return context_.get();
   }
