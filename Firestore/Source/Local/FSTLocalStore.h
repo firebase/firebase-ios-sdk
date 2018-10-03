@@ -27,6 +27,7 @@
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
 @class FSTLRUGarbageCollector;
+struct FSTLruGcResults;
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
