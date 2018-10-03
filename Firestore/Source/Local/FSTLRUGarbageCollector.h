@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <string>
+
 #import "FIRFirestoreSettings.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"

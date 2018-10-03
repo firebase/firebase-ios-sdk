@@ -17,6 +17,7 @@
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
 #include <queue>
+#include <utility>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
 #import "Firestore/Source/Local/FSTPersistence.h"
