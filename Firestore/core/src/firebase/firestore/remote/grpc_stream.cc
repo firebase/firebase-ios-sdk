@@ -92,6 +92,12 @@ GrpcStream::GrpcStream(
       worker_queue_{worker_queue},
       grpc_connection_{grpc_connection},
       observer_{observer} {
+  HARD_ASSERT(context_, "Received a null ClientContext");
+  HARD_ASSERT(call_, "Received a null GenericClientAsyncReaderWriter");
+  HARD_ASSERT(worker_queue_, "Received a null AsyncQueue");
+  HARD_ASSERT(grpc_connection_, "Received a null GrpcConnection");
+  HARD_ASSERT(observer_, "Received a null GrpcStreamObserver");
+
   grpc_connection_->Register(this);
 }
 
@@ -227,7 +233,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Only bother with the last write if there is no active write at the moment.
   if (maybe_write) {
     BufferedWrite last_write = std::move(maybe_write).value();
-    auto* completion = new GrpcCompletion(worker_queue_, {}, Tag::Write);
+    auto* completion = new GrpcCompletion(Tag::Write, worker_queue_, {});
     *completion->message() = last_write.message;
     call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 
@@ -320,7 +326,7 @@ GrpcCompletion* GrpcStream::NewCompletion(Tag tag,
       };
 
   auto* completion =
-      new GrpcCompletion{worker_queue_, std::move(decorated), tag};
+      new GrpcCompletion{tag, worker_queue_, std::move(decorated)};
   completions_.push_back(completion);
   return completion;
 }

@@ -52,6 +52,7 @@ void GrpcUnaryCall::Start(CallbackT&& callback) {
   call_->StartCall();
 
   finish_completion_ = new GrpcCompletion(
+      Tag::Finish,
       worker_queue_,
       [this](bool /*ignored_ok*/, const GrpcCompletion* completion) {
         // Ignoring ok, status should contain all the relevant information.
@@ -60,8 +61,7 @@ void GrpcUnaryCall::Start(CallbackT&& callback) {
         callback(*completion->message());
         // This `GrpcUnaryCall`'s lifetime might have been ended by the
         // callback.
-      },
-      Tag::Finish);
+      });
 
   call_->Finish(finish_completion_->message(), finish_completion_->status(),
                 finish_completion_);

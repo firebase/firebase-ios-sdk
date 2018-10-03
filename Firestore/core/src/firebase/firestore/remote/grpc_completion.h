@@ -67,9 +67,9 @@ class GrpcCompletion {
    */
   using Callback = std::function<void(bool, const GrpcCompletion*)>;
 
-  GrpcCompletion(util::AsyncQueue* firestore_queue,
-                 Callback&& callback,
-                 Tag tag);
+  GrpcCompletion(Tag tag,
+                 util::AsyncQueue* firestore_queue,
+                 Callback&& callback);
 
   /**
    * Marks the `GrpcCompletion` as having come back from the gRPC completion
@@ -127,7 +127,7 @@ class GrpcCompletion {
   std::promise<void> off_queue_;
   std::future<void> off_queue_future_;
 
-  Tag tag_{};
+  Tag tag_{Tag::Start};
 };
 
 }  // namespace remote

@@ -52,9 +52,9 @@ struct CompletionEndState {
   absl::optional<grpc::Status> maybe_status;
 };
 
-class MockGrpcQueue {
+class FakeGrpcQueue {
  public:
-  MockGrpcQueue();
+  FakeGrpcQueue();
 
   void ExtractCompletions(std::initializer_list<CompletionEndState> results);
   void KeepPolling();
@@ -113,7 +113,7 @@ class GrpcStreamTester {
   AsyncQueue worker_queue_;
   core::DatabaseInfo database_info_;
 
-  MockGrpcQueue mock_grpc_queue_;
+  FakeGrpcQueue mock_grpc_queue_;
   remote::GrpcConnection grpc_connection_;
 };
 
