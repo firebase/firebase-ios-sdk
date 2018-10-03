@@ -26,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryLRUGarbageCollectionTests
 
-- (id<FSTPersistence>)newPersistence {
-  return [FSTPersistenceTestHelpers lruMemoryPersistence];
+- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
+  return [FSTPersistenceTestHelpers lruMemoryPersistenceWithLruGcParams:lruGcParams];
 }
 
 @end

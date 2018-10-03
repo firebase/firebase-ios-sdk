@@ -17,12 +17,13 @@
 #import <XCTest/XCTest.h>
 
 @protocol FSTPersistence;
+struct FSTLruGcParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSTLRUGarbageCollectorTests : XCTestCase
 
-- (id<FSTPersistence>)newPersistence;
+- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams;
 
 @end
 

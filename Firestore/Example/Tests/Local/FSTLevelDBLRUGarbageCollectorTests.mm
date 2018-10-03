@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTLevelDBLRUGarbageCollectorTests
 
-- (id<FSTPersistence>)newPersistence {
-  return [FSTPersistenceTestHelpers levelDBPersistence];
+- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
+  return [FSTPersistenceTestHelpers levelDBPersistenceWithLruGcParams:lruGcParams];
 }
 
 @end

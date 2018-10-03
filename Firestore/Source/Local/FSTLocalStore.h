@@ -26,6 +26,7 @@
 
 @class FSTLocalViewChanges;
 @class FSTLocalWriteResult;
+@class FSTLRUGarbageCollector;
 @class FSTMutation;
 @class FSTMutationBatch;
 @class FSTMutationBatchResult;
@@ -175,6 +176,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
     (firebase::firestore::model::BatchId)batchID;
+
+- (FSTLruGcResults)tryLruGarbageCollection:(FSTLRUGarbageCollector *)garbageCollector;
 
 @end
 

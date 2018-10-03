@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -25,6 +26,22 @@
 @class FSTLRUGarbageCollector;
 
 extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
+
+struct FSTLruGcParams {
+  static FSTLruGcParams Default() {
+    return FSTLruGcParams{.minBytesThreshold = 100 * 1024 * 1024,
+                          .percentileToCollect = 10,
+                          .maximumSequenceNumbersToCollect = 1000};
+  }
+
+  static FSTLruGcParams Disabled() {
+    return FSTLruGcParams{.minBytesThreshold = kFIRFirestorePersistenceCacheSizeUnlimited};
+  }
+
+  long minBytesThreshold;
+  int percentileToCollect;
+  int maximumSequenceNumbersToCollect;
+};
 
 /**
  * Persistence layers intending to use LRU Garbage collection should implement this protocol. This
@@ -63,10 +80,44 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
 
 - (size_t)byteSize;
 
+/** Returns the number of targets cached. */
+- (int32_t)targetCount;
+
+/**
+ * If available, persistence implementations should run any compaction that they can. This is done
+ * after GC has run to allow deletes to be processed and free up space.
+ */
+- (void)runPostCompaction;
+
 /** Access to the underlying LRU Garbage collector instance. */
 @property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;
 
 @end
+
+struct FSTLruGcResults {
+  static FSTLruGcResults DidNotRun() {
+    return FSTLruGcResults{.didRun = NO};
+  }
+
+  std::string ToString() const;
+
+  long total_duration() const {
+    return targetCountDurationMs + upperBoundDurationMs + removedTargetsDurationMs +
+           removedDocumentsDurationMs + dbCompactionDurationMs;
+  }
+
+  BOOL didRun;
+
+  long targetCountDurationMs;
+  long upperBoundDurationMs;
+  long removedTargetsDurationMs;
+  long removedDocumentsDurationMs;
+  long dbCompactionDurationMs;
+
+  int sequenceNumbersCollected;
+  int targetsRemoved;
+  int documentsRemoved;
+};
 
 /**
  * FSTLRUGarbageCollector defines the LRU algorithm used to clean up old documents and targets. It
@@ -74,8 +125,7 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
  */
 @interface FSTLRUGarbageCollector : NSObject
 
-- (instancetype)initWithQueryCache:(id<FSTQueryCache>)queryCache
-                          delegate:(id<FSTLRUDelegate>)delegate;
+- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(FSTLruGcParams)params;
 
 /**
  * Given a target percentile, return the number of queries that make up that percentage of the
@@ -106,5 +156,7 @@ extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequence
     (firebase::firestore::model::ListenSequenceNumber)sequenceNumber;
 
 - (size_t)byteSize;
+
+- (FSTLruGcResults)tryRunGcWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
 
 @end

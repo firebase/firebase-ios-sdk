@@ -78,20 +78,28 @@ NS_ASSUME_NONNULL_BEGIN
   return ([self class] == [FSTLRUGarbageCollectorTests class]);
 }
 
-- (void)newTestResources {
+- (FSTLRUGarbageCollector *)garbageCollectorFromPersistence:(id<FSTPersistence>)persistence {
+  return ((id<FSTLRUDelegate>)persistence.referenceDelegate).gc;
+}
+
+- (void)newTestResourcesWithLruGcParams:(FSTLruGcParams)lruGcParams {
   HARD_ASSERT(_persistence == nil, "Persistence already created");
-  _persistence = [self newPersistence];
+  _persistence = [self newPersistenceWithLruGcParams:lruGcParams];
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
   _initialSequenceNumber = _persistence.run("start querycache", [&]() -> ListenSequenceNumber {
     [_mutationQueue start];
-    _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
+    _gc = [self garbageCollectorFromPersistence:_persistence];
     return _persistence.currentSequenceNumber;
   });
 }
 
-- (id<FSTPersistence>)newPersistence {
+- (void)newTestResources {
+  [self newTestResourcesWithLruGcParams:FSTLruGcParams::Default()];
+}
+
+- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -621,6 +629,7 @@ NS_ASSUME_NONNULL_BEGIN
   // Finally, do the garbage collection, up to but not including the removal of middleTarget
   NSDictionary<NSNumber *, FSTQueryData *> *liveQueries =
       @{@(oldestTarget.targetID) : oldestTarget};
+
   int queriesRemoved = [self removeQueriesThroughSequenceNumber:upperBound liveQueries:liveQueries];
   XCTAssertEqual(1, queriesRemoved, @"Expected to remove newest target");
   int docsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
@@ -658,6 +667,84 @@ NS_ASSUME_NONNULL_BEGIN
   size_t finalSize = [_gc byteSize];
   XCTAssertGreaterThan(finalSize, initialSize);
 
+  [_persistence shutdown];
+}
+
+- (void)testDisabled {
+  if ([self isTestBaseClass]) return;
+
+  FSTLruGcParams params = FSTLruGcParams::Disabled();
+  [self newTestResourcesWithLruGcParams:params];
+
+  _persistence.run("fill cache", [&]() {
+    // Simulate a bunch of ack'd mutations
+    for (int i = 0; i < 500; i++) {
+      FSTDocument *doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key];
+    }
+  });
+
+  FSTLruGcResults results = [_gc tryRunGcWithLiveTargets:@{}];
+  XCTAssertFalse(results.didRun);
+
+  [_persistence shutdown];
+}
+
+- (void)testCacheTooSmall {
+  if ([self isTestBaseClass]) return;
+
+  FSTLruGcParams params = FSTLruGcParams::Disabled();
+  [self newTestResourcesWithLruGcParams:params];
+
+  _persistence.run("fill cache", [&]() {
+    // Simulate a bunch of ack'd mutations
+    for (int i = 0; i < 50; i++) {
+      FSTDocument *doc = [self cacheADocumentInTransaction];
+      [self markDocumentEligibleForGCInTransaction:doc.key];
+    }
+  });
+
+  size_t cacheSize = [_gc byteSize];
+  // Verify that we don't have enough in our cache to warrant collection
+  XCTAssertLessThan(cacheSize, params.minBytesThreshold);
+
+  // Try collection and verify that it didn't run
+  FSTLruGcResults results = [_gc tryRunGcWithLiveTargets:@{}];
+  XCTAssertFalse(results.didRun);
+
+  [_persistence shutdown];
+}
+
+- (void)testGCRan {
+  if ([self isTestBaseClass]) return;
+
+  FSTLruGcParams params = FSTLruGcParams::Default();
+  // Set a low threshold so we will definitely run
+  params.minBytesThreshold = 100;
+  [self newTestResourcesWithLruGcParams:params];
+
+  // Add 100 targets and 10 documents to each
+  for (int i = 0; i < 100; i++) {
+    // Use separate transactions so that each target and associated documents get their own
+    // sequence number.
+    _persistence.run("Add a target and some documents", [&]() {
+      FSTQueryData *queryData = [self addNextQueryInTransaction];
+      for (int j = 0; j < 10; j++) {
+        FSTDocument *doc = [self cacheADocumentInTransaction];
+        [self addDocument:doc.key toTarget:queryData.targetID];
+      }
+    });
+  }
+
+  // Mark nothing as live, so everything is eligible.
+  FSTLruGcResults results = _persistence.run(
+      "GC", [&]() -> FSTLruGcResults { return [_gc tryRunGcWithLiveTargets:@{}]; });
+
+  // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
+  // that should be 10 targets with 10 documents each, for a total of 100 documents.
+  XCTAssertTrue(results.didRun);
+  XCTAssertEqual(10, results.targetsRemoved);
+  XCTAssertEqual(100, results.documentsRemoved);
   [_persistence shutdown];
 }
 

@@ -20,6 +20,7 @@
 
 @class FSTLevelDB;
 @class FSTMemoryPersistence;
+struct FSTLruGcParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,10 +49,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (FSTLevelDB *)levelDBPersistenceWithDir:(firebase::firestore::util::Path)dir;
 
+/**
+ * Creates and starts a new FSTLevelDB instance for testing, destroying any previous contents
+ * if they existed.
+ *
+ * Sets up the LRU garbage collection to use the provided params.
+ */
++ (FSTLevelDB *)levelDBPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams;
+
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence;
 
 + (FSTMemoryPersistence *)lruMemoryPersistence;
+
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams;
 @end
 
 NS_ASSUME_NONNULL_END

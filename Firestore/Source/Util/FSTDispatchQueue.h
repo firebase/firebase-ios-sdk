@@ -42,7 +42,11 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
    * A timer used in FSTOnlineStateTracker to transition from OnlineState Unknown to Offline
    * after a set timeout, rather than waiting indefinitely for success or failure.
    */
-  FSTTimerIDOnlineStateTimeout
+  FSTTimerIDOnlineStateTimeout,
+  /**
+   * A timer used to periodically attempt LRU Garbage collection
+   */
+  FSTLruGCTimer
 };
 
 /**

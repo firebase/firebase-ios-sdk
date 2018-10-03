@@ -18,6 +18,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** Used to set on-disk cache size to unlimited. Garbage collection will not run. */
+extern const long kFIRFirestorePersistenceCacheSizeUnlimited;
+
 /** Settings used to configure a `FIRFirestore` instance. */
 NS_SWIFT_NAME(FirestoreSettings)
 @interface FIRFirestoreSettings : NSObject <NSCopying>

@@ -61,8 +61,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
+  return [self levelDBPersistenceWithDir:dir lruGcParams:FSTLruGcParams::Default()];
+}
+
++ (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir lruGcParams:(FSTLruGcParams)params {
   FSTLocalSerializer *serializer = [self localSerializer];
-  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
+  FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
+                                              serializer:serializer
+                                             lruGcParams:params];
   Status status = [db start];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException
@@ -70,6 +76,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   return db;
+}
+
++ (FSTLevelDB *)levelDBPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
+  return [self levelDBPersistenceWithDir:[self levelDBDir] lruGcParams:lruGcParams];
 }
 
 + (FSTLevelDB *)levelDBPersistence {
@@ -88,9 +98,13 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
+  return [self lruMemoryPersistenceWithLruGcParams:FSTLruGcParams::Default()];
+}
+
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
   FSTLocalSerializer *serializer = [self localSerializer];
   FSTMemoryPersistence *persistence =
-      [FSTMemoryPersistence persistenceWithLRUGCAndSerializer:serializer];
+      [FSTMemoryPersistence persistenceWithLruGcParams:lruGcParams serializer:serializer];
   Status status = [persistence start];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException

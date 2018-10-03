@@ -83,10 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
   return persistence;
 }
 
-+ (instancetype)persistenceWithLRUGCAndSerializer:(FSTLocalSerializer *)serializer {
++ (instancetype)persistenceWithLruGcParams:(FSTLruGcParams)lruGcParams
+                                serializer:(FSTLocalSerializer *)serializer {
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
   persistence.referenceDelegate =
-      [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence serializer:serializer];
+      [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence
+                                                      serializer:serializer
+                                                     lruGcParams:lruGcParams];
   return persistence;
 }
 
@@ -163,11 +166,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence
-                         serializer:(FSTLocalSerializer *)serializer {
+                         serializer:(FSTLocalSerializer *)serializer
+                        lruGcParams:(FSTLruGcParams)lruGcParams {
   if (self = [super init]) {
     _persistence = persistence;
-    _gc =
-        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[_persistence queryCache] delegate:self];
+    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruGcParams];
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
     ListenSequenceNumber highestSequenceNumber =
@@ -233,6 +236,14 @@ NS_ASSUME_NONNULL_BEGIN
                               liveQueries:(NSDictionary<NSNumber *, FSTQueryData *> *)liveQueries {
   return [_persistence.queryCache removeQueriesThroughSequenceNumber:sequenceNumber
                                                          liveQueries:liveQueries];
+}
+
+- (int32_t)targetCount {
+  return [_persistence.queryCache count];
+}
+
+- (void)runPostCompaction {
+  // No-op for memory persistence.
 }
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {

@@ -31,6 +31,7 @@
 #import "Firestore/Source/Core/FSTSyncEngine.h"
 #import "Firestore/Source/Core/FSTTransaction.h"
 #import "Firestore/Source/Core/FSTView.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
 #import "Firestore/Source/Local/FSTLocalSerializer.h"
 #import "Firestore/Source/Local/FSTLocalStore.h"
@@ -62,6 +63,11 @@ using firebase::firestore::util::Status;
 using firebase::firestore::util::internal::Executor;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/** How long we wait to try running LRU GC after SDK initialization. */
+static const long FSTLruGcInitialDelay = 60 * 1000;
+/** Minimum amount of time between GC checks, after the first one. */
+static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
 
 @interface FSTFirestoreClient () {
   DatabaseInfo _databaseInfo;
@@ -96,6 +102,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTFirestoreClient {
   std::unique_ptr<Executor> _userExecutor;
+  long _initialGcDelay;
+  long _regularGcDelay;
+  BOOL _gcHasRun;
+  _Nullable id<FSTLRUDelegate> _lruDelegate;
+  FSTDelayedCallback *_Nullable _lruCallback;
 }
 
 - (Executor *)userExecutor {
@@ -126,6 +137,9 @@ NS_ASSUME_NONNULL_BEGIN
     _credentialsProvider = credentialsProvider;
     _userExecutor = std::move(userExecutor);
     _workerDispatchQueue = workerDispatchQueue;
+    _gcHasRun = NO;
+    _initialGcDelay = FSTLruGcInitialDelay;
+    _regularGcDelay = FSTLruGcRegularDelay;
 
     auto userPromise = std::make_shared<std::promise<User>>();
 
@@ -174,8 +188,13 @@ NS_ASSUME_NONNULL_BEGIN
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-
-    _persistence = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
+    // TODO(gsoltis): enable LRU GC once API is finalized
+    FSTLevelDB *ldb = [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
+                                                 serializer:serializer
+                                                lruGcParams:FSTLruGcParams::Disabled()];
+    _lruDelegate = ldb.referenceDelegate;
+    _persistence = ldb;
+    [self scheduleLruGarbageCollection];
   } else {
     _persistence = [FSTMemoryPersistence persistenceWithEagerGC];
   }
@@ -217,6 +236,24 @@ NS_ASSUME_NONNULL_BEGIN
   [_remoteStore start];
 }
 
+/**
+ * Schedules a callback to try running LRU garbage collection. Reschedules itself after the GC has
+ * run.
+ */
+- (void)scheduleLruGarbageCollection {
+  long delay = _gcHasRun ? _initialGcDelay : _regularGcDelay;
+  _lruCallback = [_workerDispatchQueue
+      dispatchAfterDelay:delay
+                 timerID:FSTLruGCTimer
+                   block:^{
+                     FSTLruGcResults results =
+                         [self->_localStore tryLruGarbageCollection:self->_lruDelegate.gc];
+                     self->_gcHasRun = YES;
+                     LOG_DEBUG(results.ToString().c_str());
+                     [self scheduleLruGarbageCollection];
+                   }];
+}
+
 - (void)credentialDidChangeWithUser:(const User &)user {
   [self.workerDispatchQueue verifyIsCurrentQueue];
 
@@ -251,6 +288,11 @@ NS_ASSUME_NONNULL_BEGIN
   [self.workerDispatchQueue dispatchAsync:^{
     self->_credentialsProvider->SetCredentialChangeListener(nullptr);
 
+    // If we've scheduled LRU garbage collection, cancel it.
+    FSTDelayedCallback *lruCallback = self->_lruCallback;
+    if (lruCallback != nil) {
+      [self->_lruCallback cancel];
+    }
     [self.remoteStore shutdown];
     [self.persistence shutdown];
     if (completion) {

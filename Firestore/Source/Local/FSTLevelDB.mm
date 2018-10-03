@@ -92,7 +92,7 @@ static const char *kReservedPathComponent = "firestore";
  * Although this could implement FSTTransactional, it doesn't because it is not directly tied to
  * a transaction runner, it just happens to be called from FSTLevelDB, which is FSTTransactional.
  */
-@interface FSTLevelDBLRUDelegate : NSObject <FSTReferenceDelegate, FSTLRUDelegate>
+@interface FSTLevelDBLRUDelegate ()
 
 - (void)transactionWillStart;
 
@@ -112,10 +112,10 @@ static const char *kReservedPathComponent = "firestore";
   FSTListenSequence *_listenSequence;
 }
 
-- (instancetype)initWithPersistence:(FSTLevelDB *)persistence {
+- (instancetype)initWithPersistence:(FSTLevelDB *)persistence
+                        lruGcParams:(FSTLruGcParams)lruGcParams {
   if (self = [super init]) {
-    _gc =
-        [[FSTLRUGarbageCollector alloc] initWithQueryCache:[persistence queryCache] delegate:self];
+    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruGcParams];
     _db = persistence;
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
   }
@@ -224,6 +224,15 @@ static const char *kReservedPathComponent = "firestore";
   return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
+- (int32_t)targetCount {
+  return [_db.queryCache count];
+}
+
+- (void)runPostCompaction {
+  // Compacts the entire db
+  _db.ptr->CompactRange(NULL, NULL);
+}
+
 - (FSTLRUGarbageCollector *)gc {
   return _gc;
 }
@@ -285,12 +294,15 @@ static const char *kReservedPathComponent = "firestore";
   return users;
 }
 
-- (instancetype)initWithDirectory:(Path)directory serializer:(FSTLocalSerializer *)serializer {
+- (instancetype)initWithDirectory:(Path)directory
+                       serializer:(FSTLocalSerializer *)serializer
+                      lruGcParams:(FSTLruGcParams)lruGcParams {
   if (self = [super init]) {
     _directory = std::move(directory);
     _serializer = serializer;
     _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
-    _referenceDelegate = [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self];
+    _referenceDelegate =
+        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruGcParams:lruGcParams];
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;

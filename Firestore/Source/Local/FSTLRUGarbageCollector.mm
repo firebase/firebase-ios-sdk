@@ -19,13 +19,26 @@
 #include <queue>
 
 #import "Firestore/Source/Local/FSTMutationQueue.h"
+#import "Firestore/Source/Local/FSTPersistence.h"
 #import "Firestore/Source/Local/FSTQueryCache.h"
+#include "Firestore/core/include/firebase/firestore/timestamp.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using firebase::Timestamp;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
+const long kFIRFirestorePersistenceCacheSizeUnlimited = -1;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
+
+static long toMilliseconds(const Timestamp &ts) {
+  return (1000 * ts.seconds()) + (ts.nanoseconds() / 1000000);
+}
+
+static long millisecondsBetween(const Timestamp &start, const Timestamp &end) {
+  return toMilliseconds(end) - toMilliseconds(start);
+}
 
 /**
  * RollingSequenceNumberBuffer tracks the nth sequence number in a series. Sequence numbers may be
@@ -66,28 +79,91 @@ class RollingSequenceNumberBuffer {
   const size_t max_elements_;
 };
 
-@interface FSTLRUGarbageCollector ()
-
-@property(nonatomic, strong, readonly) id<FSTQueryCache> queryCache;
-
-@end
+std::string FSTLruGcResults::ToString() const {
+  if (!didRun) {
+    return "Garbage Collection skipped";
+  } else {
+    std::string desc = "LRU Garbage Collection:\n";
+    absl::StrAppend(&desc, "\tCounted targets in ", targetCountDurationMs, "ms\n");
+    absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbersCollected,
+                    " sequence numbers in ", upperBoundDurationMs, "ms\n");
+    absl::StrAppend(&desc, "\tRemoved ", targetsRemoved, " targets in ", removedTargetsDurationMs,
+                    "ms\n");
+    absl::StrAppend(&desc, "\tRemoved ", documentsRemoved, " documents in ",
+                    removedDocumentsDurationMs, "ms\n");
+    absl::StrAppend(&desc, "\tCompacted leveldb database in ", dbCompactionDurationMs, "ms\n");
+    absl::StrAppend(&desc, "Total duration: ", total_duration(), "ms");
+    return desc;
+  }
+}
 
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
+  FSTLruGcParams _params;
+  long _startTime;
+  long _lastRunTime;
 }
 
-- (instancetype)initWithQueryCache:(id<FSTQueryCache>)queryCache
-                          delegate:(id<FSTLRUDelegate>)delegate {
+- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(FSTLruGcParams)params {
   self = [super init];
   if (self) {
-    _queryCache = queryCache;
     _delegate = delegate;
+    _params = std::move(params);
+    _lastRunTime = -1;
   }
   return self;
 }
 
+- (FSTLruGcResults)tryRunGcWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+  if (_params.minBytesThreshold == kFIRFirestorePersistenceCacheSizeUnlimited) {
+    return FSTLruGcResults::DidNotRun();
+  }
+
+  size_t currentSize = [self byteSize];
+  if (currentSize < _params.minBytesThreshold) {
+    // Not enough on disk to warrant collection. Wait another timeout cycle.
+    return FSTLruGcResults::DidNotRun();
+  } else {
+    return [self runGCWithLiveTargets:liveTargets];
+  }
+}
+
+- (FSTLruGcResults)runGCWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+  Timestamp start = Timestamp::Now();
+  int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
+  // Cap at the configured max
+  if (sequenceNumbers > _params.maximumSequenceNumbersToCollect) {
+    sequenceNumbers = _params.maximumSequenceNumbersToCollect;
+  }
+  Timestamp countedTargets = Timestamp::Now();
+
+  ListenSequenceNumber upperBound = [self sequenceNumberForQueryCount:sequenceNumbers];
+  Timestamp foundUpperBound = Timestamp::Now();
+
+  int numTargetsRemoved =
+      [self removeQueriesUpThroughSequenceNumber:upperBound liveQueries:liveTargets];
+  Timestamp removedTargets = Timestamp::Now();
+
+  int numDocumentsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
+  Timestamp removedDocuments = Timestamp::Now();
+
+  [_delegate runPostCompaction];
+  Timestamp compactedDb = Timestamp::Now();
+
+  return FSTLruGcResults{
+      .didRun = YES,
+      .targetCountDurationMs = millisecondsBetween(start, countedTargets),
+      .upperBoundDurationMs = millisecondsBetween(countedTargets, foundUpperBound),
+      .removedTargetsDurationMs = millisecondsBetween(foundUpperBound, removedTargets),
+      .removedDocumentsDurationMs = millisecondsBetween(removedTargets, removedDocuments),
+      .dbCompactionDurationMs = millisecondsBetween(removedDocuments, compactedDb),
+      .sequenceNumbersCollected = sequenceNumbers,
+      .targetsRemoved = numTargetsRemoved,
+      .documentsRemoved = numDocumentsRemoved};
+}
+
 - (int)queryCountForPercentile:(NSUInteger)percentile {
-  int totalCount = [self.queryCache count];
+  int totalCount = [_delegate targetCount];
   int setSize = (int)((percentile / 100.0f) * totalCount);
   return setSize;
 }
