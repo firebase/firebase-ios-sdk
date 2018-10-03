@@ -92,11 +92,11 @@ GrpcStream::GrpcStream(
       worker_queue_{worker_queue},
       grpc_connection_{grpc_connection},
       observer_{observer} {
-  HARD_ASSERT(context, "Received a null ClientContext");
-  HARD_ASSERT(call, "Received a null GenericClientAsyncReaderWriter");
-  HARD_ASSERT(worker_queue, "Received a null AsyncQueue");
-  HARD_ASSERT(grpc_connection, "Received a null GrpcConnection");
-  HARD_ASSERT(observer, "Received a null GrpcStreamObserver");
+  HARD_ASSERT(context_, "Received a null ClientContext");
+  HARD_ASSERT(call_, "Received a null GenericClientAsyncReaderWriter");
+  HARD_ASSERT(worker_queue_, "Received a null AsyncQueue");
+  HARD_ASSERT(grpc_connection_, "Received a null GrpcConnection");
+  HARD_ASSERT(observer_, "Received a null GrpcStreamObserver");
 
   grpc_connection_->Register(this);
 }
