@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
 
 #include <utility>
 
@@ -58,7 +59,12 @@ void GrpcUnaryCall::Start(CallbackT&& callback) {
         // Ignoring ok, status should contain all the relevant information.
         finish_completion_ = nullptr;
         auto callback = std::move(callback_);
-        callback(*completion->message());
+        if (completion->status()->ok()) {
+          callback(*completion->message());
+        }
+        else {
+          callback(ConvertStatus(*completion->status()));
+        }
         // This `GrpcUnaryCall`'s lifetime might have been ended by the
         // callback.
       });
