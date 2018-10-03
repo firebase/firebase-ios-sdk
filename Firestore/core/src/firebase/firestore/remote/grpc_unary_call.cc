@@ -52,6 +52,7 @@ void GrpcUnaryCall::Start(CallbackT&& callback) {
   callback_ = std::move(callback);
   call_->StartCall();
 
+  // For lifetime details, see `GrpcCompletion` class comment.
   finish_completion_ = new GrpcCompletion(
       Tag::Finish,
       worker_queue_,

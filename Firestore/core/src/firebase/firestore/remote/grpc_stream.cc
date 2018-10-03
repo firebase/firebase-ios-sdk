@@ -325,6 +325,7 @@ GrpcCompletion* GrpcStream::NewCompletion(Tag tag,
         }
       };
 
+  // For lifetime details, see `GrpcCompletion` class comment.
   auto* completion =
       new GrpcCompletion{tag, worker_queue_, std::move(decorated)};
   completions_.push_back(completion);
