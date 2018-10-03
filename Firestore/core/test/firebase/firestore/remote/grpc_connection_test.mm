@@ -45,9 +45,9 @@ using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 
 namespace {
 
-class MockConnectivityMonitor : public ConnectivityMonitor {
+class FakeConnectivityMonitor : public ConnectivityMonitor {
  public:
-  explicit MockConnectivityMonitor(AsyncQueue* worker_queue)
+  explicit FakeConnectivityMonitor(AsyncQueue* worker_queue)
       : ConnectivityMonitor{worker_queue} {
     SetInitialStatus(NetworkStatus::Available);
   }
@@ -58,8 +58,7 @@ class MockConnectivityMonitor : public ConnectivityMonitor {
 };
 
 bool IsConnectivityChange(const Status& status) {
-  return status.code() == FirestoreErrorCode::Unavailable &&
-         status.error_message() == "Network connectivity changed";
+  return status.code() == FirestoreErrorCode::Unavailable;
 }
 
 class ConnectivityObserver : public GrpcStreamObserver {
@@ -86,7 +85,7 @@ class GrpcConnectionTest : public testing::Test {
  public:
   GrpcConnectionTest() {
     auto connectivity_monitor_owning =
-        absl::make_unique<MockConnectivityMonitor>(&tester->worker_queue());
+        absl::make_unique<FakeConnectivityMonitor>(&tester->worker_queue());
     connectivity_monitor = connectivity_monitor_owning.get();
     tester = absl::make_unique<GrpcStreamTester>(
         std::move(connectivity_monitor_owning));
@@ -100,13 +99,13 @@ class GrpcConnectionTest : public testing::Test {
   }
 
   std::unique_ptr<GrpcStreamTester> tester;
-  MockConnectivityMonitor* connectivity_monitor = nullptr;
+  FakeConnectivityMonitor* connectivity_monitor = nullptr;
 };
 
 TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   ConnectivityObserver observer;
 
-  auto stream = tester->CreateStream(&observer);
+  std::unique_ptr<GrpcStream> stream = tester->CreateStream(&observer);
   stream->Start();
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
@@ -121,7 +120,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
 
 TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   int change_count = 0;
-  auto streaming_call = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> streaming_call = tester->CreateStreamingReader();
   streaming_call->Start(
       [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
         if (IsConnectivityChange(result.status())) {
@@ -141,25 +140,27 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
-  auto foo = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> foo = tester->CreateStreamingReader();
   foo->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     foo.reset();
     ++changes_count;
   });
 
-  auto bar = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> bar = tester->CreateStreamingReader();
   bar->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     bar.reset();
     ++changes_count;
   });
 
-  auto baz = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> baz = tester->CreateStreamingReader();
   baz->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     baz.reset();
     ++changes_count;
   });
 
   tester->KeepPollingGrpcQueue();
+  // Calls will be unregistering themselves with `GrpcConnection` as it notifies
+  // them, make sure nothing breaks.
   EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unavailable));
   EXPECT_EQ(changes_count, 3);
 }

@@ -35,13 +35,13 @@ using remote::GrpcStreamingReader;
 using remote::GrpcStreamObserver;
 using util::CompletionEndState;
 
-// MockGrpcQueue
+// FakeGrpcQueue
 
-MockGrpcQueue::MockGrpcQueue()
+FakeGrpcQueue::FakeGrpcQueue()
     : dedicated_executor_{absl::make_unique<ExecutorStd>()} {
 }
 
-void MockGrpcQueue::Shutdown() {
+void FakeGrpcQueue::Shutdown() {
   if (is_shut_down_) {
     return;
   }
@@ -52,7 +52,7 @@ void MockGrpcQueue::Shutdown() {
   dedicated_executor_->ExecuteBlocking([] {});
 }
 
-void MockGrpcQueue::ExtractCompletions(
+void FakeGrpcQueue::ExtractCompletions(
     std::initializer_list<CompletionEndState> end_states) {
   dedicated_executor_->ExecuteBlocking([&] {
     for (CompletionEndState end_state : end_states) {
@@ -68,7 +68,7 @@ void MockGrpcQueue::ExtractCompletions(
   });
 }
 
-void MockGrpcQueue::KeepPolling() {
+void FakeGrpcQueue::KeepPolling() {
   dedicated_executor_->Execute([&] {
     void* tag = nullptr;
     bool ignored_ok = false;
