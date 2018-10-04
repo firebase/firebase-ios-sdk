@@ -155,6 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
   // This delegate should have the same lifetime as the persistence layer, but mark as
   // weak to avoid retain cycle.
   __weak FSTMemoryPersistence *_persistence;
+  // Tracks sequence numbers of when documents are used. Equivalent to sentinel rows in
+  // the leveldb implementation.
   std::unordered_map<DocumentKey, ListenSequenceNumber, DocumentKeyHash> _sequenceNumbers;
   FSTReferenceSet *_additionalReferences;
   FSTLRUGarbageCollector *_gc;
@@ -221,9 +223,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)enumerateMutationsUsingBlock:
     (void (^)(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop))block {
   BOOL stop = NO;
-  for (auto it = _sequenceNumbers.begin(); !stop && it != _sequenceNumbers.end(); ++it) {
-    ListenSequenceNumber sequenceNumber = it->second;
-    const DocumentKey &key = it->first;
+  for (const auto &entry : _sequenceNumbers) {
+    ListenSequenceNumber sequenceNumber = entry.second;
+    const DocumentKey &key = entry.first;
     if (![_persistence.queryCache containsKey:key]) {
       block(key, sequenceNumber, &stop);
     }
@@ -241,8 +243,8 @@ NS_ASSUME_NONNULL_BEGIN
       [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
           removeOrphanedDocuments:self
             throughSequenceNumber:upperBound];
-  for (auto it = removed.begin(); it != removed.end(); it++) {
-    _sequenceNumbers.erase(*it);
+  for (const auto &key : removed) {
+    _sequenceNumbers.erase(key);
   }
   return removed.size();
 }
@@ -257,8 +259,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)mutationQueuesContainKey:(const DocumentKey &)key {
   const MutationQueues &queues = [_persistence mutationQueues];
-  for (auto it = queues.begin(); it != queues.end(); ++it) {
-    if ([it->second containsKey:key]) {
+  for (const auto &entry : queues) {
+    if ([entry.second containsKey:key]) {
       return YES;
     }
   }
@@ -295,8 +297,8 @@ NS_ASSUME_NONNULL_BEGIN
   count += [_persistence.queryCache byteSizeWithSerializer:_serializer];
   count += [_persistence.remoteDocumentCache byteSizeWithSerializer:_serializer];
   const MutationQueues &queues = [_persistence mutationQueues];
-  for (auto it = queues.begin(); it != queues.end(); ++it) {
-    count += [it->second byteSizeWithSerializer:_serializer];
+  for (const auto &entry : queues) {
+    count += [entry.second byteSizeWithSerializer:_serializer];
   }
   return count;
 }
@@ -375,8 +377,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)mutationQueuesContainKey:(const DocumentKey &)key {
   const MutationQueues &queues = [_persistence mutationQueues];
-  for (auto it = queues.begin(); it != queues.end(); ++it) {
-    if ([it->second containsKey:key]) {
+  for (const auto &entry : queues) {
+    if ([entry.second containsKey:key]) {
       return YES;
     }
   }
@@ -384,8 +386,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)commitTransaction {
-  for (auto it = _orphaned->begin(); it != _orphaned->end(); ++it) {
-    const DocumentKey key = *it;
+  for (const auto &key : *_orphaned) {
     if (![self isReferenced:key]) {
       [[_persistence remoteDocumentCache] removeEntryForKey:key];
     }
