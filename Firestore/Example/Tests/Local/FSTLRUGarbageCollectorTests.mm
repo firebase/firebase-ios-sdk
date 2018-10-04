@@ -58,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
   id<FSTQueryCache> _queryCache;
   id<FSTRemoteDocumentCache> _documentCache;
   id<FSTMutationQueue> _mutationQueue;
+  id<FSTLRUDelegate> _lruDelegate;
   FSTLRUGarbageCollector *_gc;
   ListenSequenceNumber _initialSequenceNumber;
   User _user;
@@ -84,15 +85,24 @@ NS_ASSUME_NONNULL_BEGIN
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
+  _lruDelegate = (id<FSTLRUDelegate>)_persistence.referenceDelegate;
   _initialSequenceNumber = _persistence.run("start querycache", [&]() -> ListenSequenceNumber {
     [_mutationQueue start];
-    _gc = ((id<FSTLRUDelegate>)_persistence.referenceDelegate).gc;
+    _gc = _lruDelegate.gc;
     return _persistence.currentSequenceNumber;
   });
 }
 
 - (id<FSTPersistence>)newPersistence {
   @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (BOOL)sentinelExists:(const DocumentKey &)key {
+  @throw FSTAbstractMethodException();  // NOLINT
+}
+
+- (void)expectSentinelRemoved:(const DocumentKey &)key {
+  XCTAssertFalse([self sentinelExists:key]);
 }
 
 #pragma mark - helpers
@@ -631,12 +641,14 @@ NS_ASSUME_NONNULL_BEGIN
                    key.ToString().c_str());
       XCTAssertFalse([_queryCache containsKey:key], @"Did not expect to find %s in queryCache",
                      key.ToString().c_str());
+      [self expectSentinelRemoved:key];
     }
     for (const DocumentKey &key : expectedRetained) {
       XCTAssertNotNil([_documentCache entryForKey:key], @"Expected to find %s in document cache",
                       key.ToString().c_str());
     }
   });
+
   [_persistence shutdown];
 }
 
