@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call_interface.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
@@ -116,7 +116,7 @@ class BufferedWriter {
  * `grpc::GenericClientAsyncReaderWriter`. See the source file for comments on
  * implementation details.
  */
-class GrpcStream : public GrpcCallInterface {
+class GrpcStream : public GrpcCall {
  public:
   using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
 
@@ -146,10 +146,10 @@ class GrpcStream : public GrpcCallInterface {
   // of tens of milliseconds.
   //
   // Can be called on a stream before it opens.
-  void Finish() override;
+  void FinishImmediately() override;
 
-  // Like `Finish`, but will notify the observer.
-  void FinishWithError(const util::Status& status) override;
+  // Like `FinishImmediately`, but will notify the observer.
+  void FinishAndNotify(const util::Status& status) override;
 
   /**
    * Writes the given message and finishes the stream as soon as this final
@@ -196,7 +196,7 @@ class GrpcStream : public GrpcCallInterface {
   void RemoveCompletion(const GrpcCompletion* to_remove);
 
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
-  GrpcCompletion* NewCompletion(GrpcCompletion::Tag tag,
+  GrpcCompletion* NewCompletion(GrpcCompletion::Type type,
                                 const OnSuccess& callback);
 
   // Blocks until all the completions issued by this stream come out from the

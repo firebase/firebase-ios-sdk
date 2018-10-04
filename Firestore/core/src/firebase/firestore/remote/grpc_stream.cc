@@ -28,7 +28,7 @@ namespace remote {
 
 using util::AsyncQueue;
 using util::Status;
-using Tag = GrpcCompletion::Tag;
+using Type = GrpcCompletion::Type;
 
 // When invoking an async gRPC method, `GrpcStream` will create a new
 // `GrpcCompletion` and use it as a tag to put on the gRPC completion queue.
@@ -87,17 +87,11 @@ GrpcStream::GrpcStream(
     AsyncQueue* worker_queue,
     GrpcConnection* grpc_connection,
     GrpcStreamObserver* observer)
-    : context_{std::move(context)},
-      call_{std::move(call)},
-      worker_queue_{worker_queue},
-      grpc_connection_{grpc_connection},
-      observer_{observer} {
-  HARD_ASSERT(context_, "Received a null ClientContext");
-  HARD_ASSERT(call_, "Received a null GenericClientAsyncReaderWriter");
-  HARD_ASSERT(worker_queue_, "Received a null AsyncQueue");
-  HARD_ASSERT(grpc_connection_, "Received a null GrpcConnection");
-  HARD_ASSERT(observer_, "Received a null GrpcStreamObserver");
-
+    : context_{std::move(NOT_NULL(context))},
+      call_{std::move(NOT_NULL(call))},
+      worker_queue_{NOT_NULL(worker_queue)},
+      grpc_connection_{NOT_NULL(grpc_connection)},
+      observer_{NOT_NULL(observer)} {
   grpc_connection_->Register(this);
 }
 
@@ -131,7 +125,7 @@ void GrpcStream::Read() {
   }
 
   GrpcCompletion* completion =
-      NewCompletion(Tag::Read, [this](const GrpcCompletion* completion) {
+      NewCompletion(Type::Read, [this](const GrpcCompletion* completion) {
         OnRead(*completion->message());
       });
   call_->Read(completion->message(), completion);
@@ -154,18 +148,18 @@ void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
 
   BufferedWrite write = std::move(maybe_write).value();
   GrpcCompletion* completion =
-      NewCompletion(Tag::Write, [this](const GrpcCompletion*) { OnWrite(); });
+      NewCompletion(Type::Write, [this](const GrpcCompletion*) { OnWrite(); });
   *completion->message() = write.message;
 
   call_->Write(*completion->message(), write.options, completion);
 }
 
-void GrpcStream::Finish() {
+void GrpcStream::FinishImmediately() {
   Shutdown();
   UnsetObserver();
 }
 
-void GrpcStream::FinishWithError(const Status& status) {
+void GrpcStream::FinishAndNotify(const Status& status) {
   Shutdown();
 
   if (observer_) {
@@ -199,7 +193,7 @@ void GrpcStream::Shutdown() {
 
   // The observer is not interested in this event -- since it initiated the
   // finish operation, the observer must know the reason.
-  GrpcCompletion* completion = NewCompletion(Tag::Finish, {});
+  GrpcCompletion* completion = NewCompletion(Type::Finish, {});
   // TODO(varconst): is issuing a finish operation necessary in this case? We
   // don't care about the status, but perhaps it will make the server notice
   // client disconnecting sooner?
@@ -233,7 +227,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Only bother with the last write if there is no active write at the moment.
   if (maybe_write) {
     BufferedWrite last_write = std::move(maybe_write).value();
-    auto* completion = new GrpcCompletion(Tag::Write, worker_queue_, {});
+    auto* completion = new GrpcCompletion(Type::Write, worker_queue_, {});
     *completion->message() = last_write.message;
     call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 
@@ -249,7 +243,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
     }
   }
 
-  Finish();
+  FinishImmediately();
   return did_last_write;
 }
 
@@ -288,7 +282,7 @@ void GrpcStream::OnOperationFailed() {
 
   if (observer_) {
     GrpcCompletion* completion =
-        NewCompletion(Tag::Finish, [this](const GrpcCompletion* completion) {
+        NewCompletion(Type::Finish, [this](const GrpcCompletion* completion) {
           OnFinishedByServer(*completion->status());
         });
     call_->Finish(completion->status(), completion);
@@ -300,7 +294,7 @@ void GrpcStream::OnOperationFailed() {
 }
 
 void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
-  FinishWithError(ConvertStatus(status));
+  FinishAndNotify(ConvertStatus(status));
 }
 
 void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
@@ -309,7 +303,7 @@ void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
   completions_.erase(found);
 }
 
-GrpcCompletion* GrpcStream::NewCompletion(Tag tag,
+GrpcCompletion* GrpcStream::NewCompletion(Type tag,
                                           const OnSuccess& on_success) {
   // Can't move into lambda until C++14.
   GrpcCompletion::Callback decorated =

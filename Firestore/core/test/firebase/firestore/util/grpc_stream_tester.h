@@ -76,9 +76,8 @@ class FakeGrpcQueue {
  */
 class GrpcStreamTester {
  public:
-  GrpcStreamTester();
-  explicit GrpcStreamTester(
-      std::unique_ptr<remote::ConnectivityMonitor> connectivity_monitor);
+  GrpcStreamTester(AsyncQueue* worker_queue,
+      remote::ConnectivityMonitor* connectivity_monitor);
   ~GrpcStreamTester();
 
   /** Finishes the stream and shuts down the gRPC completion queue. */
@@ -103,12 +102,8 @@ class GrpcStreamTester {
   void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
 
-  AsyncQueue& worker_queue() {
-    return worker_queue_;
-  }
-
  private:
-  AsyncQueue worker_queue_;
+  AsyncQueue* worker_queue_ = nullptr;
   core::DatabaseInfo database_info_;
 
   FakeGrpcQueue mock_grpc_queue_;

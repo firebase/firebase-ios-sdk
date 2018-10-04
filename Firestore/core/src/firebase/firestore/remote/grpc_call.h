@@ -23,19 +23,25 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcCallInterface {
+/**
+ * Contains operations common to all wrappers over gRPC calls. A wrapper is
+ * presumed to:
+ * - wrap an asynchronous gRPC call/stream;
+ * - provide some notification mechanism (such as observers or callbacks).
+ */
+class GrpcCall {
  public:
-  virtual ~GrpcCallInterface() {
+  virtual ~GrpcCall() {
   }
 
   /**
    * Finishes the call gracefully. Doesn't produce a notification to any
    * callbacks or observers.
    */
-  virtual void Finish() = 0;
+  virtual void FinishImmediately() = 0;
 
   /** Finishes the call with an error, notifying any callbacks and observers. */
-  virtual void FinishWithError(const util::Status& status) = 0;
+  virtual void FinishAndNotify(const util::Status& status) = 0;
 };
 
 }  // namespace remote

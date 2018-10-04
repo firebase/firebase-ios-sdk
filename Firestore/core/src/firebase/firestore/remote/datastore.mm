@@ -67,8 +67,8 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 }
 
 void LogGrpcCallFinished(absl::string_view rpc_name,
-                         GrpcStreamingReader *call,
-                         const Status &status) {
+                         GrpcStreamingReader* call,
+                         const Status& status) {
   LOG_DEBUG("RPC %s completed. Error: %s: %s", rpc_name, status.code(),
             status.error_message());
   if (bridge::IsLoggingEnabled()) {
@@ -80,16 +80,17 @@ void LogGrpcCallFinished(absl::string_view rpc_name,
 
 }  // namespace
 
-Datastore::Datastore(const DatabaseInfo &database_info,
-                     AsyncQueue *worker_queue,
-                     CredentialsProvider *credentials,
-                     FSTSerializerBeta *serializer)
-    : worker_queue_{worker_queue},
+Datastore::Datastore(const DatabaseInfo& database_info,
+                     AsyncQueue* worker_queue,
+                     CredentialsProvider* credentials,
+                     FSTSerializerBeta* serializer)
+    : worker_queue_{NOT_NULL(worker_queue)},
       credentials_{credentials},
       rpc_executor_{CreateExecutor()},
+      connectivity_monitor_{ConnectivityMonitor::Create(worker_queue)},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
-                       ConnectivityMonitor::Create(worker_queue)},
-      serializer_bridge_{serializer} {
+                       connectivity_monitor_.get()},
+      serializer_bridge_{NOT_NULL(serializer)} {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
@@ -113,10 +114,10 @@ void Datastore::PollGrpcQueue() {
               "PollGrpcQueue should only be called on the "
               "dedicated Datastore executor");
 
-  void *tag = nullptr;
+  void* tag = nullptr;
   bool ok = false;
   while (grpc_queue_.Next(&tag, &ok)) {
-    auto completion = static_cast<GrpcCompletion *>(tag);
+    auto completion = static_cast<GrpcCompletion*>(tag);
     // While it's valid in principle, we never deliberately pass a null pointer
     // to gRPC completion queue and expect it back. This assertion might be
     // relaxed if necessary.
@@ -140,13 +141,13 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
 }
 
 void Datastore::LookupDocuments(
-    const std::vector<DocumentKey> &keys,
+    const std::vector<DocumentKey>& keys,
     FSTVoidMaybeDocumentArrayErrorBlock completion) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateLookupRequest(keys));
 
   ResumeRpcWithCredentials(
-      [this, message, completion](const StatusOr<Token> &maybe_credentials) {
+      [this, message, completion](const StatusOr<Token>& maybe_credentials) {
         if (!maybe_credentials.ok()) {
           completion(nil, util::MakeNSError(maybe_credentials.status()));
           return;
@@ -157,23 +158,23 @@ void Datastore::LookupDocuments(
 }
 
 void Datastore::LookupDocumentsWithCredentials(
-    const Token &token,
-    const grpc::ByteBuffer &message,
+    const Token& token,
+    const grpc::ByteBuffer& message,
     FSTVoidMaybeDocumentArrayErrorBlock completion) {
   lookup_calls_.push_back(grpc_connection_.CreateStreamingReader(
       kRpcNameLookup, token, std::move(message)));
-  GrpcStreamingReader *call = lookup_calls_.back().get();
+  GrpcStreamingReader* call = lookup_calls_.back().get();
 
   call->Start([this, call, completion](
-                  const StatusOr<std::vector<grpc::ByteBuffer>> &result) {
+                  const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
     OnLookupDocumentsResponse(call, result, completion);
     RemoveGrpcCall(call);
   });
 }
 
 void Datastore::OnLookupDocumentsResponse(
-    GrpcStreamingReader *call,
-    const StatusOr<std::vector<grpc::ByteBuffer>> &result,
+    GrpcStreamingReader* call,
+    const StatusOr<std::vector<grpc::ByteBuffer>>& result,
     FSTVoidMaybeDocumentArrayErrorBlock completion) {
   LogGrpcCallFinished("BatchGetDocuments", call, result.status());
   HandleCallStatus(result.status());
@@ -185,7 +186,7 @@ void Datastore::OnLookupDocumentsResponse(
 
   Status parse_status;
   std::vector<grpc::ByteBuffer> responses = std::move(result).ValueOrDie();
-  NSArray<FSTMaybeDocument *> *docs =
+  NSArray<FSTMaybeDocument*>* docs =
       serializer_bridge_.MergeLookupResponses(responses, &parse_status);
   if (parse_status.ok()) {
     completion(docs, nil);
@@ -194,12 +195,12 @@ void Datastore::OnLookupDocumentsResponse(
   }
 }
 
-void Datastore::ResumeRpcWithCredentials(const OnCredentials &on_credentials) {
+void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   // Auth may outlive Firestore
   std::weak_ptr<Datastore> weak_this{shared_from_this()};
 
   credentials_->GetToken(
-      [weak_this, on_credentials](const StatusOr<Token> &result) {
+      [weak_this, on_credentials](const StatusOr<Token>& result) {
         auto strong_this = weak_this.lock();
         if (!strong_this) {
           return;
@@ -217,16 +218,16 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials &on_credentials) {
       });
 }
 
-void Datastore::HandleCallStatus(const Status &status) {
+void Datastore::HandleCallStatus(const Status& status) {
   if (status.code() == FirestoreErrorCode::Unauthenticated) {
     credentials_->InvalidateToken();
   }
 }
 
-void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
+void Datastore::RemoveGrpcCall(GrpcStreamingReader* to_remove) {
   auto found = std::find_if(
       lookup_calls_.begin(), lookup_calls_.end(),
-      [to_remove](const std::unique_ptr<GrpcStreamingReader> &call) {
+      [to_remove](const std::unique_ptr<GrpcStreamingReader>& call) {
         return call.get() == to_remove;
       });
   HARD_ASSERT(found != lookup_calls_.end(), "Missing gRPC call");
@@ -234,13 +235,13 @@ void Datastore::RemoveGrpcCall(GrpcStreamingReader *to_remove) {
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcStream::MetadataT &headers) {
+    const GrpcStream::MetadataT& headers) {
   static std::unordered_set<std::string> whitelist = {
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};
 
   std::string result;
-  for (const auto &kv : headers) {
+  for (const auto& kv : headers) {
     if (whitelist.find(MakeString(kv.first)) != whitelist.end()) {
       absl::StrAppend(&result, MakeStringView(kv.first), ": ",
                       MakeStringView(kv.second), "\n");
