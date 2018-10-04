@@ -18,6 +18,9 @@
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,6 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<FSTPersistence>)newPersistence {
   return [FSTPersistenceTestHelpers lruMemoryPersistence];
+}
+
+- (BOOL)sentinelExists:(const DocumentKey &)key {
+  FSTMemoryLRUReferenceDelegate *delegate =
+      (FSTMemoryLRUReferenceDelegate *)self.persistence.referenceDelegate;
+  return [delegate isPinnedAtSequenceNumber:0 document:key];
 }
 
 @end

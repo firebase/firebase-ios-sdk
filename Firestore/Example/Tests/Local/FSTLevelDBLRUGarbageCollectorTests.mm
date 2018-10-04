@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
+#include <string>
+
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
+
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
+#include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+
+using firebase::firestore::local::LevelDbDocumentTargetKey;
+using firebase::firestore::model::DocumentKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +35,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<FSTPersistence>)newPersistence {
   return [FSTPersistenceTestHelpers levelDBPersistence];
+}
+
+- (BOOL)sentinelExists:(const DocumentKey &)key {
+  FSTLevelDB *db = (FSTLevelDB *)self.persistence;
+  std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string unusedValue;
+  return !db.currentTransaction->Get(sentinelKey, &unusedValue).IsNotFound();
 }
 
 @end
