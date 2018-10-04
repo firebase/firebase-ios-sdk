@@ -48,12 +48,12 @@ void GrpcStreamingReader::Start(Callback&& callback) {
   stream_->Start();
 }
 
-void GrpcStreamingReader::Finish() {
-  stream_->Finish();
+void GrpcStreamingReader::FinishImmediately() {
+  stream_->FinishImmediately();
 }
 
-void GrpcStreamingReader::FinishWithError(const Status& status) {
-  stream_->FinishWithError(status);
+void GrpcStreamingReader::FinishAndNotify(const Status& status) {
+  stream_->FinishAndNotify(status);
 }
 
 void GrpcStreamingReader::OnStreamStart() {

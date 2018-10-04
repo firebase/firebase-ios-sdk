@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -35,10 +36,16 @@ using util::Status;
 using util::StatusOr;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::internal::ExecutorStd;
 
 class GrpcStreamingReaderTest : public testing::Test {
  public:
-  GrpcStreamingReaderTest() : reader_{tester_.CreateStreamingReader()} {
+  GrpcStreamingReaderTest()
+      : worker_queue{absl::make_unique<ExecutorStd>()},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        tester_{&worker_queue, connectivity_monitor_.get()},
+        reader_{tester_.CreateStreamingReader()} {
     reader_->Start(
         [this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
           status_ = result.status();
@@ -56,10 +63,6 @@ class GrpcStreamingReaderTest : public testing::Test {
     return *reader_;
   }
 
-  AsyncQueue& worker_queue() {
-    return tester_.worker_queue();
-  }
-
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
     tester_.ForceFinish(reader_->context(), results);
   }
@@ -74,8 +77,12 @@ class GrpcStreamingReaderTest : public testing::Test {
     return responses_;
   }
 
+  AsyncQueue worker_queue;
+
  private:
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcStreamTester tester_;
+
   std::unique_ptr<GrpcStreamingReader> reader_;
   absl::optional<Status> status_;
   std::vector<grpc::ByteBuffer> responses_;
@@ -112,16 +119,16 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
 
 TEST_F(GrpcStreamingReaderTest, CanFinish) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] { reader().Finish(); });
+  worker_queue.EnqueueBlocking([&] { reader().FinishImmediately(); });
   EXPECT_FALSE(status().has_value());
   EXPECT_TRUE(responses().empty());
 }
 
 TEST_F(GrpcStreamingReaderTest, CanFinishTwice) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] {
-    reader().Finish();
-    EXPECT_NO_THROW(reader().Finish());
+  worker_queue.EnqueueBlocking([&] {
+    reader().FinishImmediately();
+    EXPECT_NO_THROW(reader().FinishImmediately());
   });
 }
 

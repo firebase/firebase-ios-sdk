@@ -27,7 +27,7 @@ namespace remote {
 
 using util::AsyncQueue;
 using util::Status;
-using Tag = GrpcCompletion::Tag;
+using Type = GrpcCompletion::Type;
 
 GrpcUnaryCall::GrpcUnaryCall(
     std::unique_ptr<grpc::ClientContext> context,
@@ -54,7 +54,7 @@ void GrpcUnaryCall::Start(Callback&& callback) {
 
   // For lifetime details, see `GrpcCompletion` class comment.
   finish_completion_ = new GrpcCompletion(
-      Tag::Finish, worker_queue_,
+      Type::Finish, worker_queue_,
       [this](bool /*ignored_ok*/, const GrpcCompletion* completion) {
         // Ignoring ok, status should contain all the relevant information.
         finish_completion_ = nullptr;
@@ -72,11 +72,11 @@ void GrpcUnaryCall::Start(Callback&& callback) {
                 finish_completion_);
 }
 
-void GrpcUnaryCall::Finish() {
+void GrpcUnaryCall::FinishImmediately() {
   Shutdown();
 }
 
-void GrpcUnaryCall::FinishWithError(const util::Status& status) {
+void GrpcUnaryCall::FinishAndNotify(const util::Status& status) {
   Shutdown();
 
   auto callback = std::move(callback_);
@@ -102,7 +102,7 @@ void GrpcUnaryCall::Shutdown() {
   finish_completion_ = nullptr;
 }
 
-GrpcCallInterface::Metadata GrpcUnaryCall::GetResponseHeaders() const {
+GrpcCall::Metadata GrpcUnaryCall::GetResponseHeaders() const {
   return context_->GetServerInitialMetadata();
 }
 

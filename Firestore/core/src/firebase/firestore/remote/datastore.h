@@ -31,7 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call_interface.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/remote_objc_bridge.h"
 #include "Firestore/core/src/firebase/firestore/remote/watch_stream.h"
@@ -94,7 +94,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
 
   static std::string GetWhitelistedHeadersAsString(
-      const GrpcCallInterface::Metadata& headers);
+      const GrpcCall::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
@@ -123,10 +123,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void HandleCallStatus(const util::Status& status);
 
-  void RemoveGrpcCall(GrpcCallInterface* to_remove);
+  void RemoveGrpcCall(GrpcCall* to_remove);
 
-  static GrpcCallInterface::Metadata ExtractWhitelistedHeaders(
-      const GrpcCallInterface::Metadata& headers);
+  static GrpcCall::Metadata ExtractWhitelistedHeaders(
+      const GrpcCall::Metadata& headers);
 
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
@@ -135,9 +135,11 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // shared for all spawned gRPC streams and calls).
   std::unique_ptr<util::internal::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
+  // TODO(varconst): move `ConnectivityMonitor` to `FSTFirestoreClient`.
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcConnection grpc_connection_;
 
-  std::vector<std::unique_ptr<GrpcCallInterface>> active_calls_;
+  std::vector<std::unique_ptr<GrpcCall>> active_calls_;
   bridge::DatastoreSerializer serializer_bridge_;
 };
 

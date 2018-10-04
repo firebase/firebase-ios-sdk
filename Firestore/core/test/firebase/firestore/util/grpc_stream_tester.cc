@@ -80,16 +80,12 @@ void FakeGrpcQueue::KeepPolling() {
 
 // GrpcStreamTester
 
-GrpcStreamTester::GrpcStreamTester()
-    : GrpcStreamTester{absl::make_unique<ConnectivityMonitor>(nullptr)} {
-}
-
-GrpcStreamTester::GrpcStreamTester(
-    std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
-    : worker_queue_{absl::make_unique<ExecutorStd>()},
+GrpcStreamTester::GrpcStreamTester(AsyncQueue* worker_queue,
+                                   ConnectivityMonitor* connectivity_monitor)
+    : worker_queue_{NOT_NULL(worker_queue)},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-      grpc_connection_{database_info_, &worker_queue_, mock_grpc_queue_.queue(),
-                       std::move(connectivity_monitor)} {
+      grpc_connection_{database_info_, worker_queue, mock_grpc_queue_.queue(),
+                       connectivity_monitor} {
 }
 
 GrpcStreamTester::~GrpcStreamTester() {
@@ -98,7 +94,7 @@ GrpcStreamTester::~GrpcStreamTester() {
 }
 
 void GrpcStreamTester::Shutdown() {
-  worker_queue_.EnqueueBlocking([&] { ShutdownGrpcQueue(); });
+  worker_queue_->EnqueueBlocking([&] { ShutdownGrpcQueue(); });
 }
 
 std::unique_ptr<GrpcStream> GrpcStreamTester::CreateStream(
@@ -130,7 +126,7 @@ void GrpcStreamTester::ForceFinish(
   // gRPC allows calling `TryCancel` more than once.
   context->TryCancel();
   mock_grpc_queue_.ExtractCompletions(end_states);
-  worker_queue_.EnqueueBlocking([] {});
+  worker_queue_->EnqueueBlocking([] {});
 }
 
 void GrpcStreamTester::KeepPollingGrpcQueue() {

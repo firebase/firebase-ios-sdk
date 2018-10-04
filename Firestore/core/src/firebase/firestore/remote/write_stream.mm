@@ -92,7 +92,7 @@ void WriteStream::TearDown(GrpcStream* grpc_stream) {
     GCFSWriteRequest* request = serializer_bridge_.CreateEmptyMutationsList();
     grpc_stream->WriteAndFinish(serializer_bridge_.ToByteBuffer(request));
   } else {
-    grpc_stream->Finish();
+    grpc_stream->FinishImmediately();
   }
 }
 

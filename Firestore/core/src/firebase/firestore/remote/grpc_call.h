@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_INTERFACE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_INTERFACE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H_
 
 #include <map>
 
@@ -27,11 +27,17 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class GrpcCallInterface {
+/**
+ * Contains operations common to all wrappers over gRPC calls. A wrapper is
+ * presumed to:
+ * - wrap an asynchronous gRPC call/stream;
+ * - provide some notification mechanism (such as observers or callbacks).
+ */
+class GrpcCall {
  public:
   using Metadata = std::multimap<grpc::string_ref, grpc::string_ref>;
 
-  virtual ~GrpcCallInterface() {
+  virtual ~GrpcCall() {
   }
 
   /**
@@ -46,14 +52,14 @@ class GrpcCallInterface {
    * Finishes the call gracefully. Doesn't produce a notification to any
    * callbacks or observers.
    */
-  virtual void Finish() = 0;
+  virtual void FinishImmediately() = 0;
 
   /** Finishes the call with an error, notifying any callbacks and observers. */
-  virtual void FinishWithError(const util::Status& status) = 0;
+  virtual void FinishAndNotify(const util::Status& status) = 0;
 };
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_INTERFACE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CALL_H_

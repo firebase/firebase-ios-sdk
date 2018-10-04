@@ -52,22 +52,21 @@ std::string MakeString(absl::string_view view) {
 
 }  // namespace
 
-GrpcConnection::GrpcConnection(
-    const DatabaseInfo& database_info,
-    util::AsyncQueue* worker_queue,
-    grpc::CompletionQueue* grpc_queue,
-    std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
+GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
+                               util::AsyncQueue* worker_queue,
+                               grpc::CompletionQueue* grpc_queue,
+                               ConnectivityMonitor* connectivity_monitor)
     : database_info_{&database_info},
-      worker_queue_{worker_queue},
-      grpc_queue_{grpc_queue},
-      connectivity_monitor_{std::move(connectivity_monitor)} {
+      worker_queue_{NOT_NULL(worker_queue)},
+      grpc_queue_{NOT_NULL(grpc_queue)},
+      connectivity_monitor_{NOT_NULL(connectivity_monitor)} {
   RegisterConnectivityMonitor();
 }
 
 void GrpcConnection::Shutdown() {
   // Fast finish any pending calls. This will not trigger the observers.
-  for (GrpcCallInterface* call : active_calls_) {
-    call->Finish();
+  for (GrpcCall* call : active_calls_) {
+    call->FinishImmediately();
   }
 }
 
@@ -164,19 +163,19 @@ void GrpcConnection::RegisterConnectivityMonitor() {
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
         // Calls may unregister themselves on cancel, so make a protective copy.
         auto calls = active_calls_;
-        for (GrpcCallInterface* call : calls) {
+        for (GrpcCall* call : calls) {
           // This will trigger the observers.
-          call->FinishWithError(Status{FirestoreErrorCode::Unavailable,
+          call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable,
                                        "Network connectivity changed"});
         }
       });
 }
 
-void GrpcConnection::Register(GrpcCallInterface* call) {
+void GrpcConnection::Register(GrpcCall* call) {
   active_calls_.push_back(call);
 }
 
-void GrpcConnection::Unregister(GrpcCallInterface* call) {
+void GrpcConnection::Unregister(GrpcCall* call) {
   auto found = std::find(active_calls_.begin(), active_calls_.end(), call);
   HARD_ASSERT(found != active_calls_.end(), "Missing a gRPC call");
   active_calls_.erase(found);

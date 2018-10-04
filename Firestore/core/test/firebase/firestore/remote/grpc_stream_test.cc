@@ -21,7 +21,9 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -36,6 +38,7 @@ using util::CompletionEndState;
 using util::GrpcStreamTester;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::internal::ExecutorStd;
 
 namespace {
 
@@ -59,23 +62,24 @@ class Observer : public GrpcStreamObserver {
 class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest()
-      : observer_{absl::make_unique<Observer>()},
+      : worker_queue{absl::make_unique<ExecutorStd>()},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        tester_{&worker_queue, connectivity_monitor_.get()},
+        observer_{absl::make_unique<Observer>()},
         stream_{tester_.CreateStream(observer_.get())} {
   }
 
   ~GrpcStreamTest() {
     if (!stream_->IsFinished()) {
       KeepPollingGrpcQueue();
-      worker_queue().EnqueueBlocking([&] { stream_->Finish(); });
+      worker_queue.EnqueueBlocking([&] { stream_->FinishImmediately(); });
     }
     tester_.Shutdown();
   }
 
   GrpcStream& stream() {
     return *stream_;
-  }
-  AsyncQueue& worker_queue() {
-    return tester_.worker_queue();
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
@@ -104,30 +108,36 @@ class GrpcStreamTest : public testing::Test {
   }
 
   void StartStream() {
-    worker_queue().EnqueueBlocking([&] { stream().Start(); });
+    worker_queue.EnqueueBlocking([&] { stream().Start(); });
   }
 
+  AsyncQueue worker_queue;
+
  private:
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcStreamTester tester_;
+
   std::unique_ptr<Observer> observer_;
   std::unique_ptr<GrpcStream> stream_;
 };
 
 TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
-  worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
   StartStream();
   KeepPollingGrpcQueue();
 
-  worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Finish()); });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishTwice) {
-  worker_queue().EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream().Finish());
-    EXPECT_NO_THROW(stream().Finish());
+  worker_queue.EnqueueBlocking([&] {
+    EXPECT_NO_THROW(stream().FinishImmediately());
+    EXPECT_NO_THROW(stream().FinishImmediately());
   });
 }
 
@@ -135,7 +145,7 @@ TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
   StartStream();
   KeepPollingGrpcQueue();
 
-  worker_queue().EnqueueBlocking(
+  worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream().WriteAndFinish({})); });
 }
 
@@ -146,7 +156,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
 
 TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
   StartStream();
-  worker_queue().EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Write({})); });
+  worker_queue.EnqueueBlocking([&] { EXPECT_NO_THROW(stream().Write({})); });
 }
 
 TEST_F(GrpcStreamTest, ObserverReceivesOnRead) {
@@ -168,7 +178,7 @@ TEST_F(GrpcStreamTest, ReadIsAutomaticallyReadded) {
 TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
   StartStream();
 
-  worker_queue().EnqueueBlocking([&] {
+  worker_queue.EnqueueBlocking([&] {
     stream().Write({});
     stream().Write({});
     stream().Write({});
@@ -192,7 +202,7 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   ShutdownGrpcQueue();
   // Finally, ensure `GrpcCompletion` for "Finish" operation has a chance to run
   // on the worker queue.
-  worker_queue().EnqueueBlocking([] {});
+  worker_queue.EnqueueBlocking([] {});
 
   EXPECT_EQ(observed_states(), States({"OnStreamStart", "OnStreamFinish"}));
 }
@@ -201,7 +211,7 @@ TEST_F(GrpcStreamTest, ObserverDoesNotReceiveOnFinishIfCalledByClient) {
   StartStream();
   KeepPollingGrpcQueue();
 
-  worker_queue().EnqueueBlocking([&] { stream().Finish(); });
+  worker_queue.EnqueueBlocking([&] { stream().FinishImmediately(); });
   EXPECT_FALSE(ObserverHas("OnStreamFinish"));
 }
 
@@ -209,7 +219,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
   StartStream();
   KeepPollingGrpcQueue();
 
-  worker_queue().EnqueueBlocking([&] {
+  worker_queue.EnqueueBlocking([&] {
     bool did_last_write = stream().WriteAndFinish({});
     // Canceling gRPC context is not used in this test, so the write operation
     // won't come back from the completion queue.
@@ -222,7 +232,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
 
 TEST_F(GrpcStreamTest, ErrorOnWrite) {
   StartStream();
-  worker_queue().EnqueueBlocking([&] { stream().Write({}); });
+  worker_queue.EnqueueBlocking([&] { stream().Write({}); });
 
   ForceFinish({/*Write*/ Error, /*Read*/ Error});
   // Give `GrpcStream` a chance to enqueue a finish operation
@@ -233,7 +243,7 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
 
 TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   StartStream();
-  worker_queue().EnqueueBlocking([&] {
+  worker_queue.EnqueueBlocking([&] {
     stream().Write({});
     stream().Write({});
   });

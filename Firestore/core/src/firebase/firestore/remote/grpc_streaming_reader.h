@@ -40,8 +40,7 @@ class GrpcConnection;
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader : public GrpcCallInterface,
-                            public GrpcStreamObserver {
+class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
   using ResponsesT = std::vector<grpc::ByteBuffer>;
   using Callback = std::function<void(const util::StatusOr<ResponsesT>&)>;
@@ -70,9 +69,9 @@ class GrpcStreamingReader : public GrpcCallInterface,
    * If this function succeeds in cancelling the call, the callback will not be
    * invoked.
    */
-  void Finish() override;
+  void FinishImmediately() override;
 
-  void FinishWithError(const util::Status& status) override;
+  void FinishAndNotify(const util::Status& status) override;
 
   /**
    * Returns the metadata received from the server.

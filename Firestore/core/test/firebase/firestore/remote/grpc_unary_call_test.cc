@@ -17,8 +17,10 @@
 #include <initializer_list>
 #include <memory>
 
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
+#include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
@@ -37,10 +39,16 @@ using util::Status;
 using util::StatusOr;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::internal::ExecutorStd;
 
 class GrpcUnaryCallTest : public testing::Test {
  public:
-  GrpcUnaryCallTest() : call_{tester_.CreateUnaryCall()} {
+  GrpcUnaryCallTest()
+      : worker_queue{absl::make_unique<ExecutorStd>()},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        tester_{&worker_queue, connectivity_monitor_.get()},
+        call_{tester_.CreateUnaryCall()} {
     call_->Start([this](const StatusOr<grpc::ByteBuffer>& result) {
       status_ = result.status();
     });
@@ -52,9 +60,6 @@ class GrpcUnaryCallTest : public testing::Test {
 
   GrpcUnaryCall& call() {
     return *call_;
-  }
-  AsyncQueue& worker_queue() {
-    return tester_.worker_queue();
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
@@ -68,23 +73,27 @@ class GrpcUnaryCallTest : public testing::Test {
     return status_;
   }
 
+  AsyncQueue worker_queue;
+
  private:
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcStreamTester tester_;
+
   std::unique_ptr<GrpcUnaryCall> call_;
   absl::optional<Status> status_;
 };
 
 TEST_F(GrpcUnaryCallTest, CanFinish) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] { call().Finish(); });
+  worker_queue.EnqueueBlocking([&] { call().FinishImmediately(); });
   EXPECT_FALSE(status().has_value());
 }
 
 TEST_F(GrpcUnaryCallTest, CanFinishTwice) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] {
-    call().Finish();
-    EXPECT_NO_THROW(call().Finish());
+  worker_queue.EnqueueBlocking([&] {
+    call().FinishImmediately();
+    EXPECT_NO_THROW(call().FinishImmediately());
   });
 }
 

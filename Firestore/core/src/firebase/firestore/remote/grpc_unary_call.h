@@ -21,7 +21,7 @@
 #include <map>
 #include <memory>
 
-#include "Firestore/core/src/firebase/firestore/remote/grpc_call_interface.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
@@ -40,7 +40,7 @@ class GrpcConnection;
  * Sends a single request to the server and invokes the given callback with the
  * server response.
  */
-class GrpcUnaryCall : public GrpcCallInterface {
+class GrpcUnaryCall : public GrpcCall {
  public:
   using Callback = std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
 
@@ -69,10 +69,10 @@ class GrpcUnaryCall : public GrpcCallInterface {
    * If this function succeeds in cancelling the call, the callback will not be
    * invoked.
    */
-  void Finish() override;
+  void FinishImmediately() override;
 
   /** Like `Finish`, but always invokes the callback with the given `status`. */
-  void FinishWithError(const util::Status& status) override;
+  void FinishAndNotify(const util::Status& status) override;
 
   /**
    * Returns the metadata received from the server.

@@ -83,29 +83,29 @@ class ConnectivityObserver : public GrpcStreamObserver {
 
 class GrpcConnectionTest : public testing::Test {
  public:
-  GrpcConnectionTest() {
-    auto connectivity_monitor_owning =
-        absl::make_unique<FakeConnectivityMonitor>(&tester->worker_queue());
-    connectivity_monitor = connectivity_monitor_owning.get();
-    tester = absl::make_unique<GrpcStreamTester>(
-        std::move(connectivity_monitor_owning));
+  GrpcConnectionTest()
+      : worker_queue{absl::make_unique<ExecutorStd>()},
+        connectivity_monitor{
+            absl::make_unique<FakeConnectivityMonitor>(&worker_queue)},
+        tester{&worker_queue, connectivity_monitor.get()} {
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {
-    tester->worker_queue().EnqueueBlocking(
+    worker_queue.EnqueueBlocking(
         [&] { connectivity_monitor->set_status(new_status); });
     // Make sure the callback executes.
-    tester->worker_queue().EnqueueBlocking([] {});
+    worker_queue.EnqueueBlocking([] {});
   }
 
-  std::unique_ptr<GrpcStreamTester> tester;
-  FakeConnectivityMonitor* connectivity_monitor = nullptr;
+  AsyncQueue worker_queue;
+  std::unique_ptr<FakeConnectivityMonitor> connectivity_monitor = nullptr;
+  GrpcStreamTester tester;
 };
 
 TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   ConnectivityObserver observer;
 
-  std::unique_ptr<GrpcStream> stream = tester->CreateStream(&observer);
+  std::unique_ptr<GrpcStream> stream = tester.CreateStream(&observer);
   stream->Start();
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
@@ -113,7 +113,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(observer.connectivity_change_count(), 0);
 
-  tester->KeepPollingGrpcQueue();
+  tester.KeepPollingGrpcQueue();
   SetNetworkStatus(NetworkStatus::Unavailable);
   EXPECT_EQ(observer.connectivity_change_count(), 1);
 }
@@ -121,7 +121,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamsNoticeChangeInConnectivity) {
 TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   int change_count = 0;
   std::unique_ptr<GrpcStreamingReader> streaming_call =
-      tester->CreateStreamingReader();
+      tester.CreateStreamingReader();
   streaming_call->Start(
       [&](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
         if (IsConnectivityChange(result.status())) {
@@ -133,7 +133,7 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   // Same status shouldn't trigger a callback.
   EXPECT_EQ(change_count, 0);
 
-  tester->KeepPollingGrpcQueue();
+  tester.KeepPollingGrpcQueue();
   SetNetworkStatus(NetworkStatus::AvailableViaCellular);
   EXPECT_EQ(change_count, 1);
 }
@@ -141,25 +141,25 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
-  std::unique_ptr<GrpcStreamingReader> foo = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> foo = tester.CreateStreamingReader();
   foo->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     foo.reset();
     ++changes_count;
   });
 
-  std::unique_ptr<GrpcStreamingReader> bar = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
   bar->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     bar.reset();
     ++changes_count;
   });
 
-  std::unique_ptr<GrpcStreamingReader> baz = tester->CreateStreamingReader();
+  std::unique_ptr<GrpcStreamingReader> baz = tester.CreateStreamingReader();
   baz->Start([&](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
     baz.reset();
     ++changes_count;
   });
 
-  tester->KeepPollingGrpcQueue();
+  tester.KeepPollingGrpcQueue();
   // Calls will be unregistering themselves with `GrpcConnection` as it notifies
   // them, make sure nothing breaks.
   EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unavailable));
