@@ -115,17 +115,28 @@ void ClearQueryCache(leveldb::DB* db) {
   transaction.Commit();
 }
 
-model::ListenSequenceNumber GetHighestSequenceNumber(LevelDbTransaction* transaction) {
+/**
+ * Reads the highest sequence number from the target global row.
+ */
+model::ListenSequenceNumber GetHighestSequenceNumber(
+    LevelDbTransaction* transaction) {
   std::string bytes;
   transaction->Get(LevelDbTargetGlobalKey::Key(), &bytes);
 
   firestore_client_TargetGlobal target_global{};
   Reader reader = Reader::Wrap(bytes);
-  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields, &target_global);
+  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields,
+                           &target_global);
   return target_global.highest_listen_sequence_number;
 }
 
-void EnsureSentinelRow(LevelDbTransaction* transaction, const model::DocumentKey &key, const std::string &sentinel_value) {
+/**
+ * Given a document key, ensure it has a sentinel row. If it doesn't have one,
+ * add it with the given value.
+ */
+void EnsureSentinelRow(LevelDbTransaction* transaction,
+                       const model::DocumentKey& key,
+                       const std::string& sentinel_value) {
   std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
   std::string unused_value;
   if (transaction->Get(sentinel_key, &unused_value).IsNotFound()) {
@@ -133,20 +144,31 @@ void EnsureSentinelRow(LevelDbTransaction* transaction, const model::DocumentKey
   }
 }
 
+/**
+ * Ensure each document in the remote document table has a corresponding
+ * sentinel row in the document target index.
+ */
 void EnsureSentinelRows(leveldb::DB* db) {
   LevelDbTransaction transaction(db, "Ensure sentinel rows");
 
-  model::ListenSequenceNumber sequence_number = GetHighestSequenceNumber(&transaction);
-  std::string sentinel_value = LevelDbDocumentTargetKey::EncodeSentinel(sequence_number);
+  // Get the value we'll use for anything that's missing a row.
+  model::ListenSequenceNumber sequence_number =
+      GetHighestSequenceNumber(&transaction);
+  std::string sentinel_value =
+      LevelDbDocumentTargetKey::EncodeSentinel(sequence_number);
 
   std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
   auto it = transaction.NewIterator();
   it->Seek(documents_prefix);
   LevelDbRemoteDocumentKey document_key;
-  for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix); it->Next()) {
-    HARD_ASSERT(document_key.Decode(it->key()), "Failed to decode document key");
-    EnsureSentinelRow(&transaction, document_key.document_key(), sentinel_value);
+  for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix);
+       it->Next()) {
+    HARD_ASSERT(document_key.Decode(it->key()),
+                "Failed to decode document key");
+    EnsureSentinelRow(&transaction, document_key.document_key(),
+                      sentinel_value);
   }
+  SaveVersion(4, &transaction);
   transaction.Commit();
 }
 
@@ -180,7 +202,7 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
     ClearQueryCache(db);
   }
 
-  if (from_version < 4 && to_version) {
+  if (from_version < 4 && to_version >= 4) {
     EnsureSentinelRows(db);
   }
 }
