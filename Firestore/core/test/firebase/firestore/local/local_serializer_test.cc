@@ -43,6 +43,7 @@ using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
+using model::FieldValue;
 using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
@@ -193,11 +194,16 @@ class LocalSerializerTest : public ::testing::Test {
 };
 
 TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = Doc("some/path", /*version=*/42);
+  Document doc = Doc("some/path", /*version=*/42,
+                     {{"foo", FieldValue::FromString("bar")}});
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
       "projects/p/databases/d/documents/some/path");
+  ::google::firestore::v1beta1::Value value_proto;
+  value_proto.set_string_value("bar");
+  maybe_doc_proto.mutable_document()->mutable_fields()->insert(
+      {"foo", value_proto});
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_seconds(0);
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
