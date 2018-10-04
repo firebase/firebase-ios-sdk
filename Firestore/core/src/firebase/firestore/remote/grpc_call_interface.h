@@ -29,7 +29,7 @@ namespace remote {
 
 class GrpcCallInterface {
  public:
-  using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
+  using Metadata = std::multimap<grpc::string_ref, grpc::string_ref>;
 
   virtual ~GrpcCallInterface() {
   }
@@ -40,7 +40,7 @@ class GrpcCallInterface {
    * Can only be called after the first response has been received from the
    * server.
    */
-  virtual MetadataT GetResponseHeaders() const = 0;
+  virtual Metadata GetResponseHeaders() const = 0;
 
   /**
    * Finishes the call gracefully. Doesn't produce a notification to any

@@ -94,7 +94,7 @@ TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
 }
 
 TEST_F(DatastoreTest, WhitelistedHeaders) {
-  GrpcStream::MetadataT headers = {
+  GrpcStream::Metadata headers = {
       {"date", "date value"},
       {"x-google-backends", "backend value"},
       {"x-google-foo", "should not be in result"},  // Not whitelisted

@@ -170,7 +170,7 @@ class GrpcStream : public GrpcCallInterface {
    *
    * Can only be called once the stream has opened.
    */
-  MetadataT GetResponseHeaders() const override;
+  Metadata GetResponseHeaders() const override;
 
   /** For tests only */
   grpc::ClientContext* context() {

@@ -43,8 +43,8 @@ using util::StringFormat;
 
 namespace {
 
-const char *const kXGoogAPIClientHeader = "x-goog-api-client";
-const char *const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
+const char* const kXGoogAPIClientHeader = "x-goog-api-client";
+const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
@@ -53,9 +53,9 @@ std::string MakeString(absl::string_view view) {
 }  // namespace
 
 GrpcConnection::GrpcConnection(
-    const DatabaseInfo &database_info,
-    util::AsyncQueue *worker_queue,
-    grpc::CompletionQueue *grpc_queue,
+    const DatabaseInfo& database_info,
+    util::AsyncQueue* worker_queue,
+    grpc::CompletionQueue* grpc_queue,
     std::unique_ptr<ConnectivityMonitor> connectivity_monitor)
     : database_info_{&database_info},
       worker_queue_{worker_queue},
@@ -66,13 +66,13 @@ GrpcConnection::GrpcConnection(
 
 void GrpcConnection::Shutdown() {
   // Fast finish any pending calls. This will not trigger the observers.
-  for (GrpcCallInterface *call : active_calls_) {
+  for (GrpcCallInterface* call : active_calls_) {
     call->Finish();
   }
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
-    const Token &credential) const {
+    const Token& credential) const {
   absl::string_view token = credential.user().is_authenticated()
                                 ? credential.token()
                                 : absl::string_view{};
@@ -92,11 +92,11 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   context->AddMetadata(
       kXGoogAPIClientHeader,
       StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char *>(FIRFirestoreVersionString)));
+                   reinterpret_cast<const char* >(FIRFirestoreVersionString)));
 
   // This header is used to improve routing and project isolation by the
   // backend.
-  const DatabaseId &db_id = database_info_->database_id();
+  const DatabaseId& db_id = database_info_->database_id();
   context->AddMetadata(kGoogleCloudResourcePrefix,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
@@ -122,10 +122,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
     absl::string_view rpc_name,
-    const Token &token,
-    GrpcStreamObserver *observer) {
-  LOG_DEBUG("Creating gRPC stream");
-
+    const Token& token,
+    GrpcStreamObserver* observer) {
   EnsureActiveStub();
 
   auto context = CreateContext(token);
@@ -137,10 +135,8 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
 
 std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
     absl::string_view rpc_name,
-    const Token &token,
-    const grpc::ByteBuffer &message) {
-  LOG_DEBUG("Creating gRPC unary call");
-
+    const Token& token,
+    const grpc::ByteBuffer& message) {
   EnsureActiveStub();
 
   auto context = CreateContext(token);
@@ -152,10 +148,8 @@ std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
 
 std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
     absl::string_view rpc_name,
-    const Token &token,
-    const grpc::ByteBuffer &message) {
-  LOG_DEBUG("Creating gRPC streaming reader");
-
+    const Token& token,
+    const grpc::ByteBuffer& message) {
   EnsureActiveStub();
 
   auto context = CreateContext(token);
@@ -170,7 +164,7 @@ void GrpcConnection::RegisterConnectivityMonitor() {
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
         // Calls may unregister themselves on cancel, so make a protective copy.
         auto calls = active_calls_;
-        for (GrpcCallInterface *call : calls) {
+        for (GrpcCallInterface* call : calls) {
           // This will trigger the observers.
           call->FinishWithError(Status{FirestoreErrorCode::Unavailable,
                                        "Network connectivity changed"});
@@ -178,11 +172,11 @@ void GrpcConnection::RegisterConnectivityMonitor() {
       });
 }
 
-void GrpcConnection::Register(GrpcCallInterface *call) {
+void GrpcConnection::Register(GrpcCallInterface* call) {
   active_calls_.push_back(call);
 }
 
-void GrpcConnection::Unregister(GrpcCallInterface *call) {
+void GrpcConnection::Unregister(GrpcCallInterface* call) {
   auto found = std::find(active_calls_.begin(), active_calls_.end(), call);
   HARD_ASSERT(found != active_calls_.end(), "Missing a gRPC call");
   active_calls_.erase(found);

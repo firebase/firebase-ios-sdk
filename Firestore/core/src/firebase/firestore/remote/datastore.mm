@@ -284,7 +284,7 @@ void Datastore::RemoveGrpcCall(GrpcCallInterface *to_remove) {
 }
 
 std::string Datastore::GetWhitelistedHeadersAsString(
-    const GrpcCallInterface::MetadataT &headers) {
+    const GrpcCallInterface::Metadata &headers) {
   static std::unordered_set<std::string> whitelist = {
       "date", "x-google-backends", "x-google-netmon-label", "x-google-service",
       "x-google-gfe-request-trace"};

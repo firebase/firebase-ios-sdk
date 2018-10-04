@@ -16,10 +16,10 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 
+#include <utility>
+
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_util.h"
-
-#include <utility>
 
 namespace firebase {
 namespace firestore {
@@ -48,7 +48,7 @@ GrpcUnaryCall::~GrpcUnaryCall() {
               "GrpcUnaryCall is being destroyed without proper shutdown");
 }
 
-void GrpcUnaryCall::Start(CallbackT&& callback) {
+void GrpcUnaryCall::Start(Callback&& callback) {
   callback_ = std::move(callback);
   call_->StartCall();
 
@@ -104,7 +104,7 @@ void GrpcUnaryCall::Shutdown() {
   finish_completion_ = nullptr;
 }
 
-GrpcCallInterface::MetadataT GrpcUnaryCall::GetResponseHeaders() const {
+GrpcCallInterface::Metadata GrpcUnaryCall::GetResponseHeaders() const {
   return context_->GetServerInitialMetadata();
 }
 

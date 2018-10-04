@@ -253,7 +253,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   return did_last_write;
 }
 
-GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
+GrpcStream::Metadata GrpcStream::GetResponseHeaders() const {
   return context_->GetServerInitialMetadata();
 }
 

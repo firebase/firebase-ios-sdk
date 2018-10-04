@@ -94,7 +94,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
                        FSTVoidMaybeDocumentArrayErrorBlock completion);
 
   static std::string GetWhitelistedHeadersAsString(
-      const GrpcCallInterface::MetadataT& headers);
+      const GrpcCallInterface::Metadata& headers);
 
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
@@ -125,8 +125,8 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
 
   void RemoveGrpcCall(GrpcCallInterface* to_remove);
 
-  static GrpcCallInterface::MetadataT ExtractWhitelistedHeaders(
-      const GrpcCallInterface::MetadataT& headers);
+  static GrpcCallInterface::Metadata ExtractWhitelistedHeaders(
+      const GrpcCallInterface::Metadata& headers);
 
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;

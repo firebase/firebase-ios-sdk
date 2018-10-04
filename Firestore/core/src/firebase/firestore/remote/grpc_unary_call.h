@@ -42,7 +42,7 @@ class GrpcConnection;
  */
 class GrpcUnaryCall : public GrpcCallInterface {
  public:
-  using CallbackT =
+  using Callback =
       std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
 
   GrpcUnaryCall(std::unique_ptr<grpc::ClientContext> context,
@@ -57,7 +57,7 @@ class GrpcUnaryCall : public GrpcCallInterface {
    * the call. If the call fails, the `callback` will be invoked with a non-ok
    * status.
    */
-  void Start(CallbackT&& callback);
+  void Start(Callback&& callback);
 
   /**
    * If the call is in progress, attempts to finish the call early, effectively
@@ -80,7 +80,7 @@ class GrpcUnaryCall : public GrpcCallInterface {
    *
    * Can only be called once the `GrpcUnaryCall` has finished.
    */
-  MetadataT GetResponseHeaders() const override;
+  Metadata GetResponseHeaders() const override;
 
   /** For tests only */
   grpc::ClientContext* context() {
@@ -100,7 +100,7 @@ class GrpcUnaryCall : public GrpcCallInterface {
   GrpcConnection* grpc_connection_ = nullptr;
 
   GrpcCompletion* finish_completion_ = nullptr;
-  CallbackT callback_;
+  Callback callback_;
 };
 
 }  // namespace remote

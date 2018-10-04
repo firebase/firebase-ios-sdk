@@ -43,7 +43,7 @@ GrpcStreamingReader::GrpcStreamingReader(
       request_{request} {
 }
 
-void GrpcStreamingReader::Start(CallbackT&& callback) {
+void GrpcStreamingReader::Start(Callback&& callback) {
   callback_ = std::move(callback);
   stream_->Start();
 }
