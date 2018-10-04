@@ -71,8 +71,8 @@ absl::string_view MakeStringView(grpc::string_ref grpc_str) {
 }
 
 void LogGrpcCallFinished(absl::string_view rpc_name,
-                         GrpcCall *call,
-                         const Status &status) {
+                         GrpcCall* call,
+                         const Status& status) {
   LOG_DEBUG("RPC %s completed. Error: %s: %s", rpc_name, status.code(),
             status.error_message());
   if (bridge::IsLoggingEnabled()) {
@@ -144,13 +144,13 @@ std::shared_ptr<WriteStream> Datastore::CreateWriteStream(
                                        &grpc_connection_, delegate);
 }
 
-void Datastore::CommitMutations(NSArray<FSTMutation *> *mutations,
+void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,
                                 FSTVoidErrorBlock completion) {
   grpc::ByteBuffer message = serializer_bridge_.ToByteBuffer(
       serializer_bridge_.CreateCommitRequest(mutations));
 
   ResumeRpcWithCredentials(
-      [this, message, completion](const StatusOr<Token> &maybe_credentials) {
+      [this, message, completion](const StatusOr<Token>& maybe_credentials) {
         if (!maybe_credentials.ok()) {
           completion(util::MakeNSError(maybe_credentials.status()));
           return;
@@ -160,16 +160,16 @@ void Datastore::CommitMutations(NSArray<FSTMutation *> *mutations,
       });
 }
 
-void Datastore::CommitMutationsWithCredentials(const Token &token,
-                                               const grpc::ByteBuffer &message,
+void Datastore::CommitMutationsWithCredentials(const Token& token,
+                                               const grpc::ByteBuffer& message,
                                                FSTVoidErrorBlock completion) {
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
       kRpcNameCommit, token, std::move(message));
-  GrpcUnaryCall *call = call_owning.get();
+  GrpcUnaryCall* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
   call->Start(
-      [this, call, completion](const StatusOr<grpc::ByteBuffer> &result) {
+      [this, call, completion](const StatusOr<grpc::ByteBuffer>& result) {
         LogGrpcCallFinished("CommitRequest", call, result.status());
         HandleCallStatus(result.status());
 
@@ -180,7 +180,7 @@ void Datastore::CommitMutationsWithCredentials(const Token &token,
 }
 
 void Datastore::OnCommitMutationsResponse(
-    const StatusOr<grpc::ByteBuffer> &result, FSTVoidErrorBlock completion) {
+    const StatusOr<grpc::ByteBuffer>& result, FSTVoidErrorBlock completion) {
   if (result.ok()) {
     completion(/*Response is deliberately ignored*/ nil);
   } else {
@@ -212,7 +212,7 @@ void Datastore::LookupDocumentsWithCredentials(
   std::unique_ptr<GrpcStreamingReader> call_owning =
       grpc_connection_.CreateStreamingReader(kRpcNameLookup, token,
                                              std::move(message));
-  GrpcStreamingReader *call = call_owning.get();
+  GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
   call->Start([this, call, completion](
@@ -275,11 +275,10 @@ void Datastore::HandleCallStatus(const Status& status) {
 }
 
 void Datastore::RemoveGrpcCall(GrpcCall* to_remove) {
-  auto found =
-      std::find_if(active_calls_.begin(), active_calls_.end(),
-                   [to_remove](const std::unique_ptr<GrpcCall>& call) {
-                     return call.get() == to_remove;
-                   });
+  auto found = std::find_if(active_calls_.begin(), active_calls_.end(),
+                            [to_remove](const std::unique_ptr<GrpcCall>& call) {
+                              return call.get() == to_remove;
+                            });
   HARD_ASSERT(found != active_calls_.end(), "Missing gRPC call");
   active_calls_.erase(found);
 }
