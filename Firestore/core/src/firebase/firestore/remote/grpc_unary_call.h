@@ -42,8 +42,7 @@ class GrpcConnection;
  */
 class GrpcUnaryCall : public GrpcCallInterface {
  public:
-  using Callback =
-      std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
+  using Callback = std::function<void(const util::StatusOr<grpc::ByteBuffer>&)>;
 
   GrpcUnaryCall(std::unique_ptr<grpc::ClientContext> context,
                 std::unique_ptr<grpc::GenericClientAsyncResponseReader> call,

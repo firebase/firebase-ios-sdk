@@ -76,9 +76,7 @@ class GrpcUnaryCallTest : public testing::Test {
 
 TEST_F(GrpcUnaryCallTest, CanFinish) {
   KeepPollingGrpcQueue();
-  worker_queue().EnqueueBlocking([&] {
-    call().Finish();
-  });
+  worker_queue().EnqueueBlocking([&] { call().Finish(); });
   EXPECT_FALSE(status().has_value());
 }
 

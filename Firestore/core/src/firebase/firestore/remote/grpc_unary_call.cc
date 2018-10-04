@@ -54,16 +54,14 @@ void GrpcUnaryCall::Start(Callback&& callback) {
 
   // For lifetime details, see `GrpcCompletion` class comment.
   finish_completion_ = new GrpcCompletion(
-      Tag::Finish,
-      worker_queue_,
+      Tag::Finish, worker_queue_,
       [this](bool /*ignored_ok*/, const GrpcCompletion* completion) {
         // Ignoring ok, status should contain all the relevant information.
         finish_completion_ = nullptr;
         auto callback = std::move(callback_);
         if (completion->status()->ok()) {
           callback(*completion->message());
-        }
-        else {
+        } else {
           callback(ConvertStatus(*completion->status()));
         }
         // This `GrpcUnaryCall`'s lifetime might have been ended by the

@@ -92,7 +92,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   context->AddMetadata(
       kXGoogAPIClientHeader,
       StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char* >(FIRFirestoreVersionString)));
+                   reinterpret_cast<const char*>(FIRFirestoreVersionString)));
 
   // This header is used to improve routing and project isolation by the
   // backend.
