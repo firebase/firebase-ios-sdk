@@ -83,10 +83,11 @@ class ConnectivityObserver : public GrpcStreamObserver {
 
 class GrpcConnectionTest : public testing::Test {
  public:
-  GrpcConnectionTest() :
-    worker_queue{absl::make_unique<ExecutorStd>()},
-    connectivity_monitor{absl::make_unique<FakeConnectivityMonitor>(&worker_queue)},
-    tester{&worker_queue, connectivity_monitor.get()} {
+  GrpcConnectionTest()
+      : worker_queue{absl::make_unique<ExecutorStd>()},
+        connectivity_monitor{
+            absl::make_unique<FakeConnectivityMonitor>(&worker_queue)},
+        tester{&worker_queue, connectivity_monitor.get()} {
   }
 
   void SetNetworkStatus(NetworkStatus new_status) {

@@ -80,9 +80,8 @@ void FakeGrpcQueue::KeepPolling() {
 
 // GrpcStreamTester
 
-GrpcStreamTester::GrpcStreamTester(
-    AsyncQueue* worker_queue,
-    ConnectivityMonitor* connectivity_monitor)
+GrpcStreamTester::GrpcStreamTester(AsyncQueue* worker_queue,
+                                   ConnectivityMonitor* connectivity_monitor)
     : worker_queue_{NOT_NULL(worker_queue)},
       database_info_{DatabaseId{"foo", "bar"}, "", "", false},
       grpc_connection_{database_info_, worker_queue, mock_grpc_queue_.queue(),

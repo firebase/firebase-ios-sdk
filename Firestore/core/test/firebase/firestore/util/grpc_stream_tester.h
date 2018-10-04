@@ -77,7 +77,7 @@ class FakeGrpcQueue {
 class GrpcStreamTester {
  public:
   GrpcStreamTester(AsyncQueue* worker_queue,
-      remote::ConnectivityMonitor* connectivity_monitor);
+                   remote::ConnectivityMonitor* connectivity_monitor);
   ~GrpcStreamTester();
 
   /** Finishes the stream and shuts down the gRPC completion queue. */

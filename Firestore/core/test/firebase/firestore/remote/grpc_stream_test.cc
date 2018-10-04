@@ -63,7 +63,8 @@ class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
         tester_{&worker_queue, connectivity_monitor_.get()},
         observer_{absl::make_unique<Observer>()},
         stream_{tester_.CreateStream(observer_.get())} {
@@ -110,7 +111,6 @@ class GrpcStreamTest : public testing::Test {
     worker_queue.EnqueueBlocking([&] { stream().Start(); });
   }
 
-
   AsyncQueue worker_queue;
 
  private:
@@ -122,14 +122,16 @@ class GrpcStreamTest : public testing::Test {
 };
 
 TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
-  worker_queue.EnqueueBlocking([&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
   StartStream();
   KeepPollingGrpcQueue();
 
-  worker_queue.EnqueueBlocking([&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_NO_THROW(stream().FinishImmediately()); });
 }
 
 TEST_F(GrpcStreamTest, CanFinishTwice) {

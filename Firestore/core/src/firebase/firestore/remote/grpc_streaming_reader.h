@@ -40,8 +40,7 @@ class GrpcConnection;
  * Sends a single request to the server, reads one or more streaming server
  * responses, and invokes the given callback with the accumulated responses.
  */
-class GrpcStreamingReader : public GrpcCall,
-                            public GrpcStreamObserver {
+class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
   using MetadataT = GrpcStream::MetadataT;
   using ResponsesT = std::vector<grpc::ByteBuffer>;

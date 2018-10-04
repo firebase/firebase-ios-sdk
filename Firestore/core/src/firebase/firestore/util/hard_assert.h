@@ -82,10 +82,10 @@
  *
  * @param ptr The pointer to check and return. Can be a smart pointer.
  */
-#define NOT_NULL(ptr)                         \
-  firebase::firestore::util::internal::NotNull(    \
-      __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, \
-      "Expected non-null "#ptr, ptr)
+#define NOT_NULL(ptr)                                                         \
+  firebase::firestore::util::internal::NotNull(                               \
+      __FILE__, FIRESTORE_FUNCTION_NAME, __LINE__, "Expected non-null " #ptr, \
+      ptr)
 
 namespace firebase {
 namespace firestore {
@@ -106,10 +106,10 @@ ABSL_ATTRIBUTE_NORETURN void Fail(const char* file,
 
 template <typename T>
 T NotNull(const char* file,
-           const char* func,
-           int line,
-           const std::string& message,
-           T&& ptr) {
+          const char* func,
+          int line,
+          const std::string& message,
+          T&& ptr) {
   if (ptr == nullptr) {
     Fail(file, func, line, message);
   }

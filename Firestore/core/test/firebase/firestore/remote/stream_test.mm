@@ -105,7 +105,8 @@ class MockCredentialsProvider : public EmptyCredentialsProvider {
 
 class TestStream : public Stream {
  public:
-  TestStream(AsyncQueue* worker_queue, GrpcStreamTester* tester,
+  TestStream(AsyncQueue* worker_queue,
+             GrpcStreamTester* tester,
              CredentialsProvider* credentials_provider)
       : Stream{worker_queue, credentials_provider,
                /*Datastore=*/nullptr, TimerId::ListenStreamConnectionBackoff,
@@ -178,9 +179,11 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
         tester_{&worker_queue, connectivity_monitor_.get()},
-        firestore_stream{std::make_shared<TestStream>(&worker_queue, &tester_, &credentials)} {
+        firestore_stream{std::make_shared<TestStream>(
+            &worker_queue, &tester_, &credentials)} {
   }
 
   ~StreamTest() {

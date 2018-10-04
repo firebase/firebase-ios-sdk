@@ -42,7 +42,8 @@ class GrpcStreamingReaderTest : public testing::Test {
  public:
   GrpcStreamingReaderTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        connectivity_monitor_{
+            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
         tester_{&worker_queue, connectivity_monitor_.get()},
         reader_{tester_.CreateStreamingReader()} {
     reader_->Start(
