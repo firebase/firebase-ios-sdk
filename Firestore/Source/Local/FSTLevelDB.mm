@@ -229,9 +229,8 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)writeSentinelForKey:(const DocumentKey &)key {
-  std::string encodedSequenceNumber;
-  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
   std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encodedSequenceNumber = LevelDbDocumentTargetKey::EncodeSentinel([self currentSequenceNumber]);
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 
