@@ -113,7 +113,7 @@ T NotNull(const char* file,
   if (ptr == nullptr) {
     Fail(file, func, line, message);
   }
-  return std::forward<T&&>(ptr);
+  return std::forward<T>(ptr);
 }
 
 }  // namespace internal
