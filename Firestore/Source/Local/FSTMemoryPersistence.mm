@@ -19,6 +19,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #import "Firestore/Source/Core/FSTListenSequence.h"
 #import "Firestore/Source/Local/FSTMemoryMutationQueue.h"
@@ -236,9 +237,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {
-  return [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
-      removeOrphanedDocuments:self
-        throughSequenceNumber:upperBound];
+  std::vector<DocumentKey> removed =
+      [(FSTMemoryRemoteDocumentCache *)_persistence.remoteDocumentCache
+          removeOrphanedDocuments:self
+            throughSequenceNumber:upperBound];
+  for (auto it = removed.begin(); it != removed.end(); it++) {
+    _sequenceNumbers.erase(*it);
+  }
+  return removed.size();
 }
 
 - (void)addReference:(const DocumentKey &)key {
