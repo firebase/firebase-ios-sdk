@@ -33,6 +33,7 @@
 
 using firebase::firestore::auth::HashUser;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -83,13 +84,13 @@ NS_ASSUME_NONNULL_BEGIN
   return persistence;
 }
 
-+ (instancetype)persistenceWithLruGcParams:(FSTLruGcParams)lruGcParams
-                                serializer:(FSTLocalSerializer *)serializer {
++ (instancetype)persistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams
+                              serializer:(FSTLocalSerializer *)serializer {
   FSTMemoryPersistence *persistence = [[FSTMemoryPersistence alloc] init];
   persistence.referenceDelegate =
       [[FSTMemoryLRUReferenceDelegate alloc] initWithPersistence:persistence
                                                       serializer:serializer
-                                                     lruGcParams:lruGcParams];
+                                                       lruParams:lruParams];
   return persistence;
 }
 
@@ -167,10 +168,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence
                          serializer:(FSTLocalSerializer *)serializer
-                        lruGcParams:(FSTLruGcParams)lruGcParams {
+                          lruParams:(firebase::firestore::local::LruParams)lruParams {
   if (self = [super init]) {
     _persistence = persistence;
-    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruGcParams];
+    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruParams];
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
     // Theoretically this is always 0, since this is all in-memory...
     ListenSequenceNumber highestSequenceNumber =

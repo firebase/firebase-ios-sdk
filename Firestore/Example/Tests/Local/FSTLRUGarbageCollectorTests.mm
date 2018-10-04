@@ -40,6 +40,7 @@
 
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
@@ -82,9 +83,9 @@ NS_ASSUME_NONNULL_BEGIN
   return ((id<FSTLRUDelegate>)persistence.referenceDelegate).gc;
 }
 
-- (void)newTestResourcesWithLruGcParams:(FSTLruGcParams)lruGcParams {
+- (void)newTestResourcesWithLruParams:(LruParams)lruParams {
   HARD_ASSERT(_persistence == nil, "Persistence already created");
-  _persistence = [self newPersistenceWithLruGcParams:lruGcParams];
+  _persistence = [self newPersistenceWithLruParams:lruParams];
   _queryCache = [_persistence queryCache];
   _documentCache = [_persistence remoteDocumentCache];
   _mutationQueue = [_persistence mutationQueueForUser:_user];
@@ -96,10 +97,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)newTestResources {
-  [self newTestResourcesWithLruGcParams:FSTLruGcParams::Default()];
+  [self newTestResourcesWithLruParams:LruParams::Default()];
 }
 
-- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
+- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -673,8 +674,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testDisabled {
   if ([self isTestBaseClass]) return;
 
-  FSTLruGcParams params = FSTLruGcParams::Disabled();
-  [self newTestResourcesWithLruGcParams:params];
+  LruParams params = LruParams::Disabled();
+  [self newTestResourcesWithLruParams:params];
 
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
@@ -693,8 +694,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCacheTooSmall {
   if ([self isTestBaseClass]) return;
 
-  FSTLruGcParams params = FSTLruGcParams::Disabled();
-  [self newTestResourcesWithLruGcParams:params];
+  LruParams params = LruParams::Disabled();
+  [self newTestResourcesWithLruParams:params];
 
   _persistence.run("fill cache", [&]() {
     // Simulate a bunch of ack'd mutations
@@ -718,10 +719,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testGCRan {
   if ([self isTestBaseClass]) return;
 
-  FSTLruGcParams params = FSTLruGcParams::Default();
+  LruParams params = LruParams::Default();
   // Set a low threshold so we will definitely run
   params.minBytesThreshold = 100;
-  [self newTestResourcesWithLruGcParams:params];
+  [self newTestResourcesWithLruParams:params];
 
   // Add 100 targets and 10 documents to each
   for (int i = 0; i < 100; i++) {

@@ -45,7 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (instancetype)initWithDirectory:(firebase::firestore::util::Path)directory
                        serializer:(FSTLocalSerializer *)serializer
-                      lruGcParams:(FSTLruGcParams)lruGcParams NS_DESIGNATED_INITIALIZER;
+                        lruParams:(firebase::firestore::local::LruParams)lruParams
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -16,11 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 
 @class FSTLevelDB;
 @class FSTMemoryPersistence;
-struct FSTLruGcParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -55,14 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Sets up the LRU garbage collection to use the provided params.
  */
-+ (FSTLevelDB *)levelDBPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams;
++ (FSTLevelDB *)levelDBPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
 
 /** Creates and starts a new FSTMemoryPersistence instance for testing. */
 + (FSTMemoryPersistence *)eagerGCMemoryPersistence;
 
 + (FSTMemoryPersistence *)lruMemoryPersistence;
 
-+ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams;
++ (FSTMemoryPersistence *)lruMemoryPersistenceWithLruParams:
+    (firebase::firestore::local::LruParams)lruParams;
 @end
 
 NS_ASSUME_NONNULL_END

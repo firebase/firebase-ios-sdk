@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)persistenceWithEagerGC;
 
-+ (instancetype)persistenceWithLruGcParams:(FSTLruGcParams)lruGcParams
-                                serializer:(FSTLocalSerializer *)serializer;
++ (instancetype)persistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams
+                              serializer:(FSTLocalSerializer *)serializer;
 
 @end
 
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence
                          serializer:(FSTLocalSerializer *)serializer
-                        lruGcParams:(FSTLruGcParams)lruGcParams;
+                          lruParams:(firebase::firestore::local::LruParams)lruParams;
 
 - (BOOL)isPinnedAtSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound
                         document:(const firebase::firestore::model::DocumentKey &)key;

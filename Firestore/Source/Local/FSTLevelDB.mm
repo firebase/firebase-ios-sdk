@@ -61,6 +61,7 @@ using firebase::firestore::local::LevelDbDocumentTargetKey;
 using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbTransaction;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
@@ -112,10 +113,9 @@ static const char *kReservedPathComponent = "firestore";
   FSTListenSequence *_listenSequence;
 }
 
-- (instancetype)initWithPersistence:(FSTLevelDB *)persistence
-                        lruGcParams:(FSTLruGcParams)lruGcParams {
+- (instancetype)initWithPersistence:(FSTLevelDB *)persistence lruParams:(LruParams)lruParams {
   if (self = [super init]) {
-    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruGcParams];
+    _gc = [[FSTLRUGarbageCollector alloc] initWithDelegate:self params:lruParams];
     _db = persistence;
     _currentSequenceNumber = kFSTListenSequenceNumberInvalid;
   }
@@ -294,15 +294,15 @@ static const char *kReservedPathComponent = "firestore";
   return users;
 }
 
-- (instancetype)initWithDirectory:(Path)directory
+- (instancetype)initWithDirectory:(firebase::firestore::util::Path)directory
                        serializer:(FSTLocalSerializer *)serializer
-                      lruGcParams:(FSTLruGcParams)lruGcParams {
+                        lruParams:(firebase::firestore::local::LruParams)lruParams {
   if (self = [super init]) {
     _directory = std::move(directory);
     _serializer = serializer;
     _queryCache = [[FSTLevelDBQueryCache alloc] initWithDB:self serializer:self.serializer];
     _referenceDelegate =
-        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruGcParams:lruGcParams];
+        [[FSTLevelDBLRUDelegate alloc] initWithPersistence:self lruParams:lruParams];
     _transactionRunner.SetBackingPersistence(self);
   }
   return self;

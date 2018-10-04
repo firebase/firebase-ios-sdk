@@ -17,7 +17,10 @@
 #import "Firestore/Example/Tests/Local/FSTLRUGarbageCollectorTests.h"
 
 #import "Firestore/Example/Tests/Local/FSTPersistenceTestHelpers.h"
+#import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 #import "Firestore/Source/Local/FSTMemoryPersistence.h"
+
+using firebase::firestore::local::LruParams;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTMemoryLRUGarbageCollectionTests
 
-- (id<FSTPersistence>)newPersistenceWithLruGcParams:(FSTLruGcParams)lruGcParams {
-  return [FSTPersistenceTestHelpers lruMemoryPersistenceWithLruGcParams:lruGcParams];
+- (id<FSTPersistence>)newPersistenceWithLruParams:(LruParams)lruParams {
+  return [FSTPersistenceTestHelpers lruMemoryPersistenceWithLruParams:lruParams];
 }
 
 @end

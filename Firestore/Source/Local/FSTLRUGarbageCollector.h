@@ -29,21 +29,27 @@
 
 extern const firebase::firestore::model::ListenSequenceNumber kFSTListenSequenceNumberInvalid;
 
-struct FSTLruGcParams {
-  static FSTLruGcParams Default() {
-    return FSTLruGcParams{.minBytesThreshold = 100 * 1024 * 1024,
-                          .percentileToCollect = 10,
-                          .maximumSequenceNumbersToCollect = 1000};
+namespace firebase {
+namespace firestore {
+namespace local {
+
+struct LruParams {
+  static LruParams Default() {
+    return LruParams{100 * 1024 * 1024, 10, 1000};
   }
 
-  static FSTLruGcParams Disabled() {
-    return FSTLruGcParams{.minBytesThreshold = kFIRFirestorePersistenceCacheSizeUnlimited};
+  static LruParams Disabled() {
+    return LruParams{kFIRFirestorePersistenceCacheSizeUnlimited, 0, 0};
   }
 
   long minBytesThreshold;
   int percentileToCollect;
   int maximumSequenceNumbersToCollect;
 };
+
+}  // namespace local
+}  // namespace firestore
+}  // namespace firebase
 
 /**
  * Persistence layers intending to use LRU Garbage collection should implement this protocol. This
@@ -127,7 +133,8 @@ struct FSTLruGcResults {
  */
 @interface FSTLRUGarbageCollector : NSObject
 
-- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(FSTLruGcParams)params;
+- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate
+                          params:(firebase::firestore::local::LruParams)params;
 
 /**
  * Given a target percentile, return the number of queries that make up that percentage of the

@@ -46,7 +46,7 @@ typedef NS_ENUM(NSInteger, FSTTimerID) {
   /**
    * A timer used to periodically attempt LRU Garbage collection
    */
-  FSTLruGCTimer
+  FSTTimerIDGarbageCollectionDelay
 };
 
 /**

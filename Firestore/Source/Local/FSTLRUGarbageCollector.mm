@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
 using firebase::Timestamp;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
@@ -100,12 +101,12 @@ std::string FSTLruGcResults::ToString() const {
 
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
-  FSTLruGcParams _params;
+  LruParams _params;
   long _startTime;
   long _lastRunTime;
 }
 
-- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(FSTLruGcParams)params {
+- (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(LruParams)params {
   self = [super init];
   if (self) {
     _delegate = delegate;

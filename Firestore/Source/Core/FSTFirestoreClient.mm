@@ -55,6 +55,7 @@ namespace util = firebase::firestore::util;
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::User;
 using firebase::firestore::core::DatabaseInfo;
+using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::OnlineState;
@@ -191,7 +192,7 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
     // TODO(gsoltis): enable LRU GC once API is finalized
     FSTLevelDB *ldb = [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
                                                  serializer:serializer
-                                                lruGcParams:FSTLruGcParams::Disabled()];
+                                                  lruParams:LruParams::Disabled()];
     _lruDelegate = ldb.referenceDelegate;
     _persistence = ldb;
     [self scheduleLruGarbageCollection];
@@ -244,7 +245,7 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
   long delay = _gcHasRun ? _initialGcDelay : _regularGcDelay;
   _lruCallback = [_workerDispatchQueue
       dispatchAfterDelay:delay
-                 timerID:FSTLruGCTimer
+                 timerID:FSTTimerIDGarbageCollectionDelay
                    block:^{
                      FSTLruGcResults results =
                          [self->_localStore tryLruGarbageCollection:self->_lruDelegate.gc];
