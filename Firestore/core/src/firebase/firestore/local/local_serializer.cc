@@ -178,6 +178,10 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
   writer->WriteInteger(query_data.target_id());
 
   writer->WriteTag(
+      {PB_WT_VARINT, firestore_client_Target_last_listen_sequence_number_tag});
+  writer->WriteInteger(query_data.sequence_number());
+
+  writer->WriteTag(
       {PB_WT_STRING, firestore_client_Target_snapshot_version_tag});
   writer->WriteNestedMessage([&](Writer* writer) {
     rpc_serializer_.EncodeTimestamp(writer,
@@ -209,6 +213,7 @@ void LocalSerializer::EncodeQueryData(Writer* writer,
 absl::optional<QueryData> LocalSerializer::DecodeQueryData(
     Reader* reader) const {
   model::TargetId target_id = 0;
+  model::ListenSequenceNumber sequence_number = 0;
   absl::optional<SnapshotVersion> version = SnapshotVersion::None();
   std::vector<uint8_t> resume_token;
   absl::optional<Query> query = Query::Invalid();
@@ -218,6 +223,12 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
       case firestore_client_Target_target_id_tag:
         // TODO(rsgowman): How to handle truncation of integer types?
         target_id = static_cast<model::TargetId>(reader->ReadInteger());
+        break;
+
+      case firestore_client_Target_last_listen_sequence_number_tag:
+        // TODO(rsgowman): How to handle truncation of integer types?
+        sequence_number =
+            static_cast<model::ListenSequenceNumber>(reader->ReadInteger());
         break;
 
       case firestore_client_Target_snapshot_version_tag:
@@ -249,8 +260,9 @@ absl::optional<QueryData> LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return absl::nullopt;
-  return QueryData(*std::move(query), target_id, QueryPurpose::kListen,
-                   *std::move(version), std::move(resume_token));
+  return QueryData(*std::move(query), target_id, sequence_number,
+                   QueryPurpose::kListen, *std::move(version),
+                   std::move(resume_token));
 }
 
 }  // namespace local
