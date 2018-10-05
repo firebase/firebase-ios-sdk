@@ -188,7 +188,7 @@ using leveldb::Status;
       }
       // set nextToReport to be this sequence number. It's the next one we might
       // report, if we don't find any targets for this document.
-      nextToReport = LevelDbDocumentTargetKey::DecodeSentinel(it->value());
+      nextToReport = LevelDbDocumentTargetKey::DecodeSentinelValue(it->value());
       keyToReport = key.document_key();
     } else {
       // set nextToReport to be 0, we know we don't need to report this one since
