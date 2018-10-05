@@ -247,7 +247,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   return did_last_write;
 }
 
-GrpcStream::MetadataT GrpcStream::GetResponseHeaders() const {
+GrpcStream::Metadata GrpcStream::GetResponseHeaders() const {
   return context_->GetServerInitialMetadata();
 }
 
@@ -319,6 +319,7 @@ GrpcCompletion* GrpcStream::NewCompletion(Type tag,
         }
       };
 
+  // For lifetime details, see `GrpcCompletion` class comment.
   auto* completion =
       new GrpcCompletion{tag, worker_queue_, std::move(decorated)};
   completions_.push_back(completion);

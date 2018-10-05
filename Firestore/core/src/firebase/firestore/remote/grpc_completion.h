@@ -48,8 +48,7 @@ namespace remote {
  * gRPC operation.
  *
  * `GrpcCompletion` is "self-owned"; `GrpcCompletion` deletes itself in its
- * `Complete`
- * method.
+ * `Complete` method.
  *
  * `GrpcCompletion` expects all gRPC objects pertaining to the current stream to
  * remain valid until the `GrpcCompletion` comes back from the gRPC completion

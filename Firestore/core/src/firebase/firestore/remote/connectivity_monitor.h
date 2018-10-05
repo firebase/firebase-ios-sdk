@@ -46,7 +46,7 @@ class ConnectivityMonitor {
     AvailableViaCellular,
   };
 
-  using CallbackT = std::function<void(NetworkStatus)>;
+  using Callback = std::function<void(NetworkStatus)>;
 
   /** Creates a platform-specific connectivity monitor. */
   static std::unique_ptr<ConnectivityMonitor> Create(
@@ -59,7 +59,7 @@ class ConnectivityMonitor {
   virtual ~ConnectivityMonitor() {
   }
 
-  void AddCallback(CallbackT&& callback) {
+  void AddCallback(Callback&& callback) {
     callbacks_.push_back(std::move(callback));
   }
   // TODO(varconst): RemoveCallback.
@@ -77,7 +77,7 @@ class ConnectivityMonitor {
 
  private:
   util::AsyncQueue* worker_queue_ = nullptr;
-  std::vector<CallbackT> callbacks_;
+  std::vector<Callback> callbacks_;
   absl::optional<NetworkStatus> status_;
 };
 

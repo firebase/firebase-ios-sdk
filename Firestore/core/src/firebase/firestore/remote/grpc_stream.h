@@ -118,8 +118,6 @@ class BufferedWriter {
  */
 class GrpcStream : public GrpcCall {
  public:
-  using MetadataT = std::multimap<grpc::string_ref, grpc::string_ref>;
-
   GrpcStream(std::unique_ptr<grpc::ClientContext> context,
              std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
              util::AsyncQueue* worker_queue,
@@ -172,7 +170,7 @@ class GrpcStream : public GrpcCall {
    *
    * Can only be called once the stream has opened.
    */
-  MetadataT GetResponseHeaders() const;
+  Metadata GetResponseHeaders() const override;
 
   /** For tests only */
   grpc::ClientContext* context() {

@@ -42,9 +42,8 @@ class GrpcConnection;
  */
 class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
  public:
-  using MetadataT = GrpcStream::MetadataT;
   using ResponsesT = std::vector<grpc::ByteBuffer>;
-  using CallbackT = std::function<void(const util::StatusOr<ResponsesT>&)>;
+  using Callback = std::function<void(const util::StatusOr<ResponsesT>&)>;
 
   GrpcStreamingReader(
       std::unique_ptr<grpc::ClientContext> context,
@@ -58,7 +57,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
    * results of the call. If the call fails, the `callback` will be invoked with
    * a non-ok status.
    */
-  void Start(CallbackT&& callback);
+  void Start(Callback&& callback);
 
   /**
    * If the call is in progress, attempts to cancel the call; otherwise, it's
@@ -77,9 +76,10 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   /**
    * Returns the metadata received from the server.
    *
-   * Can only be called once the `GrpcStreamingReader` has started.
+   * Can only be called once the `GrpcStreamingReader` has received the first
+   * message from the server.
    */
-  MetadataT GetResponseHeaders() const {
+  Metadata GetResponseHeaders() const override {
     return stream_->GetResponseHeaders();
   }
 
@@ -96,7 +96,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   std::unique_ptr<GrpcStream> stream_;
   grpc::ByteBuffer request_;
 
-  CallbackT callback_;
+  Callback callback_;
   ResponsesT responses_;
 };
 
