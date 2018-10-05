@@ -209,7 +209,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
   ListenSequenceNumber old_sequence_number = 1;
   ListenSequenceNumber new_sequence_number = 2;
   std::string encoded_old_sequence_number =
-      LevelDbDocumentTargetKey::EncodeSentinel(old_sequence_number);
+      LevelDbDocumentTargetKey::EncodeSentinelValue(old_sequence_number);
   LevelDbMigrations::RunMigrations(_db.get(), 3);
   {
     std::string empty_buffer;
@@ -256,7 +256,7 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
       // global
       ListenSequenceNumber expected_sequence_number =
           doc_number % 2 == 1 ? old_sequence_number : new_sequence_number;
-      ListenSequenceNumber sequence_number = LevelDbDocumentTargetKey::DecodeSentinel(buffer);
+      ListenSequenceNumber sequence_number = LevelDbDocumentTargetKey::DecodeSentinelValue(buffer);
       XCTAssertEqual(expected_sequence_number, sequence_number);
     }
     XCTAssertEqual(10, count);

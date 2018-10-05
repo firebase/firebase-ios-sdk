@@ -793,18 +793,17 @@ std::string LevelDbDocumentTargetKey::SentinelKey(
   return Key(document_key, kInvalidTargetId);
 }
 
-std::string LevelDbDocumentTargetKey::EncodeSentinel(
+std::string LevelDbDocumentTargetKey::EncodeSentinelValue(
     model::ListenSequenceNumber sequence_number) {
   std::string encoded;
   OrderedCode::WriteSignedNumIncreasing(&encoded, sequence_number);
   return encoded;
 }
 
-model::ListenSequenceNumber LevelDbDocumentTargetKey::DecodeSentinel(
-    const absl::string_view& slice) {
+model::ListenSequenceNumber LevelDbDocumentTargetKey::DecodeSentinelValue(
+    absl::string_view slice) {
   model::ListenSequenceNumber decoded;
-  absl::string_view tmp(slice.data(), slice.size());
-  if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
+  if (!OrderedCode::ReadSignedNumIncreasing(&slice, &decoded)) {
     HARD_FAIL("Failed to read sequence number from a sentinel row");
   }
   return decoded;

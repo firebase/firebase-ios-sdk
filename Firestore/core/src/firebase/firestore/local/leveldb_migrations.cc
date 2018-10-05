@@ -155,7 +155,7 @@ void EnsureSentinelRows(leveldb::DB* db) {
   model::ListenSequenceNumber sequence_number =
       GetHighestSequenceNumber(&transaction);
   std::string sentinel_value =
-      LevelDbDocumentTargetKey::EncodeSentinel(sequence_number);
+      LevelDbDocumentTargetKey::EncodeSentinelValue(sequence_number);
 
   std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
   auto it = transaction.NewIterator();
