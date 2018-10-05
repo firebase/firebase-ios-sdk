@@ -44,7 +44,7 @@ struct LruParams {
     return LruParams{kFIRFirestoreCacheSizeUnlimited, 0, 0};
   }
 
-  long minBytesThreshold;
+  int64_t minBytesThreshold;
   int percentileToCollect;
   int maximumSequenceNumbersToCollect;
 };
