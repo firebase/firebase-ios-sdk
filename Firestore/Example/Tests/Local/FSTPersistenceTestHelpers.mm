@@ -38,6 +38,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTPersistenceTestHelpers
 
++ (FSTLocalSerializer *)localSerializer {
+  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
+  static DatabaseId database_id{"p", "d"};
+
+  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
+  return [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+}
+
 + (Path)levelDBDir {
   Path dir = util::TempDir().AppendUtf8("FSTPersistenceTestHelpers");
 
@@ -53,12 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTLevelDB *)levelDBPersistenceWithDir:(Path)dir {
-  // This owns the DatabaseIds since we do not have FirestoreClient instance to own them.
-  static DatabaseId database_id{"p", "d"};
-
-  FSTSerializerBeta *remoteSerializer = [[FSTSerializerBeta alloc] initWithDatabaseID:&database_id];
-  FSTLocalSerializer *serializer =
-      [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
+  FSTLocalSerializer *serializer = [self localSerializer];
   FSTLevelDB *db = [[FSTLevelDB alloc] initWithDirectory:std::move(dir) serializer:serializer];
   Status status = [db start];
   if (!status.ok()) {
@@ -85,7 +88,9 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (FSTMemoryPersistence *)lruMemoryPersistence {
-  FSTMemoryPersistence *persistence = [FSTMemoryPersistence persistenceWithLRUGC];
+  FSTLocalSerializer *serializer = [self localSerializer];
+  FSTMemoryPersistence *persistence =
+      [FSTMemoryPersistence persistenceWithLRUGCAndSerializer:serializer];
   Status status = [persistence start];
   if (!status.ok()) {
     [NSException raise:NSInternalInconsistencyException

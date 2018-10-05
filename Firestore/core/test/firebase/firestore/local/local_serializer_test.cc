@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/model/maybe_document.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "Firestore/core/src/firebase/firestore/remote/serializer.h"
@@ -43,9 +44,12 @@ using ::google::protobuf::util::MessageDifferencer;
 using model::DatabaseId;
 using model::Document;
 using model::DocumentKey;
+using model::FieldValue;
+using model::ListenSequenceNumber;
 using model::MaybeDocument;
 using model::NoDocument;
 using model::SnapshotVersion;
+using model::TargetId;
 using nanopb::Reader;
 using nanopb::Writer;
 using testutil::DeletedDoc;
@@ -192,12 +196,19 @@ class LocalSerializerTest : public ::testing::Test {
   MessageDifferencer msg_diff;
 };
 
+// TODO(rsgowman): EncodesMutationBatch
+
 TEST_F(LocalSerializerTest, EncodesDocumentAsMaybeDocument) {
-  Document doc = Doc("some/path", /*version=*/42);
+  Document doc = Doc("some/path", /*version=*/42,
+                     {{"foo", FieldValue::FromString("bar")}});
 
   ::firestore::client::MaybeDocument maybe_doc_proto;
   maybe_doc_proto.mutable_document()->set_name(
       "projects/p/databases/d/documents/some/path");
+  ::google::firestore::v1beta1::Value value_proto;
+  value_proto.set_string_value("bar");
+  maybe_doc_proto.mutable_document()->mutable_fields()->insert(
+      {"foo", value_proto});
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_seconds(0);
   maybe_doc_proto.mutable_document()->mutable_update_time()->set_nanos(42000);
 
@@ -216,14 +227,32 @@ TEST_F(LocalSerializerTest, EncodesNoDocumentAsMaybeDocument) {
   ExpectRoundTrip(no_doc, maybe_doc_proto, no_doc.type());
 }
 
+// TODO(rsgowman): Requires held write acks, which aren't fully ported yet. But
+// it should look something like this.
+#if 0
+TEST_F(LocalSerializerTest, EncodesUnknownDocumentAsMaybeDocument) {
+  UnknownDocument unknown_doc = UnknownDoc("some/path", /*version=*/42);
+
+  ::firestore::client::MaybeDocument maybe_doc_proto;
+  maybe_doc_proto.mutable_unknown_document()->set_name(
+      "projects/p/databases/d/documents/some/path");
+  maybe_doc_proto.mutable_unknown_document()->mutable_version()->set_seconds(0);
+  maybe_doc_proto.mutable_unknown_document()
+      ->mutable_version()->set_nanos(42000);
+
+  ExpectRoundTrip(unknown_doc, maybe_doc_proto, unknown_doc.type());
+}
+#endif
+
 TEST_F(LocalSerializerTest, EncodesQueryData) {
   core::Query query = testutil::Query("room");
-  int target_id = 42;
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
   SnapshotVersion version = testutil::Version(1039);
   std::vector<uint8_t> resume_token = testutil::ResumeToken(1039);
 
-  QueryData query_data(core::Query(query), target_id, QueryPurpose::kListen,
-                       SnapshotVersion(version),
+  QueryData query_data(core::Query(query), target_id, sequence_number,
+                       QueryPurpose::kListen, SnapshotVersion(version),
                        std::vector<uint8_t>(resume_token));
 
   // Let the RPC serializer test various permutations of query serialization.
@@ -237,6 +266,7 @@ TEST_F(LocalSerializerTest, EncodesQueryData) {
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
+  expected.set_last_listen_sequence_number(sequence_number);
   expected.mutable_snapshot_version()->set_nanos(1039000);
   expected.set_resume_token(resume_token.data(), resume_token.size());
   v1beta1::Target::QueryTarget* query_proto = expected.mutable_query();

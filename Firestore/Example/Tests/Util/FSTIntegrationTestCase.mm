@@ -22,9 +22,11 @@
 #import <FirebaseFirestore/FIRDocumentChange.h>
 #import <FirebaseFirestore/FIRDocumentReference.h>
 #import <FirebaseFirestore/FIRDocumentSnapshot.h>
+#import <FirebaseFirestore/FIRFirestore.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
+#import <FirebaseFirestore/FIRTransaction.h>
 #import <GRPCClient/GRPCCall+ChannelArg.h>
 #import <GRPCClient/GRPCCall+Tests.h>
 
@@ -60,6 +62,12 @@ using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
 
 NS_ASSUME_NONNULL_BEGIN
+
+/**
+ * Firestore databases can be subject to a ~30s "cold start" delay if they have not been used
+ * recently, so before any tests run we "prime" the backend.
+ */
+static const double kPrimingTimeout = 45.0;
 
 @interface FIRFirestore (Testing)
 @property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
@@ -195,7 +203,53 @@ static FIRFirestoreSettings *defaultSettings;
   firestore.settings = [FSTIntegrationTestCase settings];
 
   [_firestores addObject:firestore];
+
+  [self primeBackend:firestore];
+
   return firestore;
+}
+
+- (void)primeBackend:(FIRFirestore *)db {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    XCTestExpectation *watchInitialized =
+        [self expectationWithDescription:@"Prime backend: Watch initialized"];
+    __block XCTestExpectation *watchUpdateReceived;
+    FIRDocumentReference *docRef = [db documentWithPath:[self documentPath]];
+    id<FIRListenerRegistration> listenerRegistration =
+        [docRef addSnapshotListener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+          if ([snapshot[@"value"] isEqual:@"done"]) {
+            [watchUpdateReceived fulfill];
+          } else {
+            [watchInitialized fulfill];
+          }
+        }];
+
+    // Wait for watch to initialize and deliver first event.
+    [self awaitExpectations];
+
+    watchUpdateReceived = [self expectationWithDescription:@"Prime backend: Watch update received"];
+
+    // Use a transaction to perform a write without triggering any local events.
+    [docRef.firestore
+        runTransactionWithBlock:^id(FIRTransaction *transaction, NSError **pError) {
+          [transaction setData:@{@"value" : @"done"} forDocument:docRef];
+          return nil;
+        }
+                     completion:^(id result, NSError *error){
+                     }];
+
+    // Wait to see the write on the watch stream.
+    [self waitForExpectationsWithTimeout:kPrimingTimeout
+                                 handler:^(NSError *_Nullable expectationError) {
+                                   if (expectationError) {
+                                     XCTFail(@"Error waiting for prime backend: %@",
+                                             expectationError);
+                                   }
+                                 }];
+
+    [listenerRegistration remove];
+  });
 }
 
 - (void)shutdownFirestore:(FIRFirestore *)firestore {

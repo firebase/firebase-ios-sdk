@@ -20,7 +20,6 @@
 #include <map>
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
-
 #include "grpcpp/support/string_ref.h"
 
 namespace firebase {
