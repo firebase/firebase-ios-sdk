@@ -34,12 +34,14 @@ namespace firestore {
 namespace local {
 
 struct LruParams {
+  static const int64_t CacheSizeUnlimited = -1;
+
   static LruParams Default() {
     return LruParams{100 * 1024 * 1024, 10, 1000};
   }
 
   static LruParams Disabled() {
-    return LruParams{kFIRFirestorePersistenceCacheSizeUnlimited, 0, 0};
+    return LruParams{kFIRFirestoreCacheSizeUnlimited, 0, 0};
   }
 
   long minBytesThreshold;

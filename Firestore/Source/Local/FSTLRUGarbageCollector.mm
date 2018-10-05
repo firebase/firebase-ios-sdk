@@ -34,7 +34,7 @@ using firebase::firestore::local::LruResults;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
-const long kFIRFirestorePersistenceCacheSizeUnlimited = -1;
+const int64_t kFIRFirestoreCacheSizeUnlimited = LruParams::CacheSizeUnlimited;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 static Millis::rep millisecondsBetween(const Timestamp &start, const Timestamp &end) {
@@ -98,7 +98,7 @@ class RollingSequenceNumberBuffer {
 }
 
 - (LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
-  if (_params.minBytesThreshold == kFIRFirestorePersistenceCacheSizeUnlimited) {
+  if (_params.minBytesThreshold == kFIRFirestoreCacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
     return LruResults::DidNotRun();
   }
