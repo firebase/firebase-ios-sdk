@@ -46,6 +46,7 @@
 
 using firebase::firestore::auth::User;
 using firebase::firestore::core::TargetIdGenerator;
+using firebase::firestore::local::LruResults;
 using firebase::firestore::model::BatchId;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeySet;
@@ -564,7 +565,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
   }
 }
 
-- (FSTLruGcResults)tryLruGarbageCollection:(FSTLRUGarbageCollector *)garbageCollector {
+- (LruResults)tryLruGarbageCollection:(FSTLRUGarbageCollector *)garbageCollector {
   return [garbageCollector collectWithLiveTargets:_targetIDs];
 }
 

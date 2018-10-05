@@ -47,6 +47,17 @@ struct LruParams {
   int maximumSequenceNumbersToCollect;
 };
 
+struct LruResults {
+  static LruResults DidNotRun() {
+    return LruResults{NO, 0, 0, 0};
+  }
+
+  BOOL didRun;
+  int sequenceNumbersCollected;
+  int targetsRemoved;
+  int documentsRemoved;
+};
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase
@@ -102,19 +113,6 @@ struct LruParams {
 
 @end
 
-struct FSTLruGcResults {
-  static FSTLruGcResults DidNotRun() {
-    return FSTLruGcResults{.didRun = NO};
-  }
-
-  std::string ToString() const;
-
-  BOOL didRun;
-  int sequenceNumbersCollected;
-  int targetsRemoved;
-  int documentsRemoved;
-};
-
 /**
  * FSTLRUGarbageCollector defines the LRU algorithm used to clean up old documents and targets. It
  * is persistence-agnostic, as long as proper delegate is provided.
@@ -156,6 +154,6 @@ struct FSTLruGcResults {
 
 - (size_t)byteSize;
 
-- (FSTLruGcResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
+- (firebase::firestore::local::LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
 
 @end

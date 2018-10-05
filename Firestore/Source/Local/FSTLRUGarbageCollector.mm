@@ -30,6 +30,7 @@
 using Millis = std::chrono::milliseconds;
 using firebase::Timestamp;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::LruResults;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::ListenSequenceNumber;
 
@@ -80,24 +81,6 @@ class RollingSequenceNumberBuffer {
   const size_t max_elements_;
 };
 
-/*std::string FSTLruGcResults::ToString() const {
-  if (!didRun) {
-    return "Garbage Collection skipped";
-  } else {
-    std::string desc = "LRU Garbage Collection:\n";
-    absl::StrAppend(&desc, "\tCounted targets in ", targetCountDurationMs, "ms\n");
-    absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbersCollected,
-                    " sequence numbers in ", upperBoundDurationMs, "ms\n");
-    absl::StrAppend(&desc, "\tRemoved ", targetsRemoved, " targets in ", removedTargetsDurationMs,
-                    "ms\n");
-    absl::StrAppend(&desc, "\tRemoved ", documentsRemoved, " documents in ",
-                    removedDocumentsDurationMs, "ms\n");
-    absl::StrAppend(&desc, "\tCompacted leveldb database in ", dbCompactionDurationMs, "ms\n");
-    absl::StrAppend(&desc, "Total duration: ", total_duration(), "ms");
-    return desc;
-  }
-}*/
-
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
   LruParams _params;
@@ -115,23 +98,23 @@ class RollingSequenceNumberBuffer {
   return self;
 }
 
-- (FSTLruGcResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+- (LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
   if (_params.minBytesThreshold == kFIRFirestorePersistenceCacheSizeUnlimited) {
     LOG_DEBUG("Garbage collection skipped; disabled");
-    return FSTLruGcResults::DidNotRun();
+    return LruResults::DidNotRun();
   }
 
   size_t currentSize = [self byteSize];
   if (currentSize < _params.minBytesThreshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
     LOG_DEBUG("Garbage collection skipped; Cache size %i is lower than threshold %i", currentSize, _params.minBytesThreshold);
-    return FSTLruGcResults::DidNotRun();
+    return LruResults::DidNotRun();
   } else {
     return [self runGCWithLiveTargets:liveTargets];
   }
 }
 
-- (FSTLruGcResults)runGCWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+- (LruResults)runGCWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
   Timestamp start = Timestamp::Now();
   int sequenceNumbers = [self queryCountForPercentile:_params.percentileToCollect];
   // Cap at the configured max
@@ -165,7 +148,7 @@ class RollingSequenceNumberBuffer {
   absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, compactedDb), "ms");
   LOG_DEBUG(desc.c_str());
 
-  return FSTLruGcResults{
+  return LruResults{
       YES,
       sequenceNumbers,
       numTargetsRemoved,

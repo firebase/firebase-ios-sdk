@@ -41,6 +41,7 @@
 namespace testutil = firebase::firestore::testutil;
 using firebase::firestore::auth::User;
 using firebase::firestore::local::LruParams;
+using firebase::firestore::local::LruResults;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DocumentKeyHash;
 using firebase::firestore::model::DocumentKeySet;
@@ -685,7 +686,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  FSTLruGcResults results = [_gc collectWithLiveTargets:@{}];
+  LruResults results = [_gc collectWithLiveTargets:@{}];
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -710,7 +711,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertLessThan(cacheSize, params.minBytesThreshold);
 
   // Try collection and verify that it didn't run
-  FSTLruGcResults results = [_gc collectWithLiveTargets:@{}];
+  LruResults results = [_gc collectWithLiveTargets:@{}];
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -738,8 +739,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Mark nothing as live, so everything is eligible.
-  FSTLruGcResults results = _persistence.run(
-      "GC", [&]() -> FSTLruGcResults { return [_gc collectWithLiveTargets:@{}]; });
+  LruResults results = _persistence.run(
+      "GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.
