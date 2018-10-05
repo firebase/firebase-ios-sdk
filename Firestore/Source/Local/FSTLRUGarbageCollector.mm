@@ -151,7 +151,7 @@ class RollingSequenceNumberBuffer {
   absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, compactedDb), "ms");
   LOG_DEBUG(desc.c_str());
 
-  return LruResults{YES, sequenceNumbers, numTargetsRemoved, numDocumentsRemoved};
+  return LruResults{/* didRun= */ true, sequenceNumbers, numTargetsRemoved, numDocumentsRemoved};
 }
 
 - (int)queryCountForPercentile:(NSUInteger)percentile {

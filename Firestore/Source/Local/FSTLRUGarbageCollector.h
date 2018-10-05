@@ -49,10 +49,10 @@ struct LruParams {
 
 struct LruResults {
   static LruResults DidNotRun() {
-    return LruResults{NO, 0, 0, 0};
+    return LruResults{/* didRun= */ false, 0, 0, 0};
   }
 
-  BOOL didRun;
+  bool didRun;
   int sequenceNumbersCollected;
   int targetsRemoved;
   int documentsRemoved;
