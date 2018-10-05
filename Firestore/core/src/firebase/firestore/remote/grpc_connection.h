@@ -18,10 +18,12 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CONNECTION_H_
 
 #include <memory>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_call.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
@@ -48,7 +50,9 @@ class GrpcConnection {
   GrpcConnection(const core::DatabaseInfo& database_info,
                  util::AsyncQueue* worker_queue,
                  grpc::CompletionQueue* grpc_queue,
-                 std::unique_ptr<ConnectivityMonitor> connectivity_monitor);
+                 ConnectivityMonitor* connectivity_monitor);
+
+  void Shutdown();
 
   /**
    * Creates a stream to the given stream RPC endpoint. The resulting stream
@@ -65,6 +69,9 @@ class GrpcConnection {
       const auth::Token& token,
       const grpc::ByteBuffer& message);
 
+  void Register(GrpcCall* call);
+  void Unregister(GrpcCall* call);
+
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;
@@ -80,7 +87,8 @@ class GrpcConnection {
   std::shared_ptr<grpc::Channel> grpc_channel_;
   std::unique_ptr<grpc::GenericStub> grpc_stub_;
 
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
+  ConnectivityMonitor* connectivity_monitor_ = nullptr;
+  std::vector<GrpcCall*> active_calls_;
 };
 
 }  // namespace remote
