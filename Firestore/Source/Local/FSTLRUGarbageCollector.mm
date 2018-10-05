@@ -16,7 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
-#include <chrono>
+#include <chrono> //NOLINT(build/c++11)
 #include <queue>
 #include <utility>
 
