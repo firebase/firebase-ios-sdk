@@ -109,19 +109,7 @@ struct FSTLruGcResults {
 
   std::string ToString() const;
 
-  long total_duration() const {
-    return targetCountDurationMs + upperBoundDurationMs + removedTargetsDurationMs +
-           removedDocumentsDurationMs + dbCompactionDurationMs;
-  }
-
   BOOL didRun;
-
-  long targetCountDurationMs;
-  long upperBoundDurationMs;
-  long removedTargetsDurationMs;
-  long removedDocumentsDurationMs;
-  long dbCompactionDurationMs;
-
   int sequenceNumbersCollected;
   int targetsRemoved;
   int documentsRemoved;

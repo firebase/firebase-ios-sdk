@@ -247,10 +247,8 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
       dispatchAfterDelay:delay
                  timerID:FSTTimerIDGarbageCollectionDelay
                    block:^{
-                     FSTLruGcResults results =
-                         [self->_localStore tryLruGarbageCollection:self->_lruDelegate.gc];
+                     [self->_localStore tryLruGarbageCollection:self->_lruDelegate.gc];
                      self->_gcHasRun = YES;
-                     LOG_DEBUG(results.ToString().c_str());
                      [self scheduleLruGarbageCollection];
                    }];
 }

@@ -81,7 +81,7 @@ class RollingSequenceNumberBuffer {
   const size_t max_elements_;
 };
 
-std::string FSTLruGcResults::ToString() const {
+/*std::string FSTLruGcResults::ToString() const {
   if (!didRun) {
     return "Garbage Collection skipped";
   } else {
@@ -97,7 +97,7 @@ std::string FSTLruGcResults::ToString() const {
     absl::StrAppend(&desc, "Total duration: ", total_duration(), "ms");
     return desc;
   }
-}
+}*/
 
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
@@ -118,12 +118,14 @@ std::string FSTLruGcResults::ToString() const {
 
 - (FSTLruGcResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
   if (_params.minBytesThreshold == kFIRFirestorePersistenceCacheSizeUnlimited) {
+    LOG_DEBUG("Garbage collection skipped; disabled");
     return FSTLruGcResults::DidNotRun();
   }
 
   size_t currentSize = [self byteSize];
   if (currentSize < _params.minBytesThreshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
+    LOG_DEBUG("Garbage collection skipped; Cache size %i is lower than threshold %i", currentSize, _params.minBytesThreshold);
     return FSTLruGcResults::DidNotRun();
   } else {
     return [self runGCWithLiveTargets:liveTargets];
@@ -152,16 +154,24 @@ std::string FSTLruGcResults::ToString() const {
   [_delegate runPostCompaction];
   Timestamp compactedDb = Timestamp::Now();
 
+  long total_duration = millisecondsBetween(start, compactedDb);
+  std::string desc = "LRU Garbage Collection:\n";
+  absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets), "ms\n");
+  absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbers,
+          " sequence numbers in ", millisecondsBetween(countedTargets, foundUpperBound), "ms\n");
+  absl::StrAppend(&desc, "\tRemoved ", numTargetsRemoved, " targets in ", millisecondsBetween(foundUpperBound, removedTargets),
+          "ms\n");
+  absl::StrAppend(&desc, "\tRemoved ", numDocumentsRemoved, " documents in ",
+          millisecondsBetween(removedTargets, removedDocuments), "ms\n");
+  absl::StrAppend(&desc, "\tCompacted leveldb database in ", millisecondsBetween(removedDocuments, compactedDb), "ms\n");
+  absl::StrAppend(&desc, "Total duration: ", total_duration, "ms");
+  LOG_DEBUG(desc.c_str());
+
   return FSTLruGcResults{
-      .didRun = YES,
-      .targetCountDurationMs = millisecondsBetween(start, countedTargets),
-      .upperBoundDurationMs = millisecondsBetween(countedTargets, foundUpperBound),
-      .removedTargetsDurationMs = millisecondsBetween(foundUpperBound, removedTargets),
-      .removedDocumentsDurationMs = millisecondsBetween(removedTargets, removedDocuments),
-      .dbCompactionDurationMs = millisecondsBetween(removedDocuments, compactedDb),
-      .sequenceNumbersCollected = sequenceNumbers,
-      .targetsRemoved = numTargetsRemoved,
-      .documentsRemoved = numDocumentsRemoved};
+      YES,
+      sequenceNumbers,
+      numTargetsRemoved,
+      numDocumentsRemoved};
 }
 
 - (int)queryCountForPercentile:(NSUInteger)percentile {
