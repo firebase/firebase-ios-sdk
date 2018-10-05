@@ -56,10 +56,9 @@ using leveldb::Status;
 
 namespace {
 
-ListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
+ListenSequenceNumber ReadSequenceNumber(absl::string_view slice) {
   ListenSequenceNumber decoded;
-  absl::string_view tmp(slice.data(), slice.size());
-  if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
+  if (!OrderedCode::ReadSignedNumIncreasing(&slice, &decoded)) {
     HARD_FAIL("Failed to read sequence number from a sentinel row");
   }
   return decoded;

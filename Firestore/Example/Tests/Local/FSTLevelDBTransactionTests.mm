@@ -225,7 +225,7 @@ using leveldb::WriteOptions;
   it->Seek("key_0");
   for (int i = 0; i < 4; ++i) {
     XCTAssertTrue(it->Valid());
-    const absl::string_view &key = it->key();
+    absl::string_view key = it->key();
     std::string expected = "key_" + std::to_string(i);
     XCTAssertEqual(expected, key);
     transaction.Delete(key);
