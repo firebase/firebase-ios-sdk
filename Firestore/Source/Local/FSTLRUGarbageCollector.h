@@ -134,7 +134,9 @@ struct FSTLruGcResults {
 @interface FSTLRUGarbageCollector : NSObject
 
 - (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate
-                          params:(firebase::firestore::local::LruParams)params;
+                          params:(firebase::firestore::local::LruParams)params NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 /**
  * Given a target percentile, return the number of queries that make up that percentage of the
@@ -166,6 +168,6 @@ struct FSTLruGcResults {
 
 - (size_t)byteSize;
 
-- (FSTLruGcResults)tryRunGcWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
+- (FSTLruGcResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
 
 @end

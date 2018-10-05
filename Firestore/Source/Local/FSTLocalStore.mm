@@ -565,7 +565,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
 }
 
 - (FSTLruGcResults)tryLruGarbageCollection:(FSTLRUGarbageCollector *)garbageCollector {
-  return [garbageCollector tryRunGcWithLiveTargets:_targetIDs];
+  return [garbageCollector collectWithLiveTargets:_targetIDs];
 }
 
 @end

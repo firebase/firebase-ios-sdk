@@ -116,7 +116,7 @@ std::string FSTLruGcResults::ToString() const {
   return self;
 }
 
-- (FSTLruGcResults)tryRunGcWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
+- (FSTLruGcResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets {
   if (_params.minBytesThreshold == kFIRFirestorePersistenceCacheSizeUnlimited) {
     return FSTLruGcResults::DidNotRun();
   }
