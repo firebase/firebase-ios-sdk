@@ -739,8 +739,8 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   // Mark nothing as live, so everything is eligible.
-  LruResults results = _persistence.run(
-      "GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
+  LruResults results =
+      _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
 
   // By default, we collect 10% of the sequence numbers. Since we added 100 targets,
   // that should be 10 targets with 10 documents each, for a total of 100 documents.

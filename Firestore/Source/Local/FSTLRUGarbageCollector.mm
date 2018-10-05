@@ -38,7 +38,6 @@ const long kFIRFirestorePersistenceCacheSizeUnlimited = -1;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
 static Millis::rep millisecondsBetween(const Timestamp &start, const Timestamp &end) {
-  //return toMilliseconds(end) - toMilliseconds(start);
   return std::chrono::duration_cast<Millis>(end.ToTimePoint() - start.ToTimePoint()).count();
 }
 
@@ -107,7 +106,8 @@ class RollingSequenceNumberBuffer {
   size_t currentSize = [self byteSize];
   if (currentSize < _params.minBytesThreshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
-    LOG_DEBUG("Garbage collection skipped; Cache size %i is lower than threshold %i", currentSize, _params.minBytesThreshold);
+    LOG_DEBUG("Garbage collection skipped; Cache size %i is lower than threshold %i", currentSize,
+              _params.minBytesThreshold);
     return LruResults::DidNotRun();
   } else {
     return [self runGCWithLiveTargets:liveTargets];
@@ -137,22 +137,21 @@ class RollingSequenceNumberBuffer {
   Timestamp compactedDb = Timestamp::Now();
 
   std::string desc = "LRU Garbage Collection:\n";
-  absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets), "ms\n");
+  absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets),
+                  "ms\n");
   absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbers,
-          " sequence numbers in ", millisecondsBetween(countedTargets, foundUpperBound), "ms\n");
-  absl::StrAppend(&desc, "\tRemoved ", numTargetsRemoved, " targets in ", millisecondsBetween(foundUpperBound, removedTargets),
-          "ms\n");
+                  " sequence numbers in ", millisecondsBetween(countedTargets, foundUpperBound),
+                  "ms\n");
+  absl::StrAppend(&desc, "\tRemoved ", numTargetsRemoved, " targets in ",
+                  millisecondsBetween(foundUpperBound, removedTargets), "ms\n");
   absl::StrAppend(&desc, "\tRemoved ", numDocumentsRemoved, " documents in ",
-          millisecondsBetween(removedTargets, removedDocuments), "ms\n");
-  absl::StrAppend(&desc, "\tCompacted leveldb database in ", millisecondsBetween(removedDocuments, compactedDb), "ms\n");
+                  millisecondsBetween(removedTargets, removedDocuments), "ms\n");
+  absl::StrAppend(&desc, "\tCompacted leveldb database in ",
+                  millisecondsBetween(removedDocuments, compactedDb), "ms\n");
   absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, compactedDb), "ms");
   LOG_DEBUG(desc.c_str());
 
-  return LruResults{
-      YES,
-      sequenceNumbers,
-      numTargetsRemoved,
-      numDocumentsRemoved};
+  return LruResults{YES, sequenceNumbers, numTargetsRemoved, numDocumentsRemoved};
 }
 
 - (int)queryCountForPercentile:(NSUInteger)percentile {

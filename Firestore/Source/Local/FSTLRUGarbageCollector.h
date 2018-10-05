@@ -120,7 +120,8 @@ struct LruResults {
 @interface FSTLRUGarbageCollector : NSObject
 
 - (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate
-                          params:(firebase::firestore::local::LruParams)params NS_DESIGNATED_INITIALIZER;
+                          params:(firebase::firestore::local::LruParams)params
+    NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -154,6 +155,7 @@ struct LruResults {
 
 - (size_t)byteSize;
 
-- (firebase::firestore::local::LruResults)collectWithLiveTargets:(NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
+- (firebase::firestore::local::LruResults)collectWithLiveTargets:
+    (NSDictionary<NSNumber *, FSTQueryData *> *)liveTargets;
 
 @end

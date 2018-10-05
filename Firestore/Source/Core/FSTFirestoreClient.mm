@@ -243,14 +243,14 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
  */
 - (void)scheduleLruGarbageCollection {
   long delay = _gcHasRun ? _initialGcDelay : _regularGcDelay;
-  _lruCallback = [_workerDispatchQueue
-      dispatchAfterDelay:delay
-                 timerID:FSTTimerIDGarbageCollectionDelay
-                   block:^{
-                     [self->_localStore collectGarbage:self->_lruDelegate.gc];
-                     self->_gcHasRun = YES;
-                     [self scheduleLruGarbageCollection];
-                   }];
+  _lruCallback =
+      [_workerDispatchQueue dispatchAfterDelay:delay
+                                       timerID:FSTTimerIDGarbageCollectionDelay
+                                         block:^{
+                                           [self->_localStore collectGarbage:self->_lruDelegate.gc];
+                                           self->_gcHasRun = YES;
+                                           [self scheduleLruGarbageCollection];
+                                         }];
 }
 
 - (void)credentialDidChangeWithUser:(const User &)user {
