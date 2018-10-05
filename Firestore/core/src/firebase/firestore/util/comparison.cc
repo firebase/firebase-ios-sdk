@@ -26,7 +26,7 @@ namespace firestore {
 namespace util {
 
 bool Comparator<absl::string_view>::operator()(
-    const absl::string_view& left, const absl::string_view& right) const {
+    absl::string_view left, absl::string_view right) const {
   // TODO(wilhuff): truncation aware comparison
   return left < right;
 }
