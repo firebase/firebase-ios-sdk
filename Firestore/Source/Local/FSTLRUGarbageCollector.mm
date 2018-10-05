@@ -16,6 +16,7 @@
 
 #import "Firestore/Source/Local/FSTLRUGarbageCollector.h"
 
+#include <chrono>
 #include <queue>
 #include <utility>
 
@@ -26,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 
+using Millis = std::chrono::milliseconds;
 using firebase::Timestamp;
 using firebase::firestore::local::LruParams;
 using firebase::firestore::model::DocumentKey;
@@ -34,12 +36,9 @@ using firebase::firestore::model::ListenSequenceNumber;
 const long kFIRFirestorePersistenceCacheSizeUnlimited = -1;
 const ListenSequenceNumber kFSTListenSequenceNumberInvalid = -1;
 
-static long toMilliseconds(const Timestamp &ts) {
-  return (1000 * ts.seconds()) + (ts.nanoseconds() / 1000000);
-}
-
-static long millisecondsBetween(const Timestamp &start, const Timestamp &end) {
-  return toMilliseconds(end) - toMilliseconds(start);
+static Millis::rep millisecondsBetween(const Timestamp &start, const Timestamp &end) {
+  //return toMilliseconds(end) - toMilliseconds(start);
+  return std::chrono::duration_cast<Millis>(end.ToTimePoint() - start.ToTimePoint()).count();
 }
 
 /**
@@ -154,7 +153,6 @@ class RollingSequenceNumberBuffer {
   [_delegate runPostCompaction];
   Timestamp compactedDb = Timestamp::Now();
 
-  long total_duration = millisecondsBetween(start, compactedDb);
   std::string desc = "LRU Garbage Collection:\n";
   absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets), "ms\n");
   absl::StrAppend(&desc, "\tDetermined least recently used ", sequenceNumbers,
@@ -164,7 +162,7 @@ class RollingSequenceNumberBuffer {
   absl::StrAppend(&desc, "\tRemoved ", numDocumentsRemoved, " documents in ",
           millisecondsBetween(removedTargets, removedDocuments), "ms\n");
   absl::StrAppend(&desc, "\tCompacted leveldb database in ", millisecondsBetween(removedDocuments, compactedDb), "ms\n");
-  absl::StrAppend(&desc, "Total duration: ", total_duration, "ms");
+  absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, compactedDb), "ms");
   LOG_DEBUG(desc.c_str());
 
   return FSTLruGcResults{
