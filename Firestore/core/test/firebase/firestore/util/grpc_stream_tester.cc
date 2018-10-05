@@ -112,7 +112,6 @@ std::unique_ptr<remote::GrpcUnaryCall> GrpcStreamTester::CreateUnaryCall() {
                                           grpc::ByteBuffer{});
 }
 
-
 void GrpcStreamTester::ShutdownGrpcQueue() {
   mock_grpc_queue_.Shutdown();
 }
