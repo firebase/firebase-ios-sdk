@@ -177,7 +177,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable FSTMutationBatch *)nextMutationBatchAfterBatchID:
     (firebase::firestore::model::BatchId)batchID;
 
-- (firebase::firestore::local::LruResults)tryLruGarbageCollection:(FSTLRUGarbageCollector *)garbageCollector;
+- (firebase::firestore::local::LruResults)collectGarbage:(FSTLRUGarbageCollector *)garbageCollector;
 
 @end
 
