@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id<FSTPersistence>)newPersistenceWithLruParams:(firebase::firestore::local::LruParams)lruParams;
 
+@property(nonatomic, strong) id<FSTPersistence> persistence;
+
 @end
 
 NS_ASSUME_NONNULL_END

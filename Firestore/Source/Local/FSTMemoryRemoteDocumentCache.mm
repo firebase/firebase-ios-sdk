@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
   size_t count = 0;
-  for (auto it = key.path.begin(); it != key.path.end(); it++) {
-    count += (*it).size();
+  for (const auto &segment : key.path) {
+    count += segment.size();
   }
   return count;
 }
@@ -95,19 +95,19 @@ static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
   return result;
 }
 
-- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-         throughSequenceNumber:(ListenSequenceNumber)upperBound {
-  int count = 0;
+- (std::vector<DocumentKey>)removeOrphanedDocuments:
+                                (FSTMemoryLRUReferenceDelegate *)referenceDelegate
+                              throughSequenceNumber:(ListenSequenceNumber)upperBound {
+  std::vector<DocumentKey> removed;
   FSTMaybeDocumentDictionary *updatedDocs = self.docs;
   for (FSTDocumentKey *docKey in [self.docs keyEnumerator]) {
     if (![referenceDelegate isPinnedAtSequenceNumber:upperBound document:docKey]) {
       updatedDocs = [updatedDocs dictionaryByRemovingObjectForKey:docKey];
-      NSLog(@"Removing %@", docKey);
-      count++;
+      removed.push_back(DocumentKey{docKey});
     }
   }
   self.docs = updatedDocs;
-  return count;
+  return removed;
 }
 
 - (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer {

@@ -207,7 +207,7 @@ void Stream::OnStreamRead(const grpc::ByteBuffer& message) {
 
   Status read_status = NotifyStreamResponse(message);
   if (!read_status.ok()) {
-    grpc_stream_->Finish();
+    grpc_stream_->FinishImmediately();
     // Don't expect gRPC to produce status -- since the error happened on the
     // client, we have all the information we need.
     OnStreamFinish(read_status);

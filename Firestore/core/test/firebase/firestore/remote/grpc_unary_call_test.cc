@@ -16,10 +16,13 @@
 
 #include <initializer_list>
 #include <memory>
-#include <vector>
 
+#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -38,33 +41,29 @@ using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
 using util::internal::ExecutorStd;
 
-class GrpcStreamingReaderTest : public testing::Test {
+class GrpcUnaryCallTest : public testing::Test {
  public:
-  GrpcStreamingReaderTest()
+  GrpcUnaryCallTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
         connectivity_monitor_{
             absl::make_unique<ConnectivityMonitor>(&worker_queue)},
         tester_{&worker_queue, connectivity_monitor_.get()},
-        reader_{tester_.CreateStreamingReader()} {
-    reader_->Start(
-        [this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
-          status_ = result.status();
-          if (status_->ok()) {
-            responses_ = std::move(result).ValueOrDie();
-          }
-        });
+        call_{tester_.CreateUnaryCall()} {
+    call_->Start([this](const StatusOr<grpc::ByteBuffer>& result) {
+      status_ = result.status();
+    });
   }
 
-  ~GrpcStreamingReaderTest() {
+  ~GrpcUnaryCallTest() {
     tester_.Shutdown();
   }
 
-  GrpcStreamingReader& reader() {
-    return *reader_;
+  GrpcUnaryCall& call() {
+    return *call_;
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
-    tester_.ForceFinish(reader_->context(), results);
+    tester_.ForceFinish(call_->context(), results);
   }
   void KeepPollingGrpcQueue() {
     tester_.KeepPollingGrpcQueue();
@@ -73,9 +72,6 @@ class GrpcStreamingReaderTest : public testing::Test {
   const absl::optional<Status>& status() const {
     return status_;
   }
-  const std::vector<grpc::ByteBuffer>& responses() const {
-    return responses_;
-  }
 
   AsyncQueue worker_queue;
 
@@ -83,53 +79,32 @@ class GrpcStreamingReaderTest : public testing::Test {
   std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
   GrpcStreamTester tester_;
 
-  std::unique_ptr<GrpcStreamingReader> reader_;
+  std::unique_ptr<GrpcUnaryCall> call_;
   absl::optional<Status> status_;
-  std::vector<grpc::ByteBuffer> responses_;
 };
 
-TEST_F(GrpcStreamingReaderTest, OneSuccessfulRead) {
-  ForceFinish({/*Write*/ Ok, /*Read*/ Ok, /*Read after last*/ Error});
-  EXPECT_FALSE(status().has_value());
-
-  ForceFinish({/*Finish*/ grpc::Status::OK});
-  EXPECT_TRUE(status().has_value());
-  EXPECT_EQ(responses().size(), 1);
-}
-
-TEST_F(GrpcStreamingReaderTest, TwoSuccessfulReads) {
-  ForceFinish(
-      {/*Write*/ Ok, /*Read*/ Ok, /*Read*/ Ok, /*Read after last*/ Error});
-  EXPECT_FALSE(status().has_value());
-
-  ForceFinish({/*Finish*/ grpc::Status::OK});
-  EXPECT_TRUE(status().has_value());
-  EXPECT_EQ(responses().size(), 2);
-}
-
-TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
-  ForceFinish({/*Write*/ Error, /*Read*/ Error});
-  EXPECT_FALSE(status().has_value());
-
-  ForceFinish(
-      {/*Finish*/ grpc::Status{grpc::StatusCode::RESOURCE_EXHAUSTED, ""}});
-  EXPECT_TRUE(status().has_value());
-  EXPECT_TRUE(responses().empty());
-}
-
-TEST_F(GrpcStreamingReaderTest, CanFinish) {
+TEST_F(GrpcUnaryCallTest, CanFinish) {
   KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] { reader().FinishImmediately(); });
+  worker_queue.EnqueueBlocking([&] { call().FinishImmediately(); });
   EXPECT_FALSE(status().has_value());
-  EXPECT_TRUE(responses().empty());
 }
 
-TEST_F(GrpcStreamingReaderTest, CanFinishTwice) {
+TEST_F(GrpcUnaryCallTest, CanFinishTwice) {
   KeepPollingGrpcQueue();
   worker_queue.EnqueueBlocking([&] {
-    reader().FinishImmediately();
-    EXPECT_NO_THROW(reader().FinishImmediately());
+    call().FinishImmediately();
+    EXPECT_NO_THROW(call().FinishImmediately());
   });
+}
+
+TEST_F(GrpcUnaryCallTest, SuccessfulFinish) {
+  ForceFinish({/*Finish*/ Ok});
+  EXPECT_TRUE(status().has_value());
+}
+
+TEST_F(GrpcUnaryCallTest, Error) {
+  ForceFinish({/*Finish*/ Error});
+  EXPECT_TRUE(status().has_value());
 }
 
 }  // namespace remote

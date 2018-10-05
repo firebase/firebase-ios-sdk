@@ -212,10 +212,15 @@ static const char *kReservedPathComponent = "firestore";
       if (![self isPinned:docKey]) {
         count++;
         [self->_db.remoteDocumentCache removeEntryForKey:docKey];
+        [self removeSentinel:docKey];
       }
     }
   }];
   return count;
+}
+
+- (void)removeSentinel:(const DocumentKey &)key {
+  _db.currentTransaction->Delete(LevelDbDocumentTargetKey::SentinelKey(key));
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
