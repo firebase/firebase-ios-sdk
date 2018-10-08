@@ -83,8 +83,6 @@ class RollingSequenceNumberBuffer {
 @implementation FSTLRUGarbageCollector {
   id<FSTLRUDelegate> _delegate;
   LruParams _params;
-  long _startTime;
-  long _lastRunTime;
 }
 
 - (instancetype)initWithDelegate:(id<FSTLRUDelegate>)delegate params:(LruParams)params {
@@ -92,7 +90,6 @@ class RollingSequenceNumberBuffer {
   if (self) {
     _delegate = delegate;
     _params = std::move(params);
-    _lastRunTime = -1;
   }
   return self;
 }
