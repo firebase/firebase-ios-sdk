@@ -694,7 +694,8 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  LruResults results = [_gc collectWithLiveTargets:@{}];
+  LruResults results =
+          _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
@@ -719,7 +720,8 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertLessThan(cacheSize, params.minBytesThreshold);
 
   // Try collection and verify that it didn't run
-  LruResults results = [_gc collectWithLiveTargets:@{}];
+  LruResults results =
+          _persistence.run("GC", [&]() -> LruResults { return [_gc collectWithLiveTargets:@{}]; });
   XCTAssertFalse(results.didRun);
 
   [_persistence shutdown];
