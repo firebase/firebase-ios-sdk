@@ -704,7 +704,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testCacheTooSmall {
   if ([self isTestBaseClass]) return;
 
-  LruParams params = LruParams::Disabled();
+  LruParams params = LruParams::Default();
   [self newTestResourcesWithLruParams:params];
 
   _persistence.run("fill cache", [&]() {
@@ -715,7 +715,7 @@ NS_ASSUME_NONNULL_BEGIN
     }
   });
 
-  size_t cacheSize = [_gc byteSize];
+  int cacheSize = (int)[_gc byteSize];
   // Verify that we don't have enough in our cache to warrant collection
   XCTAssertLessThan(cacheSize, params.minBytesThreshold);
 
