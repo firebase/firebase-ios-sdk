@@ -230,7 +230,9 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &entry : _sequenceNumbers) {
     ListenSequenceNumber sequenceNumber = entry.second;
     const DocumentKey &key = entry.first;
-    if (![_persistence.queryCache containsKey:key]) {
+    // Pass in the exact sequence number as the upper bound so we know it won't be pinned by being
+    // too recent.
+    if (![self isPinnedAtSequenceNumber:sequenceNumber document:key]) {
       block(key, sequenceNumber, &stop);
     }
   }
