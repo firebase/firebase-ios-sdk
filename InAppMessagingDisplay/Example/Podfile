@@ -1,5 +1,7 @@
-
 use_frameworks!
+
+# Source Firebase dependencies from a fast mirror for CocoaPods master
+source 'https://github.com/paulb777/FirebaseDependencySpecs'
 
 target 'FiamDisplaySwiftExample' do
   platform :ios, '8.0'
