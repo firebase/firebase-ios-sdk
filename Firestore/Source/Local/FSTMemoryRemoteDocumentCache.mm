@@ -115,7 +115,7 @@ static size_t FSTDocumentKeyByteSize(FSTDocumentKey *key) {
   [self.docs
       enumerateKeysAndObjectsUsingBlock:^(FSTDocumentKey *key, FSTMaybeDocument *doc, BOOL *stop) {
         count += FSTDocumentKeyByteSize(key);
-        count += [[[serializer encodedMaybeDocument:doc] data] length];
+        count += [[serializer encodedMaybeDocument:doc] serializedSize];
       }];
   return count;
 }
