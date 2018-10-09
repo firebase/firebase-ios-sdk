@@ -27,6 +27,8 @@
 
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_migrations.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/test/firebase/firestore/testutil/testutil.h"
@@ -43,10 +45,14 @@ using firebase::firestore::local::LevelDbMigrations;
 using firebase::firestore::local::LevelDbMutationKey;
 using firebase::firestore::local::LevelDbMutationQueueKey;
 using firebase::firestore::local::LevelDbQueryTargetKey;
+using firebase::firestore::local::LevelDbRemoteDocumentKey;
 using firebase::firestore::local::LevelDbTargetDocumentKey;
+using firebase::firestore::local::LevelDbTargetGlobalKey;
 using firebase::firestore::local::LevelDbTargetKey;
 using firebase::firestore::local::LevelDbTransaction;
 using firebase::firestore::model::BatchId;
+using firebase::firestore::model::DocumentKey;
+using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::testutil::Key;
 using firebase::firestore::util::OrderedCode;
@@ -196,6 +202,64 @@ using SchemaVersion = LevelDbMigrations::SchemaVersion;
     }
 
     XCTAssertEqual(found_keys, std::vector<std::string>{});
+  }
+}
+
+- (void)testAddsSentinelRows {
+  ListenSequenceNumber old_sequence_number = 1;
+  ListenSequenceNumber new_sequence_number = 2;
+  std::string encoded_old_sequence_number =
+      LevelDbDocumentTargetKey::EncodeSentinelValue(old_sequence_number);
+  LevelDbMigrations::RunMigrations(_db.get(), 3);
+  {
+    std::string empty_buffer;
+    LevelDbTransaction transaction(_db.get(), "Setup");
+
+    // Set up target global
+    FSTPBTargetGlobal *metadata = [FSTLevelDBQueryCache readTargetMetadataFromDB:_db.get()];
+    // Expect that documents missing a row will get the new number
+    metadata.highestListenSequenceNumber = new_sequence_number;
+    transaction.Put(LevelDbTargetGlobalKey::Key(), metadata);
+
+    // Set up some documents (we only need the keys)
+    // For the odd ones, add sentinel rows.
+    for (int i = 0; i < 10; i++) {
+      DocumentKey key = DocumentKey::FromSegments({"docs", std::to_string(i)});
+      transaction.Put(LevelDbRemoteDocumentKey::Key(key), empty_buffer);
+      if (i % 2 == 1) {
+        std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+        transaction.Put(sentinel_key, encoded_old_sequence_number);
+      }
+    }
+
+    transaction.Commit();
+  }
+
+  LevelDbMigrations::RunMigrations(_db.get(), 4);
+  {
+    LevelDbTransaction transaction(_db.get(), "Verify");
+    auto it = transaction.NewIterator();
+    std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
+    it->Seek(documents_prefix);
+    int count = 0;
+    LevelDbRemoteDocumentKey document_key;
+    std::string buffer;
+    for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix); it->Next()) {
+      count++;
+      XCTAssertTrue(document_key.Decode(it->key()));
+      const DocumentKey &key = document_key.document_key();
+      std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+      XCTAssertTrue(transaction.Get(sentinel_key, &buffer).ok());
+      int doc_number = atoi(key.path().last_segment().c_str());
+      // If the document number is odd, we expect the original old sequence number that we wrote.
+      // If it's even, we expect that the migration added the new sequence number from the target
+      // global
+      ListenSequenceNumber expected_sequence_number =
+          doc_number % 2 == 1 ? old_sequence_number : new_sequence_number;
+      ListenSequenceNumber sequence_number = LevelDbDocumentTargetKey::DecodeSentinelValue(buffer);
+      XCTAssertEqual(expected_sequence_number, sequence_number);
+    }
+    XCTAssertEqual(10, count);
   }
 }
 

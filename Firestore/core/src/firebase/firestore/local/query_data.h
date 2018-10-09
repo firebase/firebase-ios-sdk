@@ -63,6 +63,7 @@ class QueryData {
    */
   QueryData(core::Query&& query,
             model::TargetId target_id,
+            model::ListenSequenceNumber sequence_number,
             QueryPurpose purpose,
             model::SnapshotVersion&& snapshot_version,
             std::vector<uint8_t>&& resume_token);
@@ -88,6 +89,10 @@ class QueryData {
     return target_id_;
   }
 
+  model::ListenSequenceNumber sequence_number() const {
+    return sequence_number_;
+  }
+
   QueryPurpose purpose() const {
     return purpose_;
   }
@@ -106,6 +111,7 @@ class QueryData {
  private:
   const core::Query query_;
   model::TargetId target_id_;
+  model::ListenSequenceNumber sequence_number_;
   QueryPurpose purpose_;
   const model::SnapshotVersion snapshot_version_;
   const std::vector<uint8_t> resume_token_;
@@ -113,6 +119,7 @@ class QueryData {
 
 inline bool operator==(const QueryData& lhs, const QueryData& rhs) {
   return lhs.query() == rhs.query() && lhs.target_id() == rhs.target_id() &&
+         lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
          lhs.snapshot_version() == rhs.snapshot_version() &&
          lhs.resume_token() == rhs.resume_token();

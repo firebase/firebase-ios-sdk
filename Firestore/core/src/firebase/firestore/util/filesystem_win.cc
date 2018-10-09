@@ -56,6 +56,19 @@ Path TempDir() {
   return Path::FromUtf16(buffer, count);
 }
 
+StatusOr<int64_t> FileSize(const Path& path) {
+  WIN32_FILE_ATTRIBUTE_DATA attrs;
+  if (!::GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &attrs)) {
+    DWORD error = ::GetLastError();
+    return Status::FromLastError(error, path.ToUtf8String());
+  }
+
+  LARGE_INTEGER result{};
+  result.HighPart = attrs.nFileSizeHigh;
+  result.LowPart = attrs.nFileSizeLow;
+  return result.QuadPart;
+}
+
 namespace detail {
 
 Status CreateDir(const Path& path) {

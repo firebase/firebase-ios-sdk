@@ -30,7 +30,6 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/ordered_code.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 #include "absl/strings/match.h"
 
@@ -49,22 +48,9 @@ using firebase::firestore::model::ListenSequenceNumber;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
 using firebase::firestore::util::MakeString;
-using firebase::firestore::util::OrderedCode;
 using leveldb::DB;
 using leveldb::Slice;
 using leveldb::Status;
-
-namespace {
-
-ListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
-  ListenSequenceNumber decoded;
-  absl::string_view tmp(slice.data(), slice.size());
-  if (!OrderedCode::ReadSignedNumIncreasing(&tmp, &decoded)) {
-    HARD_FAIL("Failed to read sequence number from a sentinel row");
-  }
-  return decoded;
-}
-}  // namespace
 
 @interface FSTLevelDBQueryCache ()
 
@@ -202,7 +188,7 @@ ListenSequenceNumber ReadSequenceNumber(const absl::string_view &slice) {
       }
       // set nextToReport to be this sequence number. It's the next one we might
       // report, if we don't find any targets for this document.
-      nextToReport = ReadSequenceNumber(it->value());
+      nextToReport = LevelDbDocumentTargetKey::DecodeSentinelValue(it->value());
       keyToReport = key.document_key();
     } else {
       // set nextToReport to be 0, we know we don't need to report this one since

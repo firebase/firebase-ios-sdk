@@ -212,10 +212,15 @@ static const char *kReservedPathComponent = "firestore";
       if (![self isPinned:docKey]) {
         count++;
         [self->_db.remoteDocumentCache removeEntryForKey:docKey];
+        [self removeSentinel:docKey];
       }
     }
   }];
   return count;
+}
+
+- (void)removeSentinel:(const DocumentKey &)key {
+  _db.currentTransaction->Delete(LevelDbDocumentTargetKey::SentinelKey(key));
 }
 
 - (int)removeTargetsThroughSequenceNumber:(ListenSequenceNumber)sequenceNumber
@@ -229,9 +234,9 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (void)writeSentinelForKey:(const DocumentKey &)key {
-  std::string encodedSequenceNumber;
-  OrderedCode::WriteSignedNumIncreasing(&encodedSequenceNumber, [self currentSequenceNumber]);
   std::string sentinelKey = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string encodedSequenceNumber =
+      LevelDbDocumentTargetKey::EncodeSentinelValue([self currentSequenceNumber]);
   _db.currentTransaction->Put(sentinelKey, encodedSequenceNumber);
 }
 
@@ -297,10 +302,10 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (size_t)byteSize {
-  off_t count = 0;
+  int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(_directory);
   for (; iter->Valid(); iter->Next()) {
-    off_t fileSize = util::FileSize(iter->file()).ValueOrDie();
+    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
     count += fileSize;
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",

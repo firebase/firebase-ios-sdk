@@ -146,6 +146,10 @@ class DatastoreSerializer {
       : serializer_{serializer} {
   }
 
+  GCFSCommitRequest* CreateCommitRequest(
+      NSArray<FSTMutation*>* mutations) const;
+  static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
+
   GCFSBatchGetDocumentsRequest* CreateLookupRequest(
       const std::vector<model::DocumentKey>& keys) const;
   static grpc::ByteBuffer ToByteBuffer(GCFSBatchGetDocumentsRequest* request);
