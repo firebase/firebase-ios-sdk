@@ -112,7 +112,8 @@ static CGFloat LandScapePaddingBetweenImageAndTextColumn = 24;
   // populating values for display elements
 
   self.titleLabel.text = self.modalDisplayMessage.title;
-  self.bodyTextView.text = self.modalDisplayMessage.bodyText;
+  NSString *newText = [self.modalDisplayMessage.bodyText stringByReplacingOccurrencesOfString: @"||" withString:@"\n"];
+  self.bodyTextView.text = newText;
 
   if (self.modalDisplayMessage.imageData) {
     [self.imageView
