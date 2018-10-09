@@ -386,11 +386,6 @@ withNotification:(NSDictionary *)notification
                                  @"google.c.a.m_l" : @"developer's customized label",
                                  @"from" : @"/topics/news",
                                  };
-  NSDictionary *params = @{
-                           kFIRIParameterSource : kReengagementSource,
-                           kFIRIParameterMedium : kReengagementMedium,
-                           kFIRIParameterCampaign : @"575315420755741863"
-                           };
   FakeAnalytics *analytics = [[FakeAnalytics alloc]
                               initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
                                 XCTAssertTrue(NO);

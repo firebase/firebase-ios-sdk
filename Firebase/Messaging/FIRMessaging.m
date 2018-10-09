@@ -177,12 +177,14 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return (FIRMessaging *)messaging;
 }
 
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics {
+- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
+                   withInstanceID:(FIRInstanceID *)instanceID
+                 withUserDefaults:(NSUserDefaults *)defaults {
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
-    _instanceID = [FIRInstanceID instanceID];
-    _messagingUserDefaults = [NSUserDefaults standardUserDefaults];
+    _instanceID = instanceID ?: [FIRInstanceID instanceID];
+    _messagingUserDefaults = defaults ?: [NSUserDefaults standardUserDefaults];
     _analytics = analytics;
   }
   return self;
@@ -206,10 +208,12 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
       [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop) isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-    // Ensure it's cached so it returns the same instance every time messagin is called.
+    // Ensure it's cached so it returns the same instance every time messaging is called.
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
-    return [[FIRMessaging alloc] initWithAnalytics:analytics];
+        return [[FIRMessaging alloc] initWithAnalytics:analytics
+                                        withInstanceID:nil
+                                      withUserDefaults:nil];
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)

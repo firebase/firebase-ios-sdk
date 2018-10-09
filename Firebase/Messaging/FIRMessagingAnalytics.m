@@ -109,12 +109,7 @@ withNotification:(NSDictionary *)notification
     return nil;
   }
 
-  NSString *isAnalyticsLoggingEnabled = analyticsDataMap[kAnalyticsEnabled];
-  if (![isAnalyticsLoggingEnabled isKindOfClass:[NSString class]] ||
-      ![isAnalyticsLoggingEnabled isEqual:@"1"]) {
-    // Logging is disabled.
-    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeAnalytics001,
-                             @"Analytics logging is disabled. Do not log event.");
+  if (![self canLogNotification:analyticsDataMap]) {
     return nil;
   }
 
