@@ -18,6 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
+#import <FirebaseCore/FIRApp.h>
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
@@ -39,8 +40,7 @@
 
 - (void)setUp {
   [super setUp];
-
-  _messaging = [[FIRMessaging alloc] initPrivately];
+  _messaging = [FIRMessaging messaging];
 }
 
 - (void)tearDown {
