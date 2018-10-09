@@ -183,8 +183,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   self = [super init];
   if (self != nil) {
     _loggedMessageIDs = [NSMutableSet set];
-    _instanceID = instanceID ?: [FIRInstanceID instanceID];
-    _messagingUserDefaults = defaults ?: [NSUserDefaults standardUserDefaults];
+    _instanceID = instanceID;
+    _messagingUserDefaults = defaults;
     _analytics = analytics;
   }
   return self;
@@ -212,8 +212,8 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
     *isCacheable = YES;
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
         return [[FIRMessaging alloc] initWithAnalytics:analytics
-                                        withInstanceID:nil
-                                      withUserDefaults:nil];
+                                        withInstanceID:[FIRInstanceID instanceID]
+                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
   };
   FIRComponent *messagingProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRMessagingInstanceProvider)
