@@ -17,6 +17,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,6 +38,11 @@ void ConnectivityMonitor::MaybeInvokeCallbacks(NetworkStatus new_status) {
   for (auto& callback : callbacks_) {
     callback(status_.value());
   }
+}
+
+std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::CreateNoOpMonitor() {
+  // The default implementation does nothing
+  return absl::make_unique<ConnectivityMonitor>(nullptr);
 }
 
 }  // namespace remote

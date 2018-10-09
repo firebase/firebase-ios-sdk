@@ -64,6 +64,9 @@ class ConnectivityMonitor {
   }
   // TODO(varconst): RemoveCallback.
 
+  /** For tests only */
+  static std::unique_ptr<ConnectivityMonitor> CreateNoOpMonitor();
+
  protected:
   // The status may be retrieved asynchronously.
   void SetInitialStatus(NetworkStatus new_status);
