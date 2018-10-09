@@ -171,6 +171,11 @@ TEST_F(GrpcUnaryCallDeathTest, CannotRestart) {
   EXPECT_DEATH_IF_SUPPORTED(StartCall(), "");
 }
 
+TEST_F(GrpcUnaryCallDeathTest, CannotGetResponseHeadersBeforeStarting) {
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_DEATH_IF_SUPPORTED(call->GetResponseHeaders(), ""); });
+}
+
 TEST_F(GrpcUnaryCallTest, CannotFinishAndNotifyBeforeStarting) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_ANY_THROW(call->FinishAndNotify(Status::OK())); });

@@ -224,6 +224,11 @@ TEST_F(GrpcStreamingReaderDeathTest, CannotRestart) {
   EXPECT_DEATH_IF_SUPPORTED(StartReader(), "");
 }
 
+TEST_F(GrpcStreamingReaderDeathTest, CannotGetResponseHeadersBeforeStarting) {
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_DEATH_IF_SUPPORTED(reader->GetResponseHeaders(), ""); });
+}
+
 TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_ANY_THROW(reader->FinishAndNotify(Status::OK())); });

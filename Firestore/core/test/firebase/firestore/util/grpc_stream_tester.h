@@ -153,7 +153,7 @@ class GrpcStreamTester {
    * elements in `results`; otherwise, it will hang.
    *
    * IMPORTANT: there are two gotchas to be aware of when using this function:
-
+   *
    * 1. `FinishImmediately` and `FinishAndNotify` issue a finish operation and
    *   block until it completes. For this reason, `ForceFinish` _cannot_ be used
    *   when finishing a gRPC call manually. Consider:
