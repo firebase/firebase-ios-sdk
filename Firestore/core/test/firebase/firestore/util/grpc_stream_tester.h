@@ -57,9 +57,9 @@ enum CompletionResult { Ok, Error };
  *
  * CompletionEndState{Type::Read, Ok} -- as if a read operation was completed
  *    successfully.
- * CompletionEndState{Type::Finish, grpc::Status{grpc::DATA_LOSS, "Some error"}
- * -- as if a finish operation was completed successfully, producing "data loss"
- *     status.
+ * CompletionEndState{Type::Finish, grpc::Status{grpc::DATA_LOSS,
+ *     "Some error"}} - as if a finish operation was completed successfully,
+ *     producing "data loss" status.
  */
 struct CompletionEndState {
   CompletionEndState(remote::GrpcCompletion::Type type, CompletionResult result)
@@ -188,9 +188,8 @@ class GrpcStreamTester {
    * "done"). Use as a failback mechanism for cases that can't be handled by
    * `CompletionEndState`s.
    *
-   * This is a blocking function; it will finish quickly if the the gRPC
-   * completion queue has at least as many pending completions as there are
-   * elements in `results`; otherwise, it will hang.
+   * This is a blocking function; the `callback` must ensure that it returns
+   * `true` before the queue runs out of completions.
    */
   void ForceFinish(grpc::ClientContext* context,
                    const CompletionCallback& callback);
