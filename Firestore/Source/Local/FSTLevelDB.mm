@@ -302,10 +302,10 @@ static const char *kReservedPathComponent = "firestore";
 }
 
 - (size_t)byteSize {
-  off_t count = 0;
+  int64_t count = 0;
   auto iter = util::DirectoryIterator::Create(_directory);
   for (; iter->Valid(); iter->Next()) {
-    off_t fileSize = util::FileSize(iter->file()).ValueOrDie();
+    int64_t fileSize = util::FileSize(iter->file()).ValueOrDie();
     count += fileSize;
   }
   HARD_ASSERT(iter->status().ok(), "Failed to iterate leveldb directory: %s",

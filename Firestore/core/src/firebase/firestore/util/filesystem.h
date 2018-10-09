@@ -77,7 +77,7 @@ Path TempDir();
  * On success, returns the size in bytes of the file specified by
  * `path`.
  */
-StatusOr<off_t> FileSize(const Path& path);
+StatusOr<int64_t> FileSize(const Path& path);
 
 /**
  * Implements an iterator over the contents of a directory. Initializes to the
