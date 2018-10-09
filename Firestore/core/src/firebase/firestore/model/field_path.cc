@@ -69,7 +69,8 @@ struct JoinEscaped {
       escaped.push_back('`');
     }
     return escaped;
-  };
+  }
+
   template <typename T>
   void operator()(T* out, const std::string& segment) {
     out->append(escaped_segment(segment));
