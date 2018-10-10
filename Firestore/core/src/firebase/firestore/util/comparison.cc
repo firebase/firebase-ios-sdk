@@ -19,11 +19,10 @@
 #include <cmath>
 #include <limits>
 
-using std::isnan;
-
 namespace firebase {
 namespace firestore {
 namespace util {
+using std::isnan;
 
 bool Comparator<absl::string_view>::operator()(absl::string_view left,
                                                absl::string_view right) const {
