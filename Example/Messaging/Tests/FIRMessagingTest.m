@@ -18,7 +18,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
@@ -28,10 +27,8 @@
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @interface FIRMessaging ()
-- (void)start;
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
++ (FIRMessaging *)messagingForTests;
+
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
 @property(nonatomic, readwrite, strong) FIRInstanceID *instanceID;
@@ -57,10 +54,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
-  _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
-  [_messaging start];
+  _messaging = [FIRMessaging messagingForTests];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);

@@ -18,9 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
-#import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
+#import <FirebaseCore/FIRApp.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
@@ -28,10 +26,7 @@
 
 @interface FIRMessaging ()
 
-- (void)start;
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
++ (FIRMessaging *)messagingForTests;
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
 
 @end
@@ -46,10 +41,7 @@
 
 - (void)setUp {
   [super setUp];
-  _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
-  [_messaging start];
+  _messaging = [FIRMessaging messagingForTests];
 }
 
 - (void)tearDown {

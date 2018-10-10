@@ -18,17 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
 
 @interface FIRMessaging ()
-- (void)start;
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
++ (FIRMessaging *)messagingForTests;
 @end
 
 @interface FIRMessagingReceiverTest : XCTestCase
@@ -40,10 +36,7 @@
 - (void)setUp {
   [super setUp];
 
-  _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
-  [_messaging start];
+  _messaging = [FIRMessaging messagingForTests];
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }

@@ -25,9 +25,7 @@
 #import "FIRMessagingTopicsCommon.h"
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "NSError+FIRMessaging.h"
-#import <FirebaseAnalyticsInterop/FIRAnalyticsInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
-#import <FirebaseInstanceID/FirebaseInstanceID.h>
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
@@ -35,10 +33,7 @@ static NSString *const kFakeToken =
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
 
 @interface FIRMessaging () <FIRMessagingClientDelegate>
-- (void)start;
-- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
-                   withInstanceID:(FIRInstanceID *)instanceID
-                 withUserDefaults:(NSUserDefaults *)defaults;
++ (FIRMessaging *)messagingForTests;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
@@ -61,10 +56,7 @@ static NSString *const kFakeToken =
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
-  _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
-                                        withInstanceID:[FIRInstanceID instanceID]
-                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
-  [_messaging start];
+  _messaging = [FIRMessaging messagingForTests];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
   [_mockPubSub setClient:nil];

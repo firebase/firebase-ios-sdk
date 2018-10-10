@@ -177,6 +177,15 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
   return (FIRMessaging *)messaging;
 }
 
++ (FIRMessaging *)messagingForTests {
+  FIRMessaging *messaging = [[FIRMessaging alloc]
+                             initWithAnalytics:nil
+                             withInstanceID:[FIRInstanceID instanceID]
+                             withUserDefaults:[NSUserDefaults standardUserDefaults]];
+  [messaging start];
+  return messaging;
+}
+
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
                    withInstanceID:(FIRInstanceID *)instanceID
                  withUserDefaults:(NSUserDefaults *)defaults {
