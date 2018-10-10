@@ -64,6 +64,13 @@ NS_SWIFT_NAME(FirestoreSettings)
  */
 @property(nonatomic, getter=areTimestampsInSnapshotsEnabled) BOOL timestampsInSnapshotsEnabled;
 
+/**
+ * Sets the cache size threshold above which the SDK will attempt to collect least-recently-used
+ * documents. The size is not a guarantee that the cache will stay below that size, only that if
+ * the cache exceeds the given size, cleanup will be attempted. Cannot be set lower than 1MB.
+ *
+ * Set to kFIRFirestoreCacheSizeUnlimited to disable garbage collection entirely.
+ */
 @property(nonatomic, assign) int64_t cacheSizeBytes;
 
 @end
