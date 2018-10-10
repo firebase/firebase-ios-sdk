@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_TESTUTIL_TESTUTIL_H_
 
+#include <algorithm>
 #include <chrono>  // NOLINT(build/c++11)
 #include <cstdint>
 #include <memory>
@@ -42,6 +43,12 @@
 namespace firebase {
 namespace firestore {
 namespace testutil {
+
+/**
+ * A string sentinel that can be used with PatchMutation() to mark a field for
+ * deletion.
+ */
+constexpr const char* kDeleteSentinel = "<DELETE>";
 
 // Below are convenience methods for creating instances for tests.
 
@@ -129,6 +136,39 @@ inline std::unique_ptr<model::SetMutation> SetMutation(
   return absl::make_unique<model::SetMutation>(
       Key(path), model::FieldValue::FromMap(values),
       model::Precondition::None());
+}
+
+inline std::unique_ptr<model::PatchMutation> PatchMutation(
+    absl::string_view path,
+    const model::ObjectValue::Map& values = {},
+    const std::vector<model::FieldPath>* update_mask = nullptr) {
+  model::FieldValue object_value = model::FieldValue::FromMap({});
+  std::vector<model::FieldPath> object_mask;
+
+  for (const auto& kv : values) {
+    model::FieldPath field_path = Field(kv.first);
+    object_mask.push_back(field_path);
+    if (kv.second.string_value() != kDeleteSentinel) {
+      object_value = object_value.Set(field_path, kv.second);
+    }
+  }
+
+  bool merge = update_mask != nullptr;
+
+  // We sort the field_mask_paths to make the order deterministic in tests.
+  std::sort(object_mask.begin(), object_mask.end());
+
+  return absl::make_unique<model::PatchMutation>(
+      Key(path), std::move(object_value),
+      model::FieldMask(merge ? *update_mask : object_mask),
+      merge ? model::Precondition::None() : model::Precondition::Exists(true));
+}
+
+inline std::unique_ptr<model::PatchMutation> PatchMutation(
+    absl::string_view path,
+    const model::ObjectValue::Map& values,
+    const std::vector<model::FieldPath>& update_mask) {
+  return PatchMutation(path, values, &update_mask);
 }
 
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
