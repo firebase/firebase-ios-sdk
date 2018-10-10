@@ -550,6 +550,7 @@
 		DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 		DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
+		DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */; };
 		DEF6C30D1FBCE72F005D0740 /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */; };
 		DEF6C30F1FBCE775005D0740 /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
 		DEF6C3101FBCE775005D0740 /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */; };
@@ -1331,6 +1332,7 @@
 		DEE14D7C1E844677006FA992 /* FIRTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestCase.m; sourceTree = "<group>"; };
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingReceiverTest.m; sourceTree = "<group>"; };
 		E2C2834C90DBAB56D568189F /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRComponentContainerTest.m; sourceTree = "<group>"; };
 		ED34CF4B20DC16DC000EA5D1 /* FIRTestComponents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestComponents.m; sourceTree = "<group>"; };
@@ -2328,6 +2330,7 @@
 				DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */,
 				DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */,
 				DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */,
+				DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */,
 				DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */,
 				DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */,
 				DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */,
@@ -3204,7 +3207,6 @@
 					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = EQHXZ8M8AV;
 						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -4414,6 +4416,7 @@
 				DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */,
 				DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */,
 				DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
+				DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */,
 				DE9315F81E8738E60083EDBF /* FIRMessagingDataMessageManagerTest.m in Sources */,
 				DE9316051E8738E60083EDBF /* FIRMessagingTestNotificationUtilities.m in Sources */,
 				DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */,
@@ -5109,7 +5112,7 @@
 				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -5138,7 +5141,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
