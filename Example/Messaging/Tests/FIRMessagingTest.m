@@ -27,6 +27,7 @@
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @interface FIRMessaging ()
++ (FIRMessaging *)messagingForTests;
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
@@ -53,7 +54,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 - (void)setUp {
   [super setUp];
-  _messaging = [FIRMessaging messaging];
+  _messaging = [FIRMessaging messagingForTests];
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
    OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);
   _mockInstanceID = OCMPartialMock(self.messaging.instanceID);

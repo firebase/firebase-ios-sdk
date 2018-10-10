@@ -18,14 +18,13 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseCore/FIRApp.h>
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"
 
 @interface FIRMessaging ()
 
-- (instancetype)initPrivately;
++ (FIRMessaging *)messagingForTests;
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
 
 @end
@@ -40,7 +39,7 @@
 
 - (void)setUp {
   [super setUp];
-  _messaging = [FIRMessaging messaging];
+  _messaging = [FIRMessaging messagingForTests];
 }
 
 - (void)tearDown {
