@@ -165,25 +165,32 @@ NSString *const kFIRMessagingPlistAutoInitEnabled =
 
 @implementation FIRMessaging
 
+// File static to support InstanceID tests that call [FIRMessaging messaging] after
+// [FIRMessaging messagingForTests].
+static FIRMessaging *sMessaging;
+
 + (FIRMessaging *)messaging {
+  if (sMessaging != nil) {
+    return sMessaging;
+  }
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
   id<FIRMessagingInstanceProvider> messaging =
-      FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
+  FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     [(FIRMessaging *)messaging start];
   });
-  return (FIRMessaging *)messaging;
+  sMessaging = (FIRMessaging *)messaging;
+  return sMessaging;
 }
 
 + (FIRMessaging *)messagingForTests {
-  FIRMessaging *messaging = [[FIRMessaging alloc]
-                             initWithAnalytics:nil
-                             withInstanceID:[FIRInstanceID instanceID]
-                             withUserDefaults:[NSUserDefaults standardUserDefaults]];
-  [messaging start];
-  return messaging;
+  sMessaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                        withInstanceID:[FIRInstanceID instanceID]
+                                      withUserDefaults:[NSUserDefaults standardUserDefaults]];
+  [sMessaging start];
+  return sMessaging;
 }
 
 - (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
