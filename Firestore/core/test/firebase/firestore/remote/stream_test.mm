@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
@@ -49,6 +50,7 @@ using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::CreateNoOpConnectivityMonitor;
 using util::TimerId;
 using util::internal::ExecutorStd;
 using Type = GrpcCompletion::Type;
@@ -180,7 +182,7 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{ConnectivityMonitor::CreateNoOpMonitor()},
+        connectivity_monitor_{CreateNoOpConnectivityMonitor()},
         tester_{&worker_queue, connectivity_monitor_.get()},
         firestore_stream{std::make_shared<TestStream>(
             &worker_queue, &tester_, &credentials)} {

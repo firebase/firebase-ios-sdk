@@ -29,6 +29,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -41,6 +42,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CreateNoOpConnectivityMonitor;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -109,7 +111,7 @@ class GrpcStreamTest : public testing::Test {
  public:
   GrpcStreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor{ConnectivityMonitor::CreateNoOpMonitor()},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{&worker_queue, connectivity_monitor.get()},
         observer{absl::make_unique<Observer>()},
         stream{tester.CreateStream(observer.get())} {
@@ -344,8 +346,8 @@ TEST_F(GrpcStreamTest, CanAddSeveralWrites) {
         completion->Complete(true);
         break;
       default:
-        EXPECT_TRUE(false) << "Unexpected completion type "
-                           << static_cast<int>(completion->type());
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
         break;
     }
 
@@ -438,8 +440,8 @@ TEST_F(GrpcStreamTest, ErrorOnWrite) {
         break;
 
       default:
-        EXPECT_TRUE(false) << "Unexpected completion type "
-                           << static_cast<int>(completion->type());
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
         break;
     }
 
@@ -472,8 +474,8 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
         completion->Complete(false);
         break;
       default:
-        EXPECT_TRUE(false) << "Unexpected completion type "
-                           << static_cast<int>(completion->type());
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
         break;
     }
 
@@ -483,7 +485,6 @@ TEST_F(GrpcStreamTest, ErrorWithPendingWrites) {
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 
-  EXPECT_TRUE(failed_write);
   EXPECT_EQ(observed_states().back(), "OnStreamFinish(Unavailable)");
 }
 

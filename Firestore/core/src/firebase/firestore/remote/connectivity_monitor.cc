@@ -40,11 +40,6 @@ void ConnectivityMonitor::MaybeInvokeCallbacks(NetworkStatus new_status) {
   }
 }
 
-std::unique_ptr<ConnectivityMonitor> ConnectivityMonitor::CreateNoOpMonitor() {
-  // The default implementation does nothing
-  return absl::make_unique<ConnectivityMonitor>(nullptr);
-}
-
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

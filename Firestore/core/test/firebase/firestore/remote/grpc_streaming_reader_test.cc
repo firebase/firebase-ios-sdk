@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -35,6 +36,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CreateNoOpConnectivityMonitor;
 using util::GetFirestoreErrorCodeName;
 using util::GetGrpcErrorCodeName;
 using util::GrpcStreamTester;
@@ -51,7 +53,7 @@ class GrpcStreamingReaderTest : public testing::Test {
  public:
   GrpcStreamingReaderTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor{ConnectivityMonitor::CreateNoOpMonitor()},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{&worker_queue, connectivity_monitor.get()},
         reader{tester.CreateStreamingReader()} {
   }
@@ -128,7 +130,7 @@ class GrpcStreamingReaderTest : public testing::Test {
           [this](const StatusOr<std::vector<grpc::ByteBuffer>>& result) {
             status = result.status();
             if (status->ok()) {
-              responses = std::move(result).ValueOrDie();
+              responses = result.ValueOrDie();
             }
           });
     });
@@ -308,8 +310,8 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnWrite) {
         break;
 
       default:
-        EXPECT_TRUE(false) << "Unexpected completion type "
-                           << static_cast<int>(completion->type());
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
         break;
     }
 
@@ -356,7 +358,7 @@ TEST_F(GrpcStreamingReaderTest, ErrorOnSecondRead) {
 
 // Callback destroys reader
 
-TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyStreamOnSuccess) {
+TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnSuccess) {
   worker_queue.EnqueueBlocking([&] {
     reader->Start([this](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
       reader.reset();
@@ -374,7 +376,7 @@ TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyStreamOnSuccess) {
   EXPECT_EQ(reader, nullptr);
 }
 
-TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyStreamOnError) {
+TEST_F(GrpcStreamingReaderTest, CallbackCanDestroyReaderOnError) {
   worker_queue.EnqueueBlocking([&] {
     reader->Start([this](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
       reader.reset();

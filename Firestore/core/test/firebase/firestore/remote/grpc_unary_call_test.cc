@@ -23,6 +23,7 @@
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
 #include "Firestore/core/src/firebase/firestore/util/status.h"
 #include "Firestore/core/src/firebase/firestore/util/statusor.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/types/optional.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -35,6 +36,7 @@ namespace remote {
 using util::AsyncQueue;
 using util::ByteBufferToString;
 using util::CompletionEndState;
+using util::CreateNoOpConnectivityMonitor;
 using util::GrpcStreamTester;
 using util::MakeByteBuffer;
 using util::Status;
@@ -48,7 +50,7 @@ class GrpcUnaryCallTest : public testing::Test {
  public:
   GrpcUnaryCallTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{ConnectivityMonitor::CreateNoOpMonitor()},
+        connectivity_monitor_{CreateNoOpConnectivityMonitor()},
         tester{&worker_queue, connectivity_monitor_.get()},
         call{tester.CreateUnaryCall()} {
   }
@@ -206,7 +208,7 @@ TEST_F(GrpcUnaryCallTest, Error) {
 
 // Callback destroys reader
 
-TEST_F(GrpcUnaryCallTest, CallbackCanDestroyStreamOnSuccess) {
+TEST_F(GrpcUnaryCallTest, CallbackCanDestroyCallOnSuccess) {
   worker_queue.EnqueueBlocking([&] {
     call->Start([this](const StatusOr<grpc::ByteBuffer>&) { call.reset(); });
   });
@@ -216,7 +218,7 @@ TEST_F(GrpcUnaryCallTest, CallbackCanDestroyStreamOnSuccess) {
   EXPECT_EQ(call, nullptr);
 }
 
-TEST_F(GrpcUnaryCallTest, CallbackCanDestroyStreamOnError) {
+TEST_F(GrpcUnaryCallTest, CallbackCanDestroyCallOnError) {
   worker_queue.EnqueueBlocking([&] {
     call->Start([this](const StatusOr<grpc::ByteBuffer>&) { call.reset(); });
   });
