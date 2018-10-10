@@ -59,9 +59,10 @@ std::unique_ptr<MaybeDocument> SetMutation::ApplyToLocalView(
   VerifyKeyMatches(maybe_doc);
 
   if (!precondition().IsValidFor(maybe_doc)) {
-    if (maybe_doc)
+    if (maybe_doc) {
       return absl::make_unique<MaybeDocument>(maybe_doc->key(),
                                               maybe_doc->version());
+    }
     return nullptr;
   }
 
