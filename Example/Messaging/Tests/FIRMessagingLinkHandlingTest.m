@@ -18,8 +18,6 @@
 
 #import <OCMock/OCMock.h>
 
-#import <FirebaseCore/FIRApp.h>
-
 #import "FIRMessaging.h"
 #import "FIRMessagingConstants.h"
 #import "FIRMessagingTestNotificationUtilities.h"

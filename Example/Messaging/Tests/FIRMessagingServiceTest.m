@@ -25,7 +25,6 @@
 #import "FIRMessagingTopicsCommon.h"
 #import "InternalHeaders/FIRMessagingInternalUtilities.h"
 #import "NSError+FIRMessaging.h"
-#import <FirebaseCore/FIRAppInternal.h>
 
 static NSString *const kFakeToken =
     @"fE1e1PZJFSQ:APA91bFAOjp1ahBWn9rTlbjArwBEm_"
