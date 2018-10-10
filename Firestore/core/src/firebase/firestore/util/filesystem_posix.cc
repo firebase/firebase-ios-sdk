@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "Firestore/third_party/abseil-cpp/absl/memory/memory.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
