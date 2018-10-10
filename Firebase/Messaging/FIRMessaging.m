@@ -175,7 +175,7 @@ static FIRMessaging *sMessaging;
   }
   FIRApp *defaultApp = [FIRApp defaultApp];  // Missing configure will be logged here.
   id<FIRMessagingInstanceProvider> messaging =
-  FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
+      FIR_COMPONENT(FIRMessagingInstanceProvider, defaultApp.container);
 
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
