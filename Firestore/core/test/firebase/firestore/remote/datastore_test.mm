@@ -113,6 +113,52 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
             "x-google-service: service 2\n");
 }
 
+TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
+  credentials.FailGetToken();
+
+  __block NSError* resulting_error = nil;
+  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    resulting_error = error;
+  });
+  worker_queue.EnqueueBlocking([] {});
+  EXPECT_NE(resulting_error, nil);
+}
+
+TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
+  credentials.FailGetToken();
+
+  __block NSError* resulting_error = nil;
+  datastore->LookupDocuments(
+      {}, ^(NSArray<FSTMaybeDocument*>* docs, NSError* _Nullable error) {
+        resulting_error = error;
+      });
+  worker_queue.EnqueueBlocking([] {});
+  EXPECT_NE(resulting_error, nil);
+}
+
+/*
+TEST_F(DatastoreTest, AuthWhenDatastoreHasBeenShutDown) {
+  credentials.DelayGetToken();
+  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+  FAIL() << "Callback shouldn't be invoked";
+  });
+  Shutdown();
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
+}
+*/
+
+TEST_F(DatastoreTest, AuthOutlivesDatastore) {
+  credentials.DelayGetToken();
+
+  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    FAIL() << "Callback shouldn't be invoked";
+  });
+  Shutdown();
+  datastore.reset();
+
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
