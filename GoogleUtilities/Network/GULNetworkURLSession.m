@@ -32,7 +32,7 @@
 #pragma clang diagnostic ignored "-Wunguarded-availability"
   /// The session configuration. NSURLSessionConfiguration' is only available on iOS 7.0 or newer.
   NSURLSessionConfiguration *_sessionConfig;
-#pragma pop
+#pragma clang diagnostic pop
 
   /// The path to the directory where all temporary files are stored before uploading.
   NSURL *_networkDirectoryURL;
@@ -158,8 +158,7 @@
   }
 
   // Save the session into memory.
-  NSMapTable *sessionIdentifierToFetcherMap = [[self class] sessionIDToFetcherMap];
-  [sessionIdentifierToFetcherMap setObject:self forKey:_sessionID];
+  [self setSessionInFetcherMap:self forSessionID:_sessionID];
 
   _request = [request copy];
 
@@ -201,8 +200,7 @@
   }
 
   // Save the session into memory.
-  NSMapTable *sessionIdentifierToFetcherMap = [[self class] sessionIDToFetcherMap];
-  [sessionIdentifierToFetcherMap setObject:self forKey:_sessionID];
+  [self setSessionInFetcherMap:self forSessionID:_sessionID];
 
   _request = [request copy];
 
@@ -284,6 +282,17 @@
   // Try to clean up stale files again.
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
                      expiringTime:kGULNetworkTempFolderExpireTime];
+
+  // Invalidate the session only if it's owned by this class.
+  NSString *sessionID = session.configuration.identifier;
+  if ([sessionID hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
+    [session finishTasksAndInvalidate];
+
+    // Explicitly remove the session so it won't be reused. The weak map table should
+    // remove the session on deallocation, but dealloc may not happen immediately after
+    // calling `finishTasksAndInvalidate`.
+    [self setSessionInFetcherMap:nil forSessionID:sessionID];
+  }
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -531,7 +540,8 @@
 
 /// Gets the fetcher with the session ID.
 + (instancetype)fetcherWithSessionIdentifier:(NSString *)sessionIdentifier {
-  NSMapTable *sessionIdentifierToFetcherMap = [self sessionIDToFetcherMap];
+  NSMapTable<NSString *, GULNetworkURLSession *> *sessionIdentifierToFetcherMap =
+      [self sessionIDToFetcherMap];
   GULNetworkURLSession *session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
   if (!session && [sessionIdentifier hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
     session = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
@@ -542,7 +552,7 @@
 }
 
 /// Returns a map of the fetcher by session ID. Creates a map if it is not created.
-+ (NSMapTable *)sessionIDToFetcherMap {
++ (NSMapTable<NSString *, GULNetworkURLSession *> *)sessionIDToFetcherMap {
   static NSMapTable *sessionIDToFetcherMap;
 
   static dispatch_once_t sessionMapOnceToken;
@@ -651,6 +661,28 @@
 
 #pragma mark - Helper Methods
 
+- (void)setSessionInFetcherMap:(GULNetworkURLSession *)session forSessionID:(NSString *)sessionID {
+  GULNetworkURLSession *existingSession = [self sessionFromFetcherMapForSessionID:sessionID];
+  if (existingSession) {
+    // Invalidating doesn't seem like the right thing to do here since it may cancel an active
+    // background transfer if the background session is handling multiple requests. The old
+    // session will be dropped from the map table, but still complete its request.
+    NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
+                                 messageCode:kGULNetworkMessageCodeURLSession019
+                                     message:message];
+  }
+  if (session) {
+    [[[self class] sessionIDToFetcherMap] setObject:session forKey:sessionID];
+  } else {
+    [[[self class] sessionIDToFetcherMap] removeObjectForKey:sessionID];
+  }
+}
+
+- (nullable GULNetworkURLSession *)sessionFromFetcherMapForSessionID:(NSString *)sessionID {
+  return [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
+}
+
 - (void)callCompletionHandler:(GULNetworkURLSessionCompletionHandler)handler
                  withResponse:(NSHTTPURLResponse *)response
                          data:(NSData *)data
@@ -669,6 +701,7 @@
   }
 }
 
+// Always use the request parameters even if the default session configuration is more restrictive.
 - (void)populateSessionConfig:(NSURLSessionConfiguration *)sessionConfig
                   withRequest:(NSURLRequest *)request API_AVAILABLE(ios(7.0)) {
   sessionConfig.HTTPAdditionalHeaders = request.allHTTPHeaderFields;
