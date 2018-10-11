@@ -373,8 +373,8 @@ TEST_F(GrpcStreamTest, ObserverReceivesOnStart) {
 TEST_F(GrpcStreamTest, ObserverReceivesOnError) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
 
-  ForceFinish({{Type::Read, Error} {
-      Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
 
   EXPECT_EQ(observed_states(),
             States({"OnStreamStart", "OnStreamFinish(ResourceExhausted)"}));
