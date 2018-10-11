@@ -21,6 +21,7 @@
 #include <utility>
 
 #import "FIRFirestoreErrors.h"
+#import "FIRFirestoreSettings.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
@@ -75,7 +76,7 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                      usePersistence:(BOOL)usePersistence
+                            settings:(FIRFirestoreSettings *)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -115,20 +116,20 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
 }
 
 + (instancetype)clientWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                        usePersistence:(BOOL)usePersistence
+                              settings:(FIRFirestoreSettings *)settings
                    credentialsProvider:
                        (CredentialsProvider *)credentialsProvider  // no passing ownership
                           userExecutor:(std::unique_ptr<Executor>)userExecutor
                    workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue {
   return [[FSTFirestoreClient alloc] initWithDatabaseInfo:databaseInfo
-                                           usePersistence:usePersistence
+                                                 settings:settings
                                       credentialsProvider:credentialsProvider
                                              userExecutor:std::move(userExecutor)
                                       workerDispatchQueue:workerDispatchQueue];
 }
 
 - (instancetype)initWithDatabaseInfo:(const DatabaseInfo &)databaseInfo
-                      usePersistence:(BOOL)usePersistence
+                            settings:(FIRFirestoreSettings *)settings
                  credentialsProvider:
                      (CredentialsProvider *)credentialsProvider  // no passing ownership
                         userExecutor:(std::unique_ptr<Executor>)userExecutor
@@ -167,13 +168,13 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
     // before any subsequently queued work runs.
     [_workerDispatchQueue dispatchAsync:^{
       User user = userPromise->get_future().get();
-      [self initializeWithUser:user usePersistence:usePersistence];
+      [self initializeWithUser:user settings:settings];
     }];
   }
   return self;
 }
 
-- (void)initializeWithUser:(const User &)user usePersistence:(BOOL)usePersistence {
+- (void)initializeWithUser:(const User &)user settings:(FIRFirestoreSettings *)settings {
   // Do all of our initialization on our own dispatch queue.
   [self.workerDispatchQueue verifyIsCurrentQueue];
   LOG_DEBUG("Initializing. Current user: %s", user.uid());
@@ -181,7 +182,7 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
   // Note: The initialization work must all be synchronous (we can't dispatch more work) since
   // external write/listen operations could get queued to run before that subsequent work
   // completes.
-  if (usePersistence) {
+  if (settings.isPersistenceEnabled) {
     Path dir = [FSTLevelDB storageDirectoryForDatabaseInfo:*self.databaseInfo
                                         documentsDirectory:[FSTLevelDB documentsDirectory]];
 
@@ -190,9 +191,10 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
     // TODO(gsoltis): enable LRU GC once API is finalized
-    FSTLevelDB *ldb = [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
-                                                 serializer:serializer
-                                                  lruParams:LruParams::Disabled()];
+    FSTLevelDB *ldb =
+        [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
+                                   serializer:serializer
+                                    lruParams:LruParams::WithCacheSize(settings.cacheSizeBytes)];
     _lruDelegate = ldb.referenceDelegate;
     _persistence = ldb;
     [self scheduleLruGarbageCollection];

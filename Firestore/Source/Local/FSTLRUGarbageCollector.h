@@ -44,6 +44,12 @@ struct LruParams {
     return LruParams{kFIRFirestoreCacheSizeUnlimited, 0, 0};
   }
 
+  static LruParams WithCacheSize(int64_t cacheSize) {
+    LruParams params = Default();
+    params.minBytesThreshold = cacheSize;
+    return params;
+  }
+
   int64_t minBytesThreshold;
   int percentileToCollect;
   int maximumSequenceNumbersToCollect;

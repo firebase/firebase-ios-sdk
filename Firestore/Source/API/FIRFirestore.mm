@@ -258,7 +258,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
           absl::make_unique<ExecutorLibdispatch>(_settings.dispatchQueue);
 
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
-                                            usePersistence:_settings.persistenceEnabled
+                                                  settings:_settings
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
                                        workerDispatchQueue:_workerDispatchQueue];
