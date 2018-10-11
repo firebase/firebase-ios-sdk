@@ -85,7 +85,7 @@ case "$platform" in
   iOS)
     xcb_flags=(
       -sdk 'iphonesimulator'
-      -destination 'platform=iOS Simulator,name=iPhone 7'
+      -destination 'platform=iOS Simulator,name=iPhone 8'
     )
     ;;
 
@@ -236,6 +236,13 @@ case "$product-$method-$platform" in
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
         -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
@@ -249,6 +256,13 @@ case "$product-$method-$platform" in
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
         -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
