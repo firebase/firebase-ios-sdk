@@ -236,6 +236,7 @@ case "$product-$method-$platform" in
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
+        -destination 'platform=iOS Simulator,name=iPad Air 2' \
         build \
         test
 
@@ -248,6 +249,7 @@ case "$product-$method-$platform" in
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
+        -destination 'platform=iOS Simulator,name=iPad Air 2' \
         build \
         test
     ;;
