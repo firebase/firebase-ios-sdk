@@ -128,7 +128,7 @@
 
   if (didWriteFile) {
     // Exclude this file from backing up to iTunes. There are conflicting reports that excluding
-    // directory from backing up does not exclude files of that directory from backing up.
+    // directory from backing up does not excluding files of that directory from backing up.
     [self excludeFromBackupForURL:_uploadingFileURL];
 
     _sessionConfig = [self backgroundSessionConfigWithSessionID:_sessionID];
@@ -240,7 +240,6 @@
                                      context:error];
     _downloadedData = nil;
   }
-  [session finishTasksAndInvalidate];
 }
 
 #if TARGET_OS_IOS || TARGET_OS_TV
@@ -251,7 +250,6 @@
                                    message:@"Background session finished"
                                    context:session.configuration.identifier];
   [self callSystemCompletionHandler:session.configuration.identifier];
-  [session finishTasksAndInvalidate];
 }
 #endif
 
@@ -286,7 +284,6 @@
   // Try to clean up stale files again.
   [self maybeRemoveTempFilesAtURL:_networkDirectoryURL
                      expiringTime:kGULNetworkTempFolderExpireTime];
-  [session finishTasksAndInvalidate];
 }
 
 - (void)URLSession:(NSURLSession *)session
