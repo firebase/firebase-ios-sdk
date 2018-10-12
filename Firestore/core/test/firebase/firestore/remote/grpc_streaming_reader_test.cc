@@ -146,48 +146,19 @@ class GrpcStreamingReaderTest : public testing::Test {
   std::vector<grpc::ByteBuffer> responses;
 };
 
-// Method prerequisites -- correct usage of `FinishImmediately`
+// API usage
 
-TEST_F(GrpcStreamingReaderTest, CanFinishBeforeStarting) {
+TEST_F(GrpcStreamingReaderTest, FinishImmediatelyIsIdempotent) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(reader->FinishImmediately()); });
-}
 
-TEST_F(GrpcStreamingReaderTest, CanFinishAfterStarting) {
-  StartReader();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(reader->FinishImmediately()); });
-}
-
-TEST_F(GrpcStreamingReaderTest, CanFinishMoreThanOnce) {
   StartReader();
 
   KeepPollingGrpcQueue();
   worker_queue.EnqueueBlocking([&] {
     EXPECT_NO_THROW(reader->FinishImmediately());
+    EXPECT_NO_THROW(reader->FinishAndNotify(Status::OK()));
     EXPECT_NO_THROW(reader->FinishImmediately());
-  });
-}
-
-// Method prerequisites -- correct usage of `FinishAndNotify`
-
-TEST_F(GrpcStreamingReaderTest, CanFinishAndNotifyAfterStarting) {
-  StartReader();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(reader->FinishAndNotify(Status::OK())); });
-}
-
-TEST_F(GrpcStreamingReaderTest, CanFinishAndNotifyMoreThanOnce) {
-  StartReader();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(reader->FinishAndNotify(Status::OK()));
-    EXPECT_NO_THROW(reader->FinishAndNotify(Status::OK()));
   });
 }
 
@@ -214,11 +185,6 @@ TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
 // https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
 using GrpcStreamingReaderDeathTest = GrpcStreamingReaderTest;
 
-TEST_F(GrpcStreamingReaderDeathTest, CannotStartTwice) {
-  StartReader();
-  EXPECT_DEATH_IF_SUPPORTED(StartReader(), "");
-}
-
 TEST_F(GrpcStreamingReaderDeathTest, CannotRestart) {
   StartReader();
   KeepPollingGrpcQueue();
@@ -226,12 +192,8 @@ TEST_F(GrpcStreamingReaderDeathTest, CannotRestart) {
   EXPECT_DEATH_IF_SUPPORTED(StartReader(), "");
 }
 
-TEST_F(GrpcStreamingReaderDeathTest, CannotGetResponseHeadersBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(reader->GetResponseHeaders(), ""); });
-}
-
 TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
+  // No callback has been assigned.
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_ANY_THROW(reader->FinishAndNotify(Status::OK())); });
 }

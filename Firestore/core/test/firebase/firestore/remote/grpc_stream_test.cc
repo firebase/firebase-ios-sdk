@@ -158,95 +158,22 @@ class GrpcStreamTest : public testing::Test {
   std::unique_ptr<GrpcStream> stream;
 };
 
-// Method prerequisites -- correct usage of `FinishImmediately`
+// API usage
 
-TEST_F(GrpcStreamTest, CanFinishBeforeStarting) {
+TEST_F(GrpcStreamTest, FinishIsIdempotent) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
-}
 
-TEST_F(GrpcStreamTest, CanFinishAfterStarting) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(stream->FinishImmediately()); });
-}
-
-TEST_F(GrpcStreamTest, CanFinishMoreThanOnce) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
   KeepPollingGrpcQueue();
 
   worker_queue.EnqueueBlocking([&] {
     EXPECT_NO_THROW(stream->FinishImmediately());
+    EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK()));
     EXPECT_NO_THROW(stream->FinishImmediately());
-  });
-}
-
-// Method prerequisites -- correct usage of `FinishAndNotify`
-
-TEST_F(GrpcStreamTest, CanFinishAndNotifyBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK())); });
-}
-
-TEST_F(GrpcStreamTest, CanFinishAndNotifyAfterStarting) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK())); });
-}
-
-TEST_F(GrpcStreamTest, CanFinishAndNotifyMoreThanOnce) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK()));
-    EXPECT_NO_THROW(stream->FinishAndNotify(Status::OK()));
-  });
-}
-
-// Method prerequisites -- correct usage of `WriteAndFinish`
-
-TEST_F(GrpcStreamTest, CanWriteAndFinishAfterStarting) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(stream->WriteAndFinish({})); });
-}
-
-TEST_F(GrpcStreamTest, CanWriteAndFinishMoreThanOnce) {
-  worker_queue.EnqueueBlocking([&] { stream->Start(); });
-  KeepPollingGrpcQueue();
-
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(stream->WriteAndFinish({}));
     EXPECT_NO_THROW(stream->WriteAndFinish({}));
   });
 }
-
-// Method prerequisites -- correct usage of `Write`
-
-TEST_F(GrpcStreamTest, CanWriteAfterStreamIsOpen) {
-  worker_queue.EnqueueBlocking([&] {
-    stream->Start();
-    EXPECT_NO_THROW(stream->Write({}));
-  });
-}
-
-// Method prerequisites -- correct usage of `WriteLast`
-
-TEST_F(GrpcStreamTest, CanWriteLastAfterStreamIsOpen) {
-  worker_queue.EnqueueBlocking([&] {
-    stream->Start();
-    EXPECT_NO_THROW(stream->WriteLast({}));
-  });
-}
-
-// Method prerequisites -- correct usage of `GetResponseHeaders`
 
 TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterStarting) {
   worker_queue.EnqueueBlocking([&] {
@@ -265,18 +192,9 @@ TEST_F(GrpcStreamTest, CanGetResponseHeadersAfterFinishing) {
   });
 }
 
-// Method prerequisites -- incorrect usage
-
 // Death tests should contain the word "DeathTest" in their name -- see
 // https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
 using GrpcStreamDeathTest = GrpcStreamTest;
-
-TEST_F(GrpcStreamDeathTest, CannotStartTwice) {
-  worker_queue.EnqueueBlocking([&] {
-    stream->Start();
-    EXPECT_DEATH_IF_SUPPORTED(stream->Start(), "");
-  });
-}
 
 TEST_F(GrpcStreamDeathTest, CannotRestart) {
   worker_queue.EnqueueBlocking([&] { stream->Start(); });
@@ -285,31 +203,6 @@ TEST_F(GrpcStreamDeathTest, CannotRestart) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_DEATH_IF_SUPPORTED(stream->Start(), ""); });
 }
-
-TEST_F(GrpcStreamDeathTest, CannotWriteBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(stream->Write({}), ""); });
-}
-
-TEST_F(GrpcStreamDeathTest, CannotWriteLastBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(stream->WriteLast({}), ""); });
-}
-
-TEST_F(GrpcStreamDeathTest, CannotWriteAndFinishBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(stream->WriteAndFinish({}), ""); });
-}
-
-TEST_F(GrpcStreamDeathTest, CannotGetResponseHeadersBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(stream->GetResponseHeaders(), ""); });
-}
-
-// The following are infeasible to implement because this usage doesn't trigger
-// an error in gRPC:
-// CannotWriteAfterWriteLast
-// CannotWriteLastAfterWriteLast
 
 // Read and write
 
