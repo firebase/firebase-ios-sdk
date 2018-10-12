@@ -231,8 +231,8 @@ case "$product-$method-$platform" in
     ;;
 
   InAppMessagingDisplay-xcodebuild-iOS)
-    # Run UI tests on both iPad and iphone simulators
-    # TODO: Running two destinations from one xcodebuild command stopped working with XCode 10.
+    # Run UI tests on both iPad and iPhone simulators
+    # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
     # Consider separating static library tests to a separate job.
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
@@ -253,7 +253,7 @@ case "$product-$method-$platform" in
     sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
     pod update --no-repo-update
     cd ../..
-    # Run UI tests on both iPad and iphone simulators
+    # Run UI tests on both iPad and iPhone simulators
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
