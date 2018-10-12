@@ -151,7 +151,7 @@ void Datastore::CommitMutations(NSArray<FSTMutation*>* mutations,
 
   ResumeRpcWithCredentials(
       [this, message, completion](const StatusOr<Token>& maybe_credentials) {
-         if (!maybe_credentials.ok()) {
+        if (!maybe_credentials.ok()) {
           completion(util::MakeNSError(maybe_credentials.status()));
           return;
         }
