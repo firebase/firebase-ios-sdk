@@ -128,6 +128,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   static GrpcCall::Metadata ExtractWhitelistedHeaders(
       const GrpcCall::Metadata& headers);
 
+  // In case Auth tries to invoke a callback after `Datastore` has been shut
+  // down.
+  bool is_shut_down_ = false;
+
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
 

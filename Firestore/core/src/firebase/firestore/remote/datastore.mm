@@ -99,6 +99,8 @@ Datastore::Datastore(const DatabaseInfo& database_info,
 }
 
 void Datastore::Shutdown() {
+  is_shut_down_ = true;
+
   // Order matters here: shutting down `grpc_connection_`, which will quickly
   // finish any pending gRPC calls, must happen before shutting down the gRPC
   // queue.
@@ -260,6 +262,11 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
             [weak_this, result, on_credentials] {
               auto strong_this = weak_this.lock();
               if (!strong_this) {
+                return;
+              }
+              // In case Auth callback is invoked after Datastore has been shut
+              // down.
+              if (strong_this->is_shut_down_) {
                 return;
               }
 

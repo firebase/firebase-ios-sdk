@@ -113,42 +113,47 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
 TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nil;
+  __block NSError* resulting_error = nullptr;
   datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
     resulting_error = error;
   });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nil);
+  EXPECT_NE(resulting_error, nullptr);
 }
 
 TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
   credentials.FailGetToken();
 
-  __block NSError* resulting_error = nil;
+  __block NSError* resulting_error = nullptr;
   datastore->LookupDocuments(
       {}, ^(NSArray<FSTMaybeDocument*>* docs, NSError* _Nullable error) {
         resulting_error = error;
       });
   worker_queue.EnqueueBlocking([] {});
-  EXPECT_NE(resulting_error, nil);
+  EXPECT_NE(resulting_error, nullptr);
 }
 
-/*
-TEST_F(DatastoreTest, AuthWhenDatastoreHasBeenShutDown) {
+TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
+  return;
   credentials.DelayGetToken();
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
-  FAIL() << "Callback shouldn't be invoked";
+
+  worker_queue.EnqueueBlocking([&] {
+    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+      FAIL() << "Callback shouldn't be invoked";
+    });
   });
   Shutdown();
+
   EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
-*/
 
 TEST_F(DatastoreTest, AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
-  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
-    FAIL() << "Callback shouldn't be invoked";
+  worker_queue.EnqueueBlocking([&] {
+    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+      FAIL() << "Callback shouldn't be invoked";
+    });
   });
   Shutdown();
   datastore.reset();
