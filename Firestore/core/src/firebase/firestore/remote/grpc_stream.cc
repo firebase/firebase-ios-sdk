@@ -227,7 +227,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Only bother with the last write if there is no active write at the moment.
   if (maybe_write) {
     BufferedWrite last_write = std::move(maybe_write).value();
-    auto* completion = new GrpcCompletion(Type::Write, worker_queue_, {});
+    GrpcCompletion* completion = NewCompletion(Type::Write, {});
     *completion->message() = last_write.message;
     call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 
