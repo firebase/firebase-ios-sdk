@@ -26,9 +26,9 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-class FakeCredentialsProvider : public EmptyCredentialsProvider {
+class FakeCredentialsProvider : public auth::EmptyCredentialsProvider {
  public:
-  void GetToken(TokenListener completion) override;
+  void GetToken(auth::TokenListener completion) override;
   void InvalidateToken() override;
 
   // `GetToken` will not invoke the completion immediately -- invoke it manually
@@ -47,7 +47,7 @@ class FakeCredentialsProvider : public EmptyCredentialsProvider {
   std::vector<std::string> observed_states_;
   bool fail_get_token_ = false;
   bool delay_get_token_ = false;
-  TokenListener delayed_token_listener_;
+  auth::TokenListener delayed_token_listener_;
 };
 
 }  // namespace util

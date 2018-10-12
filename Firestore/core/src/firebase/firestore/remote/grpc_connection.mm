@@ -17,8 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -53,8 +51,6 @@ std::string MakeString(absl::string_view view) {
 }
 
 }  // namespace
-
-std::string GrpcConnection::test_certificate_path_;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -120,21 +116,9 @@ void GrpcConnection::EnsureActiveStub() {
 }
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  if (test_certificate_path_.empty()) {
-    return grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()));
-  }
-
-  std::fstream cert_file{test_certificate_path_};
-  std::stringstream cert_buffer;
-  cert_buffer << cert_file.rdbuf();
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = cert_buffer.str();
-  grpc::ChannelArguments args;
-  args.SetSslTargetNameOverride("test_cert_2");
-  return grpc::CreateCustomChannel(database_info_->host(),
-                                   grpc::SslCredentials(options), args);
+  return grpc::CreateChannel(
+      database_info_->host(),
+      grpc::SslCredentials(grpc::SslCredentialsOptions()));
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(

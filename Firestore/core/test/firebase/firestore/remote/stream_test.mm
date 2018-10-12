@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
@@ -44,6 +45,7 @@ using auth::CredentialsProvider;
 using auth::Token;
 using util::AsyncQueue;
 using util::ByteBufferToString;
+using util::CreateNoOpConnectivityMonitor;
 using util::GetFirestoreErrorCodeName;
 using util::GrpcStreamTester;
 using util::CompletionEndState;
@@ -142,7 +144,7 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor{ConnectivityMonitor::CreateNoOpMonitor()},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
         tester{&worker_queue, connectivity_monitor.get()},
         firestore_stream{std::make_shared<TestStream>(
             &worker_queue, &tester, &credentials)} {
@@ -343,7 +345,8 @@ TEST_F(StreamTest, SeveralWrites) {
 
     return writes == 2;
   });
-  // Writes don't notify the observer, so just the fact that this test didn't hang or crash indicates success.
+  // Writes don't notify the observer, so just the fact that this test didn't
+  // hang or crash indicates success.
 }
 
 // Auth edge cases
