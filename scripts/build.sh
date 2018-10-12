@@ -241,7 +241,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-      RunXcodebuild \
+    RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         -sdk 'iphonesimulator' \
@@ -261,7 +261,7 @@ case "$product-$method-$platform" in
         build \
         test
 
-      RunXcodebuild \
+    RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         -sdk 'iphonesimulator' \
