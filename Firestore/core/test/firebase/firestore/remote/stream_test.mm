@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
@@ -49,8 +50,10 @@ using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::CreateNoOpConnectivityMonitor;
 using util::TimerId;
 using util::internal::ExecutorStd;
+using Type = GrpcCompletion::Type;
 
 namespace {
 
@@ -118,8 +121,8 @@ class TestStream : public Stream {
     Write({});
   }
 
-  void FailStreamRead() {
-    fail_stream_read_ = true;
+  void FailNextStreamRead() {
+    fail_next_stream_read_ = true;
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -147,8 +150,8 @@ class TestStream : public Stream {
 
   util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override {
     observed_states_.push_back("NotifyStreamResponse");
-    if (fail_stream_read_) {
-      fail_stream_read_ = false;
+    if (fail_next_stream_read_) {
+      fail_next_stream_read_ = false;
       // The parent stream will issue a finish operation and block until it's
       // completed, so asynchronously polling gRPC queue is necessary.
       tester_->KeepPollingGrpcQueue();
@@ -168,7 +171,7 @@ class TestStream : public Stream {
 
   GrpcStreamTester* tester_ = nullptr;
   std::vector<std::string> observed_states_;
-  bool fail_stream_read_ = false;
+  bool fail_next_stream_read_ = false;
 
   grpc::ClientContext* context_ = nullptr;
 };
@@ -179,8 +182,7 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{
-            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
+        connectivity_monitor_{CreateNoOpConnectivityMonitor()},
         tester_{&worker_queue, connectivity_monitor_.get()},
         firestore_stream{std::make_shared<TestStream>(
             &worker_queue, &tester_, &credentials)} {
@@ -329,7 +331,7 @@ TEST_F(StreamTest, AuthOutlivesStream) {
 
 TEST_F(StreamTest, ErrorAfterStart) {
   StartStream();
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
+  ForceFinish({{Type::Read, Error}, {Type::Finish, Ok}});
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
@@ -356,8 +358,8 @@ TEST_F(StreamTest, ClosesOnIdle) {
 TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
-  firestore_stream->FailStreamRead();
-  ForceFinish({/*Read*/ Ok});
+  firestore_stream->FailNextStreamRead();
+  ForceFinish({{Type::Read, Ok}});
 
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());

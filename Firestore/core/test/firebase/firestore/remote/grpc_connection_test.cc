@@ -138,6 +138,24 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   EXPECT_EQ(change_count, 1);
 }
 
+TEST_F(GrpcConnectionTest, GrpcUnaryCallsNoticeChangeInConnectivity) {
+  int change_count = 0;
+  std::unique_ptr<GrpcUnaryCall> unary_call = tester.CreateUnaryCall();
+  unary_call->Start([&](const StatusOr<grpc::ByteBuffer>& result) {
+    if (IsConnectivityChange(result.status())) {
+      ++change_count;
+    }
+  });
+
+  SetNetworkStatus(NetworkStatus::Available);
+  // Same status shouldn't trigger a callback.
+  EXPECT_EQ(change_count, 0);
+
+  tester.KeepPollingGrpcQueue();
+  SetNetworkStatus(NetworkStatus::AvailableViaCellular);
+  EXPECT_EQ(change_count, 1);
+}
+
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
