@@ -90,22 +90,12 @@ class GrpcUnaryCallTest : public testing::Test {
   absl::optional<Status> status;
 };
 
-// Method prerequisites -- correct usage of `FinishImmediately`
+// Correct API usage
 
-TEST_F(GrpcUnaryCallTest, CanFinishBeforeStarting) {
+TEST_F(GrpcUnaryCallTest, FinishImmediatelyIsIdempotent) {
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_NO_THROW(call->FinishImmediately()); });
-}
 
-TEST_F(GrpcUnaryCallTest, CanFinishAfterStarting) {
-  StartCall();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_NO_THROW(call->FinishImmediately()); });
-}
-
-TEST_F(GrpcUnaryCallTest, CanFinishMoreThanOnce) {
   StartCall();
 
   KeepPollingGrpcQueue();
@@ -114,32 +104,6 @@ TEST_F(GrpcUnaryCallTest, CanFinishMoreThanOnce) {
     EXPECT_NO_THROW(call->FinishImmediately());
   });
 }
-
-// Method prerequisites -- correct usage of `FinishAndNotify`
-
-TEST_F(GrpcUnaryCallTest, CanFinishAndNotifyAfterStarting) {
-  StartCall();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(
-        call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable, ""}));
-  });
-}
-
-TEST_F(GrpcUnaryCallTest, CanFinishAndNotifyMoreThanOnce) {
-  StartCall();
-
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_NO_THROW(
-        call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable, ""}));
-    EXPECT_NO_THROW(
-        call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable, ""}));
-  });
-}
-
-// Method prerequisites -- correct usage of `GetResponseHeaders`
 
 TEST_F(GrpcUnaryCallTest, CanGetResponseHeadersAfterStarting) {
   StartCall();
@@ -173,12 +137,8 @@ TEST_F(GrpcUnaryCallDeathTest, CannotRestart) {
   EXPECT_DEATH_IF_SUPPORTED(StartCall(), "");
 }
 
-TEST_F(GrpcUnaryCallDeathTest, CannotGetResponseHeadersBeforeStarting) {
-  worker_queue.EnqueueBlocking(
-      [&] { EXPECT_DEATH_IF_SUPPORTED(call->GetResponseHeaders(), ""); });
-}
-
 TEST_F(GrpcUnaryCallTest, CannotFinishAndNotifyBeforeStarting) {
+  // No callback has been assigned.
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_ANY_THROW(call->FinishAndNotify(Status::OK())); });
 }
