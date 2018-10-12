@@ -17,6 +17,11 @@
 #ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_SET_OPTIONS_H_
 #define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_SET_OPTIONS_H_
 
+#include <string>
+#include <vector>
+
+#include "firebase/firestore/field_path.h"
+
 namespace firebase {
 namespace firestore {
 
@@ -27,11 +32,74 @@ namespace firestore {
  * granular merges instead of overwriting the target documents in their
  * entirety.
  */
-// TODO(zxu123): add more methods to complete the class and make it useful.
 class SetOptions {
  public:
-  SetOptions() {
-  }
+  enum class Type {
+    kOverwrite,
+    kMergeAll,
+    kMergeSpecific,
+  };
+
+  /**
+   * Default constructor. This creates an invalid SetOptions. Attempting
+   * to perform any operations on this instance will fail (and cause a crash)
+   * unless a valid SetOptions has been assigned to it.
+   */
+  SetOptions() = default;
+
+  /** Copy constructor. */
+  SetOptions(const SetOptions& value) = default;
+
+  /** Move constructor. */
+  SetOptions(SetOptions&& value) = default;
+
+  virtual ~SetOptions();
+
+  /** Copy assignment operator. */
+  SetOptions& operator=(const SetOptions& value) = default;
+
+  /** Move assignment operator. */
+  SetOptions& operator=(SetOptions&& value) = default;
+
+  /**
+   * Returns an instance that can be used to change the behavior of set() calls
+   * to only replace the values specified in its data argument. Fields omitted
+   * from the set() call will remain untouched.
+   */
+  static SetOptions Merge();
+
+  /**
+   * Returns an instance that can be used to change the behavior of set() calls
+   * to only replace the fields under fieldPaths. Any field that is not
+   * specified in fieldPaths is ignored and remains untouched.
+   *
+   * It is an error to pass a SetOptions object to a set() call that is missing
+   * a value for any of the fields specified here.
+   *
+   * @param fields The list of fields to merge. Fields can contain dots to
+   * reference nested fields within the document.
+   */
+  static SetOptions MergeField(const std::vector<std::string>& fields);
+
+  /**
+   * Returns an instance that can be used to change the behavior of set() calls
+   * to only replace the fields under fieldPaths. Any field that is not
+   * specified in fieldPaths is ignored and remains untouched.
+   *
+   * It is an error to pass a SetOptions object to a set() call that is missing
+   * a value for any of the fields specified here in its to data argument.
+   *
+   * @param fields The list of fields to merge.
+   */
+  static SetOptions MergeField(const std::vector<FieldPath>& fields);
+
+ private:
+  friend class SetOptionsInternal;
+
+  SetOptions(Type type, std::vector<FieldPath> fields);
+
+  Type type_ = Type::kOverwrite;
+  std::vector<FieldPath> fields_;
 };
 
 }  // namespace firestore
