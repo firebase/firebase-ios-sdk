@@ -24,7 +24,7 @@
 
 @interface FIRMessaging ()
 
-- (instancetype)initPrivately;
++ (FIRMessaging *)messagingForTests;
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
 
 @end
@@ -39,8 +39,7 @@
 
 - (void)setUp {
   [super setUp];
-
-  _messaging = [[FIRMessaging alloc] initPrivately];
+  _messaging = [FIRMessaging messagingForTests];
 }
 
 - (void)tearDown {

@@ -249,7 +249,7 @@ TEST(FilesystemTest, FileSize) {
   Path file = Path::JoinUtf8(TempDir(), TestFilename());
   ASSERT_NOT_FOUND(FileSize(file).status());
   Touch(file);
-  StatusOr<off_t> result = FileSize(file);
+  StatusOr<int64_t> result = FileSize(file);
   ASSERT_OK(result.status());
   ASSERT_EQ(0, result.ValueOrDie());
 

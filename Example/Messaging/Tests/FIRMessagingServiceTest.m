@@ -32,7 +32,7 @@ static NSString *const kFakeToken =
     @"QGlCrTbxCFGzEUfvA3fGpGgIVQU2W6";
 
 @interface FIRMessaging () <FIRMessagingClientDelegate>
-
++ (FIRMessaging *)messagingForTests;
 @property(nonatomic, readwrite, strong) FIRMessagingClient *client;
 @property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
@@ -55,9 +55,10 @@ static NSString *const kFakeToken =
 @implementation FIRMessagingServiceTest
 
 - (void)setUp {
-  _messaging = [FIRMessaging messaging];
+  _messaging = [FIRMessaging messagingForTests];
   _messaging.defaultFcmToken = kFakeToken;
   _mockPubSub = OCMPartialMock(_messaging.pubsub);
+  [_mockPubSub setClient:nil];
   [super setUp];
 }
 
@@ -150,7 +151,7 @@ static NSString *const kFakeToken =
                    topic:@"/topics/hello-world"
                  options:nil
                  handler:^(NSError *error) {
-                   XCTAssertNil(error);
+                   XCTAssertNotNil(error);
                    XCTAssertEqual(kFIRMessagingErrorCodePubSubFIRMessagingNotSetup, error.code);
                  }];
 }

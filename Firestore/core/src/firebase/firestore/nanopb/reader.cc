@@ -30,6 +30,12 @@ Reader Reader::Wrap(const uint8_t* bytes, size_t length) {
   return Reader{pb_istream_from_buffer(bytes, length)};
 }
 
+Reader Reader::Wrap(absl::string_view string_view) {
+  return Reader{pb_istream_from_buffer(
+      reinterpret_cast<const uint8_t*>(string_view.data()),
+      string_view.size())};
+}
+
 uint32_t Reader::ReadTag() {
   Tag tag;
   if (!status_.ok()) return 0;

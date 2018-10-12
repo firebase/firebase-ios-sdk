@@ -47,10 +47,10 @@ class NoOpObserver : public GrpcStreamObserver {
   }
 };
 
-std::unique_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
+std::shared_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
                                            AsyncQueue* worker_queue,
                                            CredentialsProvider* credentials) {
-  return absl::make_unique<Datastore>(
+  return std::make_shared<Datastore>(
       database_info, worker_queue, credentials,
       [[FSTSerializerBeta alloc]
           initWithDatabaseID:&database_info.database_id()]);
@@ -84,7 +84,7 @@ class DatastoreTest : public testing::Test {
   FakeCredentialsProvider credentials;
 
   AsyncQueue worker_queue;
-  std::unique_ptr<Datastore> datastore;
+  std::shared_ptr<Datastore> datastore;
 };
 
 TEST_F(DatastoreTest, CanShutdownWithNoOperations) {

@@ -1517,7 +1517,7 @@
 				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",
@@ -1629,7 +1629,7 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Firestore_FuzzTests_iOS/Pods-Firestore_FuzzTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS9.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/LibFuzzer/LibFuzzer.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -1764,7 +1764,7 @@
 				"${BUILT_PRODUCTS_DIR}/BoringSSL/openssl.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
+				"${BUILT_PRODUCTS_DIR}/Protobuf-iOS8.0/Protobuf.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC/GRPCClient.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework",
 				"${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework",

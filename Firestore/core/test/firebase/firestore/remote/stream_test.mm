@@ -51,6 +51,7 @@ using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::CreateNoOpConnectivityMonitor;
 using util::FakeCredentialsProvider;
 using util::MakeByteBuffer;
 using util::StringFormat;
@@ -395,6 +396,7 @@ TEST_F(StreamTest, ClosesOnIdle) {
   EXPECT_TRUE(worker_queue.IsScheduled(kIdleTimerId));
   KeepPollingGrpcQueue();
   worker_queue.RunScheduledOperationsUntil(kIdleTimerId);
+
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
