@@ -50,8 +50,8 @@ class GrpcUnaryCallTest : public testing::Test {
  public:
   GrpcUnaryCallTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{CreateNoOpConnectivityMonitor()},
-        tester{&worker_queue, connectivity_monitor_.get()},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        tester{&worker_queue, connectivity_monitor.get()},
         call{tester.CreateUnaryCall()} {
   }
 
@@ -82,7 +82,7 @@ class GrpcUnaryCallTest : public testing::Test {
 
   AsyncQueue worker_queue;
 
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
   GrpcStreamTester tester;
 
   std::unique_ptr<GrpcUnaryCall> call;

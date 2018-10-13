@@ -20,6 +20,7 @@
 #include <map>
 
 #include "Firestore/core/src/firebase/firestore/util/status.h"
+#include "grpcpp/client_context.h"
 #include "grpcpp/support/string_ref.h"
 
 namespace firebase {
@@ -55,6 +56,9 @@ class GrpcCall {
 
   /** Finishes the call with an error, notifying any callbacks and observers. */
   virtual void FinishAndNotify(const util::Status& status) = 0;
+
+  /** For tests only */
+  virtual grpc::ClientContext* context() = 0;
 };
 
 }  // namespace remote

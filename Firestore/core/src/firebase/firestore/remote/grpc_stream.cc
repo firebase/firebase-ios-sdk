@@ -98,6 +98,7 @@ GrpcStream::GrpcStream(
 GrpcStream::~GrpcStream() {
   HARD_ASSERT(completions_.empty(),
               "GrpcStream is being destroyed without proper shutdown");
+  MaybeUnregister();
 }
 
 void GrpcStream::Start() {
@@ -172,11 +173,7 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  if (grpc_connection_) {
-    grpc_connection_->Unregister(this);
-    grpc_connection_ = nullptr;
-  }
-
+  MaybeUnregister();
   if (completions_.empty()) {
     // Nothing to cancel.
     return;
@@ -200,6 +197,13 @@ void GrpcStream::Shutdown() {
   call_->Finish(completion->status(), completion);
 
   FastFinishCompletionsBlocking();
+}
+
+void GrpcStream::MaybeUnregister() {
+  if (grpc_connection_) {
+    grpc_connection_->Unregister(this);
+    grpc_connection_ = nullptr;
+  }
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
