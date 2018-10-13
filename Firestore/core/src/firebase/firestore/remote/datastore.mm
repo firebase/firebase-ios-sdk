@@ -95,6 +95,9 @@ Datastore::Datastore(const DatabaseInfo& database_info,
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
       serializer_bridge_{NOT_NULL(serializer)} {
+}
+
+void Datastore::Start() {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
