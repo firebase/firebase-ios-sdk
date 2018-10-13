@@ -101,6 +101,10 @@ endif()
 
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
 add_external_subdirectory(grpc)
+target_compile_options(
+  grpc
+  PRIVATE -Wno-unused-parameter
+)
 
 # Fix up targets included by gRPC's build
 set(external_src_dir ${FIREBASE_BINARY_DIR}/external/src)

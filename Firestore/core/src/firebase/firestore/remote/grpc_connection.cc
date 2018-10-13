@@ -21,6 +21,7 @@
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
@@ -28,8 +29,6 @@
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/create_channel.h"
-
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
 
 namespace firebase {
 namespace firestore {
@@ -92,8 +91,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   // C++ SDK, etc.).
   context->AddMetadata(
       kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char*>(FIRFirestoreVersionString)));
+      StringFormat("gl-objc/ fire/%s grpc/", firestore_version_string));
 
   // This header is used to improve routing and project isolation by the
   // backend.

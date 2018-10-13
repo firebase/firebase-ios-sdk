@@ -45,10 +45,23 @@ cc_select(
 cc_library(
   firebase_firestore_remote
   SOURCES
-    grpc_util.h
-    grpc_util.cc
     exponential_backoff.h
     exponential_backoff.cc
+    grpc_call.h
+    grpc_completion.h
+    grpc_completion.cc
+    grpc_connection.h
+    grpc_connection.cc
+    grpc_stream.h
+    grpc_stream.cc
+    grpc_stream_observer.h
+    grpc_streaming_reader.h
+    grpc_streaming_reader.cc
+    grpc_unary_call.h
+    grpc_unary_call.cc
+    grpc_util.h
+    grpc_util.cc
+    grpc_util.cc
     serializer.h
     serializer.cc
   DEPENDS

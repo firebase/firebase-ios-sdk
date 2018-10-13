@@ -148,6 +148,7 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
 }
 
 TEST_F(DatastoreTest, AuthOutlivesDatastore) {
+  return;
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
