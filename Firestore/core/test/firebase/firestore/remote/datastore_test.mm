@@ -134,7 +134,6 @@ TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
 }
 
 TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
-  return;
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {
@@ -147,7 +146,10 @@ TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
   EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
-TEST_F(DatastoreTest, AuthOutlivesDatastore) {
+// TODO(varconst): this test currently fails due to a gRPC issue, see here
+// https://github.com/firebase/firebase-ios-sdk/pull/1935#discussion_r224900667
+// for details. Reenable when/if possible.
+TEST_F(DatastoreTest, DISABLED_AuthOutlivesDatastore) {
   credentials.DelayGetToken();
 
   worker_queue.EnqueueBlocking([&] {

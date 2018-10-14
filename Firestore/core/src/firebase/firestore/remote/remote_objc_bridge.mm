@@ -93,7 +93,7 @@ Proto* ToProto(const grpc::ByteBuffer& message, Status* out_status) {
   }
 
   std::string error_description = StringFormat(
-      "Unable to parse response from the server.\n"
+       "Unable to parse response from the server.\n"
       "Underlying error: %s\n"
       "Expected class: %s\n"
       "Received value: %s\n",
