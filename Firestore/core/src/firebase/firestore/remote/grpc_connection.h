@@ -78,6 +78,9 @@ class GrpcConnection {
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
 
+  /**
+   * For tests only: allows using a custom certificate to talk to the backend.
+   */
   static void SetTestCertificatePath(const std::string& path) {
     test_certificate_path_ = path;
   }
