@@ -70,7 +70,7 @@ class TestStream : public Stream {
              GrpcStreamTester* tester,
              CredentialsProvider* credentials_provider)
       : Stream{worker_queue, credentials_provider,
-               /*Datastore=*/nullptr, kBackoffTimerId, kIdleTimerId},
+               /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
         tester_{tester} {
   }
 
@@ -430,6 +430,8 @@ TEST_F(StreamTest, Backoff) {
   StartStream();
   EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
 
+  // "ResourceExhausted" sets backoff to max, virtually guaranteeing that the
+  // backoff won't kick in in-between the checks.
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
   EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
@@ -442,6 +444,14 @@ TEST_F(StreamTest, Backoff) {
   worker_queue.RunScheduledOperationsUntil(kBackoffTimerId);
   worker_queue.EnqueueBlocking(
       [&] { EXPECT_TRUE(firestore_stream->IsOpen()); });
+
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
+  worker_queue.EnqueueBlocking([&] {
+    firestore_stream->InhibitBackoff();
+  });
+  StartStream();
+  EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
 }
 
 // Errors
@@ -497,6 +507,25 @@ TEST_F(StreamTest, ClientSideErrorOnRead) {
     EXPECT_FALSE(firestore_stream->IsOpen());
     EXPECT_EQ(observed_states().back(), "NotifyStreamClose(Internal)");
   });
+}
+
+TEST_F(StreamTest, RefreshesTokenUponExpiration) {
+  StartStream();
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
+  // Error "Unauthenticated" should invalidate the token.
+  EXPECT_EQ(credentials.observed_states(),
+              States({"GetToken", "InvalidateToken"}));
+
+  worker_queue.EnqueueBlocking([&] {
+    firestore_stream->InhibitBackoff();
+  });
+  StartStream();
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+  // Simulate a different error -- token should not be invalidated this time.
+  EXPECT_EQ(credentials.observed_states(),
+              States({"GetToken", "InvalidateToken", "GetToken"}));
 }
 
 }  // namespace remote
