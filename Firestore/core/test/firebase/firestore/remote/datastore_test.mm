@@ -17,10 +17,10 @@
 #include <memory>
 #include <string>
 
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/remote/datastore.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
+#include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
 
@@ -29,10 +29,10 @@ namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
-using auth::EmptyCredentialsProvider;
 using core::DatabaseInfo;
 using model::DatabaseId;
 using util::AsyncQueue;
+using util::FakeCredentialsProvider;
 using util::internal::ExecutorLibdispatch;
 
 namespace {
@@ -47,11 +47,11 @@ class NoOpObserver : public GrpcStreamObserver {
   }
 };
 
-std::unique_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
-                                           AsyncQueue* async_queue,
+std::shared_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
+                                           AsyncQueue* worker_queue,
                                            CredentialsProvider* credentials) {
-  return absl::make_unique<Datastore>(
-      database_info, async_queue, credentials,
+  return std::make_shared<Datastore>(
+      database_info, worker_queue, credentials,
       [[FSTSerializerBeta alloc]
           initWithDatabaseID:&database_info.database_id()]);
 }
@@ -61,32 +61,29 @@ std::unique_ptr<Datastore> CreateDatastore(const DatabaseInfo& database_info,
 class DatastoreTest : public testing::Test {
  public:
   DatastoreTest()
-      : async_queue{absl::make_unique<ExecutorLibdispatch>(
+      : worker_queue{absl::make_unique<ExecutorLibdispatch>(
             dispatch_queue_create("datastore_test", DISPATCH_QUEUE_SERIAL))},
-        database_info_{DatabaseId{"foo", "bar"}, "", "", false},
-        datastore{
-            CreateDatastore(database_info_, &async_queue, &credentials_)} {
+        database_info{DatabaseId{"foo", "bar"}, "", "", false},
+        datastore{CreateDatastore(database_info, &worker_queue, &credentials)} {
   }
 
   ~DatastoreTest() {
-    if (!is_shut_down_) {
+    if (!is_shut_down) {
       Shutdown();
     }
   }
 
   void Shutdown() {
-    is_shut_down_ = true;
+    is_shut_down = true;
     datastore->Shutdown();
   }
 
- private:
-  bool is_shut_down_ = false;
-  DatabaseInfo database_info_;
-  EmptyCredentialsProvider credentials_;
+  bool is_shut_down = false;
+  DatabaseInfo database_info;
+  FakeCredentialsProvider credentials;
 
- public:
-  AsyncQueue async_queue;
-  std::unique_ptr<Datastore> datastore;
+  AsyncQueue worker_queue;
+  std::shared_ptr<Datastore> datastore;
 };
 
 TEST_F(DatastoreTest, CanShutdownWithNoOperations) {
@@ -111,6 +108,59 @@ TEST_F(DatastoreTest, WhitelistedHeaders) {
             "x-google-netmon-label: netmon label\n"
             "x-google-service: service 1\n"
             "x-google-service: service 2\n");
+}
+
+TEST_F(DatastoreTest, CommitMutationsAuthFailure) {
+  credentials.FailGetToken();
+
+  __block NSError* resulting_error = nullptr;
+  datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+    resulting_error = error;
+  });
+  worker_queue.EnqueueBlocking([] {});
+  EXPECT_NE(resulting_error, nullptr);
+}
+
+TEST_F(DatastoreTest, LookupDocumentsAuthFailure) {
+  credentials.FailGetToken();
+
+  __block NSError* resulting_error = nullptr;
+  datastore->LookupDocuments(
+      {}, ^(NSArray<FSTMaybeDocument*>* docs, NSError* _Nullable error) {
+        resulting_error = error;
+      });
+  worker_queue.EnqueueBlocking([] {});
+  EXPECT_NE(resulting_error, nullptr);
+}
+
+TEST_F(DatastoreTest, AuthAfterDatastoreHasBeenShutDown) {
+  credentials.DelayGetToken();
+
+  worker_queue.EnqueueBlocking([&] {
+    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+      FAIL() << "Callback shouldn't be invoked";
+    });
+  });
+  Shutdown();
+
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
+}
+
+// TODO(varconst): this test currently fails due to a gRPC issue, see here
+// https://github.com/firebase/firebase-ios-sdk/pull/1935#discussion_r224900667
+// for details. Reenable when/if possible.
+TEST_F(DatastoreTest, DISABLED_AuthOutlivesDatastore) {
+  credentials.DelayGetToken();
+
+  worker_queue.EnqueueBlocking([&] {
+    datastore->CommitMutations(@[], ^(NSError* _Nullable error) {
+      FAIL() << "Callback shouldn't be invoked";
+    });
+  });
+  Shutdown();
+  datastore.reset();
+
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
 }  // namespace remote

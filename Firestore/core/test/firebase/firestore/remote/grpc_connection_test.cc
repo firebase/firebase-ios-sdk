@@ -184,6 +184,41 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   EXPECT_EQ(changes_count, 3);
 }
 
+TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
+  class NoFinishObserver : public GrpcStreamObserver {
+   public:
+    void OnStreamStart() override {
+    }
+    void OnStreamRead(const grpc::ByteBuffer& message) override {
+    }
+    void OnStreamFinish(const util::Status& status) override {
+      FAIL() << "Observer shouldn't have been invoked";
+    }
+  };
+
+  NoFinishObserver observer;
+  std::unique_ptr<GrpcStream> foo = tester.CreateStream(&observer);
+  foo->Start();
+
+  std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
+  bar->Start([](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
+    FAIL() << "Callback shouldn't have been invoked";
+  });
+
+  std::unique_ptr<GrpcUnaryCall> baz = tester.CreateUnaryCall();
+  baz->Start([](const StatusOr<grpc::ByteBuffer>&) {
+    FAIL() << "Callback shouldn't have been invoked";
+  });
+
+  tester.KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking([&] { tester.grpc_connection()->Shutdown(); });
+
+  // Destroying a call will throw if it hasn't been properly shut down.
+  EXPECT_NO_THROW(foo.reset());
+  EXPECT_NO_THROW(bar.reset());
+  EXPECT_NO_THROW(baz.reset());
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

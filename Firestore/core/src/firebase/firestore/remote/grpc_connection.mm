@@ -65,7 +65,9 @@ GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
 
 void GrpcConnection::Shutdown() {
   // Fast finish any pending calls. This will not trigger the observers.
-  for (GrpcCall* call : active_calls_) {
+  // Calls may unregister themselves on finish, so make a protective copy.
+  auto active_calls = active_calls_;
+  for (GrpcCall* call : active_calls) {
     call->FinishImmediately();
   }
 }
@@ -161,7 +163,7 @@ std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
 void GrpcConnection::RegisterConnectivityMonitor() {
   connectivity_monitor_->AddCallback(
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
-        // Calls may unregister themselves on cancel, so make a protective copy.
+        // Calls may unregister themselves on finish, so make a protective copy.
         auto calls = active_calls_;
         for (GrpcCall* call : calls) {
           // This will trigger the observers.
