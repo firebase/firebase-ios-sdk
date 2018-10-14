@@ -78,7 +78,13 @@ class GrpcConnection {
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
 
+  static void SetTestCertificatePath(const std::string& path) {
+    test_certificate_path_ = path;
+  }
+
  private:
+  static std::string test_certificate_path_;
+
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;

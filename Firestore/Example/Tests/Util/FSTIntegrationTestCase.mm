@@ -36,6 +36,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -57,6 +58,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -164,6 +166,7 @@ static FIRFirestoreSettings *defaultSettings;
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
   [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
+  GrpcConnection::SetTestCertificatePath([certsPath cStringUsingEncoding:NSASCIIStringEncoding]);
 }
 
 + (NSString *)projectID {
