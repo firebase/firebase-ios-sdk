@@ -73,51 +73,8 @@ class GrpcStreamingReaderTest : public testing::Test {
   void ForceFinish(const GrpcStreamTester::CompletionCallback& callback) {
     tester.ForceFinish(reader->context(), callback);
   }
-
-  /**
-   * This is a workaround for the fact that it's indeterminate whether it's read
-   * or write operation that comes off the completion queue first. Will apply
-   * the end states to completions regardless of the relative ordering between
-   * different types of completions, but preserving the order within the same
-   * type. For example, the following
-   *
-   *  ForceFinishAnyTypeOrder({
-   *    {Type::Write, Ok},
-   *    {Type::Read, MakeByteBuffer("foo")},
-   *    {Type::Read, Error},
-   *  });
-   *
-   *  will apply "Ok" to the first completion of type "write" that comes off the
-   *  queue, apply "Ok" with the message "Foo" to the first completion of type
-   *  "read", and apply "Error" to the second completion of type "read".
-   */
-  void ForceFinishAnyTypeOrder(
-      std::initializer_list<CompletionEndState> results) {
-    std::map<GrpcCompletion::Type, std::queue<CompletionEndState>> end_states;
-    for (auto result : results) {
-      end_states[result.type()].push(result);
-    }
-
-    ForceFinish([&](GrpcCompletion* completion) {
-      std::queue<CompletionEndState>& end_states_for_type =
-          end_states[completion->type()];
-      HARD_ASSERT(!end_states_for_type.empty(),
-                  "Missing end state for completion of type '%s'",
-                  completion->type());
-
-      CompletionEndState end_state = end_states_for_type.front();
-      end_states_for_type.pop();
-      end_state.Apply(completion);
-
-      for (const auto& kv : end_states) {
-        if (!kv.second.empty()) {
-          return false;
-        }
-      }
-
-      // All end states have been applied
-      return true;
-    });
+  void ForceFinishAnyTypeOrder(std::initializer_list<CompletionEndState> results) {
+    tester.ForceFinishAnyTypeOrder(reader->context(), results);
   }
 
   void KeepPollingGrpcQueue() {

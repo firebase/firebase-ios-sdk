@@ -194,6 +194,33 @@ class GrpcStreamTester {
   void ForceFinish(grpc::ClientContext* context,
                    const CompletionCallback& callback);
 
+  /**
+   * This is a workaround for the fact that it's indeterminate whether it's read
+   * or write operation that comes off the completion queue first. Will apply
+   * the end states to completions regardless of the relative ordering between
+   * different types of completions, but preserving the order within the same
+   * type. For example, the following
+   *
+   *  ForceFinishAnyTypeOrder({
+   *    {Type::Write, Ok},
+   *    {Type::Read, MakeByteBuffer("foo")},
+   *    {Type::Read, Error},
+   *  });
+   *
+   *  will apply "Ok" to the first completion of type "write" that comes off the
+   *  queue, apply "Ok" with the message "Foo" to the first completion of type
+   *  "read", and apply "Error" to the second completion of type "read".
+   */
+  void ForceFinishAnyTypeOrder(grpc::ClientContext* context,
+      std::initializer_list<CompletionEndState> results);
+
+  /**
+   * Creates a `CompletionCallback` from given `results` which is equivalent to
+   * what `ForceFinishAnyTypeOrder` would use, but doesn't run it.
+   */
+   static CompletionCallback CreateAnyTypeOrderCallback(
+      std::initializer_list<CompletionEndState> results);
+
   void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
 
