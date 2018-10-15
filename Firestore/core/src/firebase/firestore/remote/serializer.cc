@@ -59,20 +59,6 @@ using firebase::firestore::nanopb::Writer;
 using firebase::firestore::util::Status;
 using firebase::firestore::util::StringFormat;
 
-// Aliases for nanopb's equivalent of google::firestore::v1beta1. This shorten
-// the symbols and allows them to fit on one line.
-namespace v1beta1 {
-
-constexpr uint32_t StructuredQuery_CollectionSelector_collection_id_tag =
-    // NOLINTNEXTLINE(whitespace/line_length)
-    google_firestore_v1beta1_StructuredQuery_CollectionSelector_collection_id_tag;
-
-constexpr uint32_t StructuredQuery_CollectionSelector_all_descendants_tag =
-    // NOLINTNEXTLINE(whitespace/line_length)
-    google_firestore_v1beta1_StructuredQuery_CollectionSelector_all_descendants_tag;
-
-}  // namespace v1beta1
-
 pb_bytes_array_t* Serializer::EncodeString(const std::string& str) {
   auto size = static_cast<pb_size_t>(str.size());
   auto result = static_cast<pb_bytes_array_t*>(
