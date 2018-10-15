@@ -16,7 +16,9 @@
 cc_library(
   firebase_firestore_types
   SOURCES
+    field_path.cc
     geo_point.cc
+    set_options.cc
     timestamp.cc
     timestamp_internal.h
   DEPENDS
