@@ -60,7 +60,7 @@ message MaybeDocument {
     UnknownDocument unknown_document = 3;
   }
 
-  // `hasCommittedMutations` marks documents that were written to the remote
+  // `has_committed_mutations` marks documents that were written to the remote
   // document store based on a write acknowledgment. These documents are
   // potentially inconsistent with the backend's copy and use the write's
   // commit version as their document version.
