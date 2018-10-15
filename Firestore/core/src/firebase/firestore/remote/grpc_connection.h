@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CONNECTION_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
@@ -78,7 +79,27 @@ class GrpcConnection {
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
 
+  /**
+   * For tests only: use a custom root certificate file and the given SSL
+   * target name for all connections. Call before creating any streams or calls.
+   */
+  static void UseTestCertificate(absl::string_view certificate_path,
+                                 absl::string_view target_name);
+
+  /**
+   * For tests only: don't use SSL, send all traffic unencrypted. Call before
+   * creating any streams or calls. Overrides a test certificate.
+   */
+  static void UseInsecureChannel();
+
  private:
+  struct TestCredentials {
+    std::string certificate_path;
+    std::string target_name;
+    bool use_insecure_channel = false;
+  };
+  static TestCredentials* test_credentials_;
+
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;
