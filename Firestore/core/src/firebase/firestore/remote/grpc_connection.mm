@@ -129,7 +129,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
                                grpc::InsecureChannelCredentials());
   }
 
-  std::fstream cert_file{test_credentials_->certificate_path};
+  std::ifstream cert_file{test_credentials_->certificate_path};
   HARD_ASSERT(cert_file.good(),
               StringFormat("Unable to open root certificates at file path %s",
                            test_credentials_->certificate_path)
@@ -217,8 +217,10 @@ void GrpcConnection::Unregister(GrpcCall* call) {
     test_credentials_ = new TestCredentials{};
   }
 
-  test_credentials_->certificate_path = certificate_path.data();
-  test_credentials_->target_name = target_name.data();
+  test_credentials_->certificate_path =
+      std::string{certificate_path.data(), certificate_path.size()};
+  test_credentials_->target_name =
+      std::string{target_name.data(), target_name.size()};
   // TODO(varconst): hostname if necessary.
 }
 
