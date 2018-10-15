@@ -16,10 +16,26 @@
 # (see https://stackoverflow.com/questions/27039019/ and open issue on CMake
 # issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
 add_custom_target(firebase_firestore_types_ide SOURCES
+    collection_reference.h
+    document_change.h
     document_reference.h
+    document_snapshot.h
     event_listener.h
+    field_path.h
+    field_value.h
     firestore.h
     firestore_errors.h
     geo_point.h
+    listener_registration.h
+    map_field_value.h
+    metadata_changes.h
+    query.h
+    query_snapshot.h
+    set_options.h
+    settings.h
+    snapshot_metadata.h
+    source.h
     timestamp.h
+    transaction.h
+    write_batch.h
 )
