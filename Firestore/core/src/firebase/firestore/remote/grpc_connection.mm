@@ -132,7 +132,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   std::fstream cert_file{test_credentials_->certificate_path};
   HARD_ASSERT(cert_file.good(),
               StringFormat("Unable to open root certificates at file path %s",
-                           test_credentials_->certificate_path).c_str());
+                           test_credentials_->certificate_path)
+                  .c_str());
   std::stringstream cert_buffer;
   cert_buffer << cert_file.rdbuf();
   grpc::SslCredentialsOptions options;

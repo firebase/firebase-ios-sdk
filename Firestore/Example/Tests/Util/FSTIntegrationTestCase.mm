@@ -166,7 +166,8 @@ static FIRFirestoreSettings *defaultSettings;
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
   [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
-  GrpcConnection::UseTestCertificate([certsPath cStringUsingEncoding:NSASCIIStringEncoding], "test_cert_2");
+  GrpcConnection::UseTestCertificate([certsPath cStringUsingEncoding:NSASCIIStringEncoding],
+                                     "test_cert_2");
 }
 
 + (NSString *)projectID {
