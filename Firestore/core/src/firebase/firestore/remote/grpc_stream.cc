@@ -98,6 +98,7 @@ GrpcStream::GrpcStream(
 GrpcStream::~GrpcStream() {
   HARD_ASSERT(completions_.empty(),
               "GrpcStream is being destroyed without proper shutdown");
+  MaybeUnregister();
 }
 
 void GrpcStream::Start() {
@@ -172,11 +173,7 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 }
 
 void GrpcStream::Shutdown() {
-  if (grpc_connection_) {
-    grpc_connection_->Unregister(this);
-    grpc_connection_ = nullptr;
-  }
-
+  MaybeUnregister();
   if (completions_.empty()) {
     // Nothing to cancel.
     return;
@@ -200,6 +197,13 @@ void GrpcStream::Shutdown() {
   call_->Finish(completion->status(), completion);
 
   FastFinishCompletionsBlocking();
+}
+
+void GrpcStream::MaybeUnregister() {
+  if (grpc_connection_) {
+    grpc_connection_->Unregister(this);
+    grpc_connection_ = nullptr;
+  }
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
@@ -227,7 +231,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
   // Only bother with the last write if there is no active write at the moment.
   if (maybe_write) {
     BufferedWrite last_write = std::move(maybe_write).value();
-    auto* completion = new GrpcCompletion(Type::Write, worker_queue_, {});
+    GrpcCompletion* completion = NewCompletion(Type::Write, {});
     *completion->message() = last_write.message;
     call_->WriteLast(*completion->message(), grpc::WriteOptions{}, completion);
 

@@ -28,7 +28,7 @@
 #include "Firestore/core/src/firebase/firestore/util/filesystem_detail.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "Firestore/third_party/abseil-cpp/absl/memory/memory.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -95,13 +95,13 @@ Path TempDir() {
 }
 #endif  // !defined(__APPLE__)
 
-StatusOr<off_t> FileSize(const Path& path) {
+StatusOr<int64_t> FileSize(const Path& path) {
   struct stat st {};
   if (stat(path.c_str(), &st) == 0) {
-    return StatusOr<off_t>(st.st_size);
+    return st.st_size;
   } else {
-    return StatusOr<off_t>(Status::FromErrno(
-        errno, StringFormat("Failed to stat file: %s", path.ToUtf8String())));
+    return Status::FromErrno(
+        errno, StringFormat("Failed to stat file: %s", path.ToUtf8String()));
   }
 }
 

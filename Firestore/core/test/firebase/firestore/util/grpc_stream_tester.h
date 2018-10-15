@@ -17,9 +17,12 @@
 #ifndef FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 #define FIRESTORE_CORE_TEST_FIREBASE_FIRESTORE_UTIL_GRPC_STREAM_TESTER_H_
 
+#include <functional>
 #include <initializer_list>
 #include <memory>
+#include <string>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
@@ -34,40 +37,87 @@
 #include "grpcpp/completion_queue.h"
 #include "grpcpp/create_channel.h"
 #include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/support/status_code_enum.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
+std::string GetGrpcErrorCodeName(grpc::StatusCode error);
+std::string GetFirestoreErrorCodeName(FirestoreErrorCode error);
+std::string ByteBufferToString(const grpc::ByteBuffer& buffer);
+grpc::ByteBuffer MakeByteBuffer(const std::string& str);
+
 enum CompletionResult { Ok, Error };
+
+/**
+ * When completing a `GrpcCompletion` using `GrpcStreamTester::ForceFinish`, use
+ * `CompletionEndState` to describe the desired state of the completion, thus
+ * imitating actual gRPC events. For example:
+ *
+ * CompletionEndState{Type::Read, Ok} -- as if a read operation was completed
+ *    successfully.
+ * CompletionEndState{Type::Finish, grpc::Status{grpc::DATA_LOSS,
+ *     "Some error"}} - as if a finish operation was completed successfully,
+ *     producing "data loss" status.
+ */
 struct CompletionEndState {
-  CompletionEndState(CompletionResult result)  // NOLINT(runtime/explicit)
-      : result{result} {
+  CompletionEndState(remote::GrpcCompletion::Type type, CompletionResult result)
+      : type_{type}, result_{result} {
   }
-  CompletionEndState(const grpc::Status& status)  // NOLINT(runtime/explicit)
-      : result{Ok}, maybe_status{status} {
+  CompletionEndState(remote::GrpcCompletion::Type type,
+                     const grpc::ByteBuffer& message)
+      : type_{type}, result_{Ok}, maybe_message_{message} {
+  }
+  CompletionEndState(remote::GrpcCompletion::Type type,
+                     const grpc::Status& status)
+      : type_{type}, result_{Ok}, maybe_status_{status} {
+  }
+  CompletionEndState(remote::GrpcCompletion::Type type,
+                     const grpc::ByteBuffer& message,
+                     const grpc::Status& status)
+      : type_{type},
+        result_{Ok},
+        maybe_message_{message},
+        maybe_status_{status} {
   }
 
-  CompletionResult result;
-  absl::optional<grpc::Status> maybe_status;
+  void Apply(remote::GrpcCompletion* completion);
+
+  remote::GrpcCompletion::Type type() const {
+    return type_;
+  }
+
+ private:
+  remote::GrpcCompletion::Type type_;
+  CompletionResult result_{};
+  absl::optional<grpc::ByteBuffer> maybe_message_;
+  absl::optional<grpc::Status> maybe_status_;
 };
 
 class FakeGrpcQueue {
  public:
-  FakeGrpcQueue();
+  using CompletionCallback = std::function<bool(remote::GrpcCompletion*)>;
 
+  explicit FakeGrpcQueue(grpc::CompletionQueue* grpc_queue);
+
+  // `Extract` functions presume that all the completions that are to be
+  // extracted will come off the queue quickly.
   void ExtractCompletions(std::initializer_list<CompletionEndState> results);
+  void ExtractCompletions(const CompletionCallback& callback);
   void KeepPolling();
 
   void Shutdown();
 
   grpc::CompletionQueue* queue() {
-    return &grpc_queue_;
+    return grpc_queue_;
   }
 
  private:
+  remote::GrpcCompletion* ExtractCompletion();
+
   std::unique_ptr<internal::ExecutorStd> dedicated_executor_;
-  grpc::CompletionQueue grpc_queue_;
+  grpc::CompletionQueue* grpc_queue_;
   bool is_shut_down_ = false;
 };
 
@@ -77,6 +127,8 @@ class FakeGrpcQueue {
  */
 class GrpcStreamTester {
  public:
+  using CompletionCallback = FakeGrpcQueue::CompletionCallback;
+
   GrpcStreamTester(AsyncQueue* worker_queue,
                    remote::ConnectivityMonitor* connectivity_monitor);
   ~GrpcStreamTester();
@@ -90,25 +142,99 @@ class GrpcStreamTester {
   std::unique_ptr<remote::GrpcUnaryCall> CreateUnaryCall();
 
   /**
-   * Takes as many completions off gRPC completion queue as there are elements
-   * in `results` and completes each of them with the corresponding result,
-   * ignoring the actual result from gRPC.
+   * Takes as many completions off gRPC completion queue as there are
+   * elements in `results` and completes each of them with the corresponding
+   * result, ignoring the actual result from gRPC. If the actual completion has
+   * a different `GrpcCompletion::Type` than the corresponding result, this
+   * function will fail.
    *
    * This is a blocking function; it will finish quickly if the the gRPC
    * completion queue has at least as many pending completions as there are
    * elements in `results`; otherwise, it will hang.
+   *
+   * IMPORTANT: there are two gotchas to be aware of when using this function:
+   *
+   * 1. `FinishImmediately` and `FinishAndNotify` issue a finish operation and
+   *   block until it completes. For this reason, `ForceFinish` _cannot_ be used
+   *   when finishing a gRPC call manually. Consider:
+   *
+   *       ForceFinish({{Type::Finish, Ok}}); // Will block forever -- there is
+   *           // no finish operation on the queue yet
+   *       call->Finish(); // Unreachable
+   *   or:
+   *       call->Finish(); // Will block forever -- issues a finish operation
+   *           // and waits until it completes
+   *       ForceFinish({{Type::Finish, Ok}}); // Unreachable
+   *
+   *   Solution -- use `KeepPollingGrpcQueue` for this case instead.
+   *
+   * 2. gRPC does _not_ guarantee order in which the tags come off the
+   *    completion queue. In practice, when a `GrpcStream` has both read and
+   *    write operations in progress, this overload of `ForceFinish` cannot be
+   *    used reliably:
+   *
+   *    ForceFinish({{Type::Read, Ok}, {Type::Write, Ok}}); // Will fail if the
+   *        // write happens to come off the queue before read, even though this
+   *        // doesn't affect the stream behavior.
+   *
+   *    Solution: use the overload of `ForceFinish` that takes a callback.
    */
   void ForceFinish(grpc::ClientContext* context,
                    std::initializer_list<CompletionEndState> results);
 
+  /**
+   * Will continue taking completions off the completion queue and invoking the
+   * given `callback` on them until the `callback` returns true (interpreted as
+   * "done"). Use as a failback mechanism for cases that can't be handled by
+   * `CompletionEndState`s.
+   *
+   * This is a blocking function; the `callback` must ensure that it returns
+   * `true` before the queue runs out of completions.
+   */
+  void ForceFinish(grpc::ClientContext* context,
+                   const CompletionCallback& callback);
+
+  /**
+   * This is a workaround for the fact that it's indeterminate whether it's read
+   * or write operation that comes off the completion queue first. Will apply
+   * the end states to completions regardless of the relative ordering between
+   * different types of completions, but preserving the order within the same
+   * type. For example, the following
+   *
+   *  ForceFinishAnyTypeOrder({
+   *    {Type::Write, Ok},
+   *    {Type::Read, MakeByteBuffer("foo")},
+   *    {Type::Read, Error},
+   *  });
+   *
+   *  will apply "Ok" to the first completion of type "write" that comes off the
+   *  queue, apply "Ok" with the message "Foo" to the first completion of type
+   *  "read", and apply "Error" to the second completion of type "read".
+   */
+  void ForceFinishAnyTypeOrder(
+      grpc::ClientContext* context,
+      std::initializer_list<CompletionEndState> results);
+
+  /**
+   * Creates a `CompletionCallback` from given `results` which is equivalent to
+   * what `ForceFinishAnyTypeOrder` would use, but doesn't run it.
+   */
+  static CompletionCallback CreateAnyTypeOrderCallback(
+      std::initializer_list<CompletionEndState> results);
+
   void KeepPollingGrpcQueue();
   void ShutdownGrpcQueue();
+
+  remote::GrpcConnection* grpc_connection() {
+    return &grpc_connection_;
+  }
 
  private:
   AsyncQueue* worker_queue_ = nullptr;
   core::DatabaseInfo database_info_;
 
-  FakeGrpcQueue mock_grpc_queue_;
+  grpc::CompletionQueue grpc_queue_;
+  FakeGrpcQueue fake_grpc_queue_;
   remote::GrpcConnection grpc_connection_;
 };
 

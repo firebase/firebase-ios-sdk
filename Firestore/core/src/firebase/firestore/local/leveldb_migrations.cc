@@ -21,6 +21,8 @@
 
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
+#include "Firestore/core/src/firebase/firestore/model/document_key.h"
+#include "Firestore/core/src/firebase/firestore/model/types.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "absl/strings/match.h"
 
@@ -32,6 +34,7 @@ using leveldb::Iterator;
 using leveldb::Slice;
 using leveldb::Status;
 using leveldb::WriteOptions;
+using nanopb::Reader;
 using nanopb::Writer;
 
 namespace {
@@ -52,8 +55,10 @@ namespace {
  *   * Migration 3 deletes the entire query cache to deal with cache corruption
  *     related to limbo resolution. Addresses
  *     https://github.com/firebase/firebase-ios-sdk/issues/1548.
+ *   * Migration 4 ensures that every document in the remote document cache
+ *     has a sentinel row with a sequence number.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 3;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 4;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -110,6 +115,63 @@ void ClearQueryCache(leveldb::DB* db) {
   transaction.Commit();
 }
 
+/**
+ * Reads the highest sequence number from the target global row.
+ */
+model::ListenSequenceNumber GetHighestSequenceNumber(
+    LevelDbTransaction* transaction) {
+  std::string bytes;
+  transaction->Get(LevelDbTargetGlobalKey::Key(), &bytes);
+
+  firestore_client_TargetGlobal target_global{};
+  Reader reader = Reader::Wrap(bytes);
+  reader.ReadNanopbMessage(firestore_client_TargetGlobal_fields,
+                           &target_global);
+  return target_global.highest_listen_sequence_number;
+}
+
+/**
+ * Given a document key, ensure it has a sentinel row. If it doesn't have one,
+ * add it with the given value.
+ */
+void EnsureSentinelRow(LevelDbTransaction* transaction,
+                       const model::DocumentKey& key,
+                       const std::string& sentinel_value) {
+  std::string sentinel_key = LevelDbDocumentTargetKey::SentinelKey(key);
+  std::string unused_value;
+  if (transaction->Get(sentinel_key, &unused_value).IsNotFound()) {
+    transaction->Put(sentinel_key, sentinel_value);
+  }
+}
+
+/**
+ * Ensure each document in the remote document table has a corresponding
+ * sentinel row in the document target index.
+ */
+void EnsureSentinelRows(leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "Ensure sentinel rows");
+
+  // Get the value we'll use for anything that's missing a row.
+  model::ListenSequenceNumber sequence_number =
+      GetHighestSequenceNumber(&transaction);
+  std::string sentinel_value =
+      LevelDbDocumentTargetKey::EncodeSentinelValue(sequence_number);
+
+  std::string documents_prefix = LevelDbRemoteDocumentKey::KeyPrefix();
+  auto it = transaction.NewIterator();
+  it->Seek(documents_prefix);
+  LevelDbRemoteDocumentKey document_key;
+  for (; it->Valid() && absl::StartsWith(it->key(), documents_prefix);
+       it->Next()) {
+    HARD_ASSERT(document_key.Decode(it->key()),
+                "Failed to decode document key");
+    EnsureSentinelRow(&transaction, document_key.document_key(),
+                      sentinel_value);
+  }
+  SaveVersion(4, &transaction);
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
@@ -138,6 +200,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
   // migrations that have existing targets.
   if (from_version < 3 && to_version >= 3) {
     ClearQueryCache(db);
+  }
+
+  if (from_version < 4 && to_version >= 4) {
+    EnsureSentinelRows(db);
   }
 }
 

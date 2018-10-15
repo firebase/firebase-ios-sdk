@@ -23,6 +23,10 @@
 #import "FIRMessaging.h"
 #import "FIRMessaging_Private.h"
 
+@interface FIRMessaging ()
++ (FIRMessaging *)messagingForTests;
+@end
+
 @interface FIRMessagingReceiverTest : XCTestCase
 @property(nonatomic, readonly, strong) FIRMessaging *messaging;
 
@@ -32,7 +36,7 @@
 - (void)setUp {
   [super setUp];
 
-  _messaging = [FIRMessaging messaging];
+  _messaging = [FIRMessaging messagingForTests];
   [[NSUserDefaults standardUserDefaults]
       removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
 }

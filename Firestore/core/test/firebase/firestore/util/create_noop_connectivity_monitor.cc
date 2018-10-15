@@ -14,32 +14,19 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
-namespace remote {
+namespace util {
 
-void ConnectivityMonitor::SetInitialStatus(NetworkStatus new_status) {
-  HARD_ASSERT(!status_.has_value(),
-              "SetInitialStatus should only be called once");
-  status_ = new_status;
+std::unique_ptr<remote::ConnectivityMonitor> CreateNoOpConnectivityMonitor() {
+  // The default implementation does nothing
+  return absl::make_unique<remote::ConnectivityMonitor>(nullptr);
 }
 
-void ConnectivityMonitor::MaybeInvokeCallbacks(NetworkStatus new_status) {
-  if (new_status == status_) {
-    return;
-  }
-  status_ = new_status;
-
-  for (auto& callback : callbacks_) {
-    callback(status_.value());
-  }
-}
-
-}  // namespace remote
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
