@@ -106,6 +106,16 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore& operator=(const Datastore& other) = delete;
   Datastore& operator=(Datastore&& other) = delete;
 
+ protected:
+  /** Test-only method */
+  grpc::CompletionQueue* grpc_queue() {
+    return &grpc_queue_;
+  }
+  /** Test-only method */
+  GrpcCall* LastCall() {
+    return !active_calls_.empty() ? active_calls_.back().get() : nullptr;
+  }
+
  private:
   void PollGrpcQueue();
 
@@ -137,17 +147,6 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   // down.
   bool is_shut_down_ = false;
 
- protected:
-  /** Test-only method for mocking */
-  grpc::CompletionQueue* grpc_queue() {
-    return &grpc_queue_;
-  }
-  /** Test-only method for mocking */
-  GrpcCall* LastCall() {
-    return !active_calls_.empty() ? active_calls_.back().get() : nullptr;
-  }
-
- private:
   util::AsyncQueue* worker_queue_ = nullptr;
   auth::CredentialsProvider* credentials_ = nullptr;
 
