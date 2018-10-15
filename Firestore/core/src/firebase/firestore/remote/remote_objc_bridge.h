@@ -161,7 +161,8 @@ class DatastoreSerializer {
   NSArray<FSTMaybeDocument*>* MergeLookupResponses(
       const std::vector<grpc::ByteBuffer>& responses,
       util::Status* out_status) const;
-  FSTMaybeDocument* ToMaybeDocument(GCFSBatchGetDocumentsResponse*) const;
+  FSTMaybeDocument* ToMaybeDocument(
+      GCFSBatchGetDocumentsResponse* response) const;
 
   FSTSerializerBeta* GetSerializer() {
     return serializer_;
