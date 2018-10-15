@@ -447,9 +447,7 @@ TEST_F(StreamTest, Backoff) {
 
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
-  worker_queue.EnqueueBlocking([&] {
-    firestore_stream->InhibitBackoff();
-  });
+  worker_queue.EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
   EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
 }
@@ -515,17 +513,15 @@ TEST_F(StreamTest, RefreshesTokenUponExpiration) {
                {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
   // Error "Unauthenticated" should invalidate the token.
   EXPECT_EQ(credentials.observed_states(),
-              States({"GetToken", "InvalidateToken"}));
+            States({"GetToken", "InvalidateToken"}));
 
-  worker_queue.EnqueueBlocking([&] {
-    firestore_stream->InhibitBackoff();
-  });
+  worker_queue.EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
   StartStream();
   ForceFinish({{Type::Read, Error},
                {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
   // Simulate a different error -- token should not be invalidated this time.
   EXPECT_EQ(credentials.observed_states(),
-              States({"GetToken", "InvalidateToken", "GetToken"}));
+            States({"GetToken", "InvalidateToken", "GetToken"}));
 }
 
 }  // namespace remote

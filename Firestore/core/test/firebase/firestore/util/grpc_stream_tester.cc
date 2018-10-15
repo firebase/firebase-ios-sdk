@@ -16,6 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 
+#include <map>
+#include <queue>
 #include <sstream>
 #include <utility>
 #include <vector>

@@ -211,14 +211,15 @@ class GrpcStreamTester {
    *  queue, apply "Ok" with the message "Foo" to the first completion of type
    *  "read", and apply "Error" to the second completion of type "read".
    */
-  void ForceFinishAnyTypeOrder(grpc::ClientContext* context,
+  void ForceFinishAnyTypeOrder(
+      grpc::ClientContext* context,
       std::initializer_list<CompletionEndState> results);
 
   /**
    * Creates a `CompletionCallback` from given `results` which is equivalent to
    * what `ForceFinishAnyTypeOrder` would use, but doesn't run it.
    */
-   static CompletionCallback CreateAnyTypeOrderCallback(
+  static CompletionCallback CreateAnyTypeOrderCallback(
       std::initializer_list<CompletionEndState> results);
 
   void KeepPollingGrpcQueue();

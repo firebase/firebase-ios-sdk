@@ -15,9 +15,7 @@
  */
 
 #include <initializer_list>
-#include <map>
 #include <memory>
-#include <queue>
 #include <utility>
 #include <vector>
 
@@ -73,7 +71,8 @@ class GrpcStreamingReaderTest : public testing::Test {
   void ForceFinish(const GrpcStreamTester::CompletionCallback& callback) {
     tester.ForceFinish(reader->context(), callback);
   }
-  void ForceFinishAnyTypeOrder(std::initializer_list<CompletionEndState> results) {
+  void ForceFinishAnyTypeOrder(
+      std::initializer_list<CompletionEndState> results) {
     tester.ForceFinishAnyTypeOrder(reader->context(), results);
   }
 
