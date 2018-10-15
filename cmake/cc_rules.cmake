@@ -33,14 +33,16 @@ function(cc_library name)
   add_objc_flags(${name} ccl)
   target_include_directories(
     ${name}
+    SYSTEM
     PUBLIC
     # Put the binary dir first so that the generated config.h trumps any one
     # generated statically by a Cocoapods-based build in the same source tree.
     ${FIREBASE_BINARY_DIR}
     ${FIREBASE_SOURCE_DIR}
   )
-target_include_directories(${name} SYSTEM ${ccl_DEPENDS})
+
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
+  target_include_directories(grpc SYSTEM PUBLIC ${external_src_dir}/grpc/include)
 
   if(ccl_EXCLUDE_FROM_ALL)
     set_property(

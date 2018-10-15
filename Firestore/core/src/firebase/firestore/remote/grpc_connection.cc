@@ -179,6 +179,7 @@ void GrpcConnection::Unregister(GrpcCall* call) {
   auto found = std::find(active_calls_.begin(), active_calls_.end(), call);
   HARD_ASSERT(found != active_calls_.end(), "Missing a gRPC call");
   active_calls_.erase(found);
+  TestFunc(10);
 }
 
 }  // namespace remote

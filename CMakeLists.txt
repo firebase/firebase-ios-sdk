@@ -101,10 +101,7 @@ endif()
 
 set(gRPC_BUILD_TESTS OFF CACHE BOOL "Disable gRPC tests")
 add_external_subdirectory(grpc)
-target_compile_options(
-  grpc
-  PRIVATE -Wno-unused-parameter
-)
+target_include_directories(grpc SYSTEM PUBLIC ${external_src_dir}/grpc/include)
 
 # Fix up targets included by gRPC's build
 set(external_src_dir ${FIREBASE_BINARY_DIR}/external/src)
@@ -148,6 +145,10 @@ if(CXX_CLANG OR CXX_GNU)
     libprotobuf
     PUBLIC -Wno-unused-parameter
   )
+#target_compile_options(
+#grpc
+#PUBLIC -Wno-unused-parameter
+#)
 endif()
 if(CXX_CLANG)
   target_compile_options(

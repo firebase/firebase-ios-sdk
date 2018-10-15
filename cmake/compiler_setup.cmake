@@ -37,8 +37,6 @@ if(CXX_CLANG OR CXX_GNU)
     -Wuninitialized
     -fno-common
 
-    #-Wno-unused-parameter
-
     # Delete unused things
     -Wunused-function -Wunused-value -Wunused-variable
   )
