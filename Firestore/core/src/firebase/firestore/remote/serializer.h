@@ -49,6 +49,11 @@ class LocalSerializer;
 
 namespace remote {
 
+template <typename T>
+T* MakeArray(size_t count) {
+  return reinterpret_cast<T*>(calloc(count, sizeof(T)));
+}
+
 /**
  * @brief Converts internal model objects to their equivalent protocol buffer
  * form, and protocol buffer objects to their equivalent bytes.

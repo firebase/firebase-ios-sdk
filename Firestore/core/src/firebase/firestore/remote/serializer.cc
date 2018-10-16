@@ -131,13 +131,10 @@ google_firestore_v1beta1_MapValue EncodeMapValue(
   size_t count = object_value_map.size();
 
   result.fields_count = count;
-  result.fields =
-      static_cast<google_firestore_v1beta1_MapValue_FieldsEntry*>(malloc(
-          sizeof(google_firestore_v1beta1_MapValue_FieldsEntry) * count));
+  result.fields = MakeArray<google_firestore_v1beta1_MapValue_FieldsEntry>(count);
 
   int i = 0;
   for (const auto& kv : object_value_map) {
-    result.fields[i] = google_firestore_v1beta1_MapValue_FieldsEntry_init_zero;
     result.fields[i].key = Serializer::EncodeString(kv.first);
     result.fields[i].value = Serializer::EncodeFieldValue(kv.second);
     i++;
@@ -357,12 +354,10 @@ google_firestore_v1beta1_Document Serializer::EncodeDocument(
   // Encode Document.fields (unless it's empty)
   size_t count = object_value.internal_value.size();
   result.fields_count = count;
-  result.fields =
-      static_cast<google_firestore_v1beta1_Document_FieldsEntry*>(malloc(
-          sizeof(google_firestore_v1beta1_Document_FieldsEntry) * count));
+  result.fields = MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
+
   int i = 0;
   for (const auto& kv : object_value.internal_value) {
-    result.fields[i] = google_firestore_v1beta1_Document_FieldsEntry_init_zero;
     result.fields[i].key = EncodeString(kv.first);
     result.fields[i].value = EncodeFieldValue(kv.second);
     i++;
@@ -476,14 +471,7 @@ google_firestore_v1beta1_Target_QueryTarget Serializer::EncodeQueryTarget(
   if (!collection_id.empty()) {
     size_t count = 1;
     result.structured_query.from_count = count;
-    result.structured_query.from = static_cast<
-        google_firestore_v1beta1_StructuredQuery_CollectionSelector*>(malloc(
-        sizeof(google_firestore_v1beta1_StructuredQuery_CollectionSelector) *
-        count));
-    for (size_t i = 0; i < count; i++) {
-      result.structured_query.from[i] =
-          google_firestore_v1beta1_StructuredQuery_CollectionSelector_init_zero;
-    }
+    result.structured_query.from = MakeArray<google_firestore_v1beta1_StructuredQuery_CollectionSelector>(count);
     result.structured_query.from[0].collection_id = EncodeString(collection_id);
   } else {
     result.structured_query.from_count = 0;

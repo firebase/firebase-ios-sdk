@@ -44,6 +44,7 @@ using nanopb::Reader;
 using nanopb::Writer;
 using util::Status;
 using util::StringFormat;
+using remote::MakeArray;
 
 firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
     const MaybeDocument& maybe_doc) const {
@@ -104,12 +105,10 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
   // Encode Document.fields (unless it's empty)
   size_t count = doc.data().object_value().internal_value.size();
   result.fields_count = count;
-  result.fields =
-      reinterpret_cast<google_firestore_v1beta1_Document_FieldsEntry*>(malloc(
-          sizeof(google_firestore_v1beta1_Document_FieldsEntry) * count));
+  result.fields = MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
+
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
-    result.fields[i] = google_firestore_v1beta1_Document_FieldsEntry_init_zero;
     result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
     result.fields[i].value = rpc_serializer_.EncodeFieldValue(kv.second);
     i++;
