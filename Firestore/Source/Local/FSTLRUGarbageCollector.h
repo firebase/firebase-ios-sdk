@@ -107,7 +107,7 @@ struct LruResults {
 
 - (size_t)byteSize;
 
-/** Returns the number of targets and documents cached. */
+/** Returns the number of targets and orphaned documents cached. */
 - (int32_t)sequenceNumberCount;
 
 /** Access to the underlying LRU Garbage collector instance. */
