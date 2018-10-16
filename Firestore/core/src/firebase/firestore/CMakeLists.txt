@@ -18,8 +18,6 @@ cc_library(
   SOURCES
     field_path.cc
     geo_point.cc
-    # Need to fix the header include before this can be used.
-    # set_options.cc
     timestamp.cc
     timestamp_internal.h
   DEPENDS
