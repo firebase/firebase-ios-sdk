@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OBJC_BRIDGE_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OBJC_BRIDGE_H_
+#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_OBJC_BRIDGE_H_
+#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_OBJC_BRIDGE_H_
 
 #if !defined(__OBJC__)
 #error "This header only supports Objective-C++"
@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 
 #include <string>
+#include <vector>
 
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
@@ -134,6 +135,43 @@ class WriteStreamSerializer {
   NSData* last_stream_token_;
 };
 
+/**
+ * A C++ bridge to `FSTSerializerBeta` that allows creating
+ * `GCFSCommitRequest`s and `GCFSBatchGetDocumentsRequest`s and handling
+ * `GCFSBatchGetDocumentsResponse`s.
+ */
+class DatastoreSerializer {
+ public:
+  explicit DatastoreSerializer(FSTSerializerBeta* serializer)
+      : serializer_{serializer} {
+  }
+
+  GCFSCommitRequest* CreateCommitRequest(
+      NSArray<FSTMutation*>* mutations) const;
+  static grpc::ByteBuffer ToByteBuffer(GCFSCommitRequest* request);
+
+  GCFSBatchGetDocumentsRequest* CreateLookupRequest(
+      const std::vector<model::DocumentKey>& keys) const;
+  static grpc::ByteBuffer ToByteBuffer(GCFSBatchGetDocumentsRequest* request);
+
+  /**
+   * Merges results of the streaming read together. The array is sorted by the
+   * document key.
+   */
+  NSArray<FSTMaybeDocument*>* MergeLookupResponses(
+      const std::vector<grpc::ByteBuffer>& responses,
+      util::Status* out_status) const;
+  FSTMaybeDocument* ToMaybeDocument(
+      GCFSBatchGetDocumentsResponse* response) const;
+
+  FSTSerializerBeta* GetSerializer() {
+    return serializer_;
+  }
+
+ private:
+  FSTSerializerBeta* serializer_;
+};
+
 /** A C++ bridge that invokes methods on an `FSTWatchStreamDelegate`. */
 class WatchStreamDelegate {
  public:
@@ -172,4 +210,4 @@ class WriteStreamDelegate {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_STREAM_OBJC_BRIDGE_H_
+#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_REMOTE_OBJC_BRIDGE_H_

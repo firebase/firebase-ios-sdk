@@ -29,7 +29,7 @@ Please follow the instructions in
 [Sample/ApplicationTemplate.plist](Sample/ApplicationTemplate.plist)
 to generate the right Application.plist file.
 
-### Sample.entitlements file
+#### Sample.entitlements file
 
 In order to test the "Reset Password In App" feature you will need to create a dynamic link for your
 Firebase project in the Dynamic Links section of the Firebase Console. Once the link is created,

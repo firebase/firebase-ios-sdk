@@ -13,8 +13,40 @@
 # limitations under the License.
 
 cc_library(
+  firebase_firestore_remote_connectivity_monitor_apple
+  SOURCES
+    connectivity_monitor.cc
+    connectivity_monitor.h
+    connectivity_monitor_apple.mm
+  DEPENDS
+    absl_base
+    firebase_firestore_util
+  EXCLUDE_FROM_ALL
+)
+
+cc_library(
+  firebase_firestore_remote_connectivity_monitor_noop
+  SOURCES
+    connectivity_monitor.cc
+    connectivity_monitor.h
+    connectivity_monitor_noop.cc
+  DEPENDS
+    absl_base
+    firebase_firestore_util
+  EXCLUDE_FROM_ALL
+)
+
+cc_select(
+  firebase_firestore_remote_connectivity_monitor
+  APPLE   firebase_firestore_remote_connectivity_monitor_apple
+  DEFAULT firebase_firestore_remote_connectivity_monitor_noop
+)
+
+cc_library(
   firebase_firestore_remote
   SOURCES
+    grpc_util.h
+    grpc_util.cc
     exponential_backoff.h
     exponential_backoff.cc
     serializer.h
@@ -26,6 +58,7 @@ cc_library(
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
+    firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
     grpc
 )

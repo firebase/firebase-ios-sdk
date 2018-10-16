@@ -350,32 +350,32 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
     return absl::nullopt;
   }
 
-  FieldValue result = FieldValue::NullValue();
+  FieldValue result = FieldValue::Null();
 
   while (reader->good()) {
     switch (reader->ReadTag()) {
       case google_firestore_v1beta1_Value_null_value_tag:
         reader->ReadNull();
-        result = FieldValue::NullValue();
+        result = FieldValue::Null();
         break;
 
       case google_firestore_v1beta1_Value_boolean_value_tag:
-        result = FieldValue::BooleanValue(reader->ReadBool());
+        result = FieldValue::FromBoolean(reader->ReadBool());
         break;
 
       case google_firestore_v1beta1_Value_integer_value_tag:
-        result = FieldValue::IntegerValue(reader->ReadInteger());
+        result = FieldValue::FromInteger(reader->ReadInteger());
         break;
 
       case google_firestore_v1beta1_Value_string_value_tag:
-        result = FieldValue::StringValue(reader->ReadString());
+        result = FieldValue::FromString(reader->ReadString());
         break;
 
       case google_firestore_v1beta1_Value_timestamp_value_tag: {
         absl::optional<Timestamp> timestamp =
             reader->ReadNestedMessage<Timestamp>(DecodeTimestamp);
         if (reader->status().ok())
-          result = FieldValue::TimestampValue(*timestamp);
+          result = FieldValue::FromTimestamp(*timestamp);
         break;
       }
 
@@ -384,8 +384,7 @@ absl::optional<FieldValue> Serializer::DecodeFieldValue(Reader* reader) {
         // newly parsed map.
         absl::optional<ObjectValue::Map> optional_map =
             reader->ReadNestedMessage<ObjectValue::Map>(DecodeMapValue);
-        if (reader->status().ok())
-          result = FieldValue::ObjectValueFromMap(*optional_map);
+        if (reader->status().ok()) result = FieldValue::FromMap(*optional_map);
         break;
       }
 
@@ -550,10 +549,9 @@ std::unique_ptr<Document> Serializer::DecodeDocument(Reader* reader) const {
   }
 
   if (!reader->status().ok()) return nullptr;
-  return absl::make_unique<Document>(
-      FieldValue::ObjectValueFromMap(fields_internal), DecodeKey(name),
-      *std::move(version),
-      /*has_local_modifications=*/false);
+  return absl::make_unique<Document>(FieldValue::FromMap(fields_internal),
+                                     DecodeKey(name), *std::move(version),
+                                     /*has_local_modifications=*/false);
 }
 
 void Serializer::EncodeQueryTarget(Writer* writer,

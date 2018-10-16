@@ -15,7 +15,6 @@
  */
 import UIKit
 import FirebaseInAppMessaging
-import FirebaseInAppMessagingDisplay
 
 class ImageOnlyMessageViewController: CommonMessageTestVC {
   let displayImpl = InAppMessagingDefaultDisplayImpl()

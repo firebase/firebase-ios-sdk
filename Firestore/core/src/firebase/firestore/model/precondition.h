@@ -20,7 +20,6 @@
 #include <utility>
 
 #if defined(__OBJC__)
-#import "FIRTimestamp.h"
 #import "Firestore/Source/Model/FSTDocument.h"
 #include "Firestore/core/include/firebase/firestore/timestamp.h"
 #endif  // defined(__OBJC__)
@@ -59,7 +58,7 @@ class Precondition {
    * Returns true if the precondition is valid for the given document (and the
    * document is available).
    */
-  bool IsValidFor(const MaybeDocument& maybe_doc) const;
+  bool IsValidFor(const MaybeDocument* maybe_doc) const;
 
   /** Returns whether this Precondition represents no precondition. */
   bool IsNone() const {

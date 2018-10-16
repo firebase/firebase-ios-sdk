@@ -33,6 +33,14 @@ set(
   google/rpc/status
   google/type/latlng
 )
+# Full filenames (i.e. with the .proto) from within the proto directory,
+# excluding anything in google/protobuf
+foreach(root ${PROTO_FILE_ROOTS})
+  list(
+    APPEND PROTO_FILES
+    ${OUTPUT_DIR}/protos/${root}.proto
+  )
+endforeach()
 
 # Filename "roots" (i.e. without the .proto) from within the proto directory,
 # from the google/protobuf package.
@@ -44,6 +52,14 @@ set(
   google/protobuf/timestamp
   google/protobuf/wrappers
 )
+# Full filenames (i.e. with the .proto) from within the proto directory, from
+# the google/protobuf package.
+foreach(root ${WELL_KNOWN_PROTO_FILE_ROOTS})
+  list(
+    APPEND WELL_KNOWN_PROTO_FILES
+    ${OUTPUT_DIR}/protos/${root}.proto
+  )
+endforeach()
 
 # Populate NANOPB_GENERATED_SOURCES with the list of nanopb-generated sources.
 # The nanopb runtime does not include the well-known protos so we have to build
@@ -68,6 +84,27 @@ foreach(root ${PROTO_FILE_ROOTS})
   )
 endforeach()
 
+# Converts a snake_case string to a CamelCase string.
+#
+# Input string must start and end with a lower case character, and must not
+# have multiple consecutive underscores.
+function(snake_case_to_camel_case str var)
+  # prepend an underscore (to avoid special casing the first char)
+  set(str "_${str}")
+  while(TRUE)
+    string(FIND ${str} "_" pos)
+    if(${pos} EQUAL "-1")
+      break()
+    endif()
+    MATH(EXPR pos "${pos}+1")
+    string(SUBSTRING ${str} "${pos}" 1 lower_char)
+    string(TOUPPER ${lower_char} upper_char)
+    string(REPLACE  "_${lower_char}" ${upper_char} str ${str})
+  endwhile()
+
+  set(${var} ${str} PARENT_SCOPE)
+endfunction()
+
 # Populate PROTOBUF_OBJC_GENERATED_SOURCES with the list of libprotobuf
 # Objective-C sources. These are used by the old Objective-C implementation
 # that we're replacing.
@@ -83,10 +120,24 @@ set(
   ${OUTPUT_DIR}/objc/google/firestore/v1beta1/Firestore.pbrpc.m
 )
 foreach(root ${PROTO_FILE_ROOTS})
+  get_filename_component(dir ${root} DIRECTORY)
+  get_filename_component(fname ${root} NAME)
+
+  # protoc converts the filename from snake case to camel case, so we must do
+  # that too.
+  if(${fname} STREQUAL "http")
+    # Hack: Something, somewhere is causing protoc to special case 'http' and
+    # convert it to HTTP (rather than Http) for objc. So we'll special case it
+    # here too.
+    set(fname "HTTP")
+  else()
+    snake_case_to_camel_case(${fname} fname)
+  endif()
+
   list(
     APPEND PROTOBUF_OBJC_GENERATED_SOURCES
-    ${OUTPUT_DIR}/objc/${root}.pbobjc.h
-    ${OUTPUT_DIR}/objc/${root}.pbobjc.m
+    ${OUTPUT_DIR}/objc/${dir}/${fname}.pbobjc.h
+    ${OUTPUT_DIR}/objc/${dir}/${fname}.pbobjc.m
   )
 endforeach()
 
@@ -194,6 +245,8 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/nanopb_cpp_generator.py
     ${NANOPB_PYTHON}
     ${PROTOBUF_PYTHON}
+    ${PROTO_FILES}
+    ${WELL_KNOWN_PROTO_FILES}
 )
 
 add_custom_target(
@@ -215,6 +268,7 @@ add_custom_command(
   DEPENDS
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTO_FILES}
 )
 
 add_custom_target(
@@ -238,6 +292,7 @@ add_custom_command(
     grpc_objective_c_plugin
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
+    ${PROTO_FILES}
 )
 
 add_custom_target(

@@ -42,12 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTMutationResult : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithVersion:(absl::optional<firebase::firestore::model::SnapshotVersion>)version
+- (instancetype)initWithVersion:(firebase::firestore::model::SnapshotVersion)version
                transformResults:(NSArray<FSTFieldValue *> *_Nullable)transformResults
     NS_DESIGNATED_INITIALIZER;
 
-/** The version at which the mutation was committed or null for a delete. */
-- (const absl::optional<firebase::firestore::model::SnapshotVersion> &)version;
+/** The version at which the mutation was committed. */
+- (const firebase::firestore::model::SnapshotVersion &)version;
 
 /**
  * The resulting fields returned from the backend after a FSTTransformMutation has been committed.

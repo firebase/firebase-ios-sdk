@@ -14,57 +14,61 @@
  * limitations under the License.
  */
 
-#if !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
+#if !defined(GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO) || !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
 #import "Firestore.pbobjc.h"
 #endif
 
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 #import <ProtoRPC/ProtoService.h>
 #import <ProtoRPC/ProtoRPC.h>
 #import <RxLibrary/GRXWriteable.h>
 #import <RxLibrary/GRXWriter.h>
+#endif
 
-#if GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
-  @class GCFSBatchGetDocumentsRequest;
-  @class GCFSBatchGetDocumentsResponse;
-  @class GCFSBeginTransactionRequest;
-  @class GCFSBeginTransactionResponse;
-  @class GCFSCommitRequest;
-  @class GCFSCommitResponse;
-  @class GCFSCreateDocumentRequest;
-  @class GCFSDeleteDocumentRequest;
-  @class GCFSDocument;
-  @class GCFSGetDocumentRequest;
-  @class GCFSListCollectionIdsRequest;
-  @class GCFSListCollectionIdsResponse;
-  @class GCFSListDocumentsRequest;
-  @class GCFSListDocumentsResponse;
-  @class GCFSListenRequest;
-  @class GCFSListenResponse;
-  @class GCFSRollbackRequest;
-  @class GCFSRunQueryRequest;
-  @class GCFSRunQueryResponse;
-  @class GCFSUpdateDocumentRequest;
-  @class GCFSWriteRequest;
-  @class GCFSWriteResponse;
-  @class GPBEmpty;
-#else
+@class GCFSBatchGetDocumentsRequest;
+@class GCFSBatchGetDocumentsResponse;
+@class GCFSBeginTransactionRequest;
+@class GCFSBeginTransactionResponse;
+@class GCFSCommitRequest;
+@class GCFSCommitResponse;
+@class GCFSCreateDocumentRequest;
+@class GCFSDeleteDocumentRequest;
+@class GCFSDocument;
+@class GCFSGetDocumentRequest;
+@class GCFSListCollectionIdsRequest;
+@class GCFSListCollectionIdsResponse;
+@class GCFSListDocumentsRequest;
+@class GCFSListDocumentsResponse;
+@class GCFSListenRequest;
+@class GCFSListenResponse;
+@class GCFSRollbackRequest;
+@class GCFSRunQueryRequest;
+@class GCFSRunQueryResponse;
+@class GCFSUpdateDocumentRequest;
+@class GCFSWriteRequest;
+@class GCFSWriteResponse;
+@class GPBEmpty;
+
+#if !defined(GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO) || !GPB_GRPC_FORWARD_DECLARE_MESSAGE_PROTO
   #import "Annotations.pbobjc.h"
   #import "Common.pbobjc.h"
   #import "Document.pbobjc.h"
   #import "Query.pbobjc.h"
   #import "Write.pbobjc.h"
-  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-    #import <Protobuf/Empty.pbobjc.h>
-  #else
-    #import "Empty.pbobjc.h"
-  #endif
-  #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
-    #import <Protobuf/Timestamp.pbobjc.h>
-  #else
-    #import "Timestamp.pbobjc.h"
-  #endif
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Empty.pbobjc.h>
+#else
+  #import "Empty.pbobjc.h"
+#endif
+#if defined(GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS) && GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
+  #import <Protobuf/Timestamp.pbobjc.h>
+#else
+  #import "Timestamp.pbobjc.h"
+#endif
   #import "Status.pbobjc.h"
 #endif
+
+@class GRPCProtoCall;
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -248,6 +252,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+
+#if !defined(GPB_GRPC_PROTOCOL_ONLY) || !GPB_GRPC_PROTOCOL_ONLY
 /**
  * Basic service implementation, over gRPC, that only does
  * marshalling and parsing.
@@ -256,5 +262,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithHost:(NSString *)host NS_DESIGNATED_INITIALIZER;
 + (instancetype)serviceWithHost:(NSString *)host;
 @end
+#endif
 
 NS_ASSUME_NONNULL_END
+

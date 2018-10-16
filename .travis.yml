@@ -1,5 +1,5 @@
 os: osx
-osx_image: xcode9.4
+osx_image: xcode10
 language: objective-c
 cache:
   - bundler
@@ -33,8 +33,14 @@ jobs:
       env:
         - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
       before_install:
-        - npm install ios-sim -g
-        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-8-Plus, 11.3"
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      env:
+        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+      before_install:
         - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
       script:
         - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
@@ -56,12 +62,15 @@ jobs:
       script:
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec
         - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec
+        - ./scripts/if_changed.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec
 
     - stage: test
       env:
@@ -80,18 +89,18 @@ jobs:
       before_install:
         - ./scripts/if_cron.sh ./scripts/install_prereqs.sh
       script:
-        # For GoogleUtilities, allow warnings for iOS 6 but not iOS 7.
-        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries --allow-warnings
-        - ./scripts/if_cron.sh sed -i -e "s/s.ios.deployment_target = '6.0'/s.ios.deployment_target = '7.0'/" GoogleUtilities.podspec
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh GoogleUtilities.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseCore.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAnalyticsInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuth.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseAuthInterop.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDatabase.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseDynamicLinks.podspec --use-libraries
         # The Protobuf dependency of FirebaseMessaging has warnings with --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseMessaging.podspec --use-libraries --allow-warnings
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseStorage.podspec --use-libraries
         - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFunctions.podspec --use-libraries
+        - ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseInAppMessagingDisplay.podspec --use-libraries
 
     - stage: test
       env:
@@ -104,6 +113,36 @@ jobs:
         - travis_wait ./scripts/if_cron.sh ./scripts/pod_lib_lint.sh FirebaseFirestore.podspec --use-libraries --allow-warnings --no-subspecs
 
     # Alternative platforms
+
+    # Xcode 9
+    - stage: test
+      osx_image: xcode9.4
+      env:
+        - PROJECT=Firebase PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - npm install ios-sim -g
+        - ios-sim start --devicetypeid "com.apple.CoreSimulator.SimDeviceType.iPhone-8-Plus, 11.3"
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode9.4
+      env:
+        - PROJECT=InAppMessagingDisplay PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM
+
+    - stage: test
+      osx_image: xcode9.4
+      env:
+        - PROJECT=Firestore PLATFORM=iOS METHOD=xcodebuild
+      before_install:
+        - ./scripts/if_changed.sh ./scripts/install_prereqs.sh
+      script:
+        - ./scripts/if_changed.sh ./scripts/build.sh $PROJECT $PLATFORM $METHOD
 
     - stage: test
       env:

@@ -82,8 +82,7 @@ struct Comparator {
 /** Compares two strings. */
 template <>
 struct Comparator<absl::string_view> {
-  bool operator()(const absl::string_view& left,
-                  const absl::string_view& right) const;
+  bool operator()(absl::string_view left, absl::string_view right) const;
 };
 
 template <>

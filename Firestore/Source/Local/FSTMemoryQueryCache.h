@@ -20,6 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTLocalSerializer;
 @class FSTMemoryPersistence;
 
 /**
@@ -31,6 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
 

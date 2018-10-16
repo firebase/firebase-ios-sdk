@@ -16,20 +16,26 @@
 
 #import <Foundation/Foundation.h>
 
+#include <vector>
+
 #import "Firestore/Source/Local/FSTRemoteDocumentCache.h"
 
 #include "Firestore/core/src/firebase/firestore/model/types.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FSTLocalSerializer;
 @class FSTMemoryLRUReferenceDelegate;
 
 @interface FSTMemoryRemoteDocumentCache : NSObject <FSTRemoteDocumentCache>
 
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
-- (int)removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
-         throughSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound;
+- (std::vector<firebase::firestore::model::DocumentKey>)
+    removeOrphanedDocuments:(FSTMemoryLRUReferenceDelegate *)referenceDelegate
+      throughSequenceNumber:(firebase::firestore::model::ListenSequenceNumber)upperBound;
+
+- (size_t)byteSizeWithSerializer:(FSTLocalSerializer *)serializer;
 
 @end
 

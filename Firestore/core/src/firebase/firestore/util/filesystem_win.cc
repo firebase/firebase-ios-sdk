@@ -26,6 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -53,6 +54,19 @@ Path TempDir() {
   HARD_ASSERT(count <= MAX_PATH, "Invalid temporary path longer than MAX_PATH");
 
   return Path::FromUtf16(buffer, count);
+}
+
+StatusOr<int64_t> FileSize(const Path& path) {
+  WIN32_FILE_ATTRIBUTE_DATA attrs;
+  if (!::GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &attrs)) {
+    DWORD error = ::GetLastError();
+    return Status::FromLastError(error, path.ToUtf8String());
+  }
+
+  LARGE_INTEGER result{};
+  result.HighPart = attrs.nFileSizeHigh;
+  result.LowPart = attrs.nFileSizeLow;
+  return result.QuadPart;
 }
 
 namespace detail {
@@ -116,54 +130,116 @@ Status DeleteFile(const Path& path) {
       error, StringFormat("Could not delete file %s", path.ToUtf8String()));
 }
 
-Status RecursivelyDeleteDir(const Path& parent) {
-  Status result;
-  auto fail = [&](DWORD error) {
-    result.Update(Status::FromLastError(
-        error,
-        StringFormat("Could not delete directory: %s", parent.ToUtf8String())));
-    return result;
-  };
+}  // namespace detail
 
-  WIN32_FIND_DATAW find_data;
-  Path pattern = parent.AppendUtf16(L"*", 1);
-  HANDLE find_handle = ::FindFirstFileW(pattern.c_str(), &find_data);
-  if (find_handle == INVALID_HANDLE_VALUE) {
+namespace {
+
+class DirectoryIteratorWindows : public DirectoryIterator {
+ public:
+  explicit DirectoryIteratorWindows(const util::Path& path);
+  virtual ~DirectoryIteratorWindows();
+
+  void Next() override;
+  bool Valid() const override;
+  Path file() const override;
+
+ private:
+  /** Closes the underlying directory iterator. */
+  void Close();
+
+  /** Examines the result of the last read. */
+  void Examine();
+
+  /** Advances to the next directory entry. */
+  void Advance();
+
+  HANDLE find_handle_ = INVALID_HANDLE_VALUE;
+  WIN32_FIND_DATAW find_data_{};
+};
+
+DirectoryIteratorWindows::DirectoryIteratorWindows(const util::Path& path)
+    : DirectoryIterator{path} {
+  Path pattern = parent_.AppendUtf16(L"*", 1);
+
+  find_handle_ = ::FindFirstFileW(pattern.c_str(), &find_data_);
+  if (find_handle_ == INVALID_HANDLE_VALUE) {
     DWORD error = ::GetLastError();
-    if (error == ERROR_FILE_NOT_FOUND) {
-      return Status::OK();
-    } else {
-      return fail(error);
-    }
+    status_ = Status::FromLastError(
+        error,
+        StringFormat("Could not open directory %s", parent_.ToUtf8String()));
+    return;
   }
 
-  do {
-    wchar_t* name = find_data.cFileName;
-    if (wcscmp(name, L".") == 0 || wcscmp(name, L"..") == 0) {
-      continue;
-    }
-
-    Path child = parent.AppendUtf16(name, wcslen(name));
-    RecursivelyDelete(child);
-  } while (::FindNextFileW(find_handle, &find_data));
-
-  DWORD error = ::GetLastError();
-  if (error != ERROR_NO_MORE_FILES) {
-    fail(error);
-  }
-
-  if (!::FindClose(find_handle)) {
-    return fail(::GetLastError());
-  }
-
-  if (result.ok()) {
-    result.Update(DeleteDir(parent));
-  }
-
-  return result;
+  // Compared to the POSIX implementation, FindFirstFileW both opens the find
+  // handle and reads the first entry (like a combination of calling opendir()
+  // and readdir()).
+  Examine();
 }
 
-}  // namespace detail
+DirectoryIteratorWindows::~DirectoryIteratorWindows() {
+  Close();
+}
+
+void DirectoryIteratorWindows::Close() {
+  if (find_handle_ != INVALID_HANDLE_VALUE) {
+    if (!::FindClose(find_handle_)) {
+      status_ = Status::FromLastError(
+          ::GetLastError(),
+          StringFormat("Could not close directory %s", parent_.ToUtf8String()));
+      HARD_FAIL("%s", status_.ToString());
+    }
+    find_handle_ = INVALID_HANDLE_VALUE;
+  }
+}
+
+void DirectoryIteratorWindows::Examine() {
+  HARD_ASSERT(status_.ok(), "Examining an errored iterator");
+
+  wchar_t* name = find_data_.cFileName;
+  if (wcscmp(name, L".") == 0 || wcscmp(name, L"..") == 0) {
+    Advance();
+  }
+}
+
+void DirectoryIteratorWindows::Advance() {
+  HARD_ASSERT(status_.ok(), "Advancing an errored iterator");
+
+  BOOL found = ::FindNextFileW(find_handle_, &find_data_);
+  if (!found) {
+    DWORD error = ::GetLastError();
+    if (error != ERROR_NO_MORE_FILES) {
+      status_ = Status::FromLastError(
+          error, StringFormat("Could not read %s", parent_.ToUtf8String()));
+    }
+    Close();
+    return;
+  }
+
+  Examine();
+}
+
+void DirectoryIteratorWindows::Next() {
+  HARD_ASSERT(Valid(), "Next() called on an invalid iterator");
+  Advance();
+}
+
+bool DirectoryIteratorWindows::Valid() const {
+  return status_.ok() && find_handle_ != INVALID_HANDLE_VALUE;
+}
+
+Path DirectoryIteratorWindows::file() const {
+  HARD_ASSERT(Valid(), "file() called on invalid iterator");
+  const wchar_t* name = find_data_.cFileName;
+  return parent_.AppendUtf16(name, wcslen(name));
+}
+
+}  // namespace
+
+std::unique_ptr<DirectoryIterator> DirectoryIterator::Create(
+    const util::Path& path) {
+  return absl::make_unique<DirectoryIteratorWindows>(path);
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
