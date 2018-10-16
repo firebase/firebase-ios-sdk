@@ -47,7 +47,11 @@ else
   case "$PROJECT-$METHOD" in
     Firebase-*)
       check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
-'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Example)'
+'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Interop|Example|'\
+'FirebaseAnalyticsIntop.podspec|FirebaseAuth.podspec|FirebaseAuthInterop.podspec|'\
+'FirebaseCore.podspec|FirebaseDatabase.podspec|FirebaseDynamicLinks.podspec|'\
+'FirebaseFunctions.podspec|FirebaseMessaging.podspec|FirebaseStorage.podspec|'\
+'FirebaseStorage.podspec)'
       ;;
 
     InAppMessagingDisplay-*)
