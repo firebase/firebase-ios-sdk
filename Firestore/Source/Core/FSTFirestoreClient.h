@@ -29,6 +29,7 @@
 
 @class FIRDocumentReference;
 @class FIRDocumentSnapshot;
+@class FIRFirestoreSettings;
 @class FIRQuery;
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
@@ -56,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  * All callbacks and events will be triggered on the provided userExecutor.
  */
 + (instancetype)clientWithDatabaseInfo:(const firebase::firestore::core::DatabaseInfo &)databaseInfo
-                        usePersistence:(BOOL)usePersistence
+                              settings:(FIRFirestoreSettings *)settings
                    credentialsProvider:(firebase::firestore::auth::CredentialsProvider *)
                                            credentialsProvider  // no passing ownership
                           userExecutor:
