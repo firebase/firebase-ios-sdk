@@ -103,8 +103,8 @@ class RollingSequenceNumberBuffer {
   size_t currentSize = [self byteSize];
   if (currentSize < _params.minBytesThreshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
-    LOG_DEBUG("Garbage collection skipped; Cache size %s is lower than threshold %s", std::to_string(currentSize),
-              std::to_string(_params.minBytesThreshold));
+    LOG_DEBUG("Garbage collection skipped; Cache size %s is lower than threshold %s",
+              std::to_string(currentSize), std::to_string(_params.minBytesThreshold));
     return LruResults::DidNotRun();
   } else {
     LOG_DEBUG("Running garbage collection on cache of size: %s", std::to_string(currentSize));

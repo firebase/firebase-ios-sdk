@@ -246,7 +246,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (int32_t)sequenceNumberCount {
   __block int32_t totalCount = [_persistence.queryCache count];
-  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
+                                       BOOL *stop) {
     totalCount++;
   }];
   return totalCount;

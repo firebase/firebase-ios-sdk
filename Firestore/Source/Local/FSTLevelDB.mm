@@ -231,7 +231,8 @@ static const char *kReservedPathComponent = "firestore";
 
 - (int32_t)sequenceNumberCount {
   __block int32_t totalCount = [_db.queryCache count];
-  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
+                                       BOOL *stop) {
     totalCount++;
   }];
   return totalCount;
