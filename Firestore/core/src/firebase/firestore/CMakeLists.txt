@@ -22,6 +22,7 @@ cc_library(
     timestamp_internal.h
   DEPENDS
     firebase_firestore_util
+    firebase_firestore_model_field_path
 )
 
 # Include the folder with public headers.

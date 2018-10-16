@@ -13,9 +13,19 @@
 # limitations under the License.
 
 cc_library(
-  firebase_firestore_model
+  firebase_firestore_model_field_path
   SOURCES
     base_path.h
+    field_path.cc
+    field_path.h
+  DEPENDS
+    absl_strings
+    firebase_firestore_util
+)
+
+cc_library(
+  firebase_firestore_model
+  SOURCES
     database_id.cc
     database_id.h
     document.cc
@@ -23,8 +33,6 @@ cc_library(
     document_key.cc
     document_key.h
     field_mask.h
-    field_path.cc
-    field_path.h
     field_transform.h
     field_value.cc
     field_value.h
@@ -43,6 +51,7 @@ cc_library(
   DEPENDS
     absl_optional
     absl_strings
+    firebase_firestore_model_field_path
     firebase_firestore_util
     firebase_firestore_types
 )
