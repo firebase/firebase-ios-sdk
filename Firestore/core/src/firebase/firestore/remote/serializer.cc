@@ -125,8 +125,7 @@ ObjectValue::Map DecodeFields(
 
 google_firestore_v1beta1_MapValue EncodeMapValue(
     const ObjectValue::Map& object_value_map) {
-  google_firestore_v1beta1_MapValue result =
-      google_firestore_v1beta1_MapValue_init_zero;
+  google_firestore_v1beta1_MapValue result{};
 
   size_t count = object_value_map.size();
 
@@ -233,8 +232,7 @@ google_firestore_v1beta1_Value Serializer::EncodeFieldValue(
     const FieldValue& field_value) {
   // TODO(rsgowman): some refactoring is in order... but will wait until after a
   // non-varint, non-fixed-size (i.e. string) type is present before doing so.
-  google_firestore_v1beta1_Value result =
-      google_firestore_v1beta1_Value_init_zero;
+  google_firestore_v1beta1_Value result{};
   switch (field_value.type()) {
     case FieldValue::Type::Null:
       result.which_value_type = google_firestore_v1beta1_Value_null_value_tag;
@@ -345,8 +343,7 @@ DocumentKey Serializer::DecodeKey(absl::string_view name) const {
 
 google_firestore_v1beta1_Document Serializer::EncodeDocument(
     const DocumentKey& key, const ObjectValue& object_value) const {
-  google_firestore_v1beta1_Document result =
-      google_firestore_v1beta1_Document_init_zero;
+  google_firestore_v1beta1_Document result{};
 
   // Encode Document.name
   result.name = EncodeString(EncodeKey(key));
@@ -450,8 +447,7 @@ std::unique_ptr<Document> Serializer::DecodeDocument(
 
 google_firestore_v1beta1_Target_QueryTarget Serializer::EncodeQueryTarget(
     const core::Query& query) const {
-  google_firestore_v1beta1_Target_QueryTarget result =
-      google_firestore_v1beta1_Target_QueryTarget_init_zero;
+  google_firestore_v1beta1_Target_QueryTarget result{};
 
   // Dissect the path into parent, collection_id and optional key filter.
   std::string collection_id;
@@ -551,7 +547,7 @@ google_protobuf_Timestamp Serializer::EncodeVersion(
 
 google_protobuf_Timestamp Serializer::EncodeTimestamp(
     const Timestamp& timestamp_value) {
-  google_protobuf_Timestamp result = google_protobuf_Timestamp_init_zero;
+  google_protobuf_Timestamp result{};
   result.seconds = timestamp_value.seconds();
   result.nanos = timestamp_value.nanoseconds();
   return result;

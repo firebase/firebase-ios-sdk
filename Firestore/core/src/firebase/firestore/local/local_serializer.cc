@@ -48,8 +48,7 @@ using remote::MakeArray;
 
 firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
     const MaybeDocument& maybe_doc) const {
-  firestore_client_MaybeDocument result =
-      firestore_client_MaybeDocument_init_zero;
+  firestore_client_MaybeDocument result{};
 
   switch (maybe_doc.type()) {
     case MaybeDocument::Type::Document:
@@ -95,8 +94,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
 
 google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
     const Document& doc) const {
-  google_firestore_v1beta1_Document result =
-      google_firestore_v1beta1_Document_init_zero;
+  google_firestore_v1beta1_Document result{};
 
   // Encode Document.name
   result.name =
@@ -124,7 +122,7 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
 
 firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
     const NoDocument& no_doc) const {
-  firestore_client_NoDocument result = firestore_client_NoDocument_init_zero;
+  firestore_client_NoDocument result{};
 
   // Encode NoDocument.name
   result.name =
@@ -151,7 +149,7 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
 
 firestore_client_Target LocalSerializer::EncodeQueryData(
     const QueryData& query_data) const {
-  firestore_client_Target result = firestore_client_Target_init_zero;
+  firestore_client_Target result{};
 
   result.target_id = query_data.target_id();
   result.snapshot_version = rpc_serializer_.EncodeTimestamp(
