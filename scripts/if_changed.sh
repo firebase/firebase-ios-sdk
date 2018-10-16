@@ -46,7 +46,8 @@ elif [[ -z "$TRAVIS_COMMIT_RANGE" ]]; then
 else
   case "$PROJECT-$METHOD" in
     Firebase-*)
-      check_changes '^(Firebase|Functions|GoogleUtilities|Example)'
+      check_changes '^(Firebase/Auth|Firebase/Core|Firebase/Database|Firebase/DynamicLinks|'\
+'Firebase/Messaging|Firebase/Storage|Functions|GoogleUtilities|Example)'
       ;;
 
     InAppMessagingDisplay-*)
