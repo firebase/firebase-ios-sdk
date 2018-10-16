@@ -521,27 +521,25 @@ using leveldb::WriteOptions;
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
+- (void)removeMutationBatch:(FSTMutationBatch *)batch {
   auto checkIterator = _db.currentTransaction->NewIterator();
 
-  for (FSTMutationBatch *batch in batches) {
-    BatchId batchID = batch.batchID;
-    std::string key = LevelDbMutationKey::Key(_userID, batchID);
+  BatchId batchID = batch.batchID;
+  std::string key = LevelDbMutationKey::Key(_userID, batchID);
 
-    // As a sanity check, verify that the mutation batch exists before deleting it.
-    checkIterator->Seek(key);
-    HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist", DescribeKey(key));
+  // As a sanity check, verify that the mutation batch exists before deleting it.
+  checkIterator->Seek(key);
+  HARD_ASSERT(checkIterator->Valid(), "Mutation batch %s did not exist", DescribeKey(key));
 
-    HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
-                DescribeKey(key), DescribeKey(checkIterator));
+  HARD_ASSERT(key == checkIterator->key(), "Mutation batch %s not found; found %s",
+              DescribeKey(key), DescribeKey(checkIterator));
 
+  _db.currentTransaction->Delete(key);
+
+  for (FSTMutation *mutation in batch.mutations) {
+    key = LevelDbDocumentMutationKey::Key(_userID, mutation.key, batchID);
     _db.currentTransaction->Delete(key);
-
-    for (FSTMutation *mutation in batch.mutations) {
-      key = LevelDbDocumentMutationKey::Key(_userID, mutation.key, batchID);
-      _db.currentTransaction->Delete(key);
-      [_db.referenceDelegate removeMutationReference:mutation.key];
-    }
+    [_db.referenceDelegate removeMutationReference:mutation.key];
   }
 }
 
