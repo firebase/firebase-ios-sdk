@@ -5025,6 +5025,14 @@ def IsInitializerList(clean_lines, linenum):
   return False
 
 
+def CheckForStringViewReferences(filename, clean_lines, linenum, error):
+  line = clean_lines.elided[linenum]
+  match = Search(r'const absl::string_view(?:\s*&)', line)
+  if match:
+    error(filename, linenum, 'runtime/references', 5,
+          'Avoid const references to absl::string_view; just pass by value.')
+
+
 def CheckForNonConstReference(filename, clean_lines, linenum,
                               nesting_state, error):
   """Check for non-const references.
@@ -5824,6 +5832,7 @@ def ProcessLine(filename, file_extension, clean_lines, line,
   CheckStyle(filename, clean_lines, line, file_extension, nesting_state, error)
   CheckLanguage(filename, clean_lines, line, file_extension, include_state,
                 nesting_state, error)
+  CheckForStringViewReferences(filename, clean_lines, line, error)
   CheckForNonConstReference(filename, clean_lines, line, nesting_state, error)
   CheckForNonStandardConstructs(filename, clean_lines, line,
                                 nesting_state, error)

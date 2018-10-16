@@ -138,6 +138,24 @@ TEST_F(GrpcConnectionTest, GrpcStreamingCallsNoticeChangeInConnectivity) {
   EXPECT_EQ(change_count, 1);
 }
 
+TEST_F(GrpcConnectionTest, GrpcUnaryCallsNoticeChangeInConnectivity) {
+  int change_count = 0;
+  std::unique_ptr<GrpcUnaryCall> unary_call = tester.CreateUnaryCall();
+  unary_call->Start([&](const StatusOr<grpc::ByteBuffer>& result) {
+    if (IsConnectivityChange(result.status())) {
+      ++change_count;
+    }
+  });
+
+  SetNetworkStatus(NetworkStatus::Available);
+  // Same status shouldn't trigger a callback.
+  EXPECT_EQ(change_count, 0);
+
+  tester.KeepPollingGrpcQueue();
+  SetNetworkStatus(NetworkStatus::AvailableViaCellular);
+  EXPECT_EQ(change_count, 1);
+}
+
 TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   int changes_count = 0;
 
@@ -164,6 +182,41 @@ TEST_F(GrpcConnectionTest, ConnectivityChangeWithSeveralActiveCalls) {
   // them, make sure nothing breaks.
   EXPECT_NO_THROW(SetNetworkStatus(NetworkStatus::Unavailable));
   EXPECT_EQ(changes_count, 3);
+}
+
+TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
+  class NoFinishObserver : public GrpcStreamObserver {
+   public:
+    void OnStreamStart() override {
+    }
+    void OnStreamRead(const grpc::ByteBuffer& message) override {
+    }
+    void OnStreamFinish(const util::Status& status) override {
+      FAIL() << "Observer shouldn't have been invoked";
+    }
+  };
+
+  NoFinishObserver observer;
+  std::unique_ptr<GrpcStream> foo = tester.CreateStream(&observer);
+  foo->Start();
+
+  std::unique_ptr<GrpcStreamingReader> bar = tester.CreateStreamingReader();
+  bar->Start([](const StatusOr<std::vector<grpc::ByteBuffer>>&) {
+    FAIL() << "Callback shouldn't have been invoked";
+  });
+
+  std::unique_ptr<GrpcUnaryCall> baz = tester.CreateUnaryCall();
+  baz->Start([](const StatusOr<grpc::ByteBuffer>&) {
+    FAIL() << "Callback shouldn't have been invoked";
+  });
+
+  tester.KeepPollingGrpcQueue();
+  worker_queue.EnqueueBlocking([&] { tester.grpc_connection()->Shutdown(); });
+
+  // Destroying a call will throw if it hasn't been properly shut down.
+  EXPECT_NO_THROW(foo.reset());
+  EXPECT_NO_THROW(bar.reset());
+  EXPECT_NO_THROW(baz.reset());
 }
 
 }  // namespace remote

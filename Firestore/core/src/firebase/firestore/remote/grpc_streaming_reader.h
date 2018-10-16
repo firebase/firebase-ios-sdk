@@ -88,7 +88,7 @@ class GrpcStreamingReader : public GrpcCall, public GrpcStreamObserver {
   void OnStreamFinish(const util::Status& status) override;
 
   /** For tests only */
-  grpc::ClientContext* context() {
+  grpc::ClientContext* context() override {
     return stream_->context();
   }
 

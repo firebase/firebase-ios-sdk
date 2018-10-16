@@ -231,12 +231,21 @@ case "$product-$method-$platform" in
     ;;
 
   InAppMessagingDisplay-xcodebuild-iOS)
-    # Run UI tests on both iPad and iphone simultors
+    # Run UI tests on both iPad and iPhone simulators
+    # TODO: Running two destinations from one xcodebuild command stopped working with Xcode 10.
+    # Consider separating static library tests to a separate job.
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        -destination 'platform=iOS Simulator,name=iPad Air' \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
 
@@ -244,12 +253,19 @@ case "$product-$method-$platform" in
     sed -i -e 's/use_frameworks/\#use_frameworks/' Podfile
     pod update --no-repo-update
     cd ../..
-    # Run UI tests on both iPad and iphone simultors
+    # Run UI tests on both iPad and iPhone simulators
     RunXcodebuild \
         -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        -destination 'platform=iOS Simulator,name=iPad Air' \
+        build \
+        test
+
+    RunXcodebuild \
+        -workspace 'InAppMessagingDisplay/Example/InAppMessagingDisplay-Sample.xcworkspace'  \
+        -scheme 'FiamDisplaySwiftExample' \
+        -sdk 'iphonesimulator' \
+        -destination 'platform=iOS Simulator,name=iPad Pro (9.7-inch)' \
         build \
         test
     ;;

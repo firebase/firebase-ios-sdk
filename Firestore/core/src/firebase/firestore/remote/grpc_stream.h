@@ -173,7 +173,7 @@ class GrpcStream : public GrpcCall {
   Metadata GetResponseHeaders() const override;
 
   /** For tests only */
-  grpc::ClientContext* context() {
+  grpc::ClientContext* context() override {
     return context_.get();
   }
 
@@ -185,6 +185,7 @@ class GrpcStream : public GrpcCall {
   void UnsetObserver() {
     observer_ = nullptr;
   }
+  void MaybeUnregister();
 
   void OnStart();
   void OnRead(const grpc::ByteBuffer& message);

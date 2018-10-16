@@ -20,13 +20,14 @@
 #include <utility>
 #include <vector>
 
-#include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_completion.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream.h"
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_std.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
+#include "Firestore/core/test/firebase/firestore/util/fake_credentials_provider.h"
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/client_context.h"
@@ -41,67 +42,27 @@ namespace firestore {
 namespace remote {
 
 using auth::CredentialsProvider;
-using auth::EmptyCredentialsProvider;
 using auth::Token;
-using auth::TokenListener;
 using util::AsyncQueue;
+using util::ByteBufferToString;
+using util::CreateNoOpConnectivityMonitor;
+using util::GetFirestoreErrorCodeName;
 using util::GrpcStreamTester;
 using util::CompletionEndState;
 using util::CompletionResult::Error;
 using util::CompletionResult::Ok;
+using util::CreateNoOpConnectivityMonitor;
+using util::FakeCredentialsProvider;
+using util::MakeByteBuffer;
+using util::StringFormat;
 using util::TimerId;
 using util::internal::ExecutorStd;
+using Type = GrpcCompletion::Type;
 
 namespace {
 
 const auto kIdleTimerId = TimerId::ListenStreamIdle;
-
-class MockCredentialsProvider : public EmptyCredentialsProvider {
- public:
-  void FailGetToken() {
-    fail_get_token_ = true;
-  }
-  void DelayGetToken() {
-    delay_get_token_ = true;
-  }
-
-  void GetToken(TokenListener completion) override {
-    observed_states_.push_back("GetToken");
-
-    if (delay_get_token_) {
-      delayed_token_listener_ = completion;
-      return;
-    }
-
-    if (fail_get_token_) {
-      if (completion) {
-        completion(util::Status{FirestoreErrorCode::Unknown, ""});
-      }
-    } else {
-      EmptyCredentialsProvider::GetToken(std::move(completion));
-    }
-  }
-
-  void InvokeGetToken() {
-    delay_get_token_ = false;
-    EmptyCredentialsProvider::GetToken(std::move(delayed_token_listener_));
-  }
-
-  void InvalidateToken() override {
-    observed_states_.push_back("InvalidateToken");
-    EmptyCredentialsProvider::InvalidateToken();
-  }
-
-  const std::vector<std::string>& observed_states() const {
-    return observed_states_;
-  }
-
- private:
-  std::vector<std::string> observed_states_;
-  bool fail_get_token_ = false;
-  bool delay_get_token_ = false;
-  TokenListener delayed_token_listener_;
-};
+const auto kBackoffTimerId = TimerId::ListenStreamConnectionBackoff;
 
 class TestStream : public Stream {
  public:
@@ -109,8 +70,7 @@ class TestStream : public Stream {
              GrpcStreamTester* tester,
              CredentialsProvider* credentials_provider)
       : Stream{worker_queue, credentials_provider,
-               /*Datastore=*/nullptr, TimerId::ListenStreamConnectionBackoff,
-               kIdleTimerId},
+               /*GrpcConnection=*/nullptr, kBackoffTimerId, kIdleTimerId},
         tester_{tester} {
   }
 
@@ -118,8 +78,8 @@ class TestStream : public Stream {
     Write({});
   }
 
-  void FailStreamRead() {
-    fail_stream_read_ = true;
+  void FailNextStreamRead() {
+    fail_next_stream_read_ = true;
   }
 
   const std::vector<std::string>& observed_states() const {
@@ -146,9 +106,15 @@ class TestStream : public Stream {
   }
 
   util::Status NotifyStreamResponse(const grpc::ByteBuffer& message) override {
-    observed_states_.push_back("NotifyStreamResponse");
-    if (fail_stream_read_) {
-      fail_stream_read_ = false;
+    std::string str = ByteBufferToString(message);
+    if (str.empty()) {
+      observed_states_.push_back("NotifyStreamResponse");
+    } else {
+      observed_states_.push_back(StringFormat("NotifyStreamResponse(%s)", str));
+    }
+
+    if (fail_next_stream_read_) {
+      fail_next_stream_read_ = false;
       // The parent stream will issue a finish operation and block until it's
       // completed, so asynchronously polling gRPC queue is necessary.
       tester_->KeepPollingGrpcQueue();
@@ -159,7 +125,7 @@ class TestStream : public Stream {
 
   void NotifyStreamClose(const util::Status& status) override {
     observed_states_.push_back(std::string{"NotifyStreamClose("} +
-                               std::to_string(status.code()) + ")");
+                               GetFirestoreErrorCodeName(status.code()) + ")");
   }
 
   std::string GetDebugName() const override {
@@ -168,7 +134,7 @@ class TestStream : public Stream {
 
   GrpcStreamTester* tester_ = nullptr;
   std::vector<std::string> observed_states_;
-  bool fail_stream_read_ = false;
+  bool fail_next_stream_read_ = false;
 
   grpc::ClientContext* context_ = nullptr;
 };
@@ -179,11 +145,10 @@ class StreamTest : public testing::Test {
  public:
   StreamTest()
       : worker_queue{absl::make_unique<ExecutorStd>()},
-        connectivity_monitor_{
-            absl::make_unique<ConnectivityMonitor>(&worker_queue)},
-        tester_{&worker_queue, connectivity_monitor_.get()},
+        connectivity_monitor{CreateNoOpConnectivityMonitor()},
+        tester{&worker_queue, connectivity_monitor.get()},
         firestore_stream{std::make_shared<TestStream>(
-            &worker_queue, &tester_, &credentials)} {
+            &worker_queue, &tester, &credentials)} {
   }
 
   ~StreamTest() {
@@ -193,15 +158,18 @@ class StreamTest : public testing::Test {
         firestore_stream->Stop();
       }
     });
-    tester_.Shutdown();
+    tester.Shutdown();
   }
 
   void ForceFinish(std::initializer_list<CompletionEndState> results) {
-    tester_.ForceFinish(firestore_stream->context(), results);
+    tester.ForceFinish(firestore_stream->context(), results);
+  }
+  void ForceFinish(const GrpcStreamTester::CompletionCallback& callback) {
+    tester.ForceFinish(firestore_stream->context(), callback);
   }
 
   void KeepPollingGrpcQueue() {
-    tester_.KeepPollingGrpcQueue();
+    tester.KeepPollingGrpcQueue();
   }
 
   void StartStream() {
@@ -221,29 +189,34 @@ class StreamTest : public testing::Test {
 
   AsyncQueue worker_queue;
 
- private:
-  std::unique_ptr<ConnectivityMonitor> connectivity_monitor_;
-  GrpcStreamTester tester_;
+  std::unique_ptr<ConnectivityMonitor> connectivity_monitor;
+  GrpcStreamTester tester;
 
- public:
-  MockCredentialsProvider credentials;
+  FakeCredentialsProvider credentials;
   std::shared_ptr<TestStream> firestore_stream;
 };
 
+// Method prerequisites -- correct usage of `Start`
+
 TEST_F(StreamTest, CanStart) {
   worker_queue.EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+
     EXPECT_NO_THROW(firestore_stream->Start());
     EXPECT_TRUE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
   });
 }
 
-TEST_F(StreamTest, CannotStartTwice) {
+TEST_F(StreamTest, CanRestart) {
   worker_queue.EnqueueBlocking([&] {
     EXPECT_NO_THROW(firestore_stream->Start());
-    EXPECT_ANY_THROW(firestore_stream->Start());
+    EXPECT_NO_THROW(firestore_stream->Stop());
+    EXPECT_NO_THROW(firestore_stream->Start());
   });
 }
+
+// Method prerequisites -- correct usage of `Stop`
 
 TEST_F(StreamTest, CanStopBeforeStarting) {
   worker_queue.EnqueueBlocking(
@@ -254,6 +227,7 @@ TEST_F(StreamTest, CanStopAfterStarting) {
   worker_queue.EnqueueBlocking([&] {
     EXPECT_NO_THROW(firestore_stream->Start());
     EXPECT_TRUE(firestore_stream->IsStarted());
+
     EXPECT_NO_THROW(firestore_stream->Stop());
     EXPECT_FALSE(firestore_stream->IsStarted());
   });
@@ -261,9 +235,21 @@ TEST_F(StreamTest, CanStopAfterStarting) {
 
 TEST_F(StreamTest, CanStopTwice) {
   worker_queue.EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Stop());
+    EXPECT_NO_THROW(firestore_stream->Stop());
+
     EXPECT_NO_THROW(firestore_stream->Start());
     EXPECT_NO_THROW(firestore_stream->Stop());
     EXPECT_NO_THROW(firestore_stream->Stop());
+  });
+}
+
+// Incorrect usage of the interface
+
+TEST_F(StreamTest, CannotStartTwice) {
+  worker_queue.EnqueueBlocking([&] {
+    EXPECT_NO_THROW(firestore_stream->Start());
+    EXPECT_ANY_THROW(firestore_stream->Start());
   });
 }
 
@@ -275,7 +261,9 @@ TEST_F(StreamTest, CannotWriteBeforeOpen) {
   });
 }
 
-TEST_F(StreamTest, CanOpen) {
+// Observer
+
+TEST_F(StreamTest, ObserverReceivesStreamOpen) {
   StartStream();
   worker_queue.EnqueueBlocking([&] {
     EXPECT_TRUE(firestore_stream->IsStarted());
@@ -284,7 +272,24 @@ TEST_F(StreamTest, CanOpen) {
   });
 }
 
-TEST_F(StreamTest, CanStop) {
+TEST_F(StreamTest, ObserverReceivesStreamRead) {
+  StartStream();
+
+  ForceFinish({
+      {Type::Read, MakeByteBuffer("foo")},
+      {Type::Read, MakeByteBuffer("bar")},
+  });
+
+  worker_queue.EnqueueBlocking([&] {
+    EXPECT_TRUE(firestore_stream->IsStarted());
+    EXPECT_TRUE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(),
+              States({"NotifyStreamOpen", "NotifyStreamResponse(foo)",
+                      "NotifyStreamResponse(bar)"}));
+  });
+}
+
+TEST_F(StreamTest, ObserverReceivesStreamClose) {
   StartStream();
   worker_queue.EnqueueBlocking([&] {
     KeepPollingGrpcQueue();
@@ -293,9 +298,59 @@ TEST_F(StreamTest, CanStop) {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
     EXPECT_EQ(observed_states(),
-              States({"NotifyStreamOpen", "NotifyStreamClose(0)"}));
+              States({"NotifyStreamOpen", "NotifyStreamClose(Ok)"}));
   });
 }
+
+TEST_F(StreamTest, ObserverReceivesStreamCloseOnError) {
+  StartStream();
+
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+
+  worker_queue.EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states(),
+              States({"NotifyStreamOpen", "NotifyStreamClose(Unavailable)"}));
+  });
+}
+
+// Write
+
+TEST_F(StreamTest, SeveralWrites) {
+  StartStream();
+
+  worker_queue.EnqueueBlocking([&] {
+    firestore_stream->WriteEmptyBuffer();
+    firestore_stream->WriteEmptyBuffer();
+  });
+
+  int writes = 0;
+  ForceFinish([&](GrpcCompletion* completion) {
+    switch (completion->type()) {
+      case Type::Read:
+        completion->Complete(true);
+        break;
+
+      case Type::Write:
+        ++writes;
+        completion->Complete(true);
+        break;
+
+      default:
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
+        break;
+    }
+
+    return writes == 2;
+  });
+  // Writes don't notify the observer, so just the fact that this test didn't
+  // hang or crash indicates success.
+}
+
+// Auth edge cases
 
 TEST_F(StreamTest, AuthFailureOnStart) {
   credentials.FailGetToken();
@@ -304,39 +359,34 @@ TEST_F(StreamTest, AuthFailureOnStart) {
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(2)"}));
+    EXPECT_EQ(observed_states(), States({"NotifyStreamClose(Unknown)"}));
   });
 }
 
 TEST_F(StreamTest, AuthWhenStreamHasBeenStopped) {
   credentials.DelayGetToken();
+
   worker_queue.EnqueueBlocking([&] {
     firestore_stream->Start();
     firestore_stream->Stop();
   });
-  credentials.InvokeGetToken();
+
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
 TEST_F(StreamTest, AuthOutlivesStream) {
   credentials.DelayGetToken();
+
   worker_queue.EnqueueBlocking([&] {
     firestore_stream->Start();
     firestore_stream->Stop();
     firestore_stream.reset();
   });
-  credentials.InvokeGetToken();
+
+  EXPECT_NO_THROW(credentials.InvokeGetToken());
 }
 
-TEST_F(StreamTest, ErrorAfterStart) {
-  StartStream();
-  ForceFinish({/*Read*/ Error, /*Finish*/ Ok});
-  worker_queue.EnqueueBlocking([&] {
-    EXPECT_FALSE(firestore_stream->IsStarted());
-    EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states(),
-              States({"NotifyStreamOpen", "NotifyStreamClose(1)"}));
-  });
-}
+// Idleness
 
 TEST_F(StreamTest, ClosesOnIdle) {
   StartStream();
@@ -346,24 +396,132 @@ TEST_F(StreamTest, ClosesOnIdle) {
   EXPECT_TRUE(worker_queue.IsScheduled(kIdleTimerId));
   KeepPollingGrpcQueue();
   worker_queue.RunScheduledOperationsUntil(kIdleTimerId);
+
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(0)");
+    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(Ok)");
+  });
+}
+
+TEST_F(StreamTest, CancelIdleCheck) {
+  StartStream();
+
+  worker_queue.EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
+  EXPECT_TRUE(worker_queue.IsScheduled(kIdleTimerId));
+
+  worker_queue.EnqueueBlocking([&] { firestore_stream->CancelIdleCheck(); });
+  EXPECT_FALSE(worker_queue.IsScheduled(kIdleTimerId));
+}
+
+TEST_F(StreamTest, WriteCancelsIdle) {
+  StartStream();
+
+  worker_queue.EnqueueBlocking([&] { firestore_stream->MarkIdle(); });
+  EXPECT_TRUE(worker_queue.IsScheduled(kIdleTimerId));
+
+  worker_queue.EnqueueBlocking([&] { firestore_stream->WriteEmptyBuffer(); });
+  EXPECT_FALSE(worker_queue.IsScheduled(kIdleTimerId));
+}
+
+// Backoff
+
+TEST_F(StreamTest, Backoff) {
+  StartStream();
+  EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
+
+  // "ResourceExhausted" sets backoff to max, virtually guaranteeing that the
+  // backoff won't kick in in-between the checks.
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
+  EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
+
+  StartStream();
+  EXPECT_TRUE(worker_queue.IsScheduled(kBackoffTimerId));
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_FALSE(firestore_stream->IsOpen()); });
+
+  worker_queue.RunScheduledOperationsUntil(kBackoffTimerId);
+  worker_queue.EnqueueBlocking(
+      [&] { EXPECT_TRUE(firestore_stream->IsOpen()); });
+
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::RESOURCE_EXHAUSTED, ""}}});
+  worker_queue.EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
+  StartStream();
+  EXPECT_FALSE(worker_queue.IsScheduled(kBackoffTimerId));
+}
+
+// Errors
+
+// Error on read is tested in `ObserverReceivesStreamCloseOnError`.
+
+TEST_F(StreamTest, ErrorOnWrite) {
+  StartStream();
+  worker_queue.EnqueueBlocking([&] { firestore_stream->WriteEmptyBuffer(); });
+
+  bool failed_write = false;
+  // Callback is used because it's indeterminate whether one or two read
+  // operations will have a chance to succeed.
+  ForceFinish([&](GrpcCompletion* completion) {
+    switch (completion->type()) {
+      case Type::Read:
+        completion->Complete(true);
+        break;
+
+      case Type::Write:
+        failed_write = true;
+        completion->Complete(false);
+        break;
+
+      default:
+        ADD_FAILURE() << "Unexpected completion type "
+                      << static_cast<int>(completion->type());
+        break;
+    }
+
+    return failed_write;
+  });
+
+  ForceFinish(
+      {{Type::Read, Error},
+       {Type::Finish, grpc::Status{grpc::StatusCode::UNAUTHENTICATED, ""}}});
+
+  worker_queue.EnqueueBlocking([&] {
+    EXPECT_FALSE(firestore_stream->IsStarted());
+    EXPECT_FALSE(firestore_stream->IsOpen());
+    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(Unauthenticated)");
   });
 }
 
 TEST_F(StreamTest, ClientSideErrorOnRead) {
   StartStream();
 
-  firestore_stream->FailStreamRead();
-  ForceFinish({/*Read*/ Ok});
+  firestore_stream->FailNextStreamRead();
+  ForceFinish({{Type::Read, Ok}});
 
   worker_queue.EnqueueBlocking([&] {
     EXPECT_FALSE(firestore_stream->IsStarted());
     EXPECT_FALSE(firestore_stream->IsOpen());
-    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(13)");
+    EXPECT_EQ(observed_states().back(), "NotifyStreamClose(Internal)");
   });
+}
+
+TEST_F(StreamTest, RefreshesTokenUponExpiration) {
+  StartStream();
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::UNAUTHENTICATED, ""}}});
+  // Error "Unauthenticated" should invalidate the token.
+  EXPECT_EQ(credentials.observed_states(),
+            States({"GetToken", "InvalidateToken"}));
+
+  worker_queue.EnqueueBlocking([&] { firestore_stream->InhibitBackoff(); });
+  StartStream();
+  ForceFinish({{Type::Read, Error},
+               {Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+  // Simulate a different error -- token should not be invalidated this time.
+  EXPECT_EQ(credentials.observed_states(),
+            States({"GetToken", "InvalidateToken", "GetToken"}));
 }
 
 }  // namespace remote

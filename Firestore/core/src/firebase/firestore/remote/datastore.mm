@@ -95,10 +95,15 @@ Datastore::Datastore(const DatabaseInfo& database_info,
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_.get()},
       serializer_bridge_{NOT_NULL(serializer)} {
+}
+
+void Datastore::Start() {
   rpc_executor_->Execute([this] { PollGrpcQueue(); });
 }
 
 void Datastore::Shutdown() {
+  is_shut_down_ = true;
+
   // Order matters here: shutting down `grpc_connection_`, which will quickly
   // finish any pending gRPC calls, must happen before shutting down the gRPC
   // queue.
@@ -260,6 +265,11 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
             [weak_this, result, on_credentials] {
               auto strong_this = weak_this.lock();
               if (!strong_this) {
+                return;
+              }
+              // In case Auth callback is invoked after Datastore has been shut
+              // down.
+              if (strong_this->is_shut_down_) {
                 return;
               }
 

@@ -46,6 +46,7 @@ GrpcUnaryCall::GrpcUnaryCall(
 GrpcUnaryCall::~GrpcUnaryCall() {
   HARD_ASSERT(!finish_completion_,
               "GrpcUnaryCall is being destroyed without proper shutdown");
+  MaybeUnregister();
 }
 
 void GrpcUnaryCall::Start(Callback&& callback) {
@@ -58,6 +59,8 @@ void GrpcUnaryCall::Start(Callback&& callback) {
       [this](bool /*ignored_ok*/, const GrpcCompletion* completion) {
         // Ignoring ok, status should contain all the relevant information.
         finish_completion_ = nullptr;
+        Shutdown();
+
         auto callback = std::move(callback_);
         if (completion->status()->ok()) {
           callback(*completion->message());
@@ -84,11 +87,7 @@ void GrpcUnaryCall::FinishAndNotify(const util::Status& status) {
 }
 
 void GrpcUnaryCall::Shutdown() {
-  if (grpc_connection_) {
-    grpc_connection_->Unregister(this);
-    grpc_connection_ = nullptr;
-  }
-
+  MaybeUnregister();
   if (!finish_completion_) {
     // Nothing to cancel.
     return;
@@ -100,6 +99,13 @@ void GrpcUnaryCall::Shutdown() {
   // This function blocks.
   finish_completion_->WaitUntilOffQueue();
   finish_completion_ = nullptr;
+}
+
+void GrpcUnaryCall::MaybeUnregister() {
+  if (grpc_connection_) {
+    grpc_connection_->Unregister(this);
+    grpc_connection_ = nullptr;
+  }
 }
 
 GrpcCall::Metadata GrpcUnaryCall::GetResponseHeaders() const {
