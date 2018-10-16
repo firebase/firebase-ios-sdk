@@ -72,6 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
     case TimerId::WriteStreamIdle:
     case TimerId::WriteStreamConnectionBackoff:
     case TimerId::OnlineStateTimeout:
+    case TimerId::GarbageCollectionDelay:
       return converted;
     default:
       HARD_FAIL("Unknown value of enum FSTTimerID.");

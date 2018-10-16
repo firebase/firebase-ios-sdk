@@ -244,12 +244,12 @@ NS_ASSUME_NONNULL_BEGIN
                                                          liveQueries:liveQueries];
 }
 
-- (int32_t)targetCount {
-  return [_persistence.queryCache count];
-}
-
-- (void)runPostCompaction {
-  // No-op for memory persistence.
+- (int32_t)sequenceNumberCount {
+  __block int32_t totalCount = [_persistence.queryCache count];
+  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber, BOOL *stop) {
+    totalCount++;
+  }];
+  return totalCount;
 }
 
 - (int)removeOrphanedDocumentsThroughSequenceNumber:(ListenSequenceNumber)upperBound {

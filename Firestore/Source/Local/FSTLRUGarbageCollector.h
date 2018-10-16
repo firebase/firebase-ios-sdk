@@ -101,14 +101,8 @@ struct LruResults {
 
 - (size_t)byteSize;
 
-/** Returns the number of targets cached. */
-- (int32_t)targetCount;
-
-/**
- * If available, persistence implementations should run any compaction that they can. This is done
- * after GC has run to allow deletes to be processed and free up space.
- */
-- (void)runPostCompaction;
+/** Returns the number of targets and documents cached. */
+- (int32_t)sequenceNumberCount;
 
 /** Access to the underlying LRU Garbage collector instance. */
 @property(strong, nonatomic, readonly) FSTLRUGarbageCollector *gc;
