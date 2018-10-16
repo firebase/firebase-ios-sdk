@@ -1,3 +1,6 @@
+# 2018-10-25 -- v3.2.1
+- Internal code cleanup.
+
 # 2018-10-09 -- v3.2.0
 - Now you can access the message ID of FIRMessagingRemoteMessage object. (#1861)
 - Add a new boolean value useFIRMessagingDelegateForDirectMessageDelivery if you
