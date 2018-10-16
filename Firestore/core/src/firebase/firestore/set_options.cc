@@ -31,7 +31,9 @@ SetOptions::~SetOptions() {
 }
 
 /* static */
-SetOptions SetOptions::Merge() { return SetOptions{Type::kMergeAll, {}}; }
+SetOptions SetOptions::Merge() {
+  return SetOptions{Type::kMergeAll, {}};
+}
 
 /* static */
 SetOptions SetOptions::MergeField(const std::vector<std::string>& fields) {

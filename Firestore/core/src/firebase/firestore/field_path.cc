@@ -23,21 +23,25 @@
 namespace firebase {
 namespace firestore {
 
-FieldPath::FieldPath() {}
+FieldPath::FieldPath() {
+}
 
 #if !defined(_STLPORT_VERSION)
 FieldPath::FieldPath(std::initializer_list<std::string> field_names)
-    : internal_(new FieldPathInternal{field_names}) {}
+    : internal_(new FieldPathInternal{field_names}) {
+}
 #endif  // !defined(_STLPORT_VERSION)
 
 FieldPath::FieldPath(const FieldPath& path)
-    : internal_(new FieldPathInternal{*path.internal_}) {}
+    : internal_(new FieldPathInternal{*path.internal_}) {
+}
 
 FieldPath::FieldPath(FieldPath&& path) : internal_(path.internal_) {
   path.internal_ = nullptr;
 }
 
-FieldPath::FieldPath(FieldPathInternal* internal) : internal_(internal) {}
+FieldPath::FieldPath(FieldPathInternal* internal) : internal_(internal) {
+}
 
 FieldPath::~FieldPath() {
   delete internal_;
@@ -70,7 +74,9 @@ FieldPath FieldPath::FromDotSeparatedString(const std::string& path) {
       new FieldPathInternal{FieldPathInternal::FromServerFormat(path)}};
 }
 
-std::string FieldPath::ToString() const { return internal_->CanonicalString(); }
+std::string FieldPath::ToString() const {
+  return internal_->CanonicalString();
+}
 
 bool operator==(const FieldPath& lhs, const FieldPath& rhs) {
   return *lhs.internal_ == *rhs.internal_;
