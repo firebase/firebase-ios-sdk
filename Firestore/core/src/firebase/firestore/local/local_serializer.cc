@@ -42,9 +42,9 @@ using model::ObjectValue;
 using model::SnapshotVersion;
 using nanopb::Reader;
 using nanopb::Writer;
+using remote::MakeArray;
 using util::Status;
 using util::StringFormat;
-using remote::MakeArray;
 
 firestore_client_MaybeDocument LocalSerializer::EncodeMaybeDocument(
     const MaybeDocument& maybe_doc) const {
@@ -83,7 +83,12 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
       return DecodeNoDocument(reader, proto.no_document);
 
     default:
-      reader->Fail(StringFormat("Invalid MaybeDocument document type: %s. Expected 'no_document' (%s) or 'document' (%s)", proto.which_document_type, firestore_client_MaybeDocument_no_document_tag, firestore_client_MaybeDocument_document_tag));
+      reader->Fail(
+          StringFormat("Invalid MaybeDocument document type: %s. Expected "
+                       "'no_document' (%s) or 'document' (%s)",
+                       proto.which_document_type,
+                       firestore_client_MaybeDocument_no_document_tag,
+                       firestore_client_MaybeDocument_document_tag));
       return nullptr;
   }
 
@@ -101,7 +106,8 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
   // Encode Document.fields (unless it's empty)
   size_t count = doc.data().object_value().internal_value.size();
   result.fields_count = count;
-  result.fields = MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
+  result.fields =
+      MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
 
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
