@@ -342,7 +342,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
     int endIndex = 1;
     for (; endIndex < queueCount; endIndex++) {
       FSTMutationBatch *batch = queue[endIndex];
-      if (![batch isTombstone]) {e entries from the index
+      if (![batch isTombstone]) {
         break;
       }
     }
