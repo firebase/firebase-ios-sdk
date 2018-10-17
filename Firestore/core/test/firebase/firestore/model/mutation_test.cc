@@ -31,14 +31,14 @@ using testutil::Doc;
 using testutil::SetMutation;
 
 TEST(Mutation, AppliesSetsToDocuments) {
-  std::shared_ptr<Document> base_doc = std::make_shared<Document>(
+  auto base_doc = std::make_shared<Document>(
       Doc("collection/key", 0,
           {{"foo", FieldValue::FromString("foo-value")},
            {"baz", FieldValue::FromString("baz-value")}}));
 
   std::unique_ptr<Mutation> set = SetMutation(
       "collection/key", {{"bar", FieldValue::FromString("bar-value")}});
-  std::shared_ptr<MaybeDocument> set_doc =
+  std::shared_ptr<const MaybeDocument> set_doc =
       set->ApplyToLocalView(base_doc, base_doc.get(), Timestamp::Now());
   ASSERT_TRUE(set_doc);
   EXPECT_EQ(

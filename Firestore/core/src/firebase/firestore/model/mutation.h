@@ -103,8 +103,8 @@ class Mutation {
    *     only if maybe_doc was nullptr and the mutation would not create a new
    *     document.
    */
-  virtual const std::shared_ptr<MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<MaybeDocument> maybe_doc,
+  virtual std::shared_ptr<const MaybeDocument> ApplyToLocalView(
+      std::shared_ptr<const MaybeDocument> maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const = 0;
 
@@ -132,8 +132,8 @@ class SetMutation : public Mutation {
 
   // TODO(rsgowman): ApplyToRemoteDocument()
 
-  const std::shared_ptr<MaybeDocument> ApplyToLocalView(
-      const std::shared_ptr<MaybeDocument> maybe_doc,
+  std::shared_ptr<const MaybeDocument> ApplyToLocalView(
+      std::shared_ptr<const MaybeDocument> maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const override;
 
