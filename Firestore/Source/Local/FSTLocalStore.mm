@@ -552,7 +552,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
                 "docVersions should contain every doc in the write.");
     const SnapshotVersion &ackVersion = ackVersionIter->second;
     if (!doc || doc.version < ackVersion) {
-      doc = [batch applyTo:doc documentKey:docKey mutationBatchResult:batchResult];
+      doc = [batch applyToRemoteDocument:doc documentKey:docKey mutationBatchResult:batchResult];
       if (!doc) {
         HARD_ASSERT(!remoteDoc, "Mutation batch %s applied to document %s resulted in nil.", batch,
                     remoteDoc);
