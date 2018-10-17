@@ -104,7 +104,7 @@ class Mutation {
    *     document.
    */
   virtual std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      std::shared_ptr<const MaybeDocument> maybe_doc,
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const = 0;
 
@@ -133,7 +133,7 @@ class SetMutation : public Mutation {
   // TODO(rsgowman): ApplyToRemoteDocument()
 
   std::shared_ptr<const MaybeDocument> ApplyToLocalView(
-      std::shared_ptr<const MaybeDocument> maybe_doc,
+      const std::shared_ptr<const MaybeDocument>& maybe_doc,
       const MaybeDocument* base_doc,
       const Timestamp& local_write_time) const override;
 

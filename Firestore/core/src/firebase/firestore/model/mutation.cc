@@ -53,7 +53,7 @@ SetMutation::SetMutation(DocumentKey&& key,
 }
 
 std::shared_ptr<const MaybeDocument> SetMutation::ApplyToLocalView(
-    std::shared_ptr<const MaybeDocument> maybe_doc,
+    const std::shared_ptr<const MaybeDocument>& maybe_doc,
     const MaybeDocument*,
     const Timestamp&) const {
   VerifyKeyMatches(maybe_doc.get());
