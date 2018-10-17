@@ -52,21 +52,17 @@ SetMutation::SetMutation(DocumentKey&& key,
       value_(std::move(value)) {
 }
 
-std::unique_ptr<MaybeDocument> SetMutation::ApplyToLocalView(
-    const MaybeDocument* maybe_doc,
+const std::shared_ptr<MaybeDocument> SetMutation::ApplyToLocalView(
+    const std::shared_ptr<MaybeDocument> maybe_doc,
     const MaybeDocument*,
     const Timestamp&) const {
-  VerifyKeyMatches(maybe_doc);
+  VerifyKeyMatches(maybe_doc.get());
 
-  if (!precondition().IsValidFor(maybe_doc)) {
-    if (maybe_doc) {
-      return absl::make_unique<MaybeDocument>(maybe_doc->key(),
-                                              maybe_doc->version());
-    }
-    return nullptr;
+  if (!precondition().IsValidFor(maybe_doc.get())) {
+    return maybe_doc;
   }
 
-  SnapshotVersion version = GetPostMutationVersion(maybe_doc);
+  SnapshotVersion version = GetPostMutationVersion(maybe_doc.get());
   return absl::make_unique<Document>(FieldValue(value_), key(), version,
                                      /*has_local_mutations=*/true);
 }
