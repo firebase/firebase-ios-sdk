@@ -79,15 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
     NS_DESIGNATED_INITIALIZER;
 
 /**
- * Applies this mutation to the given FSTDocument, FSTDeletedDocument or nil, if we don't have
- * information about this document. Both the input and returned documents can be nil.
+ * Applies this mutation to the given FSTDocument, FSTDeletedDocument or nil for the purposes of
+ * computing a new remote document. Both the input and returned documents can be nil.
  *
  * @param maybeDoc The current state of the document to mutate. The input document should be nil if
  * it does not currently exist.
- * @param baseDoc The state of the document prior to this mutation batch. The input document should
- * be nil if it the document did not exist.
- * @param localWriteTime A timestamp indicating the local write time of the batch this mutation is
- * a part of.
  * @param mutationResult Optional result info from the backend. If omitted, it's assumed that
  * this is merely a local (latency-compensated) application, and the resulting document will
  * have its hasLocalMutations flag set.
@@ -122,18 +118,23 @@ NS_ASSUME_NONNULL_BEGIN
  * apply the transform if the prior mutation resulted in an FSTDocument (always true for an
  * FSTSetMutation, but not necessarily for an FSTPatchMutation).
  */
-- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
-                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(FIRTimestamp *)localWriteTime
-                        mutationResult:(nullable FSTMutationResult *)mutationResult;
+- (nullable FSTMaybeDocument *)applyToRemoteDocument:(nullable FSTMaybeDocument *)maybeDoc
+                                      mutationResult:(FSTMutationResult *)mutationResult;
 
 /**
- * A helper version of applyTo for applying mutations locally (without a mutation result from the
- * backend).
+ * Applies this mutation to the given MaybeDocument for the purposes of computing the new local view
+ * of a document. Both the input and returned documents can be null.
+ *
+ * @param maybeDoc The current state of the document to mutate. The input document should be nil if
+ * it does not currently exist.
+ * @param baseDoc The state of the document prior to this mutation batch. The input document should
+ * be nil if it the document did not exist.
+ * @param localWriteTime A timestamp indicating the local write time of the batch this mutation is
+ * a part of.
  */
-- (nullable FSTMaybeDocument *)applyTo:(nullable FSTMaybeDocument *)maybeDoc
-                          baseDocument:(nullable FSTMaybeDocument *)baseDoc
-                        localWriteTime:(nullable FIRTimestamp *)localWriteTime;
+- (nullable FSTMaybeDocument *)applyToLocalDocument:(nullable FSTMaybeDocument *)maybeDoc
+                                       baseDocument:(nullable FSTMaybeDocument *)baseDoc
+                                     localWriteTime:(FIRTimestamp *)localWriteTime;
 
 - (const firebase::firestore::model::DocumentKey &)key;
 
