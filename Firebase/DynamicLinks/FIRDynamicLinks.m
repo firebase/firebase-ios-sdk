@@ -41,7 +41,8 @@
 #import "DynamicLinks/Utilities/FDLUtilities.h"
 
 #ifndef FIRDynamicLinks_VERSION
-#error "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
+#error \
+    "FIRDynamicLinks_VERSION is not defined: add -DFIRDynamicLinks_VERSION=... to the build \
 invocation"
 #endif
 
@@ -122,8 +123,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   // Product requirement is enforced by CocoaPod. Not technical requirement for analytics.
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
+  FIRDependency *analyticsDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop) isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time dynamicLinks is called.
@@ -579,9 +580,8 @@ static NSString *kSelfDiagnoseOutputFooter =
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 
   NSError *error;
-  NSMutableData *profileData = [NSMutableData dataWithContentsOfFile:embeddedMobileprovisionFilePath
-                                                             options:0
-                                                               error:&error];
+  NSMutableData *profileData =
+      [NSMutableData dataWithContentsOfFile:embeddedMobileprovisionFilePath options:0 error:&error];
 
   if (!profileData.length || error) {
     return @"\tSKIPPED: Not able to read entitlements (embedded.mobileprovision).\n";
@@ -672,20 +672,21 @@ static NSString *kSelfDiagnoseOutputFooter =
 
 #if TARGET_IPHONE_SIMULATOR
   // check is Simulator and print WARNING that Universal Links is not supported on Simulator
-  [diagnosticString
-      appendString:@"WARNING: iOS Simulator does not support Universal Links. Firebase "
-                   @"Dynamic Links SDK functionality will be limited. Some FDL "
-                   @"features may be missing or will not work correctly.\n"];
+  [diagnosticString appendString:
+                        @"WARNING: iOS Simulator does not support Universal Links. Firebase "
+                        @"Dynamic Links SDK functionality will be limited. Some FDL "
+                        @"features may be missing or will not work correctly.\n"];
 #endif  // TARGET_IPHONE_SIMULATOR
 
   id<UIApplicationDelegate> applicationDelegate = [UIApplication sharedApplication].delegate;
   if (![applicationDelegate respondsToSelector:@selector(application:openURL:options:)]) {
     detectedErrorsCnt++;
-    [diagnosticString appendFormat:@"ERROR: UIApplication delegate %@ does not implements selector "
-                                   @"%@. FDL depends on this implementation to retrieve pending "
-                                   @"dynamic link.\n",
-                                   applicationDelegate,
-                                   NSStringFromSelector(@selector(application:openURL:options:))];
+    [diagnosticString appendFormat:
+                          @"ERROR: UIApplication delegate %@ does not implements selector "
+                          @"%@. FDL depends on this implementation to retrieve pending "
+                          @"dynamic link.\n",
+                          applicationDelegate,
+                          NSStringFromSelector(@selector(application:openURL:options:))];
   }
 
   // check that Info.plist has custom URL scheme and the scheme is the same as bundleID or
@@ -707,14 +708,16 @@ static NSString *kSelfDiagnoseOutputFooter =
   }
   if (!URLSchemeFoundInPlist) {
     detectedErrorsCnt++;
-    [diagnosticString appendFormat:@"ERROR: Specified custom URL scheme is %@ but Info.plist do "
-                                   @"not contain such scheme in "
-                                    "CFBundleURLTypes key.\n",
-                                   URLScheme];
+    [diagnosticString appendFormat:
+                          @"ERROR: Specified custom URL scheme is %@ but Info.plist do "
+                          @"not contain such scheme in "
+                           "CFBundleURLTypes key.\n",
+                          URLScheme];
   } else {
-    [diagnosticString appendFormat:@"\tSpecified custom URL scheme is %@ and Info.plist contains "
-                                   @"such scheme in CFBundleURLTypes key.\n",
-                                   URLScheme];
+    [diagnosticString appendFormat:
+                          @"\tSpecified custom URL scheme is %@ and Info.plist contains "
+                          @"such scheme in CFBundleURLTypes key.\n",
+                          URLScheme];
   }
 
 #if !TARGET_IPHONE_SIMULATOR
@@ -745,8 +748,8 @@ static NSString *kSelfDiagnoseOutputFooter =
                                                             BOOL hasErrors))completionHandler;
 {
   NSInteger detectedErrorsCnt = 0;
-  NSString *diagnosticString = [self performDiagnosticsIncludingHeaderFooter:YES
-                                                              detectedErrors:&detectedErrorsCnt];
+  NSString *diagnosticString =
+      [self performDiagnosticsIncludingHeaderFooter:YES detectedErrors:&detectedErrorsCnt];
   if (completionHandler) {
     completionHandler(diagnosticString, detectedErrorsCnt > 0);
   } else {
