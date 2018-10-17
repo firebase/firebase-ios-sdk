@@ -229,13 +229,13 @@ static const char *kReservedPathComponent = "firestore";
   return [queryCache removeQueriesThroughSequenceNumber:sequenceNumber liveQueries:liveQueries];
 }
 
-- (int32_t)targetCount {
-  return [_db.queryCache count];
-}
-
-- (void)runPostCompaction {
-  // Compacts the entire db
-  _db.ptr->CompactRange(NULL, NULL);
+- (int32_t)sequenceNumberCount {
+  __block int32_t totalCount = [_db.queryCache count];
+  [self enumerateMutationsUsingBlock:^(const DocumentKey &key, ListenSequenceNumber sequenceNumber,
+                                       BOOL *stop) {
+    totalCount++;
+  }];
+  return totalCount;
 }
 
 - (FSTLRUGarbageCollector *)gc {

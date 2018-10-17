@@ -67,9 +67,9 @@ using firebase::firestore::util::internal::Executor;
 NS_ASSUME_NONNULL_BEGIN
 
 /** How long we wait to try running LRU GC after SDK initialization. */
-static const long FSTLruGcInitialDelay = 60 * 1000;
+static const NSTimeInterval FSTLruGcInitialDelay = 60;
 /** Minimum amount of time between GC checks, after the first one. */
-static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
+static const NSTimeInterval FSTLruGcRegularDelay = 5 * 60;
 
 @interface FSTFirestoreClient () {
   DatabaseInfo _databaseInfo;
@@ -104,8 +104,8 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
 
 @implementation FSTFirestoreClient {
   std::unique_ptr<Executor> _userExecutor;
-  long _initialGcDelay;
-  long _regularGcDelay;
+  NSTimeInterval _initialGcDelay;
+  NSTimeInterval _regularGcDelay;
   BOOL _gcHasRun;
   _Nullable id<FSTLRUDelegate> _lruDelegate;
   FSTDelayedCallback *_Nullable _lruCallback;
@@ -190,7 +190,6 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
         [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()];
     FSTLocalSerializer *serializer =
         [[FSTLocalSerializer alloc] initWithRemoteSerializer:remoteSerializer];
-    // TODO(gsoltis): enable LRU GC once API is finalized
     FSTLevelDB *ldb =
         [[FSTLevelDB alloc] initWithDirectory:std::move(dir)
                                    serializer:serializer
@@ -244,7 +243,7 @@ static const long FSTLruGcRegularDelay = 5 * 60 * 1000;
  * run.
  */
 - (void)scheduleLruGarbageCollection {
-  long delay = _gcHasRun ? _initialGcDelay : _regularGcDelay;
+  NSTimeInterval delay = _gcHasRun ? _regularGcDelay : _initialGcDelay;
   _lruCallback =
       [_workerDispatchQueue dispatchAfterDelay:delay
                                        timerID:FSTTimerIDGarbageCollectionDelay

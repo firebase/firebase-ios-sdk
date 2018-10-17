@@ -103,10 +103,11 @@ class RollingSequenceNumberBuffer {
   size_t currentSize = [self byteSize];
   if (currentSize < _params.minBytesThreshold) {
     // Not enough on disk to warrant collection. Wait another timeout cycle.
-    LOG_DEBUG("Garbage collection skipped; Cache size %i is lower than threshold %i", currentSize,
+    LOG_DEBUG("Garbage collection skipped; Cache size %s is lower than threshold %s", currentSize,
               _params.minBytesThreshold);
     return LruResults::DidNotRun();
   } else {
+    LOG_DEBUG("Running garbage collection on cache of size: %s", currentSize);
     return [self runGCWithLiveTargets:liveTargets];
   }
 }
@@ -130,9 +131,6 @@ class RollingSequenceNumberBuffer {
   int numDocumentsRemoved = [self removeOrphanedDocumentsThroughSequenceNumber:upperBound];
   Timestamp removedDocuments = Timestamp::Now();
 
-  [_delegate runPostCompaction];
-  Timestamp compactedDb = Timestamp::Now();
-
   std::string desc = "LRU Garbage Collection:\n";
   absl::StrAppend(&desc, "\tCounted targets in ", millisecondsBetween(start, countedTargets),
                   "ms\n");
@@ -143,16 +141,14 @@ class RollingSequenceNumberBuffer {
                   millisecondsBetween(foundUpperBound, removedTargets), "ms\n");
   absl::StrAppend(&desc, "\tRemoved ", numDocumentsRemoved, " documents in ",
                   millisecondsBetween(removedTargets, removedDocuments), "ms\n");
-  absl::StrAppend(&desc, "\tCompacted leveldb database in ",
-                  millisecondsBetween(removedDocuments, compactedDb), "ms\n");
-  absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, compactedDb), "ms");
+  absl::StrAppend(&desc, "Total duration: ", millisecondsBetween(start, removedDocuments), "ms");
   LOG_DEBUG(desc.c_str());
 
   return LruResults{/* didRun= */ true, sequenceNumbers, numTargetsRemoved, numDocumentsRemoved};
 }
 
 - (int)queryCountForPercentile:(NSUInteger)percentile {
-  int totalCount = [_delegate targetCount];
+  int totalCount = [_delegate sequenceNumberCount];
   int setSize = (int)((percentile / 100.0f) * totalCount);
   return setSize;
 }
