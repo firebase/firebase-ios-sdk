@@ -83,9 +83,7 @@ std::unique_ptr<MaybeDocument> LocalSerializer::DecodeMaybeDocument(
       return DecodeNoDocument(reader, proto.no_document);
 
     default:
-      reader->Fail(
-          "Invalid MaybeDocument message: Neither 'no_document' nor 'document' "
-          "fields set.");
+      reader->Fail(StringFormat("Invalid MaybeDocument document type: %s. Expected 'no_document' (%s) or 'document' (%s)", proto.which_document_type, firestore_client_MaybeDocument_no_document_tag, firestore_client_MaybeDocument_document_tag));
       return nullptr;
   }
 
