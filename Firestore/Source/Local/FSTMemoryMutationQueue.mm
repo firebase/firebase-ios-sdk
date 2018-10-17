@@ -326,67 +326,42 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return result;
 }
 
-- (void)removeMutationBatches:(NSArray<FSTMutationBatch *> *)batches {
-  NSUInteger batchCount = batches.count;
-  HARD_ASSERT(batchCount > 0, "Should not remove mutations when none exist.");
-
-  BatchId firstBatchID = batches[0].batchID;
-
+- (void)removeMutationBatch:(FSTMutationBatch *)batch {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
   NSUInteger queueCount = queue.count;
+  BatchId batchID = batch.batchID;
 
   // Find the position of the first batch for removal. This need not be the first entry in the
   // queue.
-  NSUInteger startIndex = [self indexOfExistingBatchID:firstBatchID action:@"removed"];
-  HARD_ASSERT(queue[startIndex].batchID == firstBatchID, "Removed batches must exist in the queue");
-
-  // Check that removed batches are contiguous (while excluding tombstones).
-  NSUInteger batchIndex = 1;
-  NSUInteger queueIndex = startIndex + 1;
-  while (batchIndex < batchCount && queueIndex < queueCount) {
-    FSTMutationBatch *batch = queue[queueIndex];
-    if ([batch isTombstone]) {
-      queueIndex++;
-      continue;
-    }
-
-    HARD_ASSERT(batch.batchID == batches[batchIndex].batchID,
-                "Removed batches must be contiguous in the queue");
-    batchIndex++;
-    queueIndex++;
-  }
+  NSUInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"removed"];
+  HARD_ASSERT(queue[batchIndex].batchID == batchID, "Removed batches must exist in the queue");
 
   // Only actually remove batches if removing at the front of the queue. Previously rejected batches
   // may have left tombstones in the queue, so expand the removal range to include any tombstones.
-  if (startIndex == 0) {
-    for (; queueIndex < queueCount; queueIndex++) {
-      FSTMutationBatch *batch = queue[queueIndex];
+  if (batchIndex == 0) {
+    int endIndex = 1;
+    for (; endIndex < queueCount; endIndex++) {
+      FSTMutationBatch *batch = queue[endIndex];
       if (![batch isTombstone]) {
         break;
       }
     }
 
-    NSUInteger length = queueIndex - startIndex;
-    [queue removeObjectsInRange:NSMakeRange(startIndex, length)];
+    NSUInteger length = endIndex - batchIndex;
+    [queue removeObjectsInRange:NSMakeRange(batchIndex, length)];
 
   } else {
-    // Mark tombstones
-    for (NSUInteger i = startIndex; i < queueIndex; i++) {
-      queue[i] = [queue[i] toTombstone];
-    }
+    queue[batchIndex] = [queue[batchIndex] toTombstone];
   }
 
   // Remove entries from the index too.
   FSTImmutableSortedSet<FSTDocumentReference *> *references = self.batchesByDocumentKey;
-  for (FSTMutationBatch *batch in batches) {
-    BatchId batchID = batch.batchID;
-    for (FSTMutation *mutation in batch.mutations) {
-      const DocumentKey &key = mutation.key;
-      [_persistence.referenceDelegate removeMutationReference:key];
+  for (FSTMutation *mutation in batch.mutations) {
+    const DocumentKey &key = mutation.key;
+    [_persistence.referenceDelegate removeMutationReference:key];
 
-      FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
-      references = [references setByRemovingObject:reference];
-    }
+    FSTDocumentReference *reference = [[FSTDocumentReference alloc] initWithKey:key ID:batchID];
+    references = [references setByRemovingObject:reference];
   }
   self.batchesByDocumentKey = references;
 }
