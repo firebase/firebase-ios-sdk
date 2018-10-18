@@ -320,7 +320,6 @@ FieldValue Serializer::DecodeFieldValue(
                 msg.which_value_type);
 
     default:
-      // Unspecified type.
       reader->Fail(StringFormat("Invalid type while decoding FieldValue: %s",
                                 msg.which_value_type));
       return FieldValue::Null();
@@ -346,7 +345,6 @@ google_firestore_v1beta1_Document Serializer::EncodeDocument(
     const DocumentKey& key, const ObjectValue& object_value) const {
   google_firestore_v1beta1_Document result{};
 
-  // Encode Document.name
   result.name = EncodeString(EncodeKey(key));
 
   // Encode Document.fields (unless it's empty)
@@ -354,7 +352,6 @@ google_firestore_v1beta1_Document Serializer::EncodeDocument(
   result.fields_count = count;
   result.fields =
       MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
-
   int i = 0;
   for (const auto& kv : object_value.internal_value) {
     result.fields[i].key = EncodeString(kv.first);

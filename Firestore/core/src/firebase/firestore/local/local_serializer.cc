@@ -99,7 +99,6 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
     const Document& doc) const {
   google_firestore_v1beta1_Document result{};
 
-  // Encode Document.name
   result.name =
       rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(doc.key()));
 
@@ -108,7 +107,6 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
   result.fields_count = count;
   result.fields =
       MakeArray<google_firestore_v1beta1_Document_FieldsEntry>(count);
-
   int i = 0;
   for (const auto& kv : doc.data().object_value().internal_value) {
     result.fields[i].key = rpc_serializer_.EncodeString(kv.first);
@@ -116,7 +114,6 @@ google_firestore_v1beta1_Document LocalSerializer::EncodeDocument(
     i++;
   }
 
-  // Encode Document.update_time
   result.update_time = rpc_serializer_.EncodeVersion(doc.version());
 
   // Ignore Document.create_time. (We don't use this in our on-disk protos.)
@@ -128,11 +125,8 @@ firestore_client_NoDocument LocalSerializer::EncodeNoDocument(
     const NoDocument& no_doc) const {
   firestore_client_NoDocument result{};
 
-  // Encode NoDocument.name
   result.name =
       rpc_serializer_.EncodeString(rpc_serializer_.EncodeKey(no_doc.key()));
-
-  // Encode NoDocument.read_time
   result.read_time = rpc_serializer_.EncodeVersion(no_doc.version());
 
   return result;
