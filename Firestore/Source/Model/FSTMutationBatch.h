@@ -65,7 +65,8 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
 - (id)init NS_UNAVAILABLE;
 
 /**
- * Applies all the mutations in this FSTMutationBatch to the specified document.
+ * Applies all the mutations in this FSTMutationBatch to the specified document to create a new
+ * remote document.
  *
  * @param maybeDoc The document to apply mutations to.
  * @param documentKey The key of the document to apply mutations to.
@@ -73,16 +74,18 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
  *   it's assumed that this is a local (latency-compensated) application and documents will have
  *   their hasLocalMutations flag set.
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(const firebase::firestore::model::DocumentKey &)documentKey
-                   mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult;
+- (FSTMaybeDocument *_Nullable)
+    applyToRemoteDocument:(FSTMaybeDocument *_Nullable)maybeDoc
+              documentKey:(const firebase::firestore::model::DocumentKey &)documentKey
+      mutationBatchResult:(FSTMutationBatchResult *_Nullable)mutationBatchResult;
 
 /**
  * A helper version of applyTo for applying mutations locally (without a mutation batch result from
  * the backend).
  */
-- (FSTMaybeDocument *_Nullable)applyTo:(FSTMaybeDocument *_Nullable)maybeDoc
-                           documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
+- (FSTMaybeDocument *_Nullable)
+    applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
+             documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
 /**
  * Returns YES if this mutation batch has already been removed from the mutation queue.
