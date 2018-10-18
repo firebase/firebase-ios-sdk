@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
@@ -80,25 +81,29 @@ class GrpcConnection {
   void Unregister(GrpcCall* call);
 
   /**
+   * Don't use SSL, send all traffic unencrypted. Call before creating any
+   * streams or calls.
+   */
+  static void UseInsecureChannel(const std::string& host);
+
+  /**
    * For tests only: use a custom root certificate file and the given SSL
    * target name for all connections. Call before creating any streams or calls.
    */
-  static void UseTestCertificate(absl::string_view certificate_path,
-                                 absl::string_view target_name);
-
-  /**
-   * For tests only: don't use SSL, send all traffic unencrypted. Call before
-   * creating any streams or calls. Overrides a test certificate.
-   */
-  static void UseInsecureChannel();
+  static void UseTestCertificate(const std::string& host,
+                                 const std::string& certificate_path,
+                                 const std::string& target_name);
 
  private:
-  struct TestCredentials {
+  static bool HasSpecialConfig(const std::string& host);
+
+  struct HostConfig {
     std::string certificate_path;
     std::string target_name;
     bool use_insecure_channel = false;
   };
-  static TestCredentials* test_credentials_;
+  using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+  static ConfigByHost* config_by_host_;
 
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;

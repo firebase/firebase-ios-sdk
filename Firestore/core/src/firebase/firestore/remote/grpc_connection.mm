@@ -54,7 +54,7 @@ std::string MakeString(absl::string_view view) {
 
 }  // namespace
 
-GrpcConnection::TestCredentials* GrpcConnection::test_credentials_ = nullptr;
+GrpcConnection::ConfigByHost* GrpcConnection::config_by_host_ = nullptr;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -120,21 +120,26 @@ void GrpcConnection::EnsureActiveStub() {
 }
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  if (!test_credentials_) {
+  const std::string& host = database_info_->host();
+
+  if (!HasSpecialConfig(host)) {
     return grpc::CreateChannel(
-        database_info_->host(),
-        grpc::SslCredentials(grpc::SslCredentialsOptions()));
+        host, grpc::SslCredentials(grpc::SslCredentialsOptions()));
   }
 
-  if (test_credentials_->use_insecure_channel) {
-    return grpc::CreateChannel(database_info_->host(),
-                               grpc::InsecureChannelCredentials());
+  const HostConfig& host_config = (*config_by_host_)[host];
+
+  // For the case when `Settings.sslEnabled == false`.
+  if (host_config.use_insecure_channel) {
+    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
   }
 
-  std::ifstream cert_file{test_credentials_->certificate_path};
+  // For tests only
+
+  std::ifstream cert_file{host_config.certificate_path};
   HARD_ASSERT(cert_file.good(),
               StringFormat("Unable to open root certificates at file path %s",
-                           test_credentials_->certificate_path)
+                           host_config.certificate_path)
                   .c_str());
   std::stringstream cert_buffer;
   cert_buffer << cert_file.rdbuf();
@@ -142,9 +147,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   options.pem_root_certs = cert_buffer.str();
 
   grpc::ChannelArguments args;
-  args.SetSslTargetNameOverride(test_credentials_->target_name);
-  return grpc::CreateCustomChannel(database_info_->host(),
-                                   grpc::SslCredentials(options), args);
+  args.SetSslTargetNameOverride(host_config.target_name);
+  return grpc::CreateCustomChannel(host, grpc::SslCredentials(options), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -210,30 +214,40 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 }
 
 /*static*/ void GrpcConnection::UseTestCertificate(
-    absl::string_view certificate_path, absl::string_view target_name) {
+    const std::string& host,
+    const std::string& certificate_path,
+    const std::string& target_name) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
   HARD_ASSERT(!certificate_path.empty(), "Empty path to test certificate");
   HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
 
-  if (!test_credentials_) {
+  if (!config_by_host_) {
     // Deliberately never deleted.
-    test_credentials_ = new TestCredentials{};
+    config_by_host_ = new ConfigByHost{};
   }
 
-  test_credentials_->certificate_path =
-      std::string{certificate_path.data(), certificate_path.size()};
-  test_credentials_->target_name =
-      std::string{target_name.data(), target_name.size()};
-  // TODO(varconst): hostname if necessary.
+  HostConfig& host_config = (*config_by_host_)[host];
+  host_config.certificate_path = certificate_path;
+  host_config.target_name = target_name;
 }
 
-/*static*/ void GrpcConnection::UseInsecureChannel() {
-  if (!test_credentials_) {
+/*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
+
+  if (!config_by_host_) {
     // Deliberately never deleted.
-    test_credentials_ = new TestCredentials{};
+    config_by_host_ = new ConfigByHost{};
   }
 
-  test_credentials_->use_insecure_channel = true;
-  // TODO(varconst): hostname if necessary.
+  HostConfig& test_config = (*config_by_host_)[host];
+  test_config.use_insecure_channel = true;
+}
+
+/*static*/ bool GrpcConnection::HasSpecialConfig(const std::string& host) {
+  if (!config_by_host_) {
+    return false;
+  }
+  return config_by_host_->find(host) != config_by_host_->end();
 }
 
 }  // namespace remote
