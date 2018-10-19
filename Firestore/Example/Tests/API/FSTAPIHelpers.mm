@@ -63,7 +63,10 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
                                         NSDictionary<NSString *, id> *_Nullable data,
                                         BOOL hasMutations,
                                         BOOL fromCache) {
-  FSTDocument *doc = data ? FSTTestDoc(path, version, data, hasMutations) : nil;
+  FSTDocument *doc =
+      data ? FSTTestDoc(path, version, data,
+                        hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced)
+           : nil;
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
                                         documentKey:testutil::Key(path)
                                            document:doc
@@ -91,15 +94,18 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   for (NSString *key in oldDocs) {
-    oldDocuments =
-        [oldDocuments documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key),
-                                                             1, oldDocs[key], hasPendingWrites)];
+    oldDocuments = [oldDocuments
+        documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key), 1,
+                                               oldDocs[key],
+                                               hasPendingWrites ? FSTDocumentStateLocalMutations
+                                                                : FSTDocumentStateSynced)];
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
     FSTDocument *docToAdd =
-        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key], hasPendingWrites);
+        FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
+                   hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
     newDocuments = [newDocuments documentSetByAddingDocument:docToAdd];
     documentChanges = [documentChanges
         arrayByAddingObject:[FSTDocumentViewChange

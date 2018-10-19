@@ -183,8 +183,9 @@ static NSString *Describe(NSData *data) {
   }
   NSNumber *version = change[1];
   XCTAssert([change[0] isKindOfClass:[NSString class]]);
-  FSTDocument *doc = FSTTestDoc(util::MakeString((NSString *)change[0]), version.longLongValue,
-                                change[2], hasMutations);
+  FSTDocument *doc =
+      FSTTestDoc(util::MakeString((NSString *)change[0]), version.longLongValue, change[2],
+                 hasMutations ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
   return [FSTDocumentViewChange changeWithDocument:doc type:type];
 }
 
@@ -274,12 +275,13 @@ static NSString *Describe(NSData *data) {
     FSTObjectValue *_Nullable value =
         [docSpec[2] isKindOfClass:[NSNull class]] ? nil : FSTTestObjectValue(docSpec[2]);
     SnapshotVersion version = [self parseVersion:docSpec[1]];
-    FSTMaybeDocument *doc =
-        value ? [FSTDocument documentWithData:value
-                                          key:key
-                                      version:std::move(version)
-                            hasLocalMutations:NO]
-              : [FSTDeletedDocument documentWithKey:key version:std::move(version)];
+    FSTMaybeDocument *doc = value ? [FSTDocument documentWithData:value
+                                                              key:key
+                                                          version:std::move(version)
+                                                            state:FSTDocumentStateSynced]
+                                  : [FSTDeletedDocument documentWithKey:key
+                                                                version:std::move(version)
+                                                  hasCommittedMutations:NO];
     FSTWatchChange *change =
         [[FSTDocumentWatchChange alloc] initWithUpdatedTargetIDs:watchEntity[@"targets"]
                                                 removedTargetIDs:watchEntity[@"removedTargets"]
