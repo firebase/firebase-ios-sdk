@@ -148,7 +148,7 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       if (batches.count > 0) {
         // NOTE: This could be more efficient if we had a removeBatchesThroughBatchID, but this set
         // should be very small and this code should go away eventually.
-        [self.mutationQueue removeMutationBatches:batches];
+        [self removeMutationBatches:batches];
       }
     }
   });
@@ -533,9 +533,9 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       const DocumentKey &key = mutation.key;
       affectedDocs = affectedDocs.insert(key);
     }
+    [self.mutationQueue removeMutationBatch:batch];
   }
 
-  [self.mutationQueue removeMutationBatches:batches];
   return affectedDocs;
 }
 
