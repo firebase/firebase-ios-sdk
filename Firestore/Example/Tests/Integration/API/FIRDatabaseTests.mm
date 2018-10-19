@@ -55,6 +55,27 @@
   XCTAssertEqualObjects(result.data, finalData);
 }
 
+- (void)testCanUpdateAnUnknownDocument {
+  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+                                       FIRDocumentReference *writerRef) {
+    [self writeDocumentRef:writerRef data:@{@"a" : @"a"}];
+    [self updateDocumentRef:readerRef data:@{@"b" : @"b"}];
+
+    FIRDocumentSnapshot *writerSnap =
+        [self readDocumentForRef:writerRef source:FIRFirestoreSourceCache];
+    XCTAssertTrue(writerSnap.exists);
+
+    XCTAssertThrows(^() {
+      [self readDocumentForRef:readerRef source:FIRFirestoreSourceCache];
+    });
+
+    writerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(writerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+    FIRDocumentSnapshot *readerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(readerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+  }];
+}
+
 - (void)testCanDeleteAFieldWithAnUpdate {
   FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
   NSDictionary<NSString *, id> *initialData =

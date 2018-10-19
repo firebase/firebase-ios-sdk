@@ -73,11 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)testIncludeMetadataChanges {
-  FSTDocument *doc1Old = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, YES);
-  FSTDocument *doc1New = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, NO);
+  FSTDocument *doc1Old = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, FSTDocumentStateLocalMutations);
+  FSTDocument *doc1New = FSTTestDoc("foo/bar", 1, @{@"a" : @"b"}, FSTDocumentStateSynced);
 
-  FSTDocument *doc2Old = FSTTestDoc("foo/baz", 1, @{@"a" : @"b"}, NO);
-  FSTDocument *doc2New = FSTTestDoc("foo/baz", 1, @{@"a" : @"c"}, NO);
+  FSTDocument *doc2Old = FSTTestDoc("foo/baz", 1, @{@"a" : @"b"}, FSTDocumentStateSynced);
+  FSTDocument *doc2New = FSTTestDoc("foo/baz", 1, @{@"a" : @"c"}, FSTDocumentStateSynced);
 
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc1Old, doc2Old ]);
   FSTDocumentSet *newDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[ doc2New, doc2New ]);
