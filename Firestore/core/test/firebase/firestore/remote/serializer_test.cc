@@ -820,14 +820,16 @@ TEST_F(SerializerTest, EncodesKey) {
 }
 
 TEST_F(SerializerTest, DecodesKey) {
-  EXPECT_EQ(Key(""), serializer.DecodeKey("projects/p/databases/d/documents"));
+  Reader reader = Reader::Wrap(nullptr, 0);
+  EXPECT_EQ(Key(""), serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
   EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
+            serializer.DecodeKey(&reader,
                 "projects/p/databases/d/documents/one/two/three/four"));
   // Same, but with a leading slash
   EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(
+            serializer.DecodeKey(&reader,
                 "/projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_OK(reader.status());
 }
 
 TEST_F(SerializerTest, BadKey) {
@@ -844,7 +846,9 @@ TEST_F(SerializerTest, BadKey) {
   };
 
   for (const std::string& bad_key : bad_cases) {
-    EXPECT_ANY_THROW(serializer.DecodeKey(bad_key));
+    Reader reader = Reader::Wrap(nullptr, 0);
+    serializer.DecodeKey(&reader, bad_key);
+    EXPECT_NOT_OK(reader.status());
   }
 }
 

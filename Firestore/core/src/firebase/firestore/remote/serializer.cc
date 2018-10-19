@@ -95,8 +95,6 @@ ObjectValue::Map DecodeMapValue(
 ObjectValue::Map::value_type DecodeFieldsEntry(
     Reader* reader,
     const google_firestore_v1beta1_Document_FieldsEntry& fields) {
-  if (!reader->status().ok()) return {};
-
   std::string key = Serializer::DecodeString(fields.key);
   FieldValue value = Serializer::DecodeFieldValue(reader, fields.value);
 
@@ -113,8 +111,6 @@ ObjectValue::Map DecodeFields(
     Reader* reader,
     size_t count,
     const google_firestore_v1beta1_Document_FieldsEntry* fields) {
-  if (!reader->status().ok()) return {};
-
   ObjectValue::Map result;
   for (size_t i = 0; i < count; i++) {
     result.emplace(DecodeFieldsEntry(reader, fields[i]));
@@ -145,7 +141,6 @@ google_firestore_v1beta1_MapValue EncodeMapValue(
 
 ObjectValue::Map DecodeMapValue(
     Reader* reader, const google_firestore_v1beta1_MapValue& map_value) {
-  if (!reader->status().ok()) return {};
   ObjectValue::Map result;
 
   for (size_t i = 0; i < map_value.fields_count; i++) {
@@ -195,11 +190,11 @@ bool IsValidResourceName(const ResourcePath& path) {
  * that there is a project and database encoded in the path. There are no
  * guarantees that a local path is also encoded in this resource name.
  */
-ResourcePath DecodeResourceName(absl::string_view encoded) {
+ResourcePath DecodeResourceName(Reader* reader, absl::string_view encoded) {
   ResourcePath resource = ResourcePath::FromString(encoded);
-  HARD_ASSERT(IsValidResourceName(resource),
-              "Tried to deserialize invalid key %s",
-              resource.CanonicalString());
+  if (!IsValidResourceName(resource)) {
+    reader->Fail(StringFormat("Tried to deserialize an invalid key %s", resource.CanonicalString()));
+  }
   return resource;
 }
 
@@ -209,10 +204,11 @@ ResourcePath DecodeResourceName(absl::string_view encoded) {
  * path.
  */
 ResourcePath ExtractLocalPathFromResourceName(
-    const ResourcePath& resource_name) {
-  HARD_ASSERT(resource_name.size() > 4 && resource_name[4] == "documents",
-              "Tried to deserialize invalid key %s",
-              resource_name.CanonicalString());
+    Reader* reader, const ResourcePath& resource_name) {
+  if (resource_name.size() <= 4 || resource_name[4] != "documents") {
+    reader->Fail(StringFormat("Tried to deserialize invalid key %s", resource_name.CanonicalString()));
+    return ResourcePath();
+  }
   return resource_name.PopFirst(5);
 }
 
@@ -278,8 +274,6 @@ google_firestore_v1beta1_Value Serializer::EncodeFieldValue(
 
 FieldValue Serializer::DecodeFieldValue(
     Reader* reader, const google_firestore_v1beta1_Value& msg) {
-  if (!reader->status().ok()) return FieldValue::Null();
-
   switch (msg.which_value_type) {
     case google_firestore_v1beta1_Value_null_value_tag:
       if (msg.null_value != google_protobuf_NullValue_NULL_VALUE) {
@@ -332,13 +326,24 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
 }
 
-DocumentKey Serializer::DecodeKey(absl::string_view name) const {
-  ResourcePath resource = DecodeResourceName(name);
-  HARD_ASSERT(resource[1] == database_id_.project_id(),
-              "Tried to deserialize key from different project.");
-  HARD_ASSERT(resource[3] == database_id_.database_id(),
-              "Tried to deserialize key from different database.");
-  return DocumentKey{ExtractLocalPathFromResourceName(resource)};
+DocumentKey Serializer::DecodeKey(Reader* reader, absl::string_view name) const {
+  ResourcePath resource = DecodeResourceName(reader, name);
+  if (resource.size() < 5) {
+    reader->Fail(StringFormat("Attempted to decode invalid key: '%s'. Should have at least 5 segments.", name));
+  } else if (resource[1] != database_id_.project_id()) {
+    reader->Fail(StringFormat("Tried to deserialize key from different project. Expected: '%s'. Found: '%s'. (Full key: '%s')", database_id_.project_id(), resource[1], name));
+  } else if (resource[3] != database_id_.database_id()) {
+    reader->Fail(StringFormat("Tried to deserialize key from different database. Expected: '%s'. Found: '%s'. (Full key: '%s')", database_id_.database_id(), resource[3], name));
+  }
+
+  ResourcePath local_path = ExtractLocalPathFromResourceName(reader, resource);
+
+  if (!DocumentKey::IsDocumentKey(local_path)) {
+    reader->Fail(StringFormat("Invalid document key path: %s", local_path.CanonicalString()));
+  }
+
+  if (!reader->status().ok()) return DocumentKey();
+  return DocumentKey{local_path};
 }
 
 google_firestore_v1beta1_Document Serializer::EncodeDocument(
@@ -368,8 +373,6 @@ google_firestore_v1beta1_Document Serializer::EncodeDocument(
 std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
     Reader* reader,
     const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const {
-  if (!reader->status().ok()) return nullptr;
-
   switch (response.which_result) {
     case google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag:
       return DecodeFoundDocument(reader, response);
@@ -387,21 +390,19 @@ std::unique_ptr<model::MaybeDocument> Serializer::DecodeMaybeDocument(
 std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
     Reader* reader,
     const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const {
-  if (!reader->status().ok()) return nullptr;
-
   HARD_ASSERT(response.which_result ==
                   google_firestore_v1beta1_BatchGetDocumentsResponse_found_tag,
               "Tried to deserialize a found document from a missing document.");
 
-  DocumentKey key = DecodeKey(DecodeString(response.found.name));
+  DocumentKey key = DecodeKey(reader, DecodeString(response.found.name));
   ObjectValue::Map value =
       DecodeFields(reader, response.found.fields_count, response.found.fields);
   SnapshotVersion version =
       DecodeSnapshotVersion(reader, response.found.update_time);
-  if (!reader->status().ok()) return nullptr;
 
-  HARD_ASSERT(version != SnapshotVersion::None(),
-              "Got a document response with no snapshot version");
+  if (version == SnapshotVersion::None()) {
+    reader->Fail("Got a document response with no snapshot version");
+  }
 
   return absl::make_unique<Document>(FieldValue::FromMap(std::move(value)),
                                      std::move(key), std::move(version),
@@ -411,15 +412,13 @@ std::unique_ptr<model::Document> Serializer::DecodeFoundDocument(
 std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
     Reader* reader,
     const google_firestore_v1beta1_BatchGetDocumentsResponse& response) const {
-  if (!reader->status().ok()) return nullptr;
   HARD_ASSERT(
       response.which_result ==
           google_firestore_v1beta1_BatchGetDocumentsResponse_missing_tag,
       "Tried to deserialize a missing document from a found document.");
 
-  DocumentKey key = DecodeKey(DecodeString(response.missing));
+  DocumentKey key = DecodeKey(reader, DecodeString(response.missing));
   SnapshotVersion version = DecodeSnapshotVersion(reader, response.read_time);
-  if (!reader->status().ok()) return nullptr;
 
   if (version == SnapshotVersion::None()) {
     reader->Fail("Got a no document response with no snapshot version");
@@ -431,16 +430,13 @@ std::unique_ptr<model::NoDocument> Serializer::DecodeMissingDocument(
 
 std::unique_ptr<Document> Serializer::DecodeDocument(
     Reader* reader, const google_firestore_v1beta1_Document& proto) const {
-  if (!reader->status().ok()) return nullptr;
-
   ObjectValue::Map fields_internal =
       DecodeFields(reader, proto.fields_count, proto.fields);
   SnapshotVersion version = DecodeSnapshotVersion(reader, proto.update_time);
 
-  if (!reader->status().ok()) return nullptr;
   return absl::make_unique<Document>(
       FieldValue::FromMap(std::move(fields_internal)),
-      DecodeKey(DecodeString(proto.name)), std::move(version),
+      DecodeKey(reader, DecodeString(proto.name)), std::move(version),
       /*has_local_modifications=*/false);
 }
 
@@ -488,22 +484,20 @@ google_firestore_v1beta1_Target_QueryTarget Serializer::EncodeQueryTarget(
   return result;
 }
 
-ResourcePath DecodeQueryPath(absl::string_view name) {
-  ResourcePath resource = DecodeResourceName(name);
+ResourcePath DecodeQueryPath(Reader* reader, absl::string_view name) {
+  ResourcePath resource = DecodeResourceName(reader, name);
   if (resource.size() == 4) {
     // Path missing the trailing documents path segment, indicating an empty
     // path.
     return ResourcePath::Empty();
   } else {
-    return ExtractLocalPathFromResourceName(resource);
+    return ExtractLocalPathFromResourceName(reader, resource);
   }
 }
 
 Query Serializer::DecodeQueryTarget(
     nanopb::Reader* reader,
     const google_firestore_v1beta1_Target_QueryTarget& proto) {
-  if (!reader->status().ok()) return Query::Invalid();
-
   // The QueryTarget oneof only has a single valid value.
   if (proto.which_query_type !=
       google_firestore_v1beta1_Target_QueryTarget_structured_query_tag) {
@@ -512,12 +506,12 @@ Query Serializer::DecodeQueryTarget(
     return Query::Invalid();
   }
 
-  ResourcePath path = DecodeQueryPath(DecodeString(proto.parent));
+  ResourcePath path = DecodeQueryPath(reader, DecodeString(proto.parent));
   size_t from_count = proto.structured_query.from_count;
   if (from_count > 0) {
-    HARD_ASSERT(
-        from_count == 1,
-        "StructuredQuery.from with more than one collection is not supported.");
+    if (from_count != 1) {
+      reader->Fail("StructuredQuery.from with more than one collection is not supported.");
+    }
 
     path =
         path.Append(DecodeString(proto.structured_query.from[0].collection_id));

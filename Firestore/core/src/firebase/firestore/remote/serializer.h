@@ -151,7 +151,7 @@ class Serializer {
    * Decodes the given document key from a fully qualified name.
    */
   firebase::firestore::model::DocumentKey DecodeKey(
-      absl::string_view name) const;
+      nanopb::Reader* reader, absl::string_view name) const;
 
   /**
    * @brief Converts the Document (i.e. key/value) into bytes.
