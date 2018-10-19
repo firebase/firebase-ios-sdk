@@ -209,7 +209,7 @@ ResourcePath ExtractLocalPathFromResourceName(
   if (resource_name.size() <= 4 || resource_name[4] != "documents") {
     reader->Fail(StringFormat("Tried to deserialize invalid key %s",
                               resource_name.CanonicalString()));
-    return ResourcePath();
+    return ResourcePath{};
   }
   return resource_name.PopFirst(5);
 }
