@@ -55,7 +55,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'gRPC-C++', '~> 0.0.3'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
-  s.dependency 'nanopb', '~> 0.3.8'
+  s.dependency 'nanopb', '~> 0.3.901'
 
   s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.library = 'c++'
@@ -66,7 +66,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       # The nanopb pod sets these defs, so we must too. (We *do* require 16bit
       # (or larger) fields, so we'd have to set at least PB_FIELD_16BIT
       # anyways.)
-      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1',
+      'PB_FIELD_32BIT=1 PB_NO_PACKED_STRUCTS=1 PB_ENABLE_MALLOC=1',
     'HEADER_SEARCH_PATHS' =>
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/third_party/abseil-cpp" ' +
