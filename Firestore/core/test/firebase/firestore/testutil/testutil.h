@@ -31,6 +31,7 @@
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/field_path.h"
 #include "Firestore/core/src/firebase/firestore/model/field_value.h"
+#include "Firestore/core/src/firebase/firestore/model/mutation.h"
 #include "Firestore/core/src/firebase/firestore/model/no_document.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
@@ -70,10 +71,10 @@ inline model::SnapshotVersion Version(int64_t version) {
 
 inline model::Document Doc(absl::string_view key,
                            int64_t version = 0,
-                           const model::ObjectValue::Map& data = {}) {
+                           const model::ObjectValue::Map& data = {},
+                           bool has_local_mutations = false) {
   return model::Document{model::FieldValue::FromMap(data), Key(key),
-                         Version(version),
-                         /* has_local_mutations= */ false};
+                         Version(version), has_local_mutations};
 }
 
 inline model::NoDocument DeletedDoc(absl::string_view key, int64_t version) {
@@ -121,6 +122,13 @@ inline std::shared_ptr<core::Filter> Filter(absl::string_view key,
 
 inline core::Query Query(absl::string_view path) {
   return core::Query::AtPath(Resource(path));
+}
+
+inline std::unique_ptr<model::SetMutation> SetMutation(
+    absl::string_view path, const model::ObjectValue::Map& values = {}) {
+  return absl::make_unique<model::SetMutation>(
+      Key(path), model::FieldValue::FromMap(values),
+      model::Precondition::None());
 }
 
 inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
