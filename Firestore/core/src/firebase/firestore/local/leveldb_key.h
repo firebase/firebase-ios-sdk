@@ -417,6 +417,18 @@ class LevelDbDocumentTargetKey {
   static std::string SentinelKey(const model::DocumentKey& document_key);
 
   /**
+   * Given a sequence number, encodes it for storage in a sentinel row.
+   */
+  static std::string EncodeSentinelValue(
+      model::ListenSequenceNumber sequence_number);
+
+  /**
+   * Given an encoded sentinel row, return the sequence number.
+   */
+  static model::ListenSequenceNumber DecodeSentinelValue(
+      absl::string_view slice);
+
+  /**
    * Decodes the contents of a document target key, storing the decoded values
    * in this instance.
    *

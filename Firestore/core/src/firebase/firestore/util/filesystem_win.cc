@@ -26,7 +26,7 @@
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
-#include "Firestore/third_party/abseil-cpp/absl/memory/memory.h"
+#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -54,6 +54,19 @@ Path TempDir() {
   HARD_ASSERT(count <= MAX_PATH, "Invalid temporary path longer than MAX_PATH");
 
   return Path::FromUtf16(buffer, count);
+}
+
+StatusOr<int64_t> FileSize(const Path& path) {
+  WIN32_FILE_ATTRIBUTE_DATA attrs;
+  if (!::GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &attrs)) {
+    DWORD error = ::GetLastError();
+    return Status::FromLastError(error, path.ToUtf8String());
+  }
+
+  LARGE_INTEGER result{};
+  result.HighPart = attrs.nFileSizeHigh;
+  result.LowPart = attrs.nFileSizeLow;
+  return result.QuadPart;
 }
 
 namespace detail {

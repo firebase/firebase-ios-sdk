@@ -32,6 +32,7 @@
 - (void)setUp {
   [super setUp];
   self.dateFormatter = [[NSDateFormatter alloc] init];
+  self.dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
   [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
   self.scheduledLocalNotifications = [NSMutableArray array];
   [self mockSchedulingLocalNotifications];

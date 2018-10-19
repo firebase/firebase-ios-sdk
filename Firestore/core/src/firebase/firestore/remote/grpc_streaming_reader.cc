@@ -18,6 +18,7 @@
 
 #include <utility>
 
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 namespace firebase {
@@ -32,19 +33,27 @@ GrpcStreamingReader::GrpcStreamingReader(
     std::unique_ptr<grpc::ClientContext> context,
     std::unique_ptr<grpc::GenericClientAsyncReaderWriter> call,
     util::AsyncQueue* worker_queue,
+    GrpcConnection* grpc_connection,
     const grpc::ByteBuffer& request)
-    : stream_{absl::make_unique<GrpcStream>(
-          std::move(context), std::move(call), this, worker_queue)},
+    : stream_{absl::make_unique<GrpcStream>(std::move(context),
+                                            std::move(call),
+                                            worker_queue,
+                                            grpc_connection,
+                                            this)},
       request_{request} {
 }
 
-void GrpcStreamingReader::Start(CallbackT&& callback) {
+void GrpcStreamingReader::Start(Callback&& callback) {
   callback_ = std::move(callback);
   stream_->Start();
 }
 
-void GrpcStreamingReader::Cancel() {
-  stream_->Finish();
+void GrpcStreamingReader::FinishImmediately() {
+  stream_->FinishImmediately();
+}
+
+void GrpcStreamingReader::FinishAndNotify(const Status& status) {
+  stream_->FinishAndNotify(status);
 }
 
 void GrpcStreamingReader::OnStreamStart() {
@@ -61,12 +70,13 @@ void GrpcStreamingReader::OnStreamRead(const grpc::ByteBuffer& message) {
 void GrpcStreamingReader::OnStreamFinish(const util::Status& status) {
   HARD_ASSERT(callback_,
               "Received an event from stream after callback was unset");
+  // Invoking the callback may end this reader's lifetime.
+  auto callback = std::move(callback_);
   if (status.ok()) {
-    callback_(responses_);
+    callback(responses_);
   } else {
-    callback_(status);
+    callback(status);
   }
-  callback_ = {};
 }
 
 }  // namespace remote

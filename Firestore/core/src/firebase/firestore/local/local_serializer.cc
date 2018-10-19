@@ -151,6 +151,7 @@ firestore_client_Target LocalSerializer::EncodeQueryData(
   firestore_client_Target result{};
 
   result.target_id = query_data.target_id();
+  result.last_listen_sequence_number = query_data.sequence_number();
   result.snapshot_version = rpc_serializer_.EncodeTimestamp(
       query_data.snapshot_version().timestamp());
   result.resume_token = rpc_serializer_.EncodeBytes(query_data.resume_token());
@@ -177,6 +178,8 @@ QueryData LocalSerializer::DecodeQueryData(
   if (!reader->status().ok()) return QueryData::Invalid();
 
   model::TargetId target_id = proto.target_id;
+  // TODO(rgowman): How to handle truncation of integer types?
+  model::ListenSequenceNumber sequence_number = static_cast<model::ListenSequenceNumber>(proto.last_listen_sequence_number);
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
   std::vector<uint8_t> resume_token =
@@ -198,8 +201,9 @@ QueryData LocalSerializer::DecodeQueryData(
   }
 
   if (!reader->status().ok()) return QueryData::Invalid();
-  return QueryData(std::move(query), target_id, QueryPurpose::kListen,
-                   std::move(version), std::move(resume_token));
+  return QueryData(std::move(query), target_id, sequence_number,
+                   QueryPurpose::kListen, std::move(version),
+                   std::move(resume_token));
 }
 
 }  // namespace local

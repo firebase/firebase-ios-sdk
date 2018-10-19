@@ -51,3 +51,21 @@ static NSString *const kFIRIParameterMedium NS_SWIFT_NAME(AnalyticsParameterMedi
 /// </pre>
 static NSString *const kFIRIParameterCampaign NS_SWIFT_NAME(AnalyticsParameterCampaign) =
     @"campaign";
+
+/// Message identifier.
+static NSString *const kFIRIParameterMessageIdentifier = @"_nmid";
+
+/// Message name.
+static NSString *const kFIRIParameterMessageName = @"_nmn";
+
+/// Message send time.
+static NSString *const kFIRIParameterMessageTime = @"_nmt";
+
+/// Message device time.
+static NSString *const kFIRIParameterMessageDeviceTime = @"_ndt";
+
+/// Topic message.
+static NSString *const kFIRIParameterTopic = @"_nt";
+
+/// Stores the message_id of the last notification opened by the app.
+static NSString *const kFIRIUserPropertyLastNotification = @"_ln";

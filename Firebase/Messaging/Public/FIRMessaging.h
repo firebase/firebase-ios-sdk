@@ -59,7 +59,7 @@ typedef void (^FIRMessagingTopicOperationCompletion)(NSError *_Nullable error);
 
 /**
  *  The completion handler invoked once the data connection with FIRMessaging is
- *  established.  The data connection is used to send a continous stream of
+ *  established.  The data connection is used to send a continuous stream of
  *  data and all the FIRMessaging data notifications arrive through this connection.
  *  Once the connection is established we invoke the callback with `nil` error.
  *  Correspondingly if we get an error while trying to establish a connection
