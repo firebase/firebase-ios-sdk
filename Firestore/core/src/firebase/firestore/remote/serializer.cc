@@ -193,7 +193,8 @@ bool IsValidResourceName(const ResourcePath& path) {
 ResourcePath DecodeResourceName(Reader* reader, absl::string_view encoded) {
   ResourcePath resource = ResourcePath::FromString(encoded);
   if (!IsValidResourceName(resource)) {
-    reader->Fail(StringFormat("Tried to deserialize an invalid key %s", resource.CanonicalString()));
+    reader->Fail(StringFormat("Tried to deserialize an invalid key %s",
+                              resource.CanonicalString()));
   }
   return resource;
 }
@@ -206,7 +207,8 @@ ResourcePath DecodeResourceName(Reader* reader, absl::string_view encoded) {
 ResourcePath ExtractLocalPathFromResourceName(
     Reader* reader, const ResourcePath& resource_name) {
   if (resource_name.size() <= 4 || resource_name[4] != "documents") {
-    reader->Fail(StringFormat("Tried to deserialize invalid key %s", resource_name.CanonicalString()));
+    reader->Fail(StringFormat("Tried to deserialize invalid key %s",
+                              resource_name.CanonicalString()));
     return ResourcePath();
   }
   return resource_name.PopFirst(5);
@@ -326,20 +328,31 @@ std::string Serializer::EncodeKey(const DocumentKey& key) const {
   return EncodeResourceName(database_id_, key.path());
 }
 
-DocumentKey Serializer::DecodeKey(Reader* reader, absl::string_view name) const {
+DocumentKey Serializer::DecodeKey(Reader* reader,
+                                  absl::string_view name) const {
   ResourcePath resource = DecodeResourceName(reader, name);
   if (resource.size() < 5) {
-    reader->Fail(StringFormat("Attempted to decode invalid key: '%s'. Should have at least 5 segments.", name));
+    reader->Fail(
+        StringFormat("Attempted to decode invalid key: '%s'. Should have at "
+                     "least 5 segments.",
+                     name));
   } else if (resource[1] != database_id_.project_id()) {
-    reader->Fail(StringFormat("Tried to deserialize key from different project. Expected: '%s'. Found: '%s'. (Full key: '%s')", database_id_.project_id(), resource[1], name));
+    reader->Fail(
+        StringFormat("Tried to deserialize key from different project. "
+                     "Expected: '%s'. Found: '%s'. (Full key: '%s')",
+                     database_id_.project_id(), resource[1], name));
   } else if (resource[3] != database_id_.database_id()) {
-    reader->Fail(StringFormat("Tried to deserialize key from different database. Expected: '%s'. Found: '%s'. (Full key: '%s')", database_id_.database_id(), resource[3], name));
+    reader->Fail(
+        StringFormat("Tried to deserialize key from different database. "
+                     "Expected: '%s'. Found: '%s'. (Full key: '%s')",
+                     database_id_.database_id(), resource[3], name));
   }
 
   ResourcePath local_path = ExtractLocalPathFromResourceName(reader, resource);
 
   if (!DocumentKey::IsDocumentKey(local_path)) {
-    reader->Fail(StringFormat("Invalid document key path: %s", local_path.CanonicalString()));
+    reader->Fail(StringFormat("Invalid document key path: %s",
+                              local_path.CanonicalString()));
   }
 
   if (!reader->status().ok()) return DocumentKey();
@@ -510,7 +523,9 @@ Query Serializer::DecodeQueryTarget(
   size_t from_count = proto.structured_query.from_count;
   if (from_count > 0) {
     if (from_count != 1) {
-      reader->Fail("StructuredQuery.from with more than one collection is not supported.");
+      reader->Fail(
+          "StructuredQuery.from with more than one collection is not "
+          "supported.");
     }
 
     path =

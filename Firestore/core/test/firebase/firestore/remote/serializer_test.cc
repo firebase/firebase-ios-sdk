@@ -821,14 +821,17 @@ TEST_F(SerializerTest, EncodesKey) {
 
 TEST_F(SerializerTest, DecodesKey) {
   Reader reader = Reader::Wrap(nullptr, 0);
-  EXPECT_EQ(Key(""), serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(&reader,
-                "projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(Key(""),
+            serializer.DecodeKey(&reader, "projects/p/databases/d/documents"));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(
+          &reader, "projects/p/databases/d/documents/one/two/three/four"));
   // Same, but with a leading slash
-  EXPECT_EQ(Key("one/two/three/four"),
-            serializer.DecodeKey(&reader,
-                "/projects/p/databases/d/documents/one/two/three/four"));
+  EXPECT_EQ(
+      Key("one/two/three/four"),
+      serializer.DecodeKey(
+          &reader, "/projects/p/databases/d/documents/one/two/three/four"));
   EXPECT_OK(reader.status());
 }
 

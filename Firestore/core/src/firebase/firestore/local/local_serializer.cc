@@ -141,7 +141,8 @@ std::unique_ptr<NoDocument> LocalSerializer::DecodeNoDocument(
 
   if (!reader->status().ok()) return nullptr;
   return absl::make_unique<NoDocument>(
-      rpc_serializer_.DecodeKey(reader, rpc_serializer_.DecodeString(proto.name)),
+      rpc_serializer_.DecodeKey(reader,
+                                rpc_serializer_.DecodeString(proto.name)),
       std::move(version));
 }
 
