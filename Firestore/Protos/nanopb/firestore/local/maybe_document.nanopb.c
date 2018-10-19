@@ -32,9 +32,17 @@ const pb_field_t firestore_client_NoDocument_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t firestore_client_MaybeDocument_fields[3] = {
+const pb_field_t firestore_client_UnknownDocument_fields[3] = {
+    PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, firestore_client_UnknownDocument, name, name, 0),
+    PB_FIELD(  2, MESSAGE , SINGULAR, STATIC  , OTHER, firestore_client_UnknownDocument, version, name, &google_protobuf_Timestamp_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t firestore_client_MaybeDocument_fields[5] = {
     PB_ANONYMOUS_ONEOF_FIELD(document_type,   1, MESSAGE , ONEOF, STATIC  , FIRST, firestore_client_MaybeDocument, no_document, no_document, &firestore_client_NoDocument_fields),
     PB_ANONYMOUS_ONEOF_FIELD(document_type,   2, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_MaybeDocument, document, document, &google_firestore_v1beta1_Document_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(document_type,   3, MESSAGE , ONEOF, STATIC  , UNION, firestore_client_MaybeDocument, unknown_document, unknown_document, &firestore_client_UnknownDocument_fields),
+    PB_FIELD(  4, BOOL    , SINGULAR, STATIC  , OTHER, firestore_client_MaybeDocument, has_committed_mutations, unknown_document, 0),
     PB_LAST_FIELD
 };
 
@@ -48,7 +56,7 @@ const pb_field_t firestore_client_MaybeDocument_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 65536 && pb_membersize(firestore_client_MaybeDocument, no_document) < 65536 && pb_membersize(firestore_client_MaybeDocument, document) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firestore_client_NoDocument_firestore_client_MaybeDocument)
+PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 65536 && pb_membersize(firestore_client_UnknownDocument, version) < 65536 && pb_membersize(firestore_client_MaybeDocument, no_document) < 65536 && pb_membersize(firestore_client_MaybeDocument, document) < 65536 && pb_membersize(firestore_client_MaybeDocument, unknown_document) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_firestore_client_NoDocument_firestore_client_UnknownDocument_firestore_client_MaybeDocument)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -59,7 +67,7 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 65536 
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 256 && pb_membersize(firestore_client_MaybeDocument, no_document) < 256 && pb_membersize(firestore_client_MaybeDocument, document) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_NoDocument_firestore_client_MaybeDocument)
+PB_STATIC_ASSERT((pb_membersize(firestore_client_NoDocument, read_time) < 256 && pb_membersize(firestore_client_UnknownDocument, version) < 256 && pb_membersize(firestore_client_MaybeDocument, no_document) < 256 && pb_membersize(firestore_client_MaybeDocument, document) < 256 && pb_membersize(firestore_client_MaybeDocument, unknown_document) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_NoDocument_firestore_client_UnknownDocument_firestore_client_MaybeDocument)
 #endif
 
 
