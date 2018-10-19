@@ -120,6 +120,60 @@ typedef struct FSTPBNoDocument__storage_ {
 
 @end
 
+#pragma mark - FSTPBUnknownDocument
+
+@implementation FSTPBUnknownDocument
+
+@dynamic name;
+@dynamic hasVersion, version;
+
+typedef struct FSTPBUnknownDocument__storage_ {
+  uint32_t _has_storage_[1];
+  NSString *name;
+  GPBTimestamp *version;
+} FSTPBUnknownDocument__storage_;
+
+// This method is threadsafe because it is initially called
+// in +initialize for each subclass.
++ (GPBDescriptor *)descriptor {
+  static GPBDescriptor *descriptor = nil;
+  if (!descriptor) {
+    static GPBMessageFieldDescription fields[] = {
+      {
+        .name = "name",
+        .dataTypeSpecific.className = NULL,
+        .number = FSTPBUnknownDocument_FieldNumber_Name,
+        .hasIndex = 0,
+        .offset = (uint32_t)offsetof(FSTPBUnknownDocument__storage_, name),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeString,
+      },
+      {
+        .name = "version",
+        .dataTypeSpecific.className = GPBStringifySymbol(GPBTimestamp),
+        .number = FSTPBUnknownDocument_FieldNumber_Version,
+        .hasIndex = 1,
+        .offset = (uint32_t)offsetof(FSTPBUnknownDocument__storage_, version),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+    };
+    GPBDescriptor *localDescriptor =
+        [GPBDescriptor allocDescriptorForClass:[FSTPBUnknownDocument class]
+                                     rootClass:[FSTPBMaybeDocumentRoot class]
+                                          file:FSTPBMaybeDocumentRoot_FileDescriptor()
+                                        fields:fields
+                                    fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
+                                   storageSize:sizeof(FSTPBUnknownDocument__storage_)
+                                         flags:GPBDescriptorInitializationFlag_None];
+    NSAssert(descriptor == nil, @"Startup recursed!");
+    descriptor = localDescriptor;
+  }
+  return descriptor;
+}
+
+@end
+
 #pragma mark - FSTPBMaybeDocument
 
 @implementation FSTPBMaybeDocument
@@ -127,11 +181,14 @@ typedef struct FSTPBNoDocument__storage_ {
 @dynamic documentTypeOneOfCase;
 @dynamic noDocument;
 @dynamic document;
+@dynamic unknownDocument;
+@dynamic hasCommittedMutations;
 
 typedef struct FSTPBMaybeDocument__storage_ {
   uint32_t _has_storage_[2];
   FSTPBNoDocument *noDocument;
   GCFSDocument *document;
+  FSTPBUnknownDocument *unknownDocument;
 } FSTPBMaybeDocument__storage_;
 
 // This method is threadsafe because it is initially called
@@ -157,6 +214,24 @@ typedef struct FSTPBMaybeDocument__storage_ {
         .offset = (uint32_t)offsetof(FSTPBMaybeDocument__storage_, document),
         .flags = GPBFieldOptional,
         .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "unknownDocument",
+        .dataTypeSpecific.className = GPBStringifySymbol(FSTPBUnknownDocument),
+        .number = FSTPBMaybeDocument_FieldNumber_UnknownDocument,
+        .hasIndex = -1,
+        .offset = (uint32_t)offsetof(FSTPBMaybeDocument__storage_, unknownDocument),
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeMessage,
+      },
+      {
+        .name = "hasCommittedMutations",
+        .dataTypeSpecific.className = NULL,
+        .number = FSTPBMaybeDocument_FieldNumber_HasCommittedMutations,
+        .hasIndex = 0,
+        .offset = 1,  // Stored in _has_storage_ to save space.
+        .flags = GPBFieldOptional,
+        .dataType = GPBDataTypeBool,
       },
     };
     GPBDescriptor *localDescriptor =
