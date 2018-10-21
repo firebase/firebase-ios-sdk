@@ -21,6 +21,11 @@
 #import "Private/GULNetworkConstants.h"
 #import "Private/GULNetworkMessageCode.h"
 
+@interface GULNetworkURLSession ()
+/// The dispatch queue to access the sessionID to fetcher map on.
++ (dispatch_queue_t)fetcherMapDispatchQueue;
+@end
+
 @implementation GULNetworkURLSession {
   /// The handler to be called when the request completes or error has occurs.
   GULNetworkURLSessionCompletionHandler _completionHandler;
@@ -540,14 +545,18 @@
 
 /// Gets the fetcher with the session ID.
 + (instancetype)fetcherWithSessionIdentifier:(NSString *)sessionIdentifier {
-  NSMapTable<NSString *, GULNetworkURLSession *> *sessionIdentifierToFetcherMap =
-      [self sessionIDToFetcherMap];
-  GULNetworkURLSession *session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
-  if (!session && [sessionIdentifier hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
-    session = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
-    [session setSessionID:sessionIdentifier];
-    [sessionIdentifierToFetcherMap setObject:session forKey:sessionIdentifier];
-  }
+  __block GULNetworkURLSession *session;
+  // This block can change the fetcher map, ensure it's safely wrapped.
+  dispatch_barrier_sync([self fetcherMapDispatchQueue], ^{
+    NSMapTable<NSString *, GULNetworkURLSession *> *sessionIdentifierToFetcherMap =
+        [self sessionIDToFetcherMap];
+    session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
+    if (!session && [sessionIdentifier hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
+      session = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
+      [session setSessionID:sessionIdentifier];
+      [sessionIdentifierToFetcherMap setObject:session forKey:sessionIdentifier];
+    }
+  });
   return session;
 }
 
@@ -661,26 +670,49 @@
 
 #pragma mark - Helper Methods
 
-- (void)setSessionInFetcherMap:(GULNetworkURLSession *)session forSessionID:(NSString *)sessionID {
-  GULNetworkURLSession *existingSession = [self sessionFromFetcherMapForSessionID:sessionID];
-  if (existingSession) {
-    // Invalidating doesn't seem like the right thing to do here since it may cancel an active
-    // background transfer if the background session is handling multiple requests. The old
-    // session will be dropped from the map table, but still complete its request.
-    NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
-    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
-                                 messageCode:kGULNetworkMessageCodeURLSession019
-                                     message:message];
-  }
-  if (session) {
-    [[[self class] sessionIDToFetcherMap] setObject:session forKey:sessionID];
-  } else {
-    [[[self class] sessionIDToFetcherMap] removeObjectForKey:sessionID];
-  }
++ (dispatch_queue_t)fetcherMapDispatchQueue {
+  static dispatch_queue_t queue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // Create a concurrent queue so it can be blocked with `dispatch_barrier_sync` and can be read
+    // concurrently when it's not blocked.
+    queue = dispatch_queue_create("com.google.GULNetworkURLSession.FetcherMap",
+                                  DISPATCH_QUEUE_CONCURRENT);
+  });
+  return queue;
 }
 
-- (nullable GULNetworkURLSession *)sessionFromFetcherMapForSessionID:(NSString *)sessionID {
-  return [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
+- (void)setSessionInFetcherMap:(GULNetworkURLSession *)session forSessionID:(NSString *)sessionID {
+  if (sessionID == nil) {
+    NSString *message = @"Failed to set the session in the fetcher map - sessionID was nil.";
+    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelDebug
+                                 messageCode:kGULNetworkMessageCodeURLSession020
+                                     message:message];
+    return;
+  }
+
+  // The fetcher map is being modified, wrap it in a dispatch_barrier_sync in order to block any
+  // calls that read from it temporarily.
+  __weak GULNetworkURLSession *weakSelf = self;
+  dispatch_barrier_sync([[self class] fetcherMapDispatchQueue], ^{
+    NSMapTable<NSString *, GULNetworkURLSession *> *fetcherMap =
+        [[self class] sessionIDToFetcherMap];
+    GULNetworkURLSession *existingSession = [fetcherMap objectForKey:sessionID];
+    if (existingSession) {
+      // Invalidating doesn't seem like the right thing to do here since it may cancel an active
+      // background transfer if the background session is handling multiple requests. The old
+      // session will be dropped from the map table, but still complete its request.
+      NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
+      [weakSelf.loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
+                                           messageCode:kGULNetworkMessageCodeURLSession019
+                                               message:message];
+    }
+    if (session) {
+      [fetcherMap setObject:session forKey:sessionID];
+    } else {
+      [fetcherMap removeObjectForKey:sessionID];
+    }
+  });
 }
 
 - (void)callCompletionHandler:(GULNetworkURLSessionCompletionHandler)handler
