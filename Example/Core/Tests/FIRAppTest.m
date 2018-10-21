@@ -690,8 +690,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSent {
-  [FIRApp configure];
-
   // Add an observer for the diagnostics notification - both with and without an object to ensure it
   // catches it either way. Currently no object is sent, but in the future that could change.
   [self.notificationCenter addMockObserver:self.observerMock
@@ -707,8 +705,33 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
 
+  // Ensure configure doesn't fire a notification.
+  [FIRApp configure];
+
   NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
   [[FIRApp defaultApp] sendLogsWithServiceName:@"Service" version:@"Version" error:error];
+
+  // The observer mock is strict and will raise an exception when an unexpected notification is
+  // received.
+  OCMVerifyAll(self.observerMock);
+}
+
+- (void)testGlobalDataCollectionNoDiagnosticsSentForNoOptions {
+  // Add an observer for the diagnostics notification - both with and without an object to ensure it
+  // catches it either way. Currently no object is sent, but in the future that could change.
+  [self.notificationCenter addMockObserver:self.observerMock
+                                      name:kFIRAppDiagnosticsNotification
+                                    object:nil];
+  [self.notificationCenter addMockObserver:self.observerMock
+                                      name:kFIRAppDiagnosticsNotification
+                                    object:OCMOCK_ANY];
+
+  OCMStub([self.appClassMock isDataCollectionDefaultEnabled]).andReturn(@NO);
+
+  // Ensure there is no FIROptions instance, and call configure which should throw an exception and
+  // attempt to log a diagnostics notification.
+  self.optionsInstanceMock = nil;
+  XCTAssertThrows([FIRApp configure]);
 
   // The observer mock is strict and will raise an exception when an unexpected notification is
   // received.
