@@ -25,6 +25,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -50,6 +51,27 @@ const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
+}
+
+grpc::SslCredentialsOptions LoadCertificate(const std::string& path) {
+  std::ifstream certificate_file{path};
+  HARD_ASSERT(
+      certificate_file.good(),
+      StringFormat("Unable to open root certificates at file path %s", path)
+          .c_str());
+
+  std::stringstream buffer;
+  buffer << certificate_file.rdbuf();
+  std::string certificate = buffer.str();
+  // Certificate may contain non-ASCII characters in comments. Replacing them is
+  // faster than removing them.
+  std::replace_if(certificate.begin(), certificate.end(), [](char c) {
+      return c < 0 || c >= 128;
+      }, '?');
+
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = certificate;
+  return options;
 }
 
 }  // namespace
@@ -123,8 +145,10 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
   if (!HasSpecialConfig(host)) {
-    return grpc::CreateChannel(
-        host, grpc::SslCredentials(grpc::SslCredentialsOptions()));
+    std::string root_certificate_path = GetGrpcRootCertificatePath();
+    grpc::SslCredentialsOptions ssl_options =
+        LoadCertificate(root_certificate_path);
+    return grpc::CreateChannel(host, grpc::SslCredentials(ssl_options));
   }
 
   const HostConfig& host_config = (*config_by_host_)[host];
@@ -135,17 +159,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   }
 
   // For tests only
-
-  std::ifstream cert_file{host_config.certificate_path};
-  HARD_ASSERT(cert_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           host_config.certificate_path)
-                  .c_str());
-  std::stringstream cert_buffer;
-  cert_buffer << cert_file.rdbuf();
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = cert_buffer.str();
-
+  grpc::SslCredentialsOptions options =
+      LoadCertificate(host_config.certificate_path);
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config.target_name);
   return grpc::CreateCustomChannel(host, grpc::SslCredentials(options), args);
