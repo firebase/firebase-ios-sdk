@@ -74,8 +74,8 @@
     }
 
     [fetcher setResumeDataBlock:^(NSData *data) {
-      if (data) {
-        FIRStorageDownloadTask *strong = weakSelf;
+      FIRStorageDownloadTask *strong = weakSelf;
+      if (strong && data) {
         strong->_downloadData = data;
       }
     }];
