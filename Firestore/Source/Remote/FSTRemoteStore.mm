@@ -51,6 +51,8 @@ using firebase::firestore::model::OnlineState;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -108,8 +110,8 @@ static const int kMaxPendingWrites = 10;
 @end
 
 @implementation FSTRemoteStore {
-  std::shared_ptr<firebase::firestore::remote::WatchStream> _watchStream;
-  std::shared_ptr<firebase::firestore::remote::WriteStream> _writeStream;
+  std::shared_ptr<WatchStream> _watchStream;
+  std::shared_ptr<WriteStream> _writeStream;
   BOOL _isNetworkEnabled;
 }
 
