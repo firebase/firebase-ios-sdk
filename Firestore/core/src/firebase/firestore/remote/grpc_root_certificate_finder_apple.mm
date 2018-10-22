@@ -31,10 +31,10 @@ std::string GetGrpcRootCertificatePath() {
   // TODO(varconst): uncomment these lines once it's possible to load the
   // certificate from gRPC-C++ pod.
   // NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
-  // HARD_ASSERT(bundle, "Could not grpcpp bundle");
+  // HARD_ASSERT(bundle, "Could not find grpcpp bundle");
 
   NSBundle* bundle = [NSBundle bundleForClass:FSTFirestoreClient.class];
-  HARD_ASSERT(bundle, "Could not Firestore bundle");
+  HARD_ASSERT(bundle, "Could not find Firestore bundle");
   NSString* path =
       [bundle pathForResource:@"gRPCCertificates.bundle/roots" ofType:@"pem"];
   HARD_ASSERT(
