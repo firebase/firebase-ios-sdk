@@ -159,9 +159,9 @@ static FIRFirestoreSettings *defaultSettings;
          "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
-  // GrpcConnection::UseTestCertificate(
-  //    util::MakeString(defaultSettings.host),
-  //    util::MakeString(certsPath), "test_cert_2");
+  GrpcConnection::UseTestCertificate(
+     util::MakeString(defaultSettings.host),
+     util::MakeString(certsPath), "test_cert_2");
 }
 
 + (NSString *)projectID {
