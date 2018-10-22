@@ -16,6 +16,8 @@
 
 #include "Firestore/core/test/firebase/firestore/util/grpc_stream_tester.h"
 
+#include <map>
+#include <queue>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -238,6 +240,45 @@ void GrpcStreamTester::ForceFinish(grpc::ClientContext* context,
   context->TryCancel();
   fake_grpc_queue_.ExtractCompletions(callback);
   worker_queue_->EnqueueBlocking([] {});
+}
+
+void GrpcStreamTester::ForceFinishAnyTypeOrder(
+    grpc::ClientContext* context,
+    std::initializer_list<CompletionEndState> results) {
+  // gRPC allows calling `TryCancel` more than once.
+  context->TryCancel();
+  fake_grpc_queue_.ExtractCompletions(CreateAnyTypeOrderCallback(results));
+  worker_queue_->EnqueueBlocking([] {});
+}
+
+GrpcStreamTester::CompletionCallback
+GrpcStreamTester::CreateAnyTypeOrderCallback(
+    std::initializer_list<CompletionEndState> results) {
+  std::map<GrpcCompletion::Type, std::queue<CompletionEndState>> end_states;
+  for (auto result : results) {
+    end_states[result.type()].push(result);
+  }
+
+  return [end_states](GrpcCompletion* completion) mutable {
+    std::queue<CompletionEndState>& end_states_for_type =
+        end_states[completion->type()];
+    HARD_ASSERT(!end_states_for_type.empty(),
+                "Missing end state for completion of type '%s'",
+                completion->type());
+
+    CompletionEndState end_state = end_states_for_type.front();
+    end_states_for_type.pop();
+    end_state.Apply(completion);
+
+    for (const auto& kv : end_states) {
+      if (!kv.second.empty()) {
+        return false;
+      }
+    }
+
+    // All end states have been applied
+    return true;
+  };
 }
 
 void GrpcStreamTester::KeepPollingGrpcQueue() {

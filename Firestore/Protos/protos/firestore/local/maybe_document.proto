@@ -1,3 +1,17 @@
+// Copyright 2018 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 syntax = "proto3";
 
 package firestore.client;
@@ -20,8 +34,20 @@ message NoDocument {
   google.protobuf.Timestamp read_time = 2;
 }
 
-// Represents either an existing document or the explicitly known absence of a
-// document.
+// A message indicating that the document that is known to exist but its data
+// is unknown.
+message UnknownDocument {
+  // The name of the document that is known to exist, in the standard format:
+  // `projects/{project_id}/databases/{database_id}/documents/{document_path}`
+  string name = 1;
+
+  // The version at which we know the document exists.
+  google.protobuf.Timestamp version = 2;
+}
+
+// Represents either an existing document, the explicitly known absence of a
+// document, or a document that is known to exist (at some version) but whose
+// contents are unknown.
 message MaybeDocument {
   oneof document_type {
     // Used if the document is known to not exist.
@@ -29,5 +55,14 @@ message MaybeDocument {
 
     // The document (if it exists).
     google.firestore.v1beta1.Document document = 2;
+
+    // Used if the document is known to exist but its data is unknown.
+    UnknownDocument unknown_document = 3;
   }
+
+  // `has_committed_mutations` marks documents that were written to the remote
+  // document store based on a write acknowledgment. These documents are
+  // potentially inconsistent with the backend's copy and use the write's
+  // commit version as their document version.
+  bool has_committed_mutations = 4;
 }

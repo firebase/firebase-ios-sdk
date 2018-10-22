@@ -18,6 +18,8 @@
 #define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_CONNECTION_H_
 
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
@@ -28,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -80,7 +83,31 @@ class GrpcConnection {
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
 
+  /**
+   * Don't use SSL, send all traffic unencrypted. Call before creating any
+   * streams or calls.
+   */
+  static void UseInsecureChannel(const std::string& host);
+
+  /**
+   * For tests only: use a custom root certificate file and the given SSL
+   * target name for all connections. Call before creating any streams or calls.
+   */
+  static void UseTestCertificate(const std::string& host,
+                                 const util::Path& certificate_path,
+                                 const std::string& target_name);
+
  private:
+  static bool HasSpecialConfig(const std::string& host);
+
+  struct HostConfig {
+    util::Path certificate_path;
+    std::string target_name;
+    bool use_insecure_channel = false;
+  };
+  using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+  static ConfigByHost* config_by_host_;
+
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;

@@ -17,6 +17,8 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -24,6 +26,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -37,6 +40,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::Path;
 using util::Status;
 using util::StringFormat;
 
@@ -49,7 +53,40 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
+std::string LoadCertificate(const Path& path) {
+  std::ifstream certificate_file{path.native_value()};
+  HARD_ASSERT(certificate_file.good(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+
+  std::stringstream buffer;
+  buffer << certificate_file.rdbuf();
+  std::string certificate = buffer.str();
+  // Certificate is in UTF-8 and may contain non-ASCII characters in comments,
+  // which may not be supported by gRPC. Replacing them is faster than removing
+  // them (the file is expected to be ~260KB).
+  std::replace_if(certificate.begin(), certificate.end(),
+                  [](char c) {
+                    // char may or may not be unsigned, convert it to unsigned
+                    // to be sure about what constitutes valid ASCII range.
+                    return static_cast<unsigned char>(c) >= 128;
+                  },
+                  '?');
+
+  return certificate;
+}
+
+std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
+    const Path& certificate_path) {
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = LoadCertificate(certificate_path);
+  return grpc::SslCredentials(options);
+}
+
 }  // namespace
+
+GrpcConnection::ConfigByHost* GrpcConnection::config_by_host_ = nullptr;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -114,9 +151,26 @@ void GrpcConnection::EnsureActiveStub() {
 }
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  return grpc::CreateChannel(
-      database_info_->host(),
-      grpc::SslCredentials(grpc::SslCredentialsOptions()));
+  const std::string& host = database_info_->host();
+
+  if (!HasSpecialConfig(host)) {
+    Path root_certificate_path = FindGrpcRootCertificate();
+    return grpc::CreateChannel(host,
+                               CreateSslCredentials(root_certificate_path));
+  }
+
+  const HostConfig& host_config = (*config_by_host_)[host];
+
+  // For the case when `Settings.sslEnabled == false`.
+  if (host_config.use_insecure_channel) {
+    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
+  }
+
+  // For tests only
+  grpc::ChannelArguments args;
+  args.SetSslTargetNameOverride(host_config.target_name);
+  return grpc::CreateCustomChannel(
+      host, CreateSslCredentials(host_config.certificate_path), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -180,6 +234,44 @@ void GrpcConnection::Unregister(GrpcCall* call) {
   HARD_ASSERT(found != active_calls_.end(), "Missing a gRPC call");
   active_calls_.erase(found);
   TestFunc(10);
+}
+
+/*static*/ void GrpcConnection::UseTestCertificate(
+    const std::string& host,
+    const Path& certificate_path,
+    const std::string& target_name) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
+  HARD_ASSERT(!certificate_path.native_value().empty(),
+              "Empty path to test certificate");
+  HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
+
+  if (!config_by_host_) {
+    // Deliberately never deleted.
+    config_by_host_ = new ConfigByHost{};
+  }
+
+  HostConfig& host_config = (*config_by_host_)[host];
+  host_config.certificate_path = certificate_path;
+  host_config.target_name = target_name;
+}
+
+/*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
+  HARD_ASSERT(!host.empty(), "Empty host name");
+
+  if (!config_by_host_) {
+    // Deliberately never deleted.
+    config_by_host_ = new ConfigByHost{};
+  }
+
+  HostConfig& test_config = (*config_by_host_)[host];
+  test_config.use_insecure_channel = true;
+}
+
+/*static*/ bool GrpcConnection::HasSpecialConfig(const std::string& host) {
+  if (!config_by_host_) {
+    return false;
+  }
+  return config_by_host_->find(host) != config_by_host_->end();
 }
 
 }  // namespace remote

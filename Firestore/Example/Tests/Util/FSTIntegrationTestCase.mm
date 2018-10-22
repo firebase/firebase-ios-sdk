@@ -27,8 +27,6 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
-#import <GRPCClient/GRPCCall+ChannelArg.h>
-#import <GRPCClient/GRPCCall+Tests.h>
 
 #include <memory>
 #include <string>
@@ -36,6 +34,7 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 #include "Firestore/core/src/firebase/firestore/util/autoid.h"
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/path.h"
@@ -57,6 +56,7 @@ using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
+using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::util::CreateAutoId;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
@@ -96,10 +96,6 @@ static FIRFirestoreSettings *defaultSettings;
       [self shutdownFirestore:firestore];
     }
   } @finally {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [GRPCCall closeOpenConnections];
-#pragma clang diagnostic pop
     _firestores = nil;
     [super tearDown];
   }
@@ -163,7 +159,8 @@ static FIRFirestoreSettings *defaultSettings;
          "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
-  [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
+  GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
+                                     Path::FromNSString(certsPath), "test_cert_2");
 }
 
 + (NSString *)projectID {

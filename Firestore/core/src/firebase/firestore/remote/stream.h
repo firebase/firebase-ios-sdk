@@ -129,7 +129,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When start returns, `IsStarted` will return true.
    */
-  void Start();
+  virtual /*only virtual for tests*/ void Start();
 
   /**
    * Stops the stream. This call is idempotent and allowed regardless of the
@@ -137,7 +137,7 @@ class Stream : public GrpcStreamObserver,
    *
    * When stop returns, `IsStarted` and `IsOpen` will both return false.
    */
-  void Stop();
+  virtual /*only virtual for tests*/ void Stop();
 
   /**
    * Returns true if `Start` has been called and no error has occurred. True
@@ -146,13 +146,13 @@ class Stream : public GrpcStreamObserver,
    * actual stream). Use `IsOpen` to determine if the stream is open and ready
    * for outbound requests.
    */
-  bool IsStarted() const;
+  virtual /*only virtual for tests*/ bool IsStarted() const;
 
   /**
    * Returns true if the underlying stream is open (`OnStreamStart` has been
    * called) and the stream is ready for outbound requests.
    */
-  bool IsOpen() const;
+  virtual /*only virtual for tests*/ bool IsOpen() const;
 
   /**
    * After an error, the stream will usually back off on the next attempt to

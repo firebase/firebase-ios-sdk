@@ -111,9 +111,6 @@ endfunction()
 #
 # Libprotobuf Objective-C also includes the well-known protos so they must be
 # omitted here.
-#
-# The Objective-C client also uses the generated gRPC stubs for the Firestore
-# service.
 set(
   PROTOBUF_OBJC_GENERATED_SOURCES
   ${OUTPUT_DIR}/objc/google/firestore/v1beta1/Firestore.pbrpc.h
@@ -284,12 +281,10 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
       --objc
       --protoc=$<TARGET_FILE:protoc>
-      --protoc_gen_grpc=$<TARGET_FILE:grpc_objective_c_plugin>
       --output_dir=${OUTPUT_DIR}
       ${PROTO_INCLUDES}
   VERBATIM
   DEPENDS
-    grpc_objective_c_plugin
     protoc
     ${CMAKE_CURRENT_SOURCE_DIR}/build_protos.py
     ${PROTO_FILES}

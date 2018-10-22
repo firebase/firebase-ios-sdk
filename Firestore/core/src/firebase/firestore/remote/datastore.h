@@ -72,6 +72,11 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
             auth::CredentialsProvider* credentials,
             FSTSerializerBeta* serializer);
 
+  virtual ~Datastore() {
+  }
+
+  /** Starts polling the gRPC completion queue. */
+  void Start();
   /** Cancels any pending gRPC calls and drains the gRPC completion queue. */
   void Shutdown();
 
@@ -100,6 +105,16 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   Datastore(Datastore&& other) = delete;
   Datastore& operator=(const Datastore& other) = delete;
   Datastore& operator=(Datastore&& other) = delete;
+
+ protected:
+  /** Test-only method */
+  grpc::CompletionQueue* grpc_queue() {
+    return &grpc_queue_;
+  }
+  /** Test-only method */
+  GrpcCall* LastCall() {
+    return !active_calls_.empty() ? active_calls_.back().get() : nullptr;
+  }
 
  private:
   void PollGrpcQueue();
