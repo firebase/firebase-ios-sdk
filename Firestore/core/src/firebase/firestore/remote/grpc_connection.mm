@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
