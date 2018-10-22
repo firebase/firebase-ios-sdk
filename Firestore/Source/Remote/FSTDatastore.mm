@@ -48,6 +48,10 @@ using firebase::firestore::auth::Token;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DocumentKey;
 using firebase::firestore::model::DatabaseId;
+using firebase::firestore::remote::Datastore;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -71,11 +75,6 @@ NSString *const kGRPCErrorDomain = @"io.grpc";
 @property(nonatomic, strong, readonly) FSTSerializerBeta *serializer;
 
 @end
-
-using firebase::firestore::remote::Datastore;
-using firebase::firestore::remote::GrpcConnection;
-using firebase::firestore::remote::WatchStream;
-using firebase::firestore::remote::WriteStream;
 
 @implementation FSTDatastore {
   std::shared_ptr<Datastore> _datastore;

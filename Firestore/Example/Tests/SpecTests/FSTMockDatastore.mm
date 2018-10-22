@@ -39,6 +39,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/completion_queue.h"
 
@@ -58,16 +59,6 @@ namespace remote {
 
 using model::TargetId;
 using util::AsyncQueue;
-
-namespace {
-
-class MockConnectivityMonitor : public ConnectivityMonitor {
- public:
-  MockConnectivityMonitor() : ConnectivityMonitor{nullptr} {
-  }
-};
-
-}  // namespace
 
 class MockWatchStream : public WatchStream {
  public:
@@ -179,7 +170,7 @@ class MockWriteStream : public WriteStream {
     sent_mutations_ = {};
     [delegate_ writeStreamDidOpen];
   }
-  
+
   void Stop() override {
     datastore_.writeStreamRequestCount += 1;
     WriteStream::Stop();
@@ -248,6 +239,13 @@ class MockWriteStream : public WriteStream {
 }  // namespace firestore
 }  // namespace firebase
 
+using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::MockWatchStream;
+using firebase::firestore::remote::MockWriteStream;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
+
 @interface FSTMockDatastore ()
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
@@ -257,12 +255,12 @@ class MockWriteStream : public WriteStream {
 @end
 
 @implementation FSTMockDatastore {
-  std::shared_ptr<firebase::firestore::remote::MockWatchStream> _watchStream;
-  std::shared_ptr<firebase::firestore::remote::MockWriteStream> _writeStream;
+  std::shared_ptr<MockWatchStream> _watchStream;
+  std::shared_ptr<MockWriteStream> _writeStream;
 
-  std::unique_ptr<firebase::firestore::remote::MockConnectivityMonitor> _connectivityMonitor;
+  std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
   grpc::CompletionQueue _grpcQueue;
-  std::unique_ptr<firebase::firestore::remote::GrpcConnection> _grpcConnection;
+  std::unique_ptr<GrpcConnection> _grpcConnection;
 }
 
 #pragma mark - Overridden FSTDatastore methods.
@@ -275,18 +273,17 @@ class MockWriteStream : public WriteStream {
                              credentials:credentials]) {
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
-    _connectivityMonitor =
-        absl::make_unique<firebase::firestore::remote::MockConnectivityMonitor>();
-    _grpcConnection = absl::make_unique<firebase::firestore::remote::GrpcConnection>(
+    _connectivityMonitor = CreateNoOpConnectivityMonitor();
+    _grpcConnection = absl::make_unique<GrpcConnection>(
         *databaseInfo, [workerDispatchQueue implementation], &_grpcQueue,
         _connectivityMonitor.get());
   }
   return self;
 }
 
-- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:
+- (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:
     (id<FSTWatchStreamDelegate>)delegate {
-  _watchStream = std::make_shared<firebase::firestore::remote::MockWatchStream>(
+  _watchStream = std::make_shared<MockWatchStream>(
       [self.workerDispatchQueue implementation], self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
       _grpcConnection.get(), delegate, self);
@@ -294,9 +291,9 @@ class MockWriteStream : public WriteStream {
   return _watchStream;
 }
 
-- (std::shared_ptr<firebase::firestore::remote::WriteStream>)createWriteStreamWithDelegate:
+- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:
     (id<FSTWriteStreamDelegate>)delegate {
-  _writeStream = std::make_shared<firebase::firestore::remote::MockWriteStream>(
+  _writeStream = std::make_shared<MockWriteStream>(
       [self.workerDispatchQueue implementation], self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
       _grpcConnection.get(), delegate, self);
