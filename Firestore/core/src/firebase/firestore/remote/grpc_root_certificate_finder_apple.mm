@@ -27,7 +27,7 @@ namespace remote {
 
 using util::Path;
 
-Path FindGrpcRootCertificatePath() {
+Path FindGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the
   // certificate from gRPC-C++ pod.
   // NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];

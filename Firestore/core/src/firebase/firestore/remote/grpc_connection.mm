@@ -156,7 +156,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
   if (!HasSpecialConfig(host)) {
-    Path root_certificate_path = FindGrpcRootCertificatePath();
+    Path root_certificate_path = FindGrpcRootCertificate();
     return grpc::CreateChannel(host,
                                CreateSslCredentials(root_certificate_path));
   }
