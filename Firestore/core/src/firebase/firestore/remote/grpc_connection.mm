@@ -63,8 +63,9 @@ grpc::SslCredentialsOptions LoadCertificate(const std::string& path) {
   std::stringstream buffer;
   buffer << certificate_file.rdbuf();
   std::string certificate = buffer.str();
-  // Certificate may contain non-ASCII characters in comments. Replacing them is
-  // faster than removing them (the file is expected to be ~260KB).
+  // Certificate is in UTF8 and may contain non-ASCII characters in comments,
+  // which may not be supported by gRPC. Replacing them is faster than removing
+  // them (the file is expected to be ~260KB).
   std::replace_if(certificate.begin(), certificate.end(),
                   [](char c) {
                     // char may or may not be unsigned, convert it to unsigned
