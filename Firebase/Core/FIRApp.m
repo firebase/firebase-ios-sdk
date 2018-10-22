@@ -280,15 +280,6 @@ static NSMutableDictionary *sLibraryVersions;
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
-    if ([app isDataCollectionDefaultEnabled]) {
-      [[NSNotificationCenter defaultCenter]
-          postNotificationName:kFIRAppDiagnosticsNotification
-                        object:nil
-                      userInfo:@{
-                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                        kFIRAppDiagnosticsFIRAppKey : app
-                      }];
-    }
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
                 format:
@@ -335,6 +326,16 @@ static NSMutableDictionary *sLibraryVersions;
                       }];
     }
     return NO;
+  }
+
+  if ([self isDataCollectionDefaultEnabled]) {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsFIRAppKey : self
+                    }];
   }
 
 #if TARGET_OS_IOS

@@ -717,11 +717,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSentForNoOptions {
-  // Add an observer for the diagnostics notification - both with and without an object to ensure it
-  // catches it either way. Currently no object is sent, but in the future that could change.
-  [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppDiagnosticsNotification
-                                    object:nil];
+  // Add an observer for the diagnostics notification. Currently no object is sent, but in the
+  // future that could change.
   [self.notificationCenter addMockObserver:self.observerMock
                                       name:kFIRAppDiagnosticsNotification
                                     object:OCMOCK_ANY];
