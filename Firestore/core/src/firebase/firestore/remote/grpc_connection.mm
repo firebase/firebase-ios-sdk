@@ -65,11 +65,13 @@ grpc::SslCredentialsOptions LoadCertificate(const std::string& path) {
   std::string certificate = buffer.str();
   // Certificate may contain non-ASCII characters in comments. Replacing them is
   // faster than removing them (the file is expected to be ~260KB).
-  std::replace_if(certificate.begin(), certificate.end(), [](char c) {
-      // char may or may not be unsigned, convert it to unsigned to be sure
-      // about what constitutes valid ASCII range.
-      return static_cast<unsigned char>(c) >= 128;
-      }, '?');
+  std::replace_if(certificate.begin(), certificate.end(),
+                  [](char c) {
+                    // char may or may not be unsigned, convert it to unsigned
+                    // to be sure about what constitutes valid ASCII range.
+                    return static_cast<unsigned char>(c) >= 128;
+                  },
+                  '?');
 
   grpc::SslCredentialsOptions options;
   options.pem_root_certs = certificate;

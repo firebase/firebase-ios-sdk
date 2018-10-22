@@ -274,15 +274,14 @@ using firebase::firestore::remote::WriteStream;
     _workerDispatchQueue = workerDispatchQueue;
     _credentials = credentials;
     _connectivityMonitor = CreateNoOpConnectivityMonitor();
-    _grpcConnection = absl::make_unique<GrpcConnection>(
-        *databaseInfo, [workerDispatchQueue implementation], &_grpcQueue,
-        _connectivityMonitor.get());
+    _grpcConnection =
+        absl::make_unique<GrpcConnection>(*databaseInfo, [workerDispatchQueue implementation],
+                                          &_grpcQueue, _connectivityMonitor.get());
   }
   return self;
 }
 
-- (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:
-    (id<FSTWatchStreamDelegate>)delegate {
+- (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
   _watchStream = std::make_shared<MockWatchStream>(
       [self.workerDispatchQueue implementation], self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
@@ -291,8 +290,7 @@ using firebase::firestore::remote::WriteStream;
   return _watchStream;
 }
 
-- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:
-    (id<FSTWriteStreamDelegate>)delegate {
+- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
   _writeStream = std::make_shared<MockWriteStream>(
       [self.workerDispatchQueue implementation], self.credentials,
       [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
