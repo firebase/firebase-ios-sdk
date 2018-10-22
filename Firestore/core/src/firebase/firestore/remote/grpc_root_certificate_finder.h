@@ -19,11 +19,18 @@
 
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/path.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-std::string GetGrpcRootCertificatePath();
+/**
+ * Finds the file containing gRPC root certificates (`roots.pem`, must be among
+ * resources accessible by Firestore) and returns its path. Will trigger
+ * assertion failure if the file cannot be found.
+ */
+util::Path FindGrpcRootCertificatePath();
 
 }  // namespace remote
 }  // namespace firestore

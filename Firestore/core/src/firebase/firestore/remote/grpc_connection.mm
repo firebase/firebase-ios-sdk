@@ -16,7 +16,6 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
-#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -41,6 +40,7 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
+using util::Path;
 using util::Status;
 using util::StringFormat;
 
@@ -53,12 +53,12 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-grpc::SslCredentialsOptions LoadCertificate(const std::string& path) {
-  std::ifstream certificate_file{path};
-  HARD_ASSERT(
-      certificate_file.good(),
-      StringFormat("Unable to open root certificates at file path %s", path)
-          .c_str());
+std::string LoadCertificate(const Path& path) {
+  std::ifstream certificate_file{path.native_value()};
+  HARD_ASSERT(certificate_file.good(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
 
   std::stringstream buffer;
   buffer << certificate_file.rdbuf();
@@ -74,9 +74,14 @@ grpc::SslCredentialsOptions LoadCertificate(const std::string& path) {
                   },
                   '?');
 
+  return certificate;
+}
+
+std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
+    const Path& certificate_path) {
   grpc::SslCredentialsOptions options;
-  options.pem_root_certs = certificate;
-  return options;
+  options.pem_root_certs = LoadCertificate(certificate_path);
+  return grpc::SslCredentials(options);
 }
 
 }  // namespace
@@ -150,10 +155,9 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
   if (!HasSpecialConfig(host)) {
-    std::string root_certificate_path = GetGrpcRootCertificatePath();
-    grpc::SslCredentialsOptions ssl_options =
-        LoadCertificate(root_certificate_path);
-    return grpc::CreateChannel(host, grpc::SslCredentials(ssl_options));
+    Path root_certificate_path = FindGrpcRootCertificatePath();
+    return grpc::CreateChannel(host,
+                               CreateSslCredentials(root_certificate_path));
   }
 
   const HostConfig& host_config = (*config_by_host_)[host];
@@ -164,11 +168,10 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   }
 
   // For tests only
-  grpc::SslCredentialsOptions options =
-      LoadCertificate(host_config.certificate_path);
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config.target_name);
-  return grpc::CreateCustomChannel(host, grpc::SslCredentials(options), args);
+  return grpc::CreateCustomChannel(
+      host, CreateSslCredentials(host_config.certificate_path), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -235,10 +238,11 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 
 /*static*/ void GrpcConnection::UseTestCertificate(
     const std::string& host,
-    const std::string& certificate_path,
+    const Path& certificate_path,
     const std::string& target_name) {
   HARD_ASSERT(!host.empty(), "Empty host name");
-  HARD_ASSERT(!certificate_path.empty(), "Empty path to test certificate");
+  HARD_ASSERT(!certificate_path.native_value().empty(),
+              "Empty path to test certificate");
   HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
 
   if (!config_by_host_) {

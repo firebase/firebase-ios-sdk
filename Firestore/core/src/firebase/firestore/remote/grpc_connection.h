@@ -30,6 +30,7 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_unary_call.h"
+#include "Firestore/core/src/firebase/firestore/util/path.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
@@ -91,14 +92,14 @@ class GrpcConnection {
    * target name for all connections. Call before creating any streams or calls.
    */
   static void UseTestCertificate(const std::string& host,
-                                 const std::string& certificate_path,
+                                 const util::Path& certificate_path,
                                  const std::string& target_name);
 
  private:
   static bool HasSpecialConfig(const std::string& host);
 
   struct HostConfig {
-    std::string certificate_path;
+    util::Path certificate_path;
     std::string target_name;
     bool use_insecure_channel = false;
   };
