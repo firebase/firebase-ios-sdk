@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherServiceForApp;
 
+@property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
+
 @property(strong, nonatomic) NSString *storageBucket;
 
 /**
