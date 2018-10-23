@@ -63,19 +63,7 @@ std::string LoadCertificate(const Path& path) {
 
   std::stringstream buffer;
   buffer << certificate_file.rdbuf();
-  std::string certificate = buffer.str();
-  // Certificate is in UTF-8 and may contain non-ASCII characters in comments,
-  // which may not be supported by gRPC. Replacing them is faster than removing
-  // them (the file is expected to be ~260KB).
-  std::replace_if(certificate.begin(), certificate.end(),
-                  [](char c) {
-                    // char may or may not be unsigned, convert it to unsigned
-                    // to be sure about what constitutes valid ASCII range.
-                    return static_cast<unsigned char>(c) >= 128;
-                  },
-                  '?');
-
-  return certificate;
+  return buffer.str();
 }
 
 std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
