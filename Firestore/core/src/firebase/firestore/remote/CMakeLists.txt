@@ -64,6 +64,23 @@ cc_library(
     grpc_util.cc
     serializer.h
     serializer.cc
+
+    # TODO(varconst): add these files once they're no longer dependent on
+    # Objective-C.
+    # datastore.h
+    # datastore.mm
+    # remote_objc_bridge.h
+    # remote_objc_bridge.mm
+    # stream.h
+    # stream.mm
+    # watch_stream.h
+    # watch_stream.mm
+    # write_stream.h
+    # write_stream.mm
+
+    grpc_root_certificate_finder.h
+    grpc_root_certificate_finder_apple.mm
+
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb
