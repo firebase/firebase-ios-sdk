@@ -665,7 +665,6 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
 
   __block long resumeAtBytes = 256 * 1024;
   __block long downloadedBytes = 0;
-  __block double computationResult = 0;
 
   FIRStorageDownloadTask *task = [ref writeToFile:fileURL];
 

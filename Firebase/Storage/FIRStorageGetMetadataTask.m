@@ -48,7 +48,7 @@
   __weak FIRStorageGetMetadataTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-      FIRStorageGetMetadataTask* strongSelf = weakSelf;
+    FIRStorageGetMetadataTask *strongSelf = weakSelf;
 
     if (!strongSelf) {
       return;

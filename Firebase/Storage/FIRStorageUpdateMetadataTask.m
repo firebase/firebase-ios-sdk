@@ -48,7 +48,7 @@
   __weak FIRStorageUpdateMetadataTask *weakSelf = self;
 
   [self dispatchAsync:^() {
-      FIRStorageUpdateMetadataTask* strongSelf = weakSelf;
+    FIRStorageUpdateMetadataTask *strongSelf = weakSelf;
 
     if (!strongSelf) {
       return;

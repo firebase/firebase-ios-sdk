@@ -26,6 +26,12 @@
 
 @implementation FIRStorageTask
 
+- (instancetype)init {
+  @throw [NSException exceptionWithName:@"Attempt to call unavailable initializer."
+                                 reason:@"init unavailable, use designated initializer"
+                               userInfo:nil];
+}
+
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
                     dispatchQueue:(dispatch_queue_t)queue {
