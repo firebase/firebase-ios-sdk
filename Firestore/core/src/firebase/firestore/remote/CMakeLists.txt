@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#target_include_directories(grpc SYSTEM PUBLIC ${external_src_dir}/grpc/include)
 cc_library(
   firebase_firestore_remote_connectivity_monitor_apple
   SOURCES
@@ -74,6 +73,6 @@ cc_library(
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
-  SYSTEM_DEPENDS
+  EXTERNAL_DEPENDS
     grpc
 )

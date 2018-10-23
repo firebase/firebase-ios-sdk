@@ -18,6 +18,7 @@ include(CMakeParseArguments)
 #   target
 #   SOURCES sources...
 #   DEPENDS libraries...
+#   [EXTERNAL_DEPENDS external libraries...]
 #   [EXCLUDE_FROM_ALL]
 # )
 #
@@ -25,7 +26,7 @@ include(CMakeParseArguments)
 # dependencies.
 function(cc_library name)
   set(flag EXCLUDE_FROM_ALL)
-  set(multi DEPENDS SOURCES)
+  set(multi DEPENDS SOURCES EXTERNAL_DEPENDS)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
   maybe_remove_objc_sources(sources ${ccl_SOURCES})
@@ -33,7 +34,6 @@ function(cc_library name)
   add_objc_flags(${name} ccl)
   target_include_directories(
     ${name}
-    SYSTEM
     PUBLIC
     # Put the binary dir first so that the generated config.h trumps any one
     # generated statically by a Cocoapods-based build in the same source tree.
@@ -42,7 +42,13 @@ function(cc_library name)
   )
 
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
-  target_include_directories(grpc SYSTEM PUBLIC ${external_src_dir}/grpc/include)
+
+  if(DEFINED ccl_EXTERNAL_DEPENDS)
+    target_link_libraries(${name} PUBLIC ${ccl_EXTERNAL_DEPENDS})
+
+    get_target_property(external_includes ${ccl_EXTERNAL_DEPENDS} INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(${name} SYSTEM PUBLIC ${external_includes})
+  endif()
 
   if(ccl_EXCLUDE_FROM_ALL)
     set_property(
