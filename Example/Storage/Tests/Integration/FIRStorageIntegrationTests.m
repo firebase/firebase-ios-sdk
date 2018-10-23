@@ -198,6 +198,24 @@ NSTimeInterval kFIRStorageIntegrationTestTimeout = 30;
   [self waitForExpectations];
 }
 
+- (void)testUnauthenticatedSimplePutSpecialCharacter {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"testUnauthenticatedSimplePutDataEscapedName"];
+  FIRStorageReference *ref = [self.storage referenceWithPath:@"ios/public/-._~!$'()*,=:@&+;"];
+
+  NSData *data = [@"Hello World" dataUsingEncoding:NSUTF8StringEncoding];
+
+  [ref putData:data
+        metadata:nil
+      completion:^(FIRStorageMetadata *metadata, NSError *error) {
+        XCTAssertNotNil(metadata, "Metadata should not be nil");
+        XCTAssertNil(error, "Error should be nil");
+        [expectation fulfill];
+      }];
+
+  [self waitForExpectations];
+}
+
 - (void)testUnauthenticatedSimplePutDataInBackgroundQueue {
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"testUnauthenticatedSimplePutDataInBackgroundQueue"];

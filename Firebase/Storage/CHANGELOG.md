@@ -1,5 +1,6 @@
 # 3.0.2
 - [changed] Storage operations can now be scheduled and controlled from any thread (#1302, #1388).
+- [fixed] Fixed an issue that prevented uploading of files whose names include semicolons.
 
 # v3.0.1
 - [fixed] Fixed potential `EXC_BAD_ACCESS` violation in the internal logic for processing finished downloads (#1565, #1747).
