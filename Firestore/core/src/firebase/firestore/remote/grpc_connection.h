@@ -45,8 +45,6 @@ namespace remote {
 // client. However, unlike Web client, it's not meant to hide different
 // implementations of a `Connection` under a single interface.
 
-void TestFunc(const int nothing) {}
-
 /**
  * Creates and owns gRPC objects (channel and stub) necessary to produce a
  * `GrpcStream`.
