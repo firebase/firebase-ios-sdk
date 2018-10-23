@@ -107,13 +107,19 @@ static NSMutableDictionary *sLibraryVersions;
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
-                    }];
+    // Read the Info.plist to see if the flag is set. At this point we can't check any user defaults
+    // since the app isn't configured at all, so only rely on the Info.plist value.
+    NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
+    if (!collectionEnabledPlistValue || [collectionEnabledPlistValue boolValue]) {
+      [[NSNotificationCenter defaultCenter]
+          postNotificationName:kFIRAppDiagnosticsNotification
+                        object:nil
+                      userInfo:@{
+                        kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                        kFIRAppDiagnosticsErrorKey : [FIRApp errorForMissingOptions]
+                      }];
+    }
+
     [NSException raise:kFirebaseCoreErrorDomain
                 format:
                     @"`[FIRApp configure];` (`FirebaseApp.configure()` in Swift) could not find "
@@ -274,13 +280,6 @@ static NSMutableDictionary *sLibraryVersions;
   }
   if ([app configureCore]) {
     sAllApps[app.name] = app;
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:kFIRAppDiagnosticsNotification
-                      object:nil
-                    userInfo:@{
-                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
-                      kFIRAppDiagnosticsFIRAppKey : app
-                    }];
   } else {
     [NSException raise:kFirebaseCoreErrorDomain
                 format:
@@ -317,7 +316,7 @@ static NSMutableDictionary *sLibraryVersions;
 - (BOOL)configureCore {
   [self checkExpectedBundleID];
   if (![self isAppIDValid]) {
-    if (_options.usingOptionsFromDefaultPlist) {
+    if (_options.usingOptionsFromDefaultPlist && [self isDataCollectionDefaultEnabled]) {
       [[NSNotificationCenter defaultCenter]
           postNotificationName:kFIRAppDiagnosticsNotification
                         object:nil
@@ -327,6 +326,16 @@ static NSMutableDictionary *sLibraryVersions;
                       }];
     }
     return NO;
+  }
+
+  if ([self isDataCollectionDefaultEnabled]) {
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:kFIRAppDiagnosticsNotification
+                      object:nil
+                    userInfo:@{
+                      kFIRAppDiagnosticsConfigurationTypeKey : @(FIRConfigTypeCore),
+                      kFIRAppDiagnosticsFIRAppKey : self
+                    }];
   }
 
 #if TARGET_OS_IOS

@@ -690,8 +690,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testGlobalDataCollectionNoDiagnosticsSent {
-  [FIRApp configure];
-
   // Add an observer for the diagnostics notification - both with and without an object to ensure it
   // catches it either way. Currently no object is sent, but in the future that could change.
   [self.notificationCenter addMockObserver:self.observerMock
@@ -706,6 +704,9 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // notification.
   OCMStub([self.appClassMock readDataCollectionSwitchFromUserDefaultsForApp:OCMOCK_ANY])
       .andReturn(@NO);
+
+  // Ensure configure doesn't fire a notification.
+  [FIRApp configure];
 
   NSError *error = [NSError errorWithDomain:@"com.firebase" code:42 userInfo:nil];
   [[FIRApp defaultApp] sendLogsWithServiceName:@"Service" version:@"Version" error:error];
