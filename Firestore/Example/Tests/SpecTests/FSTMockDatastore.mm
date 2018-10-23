@@ -48,6 +48,12 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
+using firebase::firestore::util::AsyncQueue;
 using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,9 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-using model::TargetId;
-using util::AsyncQueue;
 
 class MockWatchStream : public WatchStream {
  public:
@@ -240,12 +243,8 @@ class MockWriteStream : public WriteStream {
 }  // namespace firestore
 }  // namespace firebase
 
-using firebase::firestore::remote::ConnectivityMonitor;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::MockWatchStream;
 using firebase::firestore::remote::MockWriteStream;
-using firebase::firestore::remote::WatchStream;
-using firebase::firestore::remote::WriteStream;
 
 @interface FSTMockDatastore ()
 
