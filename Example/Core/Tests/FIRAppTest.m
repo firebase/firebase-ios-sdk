@@ -716,25 +716,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   OCMVerifyAll(self.observerMock);
 }
 
-- (void)testGlobalDataCollectionNoDiagnosticsSentForNoOptions {
-  // Add an observer for the diagnostics notification. Currently no object is sent, but in the
-  // future that could change.
-  [self.notificationCenter addMockObserver:self.observerMock
-                                      name:kFIRAppDiagnosticsNotification
-                                    object:OCMOCK_ANY];
-
-  OCMStub([self.appClassMock isDataCollectionDefaultEnabled]).andReturn(@NO);
-
-  // Ensure there is no FIROptions instance, and call configure which should throw an exception and
-  // attempt to log a diagnostics notification.
-  self.optionsInstanceMock = nil;
-  XCTAssertThrows([FIRApp configure]);
-
-  // The observer mock is strict and will raise an exception when an unexpected notification is
-  // received.
-  OCMVerifyAll(self.observerMock);
-}
-
 #pragma mark - Analytics Flag Tests
 
 - (void)testAnalyticsSetByGlobalDataCollectionSwitch {
