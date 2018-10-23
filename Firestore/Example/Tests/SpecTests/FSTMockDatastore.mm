@@ -48,6 +48,7 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 
 NS_ASSUME_NONNULL_BEGIN
 
