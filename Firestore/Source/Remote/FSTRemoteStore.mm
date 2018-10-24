@@ -33,10 +33,10 @@
 #import "Firestore/Source/Remote/FSTStream.h"
 #import "Firestore/Source/Remote/FSTWatchChange.h"
 
-#include "Firestore/core/src/firebase/firestore//remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/user.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
+#include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -112,6 +112,10 @@ static const int kMaxPendingWrites = 10;
 @implementation FSTRemoteStore {
   std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
+  /**
+   * Set to YES by 'enableNetwork:' and NO by 'disableNetwork:' and indicates the
+   * user-preferred network state.
+   */
   BOOL _isNetworkEnabled;
 }
 
@@ -152,55 +156,57 @@ static const int kMaxPendingWrites = 10;
 
 #pragma mark Online/Offline state
 
-- (BOOL)isNetworkEnabled {
+- (BOOL)canUseNetwork {
+  // PORTING NOTE: This method exists mostly because web also has to take into
+  // account primary vs. secondary state.
   return _isNetworkEnabled;
 }
 
 - (void)enableNetwork {
-  if ([self isNetworkEnabled]) {
-    return;
-  }
-
   _isNetworkEnabled = YES;
 
-  // Load any saved stream token from persistent storage
-  _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);
+  if ([self canUseNetwork]) {
+    // Load any saved stream token from persistent storage
+    _writeStream->SetLastStreamToken([self.localStore lastStreamToken]);
 
-  if ([self shouldStartWatchStream]) {
-    [self startWatchStream];
-  } else {
-    [self.onlineStateTracker updateState:OnlineState::Unknown];
+    if ([self shouldStartWatchStream]) {
+      [self startWatchStream];
+    } else {
+      [self.onlineStateTracker updateState:OnlineState::Unknown];
+    }
+
+    // This will start the write stream if necessary.
+    [self fillWritePipeline];
   }
-
-  [self fillWritePipeline];  // This may start the writeStream.
 }
 
 - (void)disableNetwork {
+  _isNetworkEnabled = NO;
   [self disableNetworkInternal];
+
   // Set the OnlineState to Offline so get()s return from cache, etc.
   [self.onlineStateTracker updateState:OnlineState::Offline];
 }
 
 /** Disables the network, setting the OnlineState to the specified targetOnlineState. */
 - (void)disableNetworkInternal {
-  if ([self isNetworkEnabled]) {
-    _isNetworkEnabled = NO;
+  _watchStream->Stop();
+  _writeStream->Stop();
 
-    _watchStream->Stop();
-    _writeStream->Stop();
-
-    if (self.writePipeline.count > 0) {
-      LOG_DEBUG("Stopping write stream with %lu pending writes",
-                (unsigned long)self.writePipeline.count);
-      [self.writePipeline removeAllObjects];
-    }
+  if (self.writePipeline.count > 0) {
+    LOG_DEBUG("Stopping write stream with %lu pending writes",
+              (unsigned long)self.writePipeline.count);
+    [self.writePipeline removeAllObjects];
   }
+
+  [self cleanUpWatchStreamState];
 }
 
 #pragma mark Shutdown
 
 - (void)shutdown {
   LOG_DEBUG("FSTRemoteStore %s shutting down", (__bridge void *)self);
+  _isNetworkEnabled = NO;
   [self disableNetworkInternal];
   // Set the OnlineState to Unknown (rather than Offline) to avoid potentially triggering
   // spurious listener events with cached data, etc.
@@ -209,11 +215,12 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)credentialDidChange {
-  if ([self isNetworkEnabled]) {
+  if ([self canUseNetwork]) {
     // Tear down and re-create our network streams. This will ensure we get a fresh auth token
     // for the new user and re-fill the write pipeline with new mutations from the LocalStore
     // (since mutations are per-user).
     LOG_DEBUG("FSTRemoteStore %s restarting streams for new credential", (__bridge void *)self);
+    _isNetworkEnabled = NO;
     [self disableNetworkInternal];
     [self.onlineStateTracker updateState:OnlineState::Unknown];
     [self enableNetwork];
@@ -227,6 +234,7 @@ static const int kMaxPendingWrites = 10;
               "startWatchStream: called when shouldStartWatchStream: is false.");
   _watchChangeAggregator = [[FSTWatchChangeAggregator alloc] initWithTargetMetadataProvider:self];
   _watchStream->Start();
+
   [self.onlineStateTracker handleWatchStreamStart];
 }
 
@@ -239,7 +247,7 @@ static const int kMaxPendingWrites = 10;
 
   if ([self shouldStartWatchStream]) {
     [self startWatchStream];
-  } else if ([self isNetworkEnabled] && _watchStream->IsOpen()) {
+  } else if (_watchStream->IsOpen()) {
     [self sendWatchRequestWithQueryData:queryData];
   }
 }
@@ -255,11 +263,10 @@ static const int kMaxPendingWrites = 10;
   HARD_ASSERT(queryData, "stopListeningToTargetID: target not currently watched: %s", targetKey);
 
   [self.listenTargets removeObjectForKey:targetKey];
-  if ([self isNetworkEnabled] && _watchStream->IsOpen()) {
+  if (_watchStream->IsOpen()) {
     [self sendUnwatchRequestForTargetID:targetKey];
   }
   if ([self.listenTargets count] == 0) {
-    if ([self isNetworkEnabled]) {
       if (_watchStream->IsOpen()) {
         _watchStream->MarkIdle();
       } else {
@@ -267,7 +274,6 @@ static const int kMaxPendingWrites = 10;
         // since without any listens to send we cannot confirm if the stream is healthy and upgrade
         // to OnlineState::Online.
         [self.onlineStateTracker updateState:OnlineState::Unknown];
-      }
     }
   }
 }
@@ -282,7 +288,7 @@ static const int kMaxPendingWrites = 10;
  * active watch targets.
  */
 - (BOOL)shouldStartWatchStream {
-  return [self isNetworkEnabled] && !_watchStream->IsStarted() && self.listenTargets.count > 0;
+  return [self canUseNetwork] && !_watchStream->IsStarted() && self.listenTargets.count > 0;
 }
 
 - (void)cleanUpWatchStreamState {
@@ -334,10 +340,10 @@ static const int kMaxPendingWrites = 10;
 
   [self cleanUpWatchStreamState];
 
-  // If the watch stream closed due to an error, retry the connection if there are any active
-  // watch targets.
+    // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
     [self.onlineStateTracker handleWatchStreamFailure:error];
+
     [self startWatchStream];
   } else {
     // We don't need to restart the watch stream because there are no active targets. The online
@@ -438,13 +444,12 @@ static const int kMaxPendingWrites = 10;
  * pending writes.
  */
 - (BOOL)shouldStartWriteStream {
-  return [self isNetworkEnabled] && !_writeStream->IsStarted() && self.writePipeline.count > 0;
+  return [self canUseNetwork] && !_writeStream->IsStarted() && self.writePipeline.count > 0;
 }
 
 - (void)startWriteStream {
   HARD_ASSERT([self shouldStartWriteStream],
               "startWriteStream: called when shouldStartWriteStream: is false.");
-
   _writeStream->Start();
 }
 
@@ -480,7 +485,7 @@ static const int kMaxPendingWrites = 10;
  * Returns YES if we can add to the write pipeline (i.e. it is not full and the network is enabled).
  */
 - (BOOL)canAddToWritePipeline {
-  return [self isNetworkEnabled] && self.writePipeline.count < kMaxPendingWrites;
+  return [self canUseNetwork] && self.writePipeline.count < kMaxPendingWrites;
 }
 
 /**
@@ -489,13 +494,11 @@ static const int kMaxPendingWrites = 10;
  */
 - (void)addBatchToWritePipeline:(FSTMutationBatch *)batch {
   HARD_ASSERT([self canAddToWritePipeline],
-              "addBatchToWritePipeline called when mutations can't be written");
+              "addBatchToWritePipeline called when pipeline is full");
 
   [self.writePipeline addObject:batch];
 
-  if ([self shouldStartWriteStream]) {
-    [self startWriteStream];
-  } else if ([self isNetworkEnabled] && _writeStream->handshake_complete()) {
+  if (_writeStream->IsOpen() && _writeStream->handshake_complete()) {
     _writeStream->WriteMutations(batch.mutations);
   }
 }
@@ -569,6 +572,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)handleHandshakeError:(NSError *)error {
+  HARD_ASSERT(error, "Handling write error with status OK.");
   // Reset the token if it's a permanent error or the error code is ABORTED, signaling the write
   // stream is no longer valid.
   if ([FSTDatastore isPermanentWriteError:error] || [FSTDatastore isAbortedError:error]) {
@@ -581,6 +585,7 @@ static const int kMaxPendingWrites = 10;
 }
 
 - (void)handleWriteError:(NSError *)error {
+  HARD_ASSERT(error, "Handling write error with status OK.");
   // Only handle permanent error. If it's transient, just let the retry logic kick in.
   if (![FSTDatastore isPermanentWriteError:error]) {
     return;
