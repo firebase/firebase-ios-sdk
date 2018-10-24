@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 // original.
 #define FSTStrongify(var)                                                           \
   _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wshadow\"") \
-      __strong __typeof__(var) var = fstWeakPointerTo##var;                             \
+      __strong __typeof__(var) var = fstWeakPointerTo##var;                         \
   _Pragma("clang diagnostic pop")
 
 NS_ASSUME_NONNULL_END
