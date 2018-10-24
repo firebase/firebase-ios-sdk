@@ -288,7 +288,7 @@ extern NSString *const kFIRLibraryVersionID;
     kFIRIsMeasurementEnabled : @YES
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
-  mainDictionary = @{kFIRIsAnalyticsCollectionDeactivated : @NO};
+  mainDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @NO };
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @NO,  // override
     kFIRIsAnalyticsCollectionEnabled : @YES,
@@ -303,7 +303,7 @@ extern NSString *const kFIRLibraryVersionID;
     kFIRIsMeasurementEnabled : @YES
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
-  mainDictionary = @{kFIRIsAnalyticsCollectionEnabled : @NO};
+  mainDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @NO };
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
     kFIRIsAnalyticsCollectionEnabled : @NO,  // override
@@ -318,7 +318,7 @@ extern NSString *const kFIRLibraryVersionID;
     kFIRIsMeasurementEnabled : @YES
   };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
-  mainDictionary = @{kFIRIsMeasurementEnabled : @NO};
+  mainDictionary = @{ kFIRIsMeasurementEnabled : @NO };
   expectedAnalyticsOptions = @{
     kFIRIsAnalyticsCollectionDeactivated : @YES,
     kFIRIsAnalyticsCollectionEnabled : @YES,
@@ -509,25 +509,25 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
 
   // Test deactivation flag.
-  optionsDictionary = @{kFIRIsAnalyticsCollectionDeactivated : @YES};
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @YES };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
   XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
 
   // If "deactivated" == NO, that doesn't mean it's explicitly set / enabled so it should be treated
   // as if it's not set.
-  optionsDictionary = @{kFIRIsAnalyticsCollectionDeactivated : @NO};
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionDeactivated : @NO };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
   XCTAssertFalse([options isAnalyticsCollectionExpicitlySet]);
 
   // Test the collection enabled flag.
-  optionsDictionary = @{kFIRIsAnalyticsCollectionEnabled : @YES};
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @YES };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
   XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
 
-  optionsDictionary = @{kFIRIsAnalyticsCollectionEnabled : @NO};
+  optionsDictionary = @{ kFIRIsAnalyticsCollectionEnabled : @NO };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{}];
   XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
@@ -547,13 +547,32 @@ extern NSString *const kFIRLibraryVersionID;
 
   // For good measure, a combination of all 3 (even if they conflict).
   optionsDictionary =
-      @{kFIRIsAnalyticsCollectionDeactivated : @YES,
-        kFIRIsAnalyticsCollectionEnabled : @YES};
+      @{ kFIRIsAnalyticsCollectionDeactivated : @YES,
+         kFIRIsAnalyticsCollectionEnabled : @YES };
   options = [[FIROptions alloc] initInternalWithOptionsDictionary:optionsDictionary];
   analyticsOptions = [options analyticsOptionsDictionaryWithInfoDictionary:@{
     kFIRIsMeasurementEnabled : @NO
   }];
   XCTAssertTrue([options isAnalyticsCollectionExpicitlySet]);
+}
+
+- (void)testModifyingOptionsThrows {
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID GCMSenderID:kGCMSenderID];
+  options.editingLocked = YES;
+
+  // Modification to every property should result in an exception.
+  XCTAssertThrows(options.androidClientID = @"should_throw");
+  XCTAssertThrows(options.APIKey = @"should_throw");
+  XCTAssertThrows(options.bundleID = @"should_throw");
+  XCTAssertThrows(options.clientID = @"should_throw");
+  XCTAssertThrows(options.databaseURL = @"should_throw");
+  XCTAssertThrows(options.deepLinkURLScheme = @"should_throw");
+  XCTAssertThrows(options.GCMSenderID = @"should_throw");
+  XCTAssertThrows(options.googleAppID = @"should_throw");
+  XCTAssertThrows(options.projectID = @"should_throw");
+  XCTAssertThrows(options.storageBucket = @"should_throw");
+  XCTAssertThrows(options.trackingID = @"should_throw");
 }
 
 - (void)testVersionFormat {
