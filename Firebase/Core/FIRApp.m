@@ -85,10 +85,6 @@ static NSMutableArray<Class<FIRCoreConfigurable>> *gRegisteredAsConfigurable;
 
 @interface FIRApp ()
 
-@property(nonatomic) BOOL alreadySentConfigureNotification;
-
-@property(nonatomic) BOOL alreadySentDeleteNotification;
-
 #ifdef DEBUG
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
@@ -150,19 +146,14 @@ static NSMutableDictionary *sLibraryVersions;
     // FIRApp sets up FirebaseAnalytics and does plist validation, but does not cause it
     // to fire notifications. So, if the default app already exists, but has not sent out
     // configuration notifications, then continue re-initializing it.
-    if (!sendNotifications || sDefaultApp.alreadySentConfigureNotification) {
-      [NSException raise:kFirebaseCoreErrorDomain
-                  format:@"Default app has already been configured."];
-    }
+    [NSException raise:kFirebaseCoreErrorDomain
+                format:@"Default app has already been configured."];
   }
   @synchronized(self) {
     FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
     sDefaultApp = [[FIRApp alloc] initInstanceWithName:kFIRDefaultAppName options:options];
     [FIRApp addAppToAppDictionary:sDefaultApp];
-    if (!sDefaultApp.alreadySentConfigureNotification && sendNotifications) {
-      [FIRApp sendNotificationsToSDKs:sDefaultApp];
-      sDefaultApp.alreadySentConfigureNotification = YES;
-    }
+    [FIRApp sendNotificationsToSDKs:sDefaultApp];
   }
 }
 
@@ -196,10 +187,7 @@ static NSMutableDictionary *sLibraryVersions;
     FIRLogDebug(kFIRLoggerCore, @"I-COR000002", @"Configuring app named %@", name);
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
     [FIRApp addAppToAppDictionary:app];
-    if (!app.alreadySentConfigureNotification) {
-      [FIRApp sendNotificationsToSDKs:app];
-      app.alreadySentConfigureNotification = YES;
-    }
+    [FIRApp sendNotificationsToSDKs:app];
   }
 }
 
@@ -259,13 +247,10 @@ static NSMutableDictionary *sLibraryVersions;
       if ([self.name isEqualToString:kFIRDefaultAppName]) {
         sDefaultApp = nil;
       }
-      if (!self.alreadySentDeleteNotification) {
-        NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
-        [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
-                                                            object:[self class]
-                                                          userInfo:appInfoDict];
-        self.alreadySentDeleteNotification = YES;
-      }
+      NSDictionary *appInfoDict = @{kFIRAppNameKey : self.name};
+      [[NSNotificationCenter defaultCenter] postNotificationName:kFIRAppDeleteNotification
+                                                          object:[self class]
+                                                        userInfo:appInfoDict];
       completion(YES);
     } else {
       FIRLogError(kFIRLoggerCore, @"I-COR000007", @"App does not exist.");
@@ -296,10 +281,6 @@ static NSMutableDictionary *sLibraryVersions;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
-
-    FIRApp *app = sAllApps[name];
-    _alreadySentConfigureNotification = app.alreadySentConfigureNotification;
-    _alreadySentDeleteNotification = app.alreadySentDeleteNotification;
   }
   return self;
 }
