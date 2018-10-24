@@ -601,8 +601,7 @@ NS_ASSUME_NONNULL_BEGIN
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, (DocumentKeySet{doc2.key}));
 
-  FSTDocument *doc2Prime =
-      FSTTestDoc("rooms/eros/messages/1", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *doc2Prime = FSTTestDoc("rooms/eros/messages/1", 0, @{}, FSTDocumentStateSynced);
   changes = [view computeChangesWithDocuments:FSTTestDocUpdates(@[ doc2Prime ])];
   [view applyChangesToDocuments:changes];
   XCTAssertEqual(changes.mutatedKeys, DocumentKeySet{});
