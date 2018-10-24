@@ -43,11 +43,11 @@ function(cc_library name)
 
   target_link_libraries(${name} PUBLIC ${ccl_DEPENDS})
 
+  # TODO: iterate over elements in the list
   if(DEFINED ccl_EXTERNAL_DEPENDS)
     target_link_libraries(${name} PUBLIC ${ccl_EXTERNAL_DEPENDS})
-
-    get_target_property(external_includes ${ccl_EXTERNAL_DEPENDS} INTERFACE_INCLUDE_DIRECTORIES)
-    target_include_directories(${name} SYSTEM PUBLIC ${external_includes})
+    get_target_property(external_headers ${ccl_EXTERNAL_DEPENDS} INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(${name} SYSTEM PUBLIC ${external_headers})
   endif()
 
   if(ccl_EXCLUDE_FROM_ALL)

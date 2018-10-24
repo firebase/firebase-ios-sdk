@@ -91,5 +91,5 @@ cc_library(
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
   EXTERNAL_DEPENDS
-    grpc
+    grpc++
 )

@@ -187,5 +187,5 @@ cc_library(
     firebase_firestore_remote
     firebase_firestore_util
   EXTERNAL_DEPENDS
-    grpc
+    grpc++
 )
