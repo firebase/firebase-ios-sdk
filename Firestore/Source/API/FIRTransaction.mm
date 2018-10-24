@@ -119,7 +119,7 @@ NS_ASSUME_NONNULL_BEGIN
                     HARD_ASSERT(documents.count == 1,
                                 "Mismatch in docs returned from document lookup.");
                     FSTMaybeDocument *internalDoc = documents.firstObject;
-                    if ([internalDoc isKindOfClass:[FSTMaybeDocument class]]) {
+                    if ([internalDoc isKindOfClass:[FSTDocument class]]) {
                       FIRDocumentSnapshot *doc =
                           [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
                                                          documentKey:internalDoc.key

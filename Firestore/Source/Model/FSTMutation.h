@@ -71,19 +71,13 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTMutation
 
 /**
- * A mutation describes a self-contained change to a document. Mutations can create, replace,
- * delete, and update subsets of documents.
- *
- * ## Subclassing Notes
- *
- * Subclasses of FSTMutation need to implement -applyTo:hasLocalMutations: to implement the
- * actual the behavior of mutation as applied to some source document.
- */
-
-/**
  * Represents a Mutation of a document. Different subclasses of Mutation will perform different
  * kinds of changes to a base document. For example, an FSTSetMutation replaces the value of a
  * document and an FSTDeleteMutation deletes a document.
+ *
+ * Subclasses of FSTMutation need to implement `applyToRemoteDocument:mutationResult:` and
+ * `applyToLocalDocument:baseDocument:localWriteTime:` to implement the actual the behavior of
+ * mutations as applied to some source document.
  *
  * In addition to the value of the document mutations also operate on the version. For local
  * mutations (mutations that haven't been committed yet), we preserve the existing version for Set,
