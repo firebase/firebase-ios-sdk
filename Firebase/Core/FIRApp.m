@@ -143,9 +143,6 @@ static NSMutableDictionary *sLibraryVersions;
 + (void)configureDefaultAppWithOptions:(FIROptions *)options
                   sendingNotifications:(BOOL)sendNotifications {
   if (sDefaultApp) {
-    // FIRApp sets up FirebaseAnalytics and does plist validation, but does not cause it
-    // to fire notifications. So, if the default app already exists, but has not sent out
-    // configuration notifications, then continue re-initializing it.
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"Default app has already been configured."];
   }

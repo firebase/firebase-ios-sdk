@@ -721,6 +721,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   id configurationMock = OCMClassMock([FIRAnalyticsConfiguration class]);
   OCMStub([configurationMock sharedInstance]).andReturn(configurationMock);
   OCMStub([configurationMock setAnalyticsCollectionEnabled:OCMOCK_ANY persistSetting:OCMOCK_ANY]);
+  OCMStub([self.optionsInstanceMock isAnalyticsCollectionExpicitlySet]).andReturn(NO);
 
   // Ensure Analytics is set after the global flag is set.
   [[FIRApp defaultApp] setDataCollectionDefaultEnabled:YES];
