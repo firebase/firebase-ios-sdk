@@ -143,8 +143,7 @@ static NSMutableDictionary *sLibraryVersions;
 + (void)configureDefaultAppWithOptions:(FIROptions *)options
                   sendingNotifications:(BOOL)sendNotifications {
   if (sDefaultApp) {
-    [NSException raise:kFirebaseCoreErrorDomain
-                format:@"Default app has already been configured."];
+    [NSException raise:kFirebaseCoreErrorDomain format:@"Default app has already been configured."];
   }
   @synchronized(self) {
     FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
