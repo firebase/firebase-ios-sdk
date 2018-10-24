@@ -138,12 +138,6 @@ else()
   )
 endif()
 
-set_target_properties(grpc++ PROPERTIES
-  MACOSX_BUNDLE TRUE
-  MACOSX_FRAMEWORK_IDENTIFIER com.google.firebase.firestore
-  RESOURCE "${external_src_dir}/grpc/roots.pemOBC"
-)
-
 add_alias(protobuf::libprotobuf libprotobuf)
 if(CXX_CLANG OR CXX_GNU)
   target_compile_options(

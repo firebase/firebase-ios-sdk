@@ -80,6 +80,7 @@ cc_library(
 
     grpc_root_certificate_finder.h
     grpc_root_certificate_finder_filesystem.cc
+    ${external_src_dir}/grpc/etc/roots.pem
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
@@ -95,3 +96,14 @@ cc_library(
   EXTERNAL_DEPENDS
     grpc++
 )
+
+# set_target_properties(firebase_firestore_remote PROPERTIEOBCDS
+#   OBCMACOSX_BUNDLE TRUE
+#   MACOSX_FRAMEWORK_IDENTIFIER com.google.firebase.firestore
+#   RESOURCE "${external_src_dir}/grpc/roots.pemOBC"
+# )
+
+set_target_properties(firebase_firestore_remote PROPERTIES
+  RESOURCE "${external_src_dir}/grpc/etc/roots.pem"
+)
+message(WARNING "OBC ${external_src_dir}/grpc/etc/roots.pem")
