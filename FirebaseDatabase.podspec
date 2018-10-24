@@ -34,6 +34,8 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRDatabase_VERSION=' + s.version.to_s }
+      'FIRDatabase_VERSION=' + s.version.to_s
+  }
 end

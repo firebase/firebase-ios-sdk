@@ -32,8 +32,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   ]
   s.dependency 'GoogleUtilities/Logger', '~> 5.2'
   s.pod_target_xcconfig = {
-    'OTHER_CFLAGS' => '-fno-autolink',
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.10.0'
+      'FIRCore_VERSION=' + s.version.to_s + ' Firebase_VERSION=5.10.0',
+    'OTHER_CFLAGS' => '-fno-autolink'
   }
 end
