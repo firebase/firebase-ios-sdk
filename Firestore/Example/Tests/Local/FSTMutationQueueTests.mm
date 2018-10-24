@@ -80,39 +80,6 @@ NS_ASSUME_NONNULL_BEGIN
   });
 }
 
-- (void)testAcknowledgeBatchID {
-  if ([self isTestBaseClass]) return;
-
-  // Initial state of an empty queue
-  XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
-
-  // Adding mutation batches should not change the highest acked batchID.
-  self.persistence.run("testAcknowledgeBatchID", [&]() {
-    FSTMutationBatch *batch1 = [self addMutationBatch];
-    FSTMutationBatch *batch2 = [self addMutationBatch];
-    FSTMutationBatch *batch3 = [self addMutationBatch];
-    XCTAssertGreaterThan(batch1.batchID, kFSTBatchIDUnknown);
-    XCTAssertGreaterThan(batch2.batchID, batch1.batchID);
-    XCTAssertGreaterThan(batch3.batchID, batch2.batchID);
-
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
-
-    [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
-    [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
-    [self.mutationQueue removeMutationBatch:batch1];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
-    [self.mutationQueue removeMutationBatch:batch2];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
-    // Batch 3 never acknowledged.
-    [self.mutationQueue removeMutationBatch:batch3];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-  });
-}
-
 - (void)testAcknowledgeThenRemove {
   if ([self isTestBaseClass]) return;
 
@@ -123,57 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue removeMutationBatch:batch1];
 
     XCTAssertEqual([self batchCount], 0);
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch1.batchID);
-  });
-}
-
-- (void)testHighestAcknowledgedBatchIDNeverExceedsNextBatchID {
-  if ([self isTestBaseClass]) return;
-
-  FSTMutationBatch *batch1 =
-      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch1",
-                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
-  FSTMutationBatch *batch2 =
-      self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID batch2",
-                           [&]() -> FSTMutationBatch * { return [self addMutationBatch]; });
-
-  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID", [&]() {
-    [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
-    [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
-    [self.mutationQueue removeMutationBatch:batch1];
-    [self.mutationQueue removeMutationBatch:batch2];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-  });
-
-  // Restart the queue so that nextBatchID will be reset.
-  FSTMutationBatch *batch = self.persistence.run(
-      "testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart", [&]() -> FSTMutationBatch * {
-        self.mutationQueue = [self.persistence mutationQueueForUser:User("user")];
-
-        [self.mutationQueue start];
-
-        // Verify that on restart with an empty queue, nextBatchID falls to a lower value.
-        XCTAssertLessThan(self.mutationQueue.nextBatchID, batch2.batchID);
-
-        // As a result highestAcknowledgedBatchID must also reset lower.
-        XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
-
-        // The mutation queue will reset the next batchID after all mutations are removed so adding
-        // another mutation will cause a collision.
-        FSTMutationBatch *newBatch = [self addMutationBatch];
-        XCTAssertEqual(newBatch.batchID, batch1.batchID);
-        return newBatch;
-      });
-  self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID restart2", [&]() {
-    // Restart the queue with one unacknowledged batch in it.
-    [self.mutationQueue start];
-
-    XCTAssertEqual([self.mutationQueue nextBatchID], batch.batchID + 1);
-
-    // highestAcknowledgedBatchID must still be kFSTBatchIDUnknown.
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
   });
 }
 
@@ -259,26 +175,6 @@ NS_ASSUME_NONNULL_BEGIN
                           batches[1]);
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[1].batchID],
                           batches[2]);
-  });
-}
-
-- (void)testAllMutationBatchesThroughBatchID {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence.run("testAllMutationBatchesThroughBatchID", [&]() {
-    NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
-    [self makeHoles:@[ @2, @6, @7 ] inBatches:batches];
-
-    NSArray<FSTMutationBatch *> *found, *expected;
-
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:batches[0].batchID - 1];
-    XCTAssertEqualObjects(found, (@[]));
-
-    for (NSUInteger i = 0; i < batches.count; i++) {
-      found = [self.mutationQueue allMutationBatchesThroughBatchID:batches[i].batchID];
-      expected = [batches subarrayWithRange:NSMakeRange(0, i + 1)];
-      XCTAssertEqualObjects(found, expected, @"for index %lu", (unsigned long)i);
-    }
   });
 }
 
@@ -443,12 +339,11 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue removeMutationBatch:batches[0]];
     [batches removeObjectAtIndex:0];
 
-    FSTMutationBatch *last = batches[batches.count - 1];
     XCTAssertEqual([self batchCount], 9);
 
     NSArray<FSTMutationBatch *> *found;
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 9);
 
@@ -458,7 +353,7 @@ NS_ASSUME_NONNULL_BEGIN
     [batches removeObjectsInRange:NSMakeRange(0, 3)];
     XCTAssertEqual([self batchCount], 6);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 6);
 
@@ -466,7 +361,7 @@ NS_ASSUME_NONNULL_BEGIN
     [batches removeObjectAtIndex:batches.count - 1];
     XCTAssertEqual([self batchCount], 5);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 5);
 
@@ -478,7 +373,7 @@ NS_ASSUME_NONNULL_BEGIN
     [batches removeObjectAtIndex:1];
     XCTAssertEqual([self batchCount], 3);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 3);
     XCTAssertFalse([self.mutationQueue isEmpty]);
@@ -486,7 +381,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (FSTMutationBatch *batch in batches) {
       [self.mutationQueue removeMutationBatch:batch];
     }
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, @[]);
     XCTAssertEqual(found.count, 0);
     XCTAssertTrue([self.mutationQueue isEmpty]);
@@ -508,7 +403,6 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken1);
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:streamToken2];
-    XCTAssertEqual(self.mutationQueue.highestAcknowledgedBatchID, batch1.batchID);
     XCTAssertEqualObjects([self.mutationQueue lastStreamToken], streamToken2);
   });
 }

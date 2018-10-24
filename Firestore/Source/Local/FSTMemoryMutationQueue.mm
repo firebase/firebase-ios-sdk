@@ -69,9 +69,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 /** The next value to use when assigning sequential IDs to each mutation batch. */
 @property(nonatomic, assign) BatchId nextBatchID;
 
-/** The highest acknowledged mutation in the queue. */
-@property(nonatomic, assign) BatchId highestAcknowledgedBatchID;
-
 /**
  * The last received stream token from the server, used to acknowledge which responses the client
  * has processed. Stream tokens are opaque checkpoint markers whose only real value is their
@@ -83,6 +80,9 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 @implementation FSTMemoryMutationQueue {
   FSTMemoryPersistence *_persistence;
+
+  /** The highest acknowledged mutation in the queue. */
+  BatchId _highestAcknowledgedBatchID;
 }
 
 - (instancetype)initWithPersistence:(FSTMemoryPersistence *)persistence {
@@ -107,9 +107,9 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   // and highestAcknowledgedBatchID if the queue is empty.
   if (self.isEmpty) {
     self.nextBatchID = 1;
-    self.highestAcknowledgedBatchID = kFSTBatchIDUnknown;
+    _highestAcknowledgedBatchID = kFSTBatchIDUnknown;
   }
-  HARD_ASSERT(self.highestAcknowledgedBatchID < self.nextBatchID,
+  HARD_ASSERT(_highestAcknowledgedBatchID < self.nextBatchID,
               "highestAcknowledgedBatchID must be less than the nextBatchID");
 }
 
@@ -119,15 +119,11 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
   return self.queue.count == 0;
 }
 
-- (BatchId)highestAcknowledgedBatchID {
-  return _highestAcknowledgedBatchID;
-}
-
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   NSMutableArray<FSTMutationBatch *> *queue = self.queue;
 
   BatchId batchID = batch.batchID;
-  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
+  HARD_ASSERT(batchID > _highestAcknowledgedBatchID,
               "Mutation batchIDs must be acknowledged in order");
 
   NSInteger batchIndex = [self indexOfExistingBatchID:batchID action:@"acknowledged"];
@@ -138,7 +134,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
               batchID, check.batchID);
   HARD_ASSERT(![check isTombstone], "Can't acknowledge a previously removed batch");
 
-  self.highestAcknowledgedBatchID = batchID;
+  _highestAcknowledgedBatchID = batchID;
   self.lastStreamToken = streamToken;
 }
 
@@ -191,7 +187,7 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
   // All batches with batchID <= self.highestAcknowledgedBatchID have been acknowledged so the
   // first unacknowledged batch after batchID will have a batchID larger than both of these values.
-  BatchId nextBatchID = MAX(batchID, self.highestAcknowledgedBatchID) + 1;
+  BatchId nextBatchID = MAX(batchID, _highestAcknowledgedBatchID) + 1;
 
   // The requested batchID may still be out of range so normalize it to the start of the queue.
   NSInteger rawIndex = [self indexOfBatchID:nextBatchID];
@@ -210,23 +206,6 @@ static const NSComparator NumberComparator = ^NSComparisonResult(NSNumber *left,
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatches {
   return [self allLiveMutationBatchesBeforeIndex:self.queue.count];
-}
-
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
-  NSMutableArray<FSTMutationBatch *> *queue = self.queue;
-  NSUInteger count = queue.count;
-
-  NSInteger endIndex = [self indexOfBatchID:batchID];
-  if (endIndex < 0) {
-    endIndex = 0;
-  } else if (endIndex >= count) {
-    endIndex = count;
-  } else {
-    // The endIndex is in the queue so increment to pull everything in the queue including it.
-    endIndex += 1;
-  }
-
-  return [self allLiveMutationBatchesBeforeIndex:(NSUInteger)endIndex];
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:

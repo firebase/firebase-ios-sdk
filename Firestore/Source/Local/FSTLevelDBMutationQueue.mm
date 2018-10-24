@@ -219,13 +219,9 @@ using leveldb::WriteOptions;
   return empty;
 }
 
-- (BatchId)highestAcknowledgedBatchID {
-  return self.metadata.lastAcknowledgedBatchId;
-}
-
 - (void)acknowledgeBatch:(FSTMutationBatch *)batch streamToken:(nullable NSData *)streamToken {
   BatchId batchID = batch.batchID;
-  HARD_ASSERT(batchID > self.highestAcknowledgedBatchID,
+  HARD_ASSERT(batchID > self.metadata.lastAcknowledgedBatchId,
               "Mutation batchIDs must be acknowledged in order");
 
   FSTPBMutationQueue *metadata = self.metadata;
@@ -325,29 +321,6 @@ using leveldb::WriteOptions;
 
   HARD_ASSERT(rowKey.batch_id() >= nextBatchID, "Should have found mutation after %s", nextBatchID);
   return [self decodedMutationBatch:it->value()];
-}
-
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
-  std::string userKey = LevelDbMutationKey::KeyPrefix(_userID);
-
-  auto it = _db.currentTransaction->NewIterator();
-  it->Seek(userKey);
-
-  NSMutableArray *result = [NSMutableArray array];
-  LevelDbMutationKey rowKey;
-  for (; it->Valid() && rowKey.Decode(it->key()); it->Next()) {
-    if (rowKey.user_id() != _userID) {
-      // End of this user's mutations
-      break;
-    } else if (rowKey.batch_id() > batchID) {
-      // This mutation is past what we're looking for
-      break;
-    }
-
-    [result addObject:[self decodedMutationBatch:it->value()]];
-  }
-
-  return result;
 }
 
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:

@@ -184,9 +184,6 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
     FSTMutationBatch *toReject = [self.mutationQueue lookupMutationBatch:batchID];
     HARD_ASSERT(toReject, "Attempt to reject nonexistent batch!");
 
-    BatchId lastAcked = [self.mutationQueue highestAcknowledgedBatchID];
-    HARD_ASSERT(batchID > lastAcked, "Acknowledged batches can't be rejected.");
-
     [self.mutationQueue removeMutationBatch:toReject];
     [self.mutationQueue performConsistencyCheck];
 
