@@ -12,20 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cc_library(
-  firebase_firestore_nanopb
+cc_test(
+  firebase_firestore_nanopb_test
   SOURCES
-    nanopb_string.cc
-    nanopb_string.h
-    reader.h
-    reader.cc
-    tag.h
-    writer.h
-    writer.cc
+    nanopb_string_test.cc
   DEPENDS
-    # TODO(b/111328563) Force nanopb first to work around ODR violations
-    protobuf-nanopb
-
-    firebase_firestore_util
-    firebase_firestore_protos_nanopb
+    firebase_firestore_nanopb
 )

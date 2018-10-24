@@ -19,8 +19,6 @@
 
 #include <pb.h>
 
-#include <cstdlib>
-#include <functional>
 #include <string>
 #include <utility>
 
@@ -31,32 +29,38 @@ namespace firebase {
 namespace firestore {
 namespace nanopb {
 
+/**
+ * A string-like object backed by a nanopb byte array.
+ */
 class String : public util::Comparable<String> {
  public:
-  static pb_bytes_array_t* MakeBytesArray(absl::string_view value) {
-    auto size = static_cast<pb_size_t>(value.size());
-
-    // Allocate one extra byte for the null terminator that's not necessarily
-    // there in a string_view. As long as we're making a copy, might as well
-    // make a copy that can be used as a regular C string too.
-    auto result = reinterpret_cast<pb_bytes_array_t*>(
-        malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size) + 1));
-    result->size = size;
-    memcpy(result->bytes, value.data(), size);
-    result->bytes[size] = '\0';
-
-    return result;
-  }
+  /**
+   * Creates a new, null-terminated byte array that's a copy of the given string
+   * value.
+   */
+  static pb_bytes_array_t* MakeBytesArray(absl::string_view value);
 
   String() {
   }
 
+  /**
+   * Creates a new String whose backing byte array is a copy of the of the
+   * given C string.
+   */
   explicit String(const char* value) : bytes_{MakeBytesArray(value)} {
   }
 
+  /**
+   * Creates a new String whose backing byte array is a copy of the of the
+   * given string.
+   */
   explicit String(const std::string& value) : bytes_{MakeBytesArray(value)} {
   }
 
+  /**
+   * Creates a new String whose backing byte array is a copy of the of the
+   * given string_view.
+   */
   explicit String(absl::string_view value) : bytes_{MakeBytesArray(value)} {
   }
 
@@ -73,28 +77,45 @@ class String : public util::Comparable<String> {
   }
 
   String& operator=(String other) {
-    using std::swap;
     swap(*this, other);
     return *this;
   }
 
-  size_t Hash() const {
-    std::hash<absl::string_view>{}.operator()(absl::string_view{*this});
-  }
+  /**
+   * Creates a new String that takes ownership of the given byte array.
+   */
+  static String Wrap(pb_bytes_array_t* bytes);
 
   bool empty() const {
     return !bytes_ || bytes_->size == 0;
   }
 
-  explicit operator absl::string_view() const {
-    const char* str = reinterpret_cast<const char*>(bytes_->bytes);
-    return absl::string_view{str, bytes_->size};
+  const char* c_str() const {
+    return bytes_ ? reinterpret_cast<const char*>(bytes_->bytes) : nullptr;
   }
 
-  friend void swap(String& lhs, String& rhs) noexcept {
-    using std::swap;
-    swap(lhs.bytes_, rhs.bytes_);
+  /** Returns a const view of the underlying byte array. */
+  const pb_bytes_array_t* get() const {
+    return bytes_;
   }
+
+  /**
+   * Returns the current byte array and assigns the backing byte array to
+   * nullptr, releasing the ownership of the array contents to the caller.
+   */
+  pb_bytes_array_t* release();
+
+  /**
+   * Converts this String to an absl::string_view (without changing ownership).
+   */
+  explicit operator absl::string_view() const {
+    return ToStringView(bytes_);
+  }
+
+  /**
+   * Swaps the contents of the given Strings.
+   */
+  friend void swap(String& lhs, String& rhs) noexcept;
 
   friend bool operator==(const String& lhs, const String& rhs) {
     return absl::string_view{lhs} == absl::string_view{rhs};
@@ -107,13 +128,19 @@ class String : public util::Comparable<String> {
     absl::string_view lhs_view{lhs};
     return lhs_view == rhs;
   }
+
   friend bool operator!=(const String& lhs, absl::string_view rhs) {
     return !(lhs == rhs);
   }
 
  private:
+  explicit String(pb_bytes_array_t* bytes) : bytes_{bytes} {
+  }
+
+  static absl::string_view ToStringView(pb_bytes_array_t* bytes);
+
   pb_bytes_array_t* bytes_ = nullptr;
-};  // namespace nanopb
+};
 
 }  // namespace nanopb
 }  // namespace firestore

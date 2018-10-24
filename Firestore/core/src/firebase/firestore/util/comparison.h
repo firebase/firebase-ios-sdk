@@ -196,7 +196,7 @@ class Comparable : public Equatable<T> {
   friend bool operator<=(const T& lhs, const T& rhs) {
     return !(rhs < lhs);
   }
-  friend bool operator<=(const T& lhs, const T& rhs) {
+  friend bool operator>=(const T& lhs, const T& rhs) {
     return !(lhs < rhs);
   }
 };
