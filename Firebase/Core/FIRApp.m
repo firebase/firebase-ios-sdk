@@ -148,7 +148,6 @@ static NSMutableDictionary *sLibraryVersions;
     [NSException raise:kFirebaseCoreErrorDomain format:@"Name cannot be empty."];
   }
 
-  BOOL isDefaultApp = NO;
   if ([name isEqualToString:kFIRDefaultAppName]) {
     if (sDefaultApp) {
       [NSException raise:kFirebaseCoreErrorDomain
@@ -156,7 +155,6 @@ static NSMutableDictionary *sLibraryVersions;
     }
 
     FIRLogDebug(kFIRLoggerCore, @"I-COR000001", @"Configuring the default app.");
-    isDefaultApp = YES;
   } else {
     // Validate the app name and ensure it hasn't been configured already.
     for (NSUInteger charIndex = 0; charIndex < name.length; charIndex++) {
@@ -183,7 +181,7 @@ static NSMutableDictionary *sLibraryVersions;
     [FIRApp addAppToAppDictionary:app];
     [FIRApp sendNotificationsToSDKs:app];
 
-    if (isDefaultApp) {
+    if (app.isDefaultApp) {
       sDefaultApp = app;
     }
   }
