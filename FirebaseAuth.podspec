@@ -60,8 +60,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
       'FIRAuth_VERSION=' + s.version.to_s +
       ' FIRAuth_MINOR_VERSION=' + s.version.to_s.split(".")[0] + "." + s.version.to_s.split(".")[1]
   }
-  s.framework = 'SafariServices'
-  s.framework = 'Security'
+  s.frameworks = 'SafariServices', 'Security'
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.1'
   s.dependency 'GoogleUtilities/Environment', '~> 5.2'
