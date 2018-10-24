@@ -24,6 +24,7 @@ cc_test(
   DEPENDS
     absl_base
     firebase_firestore_protos_libprotobuf
+    firebase_firestore_core
     firebase_firestore_remote
     firebase_firestore_remote_test_util
     firebase_firestore_util_async_std

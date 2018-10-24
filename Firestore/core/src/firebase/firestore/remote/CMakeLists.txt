@@ -79,11 +79,13 @@ cc_library(
     # write_stream.mm
 
     grpc_root_certificate_finder.h
-    grpc_root_certificate_finder_apple.mm
+    grpc_root_certificate_finder_filesystem.cc
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb
+
+    firebase_firestore_version
 
     firebase_firestore_model
     firebase_firestore_nanopb
