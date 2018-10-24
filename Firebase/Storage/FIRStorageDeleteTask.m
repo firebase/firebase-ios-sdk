@@ -30,8 +30,9 @@
 
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue
                        completion:(FIRStorageVoidError)completion {
-  self = [super initWithReference:reference fetcherService:service];
+  self = [super initWithReference:reference fetcherService:service dispatchQueue:queue];
   if (self) {
     _completion = [completion copy];
   }
@@ -39,34 +40,43 @@
 }
 
 - (void)enqueue {
-  NSMutableURLRequest *request = [self.baseRequest mutableCopy];
-  request.HTTPMethod = @"DELETE";
-  request.timeoutInterval = self.reference.storage.maxOperationRetryTime;
+  __weak FIRStorageDeleteTask *weakSelf = self;
 
-  FIRStorageVoidError callback = _completion;
-  _completion = nil;
+  [self dispatchAsync:^() {
+    FIRStorageDeleteTask *strongSelf = weakSelf;
 
-  GTMSessionFetcher *fetcher = [self.fetcherService fetcherWithRequest:request];
-  _fetcher = fetcher;
+    if (!strongSelf) {
+      return;
+    }
 
-  fetcher.comment = @"DeleteTask";
+    NSMutableURLRequest *request = [strongSelf.baseRequest mutableCopy];
+    request.HTTPMethod = @"DELETE";
+    request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime;
+
+    FIRStorageVoidError callback = strongSelf->_completion;
+    strongSelf->_completion = nil;
+
+    GTMSessionFetcher *fetcher = [strongSelf.fetcherService fetcherWithRequest:request];
+    strongSelf->_fetcher = fetcher;
+
+    fetcher.comment = @"DeleteTask";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-retain-cycles"
-  _fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
-    if (!self.error) {
-      self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
-    }
-    if (callback) {
-      callback(self.error);
-    }
-    self->_fetcherCompletion = nil;
-  };
+    strongSelf->_fetcherCompletion = ^(NSData *_Nullable data, NSError *_Nullable error) {
+      if (!self.error) {
+        self.error = [FIRStorageErrors errorWithServerError:error reference:self.reference];
+      }
+      if (callback) {
+        callback(self.error);
+      }
+      self->_fetcherCompletion = nil;
+    };
 #pragma clang diangostic pop
 
-  __weak FIRStorageDeleteTask *weakSelf = self;
-  [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
-    weakSelf.fetcherCompletion(data, error);
+    [fetcher beginFetchWithCompletionHandler:^(NSData *_Nullable data, NSError *_Nullable error) {
+      weakSelf.fetcherCompletion(data, error);
+    }];
   }];
 }
 

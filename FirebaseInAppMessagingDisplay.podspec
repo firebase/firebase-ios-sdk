@@ -33,7 +33,9 @@ Firebase In-App Messaging SDK.
                                    base_dir + 'Resources/*.png']
   }
 
-  s.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' =>
+  s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
+    'GCC_PREPROCESSOR_DEFINITIONS' =>
       '$(inherited) ' +
       'FIRInAppMessagingDisplay_LIB_VERSION=' + String(s.version)
   }

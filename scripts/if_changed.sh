@@ -59,7 +59,7 @@ else
       ;;
 
     Firestore-xcodebuild|Firestore-pod-lib-lint)
-      check_changes '^Firestore'
+      check_changes '^(Firestore|FirebaseFirestore.podspec|FirebaseFirestoreSwift.podspec)'
       ;;
 
     Firestore-cmake)

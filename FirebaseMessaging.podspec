@@ -31,6 +31,7 @@ device, and it is completely free.
   s.public_header_files = base_dir + 'Public/*.h'
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +
       'FIRMessaging_LIB_VERSION=' + String(s.version)

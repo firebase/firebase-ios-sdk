@@ -34,11 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes a download task with a base FIRStorageReference and GTMSessionFetcherService.
  * @param reference The base FIRStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
+ * @param queue The shared queue to use for all Storage operations.
  * @param fileURL The system URL to download to. If nil, download in memory as bytes.
  * @return Returns an instance of FIRStorageDownloadTask
  */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue
                              file:(nullable NSURL *)fileURL;
 
 /**

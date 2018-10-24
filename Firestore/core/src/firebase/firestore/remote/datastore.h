@@ -120,14 +120,14 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void PollGrpcQueue();
 
   void CommitMutationsWithCredentials(const auth::Token& token,
-                                      const grpc::ByteBuffer& message,
+                                      NSArray<FSTMutation*>* mutations,
                                       FSTVoidErrorBlock completion);
   void OnCommitMutationsResponse(const util::StatusOr<grpc::ByteBuffer>& result,
                                  FSTVoidErrorBlock completion);
 
   void LookupDocumentsWithCredentials(
       const auth::Token& token,
-      const grpc::ByteBuffer& message,
+      const std::vector<model::DocumentKey>& keys,
       FSTVoidMaybeDocumentArrayErrorBlock completion);
   void OnLookupDocumentsResponse(
       const util::StatusOr<std::vector<grpc::ByteBuffer>>& result,

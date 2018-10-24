@@ -129,10 +129,10 @@ NS_ASSUME_NONNULL_BEGIN
 
     auto userPromise = std::make_shared<std::promise<User>>();
 
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     auto credentialChangeListener = [initialized = false, userPromise, weakSelf,
                                      workerDispatchQueue](User user) mutable {
-      typeof(self) strongSelf = weakSelf;
+      __typeof__(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
       if (!initialized) {

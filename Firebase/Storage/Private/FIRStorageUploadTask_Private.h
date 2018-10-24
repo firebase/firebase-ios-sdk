@@ -44,11 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
  * @param reference The base FIRStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
+ * @param queue The shared queue to use for all Storage operations.
  * @param uploadData The NSData object to be uploaded.
  * @return Returns an instance of FIRStorageUploadTask.
  */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue
                              data:(NSData *)uploadData
                          metadata:(FIRStorageMetadata *)metadata;
 
@@ -56,11 +58,13 @@ NS_ASSUME_NONNULL_BEGIN
  * Initializes an upload task with a base FIRStorageReference and GTMSessionFetcherService.
  * @param reference The base FIRStorageReference which fetchers use for configuration.
  * @param service The GTMSessionFetcherService which will create fetchers.
+ * @param queue The shared queue to use for all Storage operations.
  * @param fileURL The system file URL to upload from.
  * @return Returns an instance of FIRStorageUploadTask.
  */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
                    fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue
                              file:(NSURL *)fileURL
                          metadata:(FIRStorageMetadata *)metadata;
 

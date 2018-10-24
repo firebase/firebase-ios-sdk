@@ -35,8 +35,9 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
   s.ios.dependency 'FirebaseAnalyticsInterop', '~> 1.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase',
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' => 'FIRDynamicLinks_VERSION=' + s.version.to_s +
-                                      ' FIRDynamicLinks3P GIN_SCION_LOGGING'
+                                      ' FIRDynamicLinks3P GIN_SCION_LOGGING',
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"/Firebase'
   }
 end
