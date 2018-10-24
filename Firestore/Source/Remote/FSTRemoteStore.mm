@@ -113,8 +113,8 @@ static const int kMaxPendingWrites = 10;
   std::shared_ptr<WatchStream> _watchStream;
   std::shared_ptr<WriteStream> _writeStream;
   /**
-   * Set to YES by 'enableNetwork:' and NO by 'disableNetwork:' and indicates the
-   * user-preferred network state.
+   * Set to YES by 'enableNetwork:' and NO by 'disableNetworkInternal:' and
+   * indicates the user-preferred network state.
    */
   BOOL _isNetworkEnabled;
 }
@@ -267,13 +267,13 @@ static const int kMaxPendingWrites = 10;
     [self sendUnwatchRequestForTargetID:targetKey];
   }
   if ([self.listenTargets count] == 0) {
-      if (_watchStream->IsOpen()) {
-        _watchStream->MarkIdle();
-      } else {
-        // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
-        // since without any listens to send we cannot confirm if the stream is healthy and upgrade
-        // to OnlineState::Online.
-        [self.onlineStateTracker updateState:OnlineState::Unknown];
+    if (_watchStream->IsOpen()) {
+      _watchStream->MarkIdle();
+    } else {
+      // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
+      // since without any listens to send we cannot confirm if the stream is healthy and upgrade
+      // to OnlineState::Online.
+      [self.onlineStateTracker updateState:OnlineState::Unknown];
     }
   }
 }
@@ -340,7 +340,7 @@ static const int kMaxPendingWrites = 10;
 
   [self cleanUpWatchStreamState];
 
-    // If we still need the watch stream, retry the connection.
+  // If we still need the watch stream, retry the connection.
   if ([self shouldStartWatchStream]) {
     [self.onlineStateTracker handleWatchStreamFailure:error];
 
@@ -490,11 +490,10 @@ static const int kMaxPendingWrites = 10;
 
 /**
  * Queues additional writes to be sent to the write stream, sending them immediately if the write
- * stream is established, else starting the write stream if it is not yet started.
+ * stream is established.
  */
 - (void)addBatchToWritePipeline:(FSTMutationBatch *)batch {
-  HARD_ASSERT([self canAddToWritePipeline],
-              "addBatchToWritePipeline called when pipeline is full");
+  HARD_ASSERT([self canAddToWritePipeline], "addBatchToWritePipeline called when pipeline is full");
 
   [self.writePipeline addObject:batch];
 
