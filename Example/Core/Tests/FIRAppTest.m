@@ -23,9 +23,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 @interface FIRApp (TestInternal)
 
-@property(nonatomic) BOOL alreadySentConfigureNotification;
-@property(nonatomic) BOOL alreadySentDeleteNotification;
-
 + (void)resetApps;
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options;
 - (BOOL)configureCore;
@@ -98,7 +95,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertEqualObjects(self.app.name, kFIRDefaultAppName);
   XCTAssertEqualObjects(self.app.options.clientID, kClientID);
   XCTAssertTrue([FIRApp allApps].count == 1);
-  XCTAssertTrue(self.app.alreadySentConfigureNotification);
 
   // Test if options is nil
   id optionsClassMock = OCMClassMock([FIROptions class]);
@@ -268,7 +264,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   }];
 
   OCMVerifyAll(self.observerMock);
-  XCTAssertTrue(self.app.alreadySentDeleteNotification);
   XCTAssertTrue([FIRApp allApps].count == 0);
 }
 
