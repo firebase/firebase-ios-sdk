@@ -292,7 +292,8 @@ NS_ASSUME_NONNULL_BEGIN
       result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
                                               documentKey:doc.key
                                                  document:document
-                                                fromCache:YES];
+                                                fromCache:YES
+                                         hasPendingWrites:document.hasLocalMutations];
     } else {
       error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                   code:FIRFirestoreErrorCodeUnavailable

@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                             oldDocuments:oldDocuments
                                                          documentChanges:documentChanges
                                                                fromCache:NO
-                                                        hasPendingWrites:NO
+                                                             mutatedKeys:DocumentKeySet {}
                                                         syncStateChanged:YES];
   FIRSnapshotMetadata *metadata =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
@@ -105,11 +105,13 @@ NS_ASSUME_NONNULL_BEGIN
   FIRQueryDocumentSnapshot *doc1Snap = [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
                                                                            documentKey:doc1New.key
                                                                               document:doc1New
-                                                                             fromCache:NO];
+                                                                             fromCache:NO
+                                                                      hasPendingWrites:NO];
   FIRQueryDocumentSnapshot *doc2Snap = [FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
                                                                            documentKey:doc2New.key
                                                                               document:doc2New
-                                                                             fromCache:NO];
+                                                                             fromCache:NO
+                                                                      hasPendingWrites:NO];
 
   NSArray<FIRDocumentChange *> *changesWithoutMetadata = @[
     [[FIRDocumentChange alloc] initWithType:FIRDocumentChangeTypeModified

@@ -124,7 +124,8 @@ NS_ASSUME_NONNULL_BEGIN
                           [FIRDocumentSnapshot snapshotWithFirestore:self.firestore
                                                          documentKey:internalDoc.key
                                                             document:(FSTDocument *)internalDoc
-                                                           fromCache:NO];
+                                                           fromCache:NO
+                                                    hasPendingWrites:NO];
                       completion(doc, nil);
                     } else if ([internalDoc isKindOfClass:[FSTDeletedDocument class]]) {
                       completion(nil, nil);

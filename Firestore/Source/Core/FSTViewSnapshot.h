@@ -16,6 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
+#include "Firestore/core/src/firebase/firestore/model/document_key_set.h"
+
+using firebase::firestore::model::DocumentKeySet;
+
 @class FSTDocument;
 @class FSTQuery;
 @class FSTDocumentSet;
@@ -86,7 +90,7 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
                  oldDocuments:(FSTDocumentSet *)oldDocuments
               documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
-             hasPendingWrites:(BOOL)hasPendingWrites
+                  mutatedKeys:(DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -111,6 +115,9 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
 
 /** Whether the sync state changed as part of this snapshot. */
 @property(nonatomic, assign, readonly) BOOL syncStateChanged;
+
+/** The document in this snapshot that have unconfirmed writes. */
+@property(nonatomic, assign, readonly) DocumentKeySet mutatedKeys;
 
 @end
 
