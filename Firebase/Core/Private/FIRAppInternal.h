@@ -130,7 +130,7 @@ typedef NSString *_Nullable (^FIRAppGetUIDImplementation)(void);
 @interface FIRApp ()
 
 /**
- * A flag indicating if this is the default app.
+ * A flag indicating if this is the default app (has the default app name).
  */
 @property(nonatomic, readonly) BOOL isDefaultApp;
 
