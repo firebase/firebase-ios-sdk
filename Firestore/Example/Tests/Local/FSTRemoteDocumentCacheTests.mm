@@ -85,7 +85,7 @@ static const int kVersion = 42;
   if (!self.remoteDocumentCache) return;
 
   self.persistence.run("testSetAndReadDeletedDocument", [&]() {
-    FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion);
+    FSTDeletedDocument *deletedDoc = FSTTestDeletedDoc(kDocPath, kVersion, NO);
     [self.remoteDocumentCache addEntry:deletedDoc];
 
     XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)],
@@ -98,7 +98,7 @@ static const int kVersion = 42;
 
   self.persistence.run("testSetDocumentToNewValue", [&]() {
     [self setTestDocumentAtPath:kDocPath];
-    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, NO);
+    FSTDocument *newDoc = FSTTestDoc(kDocPath, kVersion, @{@"data" : @2}, FSTDocumentStateSynced);
     [self.remoteDocumentCache addEntry:newDoc];
     XCTAssertEqualObjects([self.remoteDocumentCache entryForKey:testutil::Key(kDocPath)], newDoc);
   });
@@ -138,8 +138,10 @@ static const int kVersion = 42;
 
     FSTQuery *query = FSTTestQuery("b");
     FSTDocumentDictionary *results = [self.remoteDocumentCache documentsMatchingQuery:query];
-    NSArray *expected =
-        @[ FSTTestDoc("b/1", kVersion, _kDocData, NO), FSTTestDoc("b/2", kVersion, _kDocData, NO) ];
+    NSArray *expected = @[
+      FSTTestDoc("b/1", kVersion, _kDocData, FSTDocumentStateSynced),
+      FSTTestDoc("b/2", kVersion, _kDocData, FSTDocumentStateSynced)
+    ];
     XCTAssertEqual([results count], [expected count]);
     for (FSTDocument *doc in expected) {
       XCTAssertEqualObjects([results objectForKey:doc.key], doc);
@@ -151,7 +153,7 @@ static const int kVersion = 42;
 // TODO(gsoltis): reevaluate if any of these helpers are still needed
 
 - (FSTDocument *)setTestDocumentAtPath:(const absl::string_view)path {
-  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, NO);
+  FSTDocument *doc = FSTTestDoc(path, kVersion, _kDocData, FSTDocumentStateSynced);
   [self.remoteDocumentCache addEntry:doc];
   return doc;
 }

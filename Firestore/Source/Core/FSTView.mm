@@ -295,6 +295,7 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
     while (newDocumentSet.count > self.query.limit) {
       FSTDocument *oldDoc = [newDocumentSet lastDocument];
       newDocumentSet = [newDocumentSet documentSetByRemovingKey:oldDoc.key];
+      newMutatedKeys = newMutatedKeys.erase(oldDoc.key);
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
                                                          type:FSTDocumentViewChangeTypeRemoved]];

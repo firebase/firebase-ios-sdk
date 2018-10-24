@@ -87,7 +87,9 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMaybeDocument *maybeDoc = [self documentForKey:key inBatches:batches];
     // TODO(http://b/32275378): Don't conflate missing / deleted.
     if (!maybeDoc) {
-      maybeDoc = [FSTDeletedDocument documentWithKey:key version:SnapshotVersion::None()];
+      maybeDoc = [FSTDeletedDocument documentWithKey:key
+                                             version:SnapshotVersion::None()
+                               hasCommittedMutations:NO];
     }
     results = [results dictionaryBySettingObject:maybeDoc forKey:key];
   }

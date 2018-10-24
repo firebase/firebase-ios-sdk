@@ -312,7 +312,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
       // manufactured events (e.g. in the case of a limbo document resolution failing).
       if (!existingDoc || doc.version == SnapshotVersion::None() ||
-          authoritativeUpdates.contains(doc.key) || doc.version >= existingDoc.version) {
+          authoritativeUpdates.contains(doc.key) ||
+          (doc.version >= existingDoc.version && existingDoc.hasPendingWrites)) {
         [self.remoteDocumentCache addEntry:doc];
       } else {
         LOG_DEBUG(
