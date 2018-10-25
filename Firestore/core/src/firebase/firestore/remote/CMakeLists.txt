@@ -95,17 +95,8 @@ cc_library(
     firebase_firestore_util
   EXTERNAL_DEPENDS
     grpc++
+  RESOURCES
+    ${external_src_dir}/grpc/etc/roots.pem
 )
-
-# set_target_properties(firebase_firestore_remote PROPERTIEOBCDS
-#   OBCMACOSX_BUNDLE TRUE
-#   MACOSX_FRAMEWORK_IDENTIFIER com.google.firebase.firestore
-#   RESOURCE "${external_src_dir}/grpc/roots.pemOBC"
-# )
-
-#set_target_properties(firebase_firestore_remote PROPERTIES
-#RESOURCE "${external_src_dir}/grpc/etc/roots.pem"
-#)
-
-configure_file(${external_src_dir}/grpc/etc/roots.pem ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-message(WARNING "OBC ${external_src_dir}/grpc/etc/roots.pem")
+# This line works
+# configure_file(${external_src_dir}/grpc/etc/roots.pem ${FIREBASE_BINARY_DIR} COPYONLY)
