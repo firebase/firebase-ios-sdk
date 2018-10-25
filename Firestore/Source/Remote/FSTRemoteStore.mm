@@ -269,7 +269,7 @@ static const int kMaxPendingWrites = 10;
   if ([self.listenTargets count] == 0) {
     if (_watchStream->IsOpen()) {
       _watchStream->MarkIdle();
-    } else {
+    } else if ([self canUseNetwork]) {
       // Revert to OnlineState::Unknown if the watch stream is not open and we have no listeners,
       // since without any listens to send we cannot confirm if the stream is healthy and upgrade
       // to OnlineState::Online.
