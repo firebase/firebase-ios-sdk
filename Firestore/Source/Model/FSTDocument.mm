@@ -163,7 +163,6 @@ NS_ASSUME_NONNULL_BEGIN
   return deletedDocument;
 }
 
-
 - (BOOL)hasCommittedMutations {
   return _hasCommittedMutations;
 }
