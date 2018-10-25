@@ -1,5 +1,5 @@
 # Uncomment the next two lines for pre-release testing
-#source 'sso://cpdc-internal/spec'
+#source 'sso://cpdc-internal/firebase'
 #source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
