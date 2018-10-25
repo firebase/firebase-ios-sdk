@@ -18,6 +18,7 @@
 @interface FIRStorageDeleteTests : XCTestCase
 
 @property(strong, nonatomic) GTMSessionFetcherService *fetcherService;
+@property(nonatomic) dispatch_queue_t dispatchQueue;
 @property(strong, nonatomic) FIRStorageMetadata *metadata;
 @property(strong, nonatomic) FIRStorage *storage;
 @property(strong, nonatomic) id mockApp;
@@ -44,6 +45,8 @@
       [[FIRStorageTokenAuthorizer alloc] initWithGoogleAppID:@"dummyAppID"
                                               fetcherService:self.fetcherService
                                                 authProvider:nil];
+
+  self.dispatchQueue = dispatch_queue_create("Test dispatch queue", DISPATCH_QUEUE_SERIAL);
 
   self.storage = [FIRStorage storageForApp:self.mockApp];
 }
@@ -76,6 +79,7 @@
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
                                                                 fetcherService:self.fetcherService
+                                                                 dispatchQueue:self.dispatchQueue
                                                                     completion:^(NSError *error) {
                                                                       [expectation fulfill];
                                                                     }];
@@ -92,6 +96,7 @@
   FIRStorageReference *ref = [[FIRStorageReference alloc] initWithStorage:self.storage path:path];
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc] initWithReference:ref
                                                                 fetcherService:self.fetcherService
+                                                                 dispatchQueue:self.dispatchQueue
                                                                     completion:^(NSError *error) {
                                                                       XCTAssertEqual(error, nil);
                                                                       [expectation fulfill];
@@ -111,6 +116,7 @@
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
                XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthenticated);
                [expectation fulfill];
@@ -130,6 +136,7 @@
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
                XCTAssertEqual(error.code, FIRStorageErrorCodeUnauthorized);
                [expectation fulfill];
@@ -149,6 +156,7 @@
   FIRStorageDeleteTask *task = [[FIRStorageDeleteTask alloc]
       initWithReference:ref
          fetcherService:self.fetcherService
+          dispatchQueue:self.dispatchQueue
              completion:^(NSError *error) {
                XCTAssertEqual(error.code, FIRStorageErrorCodeObjectNotFound);
                [expectation fulfill];

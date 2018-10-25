@@ -33,6 +33,8 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.dependency 'FirebaseCore', '~> 5.1'
   s.dependency 'GTMSessionFetcher/Core', '~> 1.1'
   s.pod_target_xcconfig = {
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
-      'FIRStorage_VERSION=' + s.version.to_s }
+      'FIRStorage_VERSION=' + s.version.to_s
+  }
 end

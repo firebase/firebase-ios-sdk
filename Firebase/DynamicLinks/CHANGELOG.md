@@ -1,3 +1,6 @@
+# v3.1.1
+- Use c99 compatible __typeof__() operator. (#1982)
+
 # v3.1.0
 - Firebase Dynamic Links is now open source and delivered as a source pod. (#1842)
 
