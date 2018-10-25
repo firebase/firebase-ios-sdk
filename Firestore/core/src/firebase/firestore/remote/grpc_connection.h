@@ -96,16 +96,6 @@ class GrpcConnection {
                                  const std::string& target_name);
 
  private:
-  static bool HasSpecialConfig(const std::string& host);
-
-  struct HostConfig {
-    util::Path certificate_path;
-    std::string target_name;
-    bool use_insecure_channel = false;
-  };
-  using ConfigByHost = std::unordered_map<std::string, HostConfig>;
-  static ConfigByHost* config_by_host_;
-
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const auth::Token& credential) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;

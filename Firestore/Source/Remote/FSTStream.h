@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Core/FSTTypes.h"
-
 #include "Firestore/core/src/firebase/firestore/model/snapshot_version.h"
 
 @class FSTMutationResult;
