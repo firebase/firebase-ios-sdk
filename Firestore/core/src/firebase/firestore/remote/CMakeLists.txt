@@ -103,7 +103,9 @@ cc_library(
 #   RESOURCE "${external_src_dir}/grpc/roots.pemOBC"
 # )
 
-set_target_properties(firebase_firestore_remote PROPERTIES
-  RESOURCE "${external_src_dir}/grpc/etc/roots.pem"
-)
+#set_target_properties(firebase_firestore_remote PROPERTIES
+#RESOURCE "${external_src_dir}/grpc/etc/roots.pem"
+#)
+
+configure_file(${external_src_dir}/grpc/etc/roots.pem ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 message(WARNING "OBC ${external_src_dir}/grpc/etc/roots.pem")

@@ -300,11 +300,7 @@ TEST_F(GrpcStreamTest, WriteAndFinish) {
   KeepPollingGrpcQueue();
 
   worker_queue.EnqueueBlocking([&] {
-    bool did_last_write = stream->WriteAndFinish({});
-    // Canceling gRPC context is not used in this test, so the write operation
-    // won't come back from the completion queue.
-    EXPECT_FALSE(did_last_write);
-
+    stream->WriteAndFinish({});
     EXPECT_EQ(observed_states(), States({"OnStreamStart"}));
   });
 }

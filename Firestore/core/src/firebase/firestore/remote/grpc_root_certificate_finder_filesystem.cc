@@ -23,7 +23,7 @@ namespace remote {
 using util::Path;
 
 Path FindGrpcRootCertificate() {
-  return Path::FromUtf8("etc/roots.pem");
+  return Path::FromUtf8("roots.pem");
 }
 
 }  // namespace remote
