@@ -27,9 +27,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.source_files = 'Firebase/Core/**/*.[mh]'
   s.public_header_files = 'Firebase/Core/Public/*.h', 'Firebase/Core/Private/*.h'
   s.private_header_files = 'Firebase/Core/Private/*.h'
-  s.frameworks = [
-    'Foundation'
-  ]
+  s.framework = 'Foundation'
   s.dependency 'GoogleUtilities/Logger', '~> 5.2'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

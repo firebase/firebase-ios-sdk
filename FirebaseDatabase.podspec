@@ -30,7 +30,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + 'third_party/SocketRocket/fbase64.c'
   s.public_header_files = base_dir + 'Public/*.h'
   s.libraries = ['c++', 'icucore']
-  s.frameworks = ['CFNetwork', 'Security', 'SystemConfiguration']
+  s.frameworks = 'CFNetwork', 'Security', 'SystemConfiguration'
   s.dependency 'leveldb-library', '~> 1.18'
   s.dependency 'FirebaseCore', '~> 5.0'
   s.pod_target_xcconfig = {
