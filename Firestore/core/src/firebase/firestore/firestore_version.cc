@@ -18,8 +18,7 @@
 
 #ifndef FIRFirestore_VERSION
 #error \
-    // NOLINTNEXTLINE(whitespace/line_length)
-    "FIRFirestore_VERSION is not defined: add -DFIRFirestore_VERSION=... to the build invocation"
+    "FIRFirestore_VERSION is not defined: add -DFIRFirestore_VERSION=... to the build invocation"  // NOLINT(whitespace/line_length)
 #endif
 
 namespace firebase {
