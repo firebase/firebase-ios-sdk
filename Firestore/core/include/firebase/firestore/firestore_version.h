@@ -19,10 +19,10 @@
 
 /** Version for Firestore. */
 
-/** Version string for the Firebase Firestore SDK. */
 namespace firebase {
 namespace firestore {
 
+/** Version string for the Firebase Firestore SDK. */
 extern "C" const char* const firestore_version_string;
 
 }  // namespace firestore
