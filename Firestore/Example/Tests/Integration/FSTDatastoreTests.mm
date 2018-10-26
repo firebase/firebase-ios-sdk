@@ -221,6 +221,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
     [_remoteStore addBatchToWritePipeline:batch];
+    // The added batch won't be written immediately because write stream wasn't yet open --
+    // trigger its opening.
+    [_remoteStore fillWritePipeline];
   }];
 
   [self awaitExpectations];

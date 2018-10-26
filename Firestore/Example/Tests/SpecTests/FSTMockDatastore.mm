@@ -48,6 +48,13 @@ using firebase::firestore::auth::EmptyCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
+using firebase::firestore::model::TargetId;
+using firebase::firestore::remote::ConnectivityMonitor;
+using firebase::firestore::remote::GrpcConnection;
+using firebase::firestore::remote::WatchStream;
+using firebase::firestore::remote::WriteStream;
+using firebase::firestore::util::AsyncQueue;
+using firebase::firestore::util::CreateNoOpConnectivityMonitor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,9 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
 namespace firebase {
 namespace firestore {
 namespace remote {
-
-using model::TargetId;
-using util::AsyncQueue;
 
 class MockWatchStream : public WatchStream {
  public:
@@ -74,7 +78,7 @@ class MockWatchStream : public WatchStream {
     active_targets_ = [NSMutableDictionary dictionary];
   }
 
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() {
+  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() const {
     return [active_targets_ copy];
   }
 
@@ -224,7 +228,7 @@ class MockWriteStream : public WriteStream {
    * Returns the number of mutations that have been sent to the backend but not retrieved via
    * nextSentWrite yet.
    */
-  int SentMutationsCount() const {
+  int sent_mutations_count() const {
     return static_cast<int>(sent_mutations_.size());
   }
 
@@ -239,12 +243,8 @@ class MockWriteStream : public WriteStream {
 }  // namespace firestore
 }  // namespace firebase
 
-using firebase::firestore::remote::ConnectivityMonitor;
-using firebase::firestore::remote::GrpcConnection;
 using firebase::firestore::remote::MockWatchStream;
 using firebase::firestore::remote::MockWriteStream;
-using firebase::firestore::remote::WatchStream;
-using firebase::firestore::remote::WriteStream;
 
 @interface FSTMockDatastore ()
 
@@ -306,7 +306,7 @@ using firebase::firestore::remote::WriteStream;
 }
 
 - (int)writesSent {
-  return _writeStream->SentMutationsCount();
+  return _writeStream->sent_mutations_count();
 }
 
 - (void)ackWriteWithVersion:(const SnapshotVersion &)version

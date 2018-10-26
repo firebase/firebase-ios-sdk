@@ -60,6 +60,23 @@ std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
   return grpc::SslCredentials(options);
 }
 
+struct HostConfig {
+  util::Path certificate_path;
+  std::string target_name;
+  bool use_insecure_channel = false;
+};
+
+using ConfigByHost = std::unordered_map<std::string, HostConfig>;
+
+ConfigByHost& Config() {
+  static ConfigByHost config_by_host_;
+  return config_by_host_;
+}
+
+bool HasSpecialConfig(const std::string& host) {
+  return Config().find(host) != Config().end();
+}
+
 std::string LoadCertificate(const Path& path) {
   std::ifstream certificate_file{path.native_value()};
   HARD_ASSERT(certificate_file.good(),
@@ -73,8 +90,6 @@ std::string LoadCertificate(const Path& path) {
 }
 
 }  // namespace
-
-GrpcConnection::ConfigByHost* GrpcConnection::config_by_host_ = nullptr;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -107,7 +122,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
   }
 
-  // TODO(dimond): This should ideally also include the grpc version, however,
+  // TODO(dimond): This should ideally also include the gRPC version, however,
   // gRPC defines the version as a macro, so it would be hardcoded based on
   // version we have at compile time of the Firestore library, rather than the
   // version available at runtime/at compile time by the user of the library.
@@ -146,7 +161,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
     return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
   }
 
-  const HostConfig& host_config = (*config_by_host_)[host];
+  const HostConfig& host_config = Config()[host];
 
   // For the case when `Settings.sslEnabled == false`.
   if (host_config.use_insecure_channel) {
@@ -232,12 +247,7 @@ void GrpcConnection::Unregister(GrpcCall* call) {
               "Empty path to test certificate");
   HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
 
-  if (!config_by_host_) {
-    // Deliberately never deleted.
-    config_by_host_ = new ConfigByHost{};
-  }
-
-  HostConfig& host_config = (*config_by_host_)[host];
+  HostConfig& host_config = Config()[host];
   host_config.certificate_path = certificate_path;
   host_config.target_name = target_name;
 }
@@ -245,20 +255,8 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 /*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
   HARD_ASSERT(!host.empty(), "Empty host name");
 
-  if (!config_by_host_) {
-    // Deliberately never deleted.
-    config_by_host_ = new ConfigByHost{};
-  }
-
-  HostConfig& test_config = (*config_by_host_)[host];
-  test_config.use_insecure_channel = true;
-}
-
-/*static*/ bool GrpcConnection::HasSpecialConfig(const std::string& host) {
-  if (!config_by_host_) {
-    return false;
-  }
-  return config_by_host_->find(host) != config_by_host_->end();
+  HostConfig& host_config = Config()[host];
+  host_config.use_insecure_channel = true;
 }
 
 }  // namespace remote

@@ -121,7 +121,6 @@
 		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
 		7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
 		923F824C206C4D8000034974 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F824B206C4D8000034974 /* SafariServices.framework */; };
-		923F824E206C4D8B00034974 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F824D206C4D8B00034974 /* SafariServices.framework */; };
 		923F824F206C4DA500034974 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE45C6641E7DA8CB009E6ACD /* XCTest.framework */; };
 		923F8251206C4DC600034974 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F8250206C4DC500034974 /* UserNotifications.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		923F8252206C4DD500034974 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -185,8 +184,6 @@
 		D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D0EDB2D71EDA057800B6C31B /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */; };
 		D0EDB2D81EDA057800B6C31B /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D41EDA056A00B6C31B /* FIRViewController.m */; };
@@ -877,7 +874,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -887,7 +883,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -962,7 +957,6 @@
 		7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRUserMetadataTests.m; sourceTree = "<group>"; };
 		8496034D8156555C5FCF8F14 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		923F824B206C4D8000034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
-		923F824D206C4D8B00034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		923F8250206C4DC500034974 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Shared.xcassets; path = Shared/Shared.xcassets; sourceTree = "<group>"; };
 		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -987,7 +981,6 @@
 		D064E6A41ED9B1BF001956DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D064E6A61ED9B1BF001956DF /* Core-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-iOS/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2CD1EDA04F800B6C31B /* Storage_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2D01EDA056A00B6C31B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D0EDB2D11EDA056A00B6C31B /* FIRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
@@ -1386,7 +1379,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				923F824E206C4D8B00034974 /* SafariServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1766,8 +1758,6 @@
 			children = (
 				923F8250206C4DC500034974 /* UserNotifications.framework */,
 				923F824B206C4D8000034974 /* SafariServices.framework */,
-				923F824D206C4D8B00034974 /* SafariServices.framework */,
-				D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */,
 				DE45C6641E7DA8CB009E6ACD /* XCTest.framework */,
 				DEB61E781E7C542600C04B96 /* libsqlite3.tbd */,
 				6003F58D195388D20070C39A /* Foundation.framework */,

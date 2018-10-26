@@ -30,7 +30,7 @@ namespace remote {
  * resources accessible by Firestore) and returns its path. Will trigger
  * assertion failure if the file cannot be found.
  */
-  std::string LoadGrpcRootCertificate();
+std::string LoadGrpcRootCertificate();
 
 }  // namespace remote
 }  // namespace firestore

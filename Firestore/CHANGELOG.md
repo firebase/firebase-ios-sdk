@@ -1,5 +1,8 @@
 # Unreleased
 
+# v0.13.6
+- [changed] Internal improvements.
+
 # v0.13.5
 - [changed] Some SDK errors that represent common mistakes (such as permission
   denied or a missing index) will automatically be logged as a warning in

@@ -28,7 +28,7 @@ more details and additional installation methods.
 
 - Create a Cartfile with a **subset** of the following components - choosing the
 Firebase components that you want to include in your app. Note that
-**FirebaseAnalytics** must always be included.
+**FirebaseAnalyticsBinary** must always be included.
 ```
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseABTestingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseAdMobBinary.json"
@@ -39,6 +39,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDatabaseBinary.js
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseDynamicLinksBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFirestoreBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseFunctionsBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingBinary.json"
+binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInAppMessagingDisplayBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseInvitesBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMessagingBinary.json"
 binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseMLModelInterpreterBinary.json"
@@ -55,8 +57,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 - Use Finder to open `Carthage/Build/iOS`.
 - Copy the contents into the top level of your Xcode project and make sure
     they're added to the right build target(s).
-- Add the -ObjC flag to "Other Linker Flags".
-- Make sure that the build target(s) includes your project's `GoogleService-Info.plist`.
+- Add `$(OTHER_LDFLAGS) -ObjC` flag to "Other Linker Flags" in "Build Settings".
+- Make sure that the build target(s) includes your project's `GoogleService-Info.plist` ([how to download config file](https://support.google.com/firebase/answer/7015592))
 - [Delete Firebase.framework from the Link Binary With Libraries Build Phase](https://github.com/firebase/firebase-ios-sdk/issues/911#issuecomment-372455235).
 - If you're including a Firebase component that has resources, copy its bundles
     into the Xcode project and make sure they're added to the
