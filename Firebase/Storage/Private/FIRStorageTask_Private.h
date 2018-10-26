@@ -54,6 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(strong, nonatomic) FIRStorageReference *reference;
 
+/**
+ * A serial queue for all storage operations.
+ */
+@property(nonatomic, readonly) dispatch_queue_t dispatchQueue;
+
 @property(strong, readwrite, nonatomic, nonnull) FIRStorageTaskSnapshot *snapshot;
 
 @property(readonly, copy, nonatomic) NSURLRequest *baseRequest;
@@ -64,15 +69,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(readonly, copy) GTMSessionFetcherCompletionHandler fetcherCompletion;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 /**
  * Creates a new FIRStorageTask initialized with a FIRStorageReference and GTMSessionFetcherService.
  * @param reference A FIRStorageReference the task will be performed on.
  * @param service A GTMSessionFetcherService which provides the fetchers and configuration for
  * requests.
+ * @param queue The shared queue to use for all Storage operations.
  * @return A new FIRStorageTask representing the current task.
  */
 - (instancetype)initWithReference:(FIRStorageReference *)reference
-                   fetcherService:(GTMSessionFetcherService *)service NS_DESIGNATED_INITIALIZER;
+                   fetcherService:(GTMSessionFetcherService *)service
+                    dispatchQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
+
+/** Dispatches a block on the shared Storage queue. */
+- (void)dispatchAsync:(void (^)(void))block;
 
 @end
 

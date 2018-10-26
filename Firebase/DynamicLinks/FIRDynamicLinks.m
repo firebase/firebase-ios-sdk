@@ -422,10 +422,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)handleUniversalLink:(NSURL *)universalLinkURL
                  completion:(FIRDynamicLinkUniversalLinkHandler)completion {
   if ([self matchesShortLinkFormat:universalLinkURL]) {
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof__(self) weakSelf = self;
     [self resolveShortLink:universalLinkURL
                 completion:^(NSURL *url, NSError *error) {
-                  typeof(self) strongSelf = weakSelf;
+                  __typeof__(self) strongSelf = weakSelf;
                   if (strongSelf) {
                     FIRDynamicLink *dynamicLink = [strongSelf dynamicLinkFromCustomSchemeURL:url];
                     dispatch_async(dispatch_get_main_queue(), ^{

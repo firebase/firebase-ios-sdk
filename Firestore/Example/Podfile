@@ -1,5 +1,5 @@
 # Uncomment the next two lines for pre-release testing
-#source 'sso://cpdc-internal/spec'
+#source 'sso://cpdc-internal/firebase'
 #source 'https://github.com/CocoaPods/Specs.git'
 
 use_frameworks!
@@ -10,7 +10,7 @@ target 'Firestore_Example_iOS' do
   # The next line is the forcing function for the Firebase pod. The Firebase
   # version's subspecs should depend on the component versions in their
   # corresponding podspec's.
-  pod 'Firebase/CoreOnly', '5.10.0'
+  pod 'Firebase/CoreOnly', '5.11.0'
 
   pod 'FirebaseAuth', :path => '../../'
   pod 'FirebaseAuthInterop', :path => '../../'
