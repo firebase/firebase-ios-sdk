@@ -129,8 +129,7 @@ static FSTServerTimestampBehavior InternalServerTimestampBehavor(
   return [self.firestore isEqual:snapshot.firestore] && self.internalKey == snapshot.internalKey &&
          (self.internalDocument == snapshot.internalDocument ||
           [self.internalDocument isEqual:snapshot.internalDocument]) &&
-         _pendingWrites == snapshot->_pendingWrites;
-  self.fromCache == snapshot.fromCache;
+         self.pendingWrites == snapshot.pendingWrites && self.fromCache == snapshot.fromCache;
 }
 
 - (NSUInteger)hash {
