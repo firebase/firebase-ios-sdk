@@ -3,13 +3,12 @@
 ## Context
 
 This page introduces and provides instructions for an **experimental** Firebase
-[Carthage](https://github.com/Carthage/Carthage) implementation. Based on
-feedback and usage, the Firebase team may decide to make the Carthage
-distribution official.
+[Carthage](https://github.com/Carthage/Carthage) distribution. Based on
+feedback and usage, the Firebase team may decide to [make the Carthage
+distribution official](https://github.com/firebase/firebase-ios-sdk/issues/1862).
 
 Please [let us know](https://github.com/firebase/firebase-ios-sdk/issues) if you
-have suggestions about how best to distribute Carthage binaries that include
-resource bundles.
+have suggestions or questions.
 
 ## Carthage Installation
 
