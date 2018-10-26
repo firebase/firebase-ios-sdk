@@ -41,11 +41,11 @@ $ gem install cocoapods-rome
    Navigator pane. In the dialog box that appears, make sure the target you
    want the framework to be added to has a checkmark next to it, and that
    you've selected "Copy items if needed".
-1. Find the dynamic frameworks: In a shell type: 
+1. Find the dynamic frameworks: In a shell type:
    `file Rome/*/* | grep universal | grep dynamic`
 1. Drag each dynamic framework to the "Embed Frameworks" section on the
    Xcode Build Target's "General" page.
-1. If you're using FirebaseML, FirebaseInAppMessaging, FirebaseFirestore, or 
+1. If you're using FirebaseML, FirebaseInAppMessaging, FirebaseFirestore, or
    FirebaseInvites, find
    the resources to the project: `ls -ld Pods/*/Resources/*`. More details on
    this below.
