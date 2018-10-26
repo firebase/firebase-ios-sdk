@@ -27,7 +27,23 @@ namespace remote {
 
 using util::Path;
 
-Path FindGrpcRootCertificate() {
+namespace {
+
+std::string LoadCertificate(const Path& path) {
+  std::ifstream certificate_file{path.native_value()};
+  HARD_ASSERT(certificate_file.good(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+
+  std::stringstream buffer;
+  buffer << certificate_file.rdbuf();
+  return buffer.str();
+}
+
+}
+
+std::string LoadGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the
   // certificate from gRPC-C++ pod.
   // NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
@@ -42,7 +58,7 @@ Path FindGrpcRootCertificate() {
       path,
       "Could not load root certificates from the bundle. SSL won't work.");
 
-  return Path::FromNSString(path);
+  return LoadCertificate(Path::FromNSString(path));
 }
 
 }  // namespace remote

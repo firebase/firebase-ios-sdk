@@ -53,6 +53,13 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
+std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
+    const std::string& certificate) {
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = certificate;
+  return grpc::SslCredentials(options);
+}
+
 std::string LoadCertificate(const Path& path) {
   std::ifstream certificate_file{path.native_value()};
   HARD_ASSERT(certificate_file.good(),
@@ -62,26 +69,7 @@ std::string LoadCertificate(const Path& path) {
 
   std::stringstream buffer;
   buffer << certificate_file.rdbuf();
-  std::string certificate = buffer.str();
-  // Certificate is in UTF-8 and may contain non-ASCII characters in comments,
-  // which may not be supported by gRPC. Replacing them is faster than removing
-  // them (the file is expected to be ~260KB).
-  std::replace_if(certificate.begin(), certificate.end(),
-                  [](char c) {
-                    // char may or may not be unsigned, convert it to unsigned
-                    // to be sure about what constitutes valid ASCII range.
-                    return static_cast<unsigned char>(c) >= 128;
-                  },
-                  '?');
-
-  return certificate;
-}
-
-std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
-    const Path& certificate_path) {
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = LoadCertificate(certificate_path);
-  return grpc::SslCredentials(options);
+  return buffer.str();
 }
 
 }  // namespace
@@ -154,9 +142,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
   if (!HasSpecialConfig(host)) {
-    Path root_certificate_path = FindGrpcRootCertificate();
-    return grpc::CreateChannel(host,
-                               CreateSslCredentials(root_certificate_path));
+    std::string root_certificate = LoadGrpcRootCertificate();
+    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
   }
 
   const HostConfig& host_config = (*config_by_host_)[host];
@@ -169,8 +156,9 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   // For tests only
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config.target_name);
-  return grpc::CreateCustomChannel(
-      host, CreateSslCredentials(host_config.certificate_path), args);
+  std::string test_certificate = LoadCertificate(host_config.certificate_path);
+  return grpc::CreateCustomChannel(host, CreateSslCredentials(test_certificate),
+                                   args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(

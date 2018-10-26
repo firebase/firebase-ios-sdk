@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 
-#include <string>
-
-#include "Firestore/core/src/firebase/firestore/util/path.h"
+#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
-/**
- * Finds the file containing gRPC root certificates (`roots.pem`, must be among
- * resources accessible by Firestore) and returns its path. Will trigger
- * assertion failure if the file cannot be found.
- */
-  std::string LoadGrpcRootCertificate();
+std::string LoadGrpcRootCertificate() {
+  return {reinterpret_cast<const char*>(grpc_root_certificates), grpc_root_certificates_size};
+}
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_

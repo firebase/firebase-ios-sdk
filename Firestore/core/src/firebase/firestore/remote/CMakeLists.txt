@@ -42,6 +42,19 @@ cc_select(
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
 )
 
+# add_custom_target(
+#   scripts
+#   SOURCES
+#   binary_to_array.py
+# )
+
+add_custom_command(
+    OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/binary_to_array.py --input=${external_src_dir}/grpc/etc/roots.pem --output_header=grpc_root_certificates_generated.h --output_source=grpc_root_certificates_generated.cc --cpp_namespace=firebase::firestore::remote --array=grpc_root_certificates --array_size=grpc_root_certificates_size
+    DEPENDS
+    ${external_src_dir}/grpc/etc/roots.pem
+)
+
 cc_library(
   firebase_firestore_remote
   SOURCES
@@ -79,8 +92,9 @@ cc_library(
     # write_stream.mm
 
     grpc_root_certificate_finder.h
-    grpc_root_certificate_finder_filesystem.cc
-    ${external_src_dir}/grpc/etc/roots.pem
+    grpc_root_certificate_finder_generated.cc
+    grpc_root_certificates_generated.h
+    grpc_root_certificates_generated.cc
 
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
@@ -98,5 +112,3 @@ cc_library(
 )
 # This line works
 # configure_file(${external_src_dir}/grpc/etc/roots.pem ${FIREBASE_BINARY_DIR} COPYONLY)
-
-configure_file(grpc_root_certificate_finder_filesystem. tn ${FIREBASE_BINARY_DIR} COPYONLY)
