@@ -41,7 +41,7 @@ std::string LoadCertificate(const Path& path) {
   return buffer.str();
 }
 
-}
+}  // namespace
 
 std::string LoadGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the

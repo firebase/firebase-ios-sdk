@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
+/**
+ * This implementation presumes that `roots.pem` has been embedded into the
+ * binary during the build and is accessible as a char array named
+ * `grpc_root_certificates`.
+ */
+
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificates_generated.h"
-#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 
 std::string LoadGrpcRootCertificate() {
-  return {reinterpret_cast<const char*>(grpc_root_certificates), grpc_root_certificates_size};
+  return {reinterpret_cast<const char*>(grpc_root_certificates),
+          grpc_root_certificates_size};
 }
 
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
-
