@@ -32,7 +32,7 @@ NSTimeInterval kTestDelay = 0.1;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 2;
+static const NSTimeInterval kExpectationTimeout = 3;
 
 id<OS_dispatch_queue> testWorkQueue;
 
