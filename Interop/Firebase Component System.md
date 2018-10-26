@@ -1,10 +1,11 @@
 # Using Core's Component System
 
 FirebaseCore has a dependency injection system (referred to as "Interop") used to depend on
-functionalities provided by other Firebase SDKs. This gives the ability to depend on a typesafe
-interface-only API to consume without depending on the entire SDK and simulates optional
-dependencies - depending on the definition but not the implementing SDK and only functioning when
-the implementing SDK is included.
+functionalities provided by other Firebase products (specifically, the frameworks that offer those
+products). This gives the ability to depend on a typesafe interface-only API to consume without
+depending on the entire product and simulates optional dependencies - depending on the definition
+but not the product itself and only functioning when the product implementing that definition is
+included.
 
 ## Table of Contents
 
@@ -14,20 +15,21 @@ the implementing SDK is included.
 - [Registering with Core](#registering-with-core)
     - [Singletons and Instance Management](#singletons-and-instance-management)
         - [Single Instance per `FIRApp`](#single-instance-per-firapp)
-            - [SDK does not provide functionality (example: Functions)](#sdk-does-not-provide-functionality-(example:-functions))
-            - [SDK provides functionality to other SDKs (example: Auth)](#sdk-provides-functionality-to-other-SDKs-(example:-auth))
+            - [Framework does not provide functionality (example: Functions)](#framework-does-not-provide-functionality-(example:-functions))
+            - [Framework provides functionality to other Frameworks (example: Auth)](#framework-provides-functionality-to-other-frameworks-(example:-auth))
         - [Multiple Instances per FIRApp](#multiple-instances-per-firapp)
-    - [Depending on Functionality from Another SDK](#depending-on-functionality-from-another-sdk)
+    - [Depending on Functionality from Another Framework](#depending-on-functionality-from-another-framework)
 - [Advanced Use Cases](#advanced-use-cases)
     - [Providing Multiple Components and Sharing Instances](#providing-multiple-components-and-sharing-instances)
 
 
 ## Overview
 
-When a Firebase SDK wants to provide functionality to another Firebase SDK, it must be done through
-the Interop system. Both SDKs depend on a shared protocol that describes the functionality provided
-by one SDK and required by the other. Let's use `A` and `B`, where `B` depends on functionality
-provided by `A` and the functionality is described by protocol `AInterop`.
+When a Firebase framework wants to provide functionality to another Firebase framework, it must be
+done through the Interop system. Both frameworks depend on a shared protocol in a separate framework
+that describes the functionality provided by one framework and required by the other. Let's use `A`
+and `B`, where `B` depends on functionality provided by `A` and the functionality is described by
+protocol `AInterop`.
 
 During configuration, `A` tells Core that it provides functionality for `AInterop` and `B` tells
 Core it would like functionality `AInterop` (and specifies whether it is required or optional) as
@@ -37,23 +39,24 @@ instantiates `B` and passes a container that contains the instance of `A` that p
 `B` has no idea what class `A` is, and it doesn't need to. All `B` needs to know is that it has an
 instance of an object that conforms to `AInterop` and provides the functionality it needs.
 
-This system allows Firebase SDKs to depend on each other in a typesafe way and allows us to
-explicitly declare version dependencies on the interfaces required instead of the SDK version.
+This system allows Firebase frameworks to depend on each other in a typesafe way and allows us to
+explicitly declare version dependencies on the interfaces required instead of the product's version.
 
 ## Protocol Only Frameworks
 
-In order to share protocols between two SDKs, we introduced header only frameworks that declare the
-desired protocol(s).
+In order to share protocols between two frameworks, we introduced header only frameworks that
+declare the desired protocol(s).
 
-The naming convention for the framework should be `<SDKName>Interop` but the protocols don't have a
-strict naming guideline other than having a `FIR` prefix in Objective-C.
+The naming convention for the framework should be `<ProductName>Interop` but the protocols don't
+have a strict naming guideline other than having a `FIR` prefix in Objective-C.
 
-Both the implementing and dependent SDK will have a required dependency on this `<SDKName>Interop`
-framework: the implementing SDK must conform to the protocols defined and register it with Core,
-while the dependent SDK will use the protocol definition to use methods defined by it.
+Both the implementing and dependent framework will have a required dependency on this
+`<ProductName>Interop` framework: the implementing framework must conform to the protocols defined
+and register it with Core, while the dependent framework will use the protocol definition to use
+methods defined by it.
 
-An Interop framework can have multiple protocols, but all should be implemented by the SDK it is
-named after.
+An Interop framework can have multiple protocols, but all should be implemented by the product it
+is named after.
 
 Protocols *can not* declare class methods. This is an intentional decision to ensure all interfaces
 interact properly based on the `FIRApp` that's used.
@@ -61,20 +64,20 @@ interact properly based on the `FIRApp` that's used.
 ## Types and Core API
 
 For the rest of the documentation, it's important to be familiar with the various classes and API
-provided by Core. Since the SDKs are written in Objective-C, we'll use the Objective-C names. The
-Swift names are identical but dropping the `FIR` prefix.
+provided by Core. Since the frameworks are written in Objective-C, we'll use the Objective-C names.
+The Swift names are identical but dropping the `FIR` prefix.
 
 - `@class FIRDependency`
   - A dependency on a specific protocol's functionality. Created with the factory method
       `[FIRDependency dependencyWithProtocol:isRequired:]`
 - `@class FIRComponent`
-  - A component to register with Core to be consumed by other SDKs. It declares the protocol
+  - A component to register with Core to be consumed by other frameworks. It declares the protocol
     offered, dependencies, and a block for Core to instantiate it.
 - `@class FIRComponentContainer`
   - A container that holds different components that are registered with Core.
 - `@protocol FIRComponentRegistrant`
-  - Describes functionality for SDKs registering components in the `FIRComponentContainer`. It
-    allows Core to fetch components lazily from the SDK.
+  - Describes functionality for frameworks registering components in the `FIRComponentContainer`. It
+    allows Core to fetch components lazily from the implementing framework.
 - `#define FIR_COMPONENT(protocol, container)` (macro)
   - The macro to request an instance conforming to a given protocol from a container. Due to
     Objective-C's lightweight generic system, the safest and most readable API is provided by a
@@ -83,7 +86,7 @@ Swift names are identical but dropping the `FIR` prefix.
 
 ## Registering with Core
 
-Each Firebase SDK should register with Core in the `+load` method of the class conforming to
+Each Firebase framework should register with Core in the `+load` method of the class conforming to
 `FIRComponentRegistrant`. This needs to happen at `+load` time because Core needs to resolve any
 dependencies before a class has a chance to be called by a developer (if called at all).
 
@@ -108,23 +111,24 @@ dependencies before a class has a chance to be called by a developer (if called 
 
 ### Singletons and Instance Management
 
-All Firebase SDKs provide singleton access for convenience that map to a specific `FIRApp`:
-`[FIRAuth auth]`, `[FIRFunctions functionsForApp:]`, etc. Some SDKs can also have multiple instances
-per `FIRApp` such as Storage: `[FIRStorage storageForApp:URL:]`.
+All Firebase frameworks provide singleton access for convenience that map to a specific `FIRApp`:
+`[FIRAuth auth]`, `[FIRFunctions functionsForApp:]`, etc. Some frameworks can also have multiple
+instances per `FIRApp` such as Storage: `[FIRStorage storageForApp:URL:]`.
 
 These instances must be created and managed by Core through the component system. This allows the
 `FIRApp` lifecycle to control the lifecycle of instances associated with itself. There are different
-ways to do so depending on the SDK's situation.
+ways to do so depending on the product's offerings.
 
 #### Single Instance per `FIRApp`
 
-The registration for a single instance per `FIRApp` changes if the SDK provides functionality to
-other SDKs or not.
+The registration for a single instance per `FIRApp` changes if the framwork provides functionality
+to other frameworks or not.
 
-##### SDK does not provide functionality (example: Functions)
+##### Framework does not provide functionality (example: Functions)
 
-In this case, the SDK is a "leaf node" since no SDKs depend on it. It has a private, empty protocol
-that it uses to register with the container. Using Functions as an example:
+In this case, the framework is a "leaf node" since no other frameworks depend on functionality from
+it. It has a private, empty protocol that it uses to register with the container. Using Functions as
+an example:
 
 ```
 // FIRFunctions.h
@@ -144,7 +148,7 @@ that it uses to register with the container. Using Functions as an example:
 }
 
 /// The array of components to register with Core. Since Functions is a leaf node and
-/// doesn't provide any functionality to other SDKs, it should use Core for instance
+/// doesn't provide any functionality to other frameworks, it should use Core for instance
 /// management only.
 + (NSArray<FIRComponent *> *)componentsToRegister {
   // Each component needs a block for Core to call in order to instantiate instances of the
@@ -185,10 +189,10 @@ that it uses to register with the container. Using Functions as an example:
 @end
 ```
 
-##### SDK provides functionality to other SDKs (example: Auth)
+##### Framework provides functionality to other Frameworks (example: Auth)
 
 This example will be very similar to the one above, but let's define a simple protocol that Auth
-could conform to and provide to other SDKs:
+could conform to and provide to other frameworks:
 
 ```
 // FIRAuthInterop.h in the FirebaseAuthInterop framework.
@@ -230,7 +234,7 @@ could conform to and provide to other SDKs:
 
 #### Multiple Instances per `FIRApp`
 
-Instead of directly providing an instance from the container, Firestore and similar SDKs should
+Instead of directly providing an instance from the container, Firestore and similar products should
 create a "provider" that stores and creates instances with the required parameters. This means a
 single provider per `FIRApp`, but multiple instances are possible per provider.
 
@@ -325,7 +329,7 @@ All `Firestore.m` needs to do now is call the component container from the singl
 }
 ```
 
-### Depending on Functionality from Another SDK
+### Depending on Functionality from Another Framework
 
 *If you haven't already read [Registering with Core](#registering-with-core), please do so until you
 get back to this spot as it lays the groundwork necessary to understand this section.*
@@ -333,8 +337,8 @@ get back to this spot as it lays the groundwork necessary to understand this sec
 Adding dependencies is easy once components are registered with Core. Let's take the example from
 Functions above and add a dependency to `FIRAuthInterop` defined above.
 
-**Important**: You will also need to add a dependency on the `FirebaseAuthInterop` pod to your SDK's
-               podspec and any package manager supported.
+**Important**: You will also need to add a dependency on the `FirebaseAuthInterop` pod to your
+               product's podspec and any package manager supported.
 
 Before adding the dependency on `FIRAuthInterop`.
 
@@ -407,7 +411,7 @@ if (userID) {
 
 ### Providing Multiple Components and Sharing Instances
 
-Consider a situation where an SDK wants to offer functionality defined in multiple protocols
+Consider a situation where a framework wants to offer functionality defined in multiple protocols
 with the same instance. For example, Auth could provide `FIRAuthUserInterop` and
 `FIRAuthSignInInterop`. If a single Auth instance should be shared between those two protocols, the
 system currently doesn't work.
