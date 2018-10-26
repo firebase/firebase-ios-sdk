@@ -31,8 +31,8 @@ cc_library(
 
 target_compile_definitions(
   firebase_firestore_version
-  PUBLIC
-  FIRFirestore_VERSION=1
+  PRIVATE
+    FIRFirestore_VERSION=0.13.6
 )
 
 # Include the folder with public headers.
