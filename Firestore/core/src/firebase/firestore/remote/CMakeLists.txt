@@ -42,15 +42,18 @@ cc_select(
   DEFAULT firebase_firestore_remote_connectivity_monitor_noop
 )
 
-# add_custom_target(
-#   scripts
-#   SOURCES
-#   binary_to_array.py
-# )
-
+# `roots.pem` is a file containing root certificates that is distributed
+# alongside gRPC and is necessary to establish SSH connections. Embed this file
+# into the binary by converting it to a char array.
 add_custom_command(
     OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/binary_to_array.py --input=${external_src_dir}/grpc/etc/roots.pem --output_header=grpc_root_certificates_generated.h --output_source=grpc_root_certificates_generated.cc --cpp_namespace=firebase::firestore::remote --array=grpc_root_certificates --array_size=grpc_root_certificates_size
+    COMMAND ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
+        --input=${external_src_dir}/grpc/etc/roots.pem
+        --output_header=grpc_root_certificates_generated.h
+        --output_source=grpc_root_certificates_generated.cc
+        --cpp_namespace=firebase::firestore::remote
+        --array=grpc_root_certificates
+        --array_size=grpc_root_certificates_size
     DEPENDS
     ${external_src_dir}/grpc/etc/roots.pem
 )
