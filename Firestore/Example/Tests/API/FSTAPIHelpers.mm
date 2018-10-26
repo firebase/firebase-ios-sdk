@@ -96,20 +96,19 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
   DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
-    const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
     oldDocuments = [oldDocuments
         documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key), 1,
                                                oldDocs[key],
                                                hasPendingWrites ? FSTDocumentStateLocalMutations
                                                                 : FSTDocumentStateSynced)];
     if (hasPendingWrites) {
+      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
   for (NSString *key in docsToAdd) {
-    const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
     FSTDocument *docToAdd =
         FSTTestDoc(util::StringFormat("%s/%s", path, key), 1, docsToAdd[key],
                    hasPendingWrites ? FSTDocumentStateLocalMutations : FSTDocumentStateSynced);
@@ -119,6 +118,7 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
     if (hasPendingWrites) {
+      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
       mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
     }
   }

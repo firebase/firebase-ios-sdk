@@ -28,13 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
                         userInfo:nil];
 
 // Declare a weak pointer to the given variable
-#define FSTWeakify(var) __weak typeof(var) fstWeakPointerTo##var = var;
+#define FSTWeakify(var) __weak __typeof__(var) fstWeakPointerTo##var = var;
 
 // Declare a strong pointer to a variable that's been FSTWeakified. This creates a shadow of the
 // original.
 #define FSTStrongify(var)                                                           \
   _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wshadow\"") \
-      __strong typeof(var) var = fstWeakPointerTo##var;                             \
+      __strong __typeof__(var) var = fstWeakPointerTo##var;                         \
   _Pragma("clang diagnostic pop")
 
 NS_ASSUME_NONNULL_END

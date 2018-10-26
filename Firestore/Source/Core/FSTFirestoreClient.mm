@@ -128,11 +128,12 @@ NS_ASSUME_NONNULL_BEGIN
     _workerDispatchQueue = workerDispatchQueue;
 
     auto userPromise = std::make_shared<std::promise<User>>();
+    bool initialized = false;
 
-    __weak typeof(self) weakSelf = self;
-    auto credentialChangeListener = [initialized = false, userPromise, weakSelf,
+    __weak __typeof__(self) weakSelf = self;
+    auto credentialChangeListener = [initialized, userPromise, weakSelf,
                                      workerDispatchQueue](User user) mutable {
-      typeof(self) strongSelf = weakSelf;
+      __typeof__(self) strongSelf = weakSelf;
       if (!strongSelf) return;
 
       if (!initialized) {

@@ -273,19 +273,19 @@ static NSComparisonResult FSTCompareDocumentViewChangeTypes(FSTDocumentViewChang
         [changeSet
             addChange:[FSTDocumentViewChange changeWithDocument:newDoc
                                                            type:FSTDocumentViewChangeTypeMetadata]];
-        changeApplied = true;
+        changeApplied = YES;
       }
 
     } else if (!oldDoc && newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:newDoc
                                                          type:FSTDocumentViewChangeTypeAdded]];
-      changeApplied = true;
+      changeApplied = YES;
     } else if (oldDoc && !newDoc) {
       [changeSet
           addChange:[FSTDocumentViewChange changeWithDocument:oldDoc
                                                          type:FSTDocumentViewChangeTypeRemoved]];
-      changeApplied = true;
+      changeApplied = YES;
 
       if (lastDocInLimit) {
         // A doc was removed from a full limit query. We'll need to re-query from the local cache
