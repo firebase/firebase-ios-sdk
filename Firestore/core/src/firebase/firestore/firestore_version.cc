@@ -18,6 +18,7 @@
 
 #ifndef FIRFirestore_VERSION
 #error \
+    // NOLINTNEXTLINE(whitespace/line_length)
     "FIRFirestore_VERSION is not defined: add -DFIRFirestore_VERSION=... to the build invocation"
 #endif
 
