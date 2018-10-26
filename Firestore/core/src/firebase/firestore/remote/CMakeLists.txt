@@ -68,6 +68,10 @@ cc_library(
     grpc_completion.cc
     grpc_connection.h
     grpc_connection.cc
+    grpc_root_certificate_finder.h
+    grpc_root_certificate_finder_generated.cc
+    grpc_root_certificates_generated.h
+    grpc_root_certificates_generated.cc
     grpc_stream.h
     grpc_stream.cc
     grpc_stream_observer.h
@@ -81,8 +85,7 @@ cc_library(
     serializer.h
     serializer.cc
 
-    # TODO(varconst): add these files once they're no longer dependent on
-    # Objective-C.
+    # TODO(varconst): add these files once they no longer depend on Objective-C.
     # datastore.h
     # datastore.mm
     # remote_objc_bridge.h
@@ -94,24 +97,16 @@ cc_library(
     # write_stream.h
     # write_stream.mm
 
-    grpc_root_certificate_finder.h
-    grpc_root_certificate_finder_generated.cc
-    grpc_root_certificates_generated.h
-    grpc_root_certificates_generated.cc
-
   DEPENDS
     # TODO(b/111328563) Force nanopb first to work around ODR violations
     protobuf-nanopb
-
-    firebase_firestore_version
 
     firebase_firestore_model
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
     firebase_firestore_util
+    firebase_firestore_version
   EXTERNAL_DEPENDS
     grpc++
 )
-# This line works
-# configure_file(${external_src_dir}/grpc/etc/roots.pem ${FIREBASE_BINARY_DIR} COPYONLY)
