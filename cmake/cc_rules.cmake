@@ -19,7 +19,6 @@ include(CMakeParseArguments)
 #   SOURCES sources...
 #   DEPENDS libraries...
 #   [EXTERNAL_DEPENDS external libraries...]
-#   [RESOURCES]
 #   [EXCLUDE_FROM_ALL]
 # )
 #
@@ -27,7 +26,7 @@ include(CMakeParseArguments)
 # dependencies.
 function(cc_library name)
   set(flag EXCLUDE_FROM_ALL)
-  set(multi DEPENDS SOURCES EXTERNAL_DEPENDS RESOURCES)
+  set(multi DEPENDS SOURCES EXTERNAL_DEPENDS)
   cmake_parse_arguments(ccl "${flag}" "" "${multi}" ${ARGN})
 
   maybe_remove_objc_sources(sources ${ccl_SOURCES})
@@ -49,11 +48,6 @@ function(cc_library name)
     get_target_property(external_headers ${external_dep} INTERFACE_INCLUDE_DIRECTORIES)
     # Ignore any warnings from external headers.
     target_include_directories(${name} SYSTEM PUBLIC ${external_headers})
-  endforeach()
-
-  foreach(resource ${ccl_RESOURCES})
-    # configure_file(${resource} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-    configure_file(${resource} ${FIREBASE_BINARY_DIR} COPYONLY)
   endforeach()
 
   if(ccl_EXCLUDE_FROM_ALL)

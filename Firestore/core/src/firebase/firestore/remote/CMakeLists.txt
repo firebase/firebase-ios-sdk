@@ -95,8 +95,8 @@ cc_library(
     firebase_firestore_util
   EXTERNAL_DEPENDS
     grpc++
-  RESOURCES
-    ${external_src_dir}/grpc/etc/roots.pem
 )
 # This line works
 # configure_file(${external_src_dir}/grpc/etc/roots.pem ${FIREBASE_BINARY_DIR} COPYONLY)
+
+configure_file(grpc_root_certificate_finder_filesystem. tn ${FIREBASE_BINARY_DIR} COPYONLY)
