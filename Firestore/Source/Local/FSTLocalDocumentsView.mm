@@ -135,12 +135,10 @@ NS_ASSUME_NONNULL_BEGIN
                                                        baseDocument:baseDoc
                                                      localWriteTime:batch.localWriteTime];
 
-      if (!mutatedDoc || [mutatedDoc isKindOfClass:[FSTDeletedDocument class]]) {
-        results = [results dictionaryByRemovingObjectForKey:key];
-      } else if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
+      if ([mutatedDoc isKindOfClass:[FSTDocument class]]) {
         results = [results dictionaryBySettingObject:(FSTDocument *)mutatedDoc forKey:key];
       } else {
-        HARD_FAIL("Unknown document: %s", mutatedDoc);
+        results = [results dictionaryByRemovingObjectForKey:key];
       }
     }
   }

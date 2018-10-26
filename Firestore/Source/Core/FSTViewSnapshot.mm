@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
                  oldDocuments:(FSTDocumentSet *)oldDocuments
               documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
-             hasPendingWrites:(BOOL)hasPendingWrites
+                  mutatedKeys:(DocumentKeySet)mutatedKeys
              syncStateChanged:(BOOL)syncStateChanged {
   self = [super init];
   if (self) {
@@ -187,18 +187,22 @@ NS_ASSUME_NONNULL_BEGIN
     _oldDocuments = oldDocuments;
     _documentChanges = documentChanges;
     _fromCache = fromCache;
-    _hasPendingWrites = hasPendingWrites;
+    _mutatedKeys = mutatedKeys;
     _syncStateChanged = syncStateChanged;
   }
   return self;
 }
 
+- (BOOL)hasPendingWrites {
+  return _mutatedKeys.size() != 0;
+}
+
 - (NSString *)description {
   return [NSString stringWithFormat:
                        @"<FSTViewSnapshot query:%@ documents:%@ oldDocument:%@ changes:%@ "
-                        "fromCache:%@ hasPendingWrites:%@ syncStateChanged:%@>",
+                        "fromCache:%@ mutatedKeys:%zd syncStateChanged:%@>",
                        self.query, self.documents, self.oldDocuments, self.documentChanges,
-                       (self.fromCache ? @"YES" : @"NO"), (self.hasPendingWrites ? @"YES" : @"NO"),
+                       (self.fromCache ? @"YES" : @"NO"), self.mutatedKeys.size(),
                        (self.syncStateChanged ? @"YES" : @"NO")];
 }
 
@@ -213,17 +217,20 @@ NS_ASSUME_NONNULL_BEGIN
   return [self.query isEqual:other.query] && [self.documents isEqual:other.documents] &&
          [self.oldDocuments isEqual:other.oldDocuments] &&
          [self.documentChanges isEqualToArray:other.documentChanges] &&
-         self.fromCache == other.fromCache && self.hasPendingWrites == other.hasPendingWrites &&
+         self.fromCache == other.fromCache && self.mutatedKeys == other.mutatedKeys &&
          self.syncStateChanged == other.syncStateChanged;
 }
 
 - (NSUInteger)hash {
+  // Note: We are omitting `mutatedKeys` from the hash, since we don't have a straightforward
+  // way to compute its hash value. Since `FSTViewSnapshot` is currently not stored in an
+  // NSDictionary, this has no side effects.
+
   NSUInteger result = [self.query hash];
   result = 31 * result + [self.documents hash];
   result = 31 * result + [self.oldDocuments hash];
   result = 31 * result + [self.documentChanges hash];
   result = 31 * result + (self.fromCache ? 1231 : 1237);
-  result = 31 * result + (self.hasPendingWrites ? 1231 : 1237);
   result = 31 * result + (self.syncStateChanged ? 1231 : 1237);
   return result;
 }

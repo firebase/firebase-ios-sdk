@@ -187,7 +187,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSUInteger)hash {
   NSUInteger result = [self.key hash];
   result = result * 31 + self.version.Hash();
-  result = result * 31 + _hasCommittedMutations ? 1 : 0;
+  result = result * 31 + (_hasCommittedMutations ? 1 : 0);
   return result;
 }
 

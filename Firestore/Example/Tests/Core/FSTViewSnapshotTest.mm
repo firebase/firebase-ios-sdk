@@ -116,7 +116,7 @@ NS_ASSUME_NONNULL_BEGIN
                                               type:FSTDocumentViewChangeTypeAdded] ];
 
   BOOL fromCache = YES;
-  BOOL hasPendingWrites = NO;
+  DocumentKeySet mutatedKeys;
   BOOL syncStateChanged = YES;
 
   FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query
@@ -124,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                         oldDocuments:oldDocuments
                                                      documentChanges:documentChanges
                                                            fromCache:fromCache
-                                                    hasPendingWrites:hasPendingWrites
+                                                         mutatedKeys:mutatedKeys
                                                     syncStateChanged:syncStateChanged];
 
   XCTAssertEqual(snapshot.query, query);
@@ -132,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(snapshot.oldDocuments, oldDocuments);
   XCTAssertEqual(snapshot.documentChanges, documentChanges);
   XCTAssertEqual(snapshot.fromCache, fromCache);
-  XCTAssertEqual(snapshot.hasPendingWrites, hasPendingWrites);
+  XCTAssertEqual(snapshot.mutatedKeys, mutatedKeys);
   XCTAssertEqual(snapshot.syncStateChanged, syncStateChanged);
 }
 

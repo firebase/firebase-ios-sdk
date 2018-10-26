@@ -70,7 +70,8 @@ FIRDocumentSnapshot *FSTTestDocSnapshot(const absl::string_view path,
   return [FIRDocumentSnapshot snapshotWithFirestore:FSTTestFirestore()
                                         documentKey:testutil::Key(path)
                                            document:doc
-                                          fromCache:fromCache];
+                                          fromCache:fromCache
+                                   hasPendingWrites:hasMutations];
 }
 
 FIRCollectionReference *FSTTestCollectionRef(const absl::string_view path) {
@@ -93,12 +94,17 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
   FIRSnapshotMetadata *metadata =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:hasPendingWrites fromCache:fromCache];
   FSTDocumentSet *oldDocuments = FSTTestDocSet(FSTDocumentComparatorByKey, @[]);
+  DocumentKeySet mutatedKeys;
   for (NSString *key in oldDocs) {
     oldDocuments = [oldDocuments
         documentSetByAddingDocument:FSTTestDoc(util::StringFormat("%s/%s", path, key), 1,
                                                oldDocs[key],
                                                hasPendingWrites ? FSTDocumentStateLocalMutations
                                                                 : FSTDocumentStateSynced)];
+    if (hasPendingWrites) {
+      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
+      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+    }
   }
   FSTDocumentSet *newDocuments = oldDocuments;
   NSArray<FSTDocumentViewChange *> *documentChanges = [NSArray array];
@@ -111,13 +117,17 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
         arrayByAddingObject:[FSTDocumentViewChange
                                 changeWithDocument:docToAdd
                                               type:FSTDocumentViewChangeTypeAdded]];
+    if (hasPendingWrites) {
+      const absl::string_view documentKey = util::StringFormat("%s/%s", path, key);
+      mutatedKeys = mutatedKeys.insert(testutil::Key(documentKey));
+    }
   }
   FSTViewSnapshot *viewSnapshot = [[FSTViewSnapshot alloc] initWithQuery:FSTTestQuery(path)
                                                                documents:newDocuments
                                                             oldDocuments:oldDocuments
                                                          documentChanges:documentChanges
                                                                fromCache:fromCache
-                                                        hasPendingWrites:hasPendingWrites
+                                                             mutatedKeys:mutatedKeys
                                                         syncStateChanged:YES];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)

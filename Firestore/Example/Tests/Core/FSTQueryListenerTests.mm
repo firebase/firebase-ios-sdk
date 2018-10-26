@@ -91,7 +91,7 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snap2.query.comparator]
        documentChanges:@[ change1, change4 ]
              fromCache:snap2.fromCache
-      hasPendingWrites:snap2.hasPendingWrites
+           mutatedKeys:snap2.mutatedKeys
       syncStateChanged:YES];
   XCTAssertEqualObjects(otherAccum, (@[ expectedSnap2 ]));
 }
@@ -290,7 +290,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              oldDocuments:snap3.documents
                                                           documentChanges:@[]
                                                                 fromCache:snap4.fromCache
-                                                         hasPendingWrites:NO
+                                                              mutatedKeys:snap4.mutatedKeys
                                                          syncStateChanged:snap4.syncStateChanged];
   XCTAssertEqualObjects(fullAccum, (@[ snap1, snap3, expectedSnap4 ]));
 }
@@ -324,7 +324,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                              oldDocuments:snap1.documents
                                                           documentChanges:@[ change3 ]
                                                                 fromCache:snap2.isFromCache
-                                                         hasPendingWrites:snap2.hasPendingWrites
+                                                              mutatedKeys:snap2.mutatedKeys
                                                          syncStateChanged:snap2.syncStateChanged];
   XCTAssertEqualObjects(filteredAccum, (@[ snap1, expectedSnap2 ]));
 }
@@ -365,7 +365,7 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snap3.query.comparator]
        documentChanges:@[ change1, change2 ]
              fromCache:NO
-      hasPendingWrites:NO
+           mutatedKeys:snap3.mutatedKeys
       syncStateChanged:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
@@ -404,14 +404,14 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
        documentChanges:@[ change1 ]
              fromCache:YES
-      hasPendingWrites:NO
+           mutatedKeys:snap1.mutatedKeys
       syncStateChanged:YES];
   FSTViewSnapshot *expectedSnap2 = [[FSTViewSnapshot alloc] initWithQuery:query
                                                                 documents:snap2.documents
                                                              oldDocuments:snap1.documents
                                                           documentChanges:@[ change2 ]
                                                                 fromCache:YES
-                                                         hasPendingWrites:NO
+                                                              mutatedKeys:snap2.mutatedKeys
                                                          syncStateChanged:NO];
   XCTAssertEqualObjects(events, (@[ expectedSnap1, expectedSnap2 ]));
 }
@@ -437,7 +437,7 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
        documentChanges:@[]
              fromCache:YES
-      hasPendingWrites:NO
+           mutatedKeys:snap1.mutatedKeys
       syncStateChanged:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
@@ -462,7 +462,7 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snap1.query.comparator]
        documentChanges:@[]
              fromCache:YES
-      hasPendingWrites:NO
+           mutatedKeys:snap1.mutatedKeys
       syncStateChanged:YES];
   XCTAssertEqualObjects(events, (@[ expectedSnap ]));
 }
