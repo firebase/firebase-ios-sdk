@@ -6,7 +6,21 @@ interface-only API to consume without depending on the entire SDK and simulates 
 dependencies - depending on the definition but not the implementing SDK and only functioning when
 the implementing SDK is included.
 
-//TODO(ryanwilson): Table of Contents
+## Table of Contents
+
+- [Overview](#overview)
+- [Protocol Only Frameworks](#protocol-only-frameworks)
+- [Types and Core API](#types-and-core-api)
+- [Registering with Core](#registering-with-core)
+    - [Singletons and Instance Management](#singletons-and-instance-management)
+        - [Single Instance per `FIRApp`](#single-instance-per-firapp)
+            - [SDK does not provide functionality (example: Functions)](#sdk-does-not-provide-functionality-\(example:-functions\))
+            - [SDK provides functionality to other SDKs (example: Auth)](#sdk-provides-functionality-to-other-SDKs-\(example:-auth\))
+        - [Multiple Instances per FIRApp](#multiple-instances-per-firapp)
+    - [Depending on Functionality from Another SDK](#depending-on-functionality-from-another-sdk)
+- [Advanced Use Cases](#advanced-use-cases)
+    - [Providing Multiple Components and Sharing Instances](#providing-multiple-components-and-sharing-instances)
+
 
 ## Overview
 
