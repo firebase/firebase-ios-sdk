@@ -15,7 +15,7 @@ the Interop system. Both SDKs depend on a shared protocol that describes the fun
 by one SDK and required by the other. Let's use `A` and `B`, where `B` depends on functionality
 provided by `A` and the functionality is described by protocol `AInterop`.
 
-During configuration, `A` tells Core that it provides functionality for `AInterop` and `B` tells 
+During configuration, `A` tells Core that it provides functionality for `AInterop` and `B` tells
 Core it would like functionality `AInterop` (and specifies whether it is required or optional) as
 well as how to instantiate an instance of `B`. When a developer requests `B`, FirebaseCore
 instantiates `B` and passes a container that contains the instance of `A` that provides `AInterop`.
@@ -126,7 +126,7 @@ that it uses to register with the container. Using Functions as an example:
 @implementation FIRFunctions
 
 + (void)load {
-  [FIRComponentContainer registerAsComponentRegistrant:self]; 
+  [FIRComponentContainer registerAsComponentRegistrant:self];
 }
 
 /// The array of components to register with Core. Since Functions is a leaf node and
@@ -146,7 +146,7 @@ that it uses to register with the container. Using Functions as an example:
     };
 
   // Create the component that can create instances of `FIRFunctions`.
-  FIRComponent *internalProvider = 
+  FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                             creationBlock:creationBlock];
 
@@ -158,13 +158,13 @@ that it uses to register with the container. Using Functions as an example:
   // Get the instance from the `FIRApp`'s container. This will create a new instance the
   // first time it is called, and since `isCacheable` is set in the component creation
   // block, it will return the existing instance on subsequent calls.
-  id<FIRFunctionsInstanceProvider> instance = 
+  id<FIRFunctionsInstanceProvider> instance =
       FIR_COMPONENT(FIRFunctionsInstanceProvider, app.container);
 
   // In the component creation block, we return an instance of `FIRFunctions`. Cast it and
   // return it.
   return (FIRFunctions *)instance;
-} 
+}
 
 // ... Other `FIRFunctions` methods.
 
@@ -201,7 +201,7 @@ could conform to and provide to other SDKs:
         *isCacheable = YES;
         return [[FIRAuth alloc] initWithApp:container.app];
       };
-  FIRComponent *authInterop = 
+  FIRComponent *authInterop =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthInteroperable)
                             creationBlock:authCreationBlock];
   return @[authInterop];
@@ -264,7 +264,7 @@ separate class to keep `Firestore.m` cleaner.
 
 + (void)load {
   // Don't forget to register!
-  [FIRComponentContainer registerAsComponentRegistrant:self]; 
+  [FIRComponentContainer registerAsComponentRegistrant:self];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
@@ -332,12 +332,12 @@ Before adding the dependency on `FIRAuthInterop`.
       return [[FIRFunctions alloc] initWithApp:container.app];
     };
 
-  FIRComponent *internalProvider = 
+  FIRComponent *internalProvider =
       [FIRComponent componentWithProtocol:@protocol(FIRFunctionsInstanceProvider)
                             creationBlock:creationBlock];
 
   return @[ internalProvider ];
-} 
+}
 ```
 
 After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
@@ -350,7 +350,7 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
 
       // ADDED: Retrieve an instance that conforms to `FIRAuthInterop` from the container.
       id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, container);
-      
+
       // ADDED: Note the constructor has a new parameter: auth. It's good practice to inject
       //        the instance needed in the constructor instead of pulling it from the app
       //        passed in. This allows for better unit testing with fakes since any object
@@ -360,7 +360,7 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
 
   // ADDED: Define a dependency on the `FIRAuthInteroperable` protocol. Declare if the
   //        dependency is required or not.
-  FIRDependency *auth = 
+  FIRDependency *auth =
       [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInteroperable)
                                  isRequired:NO];
 
@@ -376,7 +376,7 @@ After adding the dependency on `FIRAuthInterop`. See comments with "ADDED:".
                             creationBlock:creationBlock];
 
   return @[ internalProvider ];
-} 
+}
 ```
 
 Based on the new constructor, Functions can now use the `auth` instance as defined by the
@@ -420,7 +420,7 @@ An abbreviated code sample:
     };
 
   // Declare a self dependency on the combined interop component.
-  FIRDependency *auth = 
+  FIRDependency *auth =
       [FIRDependency dependencyWithProtocol:@protocol(FIRAuthCombinedInterop)
                                  isRequired:YES];
 
@@ -431,13 +431,13 @@ An abbreviated code sample:
 
   // Both the user and sign in components depend on the previous component as
   // declared in the dependency above.
-  
+
   FIRComponent *userComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthUserInterop)
                       instantiationTiming:FIRInstantiationTimingLazy
                              dependencies:@[ auth ]
                             creationBlock:combinedBlock];
-                            
+
   FIRComponent *signInComponent =
       [FIRComponent componentWithProtocol:@protocol(FIRAuthSignInInterop)
                       instantiationTiming:FIRInstantiationTimingLazy
@@ -445,5 +445,5 @@ An abbreviated code sample:
                             creationBlock:combinedBlock];
 
   return @[ authComponent, userComponent, signInComponent ];
-} 
+}
 ```
