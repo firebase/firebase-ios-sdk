@@ -2,9 +2,9 @@
 
 FirebaseCore has a dependency injection system (referred to as "Interop") used to depend on
 functionalities provided by other Firebase SDKs. This gives the ability to depend on a typesafe
-interface-only API to consume without depending on the entire SDK and simulate optional dependencies
- - depending on the definition but not the implementing SDK and only functioning when the
-implementing SDK is included.
+interface-only API to consume without depending on the entire SDK and simulates optional
+dependencies - depending on the definition but not the implementing SDK and only functioning when
+the implementing SDK is included.
 
 //TODO(ryanwilson): Table of Contents
 
