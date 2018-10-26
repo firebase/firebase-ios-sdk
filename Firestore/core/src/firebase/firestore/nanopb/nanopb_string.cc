@@ -28,7 +28,10 @@ namespace nanopb {
 
   // Allocate one extra byte for the null terminator that's not necessarily
   // there in a string_view. As long as we're making a copy, might as well
-  // make a copy that can be used as a regular C string too.
+  // make a copy that won't overrun when used as a regular C string. This is
+  // essentially just to make debugging easier--actual user data can have
+  // embedded nulls so we shouldn't be using this as a C string under normal
+  // circumstances.
   auto result = static_cast<pb_bytes_array_t*>(
       malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(size) + 1));
   result->size = size;
