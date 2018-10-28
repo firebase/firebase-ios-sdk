@@ -43,19 +43,19 @@ cc_select(
 )
 
 # `roots.pem` is a file containing root certificates that is distributed
-# alongside gRPC and is necessary to establish SSH connections. Embed this file
+# alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
 add_custom_command(
     OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
     COMMAND ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-        --input=${external_src_dir}/grpc/etc/roots.pem
+        --input=${FIREBASE_EXTERN_SOURCE_DIR}/grpc/etc/roots.pem
         --output_header=grpc_root_certificates_generated.h
         --output_source=grpc_root_certificates_generated.cc
         --cpp_namespace=firebase::firestore::remote
         --array=grpc_root_certificates
         --array_size=grpc_root_certificates_size
     DEPENDS
-    ${external_src_dir}/grpc/etc/roots.pem
+    ${FIREBASE_EXTERN_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
 cc_library(
