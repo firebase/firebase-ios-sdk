@@ -273,8 +273,8 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       // to the remote cache. We make an exception for SnapshotVersion.MIN which can happen for
       // manufactured events (e.g. in the case of a limbo document resolution failing).
       if (!existingDoc || doc.version == SnapshotVersion::None() ||
-          authoritativeUpdates.contains(doc.key) ||
-          (doc.version >= existingDoc.version && existingDoc.hasPendingWrites)) {
+          (authoritativeUpdates.contains(doc.key) && !existingDoc.hasPendingWrites) ||
+          doc.version >= existingDoc.version) {
         [self.remoteDocumentCache addEntry:doc];
       } else {
         LOG_DEBUG(
@@ -407,8 +407,15 @@ static const int64_t kResumeTokenMaxAgeSeconds = 5 * 60;  // 5 minutes
       queryData = cachedQueryData;
       [self.queryCache updateQueryData:queryData];
     }
-
-    [self.localViewReferences removeReferencesForID:targetID];
+    
+    // References for documents sent via Watch are automatically removed when we delete a
+    // query's target data from the reference delegate. Since this does not remove references
+    // for locally mutated documents, we have to remove the target associations for these
+    // documents manually.
+    DocumentKeySet removed = [self.localViewReferences removeReferencesForID:targetID];
+    for (const DocumentKey &key : removed) {
+      [self.persistence.referenceDelegate removeReference:key];
+    }
     [self.targetIDs removeObjectForKey:boxedTargetID];
     [self.persistence.referenceDelegate removeTarget:queryData];
   });
