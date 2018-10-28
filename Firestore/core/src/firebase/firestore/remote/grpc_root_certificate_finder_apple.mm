@@ -18,7 +18,9 @@
 
 #include <string>
 
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
+#include "Firestore/core/src/firebase/firestore/util/status_or.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
@@ -27,22 +29,8 @@ namespace firestore {
 namespace remote {
 
 using util::Path;
-
-namespace {
-
-std::string LoadCertificate(const Path& path) {
-  std::ifstream certificate_file{path.native_value()};
-  HARD_ASSERT(certificate_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
-                  .c_str());
-
-  std::stringstream buffer;
-  buffer << certificate_file.rdbuf();
-  return buffer.str();
-}
-
-}  // namespace
+using util::ReadFile;
+using util::StatusOr;
 
 std::string LoadGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the
@@ -59,7 +47,12 @@ std::string LoadGrpcRootCertificate() {
       path,
       "Could not load root certificates from the bundle. SSL won't work.");
 
-  return LoadCertificate(Path::FromNSString(path));
+  StatusOr<std::string> certificate = ReadFile(Path::FromNSString(path));
+  HARD_ASSERT(certificate.ok(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+  return certificate.ValueOrDie();
 }
 
 }  // namespace remote

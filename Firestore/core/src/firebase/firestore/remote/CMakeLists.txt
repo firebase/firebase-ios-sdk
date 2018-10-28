@@ -59,10 +59,8 @@ add_custom_command(
 )
 
 cc_library(
-  firebase_firestore_remote
+  firebase_firestore_remote_grpc
   SOURCES
-    exponential_backoff.h
-    exponential_backoff.cc
     grpc_call.h
     grpc_completion.h
     grpc_completion.cc
@@ -82,6 +80,20 @@ cc_library(
     grpc_util.h
     grpc_util.cc
     grpc_util.cc
+
+  DEPENDS
+    firebase_firestore_model
+    firebase_firestore_remote_connectivity_monitor
+    firebase_firestore_util
+  EXTERNAL_DEPENDS
+    grpc++
+)
+
+cc_library(
+  firebase_firestore_remote
+  SOURCES
+    exponential_backoff.h
+    exponential_backoff.cc
     serializer.h
     serializer.cc
 
@@ -105,8 +117,7 @@ cc_library(
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
+    firebase_firestore_remote_grpc
     firebase_firestore_util
     firebase_firestore_version
-  EXTERNAL_DEPENDS
-    grpc++
 )

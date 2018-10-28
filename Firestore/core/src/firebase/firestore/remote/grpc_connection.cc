@@ -27,6 +27,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -42,6 +43,7 @@ using core::DatabaseInfo;
 using model::DatabaseId;
 using util::Path;
 using util::Status;
+using util::StatusOr;
 using util::StringFormat;
 
 namespace {
@@ -75,18 +77,6 @@ ConfigByHost& Config() {
 
 bool HasSpecialConfig(const std::string& host) {
   return Config().find(host) != Config().end();
-}
-
-std::string LoadCertificate(const Path& path) {
-  std::ifstream certificate_file{path.native_value()};
-  HARD_ASSERT(certificate_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
-                  .c_str());
-
-  std::stringstream buffer;
-  buffer << certificate_file.rdbuf();
-  return buffer.str();
 }
 
 }  // namespace
@@ -171,9 +161,15 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   // For tests only
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config.target_name);
-  std::string test_certificate = LoadCertificate(host_config.certificate_path);
-  return grpc::CreateCustomChannel(host, CreateSslCredentials(test_certificate),
-                                   args);
+  Path path = host_config.certificate_path;
+  StatusOr<std::string> test_certificate = ReadFile(path);
+  HARD_ASSERT(test_certificate.ok(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+
+  return grpc::CreateCustomChannel(
+      host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
