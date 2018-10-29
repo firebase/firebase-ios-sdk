@@ -51,7 +51,7 @@ FuzzingTarget GetFuzzingTarget() {
   fuzzing_target_names["SERIALIZER"] = FuzzingTarget::kSerializer;
   fuzzing_target_names["FIELDPATH"] = FuzzingTarget::kFieldPath;
 
-  const char *fuzzing_target_env = std::getenv("FUZZING_TARGET");
+  const char *fuzzing_target_env = "SERIALIZER";  // std::getenv("FUZZING_TARGET");
 
   if (!fuzzing_target_env) {
     LOG_WARN("No value provided for FUZZING_TARGET environment variable.");
