@@ -112,7 +112,7 @@ propertyNamePrefix:(nonnull NSString *)propertyNamePrefix {
 + (void)logOpenNotification:(NSDictionary *)notification
                 toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
 + (void)logForegroundNotification:(NSDictionary *)notification
-                      toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics ;;
+                      toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics;
 + (void)logEvent:(NSString *)event
 withNotification:(NSDictionary *)notification
      toAnalytics:(id<FIRAnalyticsInterop> _Nullable)analytics ;;
@@ -398,7 +398,7 @@ withNotification:(NSDictionary *)notification
                                  @"google.c.a.e" : @"1",
                                  };
   [FIRMessagingAnalytics logMessage:notification toAnalytics:nil];
-  OCMVerify([self.logClassMock logForegroundNotification:notification toAnalytics:nil]);
+  OCMVerify([self.logClassMock logEvent:OCMOCK_ANY withNotification:notification toAnalytics:nil]);
 }
 
 - (void)testLogOpenNotification {
