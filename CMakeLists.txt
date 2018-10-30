@@ -60,9 +60,9 @@ set(
 )
 
 set(
-  FIREBASE_EXTERN_SOURCE_DIR
+  FIREBASE_EXTERNAL_SOURCE_DIR
   ${FIREBASE_BINARY_DIR}/external/src
-  CACHE PATH "Root directory of source code of the external dependencies"
+  INTERNAL
 )
 
 download_external_sources()
@@ -131,14 +131,14 @@ else()
   target_include_directories(
     crypto
     INTERFACE
-      $<BUILD_INTERFACE:${FIREBASE_EXTERN_SOURCE_DIR}/grpc/third_party/boringssl/include>
+      $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
   )
 
   add_alias(OpenSSL::SSL ssl)
   target_include_directories(
     ssl
     INTERFACE
-      $<BUILD_INTERFACE:${FIREBASE_EXTERN_SOURCE_DIR}/grpc/third_party/boringssl/include>
+      $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/boringssl/include>
   )
 endif()
 
@@ -160,7 +160,7 @@ endif()
 if(NOT ZLIB_FOUND)
   target_include_directories(
     zlibstatic
-    INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERN_SOURCE_DIR}/grpc/third_party/zlib>
+    INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/third_party/zlib>
   )
 endif()
 
@@ -190,7 +190,7 @@ target_compile_definitions(
 
 target_include_directories(
   protobuf-nanopb
-  INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERN_SOURCE_DIR}/nanopb>
+  INTERFACE $<BUILD_INTERFACE:${FIREBASE_EXTERNAL_SOURCE_DIR}/nanopb>
 )
 
 

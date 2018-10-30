@@ -48,56 +48,45 @@ cc_select(
 add_custom_command(
     OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
     COMMAND ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-        --input=${FIREBASE_EXTERN_SOURCE_DIR}/grpc/etc/roots.pem
+        --input=${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
         --output_header=grpc_root_certificates_generated.h
         --output_source=grpc_root_certificates_generated.cc
         --cpp_namespace=firebase::firestore::remote
         --array=grpc_root_certificates
         --array_size=grpc_root_certificates_size
     DEPENDS
-    ${FIREBASE_EXTERN_SOURCE_DIR}/grpc/etc/roots.pem
-)
-
-cc_library(
-  firebase_firestore_remote_grpc
-  SOURCES
-    grpc_call.h
-    grpc_completion.h
-    grpc_completion.cc
-    grpc_connection.h
-    grpc_connection.cc
-    grpc_root_certificate_finder.h
-    grpc_root_certificate_finder_generated.cc
-    grpc_root_certificates_generated.h
-    grpc_root_certificates_generated.cc
-    grpc_stream.h
-    grpc_stream.cc
-    grpc_stream_observer.h
-    grpc_streaming_reader.h
-    grpc_streaming_reader.cc
-    grpc_unary_call.h
-    grpc_unary_call.cc
-    grpc_util.h
-    grpc_util.cc
-    grpc_util.cc
-
-  DEPENDS
-    firebase_firestore_model
-    firebase_firestore_remote_connectivity_monitor
-    firebase_firestore_util
-  EXTERNAL_DEPENDS
-    grpc++
+    ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
 
 cc_library(
   firebase_firestore_remote
   SOURCES
-    exponential_backoff.h
     exponential_backoff.cc
-    serializer.h
+    exponential_backoff.h
+    grpc_call.h
+    grpc_completion.cc
+    grpc_completion.h
+    grpc_connection.cc
+    grpc_connection.h
+    grpc_root_certificate_finder.h
+    grpc_root_certificate_finder_generated.cc
+    grpc_root_certificates_generated.cc
+    grpc_root_certificates_generated.h
+    grpc_stream.cc
+    grpc_stream.h
+    grpc_stream_observer.h
+    grpc_streaming_reader.cc
+    grpc_streaming_reader.h
+    grpc_unary_call.cc
+    grpc_unary_call.h
+    grpc_util.cc
+    grpc_util.cc
+    grpc_util.h
     serializer.cc
+    serializer.h
 
-    # TODO(varconst): add these files once they no longer depend on Objective-C.
+    # TODO(varconst): add these files once they no longer depend on Objective-C
+    # serializer.
     # datastore.h
     # datastore.mm
     # remote_objc_bridge.h
@@ -117,7 +106,13 @@ cc_library(
     firebase_firestore_nanopb
     firebase_firestore_protos_nanopb
     firebase_firestore_remote_connectivity_monitor
-    firebase_firestore_remote_grpc
     firebase_firestore_util
     firebase_firestore_version
+    grpc++
+)
+
+target_compile_options(
+  firebase_firestore_remote
+  PUBLIC
+  -Wno-error
 )
