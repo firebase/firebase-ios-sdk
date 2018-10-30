@@ -178,12 +178,12 @@ static NSMutableDictionary *sLibraryVersions;
 
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
-    [FIRApp addAppToAppDictionary:app];
-    [FIRApp sendNotificationsToSDKs:app];
-
     if (app.isDefaultApp) {
       sDefaultApp = app;
     }
+
+    [FIRApp addAppToAppDictionary:app];
+    [FIRApp sendNotificationsToSDKs:app];
   }
 }
 
