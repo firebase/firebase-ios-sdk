@@ -179,7 +179,9 @@ QueryData LocalSerializer::DecodeQueryData(
 
   model::TargetId target_id = proto.target_id;
   // TODO(rgowman): How to handle truncation of integer types?
-  model::ListenSequenceNumber sequence_number = static_cast<model::ListenSequenceNumber>(proto.last_listen_sequence_number);
+  model::ListenSequenceNumber sequence_number =
+      static_cast<model::ListenSequenceNumber>(
+          proto.last_listen_sequence_number);
   SnapshotVersion version =
       rpc_serializer_.DecodeSnapshotVersion(reader, proto.snapshot_version);
   std::vector<uint8_t> resume_token =
