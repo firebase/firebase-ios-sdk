@@ -17,7 +17,6 @@
 #import "Firestore/Example/Tests/SpecTests/FSTSyncEngineTestDriver.h"
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
-#import <GRPCClient/GRPCCall.h>
 
 #include <map>
 #include <unordered_map>

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '0.13.5'
+  s.version          = '0.13.6'
   s.summary          = 'Google Cloud Firestore for iOS'
 
   s.description      = <<-DESC
@@ -49,9 +49,12 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
   s.public_header_files = 'Firestore/Source/Public/*.h'
 
+  # TODO(varconst): remove once https://github.com/grpc/grpc/pull/16962 makes it
+  # into a release.
+  s.resource_bundles = { 'gRPCCertificates' => ['Firestore/etc/roots.pem'] }
+
   s.dependency 'FirebaseAuthInterop', '~> 1.0'
   s.dependency 'FirebaseCore', '~> 5.1'
-  s.dependency 'gRPC-ProtoRPC', '~> 1.0'
   s.dependency 'gRPC-C++', '~> 0.0.3'
   s.dependency 'leveldb-library', '~> 1.20'
   s.dependency 'Protobuf', '~> 3.1'
@@ -60,6 +63,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.frameworks = 'MobileCoreServices', 'SystemConfiguration'
   s.library = 'c++'
   s.pod_target_xcconfig = {
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++0x',
+    'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
       'GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1 ' +

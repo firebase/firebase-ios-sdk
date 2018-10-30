@@ -44,6 +44,7 @@
 CF_EXTERN_C_BEGIN
 
 @class FSTPBNoDocument;
+@class FSTPBUnknownDocument;
 @class GCFSDocument;
 @class GPBTimestamp;
 
@@ -89,22 +90,52 @@ typedef GPB_ENUM(FSTPBNoDocument_FieldNumber) {
 
 @end
 
+#pragma mark - FSTPBUnknownDocument
+
+typedef GPB_ENUM(FSTPBUnknownDocument_FieldNumber) {
+  FSTPBUnknownDocument_FieldNumber_Name = 1,
+  FSTPBUnknownDocument_FieldNumber_Version = 2,
+};
+
+/**
+ * A message indicating that the document that is known to exist but its data
+ * is unknown.
+ **/
+@interface FSTPBUnknownDocument : GPBMessage
+
+/**
+ * The name of the document that is known to exist, in the standard format:
+ * `projects/{project_id}/databases/{database_id}/documents/{document_path}`
+ **/
+@property(nonatomic, readwrite, copy, null_resettable) NSString *name;
+
+/** The version at which we know the document exists. */
+@property(nonatomic, readwrite, strong, null_resettable) GPBTimestamp *version;
+/** Test to see if @c version has been set. */
+@property(nonatomic, readwrite) BOOL hasVersion;
+
+@end
+
 #pragma mark - FSTPBMaybeDocument
 
 typedef GPB_ENUM(FSTPBMaybeDocument_FieldNumber) {
   FSTPBMaybeDocument_FieldNumber_NoDocument = 1,
   FSTPBMaybeDocument_FieldNumber_Document = 2,
+  FSTPBMaybeDocument_FieldNumber_UnknownDocument = 3,
+  FSTPBMaybeDocument_FieldNumber_HasCommittedMutations = 4,
 };
 
 typedef GPB_ENUM(FSTPBMaybeDocument_DocumentType_OneOfCase) {
   FSTPBMaybeDocument_DocumentType_OneOfCase_GPBUnsetOneOfCase = 0,
   FSTPBMaybeDocument_DocumentType_OneOfCase_NoDocument = 1,
   FSTPBMaybeDocument_DocumentType_OneOfCase_Document = 2,
+  FSTPBMaybeDocument_DocumentType_OneOfCase_UnknownDocument = 3,
 };
 
 /**
- * Represents either an existing document or the explicitly known absence of a
- * document.
+ * Represents either an existing document, the explicitly known absence of a
+ * document, or a document that is known to exist (at some version) but whose
+ * contents are unknown.
  **/
 @interface FSTPBMaybeDocument : GPBMessage
 
@@ -115,6 +146,17 @@ typedef GPB_ENUM(FSTPBMaybeDocument_DocumentType_OneOfCase) {
 
 /** The document (if it exists). */
 @property(nonatomic, readwrite, strong, null_resettable) GCFSDocument *document;
+
+/** Used if the document is known to exist but its data is unknown. */
+@property(nonatomic, readwrite, strong, null_resettable) FSTPBUnknownDocument *unknownDocument;
+
+/**
+ * `has_committed_mutations` marks documents that were written to the remote
+ * document store based on a write acknowledgment. These documents are
+ * potentially inconsistent with the backend's copy and use the write's
+ * commit version as their document version.
+ **/
+@property(nonatomic, readwrite) BOOL hasCommittedMutations;
 
 @end
 
