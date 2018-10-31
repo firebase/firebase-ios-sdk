@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14313.18" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="ipad10_5" orientation="landscape">
-        <adaptation id="splitview2_3"/>
+    <device id="ipad9_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -18,7 +18,7 @@
                         <viewControllerLayoutGuide type="bottom" id="8Ta-Lb-9Rg"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ef6-R8-q1S">
-                        <rect key="frame" x="0.0" y="0.0" width="782" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rA8-LH-EYm">
@@ -59,7 +59,7 @@
                         <viewControllerLayoutGuide type="bottom" id="K7E-8I-Yw5"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="vRb-yf-OWE">
-                        <rect key="frame" x="0.0" y="0.0" width="782" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VfB-vw-7up">
@@ -73,14 +73,14 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Messaging Title" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rzo-9i-rXZ">
-                                <rect key="frame" x="70" y="23" width="692" height="20.5"/>
+                                <rect key="frame" x="70" y="23" width="678" height="20.5"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-message-title-view"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="message body" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GOK-vx-mU8">
-                                <rect key="frame" x="70" y="51.5" width="692" height="282.5"/>
+                                <rect key="frame" x="70" y="51.5" width="678" height="472.5"/>
                                 <accessibility key="accessibilityConfiguration" identifier="banner-body-label"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
@@ -129,11 +129,11 @@
                         <viewControllerLayoutGuide type="bottom" id="1nT-S0-O8H"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="1pz-BP-O6T">
-                        <rect key="frame" x="0.0" y="0.0" width="782" height="834"/>
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jER-Re-ODh">
-                                <rect key="frame" x="66" y="232.5" width="650" height="369"/>
+                                <rect key="frame" x="59" y="372.5" width="650" height="279"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Message Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edi-DJ-cR8">
                                         <rect key="frame" x="318" y="20" width="308" height="34"/>
@@ -145,14 +145,14 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="700" translatesAutoresizingMaskIntoConstraints="NO" id="c7x-Lf-M58">
-                                        <rect key="frame" x="24" y="69" width="270" height="231"/>
+                                        <rect key="frame" x="24" y="24" width="270" height="231"/>
                                         <accessibility key="accessibilityConfiguration" identifier="modal-image-view">
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="144" identifier="imageViewRunTimeHeight" id="EeQ-n5-WE7" userLabel="actual height at runtime"/>
                                             <constraint firstAttribute="width" constant="270" identifier="imageWidthForRegularWidth" id="lJJ-PY-Yai"/>
-                                            <constraint firstAttribute="height" priority="900" constant="230.66999999999999" placeholder="YES" identifier="heightToMakeInterfaceBuilderHappy" id="pm4-tp-Fjt" userLabel="height to make interface builder happy"/>
+                                            <constraint firstAttribute="height" priority="900" constant="230.66999999999999" placeholder="YES" identifier="heightToMakeInterfaceBuilderHappy" id="pm4-tp-Fjt" userLabel="image height to make interface builder happy"/>
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
@@ -198,9 +198,11 @@
                                     <bool key="isElement" value="NO"/>
                                 </accessibility>
                                 <constraints>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" id="0Fp-k2-48a"/>
                                     <constraint firstItem="24j-6H-N9j" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="titleLabelMaxX == bodyTextViewMaxX" id="0aC-BE-yfJ"/>
                                     <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="c7x-Lf-M58" secondAttribute="trailing" constant="24" identifier="titleLabelSpacingAfterImageViewForRegularWidth" id="7vK-9V-j5H"/>
                                     <constraint firstAttribute="height" priority="100" constant="650" identifier="fixedMessageCardHeight" id="8Yx-fI-jXG"/>
+                                    <constraint firstAttribute="height" constant="279" placeholder="YES" id="8qu-C8-A9u" userLabel="card height to make interface builder happy"/>
                                     <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="titleLabelTopPaddingForRegularWidth" id="9La-QV-ftg" userLabel="Title Top To Card View Top (?)"/>
                                     <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="titleLabelRightPaddingForRegularWidth" id="Ait-Na-aVF"/>
                                     <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="Edi-DJ-cR8" secondAttribute="centerX" identifier="actionButtonCenterX == titleLabelCenterX" id="C8M-PR-rUI"/>
@@ -218,9 +220,8 @@
                                     <constraint firstAttribute="bottom" secondItem="VmW-ue-K1q" secondAttribute="bottom" constant="24" identifier="actionButtonBottomPaddingForCompactWidth" id="YoE-KS-uWS"/>
                                     <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="imageViewMinX == titleLabelMinX" id="bD7-OU-bEW"/>
                                     <constraint firstItem="24j-6H-N9j" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="bodyTextViewMinX == titleLabelMinX" id="fWU-5d-D4W"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="69" identifier="imageViewVerticalTopPadding" id="pyI-1U-ujR" userLabel="Image Top To Card Top In Landscape Mode (?)">
-                                        <variation key="heightClass=compact" constant="20"/>
-                                    </constraint>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" id="ivB-jb-LVl"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="imageViewVerticalTopPadding" id="pyI-1U-ujR" userLabel="Image Top To Card Top In Landscape Mode (?)"/>
                                     <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="bodyTextViewBelowTitleLabelForRegularWidth" id="qgb-13-uT4"/>
                                     <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="VmW-ue-K1q" secondAttribute="bottom" priority="900" constant="20" identifier="actionButtonBottomPaddingForRegularWidth" id="xXr-od-zOM"/>
                                     <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="imageViewLeftPaddingForRegularWidth" id="ysk-iC-Hz4"/>
@@ -228,6 +229,7 @@
                                 <variation key="default">
                                     <mask key="constraints">
                                         <exclude reference="8Yx-fI-jXG"/>
+                                        <exclude reference="8qu-C8-A9u"/>
                                         <exclude reference="Ln4-8U-D7V"/>
                                         <exclude reference="MCf-U1-0tP"/>
                                         <exclude reference="Hm8-0s-RTs"/>
@@ -266,7 +268,6 @@
                                     <mask key="constraints">
                                         <include reference="MCf-U1-0tP"/>
                                         <include reference="Hm8-0s-RTs"/>
-                                        <include reference="pyI-1U-ujR"/>
                                         <include reference="ysk-iC-Hz4"/>
                                         <include reference="7vK-9V-j5H"/>
                                         <include reference="9La-QV-ftg"/>
@@ -290,12 +291,13 @@
                                 </variation>
                                 <variation key="heightClass=regular-widthClass=regular">
                                     <mask key="constraints">
+                                        <include reference="8qu-C8-A9u"/>
                                         <include reference="Ln4-8U-D7V"/>
                                     </mask>
                                 </variation>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="akA-AE-VPc">
-                                <rect key="frame" x="696" y="212.5" width="40" height="40"/>
+                                <rect key="frame" x="689" y="352.5" width="40" height="40"/>
                                 <accessibility key="accessibilityConfiguration" identifier="close-button"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="40" identifier="closeButtonWidth" id="Dwi-In-x47"/>
@@ -310,9 +312,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="jER-Re-ODh" firstAttribute="centerY" secondItem="1pz-BP-O6T" secondAttribute="centerY" identifier="cardViewVerticallyCenteredInSuperview" id="GSo-F2-pSS"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="116.66666666666663" identifier="cardViewMinTopPaddingInSuperviewForRegularWidth" id="Yvr-Y4-aEK">
-                                <variation key="heightClass=compact" constant="24"/>
-                            </constraint>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="24" identifier="cardViewMinTopPaddingInSuperviewForRegularWidth" id="Yvr-Y4-aEK"/>
                             <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leadingMargin" constant="10" identifier="cardViewLeftSpacingInLandscapePhone" id="bX2-s2-74w"/>
                             <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="10" identifier="cardViewMinTopPaddingInSuperviewForPortraitPhone" id="fyU-hx-Wh1"/>
                             <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leading" constant="20" identifier="cardViewLeftPaddingForLandscapePhone" id="kj1-PP-7nG"/>
@@ -332,11 +332,6 @@
                             <mask key="constraints">
                                 <include reference="Yvr-Y4-aEK"/>
                                 <include reference="kj1-PP-7nG"/>
-                            </mask>
-                        </variation>
-                        <variation key="widthClass=regular">
-                            <mask key="constraints">
-                                <include reference="Yvr-Y4-aEK"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
