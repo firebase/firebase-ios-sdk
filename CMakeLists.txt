@@ -62,7 +62,7 @@ set(
 set(
   FIREBASE_EXTERNAL_SOURCE_DIR
   ${FIREBASE_BINARY_DIR}/external/src
-  INTERNAL
+  CACHE PATH "Root directory of source code of the external dependencies"
 )
 
 download_external_sources()
