@@ -255,7 +255,7 @@ struct TitleBodyButtonHeightInfo {
 // the following two layoutFineTunexx methods make additional adjustments for the view layout
 // in portrait and landscape mode respectively. They are supposed to be triggered from
 // viewDidLayoutSubviews since certain dimension sizes are only available there
-- (void)layoutFineTuneForPortraitMode {
+- (void)layoutFineTuneInPortraitMode {
   // for tablet case, since we use a fixed card height, the reference would be just the card height
   // for non-tablet case, we want to use a dynamic height , so the reference would be the window
   // height
@@ -339,7 +339,7 @@ struct TitleBodyButtonHeightInfo {
   }
 }
 
-- (void)layoutFineTuneForLandscapeMode {
+- (void)layoutFineTuneInLandscapeMode {
   // smaller spacing threshold is applied for screens equal or larger than 4.7 inches
   if (self.view.window.frame.size.height <= 321) {
     [self applySmallerSpacingForInLandscapeMode];
@@ -409,11 +409,11 @@ struct TitleBodyButtonHeightInfo {
       self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300010",
                 @"Modal view rendered in landscape mode");
-    [self layoutFineTuneForLandscapeMode];
+    [self layoutFineTuneInLandscapeMode];
   } else {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300009",
                 @"Modal view rendered in portrait mode");
-    [self layoutFineTuneForPortraitMode];
+    [self layoutFineTuneInPortraitMode];
   }
 
   // always scroll to the top in case the body area is scrollable
