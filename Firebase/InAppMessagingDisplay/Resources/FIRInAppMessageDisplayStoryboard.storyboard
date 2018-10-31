@@ -138,7 +138,7 @@
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" text="Message Title" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edi-DJ-cR8">
                                         <rect key="frame" x="318" y="20" width="430" height="34"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="34" identifier="titleLabelHeight" id="Gzz-dd-hYn" userLabel="Title Label Height Constraint"/>
+                                            <constraint firstAttribute="height" constant="34" identifier="Title Label Height Constraint" id="Gzz-dd-hYn" userLabel="Title Label Height Constraint"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                         <nil key="textColor"/>
@@ -150,9 +150,9 @@
                                             <bool key="isElement" value="YES"/>
                                         </accessibility>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="144" identifier="imageViewRunTimeHeight" id="EeQ-n5-WE7" userLabel="actual height at runtime"/>
-                                            <constraint firstAttribute="width" constant="270" identifier="imageWidthForRegularWidth" id="lJJ-PY-Yai"/>
-                                            <constraint firstAttribute="height" priority="900" constant="230.66999999999999" placeholder="YES" identifier="heightToMakeInterfaceBuilderHappy" id="pm4-tp-Fjt" userLabel="image height to make interface builder happy"/>
+                                            <constraint firstAttribute="height" constant="144" identifier="actual height at runtime" id="EeQ-n5-WE7" userLabel="actual height at runtime"/>
+                                            <constraint firstAttribute="width" constant="270" identifier="Image Width In Landscape Mode" id="lJJ-PY-Yai"/>
+                                            <constraint firstAttribute="height" priority="900" constant="230.66999999999999" placeholder="YES" identifier="image height to make interface builder happy" id="pm4-tp-Fjt" userLabel="image height to make interface builder happy"/>
                                         </constraints>
                                         <variation key="default">
                                             <mask key="constraints">
@@ -175,7 +175,7 @@
                                         <rect key="frame" x="470" y="202" width="126" height="36"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-action-button"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="36" identifier="maxActionButtonHeight" id="6T1-on-oWM"/>
+                                            <constraint firstAttribute="height" constant="36" identifier="Max Action Button Height" id="6T1-on-oWM"/>
                                         </constraints>
                                         <inset key="contentEdgeInsets" minX="16" minY="9" maxX="16" maxY="9"/>
                                         <state key="normal" title="Action Button"/>
@@ -187,7 +187,7 @@
                                         <rect key="frame" x="318" y="78" width="430" height="100"/>
                                         <accessibility key="accessibilityConfiguration" identifier="message-body-textview"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="100" identifier="bodyTextViewHeight" id="h2w-ub-tEc"/>
+                                            <constraint firstAttribute="height" constant="100" identifier="Body Text View Height Constraint" id="h2w-ub-tEc"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -198,33 +198,33 @@
                                     <bool key="isElement" value="NO"/>
                                 </accessibility>
                                 <constraints>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" id="0Fp-k2-48a"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="titleLabelMaxX == bodyTextViewMaxX" id="0aC-BE-yfJ"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="c7x-Lf-M58" secondAttribute="trailing" constant="24" identifier="titleLabelSpacingAfterImageViewForRegularWidth" id="7vK-9V-j5H"/>
-                                    <constraint firstAttribute="height" priority="100" constant="650" identifier="fixedMessageCardHeight" id="8Yx-fI-jXG"/>
-                                    <constraint firstAttribute="height" constant="279" placeholder="YES" id="8qu-C8-A9u" userLabel="card height to make interface builder happy"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="titleLabelTopPaddingForRegularWidth" id="9La-QV-ftg" userLabel="Title Top To Card View Top"/>
-                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="titleLabelRightPaddingForRegularWidth" id="Ait-Na-aVF"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="Edi-DJ-cR8" secondAttribute="centerX" identifier="actionButtonCenterX == titleLabelCenterX" id="C8M-PR-rUI"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="centerX" identifier="actionButtonCenteredInCardForCompactWidth" id="CSN-TG-E9H"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" identifier="titleLabelTopPaddingForCompactWidth" id="FTB-yV-c00"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="centerY" identifier="imageViewCenteredVerticallyInCardView" id="Hm8-0s-RTs"/>
-                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="titleLabelLeftPaddingForCompactWidth" id="JJo-tI-mvn"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="imageViewMaxX == titleLabelMaxX" id="JUy-lx-oR6"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="imageViewSpacingBelowTitle" id="Kec-yq-1Pz"/>
-                                    <constraint firstAttribute="width" constant="650" identifier="cardWidthForTablet" id="Ln4-8U-D7V" userLabel="Card Width for Tablet"/>
-                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="1000" identifier="maxCardViewHeightForRegularWidth" id="MCf-U1-0tP"/>
-                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="titleLabelRightPaddingForCompactWidth" id="RbZ-9Q-1S3"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" identifier="bodyTextViewSpacingBelowImageViewForCompactWidth" id="RdS-Ao-GH0"/>
-                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="top" secondItem="24j-6H-N9j" secondAttribute="bottom" constant="24" identifier="actionButtonSpacingBelowBodyTextView" id="Vej-p0-b6w"/>
-                                    <constraint firstAttribute="bottom" secondItem="VmW-ue-K1q" secondAttribute="bottom" constant="24" identifier="actionButtonBottomPaddingForCompactWidth" id="YoE-KS-uWS"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="imageViewMinX == titleLabelMinX" id="bD7-OU-bEW"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="bodyTextViewMinX == titleLabelMinX" id="fWU-5d-D4W"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" id="ivB-jb-LVl"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="imageViewVerticalTopPadding" id="pyI-1U-ujR" userLabel="Image Top To Card Top In Landscape Mode"/>
-                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="bodyTextViewBelowTitleLabelForRegularWidth" id="qgb-13-uT4"/>
-                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="VmW-ue-K1q" secondAttribute="bottom" priority="900" constant="20" identifier="actionButtonBottomPaddingForRegularWidth" id="xXr-od-zOM"/>
-                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="imageViewLeftPaddingForRegularWidth" id="ysk-iC-Hz4"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" relation="greaterThanOrEqual" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" identifier="Image View.top ≥ top + 24" id="0Fp-k2-48a"/>
+                                    <constraint firstItem="24j-6H-N9j" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="Body Text View.trailing = Title Label.trailing" id="0aC-BE-yfJ"/>
+                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="c7x-Lf-M58" secondAttribute="trailing" constant="24" identifier="Title Label.leading = Image View.trailing + 24" id="7vK-9V-j5H"/>
+                                    <constraint firstAttribute="height" priority="100" constant="650" identifier="Fixed Message Card Height Constraint" id="8Yx-fI-jXG"/>
+                                    <constraint firstAttribute="height" constant="279" placeholder="YES" identifier="card height to make interface builder happy" id="8qu-C8-A9u" userLabel="card height to make interface builder happy"/>
+                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="Title Top To Card View Top" id="9La-QV-ftg" userLabel="Title Top To Card View Top"/>
+                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="trailing = Title Label.trailing + 24" id="Ait-Na-aVF"/>
+                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="Edi-DJ-cR8" secondAttribute="centerX" identifier="Action Button.centerX = Title Label.centerX" id="C8M-PR-rUI"/>
+                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="centerX" identifier="Action Button.centerX = centerX" id="CSN-TG-E9H"/>
+                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="24" identifier="Title Label.top = top + 24" id="FTB-yV-c00"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="centerY" identifier="Image View.centerY = centerY" id="Hm8-0s-RTs"/>
+                                    <constraint firstItem="Edi-DJ-cR8" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="Title Label.leading = leading + 24" id="JJo-tI-mvn"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" identifier="Image View.trailing = Title Label.trailing" id="JUy-lx-oR6"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="Image Top To Title Bottom In Portrait Mode" id="Kec-yq-1Pz"/>
+                                    <constraint firstAttribute="width" constant="650" identifier="Card Width for Tablet" id="Ln4-8U-D7V" userLabel="Card Width for Tablet"/>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="1000" identifier="Max Card Height In Landscape Mode" id="MCf-U1-0tP"/>
+                                    <constraint firstAttribute="trailing" secondItem="Edi-DJ-cR8" secondAttribute="trailing" constant="24" identifier="trailing = Title Label.trailing + 24" id="RbZ-9Q-1S3"/>
+                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" identifier="Body Text View.top = Image View.bottom + 24" id="RdS-Ao-GH0"/>
+                                    <constraint firstItem="VmW-ue-K1q" firstAttribute="top" secondItem="24j-6H-N9j" secondAttribute="bottom" constant="24" identifier="Button Top To Body Bottom Constraint" id="Vej-p0-b6w"/>
+                                    <constraint firstAttribute="bottom" secondItem="VmW-ue-K1q" secondAttribute="bottom" constant="24" identifier="Button Bottom To Container Bottom In Portrait Mode" id="YoE-KS-uWS"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="Image View.leading = Title Label.leading" id="bD7-OU-bEW"/>
+                                    <constraint firstItem="24j-6H-N9j" firstAttribute="leading" secondItem="Edi-DJ-cR8" secondAttribute="leading" identifier="Body Text View.leading = Title Label.leading" id="fWU-5d-D4W"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="c7x-Lf-M58" secondAttribute="bottom" constant="24" identifier="bottom ≥ Image View.bottom + 24" id="ivB-jb-LVl"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="top" secondItem="jER-Re-ODh" secondAttribute="top" constant="20" identifier="Image Top To Card Top In Landscape Mode" id="pyI-1U-ujR" userLabel="Image Top To Card Top In Landscape Mode"/>
+                                    <constraint firstItem="24j-6H-N9j" firstAttribute="top" secondItem="Edi-DJ-cR8" secondAttribute="bottom" constant="24" identifier="Body Top To Title Bottom In Land Scape Mode" id="qgb-13-uT4"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="VmW-ue-K1q" secondAttribute="bottom" priority="900" constant="20" identifier="bottom ≥ Action Button.bottom + 20 @900" id="xXr-od-zOM"/>
+                                    <constraint firstItem="c7x-Lf-M58" firstAttribute="leading" secondItem="jER-Re-ODh" secondAttribute="leading" constant="24" identifier="Image View.leading = leading + 24" id="ysk-iC-Hz4"/>
                                 </constraints>
                                 <variation key="default">
                                     <mask key="constraints">
@@ -304,8 +304,8 @@
                                 <rect key="frame" x="772" y="32" width="40" height="40"/>
                                 <accessibility key="accessibilityConfiguration" identifier="close-button"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="40" identifier="closeButtonWidth" id="Dwi-In-x47"/>
-                                    <constraint firstAttribute="height" constant="40" identifier="closeButtonHeight" id="tIe-pH-jRO"/>
+                                    <constraint firstAttribute="width" constant="40" identifier="Close button width = 40" id="Dwi-In-x47"/>
+                                    <constraint firstAttribute="height" constant="40" identifier="Close button height = 40" id="tIe-pH-jRO"/>
                                 </constraints>
                                 <state key="normal" backgroundImage="close-with-transparency.png"/>
                                 <connections>
@@ -315,14 +315,14 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerY" secondItem="1pz-BP-O6T" secondAttribute="centerY" identifier="cardViewVerticallyCenteredInSuperview" id="GSo-F2-pSS"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="24" identifier="cardViewMinTopPaddingInSuperviewForRegularWidth" id="Yvr-Y4-aEK"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leadingMargin" constant="10" identifier="cardViewLeftSpacingInLandscapePhone" id="bX2-s2-74w"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="10" identifier="cardViewMinTopPaddingInSuperviewForPortraitPhone" id="fyU-hx-Wh1"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leading" constant="20" identifier="cardViewLeftPaddingForLandscapePhone" id="kj1-PP-7nG"/>
-                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerX" secondItem="1pz-BP-O6T" secondAttribute="centerX" identifier="cardViewHorizontallyCenteredInSuperview" id="m0a-I2-6sC"/>
-                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="trailing" identifier="closeButtonMaxX == cardViewMaxX" id="nIB-zo-TIv"/>
-                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="top" identifier="closeButtonMinY == cardViewMinY" id="va9-kv-0KG"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerY" secondItem="1pz-BP-O6T" secondAttribute="centerY" identifier="Message Card View.centerY = centerY" id="GSo-F2-pSS"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="24" identifier="Message Card View.top ≥ Top Layout Guide.bottom + 24" id="Yvr-Y4-aEK"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leadingMargin" constant="10" identifier="Message Card View.leading = leadingMargin + 10" id="bX2-s2-74w"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="top" relation="greaterThanOrEqual" secondItem="42w-41-Nyy" secondAttribute="bottom" constant="10" identifier="Message Card View.top ≥ Top Layout Guide.bottom + 10" id="fyU-hx-Wh1"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="leading" secondItem="1pz-BP-O6T" secondAttribute="leading" constant="20" identifier="Card Leading Margin In Landscape Mode" id="kj1-PP-7nG"/>
+                            <constraint firstItem="jER-Re-ODh" firstAttribute="centerX" secondItem="1pz-BP-O6T" secondAttribute="centerX" identifier="Message Card View.centerX = centerX" id="m0a-I2-6sC"/>
+                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerX" secondItem="jER-Re-ODh" secondAttribute="trailing" identifier="Close Button.centerX = Message Card View.trailing" id="nIB-zo-TIv"/>
+                            <constraint firstItem="akA-AE-VPc" firstAttribute="centerY" secondItem="jER-Re-ODh" secondAttribute="top" identifier="Close Button.centerY = Message Card View.top" id="va9-kv-0KG"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
