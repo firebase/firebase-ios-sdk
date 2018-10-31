@@ -1,7 +1,7 @@
 # Unreleased
 
 # v0.14.0
-- [fixed] Fixed compilation with in C99 and C++11 modes without GNU extensions.
+- [fixed] Fixed compilation in C99 and C++11 modes without GNU extensions.
 - [changed] Moved from Objective-C gRPC framework to gRPC C++. If you're
   manually tracking dependencies, the `gRPC`, `gRPC-ProtoRPC`, and
   `gRPC-RxLibrary` frameworks have been replaced with `gRPC-C++`. While we
