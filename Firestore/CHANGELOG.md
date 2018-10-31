@@ -1,5 +1,14 @@
 # Unreleased
 
+# v0.14.0
+- [fixed] Fixed compilation with in C99 and C++11 modes without GNU extensions.
+- [changed] Moved from Objective-C gRPC framework to gRPC C++. If you're
+  manually tracking dependencies, the `gRPC`, `gRPC-ProtoRPC`, and
+  `gRPC-RxLibrary` frameworks have been replaced with `gRPC-C++`. While we
+  don't anticipate any issues, please [report any issues with network
+  behavior](https://github.com/firebase/firebase-ios-sdk/issues/new) you
+  experience. (#1968)
+
 # v0.13.6
 - [changed] Internal improvements.
 
