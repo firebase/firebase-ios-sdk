@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/API/FIRFirestoreVersion.h"
 
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
-
 #ifndef FIRFirestore_VERSION
 #error "FIRFirestore_VERSION is not defined: add -DFIRFirestore_VERSION=... to the build invocation"
 #endif

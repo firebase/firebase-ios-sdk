@@ -23,7 +23,7 @@ namespace firebase {
 namespace firestore {
 
 /** Version string for the Firebase Firestore SDK. */
-extern const char* const firestore_version_string;
+extern const char* const kFirestoreVersionString;
 
 }  // namespace firestore
 }  // namespace firebase

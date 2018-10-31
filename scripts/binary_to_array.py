@@ -49,28 +49,23 @@ import logging
 
 arg_parser = argparse.ArgumentParser()
 
-arg_parser.add_argument("--input", type=str, help="Input file containing binary data to embed")
-arg_parser.add_argument("--output_source", type=str,
+arg_parser.add_argument("input", help="Input file containing binary data to embed")
+arg_parser.add_argument("--output_source",
                     help="Output source file, defining the array data.")
-arg_parser.add_argument("--output_header", type=str,
+arg_parser.add_argument("--output_header",
                     help="Output header file, declaring the array data.")
-arg_parser.add_argument("--array", type=str, help="Identifier for the array.")
-arg_parser.add_argument("--array_size", type=str, help="Identifier for the array size.")
-arg_parser.add_argument("--filename", type=str, help="Override file name in code.")
-arg_parser.add_argument("--filename_identifier", type=str, help="Where to put the filename.")
-arg_parser.add_argument("--header_guard", type=str,
+arg_parser.add_argument("--array", help="Identifier for the array.")
+arg_parser.add_argument("--array_size", help="Identifier for the array size.")
+arg_parser.add_argument("--filename", help="Override file name in code.")
+arg_parser.add_argument("--filename_identifier", help="Where to put the filename.")
+arg_parser.add_argument("--header_guard",
                     help="Header guard to #define in the output header.")
-arg_parser.add_argument("--cpp_namespace", type=str,
+arg_parser.add_argument("--cpp_namespace",
                     help="C++ namespace to use. If blank, will generate a C array.")
 
 # How many hex bytes to display in a line. Each "0x00, " takes 6 characters, so
 # a width of 12 lets us fit within 80 characters.
 WIDTH = 12
-
-
-class Error(Exception):
-  """Exception raised by methods in this module."""
-  pass
 
 
 def header(header_guard, namespaces, array_name, array_size_name, fileid):
@@ -119,8 +114,8 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
   ])
   if namespaces:
     data.extend([
-        "}  // namespace %s" % ns for ns in namespaces
-    ][::-1])  # close namespaces in reverse order
+        "}  // namespace %s" % ns for ns in reversed(namespaces)
+    ])
   else:
     data.extend([
         "#if defined(__cplusplus)",
@@ -217,16 +212,11 @@ def source(namespaces, array_name, array_size_name, fileid, filename,
 
 def main():
   """Read an binary input file and output to a C/C++ source file as an array.
-
-  Raises:
-    Error: If an input file is not specified.
   """
 
   args = arg_parser.parse_args()
 
   input_file = args.input
-  if not input_file:
-    raise Error("No input file specified.")
   input_file_base = args.input.rsplit(".", 1)[0]
 
   output_source = args.output_source
@@ -262,7 +252,9 @@ def main():
 
   header_guard = args.header_guard
   if not header_guard:
-    header_guard = sub("[^0-9a-zA-Z]+", "_", "_" + output_header).upper()
+    header_guard = sub("[^0-9a-zA-Z]+", "_", output_header).upper()
+    # Avoid double underscores to stay compliant with the Standard.
+    header_guard = sub("[_]+", "_", header_guard)
     logging.debug("Using default --header_guard='%s'", header_guard)
 
   namespace = args.cpp_namespace

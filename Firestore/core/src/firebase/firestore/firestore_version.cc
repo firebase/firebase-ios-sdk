@@ -31,7 +31,7 @@ namespace firestore {
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-extern const char* const firestore_version_string = STR(FIRFirestore_VERSION);
+const char* const kFirestoreVersionString = STR(FIRFirestore_VERSION);
 
 }  // namespace firestore
 }  // namespace firebase

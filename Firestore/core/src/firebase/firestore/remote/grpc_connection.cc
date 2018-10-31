@@ -17,8 +17,6 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -121,7 +119,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   // C++ SDK, etc.).
   context->AddMetadata(
       kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/", firestore_version_string));
+      StringFormat("gl-objc/ fire/%s grpc/", kFirestoreVersionString));
 
   // This header is used to improve routing and project isolation by the
   // backend.

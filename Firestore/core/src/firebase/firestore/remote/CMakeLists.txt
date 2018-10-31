@@ -48,12 +48,12 @@ cc_select(
 add_custom_command(
     OUTPUT grpc_root_certificates_generated.h grpc_root_certificates_generated.cc
     COMMAND ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-        --input=${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
         --output_header=grpc_root_certificates_generated.h
         --output_source=grpc_root_certificates_generated.cc
         --cpp_namespace=firebase::firestore::remote
         --array=grpc_root_certificates
         --array_size=grpc_root_certificates_size
+        ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
     DEPENDS
     ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
 )
@@ -111,8 +111,8 @@ cc_library(
     grpc++
 )
 
-target_compile_options(
-  firebase_firestore_remote
-  PUBLIC
-  -Wno-error
-)
+#target_compile_options(
+#  firebase_firestore_remote
+#  PUBLIC
+#  -Wno-error
+#)
