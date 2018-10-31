@@ -65,9 +65,14 @@
         [self readDocumentForRef:writerRef source:FIRFirestoreSourceCache];
     XCTAssertTrue(writerSnap.exists);
 
-    XCTAssertThrows(^() {
-      [self readDocumentForRef:readerRef source:FIRFirestoreSourceCache];
-    });
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:@"testCanUpdateAnUnknownDocument"];
+    [readerRef getDocumentWithSource:FIRFirestoreSourceCache
+                          completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                            XCTAssertNotNil(error);
+                            [expectation fulfill];
+                          }];
+    [self awaitExpectations];
 
     writerSnap = [self readDocumentForRef:writerRef];
     XCTAssertEqualObjects(writerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
