@@ -16,6 +16,8 @@
 
 #import "FIRDocumentReference.h"
 
+#import <GRPCClient/GRPCCall.h>
+
 #include <memory>
 #include <utility>
 

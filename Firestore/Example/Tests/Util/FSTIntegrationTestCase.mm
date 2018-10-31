@@ -27,6 +27,8 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
+#import <GRPCClient/GRPCCall+ChannelArg.h>
+#import <GRPCClient/GRPCCall+Tests.h>
 
 #include <memory>
 #include <string>
@@ -96,6 +98,10 @@ static FIRFirestoreSettings *defaultSettings;
       [self shutdownFirestore:firestore];
     }
   } @finally {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [GRPCCall closeOpenConnections];
+#pragma clang diagnostic pop
     _firestores = nil;
     [super tearDown];
   }
@@ -159,8 +165,9 @@ static FIRFirestoreSettings *defaultSettings;
          "Alternatively, if you're a Googler with a Hexa preproduction environment, run "
          "setup_integration_tests.py to properly configure testing SSL certificates.");
   }
-  GrpcConnection::UseTestCertificate(util::MakeString(defaultSettings.host),
-                                     Path::FromNSString(certsPath), "test_cert_2");
+  [GRPCCall useTestCertsPath:certsPath testName:@"test_cert_2" forHost:defaultSettings.host];
+  GrpcConnection::UseTestCertificate([certsPath cStringUsingEncoding:NSASCIIStringEncoding],
+                                     "test_cert_2");
 }
 
 + (NSString *)projectID {

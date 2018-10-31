@@ -16,19 +16,14 @@
 
 #import <Foundation/Foundation.h>
 
-#include <memory>
 #include <vector>
 
 #import "Firestore/Source/Core/FSTTypes.h"
 
-#include "Firestore/core/src/firebase/firestore//remote/watch_stream.h"
-#include "Firestore/core/src/firebase/firestore//remote/write_stream.h"
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
-#include "Firestore/core/src/firebase/firestore/remote/datastore.h"
-#include "absl/memory/memory.h"
 #include "absl/strings/string_view.h"
 
 @class FSTDispatchQueue;
@@ -37,6 +32,10 @@
 @class FSTQueryData;
 @class FSTSerializerBeta;
 @class FSTWatchChange;
+@class FSTWatchStream;
+@class FSTWriteStream;
+@class GRPCCall;
+@class GRXWriter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,7 +67,12 @@ NS_ASSUME_NONNULL_BEGIN
                                          credentials  // no passing ownership
     NS_DESIGNATED_INITIALIZER;
 
-- (void)shutdown;
+/**
+ * Takes a dictionary of (HTTP) response headers and returns the set of whitelisted headers
+ * (for logging purposes).
+ */
++ (NSDictionary<NSString *, NSString *> *)extractWhiteListedHeaders:
+    (NSDictionary<NSString *, NSString *> *)header;
 
 /** Converts the error to a FIRFirestoreErrorDomain error. */
 + (NSError *)firestoreErrorForError:(NSError *)error;
@@ -79,6 +83,11 @@ NS_ASSUME_NONNULL_BEGIN
 /** Returns YES if the given error indicates the RPC associated with it may not be retried. */
 + (BOOL)isPermanentWriteError:(NSError *)error;
 
+/** Adds headers to the RPC including any OAuth access token if provided .*/
++ (void)prepareHeadersForRPC:(GRPCCall *)rpc
+                  databaseID:(const firebase::firestore::model::DatabaseId *)databaseID
+                       token:(const absl::string_view)token;
+
 /** Looks up a list of documents in datastore. */
 - (void)lookupDocuments:(const std::vector<firebase::firestore::model::DocumentKey> &)keys
              completion:(FSTVoidMaybeDocumentArrayErrorBlock)completion;
@@ -88,12 +97,10 @@ NS_ASSUME_NONNULL_BEGIN
              completion:(FSTVoidErrorBlock)completion;
 
 /** Creates a new watch stream. */
-- (std::shared_ptr<firebase::firestore::remote::WatchStream>)createWatchStreamWithDelegate:
-    (id<FSTWatchStreamDelegate>)delegate;
+- (FSTWatchStream *)createWatchStream;
 
 /** Creates a new write stream. */
-- (std::shared_ptr<firebase::firestore::remote::WriteStream>)createWriteStreamWithDelegate:
-    (id<FSTWriteStreamDelegate>)delegate;
+- (FSTWriteStream *)createWriteStream;
 
 /** The name of the database and the backend. */
 // Does not own this DatabaseInfo.

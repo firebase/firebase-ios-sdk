@@ -78,6 +78,9 @@ def main():
   parser.add_argument(
       '--include', '-I', action='append', default=[],
       help='Adds INCLUDE to the proto path.')
+  parser.add_argument(
+      '--protoc_gen_grpc',
+      help='Location of the gRPC generator executable.')
 
   args = parser.parse_args()
   if args.nanopb is None and args.cpp is None and args.objc is None:
@@ -162,10 +165,14 @@ class ObjcProtobufGenerator(object):
     )
 
   def __run_generator(self, out_dir):
-    """Invokes protoc using the objc plugin."""
+    """Invokes protoc using the objc and grpc plugins."""
     cmd = protoc_command(self.args)
 
-    cmd.extend(['--objc_out=' + out_dir])
+    gen = self.args.protoc_gen_grpc
+    if gen is not None:
+      cmd.append('--plugin=protoc-gen-grpc=%s' % gen)
+
+    cmd.extend(['--objc_out=' + out_dir, '--grpc_out=' + out_dir])
     cmd.extend(self.proto_files)
     run_protoc(self.args, cmd)
 

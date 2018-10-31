@@ -17,6 +17,7 @@
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import <GRPCClient/GRPCCall.h>
 
 #include <map>
 #include <utility>
