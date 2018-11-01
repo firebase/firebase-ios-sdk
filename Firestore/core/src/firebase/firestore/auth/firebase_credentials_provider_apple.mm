@@ -120,26 +120,19 @@ void FirebaseCredentialsProvider::GetToken(TokenListener completion) {
     }
   };
 
-  bool force_refresh = false;
-  {
-    std::lock_guard<std::mutex> lock{contents_->mutex};
-    force_refresh = contents_->force_refresh;
-    contents_->force_refresh = false;
-  }
-
   // TODO(wilhuff): Need a better abstraction over a missing auth provider.
   if (contents_->auth) {
-    [contents_->auth getTokenForcingRefresh:force_refresh
+    [contents_->auth getTokenForcingRefresh:contents_->force_refresh
                                withCallback:get_token_callback];
   } else {
     // If there's no Auth provider, call back immediately with a nil
     // (unauthenticated) token.
     get_token_callback(nil, nil);
   }
+  contents_->force_refresh = false;
 }
 
 void FirebaseCredentialsProvider::InvalidateToken() {
-  std::lock_guard<std::mutex> lock{contents_->mutex};
   contents_->force_refresh = true;
 }
 
