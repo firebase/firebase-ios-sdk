@@ -191,7 +191,6 @@ class GrpcStream : public GrpcCall {
   void OnRead(const grpc::ByteBuffer& message);
   void OnWrite();
   void OnOperationFailed();
-  void OnFinishedByServer(const grpc::Status& status);
   void RemoveCompletion(const GrpcCompletion* to_remove);
 
   using OnSuccess = std::function<void(const GrpcCompletion*)>;
@@ -227,8 +226,6 @@ class GrpcStream : public GrpcCall {
   internal::BufferedWriter buffered_writer_;
 
   std::vector<GrpcCompletion*> completions_;
-
-  bool is_finishing_ = false;
 };
 
 }  // namespace remote

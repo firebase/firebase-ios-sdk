@@ -175,25 +175,23 @@ void GrpcStream::FinishAndNotify(const Status& status) {
 void GrpcStream::Shutdown() {
   MaybeUnregister();
   if (completions_.empty()) {
-    // Nothing to cancel.
+    // Nothing to cancel -- either the call was already finished, or it has
+    // never been started.
     return;
   }
 
   // Important: since the stream always has a pending read operation,
   // cancellation has to be called, or else the read would hang forever, and
   // finish operation will never get completed.
-  //
   // (on the other hand, when an operation fails, cancellation should not be
   // called, otherwise the real failure cause will be overwritten by status
   // "canceled".)
   context_->TryCancel();
+  // All completions issued by this call must be taken off the queue before
+  // finish operation can be enqueued.
+  FastFinishCompletionsBlocking();
 
-  // The observer is not interested in this event -- since it initiated the
-  // finish operation, the observer must know the reason.
   GrpcCompletion* completion = NewCompletion(Type::Finish, {});
-  // TODO(varconst): is issuing a finish operation necessary in this case? We
-  // don't care about the status, but perhaps it will make the server notice
-  // client disconnecting sooner?
   call_->Finish(completion->status(), completion);
 
   FastFinishCompletionsBlocking();
@@ -276,29 +274,20 @@ void GrpcStream::OnWrite() {
 }
 
 void GrpcStream::OnOperationFailed() {
-  if (is_finishing_) {
-    // `Finish` itself cannot fail. If another failed operation already
-    // triggered `Finish`, there's nothing to do.
+  if (!completions_.empty()) {
+    // It is only valid to finish a call once all other completions issued from
+    // this call have been taken off the queue, so wait until the queue is
+    // drained. Once a single operation has failed, the rest are guaranteed to
+    // fail, too.
     return;
   }
 
-  is_finishing_ = true;
-
-  if (observer_) {
-    GrpcCompletion* completion =
-        NewCompletion(Type::Finish, [this](const GrpcCompletion* completion) {
-          OnFinishedByServer(*completion->status());
-        });
-    call_->Finish(completion->status(), completion);
-  } else {
-    // The only reason to finish would be to get the status; if the observer is
-    // no longer interested, there is no need to do that.
-    Shutdown();
-  }
-}
-
-void GrpcStream::OnFinishedByServer(const grpc::Status& status) {
-  FinishAndNotify(ConvertStatus(status));
+  GrpcCompletion* completion =
+      NewCompletion(Type::Finish, [this](const GrpcCompletion* completion) {
+        Status status = ConvertStatus(*completion->status());
+        FinishAndNotify(status);
+      });
+  call_->Finish(completion->status(), completion);
 }
 
 void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
