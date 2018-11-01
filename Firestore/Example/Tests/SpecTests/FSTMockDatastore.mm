@@ -16,17 +16,11 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTMockDatastore.h"
 
-#include <map>
-#include <memory>
-#include <queue>
-#include <utility>
-
 #import "Firestore/Source/Core/FSTQuery.h"
 #import "Firestore/Source/Local/FSTQueryData.h"
 #import "Firestore/Source/Model/FSTMutation.h"
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 #import "Firestore/Source/Remote/FSTStream.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Remote/FSTWatchChange+Testing.h"
 
@@ -34,14 +28,8 @@
 #include "Firestore/core/src/firebase/firestore/auth/empty_credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/connectivity_monitor.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
-#include "Firestore/core/src/firebase/firestore/remote/stream.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
-#include "Firestore/core/test/firebase/firestore/util/create_noop_connectivity_monitor.h"
-#include "absl/memory/memory.h"
-#include "grpcpp/completion_queue.h"
 
 using firebase::firestore::auth::CredentialsProvider;
 using firebase::firestore::auth::EmptyCredentialsProvider;
@@ -49,204 +37,254 @@ using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::SnapshotVersion;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::remote::ConnectivityMonitor;
-using firebase::firestore::remote::GrpcConnection;
-using firebase::firestore::remote::WatchStream;
-using firebase::firestore::remote::WriteStream;
-using firebase::firestore::util::AsyncQueue;
-using firebase::firestore::util::CreateNoOpConnectivityMonitor;
+
+@class GRPCProtoCall;
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FSTMockWatchStream
 
-namespace firebase {
-namespace firestore {
-namespace remote {
+@interface FSTMockWatchStream : FSTWatchStream
 
-class MockWatchStream : public WatchStream {
- public:
-  MockWatchStream(AsyncQueue *worker_queue,
-                  CredentialsProvider *credentials_provider,
-                  FSTSerializerBeta *serializer,
-                  GrpcConnection *grpc_connection,
-                  id<FSTWatchStreamDelegate> delegate,
-                  FSTMockDatastore *datastore)
-      : WatchStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
-        datastore_{datastore},
-        delegate_{delegate} {
-    active_targets_ = [NSMutableDictionary dictionary];
+- (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
+              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                      credentials:(CredentialsProvider *)credentials
+                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+                      serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
+
+@property(nonatomic, assign) BOOL open;
+@property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
+@property(nonatomic, strong, readonly)
+    NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *activeTargets;
+@property(nonatomic, weak, readwrite, nullable) id<FSTWatchStreamDelegate> delegate;
+
+@end
+
+@implementation FSTMockWatchStream
+
+- (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
+              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                      credentials:(CredentialsProvider *)credentials
+                       serializer:(FSTSerializerBeta *)serializer {
+  self = [super initWithDatabase:datastore.databaseInfo
+             workerDispatchQueue:workerDispatchQueue
+                     credentials:credentials
+                      serializer:serializer];
+  if (self) {
+    HARD_ASSERT(datastore, "Datastore must not be nil");
+    _datastore = datastore;
+    _activeTargets = [NSMutableDictionary dictionary];
   }
+  return self;
+}
 
-  NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *ActiveTargets() const {
-    return [active_targets_ copy];
-  }
+#pragma mark - Overridden FSTWatchStream methods.
 
-  void Start() override {
-    HARD_ASSERT(!open_, "Trying to start already started watch stream");
-    open_ = true;
-    [delegate_ watchStreamDidOpen];
-  }
+- (void)startWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
+  HARD_ASSERT(!self.open, "Trying to start already started watch stream");
+  self.open = YES;
+  self.delegate = delegate;
+  [self notifyStreamOpen];
+}
 
-  void Stop() override {
-    WatchStream::Stop();
-    open_ = false;
-    [active_targets_ removeAllObjects];
-  }
+- (void)stop {
+  [self.activeTargets removeAllObjects];
+  self.delegate = nil;
+}
 
-  bool IsStarted() const override {
-    return open_;
-  }
-  bool IsOpen() const override {
-    return open_;
-  }
+- (BOOL)isOpen {
+  return self.open;
+}
 
-  void WatchQuery(FSTQueryData *query) override {
-    LOG_DEBUG("WatchQuery: %s: %s, %s", query.targetID, query.query, query.resumeToken);
+- (BOOL)isStarted {
+  return self.open;
+}
 
-    // Snapshot version is ignored on the wire
-    FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
-                                                                 resumeToken:query.resumeToken
-                                                              sequenceNumber:query.sequenceNumber];
-    datastore_.watchStreamRequestCount += 1;
-    active_targets_[@(query.targetID)] = sentQueryData;
-  }
+- (void)notifyStreamOpen {
+  [self.delegate watchStreamDidOpen];
+}
 
-  void UnwatchTargetId(model::TargetId target_id) override {
-    LOG_DEBUG("UnwatchTargetId: %s", target_id);
-    [active_targets_ removeObjectForKey:@(target_id)];
-  }
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error {
+  [self.delegate watchStreamWasInterruptedWithError:error];
+}
 
-  void FailStreamWithError(NSError *error) {
-    open_ = false;
-    [delegate_ watchStreamWasInterruptedWithError:error];
-  }
+- (void)watchQuery:(FSTQueryData *)query {
+  LOG_DEBUG("watchQuery: %s: %s", query.targetID, query.query);
+  self.datastore.watchStreamRequestCount += 1;
+  // Snapshot version is ignored on the wire
+  FSTQueryData *sentQueryData = [query queryDataByReplacingSnapshotVersion:SnapshotVersion::None()
+                                                               resumeToken:query.resumeToken
+                                                            sequenceNumber:query.sequenceNumber];
+  self.activeTargets[@(query.targetID)] = sentQueryData;
+}
 
-  void WriteWatchChange(FSTWatchChange *change, SnapshotVersion snap) {
-    if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
-      FSTWatchTargetChange *targetChange = (FSTWatchTargetChange *)change;
-      if (targetChange.cause) {
-        for (NSNumber *target_id in targetChange.targetIDs) {
-          if (!active_targets_[target_id]) {
-            // Technically removing an unknown target is valid (e.g. it could race with a
-            // server-side removal), but we want to pay extra careful attention in tests
-            // that we only remove targets we listened to.
-            HARD_FAIL("Removing a non-active target");
-          }
+- (void)unwatchTargetID:(TargetId)targetID {
+  LOG_DEBUG("unwatchTargetID: %s", targetID);
+  [self.activeTargets removeObjectForKey:@(targetID)];
+}
 
-          [active_targets_ removeObjectForKey:target_id];
+- (void)failStreamWithError:(NSError *)error {
+  self.open = NO;
+  [self notifyStreamInterruptedWithError:error];
+}
+
+#pragma mark - Helper methods.
+
+- (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(SnapshotVersion)snap {
+  if ([change isKindOfClass:[FSTWatchTargetChange class]]) {
+    FSTWatchTargetChange *targetChange = (FSTWatchTargetChange *)change;
+    if (targetChange.cause) {
+      for (NSNumber *targetID in targetChange.targetIDs) {
+        if (!self.activeTargets[targetID]) {
+          // Technically removing an unknown target is valid (e.g. it could race with a
+          // server-side removal), but we want to pay extra careful attention in tests
+          // that we only remove targets we listened too.
+          HARD_FAIL("Removing a non-active target");
         }
-      }
-
-      if ([targetChange.targetIDs count] != 0) {
-        // If the list of target IDs is not empty, we reset the snapshot version to NONE as
-        // done in `FSTSerializerBeta.versionFromListenResponse:`.
-        snap = SnapshotVersion::None();
+        [self.activeTargets removeObjectForKey:targetID];
       }
     }
-
-    [delegate_ watchStreamDidChange:change snapshotVersion:snap];
+    if ([targetChange.targetIDs count] != 0) {
+      // If the list of target IDs is not empty, we reset the snapshot version to NONE as
+      // done in `FSTSerializerBeta.versionFromListenResponse:`.
+      snap = SnapshotVersion::None();
+    }
   }
+  [self.delegate watchStreamDidChange:change snapshotVersion:snap];
+}
 
- private:
-  bool open_ = false;
-  NSMutableDictionary<FSTBoxedTargetID *, FSTQueryData *> *active_targets_ = nullptr;
-  FSTMockDatastore *datastore_ = nullptr;
-  id<FSTWatchStreamDelegate> delegate_ = nullptr;
-};
+@end
 
-class MockWriteStream : public WriteStream {
- public:
-  MockWriteStream(AsyncQueue *worker_queue,
-                  CredentialsProvider *credentials_provider,
-                  FSTSerializerBeta *serializer,
-                  GrpcConnection *grpc_connection,
-                  id<FSTWriteStreamDelegate> delegate,
-                  FSTMockDatastore *datastore)
-      : WriteStream{worker_queue, credentials_provider, serializer, grpc_connection, delegate},
-        datastore_{datastore},
-        delegate_{delegate} {
+#pragma mark - FSTMockWriteStream
+
+@interface FSTWriteStream ()
+
+@property(nonatomic, weak, readwrite, nullable) id<FSTWriteStreamDelegate> delegate;
+
+- (void)notifyStreamOpen;
+- (void)notifyStreamInterruptedWithError:(nullable NSError *)error;
+
+@end
+
+@interface FSTMockWriteStream : FSTWriteStream
+
+- (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
+              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                      credentials:(CredentialsProvider *)credentials
+                       serializer:(FSTSerializerBeta *)serializer NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+                      serializer:(FSTSerializerBeta *)serializer NS_UNAVAILABLE;
+
+- (instancetype)initWithDatabase:(const DatabaseInfo *)database
+             workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                     credentials:(CredentialsProvider *)credentials
+            responseMessageClass:(Class)responseMessageClass NS_UNAVAILABLE;
+
+@property(nonatomic, strong, readonly) FSTMockDatastore *datastore;
+@property(nonatomic, assign) BOOL open;
+@property(nonatomic, strong, readonly) NSMutableArray<NSArray<FSTMutation *> *> *sentMutations;
+
+@end
+
+@implementation FSTMockWriteStream
+
+- (instancetype)initWithDatastore:(FSTMockDatastore *)datastore
+              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+                      credentials:(CredentialsProvider *)credentials
+                       serializer:(FSTSerializerBeta *)serializer {
+  self = [super initWithDatabase:datastore.databaseInfo
+             workerDispatchQueue:workerDispatchQueue
+                     credentials:credentials
+                      serializer:serializer];
+  if (self) {
+    HARD_ASSERT(datastore, "Datastore must not be nil");
+    _datastore = datastore;
+    _sentMutations = [NSMutableArray array];
   }
+  return self;
+}
 
-  void Start() override {
-    HARD_ASSERT(!open_, "Trying to start already started write stream");
-    open_ = true;
-    sent_mutations_ = {};
-    [delegate_ writeStreamDidOpen];
-  }
+#pragma mark - Overridden FSTWriteStream methods.
 
-  void Stop() override {
-    datastore_.writeStreamRequestCount += 1;
-    WriteStream::Stop();
+- (void)startWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
+  HARD_ASSERT(!self.open, "Trying to start already started write stream");
+  self.open = YES;
+  [self.sentMutations removeAllObjects];
+  self.delegate = delegate;
+  [self notifyStreamOpen];
+}
 
-    sent_mutations_ = {};
-    open_ = false;
-    SetHandshakeComplete(false);
-  }
+- (BOOL)isOpen {
+  return self.open;
+}
 
-  bool IsStarted() const override {
-    return open_;
-  }
-  bool IsOpen() const override {
-    return open_;
-  }
+- (BOOL)isStarted {
+  return self.open;
+}
 
-  void WriteHandshake() override {
-    datastore_.writeStreamRequestCount += 1;
-    SetHandshakeComplete();
-    [delegate_ writeStreamDidCompleteHandshake];
-  }
+- (void)writeHandshake {
+  self.datastore.writeStreamRequestCount += 1;
+  self.handshakeComplete = YES;
+  [self.delegate writeStreamDidCompleteHandshake];
+}
 
-  void WriteMutations(NSArray<FSTMutation *> *mutations) override {
-    datastore_.writeStreamRequestCount += 1;
-    sent_mutations_.push(mutations);
-  }
+- (void)writeMutations:(NSArray<FSTMutation *> *)mutations {
+  self.datastore.writeStreamRequestCount += 1;
+  [self.sentMutations addObject:mutations];
+}
 
-  /** Injects a write ack as though it had come from the backend in response to a write. */
-  void AckWrite(const SnapshotVersion &commitVersion, NSArray<FSTMutationResult *> *results) {
-    [delegate_ writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
-  }
+#pragma mark - Helper methods.
 
-  /** Injects a failed write response as though it had come from the backend. */
-  void FailStreamWithError(NSError *error) {
-    open_ = false;
-    [delegate_ writeStreamWasInterruptedWithError:error];
-  }
+/** Injects a write ack as though it had come from the backend in response to a write. */
+- (void)ackWriteWithVersion:(const SnapshotVersion &)commitVersion
+            mutationResults:(NSArray<FSTMutationResult *> *)results {
+  [self.delegate writeStreamDidReceiveResponseWithVersion:commitVersion mutationResults:results];
+}
 
-  /**
-   * Returns the next write that was "sent to the backend", failing if there are no queued sent
-   */
-  NSArray<FSTMutation *> *NextSentWrite() {
-    HARD_ASSERT(!sent_mutations_.empty(),
-                "Writes need to happen before you can call NextSentWrite.");
-    NSArray<FSTMutation *> *result = std::move(sent_mutations_.front());
-    sent_mutations_.pop();
-    return result;
-  }
+/** Injects a failed write response as though it had come from the backend. */
+- (void)failStreamWithError:(NSError *)error {
+  self.open = NO;
+  [self notifyStreamInterruptedWithError:error];
+}
 
-  /**
-   * Returns the number of mutations that have been sent to the backend but not retrieved via
-   * nextSentWrite yet.
-   */
-  int sent_mutations_count() const {
-    return static_cast<int>(sent_mutations_.size());
-  }
+/**
+ * Returns the next write that was "sent to the backend", failing if there are no queued sent
+ */
+- (NSArray<FSTMutation *> *)nextSentWrite {
+  HARD_ASSERT(self.sentMutations.count > 0,
+              "Writes need to happen before you can call nextSentWrite.");
+  NSArray<FSTMutation *> *result = [self.sentMutations objectAtIndex:0];
+  [self.sentMutations removeObjectAtIndex:0];
+  return result;
+}
 
- private:
-  bool open_ = false;
-  std::queue<NSArray<FSTMutation *> *> sent_mutations_;
-  FSTMockDatastore *datastore_ = nullptr;
-  id<FSTWriteStreamDelegate> delegate_ = nullptr;
-};
+/**
+ * Returns the number of mutations that have been sent to the backend but not retrieved via
+ * nextSentWrite yet.
+ */
+- (int)sentMutationsCount {
+  return (int)self.sentMutations.count;
+}
 
-}  // namespace remote
-}  // namespace firestore
-}  // namespace firebase
+@end
 
-using firebase::firestore::remote::MockWatchStream;
-using firebase::firestore::remote::MockWriteStream;
+#pragma mark - FSTMockDatastore
 
 @interface FSTMockDatastore ()
+@property(nonatomic, strong, nullable) FSTMockWatchStream *watchStream;
+@property(nonatomic, strong, nullable) FSTMockWriteStream *writeStream;
 
 /** Properties implemented in FSTDatastore that are nonpublic. */
 @property(nonatomic, strong, readonly) FSTDispatchQueue *workerDispatchQueue;
@@ -254,84 +292,85 @@ using firebase::firestore::remote::MockWriteStream;
 
 @end
 
-@implementation FSTMockDatastore {
-  std::shared_ptr<MockWatchStream> _watchStream;
-  std::shared_ptr<MockWriteStream> _writeStream;
-
-  std::unique_ptr<ConnectivityMonitor> _connectivityMonitor;
-  grpc::CompletionQueue _grpcQueue;
-  std::unique_ptr<GrpcConnection> _grpcConnection;
-}
+@implementation FSTMockDatastore
 
 #pragma mark - Overridden FSTDatastore methods.
 
-- (instancetype)initWithDatabaseInfo:(const DatabaseInfo *)databaseInfo
-                 workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
-                         credentials:(CredentialsProvider *)credentials {
-  if (self = [super initWithDatabaseInfo:databaseInfo
-                     workerDispatchQueue:workerDispatchQueue
-                             credentials:credentials]) {
-    _workerDispatchQueue = workerDispatchQueue;
-    _credentials = credentials;
-    _connectivityMonitor = CreateNoOpConnectivityMonitor();
-    _grpcConnection =
-        absl::make_unique<GrpcConnection>(*databaseInfo, [workerDispatchQueue implementation],
-                                          &_grpcQueue, _connectivityMonitor.get());
-  }
-  return self;
+- (FSTWatchStream *)createWatchStream {
+  self.watchStream = [[FSTMockWatchStream alloc]
+        initWithDatastore:self
+      workerDispatchQueue:self.workerDispatchQueue
+              credentials:self.credentials
+               serializer:[[FSTSerializerBeta alloc]
+                              initWithDatabaseID:&self.databaseInfo->database_id()]];
+  return self.watchStream;
 }
 
-- (std::shared_ptr<WatchStream>)createWatchStreamWithDelegate:(id<FSTWatchStreamDelegate>)delegate {
-  _watchStream = std::make_shared<MockWatchStream>(
-      [self.workerDispatchQueue implementation], self.credentials,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-      _grpcConnection.get(), delegate, self);
-
-  return _watchStream;
+- (FSTWriteStream *)createWriteStream {
+  self.writeStream = [[FSTMockWriteStream alloc]
+        initWithDatastore:self
+      workerDispatchQueue:self.workerDispatchQueue
+              credentials:self.credentials
+               serializer:[[FSTSerializerBeta alloc]
+                              initWithDatabaseID:&self.databaseInfo->database_id()]];
+  return self.writeStream;
 }
 
-- (std::shared_ptr<WriteStream>)createWriteStreamWithDelegate:(id<FSTWriteStreamDelegate>)delegate {
-  _writeStream = std::make_shared<MockWriteStream>(
-      [self.workerDispatchQueue implementation], self.credentials,
-      [[FSTSerializerBeta alloc] initWithDatabaseID:&self.databaseInfo->database_id()],
-      _grpcConnection.get(), delegate, self);
-
-  return _writeStream;
+- (void)authorizeAndStartRPC:(GRPCProtoCall *)rpc completion:(FSTVoidErrorBlock)completion {
+  HARD_FAIL("FSTMockDatastore shouldn't be starting any RPCs.");
 }
 
 #pragma mark - Method exposed for tests to call.
 
 - (NSArray<FSTMutation *> *)nextSentWrite {
-  return _writeStream->NextSentWrite();
+  return [self.writeStream nextSentWrite];
 }
 
 - (int)writesSent {
-  return _writeStream->sent_mutations_count();
+  return [self.writeStream sentMutationsCount];
 }
 
-- (void)ackWriteWithVersion:(const SnapshotVersion &)version
+- (void)ackWriteWithVersion:(const SnapshotVersion &)commitVersion
             mutationResults:(NSArray<FSTMutationResult *> *)results {
-  _writeStream->AckWrite(version, results);
+  [self.writeStream ackWriteWithVersion:commitVersion mutationResults:results];
 }
 
 - (void)failWriteWithError:(NSError *_Nullable)error {
-  _writeStream->FailStreamWithError(error);
+  [self.writeStream failStreamWithError:error];
+}
+
+- (void)writeWatchTargetAddedWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs {
+  FSTWatchTargetChange *change =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateAdded
+                                  targetIDs:targetIDs
+                                      cause:nil];
+  [self writeWatchChange:change snapshotVersion:SnapshotVersion::None()];
+}
+
+- (void)writeWatchCurrentWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs
+                       snapshotVersion:(const SnapshotVersion &)snapshotVersion
+                           resumeToken:(NSData *)resumeToken {
+  FSTWatchTargetChange *change =
+      [FSTWatchTargetChange changeWithState:FSTWatchTargetChangeStateCurrent
+                                  targetIDs:targetIDs
+                                resumeToken:resumeToken];
+  [self writeWatchChange:change snapshotVersion:snapshotVersion];
 }
 
 - (void)writeWatchChange:(FSTWatchChange *)change snapshotVersion:(const SnapshotVersion &)snap {
-  _watchStream->WriteWatchChange(change, snap);
+  [self.watchStream writeWatchChange:change snapshotVersion:snap];
 }
 
 - (void)failWatchStreamWithError:(NSError *)error {
-  _watchStream->FailStreamWithError(error);
+  [self.watchStream failStreamWithError:error];
 }
 
 - (NSDictionary<FSTBoxedTargetID *, FSTQueryData *> *)activeTargets {
-  return _watchStream->ActiveTargets();
+  return [self.watchStream.activeTargets copy];
 }
 
 - (BOOL)isWatchStreamOpen {
-  return _watchStream->IsOpen();
+  return self.watchStream.isOpen;
 }
 
 @end

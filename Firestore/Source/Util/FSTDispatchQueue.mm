@@ -21,6 +21,7 @@
 
 #import "Firestore/Source/Util/FSTDispatchQueue.h"
 
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor_libdispatch.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "absl/memory/memory.h"
@@ -60,10 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTDispatchQueue {
   std::unique_ptr<AsyncQueue> _impl;
-}
-
-- (AsyncQueue *)implementation {
-  return _impl.get();
 }
 
 + (TimerId)convertTimerId:(FSTTimerID)objcTimerID {

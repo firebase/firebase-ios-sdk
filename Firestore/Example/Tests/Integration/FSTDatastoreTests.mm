@@ -17,6 +17,8 @@
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <FirebaseFirestore/FIRTimestamp.h>
+#import <GRPCClient/GRPCCall+ChannelCredentials.h>
+#import <GRPCClient/GRPCCall+Tests.h>
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -50,7 +52,6 @@ using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::DocumentKeySet;
 using firebase::firestore::model::Precondition;
 using firebase::firestore::model::TargetId;
-using firebase::firestore::remote::GrpcConnection;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -161,7 +162,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *projectID = [FSTIntegrationTestCase projectID];
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
   if (!settings.sslEnabled) {
-    GrpcConnection::UseInsecureChannel(util::MakeString(settings.host));
+    [GRPCCall useInsecureConnectionsForHost:settings.host];
   }
 
   DatabaseId database_id(util::MakeString(projectID), DatabaseId::kDefault);
@@ -221,9 +222,6 @@ NS_ASSUME_NONNULL_BEGIN
                                                             mutations:@[ mutation ]];
   [_testWorkerQueue dispatchAsync:^{
     [_remoteStore addBatchToWritePipeline:batch];
-    // The added batch won't be written immediately because write stream wasn't yet open --
-    // trigger its opening.
-    [_remoteStore fillWritePipeline];
   }];
 
   [self awaitExpectations];

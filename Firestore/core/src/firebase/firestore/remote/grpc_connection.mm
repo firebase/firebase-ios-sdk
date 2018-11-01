@@ -25,7 +25,6 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
-#include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
@@ -41,7 +40,6 @@ namespace remote {
 using auth::Token;
 using core::DatabaseInfo;
 using model::DatabaseId;
-using util::Path;
 using util::Status;
 using util::StringFormat;
 
@@ -54,43 +52,9 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-std::string LoadCertificate(const Path& path) {
-  std::ifstream certificate_file{path.native_value()};
-  HARD_ASSERT(certificate_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
-                  .c_str());
-
-  std::stringstream buffer;
-  buffer << certificate_file.rdbuf();
-  return buffer.str();
-}
-
-std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
-    const Path& certificate_path) {
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = LoadCertificate(certificate_path);
-  return grpc::SslCredentials(options);
-}
-
-struct HostConfig {
-  util::Path certificate_path;
-  std::string target_name;
-  bool use_insecure_channel = false;
-};
-
-using ConfigByHost = std::unordered_map<std::string, HostConfig>;
-
-ConfigByHost& Config() {
-  static ConfigByHost config_by_host_;
-  return config_by_host_;
-}
-
-bool HasSpecialConfig(const std::string& host) {
-  return Config().find(host) != Config().end();
-}
-
 }  // namespace
+
+GrpcConnection::TestCredentials* GrpcConnection::test_credentials_ = nullptr;
 
 GrpcConnection::GrpcConnection(const DatabaseInfo& database_info,
                                util::AsyncQueue* worker_queue,
@@ -123,7 +87,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
     context->set_credentials(grpc::AccessTokenCredentials(MakeString(token)));
   }
 
-  // TODO(dimond): This should ideally also include the gRPC version, however,
+  // TODO(dimond): This should ideally also include the grpc version, however,
   // gRPC defines the version as a macro, so it would be hardcoded based on
   // version we have at compile time of the Firestore library, rather than the
   // version available at runtime/at compile time by the user of the library.
@@ -156,26 +120,31 @@ void GrpcConnection::EnsureActiveStub() {
 }
 
 std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
-  const std::string& host = database_info_->host();
-
-  if (!HasSpecialConfig(host)) {
-    Path root_certificate_path = FindGrpcRootCertificate();
-    return grpc::CreateChannel(host,
-                               CreateSslCredentials(root_certificate_path));
+  if (!test_credentials_) {
+    return grpc::CreateChannel(
+        database_info_->host(),
+        grpc::SslCredentials(grpc::SslCredentialsOptions()));
   }
 
-  const HostConfig& host_config = Config()[host];
-
-  // For the case when `Settings.sslEnabled == false`.
-  if (host_config.use_insecure_channel) {
-    return grpc::CreateChannel(host, grpc::InsecureChannelCredentials());
+  if (test_credentials_->use_insecure_channel) {
+    return grpc::CreateChannel(database_info_->host(),
+                               grpc::InsecureChannelCredentials());
   }
 
-  // For tests only
+  std::ifstream cert_file{test_credentials_->certificate_path};
+  HARD_ASSERT(cert_file.good(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           test_credentials_->certificate_path)
+                  .c_str());
+  std::stringstream cert_buffer;
+  cert_buffer << cert_file.rdbuf();
+  grpc::SslCredentialsOptions options;
+  options.pem_root_certs = cert_buffer.str();
+
   grpc::ChannelArguments args;
-  args.SetSslTargetNameOverride(host_config.target_name);
-  return grpc::CreateCustomChannel(
-      host, CreateSslCredentials(host_config.certificate_path), args);
+  args.SetSslTargetNameOverride(test_credentials_->target_name);
+  return grpc::CreateCustomChannel(database_info_->host(),
+                                   grpc::SslCredentials(options), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -241,24 +210,30 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 }
 
 /*static*/ void GrpcConnection::UseTestCertificate(
-    const std::string& host,
-    const Path& certificate_path,
-    const std::string& target_name) {
-  HARD_ASSERT(!host.empty(), "Empty host name");
-  HARD_ASSERT(!certificate_path.native_value().empty(),
-              "Empty path to test certificate");
+    absl::string_view certificate_path, absl::string_view target_name) {
+  HARD_ASSERT(!certificate_path.empty(), "Empty path to test certificate");
   HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
 
-  HostConfig& host_config = Config()[host];
-  host_config.certificate_path = certificate_path;
-  host_config.target_name = target_name;
+  if (!test_credentials_) {
+    // Deliberately never deleted.
+    test_credentials_ = new TestCredentials{};
+  }
+
+  test_credentials_->certificate_path =
+      std::string{certificate_path.data(), certificate_path.size()};
+  test_credentials_->target_name =
+      std::string{target_name.data(), target_name.size()};
+  // TODO(varconst): hostname if necessary.
 }
 
-/*static*/ void GrpcConnection::UseInsecureChannel(const std::string& host) {
-  HARD_ASSERT(!host.empty(), "Empty host name");
+/*static*/ void GrpcConnection::UseInsecureChannel() {
+  if (!test_credentials_) {
+    // Deliberately never deleted.
+    test_credentials_ = new TestCredentials{};
+  }
 
-  HostConfig& host_config = Config()[host];
-  host_config.use_insecure_channel = true;
+  test_credentials_->use_insecure_channel = true;
+  // TODO(varconst): hostname if necessary.
 }
 
 }  // namespace remote
