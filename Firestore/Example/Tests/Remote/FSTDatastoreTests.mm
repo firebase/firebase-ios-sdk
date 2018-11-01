@@ -17,7 +17,6 @@
 #import "Firestore/Source/Remote/FSTDatastore.h"
 
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
-#import <GRPCClient/GRPCCall.h>
 #import <XCTest/XCTest.h>
 
 @interface FSTDatastoreTests : XCTestCase
