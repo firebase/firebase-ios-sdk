@@ -187,13 +187,8 @@ void GrpcStream::Shutdown() {
   // called, otherwise the real failure cause will be overwritten by status
   // "canceled".)
   context_->TryCancel();
-  // All completions issued by this call must be taken off the queue before
-  // finish operation can be enqueued.
-  FastFinishCompletionsBlocking();
-
-  GrpcCompletion* completion = NewCompletion(Type::Finish, {});
-  call_->Finish(completion->status(), completion);
-
+  FinishCall({});
+  // Wait until "finish" is off the queue.
   FastFinishCompletionsBlocking();
 }
 
@@ -202,6 +197,14 @@ void GrpcStream::MaybeUnregister() {
     grpc_connection_->Unregister(this);
     grpc_connection_ = nullptr;
   }
+}
+
+void GrpcStream::FinishCall(const OnSuccess& callback) {
+  // All completions issued by this call must be taken off the queue before
+  // finish operation can be enqueued.
+  FastFinishCompletionsBlocking();
+  GrpcCompletion* completion = NewCompletion(Type::Finish, callback);
+  call_->Finish(completion->status(), completion);
 }
 
 void GrpcStream::FastFinishCompletionsBlocking() {
@@ -274,20 +277,10 @@ void GrpcStream::OnWrite() {
 }
 
 void GrpcStream::OnOperationFailed() {
-  if (!completions_.empty()) {
-    // It is only valid to finish a call once all other completions issued from
-    // this call have been taken off the queue, so wait until the queue is
-    // drained. Once a single operation has failed, the rest are guaranteed to
-    // fail, too.
-    return;
-  }
-
-  GrpcCompletion* completion =
-      NewCompletion(Type::Finish, [this](const GrpcCompletion* completion) {
+  FinishCall([this](const GrpcCompletion* completion) {
         Status status = ConvertStatus(*completion->status());
         FinishAndNotify(status);
       });
-  call_->Finish(completion->status(), completion);
 }
 
 void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
@@ -304,7 +297,9 @@ GrpcCompletion* GrpcStream::NewCompletion(Type tag,
         RemoveCompletion(completion);
 
         if (ok) {
-          on_success(completion);
+          if (on_success) {
+            on_success(completion);
+          }
         } else {
           // Use the same error-handling for all operations; all errors are
           // unrecoverable.
