@@ -293,7 +293,6 @@
 		DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0451FD6143000F7D466 /* FIRDynamicLinkNetworkingTests.m */; };
 		DE17A2DA2142F1A5002A15ED /* FIRDynamicLinksImportsTest3P.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0461FD6143000F7D466 /* FIRDynamicLinksImportsTest3P.m */; };
 		DE17A2DB2142F1A5002A15ED /* FIRDynamicLinksTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0471FD6143000F7D466 /* FIRDynamicLinksTest.m */; };
-		DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */; };
 		DE17A3CC21472FF2002A15ED /* LinkTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */; };
 		DE17A3CD21472FF2002A15ED /* ParamTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */; };
 		DE17A3CE21472FF2002A15ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE17A3C321472FF1002A15ED /* Assets.xcassets */; };
@@ -1009,7 +1008,6 @@
 		DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
 		DE17A2A02141FA61002A15ED /* DL-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "DL-Info.plist"; sourceTree = "<group>"; };
 		DE17A2C8214215C1002A15ED /* DynamicLinks_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynamicLinks_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GINDurableDeepLinkServiceReceivingTests.m; sourceTree = "<group>"; };
 		DE17A39A21472F3A002A15ED /* FDLBuilderTestAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FDLBuilderTestAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LinkTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/LinkTableViewCell.m; sourceTree = SOURCE_ROOT; };
 		DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ParamTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/ParamTableViewCell.m; sourceTree = SOURCE_ROOT; };
@@ -1923,7 +1921,6 @@
 				DE17A3C621472FF1002A15ED /* ViewController.m */,
 			);
 			name = FDLBuilderTestAppObjC;
-			path = Tests/FDLBuilderTestAppObjC;
 			sourceTree = "<group>";
 		};
 		DE17A3B421472F3C002A15ED /* FDLBuilderTestAppObjCTests */ = {
@@ -2434,7 +2431,6 @@
 		DEDFF0431FD6143000F7D466 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */,
 				DEDFF05D1FD6FEEE00F7D466 /* UtilitiesTests.m */,
 				DEDFF05B1FD6FCE400F7D466 /* FDLURLComponentsTests.m */,
 				DEDFF0441FD6143000F7D466 /* FIRDLScionLoggingTest.m */,
@@ -4072,7 +4068,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */,
 				DE17A2D72142F1A5002A15ED /* FDLURLComponentsTests.m in Sources */,
 				DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */,
 				DE17A2D82142F1A5002A15ED /* FIRDLScionLoggingTest.m in Sources */,
