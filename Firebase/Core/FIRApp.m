@@ -106,7 +106,7 @@ static NSMutableDictionary *sLibraryVersions;
     // Read the Info.plist to see if the flag is set. At this point we can't check any user defaults
     // since the app isn't configured at all, so only rely on the Info.plist value.
     NSNumber *collectionEnabledPlistValue = [[self class] readDataCollectionSwitchFromPlist];
-    if (!collectionEnabledPlistValue || [collectionEnabledPlistValue boolValue]) {
+    if (collectionEnabledPlistValue == nil || [collectionEnabledPlistValue boolValue]) {
       [[NSNotificationCenter defaultCenter]
           postNotificationName:kFIRAppDiagnosticsNotification
                         object:nil
