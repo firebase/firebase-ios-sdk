@@ -405,14 +405,15 @@ struct TitleBodyButtonHeightInfo {
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
 
-  if (self.buttonBottomToContainerBottomInPortraitMode.active) {
-    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300009",
-                @"Modal view rendered in portrait mode");
-    [self layoutFineTuneInPortraitMode];
-  } else {
+  if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular ||
+      self.traitCollection.verticalSizeClass == UIUserInterfaceSizeClassCompact) {
     FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300010",
                 @"Modal view rendered in landscape mode");
     [self layoutFineTuneInLandscapeMode];
+  } else {
+    FIRLogDebug(kFIRLoggerInAppMessagingDisplay, @"I-FID300009",
+                @"Modal view rendered in portrait mode");
+    [self layoutFineTuneInPortraitMode];
   }
 
   // always scroll to the top in case the body area is scrollable
