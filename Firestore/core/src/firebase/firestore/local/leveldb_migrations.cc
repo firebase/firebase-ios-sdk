@@ -19,10 +19,12 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/Protos/nanopb/firestore/local/mutation.nanopb.h"
 #include "Firestore/Protos/nanopb/firestore/local/target.nanopb.h"
 #include "Firestore/core/src/firebase/firestore/local/leveldb_key.h"
 #include "Firestore/core/src/firebase/firestore/model/document_key.h"
 #include "Firestore/core/src/firebase/firestore/model/types.h"
+#include "Firestore/core/src/firebase/firestore/nanopb/reader.h"
 #include "Firestore/core/src/firebase/firestore/nanopb/writer.h"
 #include "absl/strings/match.h"
 
@@ -57,8 +59,9 @@ namespace {
  *     https://github.com/firebase/firebase-ios-sdk/issues/1548.
  *   * Migration 4 ensures that every document in the remote document cache
  *     has a sentinel row with a sequence number.
+ *   * Migration 5 drops held write acks.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 4;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 5;
 
 /**
  * Save the given version number as the current version of the schema of the
@@ -112,6 +115,72 @@ void ClearQueryCache(leveldb::DB* db) {
   transaction.Put(LevelDbTargetGlobalKey::Key(), std::move(bytes));
 
   SaveVersion(3, &transaction);
+  transaction.Commit();
+}
+
+/**
+ * Removes document associations for the given user's mutation queue for
+ * any mutation with a `batch_id` less than or equal to
+ * `last_acknowledged_batch_id`.
+ */
+void RemoveMutationDocuments(LevelDbTransaction* transaction,
+                             absl::string_view user_id,
+                             int32_t last_acknowledged_batch_id) {
+  LevelDbDocumentMutationKey doc_key;
+  std::string prefix = LevelDbDocumentMutationKey::KeyPrefix(user_id);
+
+  auto it = transaction->NewIterator();
+  it->Seek(prefix);
+  for (; it->Valid() && absl::StartsWith(it->key(), prefix); it->Next()) {
+    HARD_ASSERT(doc_key.Decode(it->key()),
+                "Failed to decode document mutation key");
+    if (doc_key.batch_id() <= last_acknowledged_batch_id) {
+      transaction->Delete(it->key());
+    }
+  }
+}
+
+/**
+ * Removes mutation batches for the given user with a `batch_id` less than
+ * or equal to `last_acknowledged_batch_id`
+ */
+void RemoveMutationBatches(LevelDbTransaction* transaction,
+                           absl::string_view user_id,
+                           int32_t last_acknowledged_batch_id) {
+  std::string mutations_key = LevelDbMutationKey::KeyPrefix(user_id);
+  std::string last_key =
+      LevelDbMutationKey::Key(user_id, last_acknowledged_batch_id);
+  auto it = transaction->NewIterator();
+  it->Seek(mutations_key);
+  for (; it->Valid() && it->key() <= last_key; it->Next()) {
+    transaction->Delete(it->key());
+  }
+}
+
+/** Migration 5. */
+void RemoveAcknowledgedMutations(leveldb::DB* db) {
+  LevelDbTransaction transaction(db, "remove acknowledged mutations");
+  std::string mutation_queue_start = LevelDbMutationQueueKey::KeyPrefix();
+
+  LevelDbMutationQueueKey key;
+
+  auto it = transaction.NewIterator();
+  it->Seek(mutation_queue_start);
+  for (; it->Valid() && absl::StartsWith(it->key(), mutation_queue_start);
+       it->Next()) {
+    HARD_ASSERT(key.Decode(it->key()), "Failed to decode mutation queue key");
+    firestore_client_MutationQueue mutation_queue{};
+    Reader reader = Reader::Wrap(it->value());
+    reader.ReadNanopbMessage(firestore_client_MutationQueue_fields,
+                             &mutation_queue);
+    HARD_ASSERT(reader.status().ok(), "Failed to deserialize MutationQueue");
+    RemoveMutationBatches(&transaction, key.user_id(),
+                          mutation_queue.last_acknowledged_batch_id);
+    RemoveMutationDocuments(&transaction, key.user_id(),
+                            mutation_queue.last_acknowledged_batch_id);
+  }
+
+  SaveVersion(5, &transaction);
   transaction.Commit();
 }
 
@@ -204,6 +273,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 4 && to_version >= 4) {
     EnsureSentinelRows(db);
+  }
+
+  if (from_version < 5 && to_version >= 5) {
+    RemoveAcknowledgedMutations(db);
   }
 }
 

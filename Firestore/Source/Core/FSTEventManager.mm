@@ -136,7 +136,7 @@ NS_ASSUME_NONNULL_BEGIN
                                          oldDocuments:snapshot.oldDocuments
                                       documentChanges:changes
                                             fromCache:snapshot.fromCache
-                                     hasPendingWrites:snapshot.hasPendingWrites
+                                          mutatedKeys:snapshot.mutatedKeys
                                      syncStateChanged:snapshot.syncStateChanged];
   }
 
@@ -214,7 +214,7 @@ NS_ASSUME_NONNULL_BEGIN
           oldDocuments:[FSTDocumentSet documentSetWithComparator:snapshot.query.comparator]
        documentChanges:[FSTQueryListener getInitialViewChangesFor:snapshot]
              fromCache:snapshot.fromCache
-      hasPendingWrites:snapshot.hasPendingWrites
+           mutatedKeys:snapshot.mutatedKeys
       syncStateChanged:YES];
   self.raisedInitialEvent = YES;
   self.viewSnapshotHandler(snapshot, nil);

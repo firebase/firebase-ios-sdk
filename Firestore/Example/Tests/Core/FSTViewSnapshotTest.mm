@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FSTViewSnapshotTests
 
 - (void)testDocumentChangeConstructor {
-  FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, NO);
+  FSTDocument *doc = FSTTestDoc("a/b", 0, @{}, FSTDocumentStateSynced);
   FSTDocumentViewChangeType type = FSTDocumentViewChangeTypeModified;
   FSTDocumentViewChange *change = [FSTDocumentViewChange changeWithDocument:doc type:type];
   XCTAssertEqual(change.document, doc);
@@ -42,15 +42,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)testTrack {
   FSTDocumentViewChangeSet *set = [FSTDocumentViewChangeSet changeSet];
 
-  FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, NO);
-  FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, NO);
-  FSTDocument *docModified = FSTTestDoc("a/3", 0, @{}, NO);
+  FSTDocument *docAdded = FSTTestDoc("a/1", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docRemoved = FSTTestDoc("a/2", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docModified = FSTTestDoc("a/3", 0, @{}, FSTDocumentStateSynced);
 
-  FSTDocument *docAddedThenModified = FSTTestDoc("b/1", 0, @{}, NO);
-  FSTDocument *docAddedThenRemoved = FSTTestDoc("b/2", 0, @{}, NO);
-  FSTDocument *docRemovedThenAdded = FSTTestDoc("b/3", 0, @{}, NO);
-  FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, NO);
-  FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, NO);
+  FSTDocument *docAddedThenModified = FSTTestDoc("b/1", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docAddedThenRemoved = FSTTestDoc("b/2", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docRemovedThenAdded = FSTTestDoc("b/3", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docModifiedThenRemoved = FSTTestDoc("b/4", 0, @{}, FSTDocumentStateSynced);
+  FSTDocument *docModifiedThenModified = FSTTestDoc("b/5", 0, @{}, FSTDocumentStateSynced);
 
   [set addChange:[FSTDocumentViewChange changeWithDocument:docAdded
                                                       type:FSTDocumentViewChangeTypeAdded]];
@@ -109,13 +109,14 @@ NS_ASSUME_NONNULL_BEGIN
   FSTQuery *query = FSTTestQuery("a");
   FSTDocumentSet *documents = [FSTDocumentSet documentSetWithComparator:FSTDocumentComparatorByKey];
   FSTDocumentSet *oldDocuments = documents;
-  documents = [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, NO)];
+  documents =
+      [documents documentSetByAddingDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)];
   NSArray<FSTDocumentViewChange *> *documentChanges =
-      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc("c/a", 1, @{}, NO)
+      @[ [FSTDocumentViewChange changeWithDocument:FSTTestDoc("c/a", 1, @{}, FSTDocumentStateSynced)
                                               type:FSTDocumentViewChangeTypeAdded] ];
 
   BOOL fromCache = YES;
-  BOOL hasPendingWrites = NO;
+  DocumentKeySet mutatedKeys;
   BOOL syncStateChanged = YES;
 
   FSTViewSnapshot *snapshot = [[FSTViewSnapshot alloc] initWithQuery:query
@@ -123,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                         oldDocuments:oldDocuments
                                                      documentChanges:documentChanges
                                                            fromCache:fromCache
-                                                    hasPendingWrites:hasPendingWrites
+                                                         mutatedKeys:mutatedKeys
                                                     syncStateChanged:syncStateChanged];
 
   XCTAssertEqual(snapshot.query, query);
@@ -131,7 +132,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqual(snapshot.oldDocuments, oldDocuments);
   XCTAssertEqual(snapshot.documentChanges, documentChanges);
   XCTAssertEqual(snapshot.fromCache, fromCache);
-  XCTAssertEqual(snapshot.hasPendingWrites, hasPendingWrites);
+  XCTAssertEqual(snapshot.mutatedKeys, mutatedKeys);
   XCTAssertEqual(snapshot.syncStateChanged, syncStateChanged);
 }
 

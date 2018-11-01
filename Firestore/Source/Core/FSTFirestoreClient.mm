@@ -287,13 +287,20 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMaybeDocument *maybeDoc = [self.localStore readDocument:doc.key];
     FIRDocumentSnapshot *_Nullable result = nil;
     NSError *_Nullable error = nil;
-    if (maybeDoc) {
-      FSTDocument *_Nullable document =
-          ([maybeDoc isKindOfClass:[FSTDocument class]]) ? (FSTDocument *)maybeDoc : nil;
+
+    if ([maybeDoc isKindOfClass:[FSTDocument class]]) {
+      FSTDocument *document = (FSTDocument *)maybeDoc;
       result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
                                               documentKey:doc.key
                                                  document:document
-                                                fromCache:YES];
+                                                fromCache:YES
+                                         hasPendingWrites:document.hasLocalMutations];
+    } else if ([maybeDoc isKindOfClass:[FSTDeletedDocument class]]) {
+      result = [FIRDocumentSnapshot snapshotWithFirestore:doc.firestore
+                                              documentKey:doc.key
+                                                 document:nil
+                                                fromCache:YES
+                                         hasPendingWrites:NO];
     } else {
       error = [NSError errorWithDomain:FIRFirestoreErrorDomain
                                   code:FIRFirestoreErrorCodeUnavailable

@@ -130,10 +130,13 @@ NS_ASSUME_NONNULL_BEGIN
 
     NSMutableArray<FIRQueryDocumentSnapshot *> *result = [NSMutableArray array];
     for (FSTDocument *document in documentSet.documentEnumerator) {
-      [result addObject:[FIRQueryDocumentSnapshot snapshotWithFirestore:firestore
-                                                            documentKey:document.key
-                                                               document:document
-                                                              fromCache:fromCache]];
+      [result
+          addObject:[FIRQueryDocumentSnapshot
+                        snapshotWithFirestore:firestore
+                                  documentKey:document.key
+                                     document:document
+                                    fromCache:fromCache
+                             hasPendingWrites:self.snapshot.mutatedKeys.contains(document.key)]];
     }
 
     _documents = result;

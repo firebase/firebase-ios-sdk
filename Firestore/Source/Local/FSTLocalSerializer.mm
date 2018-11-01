@@ -62,9 +62,17 @@ using firebase::firestore::model::TargetId;
   FSTPBMaybeDocument *proto = [FSTPBMaybeDocument message];
 
   if ([document isKindOfClass:[FSTDeletedDocument class]]) {
-    proto.noDocument = [self encodedDeletedDocument:(FSTDeletedDocument *)document];
+    FSTDeletedDocument *deletedDocument = (FSTDeletedDocument *)document;
+    proto.noDocument = [self encodedDeletedDocument:deletedDocument];
+    proto.hasCommittedMutations = deletedDocument.hasCommittedMutations;
   } else if ([document isKindOfClass:[FSTDocument class]]) {
-    proto.document = [self encodedDocument:(FSTDocument *)document];
+    FSTDocument *existingDocument = (FSTDocument *)document;
+    proto.document = [self encodedDocument:existingDocument];
+    proto.hasCommittedMutations = existingDocument.hasCommittedMutations;
+  } else if ([document isKindOfClass:[FSTUnknownDocument class]]) {
+    FSTUnknownDocument *unknownDocument = (FSTUnknownDocument *)document;
+    proto.unknownDocument = [self encodedUnknownDocument:unknownDocument];
+    proto.hasCommittedMutations = YES;
   } else {
     HARD_FAIL("Unknown document type %s", NSStringFromClass([document class]));
   }
@@ -75,10 +83,15 @@ using firebase::firestore::model::TargetId;
 - (FSTMaybeDocument *)decodedMaybeDocument:(FSTPBMaybeDocument *)proto {
   switch (proto.documentTypeOneOfCase) {
     case FSTPBMaybeDocument_DocumentType_OneOfCase_Document:
-      return [self decodedDocument:proto.document];
+      return
+          [self decodedDocument:proto.document withCommittedMutations:proto.hasCommittedMutations];
 
     case FSTPBMaybeDocument_DocumentType_OneOfCase_NoDocument:
-      return [self decodedDeletedDocument:proto.noDocument];
+      return [self decodedDeletedDocument:proto.noDocument
+                   withCommittedMutations:proto.hasCommittedMutations];
+
+    case FSTPBMaybeDocument_DocumentType_OneOfCase_UnknownDocument:
+      return [self decodedUnknownDocument:proto.unknownDocument];
 
     default:
       HARD_FAIL("Unknown MaybeDocument %s", proto);
@@ -102,13 +115,18 @@ using firebase::firestore::model::TargetId;
 }
 
 /** Decodes a Document proto to the equivalent model. */
-- (FSTDocument *)decodedDocument:(GCFSDocument *)document {
+- (FSTDocument *)decodedDocument:(GCFSDocument *)document
+          withCommittedMutations:(BOOL)committedMutations {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   FSTObjectValue *data = [remoteSerializer decodedFields:document.fields];
   DocumentKey key = [remoteSerializer decodedDocumentKey:document.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:document.updateTime];
-  return [FSTDocument documentWithData:data key:key version:version hasLocalMutations:NO];
+  return [FSTDocument documentWithData:data
+                                   key:key
+                               version:version
+                                 state:committedMutations ? FSTDocumentStateCommittedMutations
+                                                          : FSTDocumentStateSynced];
 }
 
 /** Encodes a NoDocument value to the equivalent proto. */
@@ -122,12 +140,34 @@ using firebase::firestore::model::TargetId;
 }
 
 /** Decodes a NoDocument proto to the equivalent model. */
-- (FSTDeletedDocument *)decodedDeletedDocument:(FSTPBNoDocument *)proto {
+- (FSTDeletedDocument *)decodedDeletedDocument:(FSTPBNoDocument *)proto
+                        withCommittedMutations:(BOOL)committedMutations {
   FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
 
   DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
   SnapshotVersion version = [remoteSerializer decodedVersion:proto.readTime];
-  return [FSTDeletedDocument documentWithKey:key version:version];
+  return [FSTDeletedDocument documentWithKey:key
+                                     version:version
+                       hasCommittedMutations:committedMutations];
+}
+
+/** Encodes an UnknownDocument value to the equivalent proto. */
+- (FSTPBUnknownDocument *)encodedUnknownDocument:(FSTUnknownDocument *)document {
+  FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
+
+  FSTPBUnknownDocument *proto = [FSTPBUnknownDocument message];
+  proto.name = [remoteSerializer encodedDocumentKey:document.key];
+  proto.version = [remoteSerializer encodedVersion:document.version];
+  return proto;
+}
+
+/** Decodes an UnknownDocument proto to the equivalent model. */
+- (FSTUnknownDocument *)decodedUnknownDocument:(FSTPBUnknownDocument *)proto {
+  FSTSerializerBeta *remoteSerializer = self.remoteSerializer;
+
+  DocumentKey key = [remoteSerializer decodedDocumentKey:proto.name];
+  SnapshotVersion version = [remoteSerializer decodedVersion:proto.version];
+  return [FSTUnknownDocument documentWithKey:key version:version];
 }
 
 - (FSTPBWriteBatch *)encodedMutationBatch:(FSTMutationBatch *)batch {

@@ -220,11 +220,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (FSTDocument *)nextTestDocumentWithValue:(FSTObjectValue *)value {
   DocumentKey key = [self nextTestDocKey];
   FSTTestSnapshotVersion version = 2;
-  BOOL hasMutations = NO;
   return [FSTDocument documentWithData:value
                                    key:key
                                version:testutil::Version(version)
-                     hasLocalMutations:hasMutations];
+                                 state:FSTDocumentStateSynced];
 }
 
 - (FSTDocument *)nextTestDocument {
@@ -612,7 +611,7 @@ NS_ASSUME_NONNULL_BEGIN
     FSTDocument *doc = [FSTDocument documentWithData:_testValue
                                                  key:middleDocToUpdate
                                              version:testutil::Version(version)
-                                   hasLocalMutations:NO];
+                                               state:FSTDocumentStateSynced];
     [_documentCache addEntry:doc];
     [self updateTargetInTransaction:middleTarget];
   });

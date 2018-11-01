@@ -378,8 +378,9 @@ class LimboResolution {
     // It's a limbo doc. Create a synthetic event saying it was deleted. This is kind of a hack.
     // Ideally, we would have a method in the local store to purge a document. However, it would
     // be tricky to keep all of the local store's invariants with another method.
-    FSTDeletedDocument *doc =
-        [FSTDeletedDocument documentWithKey:limboKey version:SnapshotVersion::None()];
+    FSTDeletedDocument *doc = [FSTDeletedDocument documentWithKey:limboKey
+                                                          version:SnapshotVersion::None()
+                                            hasCommittedMutations:NO];
     DocumentKeySet limboDocuments = DocumentKeySet{doc.key};
     FSTRemoteEvent *event = [[FSTRemoteEvent alloc] initWithSnapshotVersion:SnapshotVersion::None()
         targetChanges:{}

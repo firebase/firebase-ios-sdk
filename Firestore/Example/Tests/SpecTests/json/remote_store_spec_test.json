@@ -73,13 +73,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/a",
-              1000,
-              {
+            {
+              "key": "collection/a",
+              "version": 1000,
+              "value": {
                 "key": "a"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -96,7 +100,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1000
+          "version": 1000,
+          "targetIds": []
         }
       },
       {
@@ -114,13 +119,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/a",
-              1000,
-              {
+            {
+              "key": "collection/a",
+              "version": 1000,
+              "value": {
                 "key": "a"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -137,7 +146,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001
+          "version": 1001,
+          "targetIds": []
         },
         "expect": [
           {
@@ -147,13 +157,17 @@
               "orderBys": []
             },
             "added": [
-              [
-                "collection/a",
-                1000,
-                {
+              {
+                "key": "collection/a",
+                "version": 1000,
+                "value": {
                   "key": "a"
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
                 }
-              ]
+              }
             ],
             "errorCode": 0,
             "fromCache": false,
@@ -307,13 +321,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/a",
-              1000,
-              {
+            {
+              "key": "collection/a",
+              "version": 1000,
+              "value": {
                 "key": "a"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -330,7 +348,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1000
+          "version": 1000,
+          "targetIds": []
         }
       },
       {
@@ -348,13 +367,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/b",
-              1000,
-              {
+            {
+              "key": "collection/b",
+              "version": 1000,
+              "value": {
                 "key": "b"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -371,7 +394,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001
+          "version": 1001,
+          "targetIds": []
         }
       },
       {
@@ -389,13 +413,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/c",
-              1000,
-              {
+            {
+              "key": "collection/c",
+              "version": 1000,
+              "value": {
                 "key": "c"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -412,7 +440,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001
+          "version": 1001,
+          "targetIds": []
         }
       },
       {
@@ -430,13 +459,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/d",
-              1000,
-              {
+            {
+              "key": "collection/d",
+              "version": 1000,
+              "value": {
                 "key": "d"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -453,7 +486,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001
+          "version": 1001,
+          "targetIds": []
         },
         "expect": [
           {
@@ -463,13 +497,17 @@
               "orderBys": []
             },
             "added": [
-              [
-                "collection/d",
-                1000,
-                {
+              {
+                "key": "collection/d",
+                "version": 1000,
+                "value": {
                   "key": "d"
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
                 }
-              ]
+              }
             ],
             "errorCode": 0,
             "fromCache": false,
@@ -539,13 +577,17 @@
       {
         "watchEntity": {
           "docs": [
-            [
-              "collection/a",
-              1000,
-              {
+            {
+              "key": "collection/a",
+              "version": 1000,
+              "value": {
                 "key": "a"
+              },
+              "options": {
+                "hasLocalMutations": false,
+                "hasCommittedMutations": false
               }
-            ]
+            }
           ],
           "targets": [
             2
@@ -562,7 +604,8 @@
       },
       {
         "watchSnapshot": {
-          "version": 1001
+          "version": 1001,
+          "targetIds": []
         },
         "expect": [
           {
@@ -572,13 +615,17 @@
               "orderBys": []
             },
             "added": [
-              [
-                "collection/a",
-                1000,
-                {
+              {
+                "key": "collection/a",
+                "version": 1000,
+                "value": {
                   "key": "a"
+                },
+                "options": {
+                  "hasLocalMutations": false,
+                  "hasCommittedMutations": false
                 }
-              ]
+              }
             ],
             "errorCode": 0,
             "fromCache": false,

@@ -55,6 +55,32 @@
   XCTAssertEqualObjects(result.data, finalData);
 }
 
+- (void)testCanUpdateAnUnknownDocument {
+  [self readerAndWriterOnDocumentRef:^(NSString *path, FIRDocumentReference *readerRef,
+                                       FIRDocumentReference *writerRef) {
+    [self writeDocumentRef:writerRef data:@{@"a" : @"a"}];
+    [self updateDocumentRef:readerRef data:@{@"b" : @"b"}];
+
+    FIRDocumentSnapshot *writerSnap =
+        [self readDocumentForRef:writerRef source:FIRFirestoreSourceCache];
+    XCTAssertTrue(writerSnap.exists);
+
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:@"testCanUpdateAnUnknownDocument"];
+    [readerRef getDocumentWithSource:FIRFirestoreSourceCache
+                          completion:^(FIRDocumentSnapshot *doc, NSError *_Nullable error) {
+                            XCTAssertNotNil(error);
+                            [expectation fulfill];
+                          }];
+    [self awaitExpectations];
+
+    writerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(writerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+    FIRDocumentSnapshot *readerSnap = [self readDocumentForRef:writerRef];
+    XCTAssertEqualObjects(readerSnap.data, (@{@"a" : @"a", @"b" : @"b"}));
+  }];
+}
+
 - (void)testCanDeleteAFieldWithAnUpdate {
   FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
   NSDictionary<NSString *, id> *initialData =
