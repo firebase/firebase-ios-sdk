@@ -20,7 +20,6 @@
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
-#import <FirebaseCore/FIRComponentRegistrant.h>
 #import <FirebaseCore/FIRDependency.h>
 #import <FirebaseCore/FIRLogger.h>
 #import <FirebaseCore/FIROptions.h>
@@ -34,11 +33,7 @@
 #import "FRepoManager.h"
 #import "FValidation.h"
 
-// Empty protocol for use with Interop registration.
-@protocol FIRDatabaseNilProtocol
-@end
-
-@interface FIRDatabase () <FIRComponentRegistrant, FIRDatabaseNilProtocol>
+@interface FIRDatabase ()
 @property (nonatomic, strong) FRepoInfo *repoInfo;
 @property (nonatomic, strong) FIRDatabaseConfig *config;
 @property (nonatomic, strong) FRepo *repo;
@@ -77,23 +72,6 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
           }
       }
   }];
-  [FIRComponentContainer registerAsComponentRegistrant:self];
-}
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-    FIRDependency *auth =
-        [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop)
-                                   isRequired:NO];
-    FIRComponentCreationBlock creationBlock =
-        ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-        return [self databaseForApp:container.app];
-    };
-    FIRComponent *databaseProvider =
-        [FIRComponent componentWithProtocol:@protocol(FIRDatabaseNilProtocol)
-                        instantiationTiming:FIRInstantiationTimingLazy
-                               dependencies:@[ auth ]
-                              creationBlock:creationBlock];
-    return @[ databaseProvider ];
 }
 
 /**
@@ -165,7 +143,7 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
     } else if (![databaseUrl.path isEqualToString:@""] && ![databaseUrl.path isEqualToString:@"/"]) {
         [NSException raise:@"InvalidDatabaseURL" format:@"Configured Database URL '%@' is invalid. It should point "
             "to the root of a Firebase Database but it includes a path: %@",databaseUrl, databaseUrl.path];
-  }
+    }
 
     FIRDatabaseDictionary *instances = [self instances];
     @synchronized (instances) {
