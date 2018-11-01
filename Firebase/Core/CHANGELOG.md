@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fixed static analysis warning for improper `nil` comparison. (#2034)
 
 # 2018-10-31 -- v5.1.7 -- M37
 - [changed] Assign the default app before posting notifications. (#2024)
