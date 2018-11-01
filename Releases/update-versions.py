@@ -188,11 +188,11 @@ def UpdateTags(version_data, firebase_version, first=False):
 
 
 def GetCpdcInternal():
-  """Find the cpdc-internal repo.
+  """Find the firebase repo.
 
 """
   tmp_file = tempfile.mktemp()
-  os.system('pod repo list | grep -B2 sso://cpdc-internal | head -1 > {}'
+  os.system('pod repo list | grep -B2 sso://cpdc-internal/firebase | head -1 > {}'
             .format(tmp_file))
   with open(tmp_file,'r') as o:
     output_var = ''.join(o.readlines()).strip()
@@ -201,7 +201,7 @@ def GetCpdcInternal():
 
 
 def PushPodspecs(version_data):
-  """Push podspecs to cpdc-internal.
+  """Push podspecs to cpdc-firebase.
 
   Args:
     version_data: dictionary of versions to be updated.

@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Remote/FSTSerializerBeta.h"
 
-#import <GRPCClient/GRPCCall.h>
-
 #include <cinttypes>
 #include <string>
 #include <utility>

@@ -55,6 +55,9 @@ namespace remote {
  * request is received, all pending mutations may be submitted. When
  * submitting multiple batches of mutations at the same time, it's
  * okay to use the same stream token for the calls to `WriteMutations`.
+ *
+ * This class is not intended as a base class; all virtual methods exist only
+ * for the sake of tests.
  */
 class WriteStream : public Stream {
  public:
@@ -87,10 +90,16 @@ class WriteStream : public Stream {
    * Sends an initial stream token to the server, performing the handshake
    * required to make the StreamingWrite RPC work.
    */
-  void WriteHandshake();
+  virtual void WriteHandshake();
 
   /** Sends a group of mutations to the Firestore backend to apply. */
-  void WriteMutations(NSArray<FSTMutation*>* mutations);
+  virtual void WriteMutations(NSArray<FSTMutation*>* mutations);
+
+ protected:
+  // For tests only
+  void SetHandshakeComplete(bool value = true) {
+    handshake_complete_ = value;
+  }
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(

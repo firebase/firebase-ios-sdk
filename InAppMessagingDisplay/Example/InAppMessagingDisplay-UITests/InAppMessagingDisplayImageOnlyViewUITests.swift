@@ -76,7 +76,7 @@ class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
       app.buttons["High Dimension Image"].tap()
 
       // wait time longer due to large image
-      waitForElementToAppear(closeButton, 10)
+      waitForElementToAppear(closeButton, 30)
 
       XCTAssert(isElementExistentAndHavingSize(imageView))
       XCTAssert(isUIElementWithinUIWindow(imageView))
@@ -101,7 +101,7 @@ class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
       app.buttons["Low Dimension Image"].tap()
 
       // wait time longer due to large image
-      waitForElementToAppear(closeButton, 10)
+      waitForElementToAppear(closeButton, 30)
 
       XCTAssert(isElementExistentAndHavingSize(imageView))
       XCTAssert(isUIElementWithinUIWindow(imageView))
@@ -123,7 +123,7 @@ class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
       app.buttons["Wide Image"].tap()
 
       // wait time longer due to large image
-      waitForElementToAppear(closeButton, 10)
+      waitForElementToAppear(closeButton, 30)
 
       XCTAssert(isElementExistentAndHavingSize(imageView))
       XCTAssert(isUIElementWithinUIWindow(imageView))
@@ -145,7 +145,7 @@ class InAppMessagingImageOnlyViewUITests: InAppMessagingDisplayUITestsBase {
       app.buttons["Narrow Image"].tap()
 
       // wait time longer due to large image
-      waitForElementToAppear(closeButton, 10)
+      waitForElementToAppear(closeButton, 30)
 
       XCTAssert(isElementExistentAndHavingSize(imageView))
       XCTAssert(isUIElementWithinUIWindow(imageView))

@@ -158,7 +158,7 @@
   }
 
   // Save the session into memory.
-  [self setSessionInFetcherMap:self forSessionID:_sessionID];
+  [[self class] setSessionInFetcherMap:self forSessionID:_sessionID];
 
   _request = [request copy];
 
@@ -200,7 +200,7 @@
   }
 
   // Save the session into memory.
-  [self setSessionInFetcherMap:self forSessionID:_sessionID];
+  [[self class] setSessionInFetcherMap:self forSessionID:_sessionID];
 
   _request = [request copy];
 
@@ -291,7 +291,7 @@
     // Explicitly remove the session so it won't be reused. The weak map table should
     // remove the session on deallocation, but dealloc may not happen immediately after
     // calling `finishTasksAndInvalidate`.
-    [self setSessionInFetcherMap:nil forSessionID:sessionID];
+    [[self class] setSessionInFetcherMap:nil forSessionID:sessionID];
   }
 }
 
@@ -540,18 +540,19 @@
 
 /// Gets the fetcher with the session ID.
 + (instancetype)fetcherWithSessionIdentifier:(NSString *)sessionIdentifier {
-  NSMapTable<NSString *, GULNetworkURLSession *> *sessionIdentifierToFetcherMap =
-      [self sessionIDToFetcherMap];
-  GULNetworkURLSession *session = [sessionIdentifierToFetcherMap objectForKey:sessionIdentifier];
+  GULNetworkURLSession *session = [self sessionFromFetcherMapForSessionID:sessionIdentifier];
   if (!session && [sessionIdentifier hasPrefix:kGULNetworkBackgroundSessionConfigIDPrefix]) {
     session = [[GULNetworkURLSession alloc] initWithNetworkLoggerDelegate:nil];
     [session setSessionID:sessionIdentifier];
-    [sessionIdentifierToFetcherMap setObject:session forKey:sessionIdentifier];
+    [self setSessionInFetcherMap:session forSessionID:sessionIdentifier];
   }
   return session;
 }
 
 /// Returns a map of the fetcher by session ID. Creates a map if it is not created.
+/// When reading and writing from/to the session map, don't use this method directly.
+/// To avoid thread safety issues, use one of the helper methods at the bottom of the
+/// file: setSessionInFetcherMap:forSessionID:, sessionFromFetcherMapForSessionID:
 + (NSMapTable<NSString *, GULNetworkURLSession *> *)sessionIDToFetcherMap {
   static NSMapTable *sessionIDToFetcherMap;
 
@@ -560,6 +561,16 @@
     sessionIDToFetcherMap = [NSMapTable strongToWeakObjectsMapTable];
   });
   return sessionIDToFetcherMap;
+}
+
++ (NSLock *)sessionIDToFetcherMapReadWriteLock {
+  static NSLock *lock;
+
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    lock = [[NSLock alloc] init];
+  });
+  return lock;
 }
 
 /// Returns a map of system provided completion handler by session ID. Creates a map if it is not
@@ -661,26 +672,32 @@
 
 #pragma mark - Helper Methods
 
-- (void)setSessionInFetcherMap:(GULNetworkURLSession *)session forSessionID:(NSString *)sessionID {
-  GULNetworkURLSession *existingSession = [self sessionFromFetcherMapForSessionID:sessionID];
++ (void)setSessionInFetcherMap:(GULNetworkURLSession *)session forSessionID:(NSString *)sessionID {
+  [[self sessionIDToFetcherMapReadWriteLock] lock];
+  GULNetworkURLSession *existingSession =
+      [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
   if (existingSession) {
     // Invalidating doesn't seem like the right thing to do here since it may cancel an active
     // background transfer if the background session is handling multiple requests. The old
     // session will be dropped from the map table, but still complete its request.
     NSString *message = [NSString stringWithFormat:@"Discarding session: %@", existingSession];
-    [_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
-                                 messageCode:kGULNetworkMessageCodeURLSession019
-                                     message:message];
+    [existingSession->_loggerDelegate GULNetwork_logWithLevel:kGULNetworkLogLevelInfo
+                                                  messageCode:kGULNetworkMessageCodeURLSession019
+                                                      message:message];
   }
   if (session) {
     [[[self class] sessionIDToFetcherMap] setObject:session forKey:sessionID];
   } else {
     [[[self class] sessionIDToFetcherMap] removeObjectForKey:sessionID];
   }
+  [[self sessionIDToFetcherMapReadWriteLock] unlock];
 }
 
-- (nullable GULNetworkURLSession *)sessionFromFetcherMapForSessionID:(NSString *)sessionID {
-  return [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
++ (nullable GULNetworkURLSession *)sessionFromFetcherMapForSessionID:(NSString *)sessionID {
+  [[self sessionIDToFetcherMapReadWriteLock] lock];
+  GULNetworkURLSession *session = [[[self class] sessionIDToFetcherMap] objectForKey:sessionID];
+  [[self sessionIDToFetcherMapReadWriteLock] unlock];
+  return session;
 }
 
 - (void)callCompletionHandler:(GULNetworkURLSessionCompletionHandler)handler

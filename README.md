@@ -60,8 +60,13 @@ pod 'FirebaseMessaging', :path => '/path/to/firebase-ios-sdk'
 
 ### Carthage (iOS only)
 
-An experimental Carthage distribution is now available. See
+Instructions for the experimental Carthage distribution are at
 [Carthage](Carthage.md).
+
+### Rome
+
+Instructions for installing binary frameworks via
+[Rome](https://github.com/CocoaPods/Rome) are at [Rome](Rome.md).
 
 ## Development
 

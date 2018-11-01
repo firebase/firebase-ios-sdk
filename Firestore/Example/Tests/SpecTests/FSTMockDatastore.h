@@ -39,15 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Watch Stream manipulation.
 
-/** Injects an Added WatchChange containing the given targetIDs. */
-- (void)writeWatchTargetAddedWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs;
-
-/** Injects an Added WatchChange that marks the given targetIDs current. */
-- (void)writeWatchCurrentWithTargetIDs:(NSArray<FSTBoxedTargetID *> *)targetIDs
-                       snapshotVersion:
-                           (const firebase::firestore::model::SnapshotVersion &)snapshotVersion
-                           resumeToken:(NSData *)resumeToken;
-
 /** Injects a WatchChange as though it had come from the backend. */
 - (void)writeWatchChange:(FSTWatchChange *)change
          snapshotVersion:(const firebase::firestore::model::SnapshotVersion &)snap;

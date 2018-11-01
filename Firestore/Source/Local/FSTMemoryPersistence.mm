@@ -246,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
   for (const auto &key : removed) {
     _sequenceNumbers.erase(key);
   }
-  return removed.size();
+  return static_cast<int>(removed.size());
 }
 
 - (void)addReference:(const DocumentKey &)key {

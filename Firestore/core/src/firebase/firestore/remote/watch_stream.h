@@ -62,13 +62,14 @@ class WatchStream : public Stream {
    * query will be streamed back as WatchChange messages that reference the
    * target ID included in `query`.
    */
-  void WatchQuery(FSTQueryData* query);
+  virtual /*virtual for tests only*/ void WatchQuery(FSTQueryData* query);
 
   /**
    * Unregisters interest in the results of the query associated with the given
    * `target_id`.
    */
-  void UnwatchTargetId(model::TargetId target_id);
+  virtual /*virtual for tests only*/ void UnwatchTargetId(
+      model::TargetId target_id);
 
  private:
   std::unique_ptr<GrpcStream> CreateGrpcStream(
