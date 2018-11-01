@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-#import <FirebaseCore/FIRApp.h>
 #import "FIRDatabaseConfig.h"
+
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponentContainer.h>
+
+#import "FAuthTokenProvider.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FIRNoopAuthTokenProvider.h"
-#import "FAuthTokenProvider.h"
 
 @interface FIRDatabaseConfig (Private)
 
@@ -106,9 +110,11 @@
     });
     @synchronized(sessionConfigs) {
         if (!sessionConfigs[name]) {
-            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
-            sessionConfigs[name] = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
-                                                                      authTokenProvider:authTokenProvider];
+            id<FAuthTokenProvider> authTokenProvider =
+                [FAuthTokenProvider authTokenProviderWithAuthInterop:
+                    FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container)];
+              sessionConfigs[name] = [[FIRDatabaseConfig alloc] initWithSessionIdentifier:name
+                                                                        authTokenProvider:authTokenProvider];
         }
         return sessionConfigs[name];
     }

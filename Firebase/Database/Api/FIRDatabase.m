@@ -179,7 +179,9 @@ static const char *FIREBASE_SEMVER = (const char *)STR(FIRDatabase_VERSION);
         FParsedUrl *parsedUrl = [FUtilities parseUrl:databaseUrl.absoluteString];
         FIRDatabase *database = urlInstanceMap[parsedUrl.repoInfo];
         if (!database) {
-            id<FAuthTokenProvider> authTokenProvider = [FAuthTokenProvider authTokenProviderForApp:app];
+            id<FAuthTokenProvider> authTokenProvider =
+                [FAuthTokenProvider authTokenProviderWithAuthInterop:
+                    FIR_COMPONENT(FIRAuthInterop, app.container)];
 
             // If this is the default app, don't set the session persistence key so that we use our
             // default ("default") instead of the FIRApp default ("[DEFAULT]") so that we
