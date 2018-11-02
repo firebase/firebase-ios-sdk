@@ -49,10 +49,10 @@ std::string LoadGrpcRootCertificate() {
       "Could not load root certificates from the bundle. SSL won't work.");
 
   StatusOr<std::string> certificate = ReadFile(Path::FromNSString(path));
-  HARD_ASSERT(certificate.ok(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path)
-                  .c_str());
+  HARD_ASSERT(
+      certificate.ok(),
+      StringFormat("Unable to open root certificates at file path %s", path)
+          .c_str());
   return certificate.ValueOrDie();
 }
 
