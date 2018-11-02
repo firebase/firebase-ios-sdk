@@ -110,9 +110,3 @@ cc_library(
     firebase_firestore_version
     grpc++
 )
-
-#target_compile_options(
-#  firebase_firestore_remote
-#  PUBLIC
-#  -Wno-error
-#)

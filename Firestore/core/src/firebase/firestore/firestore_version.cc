@@ -21,8 +21,6 @@
     "FIRFirestore_VERSION is not defined: add -DFIRFirestore_VERSION=... to the build invocation"  // NOLINT(whitespace/line_length)
 #endif
 
-#include <array>
-
 namespace firebase {
 namespace firestore {
 
@@ -33,24 +31,7 @@ namespace firestore {
 #define STR(x) STR_EXPAND(x)
 #define STR_EXPAND(x) #x
 
-  constexpr const char* blah() {
-    return "";
-  }
-
-constexpr const char* kFirestoreVersionString = STR(FIRFirestore_VERSION);
-// constexpr const char* const kFirestoreVersionString = blah();
-extern const int kFirestoreVersionString2 = 2;
-
-// constexpr const char* bar() {
-//   return "obc";
-// }
-
-void foo() {
-  //const char* kFirestoreVersionString = "obc";
-  std::array<int, kFirestoreVersionString[0]> test;
-  (void)test;
-  //std::array<int, (size_t)kFirestoreVersionString2> test2;
-}
+const char* const kFirestoreVersionString = STR(FIRFirestore_VERSION);
 
 }  // namespace firestore
 }  // namespace firebase
