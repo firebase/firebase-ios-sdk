@@ -20,7 +20,7 @@
 
 #include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/status_or.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
@@ -31,6 +31,7 @@ namespace remote {
 using util::Path;
 using util::ReadFile;
 using util::StatusOr;
+using util::StringFormat;
 
 std::string LoadGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the
@@ -50,7 +51,7 @@ std::string LoadGrpcRootCertificate() {
   StatusOr<std::string> certificate = ReadFile(Path::FromNSString(path));
   HARD_ASSERT(certificate.ok(),
               StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
+                           path)
                   .c_str());
   return certificate.ValueOrDie();
 }

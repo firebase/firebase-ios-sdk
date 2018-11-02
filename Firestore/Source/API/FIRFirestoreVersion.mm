@@ -18,6 +18,8 @@
 
 #include "Firestore/core/include/firebase/firestore/firestore_version.h"
 
+using firebase::firestore::kFirestoreVersionString;
+
 // Because `kFirestoreVersionString` is subject to constant initialization, this
 // is not affected by static initialization order fiasco.
 extern "C" const unsigned char *const FIRFirestoreVersionString =
