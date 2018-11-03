@@ -281,6 +281,21 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   return @"[none]";
 }
 
+/** @fn googleAppIDForAppAtIndex:
+ @brief Returns the Google App ID for the Firebase app at the given index.
+ @param index The index for the app in the app manager.
+ @return The Google App ID of the project.
+ */
+- (NSString *)googleAppIDForAppAtIndex:(int)index {
+  NSString *APIKey = [[AppManager sharedInstance] appAtIndex:index].options.APIKey;
+  for (FIROptions *options in gFirebaseAppOptions) {
+    if ([options.APIKey isEqualToString:APIKey]) {
+      return options.googleAppID;
+    }
+  }
+  return @"[none]";
+}
+
 /** @fn toggleProjectForAppAtIndex:
     @brief Toggles the Firebase project for the Firebase app at the given index by recreating the
         FIRApp instance with different options.
@@ -295,10 +310,19 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
       break;
     }
   }
-  // For non-default apps, `nil` is considered the next option after the last options in the array.
-  int useNil = index > 0;
-  optionIndex = (optionIndex + 1 + useNil) % (gFirebaseAppOptions.count + useNil) - useNil;
-  FIROptions *options = optionIndex >= 0 ? gFirebaseAppOptions[optionIndex] : nil;
+
+  FIROptions *options;
+  if (index == 0) {
+    // For default apps, the next options cannot be `nil`.
+    optionIndex = (optionIndex + 1) % gFirebaseAppOptions.count;
+    options = gFirebaseAppOptions[optionIndex];
+  } else {
+    // For non-default apps, `nil` is considered the next options after the last options in the array.
+    optionIndex = (optionIndex + 1) % (gFirebaseAppOptions.count + 1);
+    if (optionIndex != gFirebaseAppOptions.count) {
+      options = gFirebaseAppOptions[optionIndex];
+    }
+  }
   __weak typeof(self) weakSelf = self;
   [[AppManager sharedInstance] recreateAppAtIndex:index withOptions:options completion:^() {
     dispatch_async(dispatch_get_main_queue(), ^() {
