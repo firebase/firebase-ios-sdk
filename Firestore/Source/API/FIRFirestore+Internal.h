@@ -21,11 +21,11 @@
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "absl/strings/string_view.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDispatchQueue;
 @class FSTFirestoreClient;
 @class FSTUserDataConverter;
 
@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<firebase::firestore::auth::CredentialsProvider>)
                                       credentialsProvider
-              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+              workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app;
 
 @end

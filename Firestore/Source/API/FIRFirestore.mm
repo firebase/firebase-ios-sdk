@@ -35,7 +35,6 @@
 #import "Firestore/Source/API/FSTFirestoreComponent.h"
 #import "Firestore/Source/API/FSTUserDataConverter.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 #import "Firestore/Source/Util/FSTUsageValidation.h"
 
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
@@ -43,6 +42,7 @@
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/model/resource_path.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_apple.h"
@@ -56,6 +56,7 @@ using firebase::firestore::auth::FirebaseCredentialsProvider;
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::model::ResourcePath;
+using util::AsyncQueue;
 using util::internal::Executor;
 using util::internal::ExecutorLibdispatch;
 
@@ -72,7 +73,6 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 }
 
 @property(nonatomic, strong) NSString *persistenceKey;
-@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
 
 // Note that `client` is updated after initialization, but marking this readwrite would generate an
 // incorrect setter (since we make the assignment to `client` inside an `@synchronized` block.
@@ -82,6 +82,8 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 @end
 
 @implementation FIRFirestore {
+  std::unique_ptr<AsyncQueue> _workerQueue;
+
   // All guarded by @synchronized(self)
   FIRFirestoreSettings *_settings;
   FSTFirestoreClient *_client;
@@ -163,7 +165,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
                          database:(std::string)database
                    persistenceKey:(NSString *)persistenceKey
               credentialsProvider:(std::unique_ptr<CredentialsProvider>)credentialsProvider
-              workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue
+              workerQueue:(std::unique_ptr<AsyncQueue>)workerQueue
                       firebaseApp:(FIRApp *)app {
   if (self = [super init]) {
     _databaseID = DatabaseId{std::move(projectID), std::move(database)};
@@ -180,7 +182,7 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
         [[FSTUserDataConverter alloc] initWithDatabaseID:&_databaseID preConverter:block];
     _persistenceKey = persistenceKey;
     _credentialsProvider = std::move(credentialsProvider);
-    _workerDispatchQueue = workerDispatchQueue;
+    _workerQueue = std::move(workerQueue);
     _app = app;
     _settings = [[FIRFirestoreSettings alloc] init];
   }
@@ -257,11 +259,12 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
       std::unique_ptr<Executor> userExecutor =
           absl::make_unique<ExecutorLibdispatch>(_settings.dispatchQueue);
 
+      HARD_ASSERT(_workerQueue, "Expected non-null _workerQueue");
       _client = [FSTFirestoreClient clientWithDatabaseInfo:database_info
                                             usePersistence:_settings.persistenceEnabled
                                        credentialsProvider:_credentialsProvider.get()
                                               userExecutor:std::move(userExecutor)
-                                       workerDispatchQueue:_workerDispatchQueue];
+                                       workerQueue:std::move(_workerQueue)];
     }
   }
 }
@@ -332,14 +335,14 @@ extern "C" NSString *const FIRFirestoreErrorDomain = @"FIRFirestoreErrorDomain";
 - (void)runTransactionWithBlock:(id _Nullable (^)(FIRTransaction *, NSError **error))updateBlock
                      completion:
                          (void (^)(id _Nullable result, NSError *_Nullable error))completion {
-  static dispatch_queue_t transactionDispatchQueue;
+  static dispatch_queue_t transactionQueue;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    transactionDispatchQueue = dispatch_queue_create("com.google.firebase.firestore.transaction",
+    transactionQueue = dispatch_queue_create("com.google.firebase.firestore.transaction",
                                                      DISPATCH_QUEUE_CONCURRENT);
   });
   [self runTransactionWithBlock:updateBlock
-                  dispatchQueue:transactionDispatchQueue
+                  dispatchQueue:transactionQueue
                      completion:completion];
 }
 

@@ -22,7 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FSTDispatchQueue;
 @class FSTQueryListener;
 
 /**

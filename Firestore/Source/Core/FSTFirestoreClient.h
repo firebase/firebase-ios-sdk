@@ -25,6 +25,7 @@
 #include "Firestore/core/src/firebase/firestore/auth/credentials_provider.h"
 #include "Firestore/core/src/firebase/firestore/core/database_info.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
+#include "Firestore/core/src/firebase/firestore/util/async_queue.h"
 #include "Firestore/core/src/firebase/firestore/util/executor.h"
 
 @class FIRDocumentReference;
@@ -33,7 +34,6 @@
 @class FIRQuerySnapshot;
 @class FSTDatabaseID;
 @class FSTDatabaseInfo;
-@class FSTDispatchQueue;
 @class FSTDocument;
 @class FSTListenOptions;
 @class FSTMutation;
@@ -62,7 +62,7 @@ NS_ASSUME_NONNULL_BEGIN
                           userExecutor:
                               (std::unique_ptr<firebase::firestore::util::internal::Executor>)
                                   userExecutor
-                   workerDispatchQueue:(FSTDispatchQueue *)workerDispatchQueue;
+                   workerQueue:(std::unique_ptr<firebase::firestore::util::AsyncQueue>)workerQueue;
 
 - (instancetype)init __attribute__((unavailable("Use static constructor method.")));
 

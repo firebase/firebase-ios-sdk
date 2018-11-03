@@ -47,7 +47,6 @@
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 #import "Firestore/Source/Local/FSTLevelDB.h"
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 
@@ -70,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 static const double kPrimingTimeout = 45.0;
 
 @interface FIRFirestore (Testing)
-@property(nonatomic, strong) FSTDispatchQueue *workerDispatchQueue;
+@property(nonatomic, strong) FSTQueue *workerQueue;
 @end
 
 static NSString *defaultProjectId;
@@ -181,7 +180,7 @@ static FIRFirestoreSettings *defaultSettings;
 - (FIRFirestore *)firestoreWithProjectID:(NSString *)projectID {
   NSString *persistenceKey = [NSString stringWithFormat:@"db%lu", (unsigned long)_firestores.count];
 
-  FSTDispatchQueue *workerDispatchQueue = [FSTDispatchQueue
+  FSTQueue *workerQueue = [FSTQueue
       queueWith:dispatch_queue_create("com.google.firebase.firestore", DISPATCH_QUEUE_SERIAL)];
 
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
@@ -194,7 +193,7 @@ static FIRFirestoreSettings *defaultSettings;
                                                            database:DatabaseId::kDefault
                                                      persistenceKey:persistenceKey
                                                 credentialsProvider:std::move(credentials_provider)
-                                                workerDispatchQueue:workerDispatchQueue
+                                                workerQueue:workerQueue
                                                         firebaseApp:app];
 
   firestore.settings = [FSTIntegrationTestCase settings];
@@ -403,8 +402,8 @@ static FIRFirestoreSettings *defaultSettings;
   [self awaitExpectations];
 }
 
-- (FSTDispatchQueue *)queueForFirestore:(FIRFirestore *)firestore {
-  return firestore.workerDispatchQueue;
+- (FSTQueue *)queueForFirestore:(FIRFirestore *)firestore {
+  return firestore.workerQueue;
 }
 
 - (void)waitUntil:(BOOL (^)())predicate {

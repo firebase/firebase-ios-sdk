@@ -16,8 +16,6 @@
 
 #import "Firestore/Source/Util/FSTAsyncQueryListener.h"
 
-#import "Firestore/Source/Util/FSTDispatchQueue.h"
-
 using firebase::firestore::util::internal::Executor;
 
 @implementation FSTAsyncQueryListener {
