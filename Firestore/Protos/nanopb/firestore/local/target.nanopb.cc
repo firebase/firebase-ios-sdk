@@ -19,6 +19,9 @@
 
 #include "target.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -68,5 +71,8 @@ PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 65536 && pb_me
 PB_STATIC_ASSERT((pb_membersize(firestore_client_Target, query) < 256 && pb_membersize(firestore_client_Target, documents) < 256 && pb_membersize(firestore_client_Target, snapshot_version) < 256 && pb_membersize(firestore_client_TargetGlobal, last_remote_snapshot_version) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_firestore_client_Target_firestore_client_TargetGlobal)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */
