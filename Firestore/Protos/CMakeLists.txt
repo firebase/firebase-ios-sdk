@@ -67,7 +67,7 @@ endforeach()
 foreach(root ${PROTO_FILE_ROOTS} ${WELL_KNOWN_PROTO_FILE_ROOTS})
   list(
     APPEND NANOPB_GENERATED_SOURCES
-    ${OUTPUT_DIR}/nanopb/${root}.nanopb.c
+    ${OUTPUT_DIR}/nanopb/${root}.nanopb.cc
     ${OUTPUT_DIR}/nanopb/${root}.nanopb.h
   )
 endforeach()
