@@ -25,7 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// individual FIRApps.
 @protocol FIRDatabaseProvider
 
-/// Default method for creating a Storage instance.
+/// Gets the instance of FIRDatabase for the default FIRApp.
+- (FIRDatabase *)database;
+
+/// Gets a FirebaseDatabase instance for the specified URL.
+- (FIRDatabase *)databaseWithURL:(NSString *)url;
+
+/// Gets an instance of FIRDatabase for a specific FIRApp.
+- (FIRDatabase *)databaseForApp:(FIRApp *)app;
+
+/// Gets a FirebaseDatabase instance for the specified URL, using the specified FirebaseApp.
 - (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url;
 
 @end
