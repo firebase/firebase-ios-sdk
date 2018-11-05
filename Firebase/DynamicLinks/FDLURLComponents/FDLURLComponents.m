@@ -31,7 +31,7 @@ NS_INLINE void FDLSafelyAddKeyValuePairToDictionary(NSString *key,
   if (stringValue != nil && stringValue.length > 0) {
     dictionary[key] = stringValue;
   } else {
-    [dictionary removeObjectForKey:(NSString *)key];
+    [dictionary removeObjectForKey:key];
   }
 }
 
