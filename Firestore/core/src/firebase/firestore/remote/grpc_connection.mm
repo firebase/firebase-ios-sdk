@@ -227,6 +227,11 @@ void GrpcConnection::RegisterConnectivityMonitor() {
           call->FinishAndNotify(Status{FirestoreErrorCode::Unavailable,
                                        "Network connectivity changed"});
         }
+        // The old channel may hang for a long time trying to reestablish
+        // connection before eventually failing. Note that gRPC Objective-C
+        // client does the same thing:
+        // https://github.com/grpc/grpc/blob/fe11db09575f2dfbe1f88cd44bd417acc168e354/src/objective-c/GRPCClient/private/GRPCHost.m#L309-L314
+        grpc_channel_.reset();
       });
 }
 
