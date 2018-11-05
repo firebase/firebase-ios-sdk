@@ -149,7 +149,10 @@ GrpcCompletion* FakeGrpcQueue::ExtractCompletion() {
       "gRPC completion queue must only be polled on the dedicated executor");
   bool ignored_ok = false;
   void* tag = nullptr;
-  grpc_queue_->Next(&tag, &ignored_ok);
+  bool has_more = grpc_queue_->Next(&tag, &ignored_ok);
+  if (!has_more) {
+    return nullptr;
+  }
   return static_cast<GrpcCompletion*>(tag);
 }
 
@@ -174,12 +177,27 @@ void FakeGrpcQueue::ExtractCompletions(const CompletionCallback& callback) {
 
 void FakeGrpcQueue::KeepPolling() {
   dedicated_executor_->Execute([&] {
-    void* tag = nullptr;
-    bool ignored_ok = false;
-    while (grpc_queue_->Next(&tag, &ignored_ok)) {
-      static_cast<GrpcCompletion*>(tag)->Complete(true);
+    for (auto* completion = ExtractCompletion(); completion != nullptr;
+         completion = ExtractCompletion()) {
+      completion->Complete(true);
     }
   });
+}
+
+std::future<void> FakeGrpcQueue::KeepPolling(
+    const CompletionCallback& callback) {
+  current_promise_ = {};
+
+  dedicated_executor_->Execute([=] {
+    bool done = false;
+    while (!done) {
+      auto* completion = ExtractCompletion();
+      done = callback(completion);
+    }
+    current_promise_.set_value();
+  });
+
+  return current_promise_.get_future();
 }
 
 // GrpcStreamTester
@@ -279,6 +297,11 @@ GrpcStreamTester::CreateAnyTypeOrderCallback(
     // All end states have been applied
     return true;
   };
+}
+
+std::future<void> GrpcStreamTester::ForceFinishAsync(
+    const CompletionCallback& callback) {
+  return fake_grpc_queue_.KeepPolling(callback);
 }
 
 void GrpcStreamTester::KeepPollingGrpcQueue() {
