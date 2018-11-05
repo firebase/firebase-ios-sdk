@@ -16,7 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
-#import <FirebaseCore/FIRApp.h>
+#import <FirebaseAuthInterop/FIRAuthInterop.h>
+#import <FirebaseCore/FIRAppInternal.h>
+#import <FirebaseCore/FIRComponent.h>
+#import <FirebaseCore/FIRComponentContainer.h>
 
 #import "FTestHelpers.h"
 #import "FTestAuthTokenGenerator.h"
@@ -40,7 +43,9 @@
 
 - (void)testListensAndAuthRaceCondition {
     [FIRDatabase setLoggingEnabled:YES];
-    id<FAuthTokenProvider> tokenProvider = [FAuthTokenProvider authTokenProviderForApp:[FIRApp defaultApp]];
+    id<FAuthTokenProvider> tokenProvider =
+        [FAuthTokenProvider authTokenProviderWithAuthInterop:
+            FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container)];
 
     FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"testWritesRestoredAfterAuth"];
     config.authTokenProvider = tokenProvider;
