@@ -46,6 +46,7 @@ from os import path
 from re import sub
 import argparse
 import logging
+import os
 
 arg_parser = argparse.ArgumentParser()
 
@@ -217,7 +218,7 @@ def main():
   args = arg_parser.parse_args()
 
   input_file = args.input
-  input_file_base = args.input.rsplit(".", 1)[0]
+  input_file_base = os.path.splitext(args.input)[0]
 
   output_source = args.output_source
   if not output_source:
