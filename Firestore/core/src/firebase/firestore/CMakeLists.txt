@@ -23,6 +23,18 @@ cc_library(
     firebase_firestore_util
 )
 
+cc_library(
+  firebase_firestore_version
+  SOURCES
+    firestore_version.cc
+)
+
+target_compile_definitions(
+  firebase_firestore_version
+  PRIVATE
+    FIRFirestore_VERSION=0.13.6
+)
+
 # Include the folder with public headers.
 target_include_directories(
   firebase_firestore_types

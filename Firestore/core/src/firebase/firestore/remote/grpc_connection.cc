@@ -17,22 +17,20 @@
 #include "Firestore/core/src/firebase/firestore/remote/grpc_connection.h"
 
 #include <algorithm>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/include/firebase/firestore/firestore_version.h"
 #include "Firestore/core/src/firebase/firestore/auth/token.h"
 #include "Firestore/core/src/firebase/firestore/model/database_id.h"
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 #include "Firestore/core/src/firebase/firestore/util/log.h"
 #include "Firestore/core/src/firebase/firestore/util/string_format.h"
 #include "absl/memory/memory.h"
 #include "grpcpp/create_channel.h"
-
-#import "Firestore/Source/API/FIRFirestoreVersion.h"
 
 namespace firebase {
 namespace firestore {
@@ -43,6 +41,7 @@ using core::DatabaseInfo;
 using model::DatabaseId;
 using util::Path;
 using util::Status;
+using util::StatusOr;
 using util::StringFormat;
 
 namespace {
@@ -54,22 +53,10 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-std::string LoadCertificate(const Path& path) {
-  std::ifstream certificate_file{path.native_value()};
-  HARD_ASSERT(certificate_file.good(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
-                  .c_str());
-
-  std::stringstream buffer;
-  buffer << certificate_file.rdbuf();
-  return buffer.str();
-}
-
 std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
-    const Path& certificate_path) {
+    const std::string& certificate) {
   grpc::SslCredentialsOptions options;
-  options.pem_root_certs = LoadCertificate(certificate_path);
+  options.pem_root_certs = certificate;
   return grpc::SslCredentials(options);
 }
 
@@ -132,8 +119,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   // C++ SDK, etc.).
   context->AddMetadata(
       kXGoogAPIClientHeader,
-      StringFormat("gl-objc/ fire/%s grpc/",
-                   reinterpret_cast<const char*>(FIRFirestoreVersionString)));
+      StringFormat("gl-objc/ fire/%s grpc/", kFirestoreVersionString));
 
   // This header is used to improve routing and project isolation by the
   // backend.
@@ -159,9 +145,8 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   const std::string& host = database_info_->host();
 
   if (!HasSpecialConfig(host)) {
-    Path root_certificate_path = FindGrpcRootCertificate();
-    return grpc::CreateChannel(host,
-                               CreateSslCredentials(root_certificate_path));
+    std::string root_certificate = LoadGrpcRootCertificate();
+    return grpc::CreateChannel(host, CreateSslCredentials(root_certificate));
   }
 
   const HostConfig& host_config = Config()[host];
@@ -174,8 +159,15 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   // For tests only
   grpc::ChannelArguments args;
   args.SetSslTargetNameOverride(host_config.target_name);
+  Path path = host_config.certificate_path;
+  StatusOr<std::string> test_certificate = ReadFile(path);
+  HARD_ASSERT(test_certificate.ok(),
+              StringFormat("Unable to open root certificates at file path %s",
+                           path.ToUtf8String())
+                  .c_str());
+
   return grpc::CreateCustomChannel(
-      host, CreateSslCredentials(host_config.certificate_path), args);
+      host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(

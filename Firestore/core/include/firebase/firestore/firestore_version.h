@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_
-#define FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_
+#ifndef FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_
+#define FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_
 
-#include <string>
-
-#include "Firestore/core/src/firebase/firestore/util/path.h"
+/** Version for Firestore. */
 
 namespace firebase {
 namespace firestore {
-namespace remote {
 
-/**
- * Finds the file containing gRPC root certificates (how it is stored differs by
- * platform) and returns its contents as a string. Will trigger assertion
- * failure if the file cannot be found or open.
- */
-std::string LoadGrpcRootCertificate();
+/** Version string for the Firebase Firestore SDK. */
+extern const char* const kFirestoreVersionString;
 
-}  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_FIREBASE_FIRESTORE_REMOTE_GRPC_ROOT_CERTIFICATE_FINDER_H_
+#endif  // FIRESTORE_CORE_INCLUDE_FIREBASE_FIRESTORE_FIRESTORE_VERSION_H_

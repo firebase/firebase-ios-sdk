@@ -141,13 +141,6 @@ TEST_F(GrpcStreamingReaderTest, CanGetResponseHeadersAfterFinishing) {
 // https://github.com/google/googletest/blob/master/googletest/docs/advanced.md#death-test-naming
 using GrpcStreamingReaderDeathTest = GrpcStreamingReaderTest;
 
-TEST_F(GrpcStreamingReaderDeathTest, CannotRestart) {
-  StartReader();
-  KeepPollingGrpcQueue();
-  worker_queue.EnqueueBlocking([&] { reader->FinishImmediately(); });
-  EXPECT_DEATH_IF_SUPPORTED(StartReader(), "");
-}
-
 TEST_F(GrpcStreamingReaderTest, CannotFinishAndNotifyBeforeStarting) {
   // No callback has been assigned.
   worker_queue.EnqueueBlocking(
