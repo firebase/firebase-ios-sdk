@@ -19,6 +19,9 @@
 
 #include "write.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -107,5 +110,8 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Write, update) < 65536 
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Write, update) < 256 && pb_membersize(google_firestore_v1beta1_Write, transform) < 256 && pb_membersize(google_firestore_v1beta1_Write, update_mask) < 256 && pb_membersize(google_firestore_v1beta1_Write, current_document) < 256 && pb_membersize(google_firestore_v1beta1_DocumentTransform_FieldTransform, append_missing_elements) < 256 && pb_membersize(google_firestore_v1beta1_DocumentTransform_FieldTransform, remove_all_from_array) < 256 && pb_membersize(google_firestore_v1beta1_WriteResult, update_time) < 256 && pb_membersize(google_firestore_v1beta1_DocumentChange, document) < 256 && pb_membersize(google_firestore_v1beta1_DocumentDelete, read_time) < 256 && pb_membersize(google_firestore_v1beta1_DocumentRemove, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_Write_google_firestore_v1beta1_DocumentTransform_google_firestore_v1beta1_DocumentTransform_FieldTransform_google_firestore_v1beta1_WriteResult_google_firestore_v1beta1_DocumentChange_google_firestore_v1beta1_DocumentDelete_google_firestore_v1beta1_DocumentRemove_google_firestore_v1beta1_ExistenceFilter)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */

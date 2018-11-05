@@ -19,6 +19,9 @@
 
 #include "struct.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -77,5 +80,8 @@ PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 655
 PB_STATIC_ASSERT((pb_membersize(google_protobuf_Struct_FieldsEntry, value) < 256 && pb_membersize(google_protobuf_Value, struct_value) < 256 && pb_membersize(google_protobuf_Value, list_value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_protobuf_Struct_google_protobuf_Struct_FieldsEntry_google_protobuf_Value_google_protobuf_ListValue)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */
