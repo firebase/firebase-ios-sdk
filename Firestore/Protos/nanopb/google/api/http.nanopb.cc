@@ -19,6 +19,9 @@
 
 #include "http.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -75,5 +78,8 @@ PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 65536), YOU_MUST_
 PB_STATIC_ASSERT((pb_membersize(google_api_HttpRule, custom) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_api_Http_google_api_HttpRule_google_api_CustomHttpPattern)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */

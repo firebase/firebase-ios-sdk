@@ -19,6 +19,9 @@
 
 #include "query.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -120,5 +123,8 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_StructuredQuery, select
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_StructuredQuery, select) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery, where) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery, start_at) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery, end_at) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery, limit) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_Filter, composite_filter) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_Filter, field_filter) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_Filter, unary_filter) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_FieldFilter, field) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_FieldFilter, value) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_UnaryFilter, field) < 256 && pb_membersize(google_firestore_v1beta1_StructuredQuery_Order, field) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_StructuredQuery_google_firestore_v1beta1_StructuredQuery_CollectionSelector_google_firestore_v1beta1_StructuredQuery_Filter_google_firestore_v1beta1_StructuredQuery_CompositeFilter_google_firestore_v1beta1_StructuredQuery_FieldFilter_google_firestore_v1beta1_StructuredQuery_UnaryFilter_google_firestore_v1beta1_StructuredQuery_Order_google_firestore_v1beta1_StructuredQuery_FieldReference_google_firestore_v1beta1_StructuredQuery_Projection_google_firestore_v1beta1_Cursor)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */

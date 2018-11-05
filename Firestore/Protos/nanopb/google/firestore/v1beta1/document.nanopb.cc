@@ -19,6 +19,9 @@
 
 #include "document.nanopb.h"
 
+namespace firebase {
+namespace firestore {
+
 /* @@protoc_insertion_point(includes) */
 #if PB_PROTO_HEADER_VERSION != 30
 #error Regenerate this file with the current version of nanopb generator.
@@ -95,5 +98,8 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) 
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1beta1_Document, create_time) < 256 && pb_membersize(google_firestore_v1beta1_Document, update_time) < 256 && pb_membersize(google_firestore_v1beta1_Document_FieldsEntry, value) < 256 && pb_membersize(google_firestore_v1beta1_Value, map_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, geo_point_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, array_value) < 256 && pb_membersize(google_firestore_v1beta1_Value, timestamp_value) < 256 && pb_membersize(google_firestore_v1beta1_MapValue_FieldsEntry, value) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1beta1_Document_google_firestore_v1beta1_Document_FieldsEntry_google_firestore_v1beta1_Value_google_firestore_v1beta1_ArrayValue_google_firestore_v1beta1_MapValue_google_firestore_v1beta1_MapValue_FieldsEntry)
 #endif
 
+
+}  // namespace firestore
+}  // namespace firebase
 
 /* @@protoc_insertion_point(eof) */
