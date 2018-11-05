@@ -278,9 +278,9 @@ void GrpcStream::OnWrite() {
 
 void GrpcStream::OnOperationFailed() {
   FinishCall([this](const GrpcCompletion* completion) {
-        Status status = ConvertStatus(*completion->status());
-        FinishAndNotify(status);
-      });
+    Status status = ConvertStatus(*completion->status());
+    FinishAndNotify(status);
+  });
 }
 
 void GrpcStream::RemoveCompletion(const GrpcCompletion* to_remove) {
