@@ -22,7 +22,7 @@
     @brief The maximum difference between time intervals (in seconds), after which they will be
     considered different.
  */
-static const NSTimeInterval kMaxDifferenceBetweenTimeIntervals = 0.1;
+static const NSTimeInterval kMaxDifferenceBetweenTimeIntervals = 0.3;
 
 /** @var kTestDelay
     @brief Fake time delay before tasks are dispatched.
@@ -32,7 +32,7 @@ NSTimeInterval kTestDelay = 0.1;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 3;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 id<OS_dispatch_queue> testWorkQueue;
 

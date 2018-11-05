@@ -31,6 +31,11 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // Convert the raw bytes to a string with UTF-8 format.
     NSData *d = [NSData dataWithBytes:data length:size];
     NSString *str = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+    if (!str) {
+      // TODO(varconst): this happens when `NSData` doesn't happen to contain valid UTF-8, perhaps
+      // find a way to still convert it to a string.
+      return 0;
+    }
 
     // Create a FieldPath object from a string.
     @try {
@@ -42,7 +47,7 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // Fuzz test creating a FieldPath from an array with a single string.
     NSArray *str_arr1 = [NSArray arrayWithObjects:str, nil];
     @try {
-      [[FIRFieldPath alloc] initWithFields:str_arr1];
+      (void)[[FIRFieldPath alloc] initWithFields:str_arr1];
     } @catch (...) {
       // Caught exceptions are ignored because they are not what we are after in
       // fuzz testing.
@@ -52,7 +57,7 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     NSCharacterSet *set = [NSCharacterSet characterSetWithCharactersInString:@" .,/_"];
     NSArray *str_arr2 = [str componentsSeparatedByCharactersInSet:set];
     @try {
-      [[FIRFieldPath alloc] initWithFields:str_arr2];
+      (void)[[FIRFieldPath alloc] initWithFields:str_arr2];
     } @catch (...) {
       // Ignore caught exceptions.
     }
@@ -62,9 +67,25 @@ int FuzzTestFieldPath(const uint8_t *data, size_t size) {
     // created as mutable objects. Returns nil if there is a parsing error.
     NSArray *str_arr3 =
         [NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingMutableContainers error:nil];
+    NSMutableArray *mutable_array = [[NSMutableArray alloc] initWithArray:str_arr3];
+    if (str_arr3) {
+      for (int i = 0; i < str_arr3.count; ++i) {
+        NSObject *value = str_arr3[i];
+        // `FIRFieldPath initWithFields:` relies on all members having `length` attribute.
+        if (![value isKindOfClass:[NSString class]]) {
+          if ([value isKindOfClass:[NSNumber class]]) {
+            mutable_array[i] = [[NSString alloc] initWithFormat:@"%@", (NSNumber *)value];
+          } else {
+            // TODO(varconst): convert to string recursively.
+            return 0;
+          }
+        }
+      }
+    }
+
     @try {
-      if (str_arr3) {
-        [[FIRFieldPath alloc] initWithFields:str_arr3];
+      if (mutable_array) {
+        (void)[[FIRFieldPath alloc] initWithFields:mutable_array];
       }
     } @catch (...) {
       // Ignore caught exceptions.

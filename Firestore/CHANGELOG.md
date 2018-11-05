@@ -1,5 +1,8 @@
 # Unreleased
 
+# v0.14.0
+- [fixed] Fixed compilation in C99 and C++11 modes without GNU extensions.
+
 # v0.13.6
 - [changed] Internal improvements.
 
