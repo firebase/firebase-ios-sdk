@@ -16,8 +16,11 @@
 
 #include "Firestore/core/src/firebase/firestore/remote/grpc_root_certificate_finder.h"
 
+#include <string>
+
+#include "Firestore/core/src/firebase/firestore/util/filesystem.h"
 #include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
-#include "Firestore/core/src/firebase/firestore/util/string_apple.h"
+#include "Firestore/core/src/firebase/firestore/util/statusor.h"
 
 #import "Firestore/Source/Core/FSTFirestoreClient.h"
 
@@ -26,8 +29,11 @@ namespace firestore {
 namespace remote {
 
 using util::Path;
+using util::ReadFile;
+using util::StatusOr;
+using util::StringFormat;
 
-Path FindGrpcRootCertificate() {
+std::string LoadGrpcRootCertificate() {
   // TODO(varconst): uncomment these lines once it's possible to load the
   // certificate from gRPC-C++ pod.
   // NSBundle* bundle = [NSBundle bundleWithIdentifier:@"org.cocoapods.grpcpp"];
@@ -42,7 +48,12 @@ Path FindGrpcRootCertificate() {
       path,
       "Could not load root certificates from the bundle. SSL won't work.");
 
-  return Path::FromNSString(path);
+  StatusOr<std::string> certificate = ReadFile(Path::FromNSString(path));
+  HARD_ASSERT(
+      certificate.ok(),
+      StringFormat("Unable to open root certificates at file path %s", path)
+          .c_str());
+  return certificate.ValueOrDie();
 }
 
 }  // namespace remote

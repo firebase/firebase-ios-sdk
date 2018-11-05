@@ -128,8 +128,8 @@ void CompletionEndState::Apply(GrpcCompletion* completion) {
 // FakeGrpcQueue
 
 FakeGrpcQueue::FakeGrpcQueue(grpc::CompletionQueue* grpc_queue)
-    : grpc_queue_{grpc_queue},
-      dedicated_executor_{absl::make_unique<ExecutorStd>()} {
+    : dedicated_executor_{absl::make_unique<ExecutorStd>()},
+      grpc_queue_{grpc_queue} {
 }
 
 void FakeGrpcQueue::Shutdown() {
