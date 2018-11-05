@@ -12,22 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
+add_subdirectory(include/firebase/firestore)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
-)
-
-include(benchmark)
-include(firebase_cpp_sdk)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
+add_subdirectory(test)

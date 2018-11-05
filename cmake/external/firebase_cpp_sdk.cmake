@@ -12,22 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.1)
-project(Firebase-download C CXX)
+include(ExternalProject)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+if(TARGET firebase_cpp_sdk)
+  return()
+endif()
 
-set(
-  FIREBASE_DOWNLOAD_DIR
-  ${PROJECT_BINARY_DIR}/downloads
-  CACHE PATH "Where to store downloaded files"
+set(version 5.4.0)
+
+ExternalProject_Add(
+  firebase_cpp_sdk
+
+  DOWNLOAD_DIR ${FIREBASE_DOWNLOAD_DIR}
+  URL https://dl.google.com/firebase/sdk/cpp/firebase_cpp_sdk_${version}.zip
+  URL_HASH SHA256=e21302574a806ee6111e58eef9cf226ac61e2736bc98e7abee2b44fb41deaa6b
+
+  PREFIX ${PROJECT_BINARY_DIR}
+
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
 )
-
-include(benchmark)
-include(firebase_cpp_sdk)
-include(googletest)
-include(grpc)
-include(leveldb)
-include(nanopb)
-include(protobuf)
-include(libfuzzer)
