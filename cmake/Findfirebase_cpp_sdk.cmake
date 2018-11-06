@@ -34,6 +34,10 @@ if(APPLE)
   else()
     set(FIREBASE_CPP_LIB_DIR ${FIREBASE_CPP_SDK_DIR}/libs/darwin/universal)
   endif()
+
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+  set(FIREBASE_CPP_LIB_DIR ${FIREBASE_CPP_SDK_DIR}/libs/linux/${CMAKE_SYSTEM_PROCESSOR})
+
 endif()
 
 find_library(
