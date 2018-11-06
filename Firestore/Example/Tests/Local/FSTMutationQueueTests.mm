@@ -529,21 +529,21 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Removes the first n entries from the from the given batches and returns them.
+ * Removes the first n entries from the the given batches and returns them.
  *
- * @param n The number of batches to remove..
+ * @param n The number of batches to remove.
  * @param batches The array to mutate, removing entries from it.
  * @return A new array containing all the entries that were removed from @a batches.
  */
-- (NSArray<FSTMutationBatch *> *)removeFirstBatches:(int)n
+- (NSArray<FSTMutationBatch *> *)removeFirstBatches:(NSUInteger)n
                                           inBatches:(NSMutableArray<FSTMutationBatch *> *)batches {
-  NSMutableArray<FSTMutationBatch *> *removed = [NSMutableArray array];
-  for (int i = 0; i < n; i++) {
-    FSTMutationBatch *batch = batches[0];
+  NSArray<FSTMutationBatch *> *removed = [batches subarrayWithRange:NSMakeRange(0, n)];
+  [batches removeObjectsInRange:NSMakeRange(0, n)];
+
+  [removed enumerateObjectsUsingBlock:^(FSTMutationBatch *batch, NSUInteger idx, BOOL *stop) {
     [self.mutationQueue removeMutationBatch:batch];
-    [batches removeObjectAtIndex:0];
-    [removed addObject:batch];
-  }
+  }];
+
   return removed;
 }
 
