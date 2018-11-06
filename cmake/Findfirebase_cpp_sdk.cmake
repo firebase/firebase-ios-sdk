@@ -38,6 +38,30 @@ if(APPLE)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
   set(FIREBASE_CPP_LIB_DIR ${FIREBASE_CPP_SDK_DIR}/libs/linux/${CMAKE_SYSTEM_PROCESSOR})
 
+elseif(MSVC)
+  set(MSVC_VS_VERSION VS2015)
+
+  # Windows runtime mode, either MD or MT depending on whether you are using
+  # /MD or /MT. For more information see:
+  # https://msdn.microsoft.com/en-us/library/2kzt1wy3.aspx
+  set(MSVC_RUNTIME_MODE MD)
+
+  if(${CMAKE_CL_64})
+    set(MSVC_CPU x64)
+  else()
+    set(MSVC_CPU x86)
+  endif()
+
+  if(CMAKE_BUILD_TYPE EQUAL Release)
+    set(MSVC_CONFIG Release)
+  else()
+    set(MSVC_CONFIG Debug)
+  endif()
+
+  set(
+    FIREBASE_CPP_LIB_DIR
+    ${FIREBASE_CPP_SDK_DIR}/libs/windows/${MSVC_VS_VERSION}/${MSVC_RUNTIME_MODE}/${MSVC_CPU}/${MSVC_CONFIG}
+  )
 endif()
 
 find_library(
