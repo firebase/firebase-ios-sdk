@@ -1,0 +1,8 @@
+BasedOnStyle: Google
+Standard: Cpp11
+ColumnLimit: 80
+BinPackParameters: false
+AllowAllParametersOfDeclarationOnNextLine: true
+SpacesInContainerLiterals: true
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: None
