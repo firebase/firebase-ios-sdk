@@ -128,7 +128,8 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                                          documentChanges:documentChanges
                                                                fromCache:fromCache
                                                              mutatedKeys:mutatedKeys
-                                                        syncStateChanged:YES];
+                                                        syncStateChanged:YES
+                                                 excludesMetadataChanges:NO];
   return [FIRQuerySnapshot snapshotWithFirestore:FSTTestFirestore()
                                    originalQuery:FSTTestQuery(path)
                                         snapshot:viewSnapshot

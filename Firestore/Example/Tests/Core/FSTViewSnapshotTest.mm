@@ -125,7 +125,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                      documentChanges:documentChanges
                                                            fromCache:fromCache
                                                          mutatedKeys:mutatedKeys
-                                                    syncStateChanged:syncStateChanged];
+                                                    syncStateChanged:syncStateChanged
+                                             excludesMetadataChanges:NO];
 
   XCTAssertEqual(snapshot.query, query);
   XCTAssertEqual(snapshot.documents, documents);

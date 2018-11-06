@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/firebase/firestore/core/target_id_generator.h"
+#include "Firestore/core/src/firebase/firestore/util/hard_assert.h"
 
 using firebase::firestore::model::TargetId;
 
@@ -23,40 +24,27 @@ namespace firestore {
 namespace core {
 
 TargetIdGenerator::TargetIdGenerator(const TargetIdGenerator& value)
-    : generator_id_(value.generator_id_), previous_id_(value.previous_id_) {
+    : generator_id_(value.generator_id_), next_id_(value.next_id_) {
 }
 
 TargetIdGenerator::TargetIdGenerator(TargetIdGeneratorId generator_id,
-                                     TargetId after)
+                                     TargetId seed)
     : generator_id_(generator_id) {
-  const TargetId after_without_generator = (after >> kReservedBits)
-                                           << kReservedBits;
-  const TargetId after_generator = after - after_without_generator;
-  const TargetId generator = static_cast<TargetId>(generator_id);
-  if (after_generator >= generator) {
-    // For example, if:
-    //   self.generatorID = 0b0000
-    //   after = 0b1011
-    //   afterGenerator = 0b0001
-    // Then:
-    //   previous = 0b1010
-    //   next = 0b1100
-    previous_id_ = after_without_generator | generator;
-  } else {
-    // For example, if:
-    //   self.generatorID = 0b0001
-    //   after = 0b1010
-    //   afterGenerator = 0b0000
-    // Then:
-    //   previous = 0b1001
-    //   next = 0b1011
-    previous_id_ = (after_without_generator | generator) - (1 << kReservedBits);
-  }
+  generator_id_ = generator_id;
+  seek(seed);
+}
+
+void TargetIdGenerator::seek(TargetId target_id) {
+  const TargetId generator = static_cast<TargetId>(generator_id_);
+  HARD_ASSERT((target_id & generator) == generator,
+              "Cannot supply target ID from different generator ID");
+  next_id_ = target_id;
 }
 
 TargetId TargetIdGenerator::NextId() {
-  previous_id_ += 1 << kReservedBits;
-  return previous_id_;
+  int next_id = next_id_;
+  next_id_ += 1 << kReservedBits;
+  return next_id;
 }
 
 }  // namespace core

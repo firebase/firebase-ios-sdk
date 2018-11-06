@@ -94,7 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                          documentChanges:documentChanges
                                                                fromCache:NO
                                                              mutatedKeys:DocumentKeySet {}
-                                                        syncStateChanged:YES];
+                                                        syncStateChanged:YES
+                                                 excludesMetadataChanges:NO];
   FIRSnapshotMetadata *metadata =
       [FIRSnapshotMetadata snapshotMetadataWithPendingWrites:NO fromCache:NO];
   FIRQuerySnapshot *snapshot = [FIRQuerySnapshot snapshotWithFirestore:firestore

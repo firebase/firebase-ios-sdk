@@ -91,9 +91,17 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
               documentChanges:(NSArray<FSTDocumentViewChange *> *)documentChanges
                     fromCache:(BOOL)fromCache
                   mutatedKeys:(DocumentKeySet)mutatedKeys
-             syncStateChanged:(BOOL)syncStateChanged NS_DESIGNATED_INITIALIZER;
+             syncStateChanged:(BOOL)syncStateChanged
+      excludesMetadataChanges:(BOOL)excludesMetadataChanges NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
+
+/** Returns a view snapshot as if all documents in the snapshot were added. */
++ (instancetype)snapshotForInitialDocuments:(FSTDocumentSet *)documents
+                                      query:(FSTQuery *)query
+                                mutatedKeys:(DocumentKeySet)mutatedKeys
+                                  fromCache:(BOOL)fromCache
+                    excludesMetadataChanges:(BOOL)excludesMetadataChanges;
 
 /** The query this view is tracking the results for. */
 @property(nonatomic, strong, readonly) FSTQuery *query;
@@ -115,6 +123,9 @@ typedef void (^FSTViewSnapshotHandler)(FSTViewSnapshot *_Nullable snapshot,
 
 /** Whether the sync state changed as part of this snapshot. */
 @property(nonatomic, assign, readonly) BOOL syncStateChanged;
+
+/** Whether this snapshot has been filtered to not include metadata changes */
+@property(nonatomic, assign, readonly) BOOL excludesMetadataChanges;
 
 /** The document in this snapshot that have unconfirmed writes. */
 @property(nonatomic, assign, readonly) DocumentKeySet mutatedKeys;
