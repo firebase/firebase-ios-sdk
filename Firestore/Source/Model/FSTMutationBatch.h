@@ -87,18 +87,6 @@ extern const firebase::firestore::model::BatchId kFSTBatchIDUnknown;
     applyToLocalDocument:(FSTMaybeDocument *_Nullable)maybeDoc
              documentKey:(const firebase::firestore::model::DocumentKey &)documentKey;
 
-/**
- * Returns YES if this mutation batch has already been removed from the mutation queue.
- *
- * Note that not all implementations of the FSTMutationQueue necessarily use tombstones as a part
- * of their implementation and generally speaking no code outside the mutation queues should really
- * care about this.
- */
-- (BOOL)isTombstone;
-
-/** Converts this batch to a tombstone. */
-- (FSTMutationBatch *)toTombstone;
-
 /** Returns the set of unique keys referenced by all mutations in the batch. */
 - (firebase::firestore::model::DocumentKeySet)keys;
 

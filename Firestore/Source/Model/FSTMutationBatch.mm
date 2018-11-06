@@ -41,6 +41,7 @@ const BatchId kFSTBatchIDUnknown = -1;
 - (instancetype)initWithBatchID:(BatchId)batchID
                  localWriteTime:(FIRTimestamp *)localWriteTime
                       mutations:(NSArray<FSTMutation *> *)mutations {
+  HARD_ASSERT(mutations.count != 0, "Cannot create an empty mutation batch");
   self = [super init];
   if (self) {
     _batchID = batchID;
@@ -113,16 +114,6 @@ const BatchId kFSTBatchIDUnknown = -1;
     }
   }
   return maybeDoc;
-}
-
-- (BOOL)isTombstone {
-  return self.mutations.count == 0;
-}
-
-- (FSTMutationBatch *)toTombstone {
-  return [[FSTMutationBatch alloc] initWithBatchID:self.batchID
-                                    localWriteTime:self.localWriteTime
-                                         mutations:@[]];
 }
 
 // TODO(klimt): This could use NSMutableDictionary instead.

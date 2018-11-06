@@ -71,10 +71,10 @@ NS_ASSUME_NONNULL_BEGIN
     FSTMutationBatch *batch2 = [self addMutationBatch];
     XCTAssertEqual(2, [self batchCount]);
 
-    [self.mutationQueue removeMutationBatch:batch2];
+    [self.mutationQueue removeMutationBatch:batch1];
     XCTAssertEqual(1, [self batchCount]);
 
-    [self.mutationQueue removeMutationBatch:batch1];
+    [self.mutationQueue removeMutationBatch:batch2];
     XCTAssertEqual(0, [self batchCount]);
     XCTAssertTrue([self.mutationQueue isEmpty]);
   });
@@ -98,10 +98,9 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], kFSTBatchIDUnknown);
 
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
-    [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
-    XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
-
     [self.mutationQueue removeMutationBatch:batch1];
+
+    [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
     [self.mutationQueue removeMutationBatch:batch2];
@@ -139,10 +138,10 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testHighestAcknowledgedBatchIDNeverExceedsNextBatchID", [&]() {
     [self.mutationQueue acknowledgeBatch:batch1 streamToken:nil];
+    [self.mutationQueue removeMutationBatch:batch1];
     [self.mutationQueue acknowledgeBatch:batch2 streamToken:nil];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
 
-    [self.mutationQueue removeMutationBatch:batch1];
     [self.mutationQueue removeMutationBatch:batch2];
     XCTAssertEqual([self.mutationQueue highestAcknowledgedBatchID], batch2.batchID);
   });
@@ -186,7 +185,7 @@ NS_ASSUME_NONNULL_BEGIN
     XCTAssertNil(notFound);
 
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
-    NSArray<FSTMutationBatch *> *removed = [self makeHoles:@[ @2, @6, @7 ] inBatches:batches];
+    NSArray<FSTMutationBatch *> *removed = [self removeFirstBatches:3 inBatches:batches];
 
     // After removing, a batch should not be found
     for (NSUInteger i = 0; i < removed.count; i++) {
@@ -211,10 +210,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   self.persistence.run("testNextMutationBatchAfterBatchID", [&]() {
     NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
-
-    // This is an array of successors assuming the removals below will happen:
-    NSArray<FSTMutationBatch *> *afters = @[ batches[3], batches[8], batches[8] ];
-    NSArray<FSTMutationBatch *> *removed = [self makeHoles:@[ @2, @6, @7 ] inBatches:batches];
+    NSArray<FSTMutationBatch *> *removed = [self removeFirstBatches:3 inBatches:batches];
 
     for (NSUInteger i = 0; i < batches.count - 1; i++) {
       FSTMutationBatch *current = batches[i];
@@ -225,7 +221,7 @@ NS_ASSUME_NONNULL_BEGIN
 
     for (NSUInteger i = 0; i < removed.count; i++) {
       FSTMutationBatch *current = removed[i];
-      FSTMutationBatch *next = afters[i];
+      FSTMutationBatch *next = batches[0];
       FSTMutationBatch *found = [self.mutationQueue nextMutationBatchAfterBatchID:current.batchID];
       XCTAssertEqual(found.batchID, next.batchID);
     }
@@ -259,26 +255,6 @@ NS_ASSUME_NONNULL_BEGIN
                           batches[1]);
     XCTAssertEqualObjects([self.mutationQueue nextMutationBatchAfterBatchID:batches[1].batchID],
                           batches[2]);
-  });
-}
-
-- (void)testAllMutationBatchesThroughBatchID {
-  if ([self isTestBaseClass]) return;
-
-  self.persistence.run("testAllMutationBatchesThroughBatchID", [&]() {
-    NSMutableArray<FSTMutationBatch *> *batches = [self createBatches:10];
-    [self makeHoles:@[ @2, @6, @7 ] inBatches:batches];
-
-    NSArray<FSTMutationBatch *> *found, *expected;
-
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:batches[0].batchID - 1];
-    XCTAssertEqualObjects(found, (@[]));
-
-    for (NSUInteger i = 0; i < batches.count; i++) {
-      found = [self.mutationQueue allMutationBatchesThroughBatchID:batches[i].batchID];
-      expected = [batches subarrayWithRange:NSMakeRange(0, i + 1)];
-      XCTAssertEqualObjects(found, expected, @"for index %lu", (unsigned long)i);
-    }
   });
 }
 
@@ -443,12 +419,11 @@ NS_ASSUME_NONNULL_BEGIN
     [self.mutationQueue removeMutationBatch:batches[0]];
     [batches removeObjectAtIndex:0];
 
-    FSTMutationBatch *last = batches[batches.count - 1];
     XCTAssertEqual([self batchCount], 9);
 
     NSArray<FSTMutationBatch *> *found;
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 9);
 
@@ -458,27 +433,27 @@ NS_ASSUME_NONNULL_BEGIN
     [batches removeObjectsInRange:NSMakeRange(0, 3)];
     XCTAssertEqual([self batchCount], 6);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 6);
 
-    [self.mutationQueue removeMutationBatch:batches[batches.count - 1]];
-    [batches removeObjectAtIndex:batches.count - 1];
+    [self.mutationQueue removeMutationBatch:batches[0]];
+    [batches removeObjectAtIndex:0];
     XCTAssertEqual([self batchCount], 5);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 5);
 
-    [self.mutationQueue removeMutationBatch:batches[3]];
-    [batches removeObjectAtIndex:3];
+    [self.mutationQueue removeMutationBatch:batches[0]];
+    [batches removeObjectAtIndex:0];
     XCTAssertEqual([self batchCount], 4);
 
-    [self.mutationQueue removeMutationBatch:batches[1]];
-    [batches removeObjectAtIndex:1];
+    [self.mutationQueue removeMutationBatch:batches[0]];
+    [batches removeObjectAtIndex:0];
     XCTAssertEqual([self batchCount], 3);
 
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, batches);
     XCTAssertEqual(found.count, 3);
     XCTAssertFalse([self.mutationQueue isEmpty]);
@@ -486,7 +461,7 @@ NS_ASSUME_NONNULL_BEGIN
     for (FSTMutationBatch *batch in batches) {
       [self.mutationQueue removeMutationBatch:batch];
     }
-    found = [self.mutationQueue allMutationBatchesThroughBatchID:last.batchID];
+    found = [self.mutationQueue allMutationBatches];
     XCTAssertEqualObjects(found, @[]);
     XCTAssertEqual(found.count, 0);
     XCTAssertTrue([self.mutationQueue isEmpty]);
@@ -554,22 +529,19 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 /**
- * Removes entries from from the given @a batches and returns them.
+ * Removes the first n entries from the from the given batches and returns them.
  *
- * @param holes An array of indexes in the batches array; in increasing order. Indexes are relative
- *     to the original state of the batches array, not any intermediate state that might occur.
+ * @param n The number of batches to remove..
  * @param batches The array to mutate, removing entries from it.
  * @return A new array containing all the entries that were removed from @a batches.
  */
-- (NSArray<FSTMutationBatch *> *)makeHoles:(NSArray<NSNumber *> *)holes
-                                 inBatches:(NSMutableArray<FSTMutationBatch *> *)batches {
+- (NSArray<FSTMutationBatch *> *)removeFirstBatches:(int)n
+                                          inBatches:(NSMutableArray<FSTMutationBatch *> *)batches {
   NSMutableArray<FSTMutationBatch *> *removed = [NSMutableArray array];
-  for (NSUInteger i = 0; i < holes.count; i++) {
-    NSUInteger index = holes[i].unsignedIntegerValue - i;
-    FSTMutationBatch *batch = batches[index];
+  for (int i = 0; i < n; i++) {
+    FSTMutationBatch *batch = batches[0];
     [self.mutationQueue removeMutationBatch:batch];
-
-    [batches removeObjectAtIndex:index];
+    [batches removeObjectAtIndex:0];
     [removed addObject:batch];
   }
   return removed;
