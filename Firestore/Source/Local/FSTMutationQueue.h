@@ -93,21 +93,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray<FSTMutationBatch *> *)allMutationBatches;
 
 /**
- * Finds all mutations with a batchID less than or equal to the given batchID.
- *
- * Generally the caller should be asking for the next unacknowledged batchID and the number of
- * acknowledged batches should be very small when things are functioning well.
- *
- * @param batchID The batch to search through.
- *
- * @return an NSArray containing all batches with matching batchIDs.
- */
-// TODO(mcg): This should really return NSEnumerator and the caller should be adjusted to only
-// loop through these once.
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:
-    (firebase::firestore::model::BatchId)batchID;
-
-/**
  * Finds all mutation batches that could @em possibly affect the given document key. Not all
  * mutations in a batch will necessarily affect the document key, so when looping through the
  * batch you'll need to check that the mutation itself matches the key.
