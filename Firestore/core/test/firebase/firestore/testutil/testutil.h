@@ -138,31 +138,10 @@ inline std::unique_ptr<model::SetMutation> SetMutation(
       model::Precondition::None());
 }
 
-inline std::unique_ptr<model::PatchMutation> PatchMutation(
+std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
     const model::ObjectValue::Map& values = {},
-    const std::vector<model::FieldPath>* update_mask = nullptr) {
-  model::FieldValue object_value = model::FieldValue::FromMap({});
-  std::vector<model::FieldPath> object_mask;
-
-  for (const auto& kv : values) {
-    model::FieldPath field_path = Field(kv.first);
-    object_mask.push_back(field_path);
-    if (kv.second.string_value() != kDeleteSentinel) {
-      object_value = object_value.Set(field_path, kv.second);
-    }
-  }
-
-  bool merge = update_mask != nullptr;
-
-  // We sort the field_mask_paths to make the order deterministic in tests.
-  std::sort(object_mask.begin(), object_mask.end());
-
-  return absl::make_unique<model::PatchMutation>(
-      Key(path), std::move(object_value),
-      model::FieldMask(merge ? *update_mask : object_mask),
-      merge ? model::Precondition::None() : model::Precondition::Exists(true));
-}
+    const std::vector<model::FieldPath>* update_mask = nullptr);
 
 inline std::unique_ptr<model::PatchMutation> PatchMutation(
     absl::string_view path,
@@ -184,10 +163,6 @@ inline std::vector<uint8_t> ResumeToken(int64_t snapshot_version) {
       std::string("snapshot-") + std::to_string(snapshot_version);
   return {snapshot_string.begin(), snapshot_string.end()};
 }
-
-// Add a non-inline function to make this library buildable.
-// TODO(zxu123): remove once there is non-inline function.
-void dummy();
 
 }  // namespace testutil
 }  // namespace firestore

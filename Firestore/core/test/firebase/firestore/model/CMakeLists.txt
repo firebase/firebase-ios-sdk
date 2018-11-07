@@ -29,4 +29,5 @@ cc_test(
     snapshot_version_test.cc
   DEPENDS
     firebase_firestore_model
+    firebase_firestore_testutil
 )
