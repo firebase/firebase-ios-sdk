@@ -48,7 +48,7 @@
         [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
     id<FAuthTokenProvider> authTokenProvider =
         [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
-            FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container)];
+            FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container);
 
     FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"testWritesRestoredAfterAuth"];
     config.authTokenProvider = authTokenProvider;

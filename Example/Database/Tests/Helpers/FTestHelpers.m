@@ -61,8 +61,8 @@
 
     NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
 
-    FIRAuthInteropFake *auth =
-        [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+    // This helper is used in integration tests and needs the information from the default app.
+    id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container);
     id<FAuthTokenProvider> authTokenProvider =
         [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
 
