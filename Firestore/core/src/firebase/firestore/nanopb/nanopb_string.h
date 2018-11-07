@@ -90,7 +90,11 @@ class String : public util::Comparable<String> {
     return !bytes_ || bytes_->size == 0;
   }
 
-  const char* c_str() const {
+  /**
+   * Returns a pointer to the character data backing this String. The return
+   * value is `nullptr` if the backing bytes are themselves null.
+   */
+  const char* data() const {
     return bytes_ ? reinterpret_cast<const char*>(bytes_->bytes) : nullptr;
   }
 

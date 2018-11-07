@@ -24,7 +24,7 @@ namespace nanopb {
 
 TEST(String, DefaultConstructor) {
   String str;
-  ASSERT_EQ(nullptr, str.c_str());
+  ASSERT_EQ(nullptr, str.data());
 }
 
 TEST(String, FromStdString) {
