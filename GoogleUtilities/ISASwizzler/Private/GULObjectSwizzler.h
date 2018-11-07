@@ -116,7 +116,7 @@ typedef OBJC_ENUM(uintptr_t, GUL_ASSOCIATION){
 - (void)swizzle;
 
 /** @return The value of -[objectBeingSwizzled isProxy] */
- - (BOOL)isSwizzlingProxyObject;
+- (BOOL)isSwizzlingProxyObject;
 
 @end
 
