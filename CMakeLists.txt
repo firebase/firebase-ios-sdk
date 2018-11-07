@@ -88,10 +88,6 @@ add_subdirectory(
 set(BUILD_TESTING ${old_build_testing} CACHE BOOL "Restore BUILD_TESTING" FORCE)
 
 
-# Firebase C++
-find_package(firebase_cpp_sdk REQUIRED)
-
-
 # gRPC
 find_package(OpenSSL QUIET)
 if(OPENSSL_FOUND)

@@ -24,7 +24,6 @@ set(
 )
 
 include(benchmark)
-include(firebase_cpp_sdk)
 include(googletest)
 include(grpc)
 include(leveldb)
