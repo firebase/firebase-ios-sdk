@@ -327,29 +327,6 @@ using leveldb::WriteOptions;
   return [self decodedMutationBatch:it->value()];
 }
 
-- (NSArray<FSTMutationBatch *> *)allMutationBatchesThroughBatchID:(BatchId)batchID {
-  std::string userKey = LevelDbMutationKey::KeyPrefix(_userID);
-
-  auto it = _db.currentTransaction->NewIterator();
-  it->Seek(userKey);
-
-  NSMutableArray *result = [NSMutableArray array];
-  LevelDbMutationKey rowKey;
-  for (; it->Valid() && rowKey.Decode(it->key()); it->Next()) {
-    if (rowKey.user_id() != _userID) {
-      // End of this user's mutations
-      break;
-    } else if (rowKey.batch_id() > batchID) {
-      // This mutation is past what we're looking for
-      break;
-    }
-
-    [result addObject:[self decodedMutationBatch:it->value()]];
-  }
-
-  return result;
-}
-
 - (NSArray<FSTMutationBatch *> *)allMutationBatchesAffectingDocumentKey:
     (const DocumentKey &)documentKey {
   // Scan the document-mutation index starting with a prefix starting with the given documentKey.
