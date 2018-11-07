@@ -45,10 +45,23 @@ TEST(String, FromCString) {
   EXPECT_EQ(copy, "foo");
 }
 
-TEST(String, WrapByteArray) {
+TEST(String, WrapByteNullTerminatedArray) {
   auto original =
       static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(4)));
   memcpy(original->bytes, "foo", 4);  // null terminator
+  original->size = 3;
+
+  String wrapper = String::Wrap(original);
+  EXPECT_EQ(wrapper, absl::string_view{"foo"});
+
+  original->bytes[0] = 'b';
+  EXPECT_EQ(wrapper, absl::string_view{"boo"});
+}
+
+TEST(String, WrapByteUnterminatedArray) {
+  auto original =
+      static_cast<pb_bytes_array_t*>(malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(3)));
+  memcpy(original->bytes, "foo", 3);  // no null terminator
   original->size = 3;
 
   String wrapper = String::Wrap(original);
