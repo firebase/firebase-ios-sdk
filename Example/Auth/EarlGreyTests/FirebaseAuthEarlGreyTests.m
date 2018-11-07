@@ -21,10 +21,6 @@
 #import <FirebaseCore/FIRApp.h>
 #import "FirebaseAuth.h"
 
-#ifdef NO_NETWORK
-#import "ioReplayer/IORTestCase.h"
-#endif
-
 /** The url for obtaining a valid custom token string used to test BYOAuth. */
 static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
 
@@ -38,11 +34,7 @@ static CGFloat const kShortScrollDistance = 100;
 
 static NSTimeInterval const kWaitForElementTimeOut = 5;
 
-#ifdef NO_NETWORK
-@interface BasicUITest : IORTestCase
-#else
 @interface BasicUITest :XCTestCase
-#endif
 @end
 
 /** Convenience function for EarlGrey tests. */
