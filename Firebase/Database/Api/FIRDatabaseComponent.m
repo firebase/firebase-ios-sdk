@@ -72,6 +72,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
       [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+        *isCacheable = YES;
         return [[FIRDatabaseComponent alloc] initWithApp:container.app];
       };
   FIRComponent *databaseProvider =
