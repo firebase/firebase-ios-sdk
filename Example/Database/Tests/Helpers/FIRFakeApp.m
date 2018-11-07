@@ -18,6 +18,7 @@
 
 #import "FIRAuthInteropFake.h"
 #import "FIRComponentTestUtilities.h"
+#import "FIRDatabaseComponent.h"
 
 @interface FIRFakeOptions: NSObject
 @property(nonatomic, readonly, copy) NSString *databaseURL;
@@ -34,6 +35,10 @@
 }
 @end
 
+@interface FIRDatabaseComponent (Internal)
+- (instancetype)initWithApp:(FIRApp *)app;
+@end
+
 @implementation FIRFakeApp
 
 - (instancetype)initWithName:(NSString *)name URL:(NSString *)url {
@@ -41,12 +46,17 @@
   if (self) {
     _name = name;
     _options = [[FIRFakeOptions alloc] initWithURL:url];
-    _Nullable id (^creationBlock)(FIRComponentContainer *, BOOL *) =
+    _Nullable id (^authBlock)(FIRComponentContainer *, BOOL *) =
         ^(FIRComponentContainer *container, BOOL *isCacheable) {
           return [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
         };
+    FIRComponentCreationBlock databaseBlock =
+        ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+          return [[FIRDatabaseComponent alloc] initWithApp:container.app];
+        };
     NSDictionary<NSString *, FIRComponentCreationBlock> *components =
-        @{NSStringFromProtocol(@protocol(FIRAuthInterop)) : creationBlock};
+        @{NSStringFromProtocol(@protocol(FIRAuthInterop)) : authBlock,
+          NSStringFromProtocol(@protocol(FIRDatabaseProvider)) : databaseBlock};
     _container = [[FIRComponentContainer alloc] initWithApp:(FIRApp *)self components:components];
   }
   return self;

@@ -42,7 +42,7 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 - (id)initWithApp:(FIRApp *)app repoInfo:(FRepoInfo *)info config:(FIRDatabaseConfig *)config;
 @end
 
-@interface FIRDatabaseComponent () <FIRComponentRegistrant>
+@interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRComponentRegistrant>
 /// Internal intializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -63,6 +63,23 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
 + (void)load {
   [FIRComponentContainer registerAsComponentRegistrant:self];
+}
+
+#pragma mark - FIRComponentRegistrant
+
++ (NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *authDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+        return [[FIRDatabaseComponent alloc] initWithApp:container.app];
+      };
+  FIRComponent *databaseProvider =
+      [FIRComponent componentWithProtocol:@protocol(FIRDatabaseProvider)
+                      instantiationTiming:FIRInstantiationTimingLazy
+                             dependencies:@[ authDep ]
+                            creationBlock:creationBlock];
+  return @[ databaseProvider ];
 }
 
 #pragma mar - Instance management.
@@ -165,23 +182,6 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
     return database;
   }
-}
-
-#pragma mark - FIRComponentRegistrant
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *authDep =
-      [FIRDependency dependencyWithProtocol:@protocol(FIRAuthInterop) isRequired:NO];
-  FIRComponentCreationBlock creationBlock =
-      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-        return [[FIRDatabaseComponent alloc] initWithApp:container.app];
-      };
-  FIRComponent *databaseProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRDatabaseProvider)
-                      instantiationTiming:FIRInstantiationTimingLazy
-                             dependencies:@[ authDep ]
-                            creationBlock:creationBlock];
-  return @[ databaseProvider ];
 }
 
 @end

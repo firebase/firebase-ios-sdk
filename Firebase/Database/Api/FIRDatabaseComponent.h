@@ -19,8 +19,6 @@
 @class FIRApp;
 @class FIRDatabase;
 
-@protocol FIRComponentLifecycleMaintainer;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// This protocol is used in the interop registration process to register an instance provider for
@@ -33,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// A concrete implementation for FIRDatabaseProvider to create Database instances.
-@interface FIRDatabaseComponent : NSObject <FIRDatabaseProvider, FIRComponentLifecycleMaintainer>
+@interface FIRDatabaseComponent : NSObject <FIRDatabaseProvider>
 
 /// The FIRApp that instances will be set up with.
 @property(nonatomic, weak, readonly) FIRApp *app;
