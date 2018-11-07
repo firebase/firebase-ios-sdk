@@ -24,6 +24,7 @@
 //   * make_index_sequence<N>        == std::make_index_sequence<N>
 //   * index_sequence_for<Ts...>     == std::index_sequence_for<Ts...>
 //   * apply<Functor, Tuple>         == std::apply<Functor, Tuple>
+//   * exchange<T>                   == std::exchange<T>
 //
 // This header file also provides the tag types `in_place_t`, `in_place_type_t`,
 // and `in_place_index_t`, as well as the constant `in_place`, and
@@ -161,7 +162,7 @@ ABSL_INTERNAL_INLINE_CONSTEXPR(in_place_t, in_place, {});
 
 #endif  // ABSL_HAVE_STD_OPTIONAL
 
-#ifdef ABSL_HAVE_STD_ANY
+#if defined(ABSL_HAVE_STD_ANY) || defined(ABSL_HAVE_STD_VARIANT)
 using std::in_place_type_t;
 #else
 
@@ -172,7 +173,11 @@ using std::in_place_type_t;
 // for C++17's `std::in_place_type_t`.
 template <typename T>
 struct in_place_type_t {};
-#endif  // ABSL_HAVE_STD_ANY
+#endif  // ABSL_HAVE_STD_ANY || ABSL_HAVE_STD_VARIANT
+
+#ifdef ABSL_HAVE_STD_VARIANT
+using std::in_place_index_t;
+#else
 
 // in_place_index_t
 //
@@ -181,6 +186,7 @@ struct in_place_type_t {};
 // for C++17's `std::in_place_index_t`.
 template <size_t I>
 struct in_place_index_t {};
+#endif  // ABSL_HAVE_STD_VARIANT
 
 // Constexpr move and forward
 
@@ -229,13 +235,13 @@ auto apply_helper(Functor&& functor, Tuple&& t, index_sequence<Indexes...>)
 // Example:
 //
 //   class Foo{void Bar(int);};
-//   void user_function(int, std::string);
+//   void user_function(int, string);
 //   void user_function(std::unique_ptr<Foo>);
 //
 //   int main()
 //   {
-//       std::tuple<int, std::string> tuple1(42, "bar");
-//       // Invokes the user function overload on int, std::string.
+//       std::tuple<int, string> tuple1(42, "bar");
+//       // Invokes the user function overload on int, string.
 //       absl::apply(&user_function, tuple1);
 //
 //       auto foo = absl::make_unique<Foo>();
@@ -259,6 +265,27 @@ auto apply(Functor&& functor, Tuple&& t)
       absl::make_index_sequence<std::tuple_size<
           typename std::remove_reference<Tuple>::type>::value>{});
 }
+
+// exchange
+//
+// Replaces the value of `obj` with `new_value` and returns the old value of
+// `obj`.  `absl::exchange` is designed to be a drop-in replacement for C++14's
+// `std::exchange`.
+//
+// Example:
+//
+//   Foo& operator=(Foo&& other) {
+//     ptr1_ = absl::exchange(other.ptr1_, nullptr);
+//     int1_ = absl::exchange(other.int1_, -1);
+//     return *this;
+//   }
+template <typename T, typename U = T>
+T exchange(T& obj, U&& new_value) {
+  T old_value = absl::move(obj);
+  obj = absl::forward<U>(new_value);
+  return old_value;
+}
+
 }  // namespace absl
 
 #endif  // ABSL_UTILITY_UTILITY_H_

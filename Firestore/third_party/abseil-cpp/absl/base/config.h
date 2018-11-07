@@ -199,7 +199,7 @@
 #define ABSL_HAVE_INTRINSIC_INT128 1
 #elif defined(__CUDACC__)
 // __CUDACC_VER__ is a full version number before CUDA 9, and is defined to a
-// std::string explaining that it has been removed starting with CUDA 9. We use
+// string explaining that it has been removed starting with CUDA 9. We use
 // nested #ifs because there is no short-circuiting in the preprocessor.
 // NOTE: `__CUDACC__` could be undefined while `__CUDACC_VER__` is defined.
 #if __CUDACC_VER__ >= 70000
@@ -268,7 +268,7 @@
 #error ABSL_HAVE_MMAP cannot be directly set
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) ||   \
     defined(__ros__) || defined(__native_client__) || defined(__asmjs__) || \
-    defined(__wasm__) || defined(__Fuchsia__)
+    defined(__wasm__) || defined(__Fuchsia__) || defined(__sun)
 #define ABSL_HAVE_MMAP 1
 #endif
 
@@ -299,7 +299,7 @@
 // family of functions as standardized in POSIX.1-2001.
 //
 // Note: While Apple provides <semaphore.h> for both iOS and macOS, it is
-// explicity deprecated and will cause build failures if enabled for those
+// explicitly deprecated and will cause build failures if enabled for those
 // platforms.  We side-step the issue by not defining it here for Apple
 // platforms.
 #ifdef ABSL_HAVE_SEMAPHORE_H
@@ -382,6 +382,19 @@
 #endif
 #endif
 
+// ABSL_HAVE_STD_VARIANT
+//
+// Checks whether C++17 std::variant is available.
+#ifdef ABSL_HAVE_STD_VARIANT
+#error "ABSL_HAVE_STD_VARIANT cannot be directly set."
+#endif
+
+#ifdef __has_include
+#if __has_include(<variant>) && __cplusplus >= 201703L
+#define ABSL_HAVE_STD_VARIANT 1
+#endif
+#endif
+
 // ABSL_HAVE_STD_STRING_VIEW
 //
 // Checks whether C++17 std::string_view is available.
@@ -396,18 +409,18 @@
 #endif
 
 // For MSVC, `__has_include` is supported in VS 2017 15.3, which is later than
-// the support for <optional>, <any>, <string_view>. So we use _MSC_VER to check
-// whether we have VS 2017 RTM (when <optional>, <any>, <string_view> is
-// implemented) or higher.
-// Also, `__cplusplus` is not correctly set by MSVC, so we use `_MSVC_LANG` to
-// check the language version.
-// TODO(zhangxy): fix tests before enabling aliasing for `std::any`,
-// `std::string_view`.
+// the support for <optional>, <any>, <string_view>, <variant>. So we use
+// _MSC_VER to check whether we have VS 2017 RTM (when <optional>, <any>,
+// <string_view>, <variant> is implemented) or higher. Also, `__cplusplus` is
+// not correctly set by MSVC, so we use `_MSVC_LANG` to check the language
+// version.
+// TODO(zhangxy): fix tests before enabling aliasing for `std::any`.
 #if defined(_MSC_VER) && _MSC_VER >= 1910 && \
     ((defined(_MSVC_LANG) && _MSVC_LANG > 201402) || __cplusplus > 201402)
 // #define ABSL_HAVE_STD_ANY 1
 #define ABSL_HAVE_STD_OPTIONAL 1
-// #define ABSL_HAVE_STD_STRING_VIEW 1
+#define ABSL_HAVE_STD_VARIANT 1
+#define ABSL_HAVE_STD_STRING_VIEW 1
 #endif
 
 #endif  // ABSL_BASE_CONFIG_H_

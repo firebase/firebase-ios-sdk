@@ -31,20 +31,18 @@ list(APPEND BASE_PUBLIC_HEADERS
 
 list(APPEND BASE_INTERNAL_HEADERS
   "internal/atomic_hook.h"
+  "internal/bits.h"
   "internal/cycleclock.h"
   "internal/direct_mmap.h"
   "internal/endian.h"
   "internal/exception_testing.h"
   "internal/exception_safety_testing.h"
+  "internal/hide_ptr.h"
   "internal/identity.h"
   "internal/invoke.h"
   "internal/inline_variable.h"
   "internal/low_level_alloc.h"
   "internal/low_level_scheduling.h"
-  "internal/malloc_extension.h"
-  "internal/malloc_hook_c.h"
-  "internal/malloc_hook.h"
-  "internal/malloc_hook_invoke.h"
   "internal/per_thread_tls.h"
   "internal/pretty_function.h"
   "internal/raw_logging.h"
@@ -69,7 +67,6 @@ list(APPEND BASE_SRC
   "internal/thread_identity.cc"
   "internal/unscaledcycleclock.cc"
   "internal/low_level_alloc.cc"
-  "internal/malloc_hook.cc"
   ${BASE_PUBLIC_HEADERS}
   ${BASE_INTERNAL_HEADERS}
 )
@@ -81,63 +78,44 @@ absl_library(
     ${BASE_SRC}
   PUBLIC_LIBRARIES
     absl_dynamic_annotations
-    absl_spinlock_wait
+    absl_internal_spinlock_wait
   EXPORT_NAME
     base
 )
 
-# malloc extension library
-set(MALLOC_EXTENSION_SRC "internal/malloc_extension.cc")
-set(MALLOC_EXTENSION_PUBLIC_LIBRARIES absl::base)
-
-absl_library(
-  TARGET
-    absl_malloc_extension
-  SOURCES
-    ${MALLOC_EXTENSION_SRC}
-  PUBLIC_LIBRARIES
-    ${MALLOC_EXTENSION_PUBLIC_LIBRARIES}
-  EXPORT_NAME
-    malloc_extension
-)
-
-# throw delegate library
-set(THROW_DELEGATE_SRC "internal/throw_delegate.cc")
-
-absl_library(
-  TARGET
-    absl_throw_delegate
-  SOURCES
-    ${THROW_DELEGATE_SRC}
-  PUBLIC_LIBRARIES
-    ${THROW_DELEGATE_PUBLIC_LIBRARIES}
-  PRIVATE_COMPILE_FLAGS
-    ${ABSL_EXCEPTIONS_FLAG}
-  EXPORT_NAME
+absl_cc_library(
+  NAME
     throw_delegate
+  SRCS
+    "internal/throw_delegate.cc"
+  HDRS
+    "internal/throw_delegate.h"
+  COPTS
+    ${ABSL_EXCEPTIONS_FLAG}
+  DEPS
+    absl::base
 )
 
-if(BUILD_TESTING)
-  # exception-safety testing library
-  set(EXCEPTION_SAFETY_TESTING_SRC "internal/exception_safety_testing.cc")
-  set(EXCEPTION_SAFETY_TESTING_PUBLIC_LIBRARIES
-    ${ABSL_TEST_COMMON_LIBRARIES}
+
+# exception-safety testing library
+absl_cc_library(
+  NAME
+    exception_safety_testing
+  HDRS
+    "internal/exception_safety_testing.h"
+  SRCS
+    "internal/exception_safety_testing.cc"
+  COPTS
+    ${ABSL_EXCEPTIONS_FLAG}
+  DEPS
     absl::base
     absl::memory
     absl::meta
     absl::strings
-    absl::types
-  )
-
-absl_library(
-  TARGET
-    absl_base_internal_exception_safety_testing
-  SOURCES
-    ${EXCEPTION_SAFETY_TESTING_SRC}
-  PUBLIC_LIBRARIES
-    ${EXCEPTION_SAFETY_TESTING_PUBLIC_LIBRARIES}
+    absl::optional
+    gtest
+  TESTONLY
 )
-endif()
 
 
 # dynamic_annotations library
@@ -150,31 +128,48 @@ absl_library(
     ${DYNAMIC_ANNOTATIONS_SRC}
 )
 
-
-# spinlock_wait library
-set(SPINLOCK_WAIT_SRC "internal/spinlock_wait.cc")
-
-absl_library(
-  TARGET
-    absl_spinlock_wait
-  SOURCES
-    ${SPINLOCK_WAIT_SRC}
+absl_cc_library(
+  NAME
+    config
+  HDRS
+    "config.h"
+    "policy_checks.h"
+  PUBLIC
 )
 
-
-# malloc_internal library
-list(APPEND MALLOC_INTERNAL_SRC
-  "internal/low_level_alloc.cc"
-  "internal/malloc_hook.cc"
-  "internal/malloc_hook_mmap_linux.inc"
+absl_cc_library(
+  NAME
+    core_headers
+  HDRS
+    "attributes.h"
+    "macros.h"
+    "optimization.h"
+    "port.h"
+    "thread_annotations.h"
+  DEPS
+    absl::config
+  PUBLIC
 )
 
-absl_library(
-  TARGET
-    absl_malloc_internal
-  SOURCES
-    ${MALLOC_INTERNAL_SRC}
-  PUBLIC_LIBRARIES
+absl_cc_library(
+  NAME
+    spinlock_wait
+  SRCS
+    "internal/spinlock_wait.cc"
+  HDRS
+    "internal/scheduling_mode.h"
+    "internal/spinlock_wait.h"
+)
+
+absl_cc_library(
+  NAME
+    malloc_internal
+  SRCS
+    "internal/low_level_alloc.cc"
+  HDRS
+    "internal/direct_mmap.h"
+    "internal/low_level_alloc.h"
+  DEPS
     absl_dynamic_annotations
 )
 
@@ -183,6 +178,20 @@ absl_library(
 #
 ## TESTS
 #
+
+# call once test
+set(ATOMIC_HOOK_TEST_SRC "internal/atomic_hook_test.cc")
+set(ATOMIC_HOOK_TEST_PUBLIC_LIBRARIES absl::base)
+
+absl_test(
+  TARGET
+    atomic_hook_test
+  SOURCES
+    ${ATOMIC_HOOK_TEST_SRC}
+  PUBLIC_LIBRARIES
+    ${ATOMIC_HOOK_TEST_PUBLIC_LIBRARIES}
+)
+
 
 # call once test
 set(CALL_ONCE_TEST_SRC "call_once_test.cc")
@@ -211,7 +220,7 @@ absl_test(
 
 # test absl_throw_delegate_test
 set(THROW_DELEGATE_TEST_SRC "throw_delegate_test.cc")
-set(THROW_DELEGATE_TEST_PUBLIC_LIBRARIES absl::base absl_throw_delegate)
+set(THROW_DELEGATE_TEST_PUBLIC_LIBRARIES absl::base absl_internal_throw_delegate)
 
 absl_test(
   TARGET
@@ -311,7 +320,7 @@ absl_test(
 
 # test raw_logging_test
 set(RAW_LOGGING_TEST_SRC "raw_logging_test.cc")
-set(RAW_LOGGING_TEST_PUBLIC_LIBRARIES absl::base)
+set(RAW_LOGGING_TEST_PUBLIC_LIBRARIES absl::base absl::strings)
 
 absl_test(
   TARGET
@@ -366,7 +375,14 @@ absl_test(
 
 #test exceptions_safety_testing_test
 set(EXCEPTION_SAFETY_TESTING_TEST_SRC "exception_safety_testing_test.cc")
-set(EXCEPTION_SAFETY_TESTING_TEST_PUBLIC_LIBRARIES absl::base absl::memory absl::meta absl::strings absl::optional)
+set(EXCEPTION_SAFETY_TESTING_TEST_PUBLIC_LIBRARIES
+  absl::base
+  absl_internal_exception_safety_testing
+  absl::memory
+  absl::meta
+  absl::strings
+  absl::utility
+)
 
 absl_test(
   TARGET
@@ -378,23 +394,3 @@ absl_test(
   PRIVATE_COMPILE_FLAGS
     ${ABSL_EXCEPTIONS_FLAG}
 )
-
-# test absl_malloc_extension_system_malloc_test
-set(MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_SRC "internal/malloc_extension_test.cc")
-set(MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_PUBLIC_LIBRARIES absl::base absl_malloc_extension)
-set(MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_PRIVATE_COMPILE_FLAGS "-DABSL_MALLOC_EXTENSION_TEST_ALLOW_MISSING_EXTENSION=1")
-
-absl_test(
-  TARGET
-    absl_malloc_extension_system_malloc_test
-  SOURCES
-    ${MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_SRC}
-  PUBLIC_LIBRARIES
-    ${MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_PUBLIC_LIBRARIES}
-  PRIVATE_COMPILE_FLAGS
-    ${MALLOC_EXTENSION_SYSTEM_MALLOC_TEST_PRIVATE_COMPILE_FLAGS}
-)
-
-
-
-
