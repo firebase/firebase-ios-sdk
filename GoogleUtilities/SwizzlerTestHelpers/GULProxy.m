@@ -18,66 +18,66 @@
 
 @interface GULProxy ()
 
-@property(nonatomic, strong) id target;
+@property(nonatomic, strong) id delegateObject;
 
 @end
 
 @implementation GULProxy
 
-- (instancetype)initWithTarget:(id)target {
-  _target = target;
+- (instancetype)initWithDelegate:(id)delegate {
+  _delegateObject = delegate;
   return self;
 }
 
-+ (instancetype)proxyWithTarget:(id)target {
-  return [[GULProxy alloc] initWithTarget:target];
++ (instancetype)proxyWithDelegate:(id)delegate {
+  return [[GULProxy alloc] initWithDelegate:delegate];
 }
 
 - (id)forwardingTargetForSelector:(SEL)selector {
-  return _target;
+  return _delegateObject;
 }
 
 - (void)forwardInvocation:(NSInvocation *)invocation {
-  if (_target != nil) {
-    [invocation setTarget:_target];
+  if (_delegateObject != nil) {
+    [invocation setTarget:_delegateObject];
     [invocation invoke];
   }
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
-  return [NSObject instanceMethodSignatureForSelector:@selector(init)];
+  return [_delegateObject instanceMethodSignatureForSelector:selector];
 }
 
 - (BOOL)respondsToSelector:(SEL)aSelector {
-  return [_target respondsToSelector:aSelector];
+  return [_delegateObject respondsToSelector:aSelector];
 }
 
 - (BOOL)isEqual:(id)object {
-  return [_target isEqual:object];
+  return [_delegateObject isEqual:object];
 }
 
 - (NSUInteger)hash {
-  return [_target hash];
+  return [_delegateObject hash];
 }
 
 - (Class)superclass {
-  return [_target superclass];
+  return [_delegateObject superclass];
 }
 
 - (Class)class {
-  return [_target class];
+  return [_delegateObject class];
 }
 
 - (BOOL)isKindOfClass:(Class)aClass {
-  return [_target isKindOfClass:aClass];
+  return [_delegateObject isKindOfClass:aClass];
 }
 
 - (BOOL)isMemberOfClass:(Class)aClass {
-  return [_target isMemberOfClass:aClass];
+  return [_delegateObject isMemberOfClass:aClass];
 }
 
 - (BOOL)conformsToProtocol:(Protocol *)aProtocol {
-  return [_target conformsToProtocol:aProtocol];
+  return [_delegateObject conformsToProtocol:aProtocol];
 }
 
 - (BOOL)isProxy {
@@ -85,10 +85,10 @@
 }
 
 - (NSString *)description {
-  return [_target description];
+  return [_delegateObject description];
 }
 - (NSString *)debugDescription {
-  return [_target debugDescription];
+  return [_delegateObject debugDescription];
 }
 
 @end

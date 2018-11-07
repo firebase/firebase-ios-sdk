@@ -16,8 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+/** An example NSProxy that could be used to wrap an object that we have to ISA Swizzle. */
 @interface GULProxy : NSProxy
 
-+ (instancetype)proxyWithTarget:(id)target;
++ (instancetype)proxyWithDelegate:(id)delegate;
 
 @end

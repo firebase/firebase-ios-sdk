@@ -249,7 +249,7 @@
 
 - (void)testSwizzleProxiedObject {
   NSObject *object = [[NSObject alloc] init];
-  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
   GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
 
   XCTAssertNoThrow([swizzler swizzle]);
@@ -266,7 +266,7 @@
 
 - (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenOverridingMethod {
   NSObject *object = [[NSObject alloc] init];
-  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
 
   GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
   [swizzler copySelector:@selector(description)
@@ -279,7 +279,7 @@
 
 - (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenAddingMethod {
   NSObject *object = [[NSObject alloc] init];
-  GULProxy *proxyObject = [GULProxy proxyWithTarget:object];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
 
   GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
   [swizzler copySelector:@selector(donorDescription)
