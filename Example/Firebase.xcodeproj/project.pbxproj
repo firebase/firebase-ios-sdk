@@ -121,7 +121,6 @@
 		7EE21F7C1FE8919E009B1370 /* FIREmailLinkSignInResponseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE21F7B1FE8919D009B1370 /* FIREmailLinkSignInResponseTests.m */; };
 		7EFA2E041F71C93300DD354F /* FIRUserMetadataTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */; };
 		923F824C206C4D8000034974 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F824B206C4D8000034974 /* SafariServices.framework */; };
-		923F824E206C4D8B00034974 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F824D206C4D8B00034974 /* SafariServices.framework */; };
 		923F824F206C4DA500034974 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DE45C6641E7DA8CB009E6ACD /* XCTest.framework */; };
 		923F8251206C4DC600034974 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 923F8250206C4DC500034974 /* UserNotifications.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		923F8252206C4DD500034974 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -130,13 +129,6 @@
 		AFAF36F71EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F81EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		AFAF36F91EC28C25004BDEE5 /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
-		C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA152158607600EF7E2D /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
-		C852AA162158607600EF7E2D /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C8A469472193753C008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C8A469482193753D008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
-		C8A469492193754A008F5947 /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		D01853721EDAD084003A645C /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D01853831EDAD113003A645C /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D018537E1EDAD0E6003A645C /* FIRAppDelegate.m */; };
 		D01853841EDAD113003A645C /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D01853801EDAD0E6003A645C /* FIRViewController.m */; };
@@ -192,8 +184,6 @@
 		D064E6B51ED9B31C001956DF /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		D067EF831ED9BDE00095C27F /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D067EF841ED9BDFF0095C27F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEE14D711E844677006FA992 /* GoogleService-Info.plist */; };
-		D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
-		D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */; settings = {ATTRIBUTES = (); }; };
 		D0EDB2C51EDA04F800B6C31B /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		D0EDB2D71EDA057800B6C31B /* FIRAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D21EDA056A00B6C31B /* FIRAppDelegate.m */; };
 		D0EDB2D81EDA057800B6C31B /* FIRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0EDB2D41EDA056A00B6C31B /* FIRViewController.m */; };
@@ -303,7 +293,6 @@
 		DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0451FD6143000F7D466 /* FIRDynamicLinkNetworkingTests.m */; };
 		DE17A2DA2142F1A5002A15ED /* FIRDynamicLinksImportsTest3P.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0461FD6143000F7D466 /* FIRDynamicLinksImportsTest3P.m */; };
 		DE17A2DB2142F1A5002A15ED /* FIRDynamicLinksTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEDFF0471FD6143000F7D466 /* FIRDynamicLinksTest.m */; };
-		DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */; };
 		DE17A3CC21472FF2002A15ED /* LinkTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */; };
 		DE17A3CD21472FF2002A15ED /* ParamTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */; };
 		DE17A3CE21472FF2002A15ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE17A3C321472FF1002A15ED /* Assets.xcassets */; };
@@ -353,6 +342,7 @@
 		DE26D2931F705F4D004AE1D3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D2071F70333E004AE1D3 /* ViewController.swift */; };
 		DE26D2941F705F51004AE1D3 /* AuthCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FE1F70333E004AE1D3 /* AuthCredentials.swift */; };
 		DE26D2951F705F53004AE1D3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE26D1FD1F70333E004AE1D3 /* AppDelegate.swift */; };
+		DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */; };
 		DE47C0E2207AC87D00B1AEDF /* FIRSampleAppUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = AFC8BAA31EC257D800B8EEAE /* FIRSampleAppUtilities.m */; };
 		DE47C0E7207AC87D00B1AEDF /* Shared.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */; };
 		DE47C114207AC94A00B1AEDF /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */; };
@@ -556,6 +546,7 @@
 		DEE14D941E84468D006FA992 /* FIRTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = DEE14D7C1E844677006FA992 /* FIRTestCase.m */; };
 		DEF288411F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
 		DEF288421F9AB6E100D480CF /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DEF288401F9AB6E100D480CF /* Default-568h@2x.png */; };
+		DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */ = {isa = PBXBuildFile; fileRef = DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */; };
 		DEF6C30D1FBCE72F005D0740 /* FIRAuthDispatcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FF1E86C6FF0083EDBF /* FIRAuthDispatcherTests.m */; };
 		DEF6C30F1FBCE775005D0740 /* FIRAdditionalUserInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FA1E86C6FF0083EDBF /* FIRAdditionalUserInfoTests.m */; };
 		DEF6C3101FBCE775005D0740 /* FIRApp+FIRAuthUnitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE9314FC1E86C6FF0083EDBF /* FIRApp+FIRAuthUnitTests.m */; };
@@ -614,8 +605,10 @@
 		EDD43AA620BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD43AA320BF7C7B005EBB36 /* FIRAnalyticsConfigurationTest.m */; };
 		EDD53E25211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E26211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
+		EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E24211A442D00376BFF /* FIRAuthInteropFake.m */; };
 		EDD53E2A211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 		EDD53E2B211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
+		EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = EDD53E28211B08A300376BFF /* FIRComponentTestUtilities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -880,7 +873,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D09005371EDB331C00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -890,7 +882,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
-				D090053D1EDB334D00154410 /* OCMock-iOS/OCMock.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -902,9 +893,11 @@
 		0624F3E11EC0ECFA00E5940D /* Database_IntegrationTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Database_IntegrationTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FArraySortedDictionaryTest.m; path = Database/Tests/Unit/FArraySortedDictionaryTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FCompoundHashTest.m; path = Database/Tests/Unit/FCompoundHashTest.m; sourceTree = SOURCE_ROOT; };
+		063CB4491EBA7AE200038A59 /* FIRMutableDataTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRMutableDataTests.h; path = Database/Tests/Unit/FIRMutableDataTests.h; sourceTree = SOURCE_ROOT; };
 		063CB44A1EBA7AE200038A59 /* FIRMutableDataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRMutableDataTests.m; path = Database/Tests/Unit/FIRMutableDataTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44B1EBA7AE200038A59 /* FLevelDBStorageEngineTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FLevelDBStorageEngineTests.m; path = Database/Tests/Unit/FLevelDBStorageEngineTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44C1EBA7AE200038A59 /* FNodeTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FNodeTests.m; path = Database/Tests/Unit/FNodeTests.m; sourceTree = SOURCE_ROOT; };
+		063CB44D1EBA7AE200038A59 /* FPathTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FPathTests.h; path = Database/Tests/Unit/FPathTests.h; sourceTree = SOURCE_ROOT; };
 		063CB44E1EBA7AE200038A59 /* FPathTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPathTests.m; path = Database/Tests/Unit/FPathTests.m; sourceTree = SOURCE_ROOT; };
 		063CB44F1EBA7AE200038A59 /* FPersistenceManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPersistenceManagerTest.m; path = Database/Tests/Unit/FPersistenceManagerTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4501EBA7AE200038A59 /* FPruneForestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FPruneForestTest.m; path = Database/Tests/Unit/FPruneForestTest.m; sourceTree = SOURCE_ROOT; };
@@ -912,7 +905,9 @@
 		063CB4521EBA7AE200038A59 /* FQueryParamsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FQueryParamsTest.m; path = Database/Tests/Unit/FQueryParamsTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4531EBA7AE200038A59 /* FRangeMergeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FRangeMergeTest.m; path = Database/Tests/Unit/FRangeMergeTest.m; sourceTree = SOURCE_ROOT; };
 		063CB4541EBA7AE200038A59 /* FRepoInfoTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FRepoInfoTest.m; path = Database/Tests/Unit/FRepoInfoTest.m; sourceTree = SOURCE_ROOT; };
+		063CB4551EBA7AE200038A59 /* FSparseSnapshotTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSparseSnapshotTests.h; path = Database/Tests/Unit/FSparseSnapshotTests.h; sourceTree = SOURCE_ROOT; };
 		063CB4561EBA7AE200038A59 /* FSparseSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSparseSnapshotTests.m; path = Database/Tests/Unit/FSparseSnapshotTests.m; sourceTree = SOURCE_ROOT; };
+		063CB4571EBA7AE200038A59 /* FSyncPointTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FSyncPointTests.h; path = Database/Tests/Unit/FSyncPointTests.h; sourceTree = SOURCE_ROOT; };
 		063CB4581EBA7AE200038A59 /* FSyncPointTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FSyncPointTests.m; path = Database/Tests/Unit/FSyncPointTests.m; sourceTree = SOURCE_ROOT; };
 		063CB4591EBA7AE200038A59 /* FTestBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FTestBase.h; path = Database/Tests/Helpers/FTestBase.h; sourceTree = SOURCE_ROOT; };
 		063CB45A1EBA7AE200038A59 /* FTestBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FTestBase.m; path = Database/Tests/Helpers/FTestBase.m; sourceTree = SOURCE_ROOT; };
@@ -930,6 +925,7 @@
 		063CB4771EBA7AEF00038A59 /* FIRDatabaseQueryTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FIRDatabaseQueryTests.h; path = Integration/FIRDatabaseQueryTests.h; sourceTree = "<group>"; };
 		063CB4781EBA7AEF00038A59 /* FIRDatabaseQueryTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDatabaseQueryTests.m; path = Integration/FIRDatabaseQueryTests.m; sourceTree = "<group>"; };
 		063CB4791EBA7AEF00038A59 /* FIRDatabaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FIRDatabaseTests.m; path = Integration/FIRDatabaseTests.m; sourceTree = "<group>"; };
+		063CB47A1EBA7AEF00038A59 /* FIRDataSnapshotTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRDataSnapshotTests.h; sourceTree = "<group>"; };
 		063CB47B1EBA7AEF00038A59 /* FIRDataSnapshotTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRDataSnapshotTests.m; sourceTree = "<group>"; };
 		063CB47C1EBA7AEF00038A59 /* FirebaseTests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "FirebaseTests-Info.plist"; sourceTree = "<group>"; };
 		063CB47D1EBA7AEF00038A59 /* FIRFakeApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRFakeApp.h; sourceTree = "<group>"; };
@@ -960,7 +956,6 @@
 		7EFA2E031F71C93300DD354F /* FIRUserMetadataTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRUserMetadataTests.m; sourceTree = "<group>"; };
 		8496034D8156555C5FCF8F14 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		923F824B206C4D8000034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
-		923F824D206C4D8B00034974 /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/SafariServices.framework; sourceTree = DEVELOPER_DIR; };
 		923F8250206C4DC500034974 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		AFAF36F41EC28C25004BDEE5 /* Shared.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Shared.xcassets; path = Shared/Shared.xcassets; sourceTree = "<group>"; };
 		AFC8BAA11EC257D700B8EEAE /* Messaging_Example-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Messaging_Example-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -985,7 +980,6 @@
 		D064E6A41ED9B1BF001956DF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D064E6A61ED9B1BF001956DF /* Core-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Core-Info.plist"; sourceTree = "<group>"; };
 		D064E6BF1ED9B31C001956DF /* Core_Tests_macOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Core_Tests_macOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = "OCMock-iOS/OCMock.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2CD1EDA04F800B6C31B /* Storage_Example_macOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Storage_Example_macOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0EDB2D01EDA056A00B6C31B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D0EDB2D11EDA056A00B6C31B /* FIRAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FIRAppDelegate.h; sourceTree = "<group>"; };
@@ -1014,7 +1008,6 @@
 		DE0E5BBA1EA7D92E00FAA825 /* FIRVerifyClientResponseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRVerifyClientResponseTests.m; sourceTree = "<group>"; };
 		DE17A2A02141FA61002A15ED /* DL-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "DL-Info.plist"; sourceTree = "<group>"; };
 		DE17A2C8214215C1002A15ED /* DynamicLinks_Example_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DynamicLinks_Example_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GINDurableDeepLinkServiceReceivingTests.m; sourceTree = "<group>"; };
 		DE17A39A21472F3A002A15ED /* FDLBuilderTestAppObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FDLBuilderTestAppObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE17A3BE21472FF0002A15ED /* LinkTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LinkTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/LinkTableViewCell.m; sourceTree = SOURCE_ROOT; };
 		DE17A3BF21472FF0002A15ED /* ParamTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ParamTableViewCell.m; path = DynamicLinks/FDLBuilderTestAppObjC/ParamTableViewCell.m; sourceTree = SOURCE_ROOT; };
@@ -1102,6 +1095,7 @@
 		DE26D25D1F7049F1004AE1D3 /* Auth_ApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_ApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D26D1F705C35004AE1D3 /* Auth_EarlGreyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Auth_EarlGreyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE26D27D1F705EC7004AE1D3 /* SwiftSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingAnalyticsTest.m; sourceTree = "<group>"; };
 		DE45C6641E7DA8CB009E6ACD /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		DE47C0ED207AC87D00B1AEDF /* Messaging_Sample_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Messaging_Sample_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE47C107207AC94A00B1AEDF /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -1329,6 +1323,7 @@
 		DEE14D7C1E844677006FA992 /* FIRTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestCase.m; sourceTree = "<group>"; };
 		DEE14D7D1E844677006FA992 /* Tests-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Tests-Info.plist"; sourceTree = "<group>"; };
 		DEF288401F9AB6E100D480CF /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRMessagingReceiverTest.m; sourceTree = "<group>"; };
 		E2C2834C90DBAB56D568189F /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		ED34CF4A20DC16DC000EA5D1 /* FIRComponentContainerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRComponentContainerTest.m; sourceTree = "<group>"; };
 		ED34CF4B20DC16DC000EA5D1 /* FIRTestComponents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRTestComponents.m; sourceTree = "<group>"; };
@@ -1382,7 +1377,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				923F824E206C4D8B00034974 /* SafariServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1762,8 +1756,6 @@
 			children = (
 				923F8250206C4DC500034974 /* UserNotifications.framework */,
 				923F824B206C4D8000034974 /* SafariServices.framework */,
-				923F824D206C4D8B00034974 /* SafariServices.framework */,
-				D09005301EDB32D600154410 /* OCMock-iOS/OCMock.framework */,
 				DE45C6641E7DA8CB009E6ACD /* XCTest.framework */,
 				DEB61E781E7C542600C04B96 /* libsqlite3.tbd */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
@@ -1929,7 +1921,6 @@
 				DE17A3C621472FF1002A15ED /* ViewController.m */,
 			);
 			name = FDLBuilderTestAppObjC;
-			path = Tests/FDLBuilderTestAppObjC;
 			sourceTree = "<group>";
 		};
 		DE17A3B421472F3C002A15ED /* FDLBuilderTestAppObjCTests */ = {
@@ -2148,6 +2139,11 @@
 		DE7B8D391E8EF202009EB6DF /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				063CB47A1EBA7AEF00038A59 /* FIRDataSnapshotTests.h */,
+				063CB4491EBA7AE200038A59 /* FIRMutableDataTests.h */,
+				063CB44D1EBA7AE200038A59 /* FPathTests.h */,
+				063CB4551EBA7AE200038A59 /* FSparseSnapshotTests.h */,
+				063CB4571EBA7AE200038A59 /* FSyncPointTests.h */,
 				063CB4471EBA7AE200038A59 /* FArraySortedDictionaryTest.m */,
 				063CB4481EBA7AE200038A59 /* FCompoundHashTest.m */,
 				063CB46E1EBA7AEF00038A59 /* FCompoundWriteTest.m */,
@@ -2175,31 +2171,31 @@
 			isa = PBXGroup;
 			children = (
 				DE7B8D781E8EF202009EB6DF /* FDevice.h */,
-				DE7B8D791E8EF202009EB6DF /* FDevice.m */,
 				DE7B8D7A1E8EF202009EB6DF /* FEventTester.h */,
-				DE7B8D7B1E8EF202009EB6DF /* FEventTester.m */,
 				063CB47D1EBA7AEF00038A59 /* FIRFakeApp.h */,
-				063CB47E1EBA7AEF00038A59 /* FIRFakeApp.m */,
 				DE7B8D7C1E8EF202009EB6DF /* FIRTestAuthTokenProvider.h */,
-				DE7B8D7D1E8EF202009EB6DF /* FIRTestAuthTokenProvider.m */,
 				DE7B8D7E1E8EF202009EB6DF /* FMockStorageEngine.h */,
-				DE7B8D7F1E8EF202009EB6DF /* FMockStorageEngine.m */,
 				DE7B8D801E8EF202009EB6DF /* FTestAuthTokenGenerator.h */,
-				DE7B8D811E8EF202009EB6DF /* FTestAuthTokenGenerator.m */,
 				063CB4591EBA7AE200038A59 /* FTestBase.h */,
-				063CB45A1EBA7AE200038A59 /* FTestBase.m */,
 				DE7B8D821E8EF202009EB6DF /* FTestCachePolicy.h */,
-				DE7B8D831E8EF202009EB6DF /* FTestCachePolicy.m */,
 				DE7B8D841E8EF202009EB6DF /* FTestClock.h */,
-				DE7B8D851E8EF202009EB6DF /* FTestClock.m */,
 				063CB48D1EBA7AEF00038A59 /* FTestContants.h */,
 				DE7B8D861E8EF202009EB6DF /* FTestExpectations.h */,
-				DE7B8D871E8EF202009EB6DF /* FTestExpectations.m */,
 				DE7B8D881E8EF202009EB6DF /* FTestHelpers.h */,
-				DE7B8D891E8EF202009EB6DF /* FTestHelpers.m */,
 				DE7B8D8A1E8EF203009EB6DF /* FTupleEventTypeString.h */,
-				DE7B8D8B1E8EF203009EB6DF /* FTupleEventTypeString.m */,
 				DE7B8D8C1E8EF203009EB6DF /* SenTest+FWaiter.h */,
+				DE7B8D791E8EF202009EB6DF /* FDevice.m */,
+				DE7B8D7B1E8EF202009EB6DF /* FEventTester.m */,
+				063CB47E1EBA7AEF00038A59 /* FIRFakeApp.m */,
+				DE7B8D7D1E8EF202009EB6DF /* FIRTestAuthTokenProvider.m */,
+				DE7B8D7F1E8EF202009EB6DF /* FMockStorageEngine.m */,
+				DE7B8D811E8EF202009EB6DF /* FTestAuthTokenGenerator.m */,
+				063CB45A1EBA7AE200038A59 /* FTestBase.m */,
+				DE7B8D831E8EF202009EB6DF /* FTestCachePolicy.m */,
+				DE7B8D851E8EF202009EB6DF /* FTestClock.m */,
+				DE7B8D871E8EF202009EB6DF /* FTestExpectations.m */,
+				DE7B8D891E8EF202009EB6DF /* FTestHelpers.m */,
+				DE7B8D8B1E8EF203009EB6DF /* FTupleEventTypeString.m */,
 				DE7B8D8D1E8EF203009EB6DF /* SenTest+FWaiter.m */,
 			);
 			path = Helpers;
@@ -2321,6 +2317,7 @@
 				DE9315CC1E8738B70083EDBF /* FIRMessagingLinkHandlingTest.m */,
 				DE9315CD1E8738B70083EDBF /* FIRMessagingPendingTopicsListTest.m */,
 				DE9315CE1E8738B70083EDBF /* FIRMessagingPubSubTest.m */,
+				DEF61BFC216E8B1000A738D4 /* FIRMessagingReceiverTest.m */,
 				DE9315CF1E8738B70083EDBF /* FIRMessagingRegistrarTest.m */,
 				DE9315D01E8738B70083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m */,
 				DE9315D11E8738B70083EDBF /* FIRMessagingRmqManagerTest.m */,
@@ -2329,6 +2326,7 @@
 				DE9315D41E8738B70083EDBF /* FIRMessagingSyncMessageManagerTest.m */,
 				DE9315D51E8738B70083EDBF /* FIRMessagingTest.m */,
 				DE9315D71E8738B70083EDBF /* FIRMessagingTestNotificationUtilities.m */,
+				DE37C63A2163D5F30025D03E /* FIRMessagingAnalyticsTest.m */,
 				DE9315D81E8738B70083EDBF /* Info.plist */,
 			);
 			path = Tests;
@@ -2433,7 +2431,6 @@
 		DEDFF0431FD6143000F7D466 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				DE17A2DC214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m */,
 				DEDFF05D1FD6FEEE00F7D466 /* UtilitiesTests.m */,
 				DEDFF05B1FD6FCE400F7D466 /* FDLURLComponentsTests.m */,
 				DEDFF0441FD6143000F7D466 /* FIRDLScionLoggingTest.m */,
@@ -3196,7 +3193,6 @@
 					};
 					AFD562E41EB13C6D00EA2233 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = EQHXZ8M8AV;
 						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
@@ -3982,7 +3978,6 @@
 			files = (
 				D0FE8A941ED9CAAE003F6722 /* FIRAppDelegate.m in Sources */,
 				D0FE8A951ED9CAAE003F6722 /* FIRViewController.m in Sources */,
-				C852AA112158606000EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				D0FE8A961ED9CAAE003F6722 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4008,7 +4003,6 @@
 				D0FE8A441ED9C86F003F6722 /* FRepoInfoTest.m in Sources */,
 				D0FE8A451ED9C86F003F6722 /* FCompoundHashTest.m in Sources */,
 				D0FE8A461ED9C86F003F6722 /* FTrackedQueryManagerTest.m in Sources */,
-				C8A469482193753D008F5947 /* FIRAuthInteropFake.m in Sources */,
 				D0FE8A471ED9C86F003F6722 /* FUtilitiesTest.m in Sources */,
 				D0FE8A481ED9C86F003F6722 /* FSparseSnapshotTests.m in Sources */,
 				D0FE8A491ED9C86F003F6722 /* FTestBase.m in Sources */,
@@ -4074,7 +4068,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE17A2DD214303A2002A15ED /* GINDurableDeepLinkServiceReceivingTests.m in Sources */,
 				DE17A2D72142F1A5002A15ED /* FDLURLComponentsTests.m in Sources */,
 				DE17A2D92142F1A5002A15ED /* FIRDynamicLinkNetworkingTests.m in Sources */,
 				DE17A2D82142F1A5002A15ED /* FIRDLScionLoggingTest.m in Sources */,
@@ -4127,7 +4120,6 @@
 				DE90373C1FBA5F8F00E239D3 /* FUtilitiesTest.m in Sources */,
 				DE90372C1FBA5F8F00E239D3 /* FCompoundWriteTest.m in Sources */,
 				DE9037431FBA675D00E239D3 /* FMockStorageEngine.m in Sources */,
-				C8A469492193754A008F5947 /* FIRAuthInteropFake.m in Sources */,
 				DE9037381FBA5F8F00E239D3 /* FSparseSnapshotTests.m in Sources */,
 				DE9037341FBA5F8F00E239D3 /* FPruningTest.m in Sources */,
 				DE9037471FBA675D00E239D3 /* FTestClock.m in Sources */,
@@ -4278,7 +4270,6 @@
 			files = (
 				DE7B8DCB1E8EF23A009EB6DF /* FIRViewController.m in Sources */,
 				DE7B8DCC1E8EF23A009EB6DF /* main.m in Sources */,
-				C852AA132158606100EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				DE7B8DCA1E8EF23A009EB6DF /* FIRAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4304,7 +4295,6 @@
 				063CB4D41EBA7B4600038A59 /* FRepoInfoTest.m in Sources */,
 				063CB4CA1EBA7B4600038A59 /* FCompoundHashTest.m in Sources */,
 				063CB4D81EBA7B4600038A59 /* FTrackedQueryManagerTest.m in Sources */,
-				C8A469472193753C008F5947 /* FIRAuthInteropFake.m in Sources */,
 				063CB4D91EBA7B4600038A59 /* FUtilitiesTest.m in Sources */,
 				063CB4D51EBA7B4600038A59 /* FSparseSnapshotTests.m in Sources */,
 				063CB4D71EBA7B4600038A59 /* FTestBase.m in Sources */,
@@ -4411,8 +4401,10 @@
 				DE9315FE1E8738E60083EDBF /* FIRMessagingRegistrarTest.m in Sources */,
 				DE9316031E8738E60083EDBF /* FIRMessagingSyncMessageManagerTest.m in Sources */,
 				DE9315FF1E8738E60083EDBF /* FIRMessagingRemoteNotificationsProxyTest.m in Sources */,
+				DEF61BFD216E8B1100A738D4 /* FIRMessagingReceiverTest.m in Sources */,
 				DE9315F81E8738E60083EDBF /* FIRMessagingDataMessageManagerTest.m in Sources */,
 				DE9316051E8738E60083EDBF /* FIRMessagingTestNotificationUtilities.m in Sources */,
+				DE37C63B2163D5F30025D03E /* FIRMessagingAnalyticsTest.m in Sources */,
 				DE9315F61E8738E60083EDBF /* FIRMessagingConnectionTest.m in Sources */,
 				DE9316041E8738E60083EDBF /* FIRMessagingTest.m in Sources */,
 				DE9315FA1E8738E60083EDBF /* FIRMessagingFakeSocket.m in Sources */,
@@ -4463,16 +4455,16 @@
 			files = (
 				DEAAD4251FBA49ED0053BF48 /* FIRStoragePathTests.m in Sources */,
 				DEAAD42A1FBA49ED0053BF48 /* FIRStorageUpdateMetadataTests.m in Sources */,
+				EDD53E27211A442D00376BFF /* FIRAuthInteropFake.m in Sources */,
 				DEAAD4221FBA49ED0053BF48 /* FIRStorageDeleteTests.m in Sources */,
 				DEAAD4291FBA49ED0053BF48 /* FIRStorageTokenAuthorizerTests.m in Sources */,
 				DEAAD4231FBA49ED0053BF48 /* FIRStorageGetMetadataTests.m in Sources */,
 				DEAAD42B1FBA49ED0053BF48 /* FIRStorageUtilsTests.m in Sources */,
-				C852AA162158607600EF7E2D /* FIRAuthInteropFake.m in Sources */,
 				DEAAD4261FBA49ED0053BF48 /* FIRStorageReferenceTests.m in Sources */,
 				ED981887211A2E4800EDEBF4 /* FIRStorageComponentTests.m in Sources */,
+				EDD53E2C211B08A300376BFF /* FIRComponentTestUtilities.m in Sources */,
 				DEAAD4271FBA49ED0053BF48 /* FIRStorageTestHelpers.m in Sources */,
 				DEAAD4281FBA49ED0053BF48 /* FIRStorageTests.m in Sources */,
-				C852AA152158607600EF7E2D /* FIRComponentTestUtilities.m in Sources */,
 				DEAAD4241FBA49ED0053BF48 /* FIRStorageMetadataTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5105,7 +5097,7 @@
 				CODE_SIGN_ENTITLEMENTS = Messaging/Sample/iOS/Messaging_Example.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -5134,7 +5126,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = EQHXZ8M8AV;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "Messaging/Sample/iOS/Messaging-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
