@@ -154,4 +154,8 @@
   objc_disposeClassPair(_generatedClass);
 }
 
+- (BOOL)isSwizzlingProxyObject {
+  return [_swizzledObject isProxy];
+}
+
 @end

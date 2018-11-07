@@ -256,11 +256,12 @@
 
   XCTAssertNotEqual(object_getClass(proxyObject), [GULProxy class]);
   XCTAssertTrue([object_getClass(proxyObject) isSubclassOfClass:[GULProxy class]]);
-  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_objectSwizzler)]);
-  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_class)]);
 
-  Class proxyObjectClass = object_getClass(proxyObject);
-  XCTAssertTrue([proxyObjectClass instancesRespondToSelector:@selector(gul_class)]);
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(gul_objectSwizzler)]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_objectSwizzler)]);
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(gul_class)]);
+  XCTAssertNoThrow([proxyObject performSelector:@selector(gul_class)]);
 }
 
 - (void)testSwizzleProxiedObjectInvokesInjectedMethodWhenOverridingMethod {
