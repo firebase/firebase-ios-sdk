@@ -16,9 +16,6 @@
 # (see https://stackoverflow.com/questions/27039019/ and open issue on CMake
 # issue tracker: https://gitlab.kitware.com/cmake/cmake/issues/15234)
 add_custom_target(firebase_firestore_types_ide SOURCES
-    document_reference.h
-    event_listener.h
-    firestore.h
     firestore_errors.h
     geo_point.h
     timestamp.h
