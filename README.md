@@ -84,6 +84,14 @@ Firestore and Functions have self contained Xcode projects. See
 [Firestore/README.md](Firestore/README.md) and
 [Functions/README.md](Functions/README.md).
 
+### Code Formatting
+
+Travis will verify that any code changes are done in a style compliant way. Install
+`clang-format` and `swiftformat`.
+This command will get the right `clang-format` version:
+
+`brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/0743d748ba8b41eec074a0a787dc80219142c525/Formula/clang-format.rb`
+
 ### Running Unit Tests
 
 Select a scheme and press Command-u to build a component and run its unit tests.
