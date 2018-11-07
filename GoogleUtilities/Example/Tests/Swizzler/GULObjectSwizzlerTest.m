@@ -291,4 +291,53 @@
                  @"SwizzledDonorDescription");
 }
 
+- (void)testRespondsToSelectorWorksEvenIfSwizzledProxyIsKVOd {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  [(NSObject *)proxyObject addObserver:self
+                            forKeyPath:NSStringFromSelector(@selector(description))
+                               options:0 context:NULL];
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(donorDescription)]);
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
+
+  [(NSObject *)proxyObject removeObserver:self
+                               forKeyPath:NSStringFromSelector(@selector(description))];
+}
+
+- (void)testRespondsToSelectorWorksEvenIfSwizzledProxyISASwizzledBySomeoneElse {
+  NSObject *object = [[NSObject alloc] init];
+  GULProxy *proxyObject = [GULProxy proxyWithDelegate:object];
+
+  GULObjectSwizzler *swizzler = [[GULObjectSwizzler alloc] initWithObject:proxyObject];
+  [swizzler copySelector:@selector(donorDescription)
+               fromClass:[GULObjectSwizzlerTest class]
+         isClassSelector:NO];
+  [swizzler swizzle];
+
+  // Someone else ISA Swizzles the same object after GULObjectSwizzler.
+  Class originalClass = object_getClass(proxyObject);
+  NSString *newClassName = [NSString stringWithFormat:@"gul_test_%p_%@", proxyObject,
+                            NSStringFromClass(originalClass)];
+  Class generatedClass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
+  objc_registerClassPair(generatedClass);
+  object_setClass(proxyObject, generatedClass);
+
+  XCTAssertTrue([proxyObject respondsToSelector:@selector(donorDescription)]);
+  XCTAssertEqual([proxyObject performSelector:@selector(donorDescription)],
+                 @"SwizzledDonorDescription");
+
+  // Clean up.
+  object_setClass(proxyObject, originalClass);
+  objc_disposeClassPair(generatedClass);
+}
+
 @end
