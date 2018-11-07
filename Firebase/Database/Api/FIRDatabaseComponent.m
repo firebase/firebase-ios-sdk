@@ -109,34 +109,6 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
 #pragma mark - FIRDatabaseProvider Conformance
 
-- (FIRDatabase *)database {
-  if (![FIRApp isDefaultAppConfigured]) {
-    [NSException raise:@"FIRAppNotConfigured"
-                format:@"Failed to get default Firebase Database instance. Must call `[FIRApp "
-     @"configure]` (`FirebaseApp.configure()` in Swift) before using "
-     @"Firebase Database."];
-  }
-  FIRApp *app = [FIRApp defaultApp];
-  return [self databaseForApp:app URL:app.options.databaseURL];
-}
-
-- (FIRDatabase *)databaseForApp:(FIRApp *)app {
-  if (app == nil) {
-    [NSException raise:@"InvalidFIRApp" format:@"nil FIRApp instance passed to databaseForApp."];
-  }
-  return [self databaseForApp:app URL:nil];
-}
-
-- (FIRDatabase *)databaseWithURL:(NSString *)url {
-  FIRApp *app = [FIRApp defaultApp];
-  if (app == nil) {
-    [NSException raise:@"FIRAppNotConfigured"
-                format:@"Failed to get default Firebase Database instance. "
-     @"Must call `[FIRApp configure]` (`FirebaseApp.configure()` in Swift) "
-     @"before using Firebase Database."];
-  }
-  return [self databaseForApp:[FIRApp defaultApp] URL:url];
-}
 
 - (FIRDatabase *)databaseForApp:(FIRApp *)app URL:(NSString *)url {
   if (app == nil) {

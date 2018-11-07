@@ -16,13 +16,14 @@
 
 #import "FTestHelpers.h"
 
-#import "FConstants.h"
-
 #import <FirebaseAuthInterop/FIRAuthInterop.h>
 #import <FirebaseCore/FIRAppInternal.h>
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 #import <FirebaseCore/FIROptions.h>
+
+#import "FConstants.h"
+#import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"
 #import "FTestAuthTokenGenerator.h"
 
@@ -60,9 +61,10 @@
 
     NSMutableArray *refs = (persistence) ? persistenceRefs : noPersistenceRefs;
 
+    FIRAuthInteropFake *auth =
+        [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
     id<FAuthTokenProvider> authTokenProvider =
-        [FAuthTokenProvider authTokenProviderWithAuthInterop:
-            FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container)];
+        [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
 
     while (num > refs.count) {
         NSString *sessionIdentifier = [NSString stringWithFormat:@"test-config-%@persistence-%lu", (persistence) ? @"" : @"no-", refs.count];

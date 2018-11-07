@@ -21,11 +21,12 @@
 #import <FirebaseCore/FIRComponent.h>
 #import <FirebaseCore/FIRComponentContainer.h>
 
-#import "FTestHelpers.h"
-#import "FTestAuthTokenGenerator.h"
-#import "FIRTestAuthTokenProvider.h"
+#import "FIRAuthInteropFake.h"
 #import "FIRDatabaseConfig_Private.h"
+#import "FIRTestAuthTokenProvider.h"
+#import "FTestAuthTokenGenerator.h"
 #import "FTestBase.h"
+#import "FTestHelpers.h"
 
 @interface FIRAuthTests : FTestBase
 
@@ -43,12 +44,14 @@
 
 - (void)testListensAndAuthRaceCondition {
     [FIRDatabase setLoggingEnabled:YES];
-    id<FAuthTokenProvider> tokenProvider =
-        [FAuthTokenProvider authTokenProviderWithAuthInterop:
+    FIRAuthInteropFake *auth =
+        [[FIRAuthInteropFake alloc] initWithToken:nil userID:nil error:nil];
+    id<FAuthTokenProvider> authTokenProvider =
+        [FAuthTokenProvider authTokenProviderWithAuthInterop:auth];
             FIR_COMPONENT(FIRAuthInterop, [FIRApp defaultApp].container)];
 
     FIRDatabaseConfig *config = [FIRDatabaseConfig configForName:@"testWritesRestoredAfterAuth"];
-    config.authTokenProvider = tokenProvider;
+    config.authTokenProvider = authTokenProvider;
 
     FIRDatabaseReference *ref = [[[FIRDatabaseReference alloc] initWithConfig:config] childByAutoId];
 
