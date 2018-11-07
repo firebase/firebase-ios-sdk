@@ -327,7 +327,7 @@
   // Someone else ISA Swizzles the same object after GULObjectSwizzler.
   Class originalClass = object_getClass(proxyObject);
   NSString *newClassName =
-  [NSString stringWithFormat:@"gul_test_%p_%@", proxyObject, NSStringFromClass(originalClass)];
+      [NSString stringWithFormat:@"gul_test_%p_%@", proxyObject, NSStringFromClass(originalClass)];
   Class generatedClass = objc_allocateClassPair(originalClass, newClassName.UTF8String, 0);
   objc_registerClassPair(generatedClass);
   object_setClass(proxyObject, generatedClass);

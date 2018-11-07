@@ -87,6 +87,7 @@
 - (NSString *)description {
   return [_delegateObject description];
 }
+
 - (NSString *)debugDescription {
   return [_delegateObject debugDescription];
 }
