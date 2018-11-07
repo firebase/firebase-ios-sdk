@@ -63,27 +63,6 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
 
 + (void)load {
   [FIRComponentContainer registerAsComponentRegistrant:self];
-  NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-  [center addObserverForName:kFIRAppDeleteNotification
-                      object:nil
-                       queue:nil
-                  usingBlock:^(NSNotification * _Nonnull note) {
-                    NSString *appName = note.userInfo[kFIRAppNameKey];
-                    if (appName == nil) { return; }
-                    FIRDatabaseDictionary* instances = [self instances];
-                    @synchronized (instances) {
-                      NSMutableDictionary<FRepoInfo *, FIRDatabase *> *databaseInstances = instances[appName];
-                      if (databaseInstances) {
-                        // Clean up the deleted instance in an effort to remove any resources still
-                        // in use.
-                        // Note: Any leftover instances of this exact database will be invalid.
-                        for (FIRDatabase * database in [databaseInstances allValues]) {
-                          [FRepoManager disposeRepos:database.config];
-                        }
-                        [instances removeObjectForKey:appName];
-                      }
-                    }
-                  }];
 }
 
 #pragma mar - Instance management.
@@ -105,6 +84,25 @@ typedef NSMutableDictionary<NSString *, NSMutableDictionary<FRepoInfo *, FIRData
     instances = [NSMutableDictionary dictionary];
   });
   return instances;
+}
+
+- (void)appWillBeDeleted:(FIRApp *)app {
+  NSString *appName = note.userInfo[kFIRAppNameKey];
+  if (appName == nil) {
+    return;
+  }
+  FIRDatabaseDictionary* instances = [self instances];
+  @synchronized (instances) {
+    NSMutableDictionary<FRepoInfo *, FIRDatabase *> *databaseInstances = instances[appName];
+    if (databaseInstances) {
+      // Clean up the deleted instance in an effort to remove any resources still in use.
+      // Note: Any leftover instances of this exact database will be invalid.
+      for (FIRDatabase * database in [databaseInstances allValues]) {
+        [FRepoManager disposeRepos:database.config];
+      }
+      [instances removeObjectForKey:appName];
+    }
+  }
 }
 
 #pragma mark - FIRDatabaseProvider Conformance
