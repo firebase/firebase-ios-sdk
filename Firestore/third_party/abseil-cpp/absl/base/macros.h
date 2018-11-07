@@ -192,11 +192,11 @@ enum LinkerInitialized {
 // This macro is inspired by
 // https://akrzemi1.wordpress.com/2017/05/18/asserts-in-constexpr-functions/
 #if defined(NDEBUG)
-#define ABSL_ASSERT(expr) (false ? (void)(expr) : (void)0)
+#define ABSL_ASSERT(expr) (void) (false ? (void)(expr) : (void)0)
 #else
 #define ABSL_ASSERT(expr)              \
-  (ABSL_PREDICT_TRUE((expr)) ? (void)0 \
-                             : [] { assert(false && #expr); }())  // NOLINT
+  (void) (ABSL_PREDICT_TRUE((expr)) ? (void)0 \
+                                    : [] { assert(false && #expr); }())  // NOLINT
 #endif
 
 #ifdef ABSL_HAVE_EXCEPTIONS
